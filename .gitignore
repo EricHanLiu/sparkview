@@ -1,0 +1,11 @@
+# Created by .ignore support plugin (hsz.mobi)
+*.pyc
+*.sock
+bloomenv
+*.pyc
+*.sass*
+*.map
+migrations
+logs
+nohup.out
+.idea/
