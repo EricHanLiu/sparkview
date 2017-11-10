@@ -25,8 +25,9 @@ SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['35.199.174.226', '127.0.0.1']
-
+SITE_ID=1
+ALLOWED_HOSTS = ['127.0.0.1', '35.199.174.226']
+ADMINS = [('Octavian','octavian@hdigital.io')]
 # Application definition
 
 INSTALLED_APPS = [

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-import registration_views as lviews
+from . import registration_views as lviews
 from django.conf import settings
 from django.conf.urls.static import static
 

@@ -9,3 +9,4 @@ migrations
 logs
 nohup.out
 .idea/
+config.sh

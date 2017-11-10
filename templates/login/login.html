@@ -79,7 +79,7 @@
                             Sign In To Admin
                         </h3>
                     </div>
-                    <form class="m-login__form m-form" id="custom_login" action="">
+                    <form class="m-login__form m-form" id="custom_login" action=".">
                         {% csrf_token %}
                         <div class="form-group m-form__group">
                             <input class="form-control m-input" type="text" placeholder="Username" name="username"
@@ -150,16 +150,11 @@
             username = this.querySelectorAll('[name=username]')[0];
             password = this.querySelectorAll('[name=password]')[0];
             e.preventDefault();
-            ajaxPOST(
-                '{% url "login" %}',
-                {'username': username.value, 'password': password.value},
+            ajaxPOST('{% url 'login' %}',
+		{'username': username.value, 'password': password.value},
                 function (data) {
-                    console.log(data);
-                    window.location.replace('{% url 'index' %}');
-{#                    if (data['success'] === '1') {#}
-{#                        console.log('A trecut');#}
-{#                        window.location.replace('/adwords_dashboard')#}
-{#                    }#}
+			console.log('success');
+                    	window.location.replace('{% url 'index' %}');
                 })
         }
     };
