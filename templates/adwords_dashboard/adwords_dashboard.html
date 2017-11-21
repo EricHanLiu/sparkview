@@ -29,27 +29,33 @@
       </td>
       <td>
         <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.impressions|uni2float|floatformat:2 }}%</a>
+          {{ item.impressions|uni2float|floatformat:2 }}%
+        </a>
       </td>
       <td>
         <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.clicks|uni2float|floatformat:2 }}%</a>
+          {{ item.clicks|uni2float|floatformat:2 }}%
+        </a>
       </td>
       <td>
         <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.ctr|uni2float|floatformat:2 }}%</a>
+          {{ item.ctr|uni2float|floatformat:2 }}%
+        </a>
       </td>
       <td>
         <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.cpc|uni2float|floatformat:2 }}%</a>
+          {{ item.cpc|uni2float|floatformat:2 }}%
+        </a>
       </td>
       <td>
         <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.cost|uni2float|floatformat:2 }}%</a>
+          {{ item.cost|uni2float|floatformat:2 }}%
+        </a>
       </td>
       <td>
         <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.conversions|uni2float|floatformat:2 }}%</a>
+          {{ item.conversions|uni2float|floatformat:2 }}%
+        </a>
       </td>
       <td>
         <a href="#">{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</a>
