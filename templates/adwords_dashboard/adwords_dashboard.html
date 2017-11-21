@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+{% load custom_filters %}
+{% block content %}
+<!-- <div id="m_datatable">
+  <table >
+
+  </table>
+</div> -->
+
+<table class='m_datatable table table-striped table-bordered' id="adwords_datatable">
+<thead>
+  <tr>
+  <th>Account</th>
+  <th>Impr. Share</th>
+  <th>Impr.</th>
+  <th>Clicks</th>
+  <th>CTR</th>
+  <th>Avg. CPC</th>
+  <th>Cost</th>
+  <th>Conversions</th>
+  <th>Cost / conv.</th>
+  </tr>
+</thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td>{{ item.account.dependent_account_name }}</td>
+      <td>{{ item.search_impr_share|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.cpc|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.cost|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.conversions|uni2float|floatformat:2 }}%</td>
+      <td>{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+$(document).ready(function() {
+
+  $("#adwords_datatable").DataTable({
+    'pagingType': "full_numbers",
+    // 'scrollY': '75%',
+    // 'sScrollX': '100%',
+    // 'sScrollXInner': '220%'
+  });
+});

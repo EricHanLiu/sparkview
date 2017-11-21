@@ -6,9 +6,33 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
 
+from adwords_dashboard.models import DependentAccount, Performance
+
+from rest_framework.renderers import JSONRenderer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from . serializers import AccountSerializer, PerformanceSerializer
+
 # from decorators import cache_on_auth
 
 # Create your views here.
+class AdwordsDashboardApi(APIView):
+    """Api View for populating adwords datatable"""
+
+    renderer_classes = (JSONRenderer, )
+
+    def get(self, request, format=None):
+
+        accounts = DependentAccount.objects.all()
+        performance = Performance.objects.filter(performance_type='ACCOUNT')
+        acc_serializer = AccountSerializer(accounts, many=True)
+        performance_serializer = PerformanceSerializer(performance, many=True, context={'request': request})
+
+        return Response({'data': performance_serializer.data})
+
+    def post(self, request):
+        pass
 
 @login_required
 def index(request):
@@ -16,4 +40,24 @@ def index(request):
 
 @login_required
 def adwords_dashboard(request):
-    return render(request, 'adwords_dashboard/index.html', {})
+    user = request.user
+    items = []
+    accounts = DependentAccount.objects.all()
+    for account in accounts:
+        item = {}
+        query = Performance.objects.filter(account=account.pk, performance_type='ACCOUNT')
+        item['account'] = account
+        item['clicks'] = query[0].clicks if query else 0
+        item['impressions'] = query[0].impressions if query else 0
+        item['ctr'] = query[0].ctr if query else 0
+        item['cpc'] = query[0].cpc if query else 0
+        item['conversions'] = query[0].conversions if query else 0
+        item['cost'] = query[0].cost if query else 0
+        item['cost_per_conversions'] = query[0].cost_per_conversions if query else 0
+        item['search_impr_share'] = query[0].search_impr_share if query else 0
+        items.append(item)
+
+    if user.is_authenticated():
+        return render(request, 'adwords_dashboard/adwords_dashboard.html', {'items': items})
+    else:
+        return render(request, 'login/login.html')

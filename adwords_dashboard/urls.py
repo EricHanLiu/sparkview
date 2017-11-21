@@ -8,4 +8,5 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     url(r"^$", views.adwords_dashboard, name="adwords_dashboard"),
+    url(r"^api/$", views.AdwordsDashboardApi.as_view()),
 ]
