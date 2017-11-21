@@ -3,11 +3,6 @@
 {% load staticfiles %}
 {% load custom_filters %}
 {% block content %}
-<!-- <div id="m_datatable">
-  <table >
-
-  </table>
-</div> -->
 
 <table class='m_datatable table table-striped table-bordered' id="adwords_datatable">
 <thead>
@@ -27,14 +22,38 @@
     {% for item in items %}
     <tr>
       <td>{{ item.account.dependent_account_name }}</td>
-      <td>{{ item.search_impr_share|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.cpc|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.cost|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.conversions|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.search_impr_share|uni2float|floatformat:2 }}%
+        </a>
+      </td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.impressions|uni2float|floatformat:2 }}%</a>
+      </td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.clicks|uni2float|floatformat:2 }}%</a>
+      </td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.ctr|uni2float|floatformat:2 }}%</a>
+      </td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.cpc|uni2float|floatformat:2 }}%</a>
+      </td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.cost|uni2float|floatformat:2 }}%</a>
+      </td>
+      <td>
+        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
+          {{ item.conversions|uni2float|floatformat:2 }}%</a>
+      </td>
+      <td>
+        <a href="#">{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

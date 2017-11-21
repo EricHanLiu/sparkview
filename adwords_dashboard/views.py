@@ -31,8 +31,6 @@ class AdwordsDashboardApi(APIView):
 
         return Response({'data': performance_serializer.data})
 
-    def post(self, request):
-        pass
 
 @login_required
 def index(request):
@@ -40,6 +38,7 @@ def index(request):
 
 @login_required
 def adwords_dashboard(request):
+
     user = request.user
     items = []
     accounts = DependentAccount.objects.all()
@@ -61,3 +60,35 @@ def adwords_dashboard(request):
         return render(request, 'adwords_dashboard/adwords_dashboard.html', {'items': items})
     else:
         return render(request, 'login/login.html')
+
+@login_required
+def campaign_anomalies(request, account_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=account_id)
+
+    anomalies = Performance.objects.filter(account=account,
+                                           performance_type='CAMPAIGN')
+
+    campaigns = []
+
+    for cmp in anomalies:
+        campaign = {}
+        campaign = {}
+        campaign['id'] = cmp.campaign_id
+        campaign['name'] = cmp.campaign_name
+        campaign['cpc'] = cmp.cpc
+        campaign['clicks'] = cmp.clicks
+        campaign['impressions'] = cmp.impressions
+        campaign['cost'] = cmp.cpc
+        campaign['conversions'] = cmp.cpc
+        campaign['cost_per_conversions'] = cmp.cpc
+        campaign['ctr'] = cmp.ctr
+        campaign['search_impr_share'] = cmp.search_impr_share
+        campaigns.append(campaign)
+
+    context = {
+        'account': account,
+        'campaigns': campaigns
+    }
+
+    return render(request, 'adwords_dashboard/campaign_anomalies.html', context)
