@@ -8,7 +8,7 @@ import json
 def index(request):
 
     if request.user.is_authenticated:
-        return redirect('/adwords_dashboard')
+        return redirect('/dashboards/adwords/')
 
     return render(request, "login/login.html")
 
@@ -34,7 +34,7 @@ def bloom_login(request):
                 response['error'] = '0'
                 return JsonResponse(response)
     return redirect("/")
-    
+
 @login_required
 def bloom_logout(request):
     logout(request)

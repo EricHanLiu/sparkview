@@ -1,68 +1,95 @@
-<!DOCTYPE html>
-{% extends 'main.html' %}
-{% load staticfiles %}
-{% load custom_filters %}
-{% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
 
-<table class='m_datatable table table-striped table-bordered' id="adwords_datatable">
-<thead>
-  <tr>
-  <th>Account</th>
-  <th>Impr. Share</th>
-  <th>Impr.</th>
-  <th>Clicks</th>
-  <th>CTR</th>
-  <th>Avg. CPC</th>
-  <th>Cost</th>
-  <th>Conversions</th>
-  <th>Cost / conv.</th>
-  </tr>
-</thead>
-  <tbody>
-    {% for item in items %}
-    <tr>
-      <td>{{ item.account.dependent_account_name }}</td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.search_impr_share|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.impressions|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.clicks|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.ctr|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.cpc|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.cost|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="{% url 'campaign_anomalies' item.account.dependent_account_id %}">
-          {{ item.conversions|uni2float|floatformat:2 }}%
-        </a>
-      </td>
-      <td>
-        <a href="#">{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile ">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                  Data Monitoring
+                </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped m-table' id="adwords_datatable">
+            <thead class="thead-inverse">
+              <tr>
+                <th>Account</th>
+{#                <th>Labels</th>#}
+                <th>Url Checker</th>
+                <th>Impr. Share</th>
+                <th>Impr.</th>
+                <th>Clicks</th>
+                <th>CTR</th>
+                <th>Avg. CPC</th>
+                <th>Cost</th>
+                <th>Conversions</th>
+                <th>Cost / conv.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.account.dependent_account_name }}</td>
+{#                <td>Label</td>#}
+                <td>
+                    <a href="{% url 'adwords:url_checker' item.account.dependent_account_id %}">
+                        {{ item.404_urls }}
+                    </a>
+                </td>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.search_impr_share|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.impressions|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.clicks|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.ctr|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.cpc|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.cost|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                    {{ item.conversions|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                      {{ item.cost_per_conversions|uni2float|floatformat:2 }}%
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
 
 {% endblock %}

@@ -21,8 +21,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     url(r"^$", lviews.index, name='index'),
-    url(r"^auth/login$", lviews.bloom_login, name="login"),
-    url(r"^auth/logout$", lviews.bloom_logout, name="logout"),
-    url(r"^adwords_dashboard/", include('adwords_dashboard.urls')),
+    url(r"^auth/login$", lviews.bloom_login, name='login'),
+    url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
+    url(r"^dashboards/adwords/", include('adwords_dashboard.urls', namespace='adwords')),
+    # url(r"^dashboards/bing"), include('bing_dashboard.urls'),
+    # url(r"^dashboards/facebook"), include('facebook_dashboard.urls'),
+    url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

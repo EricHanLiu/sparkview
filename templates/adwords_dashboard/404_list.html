@@ -1,0 +1,46 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile ">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                  Url Checker
+                </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped m-table dataTable' id="adwords_datatable">
+            <thead class="thead-inverse">
+                <tr>
+                  <th>Campign Name</th>
+                  <th>AdGroup Name</th>
+                  <th>Ad Headline</th>
+                  <th>Ad Url Code</th>
+                  <th>Ad Url</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for cmp in campaigns %}
+              <tr>
+                <td>{{ cmp.campaign_name }}</td>
+                <td>{{ cmp.adgroup_name }}</td>
+                <td>{{ cmp.ad_headline }}</td>
+                <td>{{ cmp.ad_url_code }}</td>
+                <td>{{ cmp.ad_url }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+
+{% endblock %}

@@ -1,38 +1,54 @@
-<!DOCTYPE html>
-{% extends 'main.html' %}
-{% load staticfiles %}
-{% load custom_filters %}
-{% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
 
-<table class='m_datatable table table-striped table-bordered' id="adwords_datatable">
-<thead>
-  <tr>
-  <th>Campaign Name</th>
-  <th>Impr. Share</th>
-  <th>Impr.</th>
-  <th>Clicks</th>
-  <th>CTR</th>
-  <th>Avg. CPC</th>
-  <th>Cost</th>
-  <th>Conversions</th>
-  <th>Cost / conv.</th>
-  </tr>
-</thead>
-  <tbody>
-    {% for item in campaigns %}
-    <tr>
-      <td>{{ item.name }}</td>
-      <td>{{ item.search_impr_share|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.cpc|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.cost|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.conversions|uni2float|floatformat:2 }}%</td>
-      <td>{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile ">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                  Campaign Data Monitoring
+                </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='m_datatable table table-striped table-bordered' id="adwords_datatable">
+            <thead>
+              <tr>
+                <th>Campaign Name</th>
+                <th>Impr. Share</th>
+                <th>Impr.</th>
+                <th>Clicks</th>
+                <th>CTR</th>
+                <th>Avg. CPC</th>
+                <th>Cost</th>
+                <th>Conversions</th>
+                <th>Cost / conv.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in campaigns %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.search_impr_share|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.cpc|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.cost|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.conversions|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
 
 {% endblock %}

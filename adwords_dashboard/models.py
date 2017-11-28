@@ -58,3 +58,36 @@ class Performance(models.Model):
 
     class Meta:
         ordering = ['created_time','updated_time']
+
+class Label(models.Model):
+
+    account_id = models.CharField(max_length=255, default='None')
+    label_id = models.CharField(max_length=255, default='None')
+    name = models.CharField(max_length=255)
+    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_name = models.CharField(max_length=255, default='None')
+    label_type = models.CharField(max_length=255, default='None')
+    updated_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_time', 'updated_time']
+
+class CampaignStat(models.Model):
+
+    dependent_account_id = models.CharField(max_length=255)
+    campaign_id = models.CharField(max_length=255, default="None")
+    campaign_name = models.CharField(max_length=255)
+    ad_group_id = models.CharField(max_length=255)
+    ad_group_name = models.TextField(default="None")
+    ad_url = models.TextField(default="None")
+    ad_headline = models.TextField(default="None")
+    ad_url_code = models.TextField()
+    updated_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_time','updated_time']
+
+    def __str__(self):
+        return self.campaign_name

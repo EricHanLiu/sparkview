@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
 
-from adwords_dashboard.models import DependentAccount, Performance
+from adwords_dashboard.models import DependentAccount, Performance, CampaignStat
 
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
@@ -41,11 +41,12 @@ def adwords_dashboard(request):
 
     user = request.user
     items = []
-    accounts = DependentAccount.objects.all()
+    accounts = DependentAccount.objects.filter(blacklisted=False)
     for account in accounts:
         item = {}
         query = Performance.objects.filter(account=account.pk, performance_type='ACCOUNT')
         item['account'] = account
+        item['404_urls'] = CampaignStat.objects.filter(dependent_account_id=account.dependent_account_id).count()
         item['clicks'] = query[0].clicks if query else 0
         item['impressions'] = query[0].impressions if query else 0
         item['ctr'] = query[0].ctr if query else 0
@@ -73,7 +74,6 @@ def campaign_anomalies(request, account_id):
 
     for cmp in anomalies:
         campaign = {}
-        campaign = {}
         campaign['id'] = cmp.campaign_id
         campaign['name'] = cmp.campaign_name
         campaign['cpc'] = cmp.cpc
@@ -92,3 +92,20 @@ def campaign_anomalies(request, account_id):
     }
 
     return render(request, 'adwords_dashboard/campaign_anomalies.html', context)
+
+@login_required
+def campaign_404(request, acc_id):
+
+    current_account = DependentAccount.objects.get(dependent_account_id=acc_id)
+
+    try:
+
+        current_campaigns = CampaignStat.objects.all().filter(dependent_account_id=acc_id)
+    except:
+        current_campaigns = {}
+        current_campaigns['error'] = "No campaigns found"
+    context = {
+        'account': current_account,
+        'campaigns': current_campaigns
+        }
+    return render(request, "adwords_dashboard/404_list.html", context)

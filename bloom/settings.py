@@ -31,6 +31,7 @@ ADMINS = [('Octavian','octavian@hdigital.io')]
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts',
     'adwords_dashboard',
     'django_extensions',
     'django.contrib.admin',

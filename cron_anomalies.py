@@ -1,12 +1,13 @@
 import os
-import sys
-from googleads import adwords
-os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
-django.setup()
-from django.conf import settings
 import gc
 import logging
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
+import sys
+from googleads import adwords
+django.setup()
+from django.conf import settings
+
 from adwords_dashboard.cron_scripts import anomalies
 from adwords_dashboard import models
 
@@ -71,14 +72,14 @@ def add_anomalies(anomaly, acc):
         print('Dropped current items from Performance for current account')
         models.Performance.objects.create(account=acc, performance_type='ACCOUNT',
                                           clicks=acc_clicks, cost=acc_cost, impressions=acc_impressions, ctr=acc_ctr,
-                                          conversions=acc_conversions, cpc=acc_cpc, cost_per_conversions=acc_cost_per_conv,
+                                          conversions=acc_conversions, cpc=acc_cpc,
+                                          cost_per_conversions=acc_cost_per_conv,
                                           search_impr_share=acc_sis)
         print('Added to DB - Account ' + acc.dependent_account_name)
     else:
         print('No data found. Added 0 to DB fields. [ACCOUNT]')
-        models.Performance.objects.create(account=acc, performance_type='ACCOUNT', clicks=0, cost=0, impressions=0, ctr=0,
-                                          conversions=0, cpc=0, cost_per_conversions=0, search_impr_share=0)
-
+        models.Performance.objects.create(account=acc, performance_type='ACCOUNT', clicks=0, cost=0, impressions=0,
+                                          ctr=0, conversions=0, cpc=0, cost_per_conversions=0, search_impr_share=0)
 
     if campaign_7 and campaign_14:
         models.Performance.objects.filter(account=acc, performance_type='CAMPAIGN').delete()
@@ -99,7 +100,7 @@ def add_anomalies(anomaly, acc):
             else:
                 cmp_impressions = (x['Impressions'] / y['Impressions']) * 100 - 100
 
-            if x['CTR'] == 0 or y['Clicks'] == 0:
+            if x['CTR'] == 0 or y['CTR'] == 0:
                 cmp_ctr = 0
             else:
                 cmp_ctr = (x['CTR'] / y['CTR']) * 100 - 100
@@ -143,25 +144,27 @@ def add_anomalies(anomaly, acc):
                                           search_impr_share=0)
         print('No data found. Added 0 to DB fields. [CMP]')
 
+
 def main():
     adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
 
     accounts = models.DependentAccount.objects.all()
     if accounts:
         for account in accounts:
-            # try:
-            anomaly = anomalies.Anomalies(adwords_client, account.dependent_account_id)
-            # anomaly.get_stats()
-            # print('Got stats..')
-            add_anomalies(anomaly, account)
-            print('Inserted data in DB')
-            anomaly.cleanMemory()
-            print('Cleaned junk...')
-            print('Data added to DB for account ' + account.dependent_account_name)
-            # except KeyboardInterrupt:
-                # break
-            # except:
-                # print('Lamentably failed!!!')
+            try:
+                anomaly = anomalies.Anomalies(adwords_client, account.dependent_account_id)
+                anomaly.get_stats()
+                print('Got stats..')
+                add_anomalies(anomaly, account)
+                print('Inserted data in DB')
+                anomaly.cleanMemory()
+                print('Cleaned junk...')
+                print('Data added to DB for account ' + account.dependent_account_name)
+            except KeyboardInterrupt:
+                break
+            except:
+                print('Lamentably failed!!!')
+
 
 if __name__ == '__main__':
     main()
