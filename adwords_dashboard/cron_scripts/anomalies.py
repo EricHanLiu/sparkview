@@ -209,7 +209,7 @@ class Anomalies(object):
 
         if not result:
             return []
-        return map(dict, list(result['entries']))
+        return list(map(dict, list(result['entries'])))
 
     def get_campaign_labels(self):
         campaign_label_service = self.client.GetService('CampaignService', version='v201705')
@@ -218,7 +218,7 @@ class Anomalies(object):
 
         if not result:
             return []
-        return map(dict, list(result['entries']))
+        return list(map(dict, list(result['entries'])))
 
         # campaignReport = {
         #     'reportName' : 'CAMPAIGN_STATS',
@@ -275,11 +275,7 @@ def main():
 
     acc7 = anomaly.acc7_anomalies()
     acc14 = anomaly.acc14_anomalies()
-    if acc7[0]['Clicks'] == 0 or acc14[0]['Clicks'] == 0:
-        acc_clicks = 0
-    else:
-        acc_clicks = (acc7[0]['Clicks'] / acc14[0]['Clicks']) * 100 - 100
-    print(acc_clicks)
+
     # campaign_labels = a.get_campaign_labels()
     # print campaign_labels
     # for label in campaign_labels:

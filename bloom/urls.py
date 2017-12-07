@@ -27,5 +27,6 @@ urlpatterns = [
     # url(r"^dashboards/bing"), include('bing_dashboard.urls'),
     # url(r"^dashboards/facebook"), include('facebook_dashboard.urls'),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
+    url(r'^budget/', include('budget.urls', namespace='budget')),
     url(r'^admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

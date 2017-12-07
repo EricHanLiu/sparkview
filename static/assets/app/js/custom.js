@@ -1,6 +1,6 @@
 $(document).ready(function() {
-  $('#accounts').DataTable({
-      'pagingType': 'full_numbers',
+  tbl = $('#accounts').DataTable({
+      'pagingType': 'full_numbers'
   });
 
   $("#adwords_datatable").DataTable({

@@ -27,6 +27,7 @@ class DependentAccount(models.Model):
     dependent_account_name = models.CharField(max_length=255, default="None")
     dependent_OVU = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
+    current_spend = models.IntegerField(default=0)
     quality_score = models.IntegerField(default=0)
     historical_qs = models.IntegerField(default=0)
     updated_time = models.DateTimeField(auto_now=True)

@@ -26,13 +26,14 @@ SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 DEBUG = False
 
 SITE_ID=1
-ALLOWED_HOSTS = ['127.0.0.1', '35.199.174.226']
+ALLOWED_HOSTS = ['127.0.0.1', '35.199.174.226', 'bloom.hyperdigitalserver.com']
 ADMINS = [('Octavian','octavian@hdigital.io')]
 # Application definition
 
 INSTALLED_APPS = [
     'accounts',
     'adwords_dashboard',
+    'django_crontab',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -132,14 +132,14 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
-}
-
 LOGIN_URL = "/"
 
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
+
+CRONJOBS = [
+    ('0 5 * * *', 'cron_accounts.main', '>> /logs/accounts.log'),
+    ('5 5 * * *', 'cron_labels.main', '>> /logs/labels.log'),
+    ('10 5 * * *', 'cron_ovu.main', '>> /logs/ovu.log'),
+    ('0 7 * * *', 'cron_anomalies.main', '>> /logs/anomalies.log'),
+    ('0 8 * * *', 'cron_404.main', '>> /logs/404.log')
+]

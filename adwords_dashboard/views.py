@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
 
 from adwords_dashboard.models import DependentAccount, Performance, CampaignStat
+from adwords_dashboard.models import Label
 
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
@@ -17,21 +18,6 @@ from . serializers import AccountSerializer, PerformanceSerializer
 # from decorators import cache_on_auth
 
 # Create your views here.
-class AdwordsDashboardApi(APIView):
-    """Api View for populating adwords datatable"""
-
-    renderer_classes = (JSONRenderer, )
-
-    def get(self, request, format=None):
-
-        accounts = DependentAccount.objects.all()
-        performance = Performance.objects.filter(performance_type='ACCOUNT')
-        acc_serializer = AccountSerializer(accounts, many=True)
-        performance_serializer = PerformanceSerializer(performance, many=True, context={'request': request})
-
-        return Response({'data': performance_serializer.data})
-
-
 @login_required
 def index(request):
     return redirect(adwords_dashboard)
@@ -47,6 +33,7 @@ def adwords_dashboard(request):
         query = Performance.objects.filter(account=account.pk, performance_type='ACCOUNT')
         item['account'] = account
         item['404_urls'] = CampaignStat.objects.filter(dependent_account_id=account.dependent_account_id).count()
+        item['labels'] = Label.objects.filter(account_id=account.dependent_account_id, label_type='ACCOUNT')
         item['clicks'] = query[0].clicks if query else 0
         item['impressions'] = query[0].impressions if query else 0
         item['ctr'] = query[0].ctr if query else 0
