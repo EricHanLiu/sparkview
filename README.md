@@ -1,1 +1,3 @@
-# bloom-master
+# Bloom Platform by HyperDigital.io
+
+

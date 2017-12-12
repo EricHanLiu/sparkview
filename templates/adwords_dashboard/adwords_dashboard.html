@@ -20,6 +20,7 @@
                 <th>Account</th>
                 <th>U & O</th>
                 <th>Url Checker</th>
+                <th>Disapproved Ads</th>
                 <th>Impr. Share</th>
                 <th>Impr.</th>
                 <th>Clicks</th>
@@ -35,12 +36,17 @@
               <tr>
                 <td>
                 <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
-                {{ item.account.dependent_account_name }} </a> - {{ item.account.dependent_account_id }}<br />
+                {{ item.account.dependent_account_name }} </a> - {{ item.account.dependent_account_id }} -
+                <a href="#" onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>
+                <br />
+                <div id="labels-{{ item.account.dependent_account_id }}" class="hidden">
                 {% for label in item.labels %}
+
                     <span class="m-badge {% if label.name == 'No label' %}m-badge--danger{% else %}m-badge--info{% endif %} m-badge--wide">
                         {{ label.name }}
                     </span>
                 {% endfor %}
+                </div>
                 </td>
                 <td>
                     {{ item.account.dependent_OVU }}%
@@ -48,6 +54,11 @@
                 <td>
                     <a href="{% url 'adwords:url_checker' item.account.dependent_account_id %}">
                         {{ item.404_urls }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'adwords:alerts' item.account.dependent_account_id %}">
+                    {{ item.disapproved_ads }}
                     </a>
                 </td>
                 <td>
@@ -84,5 +95,12 @@
   </div>
   <!--End::Main Portlet-->
 </div>
+<script type="text/javascript">
 
+  function toggleLabels(label_id){
+      console.log('ok');
+    $("#"+label_id).toggle();
+  }
+
+</script>
 {% endblock %}

@@ -18,7 +18,6 @@ def add_ovu(data):
 
     now = datetime.now()
     days = calendar.monthrange(now.year, now.month)[1]
-    print(data)
     if data['cost'] == ' -- ':
         account_cost = 0
     else:
@@ -33,22 +32,25 @@ def add_ovu(data):
             account.current_spend = account_cost
             account.dependent_OVU = 0
             account.save()
-            print('Added 0 to OVU field.')
+            print('desired_spend = 0, ovu = 0')
 
         else:
             account.current_spend = account_cost
-            account.dependent_OVU = (float(account_cost) / (float(account.desired_spend) / days * now.day)) * 100 - 100
+            account.dependent_OVU = (float(account_cost) / (float(account.desired_spend) / days * now.day)) * 100
             account.save()
-            print('Values added to DB')
+            print('Calculated OVU and added to DB - ' + str(account.dependent_account_id))
 
 def main():
     adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
 
-    accounts = models.DependentAccount.objects.all()
+    accounts = models.DependentAccount.objects.filter(blacklisted=False)
     for account in accounts:
-        data = ovu.get_account_cost(account.dependent_account_id, adwords_client)
-        add_ovu(data)
-        print('Added to DB for account ' + str(account.dependent_account_id))
+        try:
+            data = ovu.get_account_cost(account.dependent_account_id, adwords_client)
+            add_ovu(data)
+            print('Added to DB for account ' + str(account.dependent_account_id))
+        except:
+            print('Failed for account: ' + str(account.dependent_account_id))
 
 
 

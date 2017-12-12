@@ -63,7 +63,10 @@ class Check404(object):
         results = [pool.apply_async(self.__check_url, (url,)) for url in self.urls]
 
         for res in results:
-            data.append(res.get())
+            try:
+                data.append(res.get())
+            except ValueError:
+                pass
 
         pool.close()
         self.elapsed_time = time.time() - init_time

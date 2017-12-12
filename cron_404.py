@@ -15,7 +15,7 @@ from adwords_dashboard.cron_scripts import verify404
 
 def add_404(data, accountId):
 
-    time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    # time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
     if data:
 
         for alert in data:
@@ -51,22 +51,20 @@ def main():
     time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
     # logger_404.info(time_now + " - Cron Started [INFO]")
     data = models.DependentAccount.objects.filter(blacklisted=False)
-    if data:
-        print('Data')
-        for item in data:
+    for item in data:
+        try:
             print('Inside of data')
             print(item.dependent_account_id)
             models.CampaignStat.objects.filter(dependent_account_id=item.dependent_account_id).delete()
             verify404.getData(client, item.dependent_account_id, add_404)
 
-        time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
-        # logger_404.info(time_now + " - Cron Succeded [INFO]")
+            # time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
+            # logger_404.info(time_now + " - Cron Succeded [INFO]")
 
-
-    else:
-        time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
-        print('Failed!')
-        # logger_404.info(time_now + " - Cron FAILED NO ACCOUNTS [INFO]")
+        except:
+            print('Failed at account ' + str(item.dependent_account_id))
+            # time_now = datetime.now().strftime("%Y-%m-%d %H:%M")
+            # logger_404.info(time_now + " - Cron FAILED NO ACCOUNTS [INFO]")
 
 if __name__ == '__main__':
     main()

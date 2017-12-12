@@ -94,6 +94,9 @@ def getData(client, account, add):
             badUrls = checkURLS(detailList)
             add(badUrls, client.client_customer_id.replace('-',''))
             print('added urls')
+    # except ConnectionResetError as e:
+    #     print(e)
+    #     pass
 
     finally:
         report_data.close()

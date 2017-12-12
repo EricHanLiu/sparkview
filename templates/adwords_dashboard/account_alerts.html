@@ -1,0 +1,48 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile ">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                  Campaign Data Monitoring
+                </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='m_datatable table table-striped table-bordered' id="adwords_datatable">
+            <thead>
+              <tr>
+                <th>Campaign Name</th>
+                <th>AdGroup Name</th>
+                <th>Alert type</th>
+                <th>Alert Reason</th>
+                <th>Keyword</th>
+                <th>Ad Headline</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in alerts %}
+              <tr>
+                <td>{{ item.campaignName}}</td>
+                <td>{{ item.ad_group_name }}</td>
+                <td>{{ item.alert_type }}</td>
+                <td>{{ item.alert_reason }}</td>
+                <td>{{ item.keyWordText }}</td>
+                <td>{{ item.ad_headline }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+
+{% endblock %}

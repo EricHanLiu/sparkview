@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
 
 from adwords_dashboard.models import DependentAccount, Performance, CampaignStat
-from adwords_dashboard.models import Label
+from adwords_dashboard.models import Label, Alert
 
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
@@ -42,6 +42,8 @@ def adwords_dashboard(request):
         item['cost'] = query[0].cost if query else 0
         item['cost_per_conversions'] = query[0].cost_per_conversions if query else 0
         item['search_impr_share'] = query[0].search_impr_share if query else 0
+        item['disapproved_ads'] = Alert.objects.filter(dependent_account_id=account.dependent_account_id,
+                                                       alert_type='DISAPPROVED_AD').count()
         items.append(item)
 
     if user.is_authenticated():
@@ -96,3 +98,16 @@ def campaign_404(request, acc_id):
         'campaigns': current_campaigns
         }
     return render(request, "adwords_dashboard/404_list.html", context)
+
+
+@login_required
+def account_alerts(request, account_id):
+    # alert_types = ['DISAPPROVED_AD']
+
+    account = DependentAccount.objects.get(dependent_account_id=account_id)
+    alerts = Alert.objects.filter(dependent_account_id=account_id)
+    context = {
+        'alerts': alerts,
+        'account': account
+    }
+    return render(request, 'adwords_dashboard/account_alerts.html', context)

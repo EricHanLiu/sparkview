@@ -40,6 +40,7 @@ class DependentAccount(models.Model):
     def __str__(self):
         return self.dependent_account_name
 
+
 class Performance(models.Model):
 
     account = models.ForeignKey(DependentAccount)
@@ -58,7 +59,8 @@ class Performance(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['created_time','updated_time']
+        ordering = ['created_time', 'updated_time']
+
 
 class Label(models.Model):
 
@@ -74,6 +76,7 @@ class Label(models.Model):
     class Meta:
         ordering = ['created_time', 'updated_time']
 
+
 class CampaignStat(models.Model):
 
     dependent_account_id = models.CharField(max_length=255)
@@ -88,7 +91,29 @@ class CampaignStat(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['created_time','updated_time']
+        ordering = ['created_time', 'updated_time']
 
     def __str__(self):
         return self.campaign_name
+
+
+class Alert(models.Model):
+
+    dependent_account_id = models.CharField(max_length=255)
+    alert_type = models.CharField(max_length=255)
+    alert_reason = models.CharField(max_length=255)
+    ad_group_id = models.CharField(max_length=255, default="None")
+    ad_group_name = models.CharField(max_length=255, default="None")
+    keyWordText = models.TextField(default="None")
+    ad_headline = models.TextField(default="None")
+    campaign_id = models.CharField(max_length=255, default="None")
+    campaignName = models.CharField(max_length=255, default="None")
+    keyword_match_type = models.CharField(max_length=255, default="None")
+    updated_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_time', 'updated_time']
+
+    def __str__(self):
+        return self.dependent_account_id
