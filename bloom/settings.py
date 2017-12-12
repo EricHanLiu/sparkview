@@ -23,7 +23,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 SITE_ID=1
 ALLOWED_HOSTS = ['bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226']
@@ -137,10 +137,10 @@ LOGIN_URL = "/"
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
 CRONJOBS = [
-    ('0 5 * * *', 'cron_accounts.main', '>' + BASE_DIR + '/logs/accounts.log'),
-    ('5 5 * * *', 'cron_labels.main', '>' + BASE_DIR + '/logs/labels.log'),
-    ('10 5 * * *', 'cron_ovu.main', '>' + BASE_DIR + '/logs/ovu.log'),
-    ('0 7 * * *', 'cron_anomalies.main', '>' + BASE_DIR + '/logs/anomalies.log'),
-    ('0 8 * * *', 'cron_404.main', '>' + BASE_DIR + '/logs/404.log'),
-    ('0 8 * * *', 'cron_alerts.main', '>' + BASE_DIR + '/logs/404.log')
+    ('0 5 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
+    ('5 5 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
+    ('10 5 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+    ('0 7 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
+    ('0 8 * * *', 'cron_404.main', '> ' + BASE_DIR + '/logs/404.log'),
+    ('0 8 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/404.log')
 ]
