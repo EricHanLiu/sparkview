@@ -17,4 +17,7 @@ def get_type(value):
 
 @register.filter
 def uni2float(value):
-    return float(value)
+    try:
+        return float(value)
+    except ValueError:
+        return value

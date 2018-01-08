@@ -24,7 +24,7 @@ urlpatterns = [
     url(r"^auth/login$", lviews.bloom_login, name='login'),
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^dashboards/adwords/", include('adwords_dashboard.urls', namespace='adwords')),
-    # url(r"^dashboards/bing"), include('bing_dashboard.urls'),
+    url(r"^dashboards/bing/", include('bing_dashboard.urls', namespace='bing')),
     # url(r"^dashboards/facebook"), include('facebook_dashboard.urls'),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^budget/', include('budget.urls', namespace='budget')),

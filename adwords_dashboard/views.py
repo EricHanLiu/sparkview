@@ -9,12 +9,6 @@ from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirec
 from adwords_dashboard.models import DependentAccount, Performance, CampaignStat
 from adwords_dashboard.models import Label, Alert
 
-from rest_framework.renderers import JSONRenderer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from . serializers import AccountSerializer, PerformanceSerializer
-
 # from decorators import cache_on_auth
 
 # Create your views here.
@@ -47,7 +41,7 @@ def adwords_dashboard(request):
         items.append(item)
 
     if user.is_authenticated():
-        return render(request, 'adwords_dashboard/adwords_dashboard.html', {'items': items})
+        return render(request, 'adwords/dashboard.html', {'items': items})
     else:
         return render(request, 'login/login.html')
 
@@ -80,7 +74,7 @@ def campaign_anomalies(request, account_id):
         'campaigns': campaigns
     }
 
-    return render(request, 'adwords_dashboard/campaign_anomalies.html', context)
+    return render(request, 'adwords/campaign_anomalies.html', context)
 
 @login_required
 def campaign_404(request, acc_id):
@@ -97,7 +91,7 @@ def campaign_404(request, acc_id):
         'account': current_account,
         'campaigns': current_campaigns
         }
-    return render(request, "adwords_dashboard/404_list.html", context)
+    return render(request, "adwords/404_list.html", context)
 
 
 @login_required
@@ -110,4 +104,4 @@ def account_alerts(request, account_id):
         'alerts': alerts,
         'account': account
     }
-    return render(request, 'adwords_dashboard/account_alerts.html', context)
+    return render(request, 'adwords/account_alerts.html', context)

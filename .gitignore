@@ -9,3 +9,5 @@ logs
 nohup.out
 .idea/
 config.sh
+bing_dashboard/bing_creds
+bing_reports

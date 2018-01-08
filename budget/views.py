@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from django.views.decorators.clickjacking import xframe_options_exempt
-from adwords_dashboard import models
+from adwords_dashboard.models import DependentAccount
+from bing_dashboard.models import BingAccounts
 import calendar
 from datetime import datetime
 # from dashboard.decorators import cache_on_auth
@@ -27,7 +28,7 @@ def index_budget(request):
     if request.method == 'GET':
         items = []
         try:
-            accounts = models.DependentAccount.objects.filter(blacklisted='False')
+            accounts = DependentAccount.objects.filter(blacklisted='False')
             for acc in accounts:
                 item = {}
                 item['account'] = acc
@@ -38,7 +39,7 @@ def index_budget(request):
 
     elif request.method == 'POST':
         try:
-            account = models.DependentAccount.objects.get(dependent_account_id=request.POST['acc_id'])
+            account = DependentAccount.objects.get(dependent_account_id=request.POST['acc_id'])
             desired_spend = request.POST['desired_spend']
             account.desired_spend = desired_spend
             account.dependent_OVU = (float(account.current_spend) / (float(account.desired_spend) / days * now.day)) * 100
@@ -54,29 +55,28 @@ def index_budget(request):
 @xframe_options_exempt
 def bing_budget(request):
 
-    pass
-    # if request.method == 'GET':
-    #     items = []
-    #     try:
-    #         accounts = models.BingAccounts.objects.filter(blacklisted='False')
-    #         for acc in accounts:
-    #             item = {}
-    #             item['account'] = acc
-    #             items.append(item)
-    #         return render(request, 'budget/bing_budget.html', {'items' : items})
-    #     except ValueError:
-    #         raise Http404
-    #
-    # elif request.method == 'POST':
-    #     try:
-    #         account = models.BingAccounts.objects.get(account_id=request.POST['acc_id'])
-    #         desired_spend = request.POST['desired_spend']
-    #         account.desired_spend = desired_spend
-    #         account.account_ovu = int(float(account.current_spend) / float(account.desired_spend) * float(100))
-    #         account.save()
-    #         context = {}
-    #         context['error'] = 'OK'
-    #         context['OVU'] = account.account_ovu
-    #         return JsonResponse(context)
-    #     except ValueError:
-    #         raise Http404
+    if request.method == 'GET':
+        items = []
+        try:
+            accounts = BingAccounts.objects.filter(blacklisted='False')
+            for acc in accounts:
+                item = {}
+                item['account'] = acc
+                items.append(item)
+            return render(request, 'budget/bing_budget.html', {'items' : items})
+        except ValueError:
+            raise Http404
+
+    elif request.method == 'POST':
+        try:
+            account = BingAccounts.objects.get(account_id=request.POST['acc_id'])
+            desired_spend = request.POST['desired_spend']
+            account.desired_spend = desired_spend
+            account.account_ovu = int(float(account.current_spend) / float(account.desired_spend) * float(100))
+            account.save()
+            context = {}
+            context['error'] = 'OK'
+            context['OVU'] = account.account_ovu
+            return JsonResponse(context)
+        except ValueError:
+            raise Http404

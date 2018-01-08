@@ -111,7 +111,7 @@
                                                             </a>
                                                         </li>
                                                         <li class="m-nav__item">
-                                                            <a class="m-nav__link">
+                                                            <a href="{% url 'bing:home' %}" class="m-nav__link">
                                                                 <i class="m-nav__link-icon socicon-windows"></i>
                                                                 <span class="m-nav__link-text">Bing Ads</span>
                                                             </a>
@@ -141,14 +141,14 @@
                                 </a>
                                 <!--end::Topbar Toggler-->
                             </div>
-                            <!--begin::Tools Dropdown-->
+                            <!--begin::Budget Dropdown-->
                             <div class="m-stack__item m-stack__item--middle m-brand__tools">
                                 <div class="m-dropdown m-dropdown--inline m-dropdown--arrow m-dropdown--align-left m-dropdown--align-push"
                                      data-dropdown-toggle="click" aria-expanded="true">
                                     <a href="#"
                                        class="dropdown-toggle m-dropdown__toggle btn btn-outline-metal m-btn  m-btn--icon m-btn--pill">
 												<span>
-													Tools
+													Budget
 												</span>
                                     </a>
                                     <div class="m-dropdown__wrapper">
@@ -161,16 +161,16 @@
                                                             <span class="m-nav__section-text">Quick Menu</span>
                                                         </li>
                                                         <li class="m-nav__item m-nav__item__submenu m-nav__item--hover ">
-                                                            <a href="{% url 'accounts:adwords' %}"
+                                                            <a href="{% url 'budget:adwords' %}"
                                                                class="m-nav__link m-menu__toggle">
                                                                 <i class="m-nav__link-icon flaticon-internet"></i>
-                                                                <span class="m-nav__link-text">Accounts</span>
+                                                                <span class="m-nav__link-text">Adwords</span>
                                                             </a>
                                                         </li>
                                                         <li class="m-nav__item">
-                                                            <a href="{% url 'budget:adwords' %}" class="m-nav__link">
+                                                            <a href="{% url 'budget:bing_budget' %}" class="m-nav__link">
                                                                 <i class="m-nav__link-icon flaticon-internet"></i>
-                                                                <span class="m-nav__link-text">Budget</span>
+                                                                <span class="m-nav__link-text">Bing</span>
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -180,7 +180,51 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--end::Toools Dropdown-->
+                            <!--end::Budget Dropdown-->
+                            <!--begin::Accounts Dropdown-->
+                            <div class="m-stack__item m-stack__item--middle m-brand__tools">
+                                <div class="m-dropdown m-dropdown--inline m-dropdown--arrow m-dropdown--align-left m-dropdown--align-push"
+                                     data-dropdown-toggle="click" aria-expanded="true">
+                                    <a href="#"
+                                       class="dropdown-toggle m-dropdown__toggle btn btn-outline-metal m-btn  m-btn--icon m-btn--pill">
+												<span>
+													Accounts
+												</span>
+                                    </a>
+                                    <div class="m-dropdown__wrapper">
+                                        <span class="m-dropdown__arrow m-dropdown__arrow--left m-dropdown__arrow--adjust"></span>
+                                        <div class="m-dropdown__inner">
+                                            <div class="m-dropdown__body">
+                                                <div class="m-dropdown__content">
+                                                    <ul class="m-nav">
+                                                        <li class="m-nav__section m-nav__section--first m--hide">
+                                                            <span class="m-nav__section-text">Quick Menu</span>
+                                                        </li>
+                                                        <li class="m-nav__item">
+                                                            <a href="{% url 'accounts:adwords' %}" class="m-nav__link">
+                                                                <i class="m-nav__link-icon socicon-google"></i>
+                                                                <span class="m-nav__link-text">AdWords</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="m-nav__item">
+                                                            <a href="{% url 'accounts:bing' %}" class="m-nav__link">
+                                                                <i class="m-nav__link-icon socicon-windows"></i>
+                                                                <span class="m-nav__link-text">Bing Ads</span>
+                                                            </a>
+                                                        </li>
+{#                                                        <li class="m-nav__item">#}
+{#                                                            <a class="m-nav__link">#}
+{#                                                                <i class="m-nav__link-icon socicon-facebook"></i>#}
+{#                                                                <span class="m-nav__link-text">Facebook ads</span>#}
+{#                                                            </a>#}
+{#                                                        </li>#}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <!--end::Accounts Dropdown-->
                         </div>
                     </div>
                     <!-- end::Brand -->

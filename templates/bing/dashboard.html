@@ -1,0 +1,82 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                        <span>Bing Data Monitoring</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped m-table' id="adwords_datatable">
+            <thead class="thead-inverse">
+              <tr>
+                <th>Account</th>
+                <th>U & O</th>
+{#                <th>Url Checker</th>#}
+{#                <th>Disapproved Ads</th>#}
+                <th>Impr. Share</th>
+                <th>Impr.</th>
+                <th>Clicks</th>
+                <th>CTR</th>
+                <th>Avg. CPC</th>
+                <th>Cost</th>
+                <th>Conversions</th>
+                <th>Cost / conv.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>
+                {{ item.account.account_name }} - {{ item.account.account_id }}
+                </td>
+                <td>
+                    {{ item.account.account_ovu }}%
+                </td>
+{#                <td>#}
+{#                    <a href="{% url 'adwords:alerts' item.account.account_id %}">#}
+{#                    {{ item.disapproved_ads }}#}
+{#                    </a>#}
+{#                </td>#}
+                <td>
+                    {{ item.impr_share|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                    {{ item.impressions|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                    {{ item.clicks|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                    {{ item.ctr|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                    {{ item.cpc|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                    {{ item.cost|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                    {{ item.conversions|uni2float|floatformat:2 }}%
+                </td>
+                <td>
+                      {{ item.cost_conv|uni2float|floatformat:2 }}%
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

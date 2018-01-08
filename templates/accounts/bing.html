@@ -1,10 +1,140 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'main.html' %}
 
-</body>
-</html>
+{% block content %}
+    <div class="m-content">
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">
+                                No. of accounts
+                            </h3>
+                            <h2 class="m-portlet__head-label m-portlet__head-label--danger">
+                                <span>Blacklisted</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body">
+                    <div id="blacklisted" class="accounts-portlet-text">
+                        {{ blacklisted }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xs-6">
+            <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">
+                                No. of accounts
+                            </h3>
+                            <h2 class="m-portlet__head-label m-portlet__head-label--info">
+                                <span>Whitelisted</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body">
+                    <div id="whitelisted" class="accounts-portlet-text">
+                        {{ whitelisted }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-xs-12">
+            <div class="m-portlet m-portlet--creative m-portlet--bordered-semi">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>Bing Accounts</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body">
+                    <table id="accounts" class="table table-responsive dataTable">
+                        <thead class="thead-inverse">
+                        <tr>
+                            <th>Account</th>
+                            <th>Current Spend</th>
+                            <th>Active</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for acc in accounts %}
+                            <tr>
+                                <td width="50%">{{ acc.account_name }}</td>
+                                <td width="30%">{{ acc.current_spend }}</td>
+                                <td style="text-align:center;" id="status{{ acc.account_id }}">
+                                    {% if acc.blacklisted %}
+                                        <span class="m-badge m-badge--danger m-badge--wide">False</span>
+                                    {% else %} <span class="m-badge m-badge--info m-badge--wide">True</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;" id="action{{ acc.account_id }}">
+
+                                    {% if acc.blacklisted %}
+                                        <button type="button" name="button" class="btn btn-outline-info"
+                                                onclick="changeStatus(this, '{{ acc.account_id }}')">Activate
+                                        </button>
+                                    {% else %}
+                                        <button type="button" name="button" class="btn btn-outline-danger"
+                                                onclick="changeStatus(this, '{{ acc.account_id }}')">
+                                            Deactivate
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script type="text/javascript">
+
+        function changeStatus(trigger, id) {
+            $.ajax({
+                method: 'POST',
+                url: '',
+                data: {
+                    id: id,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (data) {
+
+                    renderElements(id, data.status);
+                    $("#whitelisted").html(data.whitelisted);
+                    $("#blacklisted").html(data.blacklisted);
+                }
+            })
+        }
+
+        function renderElements(id, status) {
+            activeBtn = '<button type="button" name="button" class="btn btn-outline-danger" onclick="changeStatus(this, \'' + id + '\')">Deactivate</button>';
+            inactiveBtn = '<button type="button" name="button" class="btn btn-outline-info" onclick="changeStatus(this, \'' + id + '\')">Activate</button>';
+            activeStatus = '<span class="m-badge m-badge--info m-badge--wide">True</span>';
+            inactiveStatus = '<span class="m-badge m-badge--danger m-badge--wide">False</span>';
+
+            if (status == 'active') {
+                $("#status" + id).html(activeStatus);
+                $("#action" + id).html(activeBtn);
+            } else {
+                $("#status" + id).html(inactiveStatus);
+                $("#action" + id).html(inactiveBtn);
+            }
+
+        }
+    </script>
+{% endblock %}

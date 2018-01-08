@@ -1035,7 +1035,7 @@ var Dashboard = function() {
           type: "remote",
           source: {
             read: {
-              url: "/adwords_dashboard/api/",
+              url: "/adwords/api/",
               // method: 'GET'
             }
           },

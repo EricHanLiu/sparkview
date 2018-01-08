@@ -26,13 +26,15 @@ SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 DEBUG = False
 
 SITE_ID=1
-ALLOWED_HOSTS = ['bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226']
+ALLOWED_HOSTS = ['bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226', 'localhost']
 ADMINS = [('Octavian','octavian@hdigital.io')]
 # Application definition
 
 INSTALLED_APPS = [
     'accounts',
     'adwords_dashboard',
+    'bing_dashboard',
+    'budget',
     'django_crontab',
     'django_extensions',
     'django.contrib.admin',
@@ -130,7 +132,7 @@ STATIC_ROOT = "/var/www/bloom/static"
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
-ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
+ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords/google_auth/googleads.yaml')
 
 LOGIN_URL = "/"
 
@@ -140,7 +142,24 @@ CRONJOBS = [
     ('0 5 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('5 5 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
     ('10 5 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
-    ('0 7 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
-    ('0 8 * * *', 'cron_404.main', '> ' + BASE_DIR + '/logs/404.log'),
-    ('0 8 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/404.log')
+    ('0 6 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
+    ('0 7 * * *', 'cron_404.main', '> ' + BASE_DIR + '/logs/404.log'),
+    ('0 8 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
+    ('0 5 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
+    ('40 5 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
+    ('30 6 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
 ]
+
+# Bing Stuff
+
+if DEBUG:
+    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
+else:
+    REDIRECT_URI = "https://bloom.hyperdigitalserver.com/dashboards/bing/auth/exchange"
+
+CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
+CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"
+DEVELOPER_TOKEN = "1215QQ0H16176244"
+DEVELOPER_TOKEN_SANDBOX = "BBD37VB98"
+ENVIRONMENT = "production"
+BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')

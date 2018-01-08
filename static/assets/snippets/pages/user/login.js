@@ -46,7 +46,7 @@ var SnippetLogin = function() {
           url: '{% url "login" %}',
           success: function(e, r, n, l) {
             console.log(e, r, n, l);
-            window.location.replace('{% url "adwords_dashboard" %}');
+            window.location.replace('{% url "adwords" %}');
             setTimeout(function() {
               a.removeClass("m-loader m-loader--right m-loader--light").attr("disabled", !1), i(t, "danger", "Incorrect username or password. Please try again.")
             }, 2e3)

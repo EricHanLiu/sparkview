@@ -5,4 +5,4 @@ from django.apps import AppConfig
 
 
 class AdwordsDashboardConfig(AppConfig):
-    name = 'adwords_dashboard'
+    name = 'adwords'
