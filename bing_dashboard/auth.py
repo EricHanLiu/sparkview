@@ -10,7 +10,7 @@ class BingAuth(object):
     account_id=50014844
     customer_id=18021020
 
-    def __init__(self):
+    def __init__(self, username=''):
 
         self.flow = OAuthWebAuthCodeGrant(
             client_id=settings.CLIENT_ID,
