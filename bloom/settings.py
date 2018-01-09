@@ -152,10 +152,10 @@ CRONJOBS = [
 
 # Bing Stuff
 
-if DEBUG:
-    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
-else:
-    REDIRECT_URI = "https://bloom.hyperdigitalserver.com/dashboards/bing/auth/exchange"
+#if DEBUG:
+#    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
+#else:
+REDIRECT_URI = "https://bloom.hyperdigitalserver.com/dashboards/bing/auth/exchange"
 
 CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
 CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"

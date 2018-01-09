@@ -30,7 +30,7 @@ def get_accounts():
 
   paging = {
       'Index': 0,
-      'Size': 2500
+      'Size': 250
   }
 
   predicates = {
