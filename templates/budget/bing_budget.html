@@ -51,9 +51,8 @@
     function edit_submit_desired(trigger, acc_id) {
         if (trigger.innerHTML === 'Submit') {
             inp_id = "#"+trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;
-            spend = $(inp_id).val();
+            spend = parseInt($(inp_id).val());
             $(inp_id).attr('readonly', true);
-            console.log(spend);
             changeDesired(spend, acc_id);
             trigger.innerHTML = 'Edit';
 
@@ -65,7 +64,7 @@
     }
 
     function changeDesired(desired_spend, acc_id) {
-        console.log(desired_spend);
+
         if (desired_spend > 100000000) {
             $("#error_message p").html("<b>The number you provided is too big to store in database</b>");
             $("#error_message").addClass('note-danger');

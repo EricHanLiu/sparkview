@@ -51,7 +51,7 @@
     function edit_submit_desired(trigger, acc_id) {
         if (trigger.innerHTML === 'Submit') {
             inp_id = "#"+trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;
-            spend = $(inp_id).val();
+            spend = parseInt($(inp_id).val());
             $(inp_id).attr('readonly', true);
             changeDesired(spend, acc_id);
             trigger.innerHTML = 'Edit';
