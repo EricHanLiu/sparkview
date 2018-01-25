@@ -106,19 +106,16 @@ def add_client(request):
     elif request.method == 'POST':
 
         name = request.POST.get('client_name')
-        budget = request.POST.get('budget')
-
+        budget = request.POST.get('client_budget')
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
 
         for a in adwords_accounts:
             aw_acc = DependentAccount.objects.get(dependent_account_name=a)
-            print(aw_acc.dependent_account_name)
             aw.append(aw_acc)
 
         for b in bing_accounts:
             bing_acc = BingAccounts.objects.get(account_name=b)
-            print(bing_acc)
             bng.append(bing_acc)
 
         new_client = Client.objects.create(client_name=name, budget=budget)
