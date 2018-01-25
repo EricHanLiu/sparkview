@@ -5,4 +5,5 @@ from budget import views
 urlpatterns =[
     url(r"^$", views.index_budget, name="adwords"),
     url(r"^bing/", views.bing_budget, name="bing_budget"),
+    url(r"^clients/", views.add_client, name="add_client"),
 ]

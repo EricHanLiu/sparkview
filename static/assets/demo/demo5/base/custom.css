@@ -1,3 +1,7 @@
 .hidden {
     display: none;
 }
+
+.m-portlet.m-portlet--creative .m-portlet__head .m-portlet__head-caption .m-portlet__head-label.m-portlet__head-label--bloom {
+  color: #fff;
+  background: #212529; }

@@ -23,7 +23,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 ALLOWED_HOSTS = ['bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226', 'localhost']
@@ -132,7 +132,7 @@ STATIC_ROOT = "/var/www/bloom/static"
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
-ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords/google_auth/googleads.yaml')
+ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 
 LOGIN_URL = "/"
 
@@ -152,10 +152,10 @@ CRONJOBS = [
 
 # Bing Stuff
 
-#if DEBUG:
-#    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
-#else:
-REDIRECT_URI = "https://bloom.hyperdigitalserver.com/dashboards/bing/auth/exchange"
+if DEBUG:
+    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
+else:
+    REDIRECT_URI = "https://bloom.hyperdigitalserver.com/dashboards/bing/auth/exchange"
 
 CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
 CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"

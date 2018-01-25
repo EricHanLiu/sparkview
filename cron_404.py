@@ -1,11 +1,10 @@
 import os
-import sys
-import io
 from googleads import adwords
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
 django.setup()
 from django.conf import settings
+from bloom import settings
 import gc
 import logging
 from datetime import datetime

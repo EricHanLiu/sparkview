@@ -10,8 +10,9 @@ def checkURLS(detailList):
     results = checker.get_results()
     badUrls = []
     for result in results:
-        if result and result['code'] > 300 and result['code'] not '403':
-            badUrls.append(result)
+        if result and result['code'] > 300:
+            if result['code'] != 403:
+                badUrls.append(result)
     gc.collect()
     return badUrls
 

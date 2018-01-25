@@ -10,7 +10,7 @@ from bing_dashboard import auth
 from bingads import ServiceClient
 from bingads.v11.reporting import *
 from bloom import settings
-from bing_dashboard import models
+from bing_dashboard.models import BingAccounts, BingAnomalies
 import logging
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -260,9 +260,9 @@ def anomalies(data1, data2):
 
 def add_to_db(account, data):
 
-    models.BingAnomalies.objects.filter(account=account, performance_type='ACCOUNT').delete()
+    BingAnomalies.objects.filter(account=account, performance_type='ACCOUNT').delete()
     print('Current data deleted from DB.')
-    models.BingAnomalies.objects.create(account=account, performance_type='ACCOUNT',
+    BingAnomalies.objects.create(account=account, performance_type='ACCOUNT',
                                         cpc=data['cpc'], clicks=data['clicks'],
                                         conversions=data['conversions'], cost=data['spend'],
                                         cost_per_conversions=data['cost_conv'], ctr=data['ctr'],
@@ -273,7 +273,7 @@ def add_to_db(account, data):
 def main():
 
     # Looping through all accounts from DB
-    accounts = models.BingAccounts.objects.filter(blacklisted=False)
+    accounts = BingAccounts.objects.filter(blacklisted=False)
     for acc in accounts:
         account_id = acc.account_id
         print(account_id)

@@ -29421,6 +29421,2469 @@ td > .m-checkbox.m-checkbox--single, th > .m-checkbox.m-checkbox--single {
     border-color: #f4516c
 }
 
+.m-wizard .m-wizard__form .m-wizard__form-step {
+    display: none
+}
+
+.m-wizard .m-wizard__form .m-wizard__form-step.m-wizard__form-step--current {
+    display: block
+}
+
+.m-wizard [data-wizard-action=submit] {
+    display: none
+}
+
+.m-wizard [data-wizard-action=prev],.m-wizard.m-wizard--step-first [data-wizard-action=prev] {
+    display: none
+}
+
+.m-wizard.m-wizard--step-last [data-wizard-action=submit] {
+    display: inline-block!important
+}
+
+.m-wizard.m-wizard--step-last [data-wizard-action=next] {
+    display: none!important
+}
+
+.m-wizard.m-wizard--step-last [data-wizard-action=prev] {
+    display: inline-block!important
+}
+
+.m-wizard.m-wizard--step-between [data-wizard-action=next] {
+    display: inline-block!important
+}
+
+.m-wizard.m-wizard--step-between [data-wizard-action=prev] {
+    display: inline-block!important
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head {
+    margin: 3rem 0 3rem 0
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__progress .progress {
+    -webkit-border-radius: .71rem;
+    -moz-border-radius: .71rem;
+    -ms-border-radius: .71rem;
+    -o-border-radius: .71rem;
+    border-radius: .71rem;
+    height: .71rem;
+    position: relative;
+    overflow: visible
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    position: relative;
+    -webkit-border-radius: .71rem;
+    -moz-border-radius: .71rem;
+    -ms-border-radius: .71rem;
+    -o-border-radius: .71rem;
+    border-radius: .71rem
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__progress .progress .progress-bar:after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 1.3rem;
+    height: 1.3rem;
+    right: -.65rem;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    border-radius: 50%;
+    z-index: 1;
+    top: -.3rem
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps {
+    margin-top: 3rem;
+    width: 100%;
+    display: table;
+    table-layout: fixed
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+    display: table-cell;
+    vertical-align: middle
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+    display: table
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number {
+    display: table-cell;
+    vertical-align: middle;
+    text-decoration: none;
+    outline: 0!important
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span {
+    width: 4rem;
+    height: 4rem;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    -ms-border-radius: 100%;
+    -o-border-radius: 100%;
+    border-radius: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span>span {
+    font-size: 1.7rem;
+    font-weight: 500
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-line {
+    display: table-cell;
+    vertical-align: middle
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-line>span {
+    margin-left: .8rem;
+    margin-right: .7rem;
+    width: 2.5rem;
+    height: .3rem;
+    display: block;
+    -webkit-border-radius: .6rem;
+    -moz-border-radius: .6rem;
+    -ms-border-radius: .6rem;
+    -o-border-radius: .6rem;
+    border-radius: .6rem
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-label {
+    display: table-cell;
+    vertical-align: middle;
+    font-weight: 500
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps:last-child {
+    padding-right: 0;
+    padding-left: 1.875rem;
+
+}
+
+.m-wizard.m-wizard--1.m-wizard--nav-centered .m-wizard__head {
+    margin: 3rem auto;
+    width: 80%
+}
+
+@media (max-width: 1200px) {
+    .m-wizard.m-wizard--1 .m-wizard__head {
+        position:relative;
+        width: 100%!important
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__progress {
+        padding-bottom: 3rem
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps {
+        display: table;
+        width: auto;
+        margin: 0 auto
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+        display: table-cell;
+        display: block;
+        width: 100%;
+        margin-bottom: 2.5rem;
+        padding-right: 0
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step:last-child {
+        margin-bottom: 0
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-linc {
+        display: table-cell;
+        vertical-align: middle;
+        margin-bottom: 2rem
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: left;
+        padding-left: 0;
+        margin-bottom: 2rem
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-title {
+        margin-bottom: 0
+    }
+
+    .m-wizard.m-wizard--1 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info:last-child .m-wizard__step-info {
+        margin-bottom: 0
+    }
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+    color: #9699a2
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #e2e5ec
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #bdc3d4
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1 .m-wizard__head .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-line>span {
+    background-color: #e2e5ec
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__progress .progress .progress-bar {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__progress .progress .progress-bar:after {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #5f57c3
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #b9b5e5
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #9590d7
+}
+
+.m-wizard.m-wizard--1.m-wizard--brand .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__progress .progress .progress-bar {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__progress .progress .progress-bar:after {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #b5b6cc
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #e2e3eb
+}
+
+.m-wizard.m-wizard--1.m-wizard--metal .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__progress .progress .progress-bar {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__progress .progress .progress-bar:after {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f2f2f2
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--light .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__progress .progress .progress-bar {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__progress .progress .progress-bar:after {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #00aec3
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #43ebff
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #10e6ff
+}
+
+.m-wizard.m-wizard--1.m-wizard--accent .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__progress .progress .progress-bar {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__progress .progress .progress-bar:after {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #8b0be6
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #c377f9
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #ae47f6
+}
+
+.m-wizard.m-wizard--1.m-wizard--focus .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__progress .progress .progress-bar {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__progress .progress .progress-bar:after {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #4354d9
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #adb4ee
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #828ee6
+}
+
+.m-wizard.m-wizard--1.m-wizard--primary .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__progress .progress .progress-bar {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__progress .progress .progress-bar:after {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #2fab92
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #7ddcc9
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #55d1b8
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__progress .progress .progress-bar {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__progress .progress .progress-bar:after {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #1d98f6
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #98d0fb
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #67b9f9
+}
+
+.m-wizard.m-wizard--1.m-wizard--info .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__progress .progress .progress-bar {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__progress .progress .progress-bar:after {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #ffb009
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #ffd988
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #ffc855
+}
+
+.m-wizard.m-wizard--1.m-wizard--warning .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__progress .progress .progress-bar {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__progress .progress .progress-bar:after {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f23958
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span {
+    background-color: #fab1bd
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f78195
+}
+
+.m-wizard.m-wizard--1.m-wizard--danger .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head {
+    position: relative;
+    margin: 7rem 0 3rem 0;
+    padding: 0 5rem
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__progress {
+    width: 78%;
+    margin: 0 auto
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__progress .progress {
+    height: .36rem;
+    -webkit-border-radius: .71rem;
+    -moz-border-radius: .71rem;
+    -ms-border-radius: .71rem;
+    -o-border-radius: .71rem;
+    border-radius: .71rem
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    -webkit-border-radius: .71rem;
+    -moz-border-radius: .71rem;
+    -ms-border-radius: .71rem;
+    -o-border-radius: .71rem;
+    border-radius: .71rem
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 2.85rem;
+    padding: 0
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+    width: 20%;
+    padding: 0 .5rem 0 .5rem
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number {
+    text-decoration: none;
+    outline: 0!important
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number>span {
+    position: relative;
+    z-index: 1;
+    margin: -5.05rem auto 0 auto;
+    width: 4rem;
+    height: 4rem;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    -ms-border-radius: 100%;
+    -o-border-radius: 100%;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number>span>i {
+    font-size: 1.8rem
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+    text-align: center;
+    padding-top: .5rem
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-title {
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin: .6rem 0 .7rem 0
+}
+
+@media (max-width: 1200px) {
+    .m-wizard.m-wizard--2 {
+        margin-top:12rem;
+        padding: 0
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head {
+        padding: 0 2rem;
+        display: table;
+        width: auto;
+        margin: 0 auto
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__progress {
+        margin-bottom: -8rem;
+        overflow: hidden
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__progress .progress {
+        top: -4rem;
+        position: absolute;
+        width: .36rem;
+        left: 4.15rem;
+        height: 100%
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__progress .progress .progress-bar {
+        width: .36rem;
+        height: 0
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps {
+        display: table;
+        margin-top: 0;
+        width: auto;
+        margin: 0 auto
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+        display: table-cell;
+        display: block;
+        width: 100%;
+        margin-bottom: 2.5rem;
+        padding: 0
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step:last-child {
+        margin-bottom: 0
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number {
+        display: table-cell;
+        vertical-align: middle
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number>span {
+        margin-top: 0;
+        left: .25rem
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number:first-child {
+        content: none
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: left;
+        padding-left: 2rem;
+        padding-top: 0
+    }
+
+    .m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-title {
+        margin: 0
+    }
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number>span {
+    background-color: #e2e5ec
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-number>span>i {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step a.m-wizard__step-number:hover>span {
+    background-color: #bdc3d4
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-title {
+    color: #898b96
+}
+
+.m-wizard.m-wizard--2 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-desc {
+    color: #6f727d
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #5f57c3
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #b9b5e5
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #9590d7
+}
+
+.m-wizard.m-wizard--2.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #b5b6cc
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #e2e3eb
+}
+
+.m-wizard.m-wizard--2.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #f2f2f2
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #00aec3
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #43ebff
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #10e6ff
+}
+
+.m-wizard.m-wizard--2.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #8b0be6
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #c377f9
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #ae47f6
+}
+
+.m-wizard.m-wizard--2.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #4354d9
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #adb4ee
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #828ee6
+}
+
+.m-wizard.m-wizard--2.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #2fab92
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #7ddcc9
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #55d1b8
+}
+
+.m-wizard.m-wizard--2.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #1d98f6
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #98d0fb
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #67b9f9
+}
+
+.m-wizard.m-wizard--2.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #ffb009
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #ffd988
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #ffc855
+}
+
+.m-wizard.m-wizard--2.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span {
+    background-color: #f23958
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--done a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span {
+    background-color: #fab1bd
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span {
+    background-color: #f78195
+}
+
+.m-wizard.m-wizard--2.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3 {
+    padding: 0
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head {
+    padding: 5rem 4rem
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__progress {
+    margin: 0 0 3rem 0;
+    height: .71rem
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__progress .progress {
+    -webkit-border-radius: .71rem;
+    -moz-border-radius: .71rem;
+    -ms-border-radius: .71rem;
+    -o-border-radius: .71rem;
+    border-radius: .71rem;
+    height: .71rem;
+    position: relative
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    position: absolute;
+    -webkit-border-radius: .71rem;
+    -moz-border-radius: .71rem;
+    -ms-border-radius: .71rem;
+    -o-border-radius: .71rem;
+    border-radius: .71rem;
+    height: .71rem
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+    margin-bottom: 2rem
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+    display: table
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number {
+    display: table-cell;
+    vertical-align: middle;
+    text-decoration: none
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span {
+    width: 4rem;
+    height: 4rem;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    -ms-border-radius: 100%;
+    -o-border-radius: 100%;
+    border-radius: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span>span {
+    font-size: 1.7rem;
+    font-weight: 500
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-line {
+    display: table-cell;
+    vertical-align: middle
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-line>span {
+    margin-left: .8rem;
+    margin-right: .7rem;
+    width: 2.6rem;
+    height: .32rem;
+    display: block;
+    -webkit-border-radius: .6rem;
+    -moz-border-radius: .6rem;
+    -ms-border-radius: .6rem;
+    -o-border-radius: .6rem;
+    border-radius: .6rem
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+    display: table-cell;
+    vertical-align: middle;
+    font-weight: 500
+}
+
+.m-wizard.m-wizard--3 .m-wizard__form {
+    padding: 5rem 4rem 3rem 4rem;
+    border-left: .07rem solid #ebedf2
+}
+
+.m-wizard.m-wizard--3 .m-wizard__form .m-wizard__form-step1 .m-form__section .form-group {
+    padding-bottom: 2rem
+}
+
+.m-wizard.m-wizard--3 .m-wizard__form .m-wizard__form-step1 .m-form__section .form-group:last-child {
+    padding-bottom: 0
+}
+
+.m-wizard.m-wizard--3 .m-wizard__form .m-form__actions {
+    padding-bottom: 1rem
+}
+
+.m-wizard.m-wizard--3 .m-portlet__foot {
+    margin: 0 -4rem
+}
+
+.m-wizard.m-wizard--3 .m-portlet__foot .m-form__actions {
+    padding: 3rem 4rem 0 4rem
+}
+
+@media (max-width: 1200px) {
+    .m-wizard.m-wizard--3 {
+        padding:0
+    }
+
+    .m-wizard.m-wizard--3 .m-wizard__head {
+        padding: 2rem 2rem
+    }
+
+    .m-wizard.m-wizard--3 .m-wizard__nav {
+        padding-bottom: 2rem;
+        display: table;
+        width: auto;
+        margin: 2rem auto 0 auto
+    }
+
+    .m-wizard.m-wizard--3 .m-wizard__nav .m-wizard__steps .m-wizard__step {
+        margin-bottom: 2rem
+    }
+
+    .m-wizard.m-wizard--3 .m-wizard__nav .m-wizard__steps .m-wizard__step:last-child {
+        margin-bottom: 0
+    }
+
+    .m-wizard.m-wizard--3 .m-wizard__form {
+        padding: 2rem 2rem;
+        border-top: .07rem solid #ebedf2
+    }
+
+    .m-wizard.m-wizard--3 .m-wizard__form .m-wizard__form-step {
+        padding-top: 1rem
+    }
+
+    .m-wizard.m-wizard--3 .m-portlet__foot {
+        margin: 0 -2rem
+    }
+
+    .m-wizard.m-wizard--3 .m-portlet__foot .m-form__actions {
+        padding: 2rem 2rem 0 2rem
+    }
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+    color: #9699a2
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #e2e5ec
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #bdc3d4
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-line>span {
+    background-color: #e2e5ec
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #5f57c3
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #b9b5e5
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #4d44bd
+}
+
+.m-wizard.m-wizard--3.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #b5b6cc
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #a6a7c1
+}
+
+.m-wizard.m-wizard--3.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f2f2f2
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #e6e6e6
+}
+
+.m-wizard.m-wizard--3.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #00aec3
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #43ebff
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #0097a9
+}
+
+.m-wizard.m-wizard--3.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #8b0be6
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #c377f9
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #7c0acd
+}
+
+.m-wizard.m-wizard--3.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #4354d9
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #adb4ee
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #2e40d4
+}
+
+.m-wizard.m-wizard--3.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #2fab92
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #7ddcc9
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #299781
+}
+
+.m-wizard.m-wizard--3.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #1d98f6
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #98d0fb
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #0a8cf0
+}
+
+.m-wizard.m-wizard--3.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #ffb009
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #ffd988
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #eea200
+}
+
+.m-wizard.m-wizard--3.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__progress .progress .progress-bar {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f23958
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #fab1bd
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f12143
+}
+
+.m-wizard.m-wizard--3.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head {
+    padding: 3rem 4rem
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+    margin-bottom: 2rem;
+    -webkit-border-radius: 2.3rem;
+    -moz-border-radius: 2.3rem;
+    -ms-border-radius: 2.3rem;
+    -o-border-radius: 2.3rem;
+    border-radius: 2.3rem
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+    display: table;
+    width: 100%
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number {
+    display: table-cell;
+    vertical-align: middle;
+    text-decoration: none;
+    padding: .0715rem 0 .0715rem 0
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span {
+    width: 4rem;
+    height: 4rem;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    -ms-border-radius: 100%;
+    -o-border-radius: 100%;
+    border-radius: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number>span>span {
+    font-size: 1.7rem;
+    font-weight: 500
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+    display: table-cell;
+    vertical-align: middle;
+    font-weight: 500;
+    padding-left: 2rem;
+    width: 100%
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-icon {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-icon>i {
+    font-size: 1.8rem;
+    font-weight: 600
+}
+
+.m-wizard.m-wizard--4 .m-wizard__form {
+    padding: 4.2rem 4rem 3rem 4rem;
+    border-left: .07rem solid #ebedf2
+}
+
+.m-wizard.m-wizard--4 .m-wizard__form .m-wizard__form-step1 .m-form__section .form-group {
+    padding-bottom: 2rem
+}
+
+.m-wizard.m-wizard--4 .m-wizard__form .m-wizard__form-step1 .m-form__section .form-group:last-child {
+    padding-bottom: 0
+}
+
+.m-wizard.m-wizard--4 .m-wizard__form .m-form__actions {
+    padding-bottom: 1rem
+}
+
+.m-wizard.m-wizard--4 .m-portlet__foot {
+    margin: 0 -4rem
+}
+
+.m-wizard.m-wizard--4 .m-portlet__foot .m-form__actions {
+    padding: 3rem 4rem 0 4rem
+}
+
+@media (max-width: 1200px) {
+    .m-wizard.m-wizard--4 {
+        padding-top:0
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head {
+        padding: 0
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav {
+        padding-bottom: 2rem;
+        display: table;
+        width: auto;
+        margin: 2rem auto 0 auto
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+        -webkit-border-radius: 2rem;
+        -moz-border-radius: 2rem;
+        -ms-border-radius: 2rem;
+        -o-border-radius: 2rem;
+        border-radius: 2rem;
+        margin-bottom: 2rem;
+        padding: .02rem 1rem .05rem 0
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step:last-child {
+        margin-bottom: 0
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+        width: 100%
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+        width: 100%
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-icon {
+        text-align: right;
+        padding-left: 1rem
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__form {
+        padding: 3rem 0 0 0;
+        border-top: .07rem solid #ebedf2;
+        border-left: 0
+    }
+
+    .m-wizard.m-wizard--4 .m-wizard__form .m-wizard__form-step {
+        padding-top: 1rem
+    }
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+    color: #9699a2
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #f4f5f8
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #a4a6ae
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #e2e5ec
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #716aca
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #716aca
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #3d3698
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #4d44bd
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--brand .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #716aca
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #c4c5d6
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #c4c5d6
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #888aac
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #a6a7c1
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--metal .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #c4c5d6
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #ccc
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #e6e6e6
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #282a3c
+}
+
+.m-wizard.m-wizard--4.m-wizard--light .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #00c5dc
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #00c5dc
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #006a76
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #0097a9
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--accent .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #00c5dc
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #9816f4
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #9816f4
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #5f079d
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #7c0acd
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--focus .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #9816f4
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #5867dd
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #5867dd
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #2332ac
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #2e40d4
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--primary .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #5867dd
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #34bfa3
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #34bfa3
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #1e6f5f
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #299781
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--success .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #34bfa3
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #36a3f7
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #36a3f7
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #086fbf
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #0a8cf0
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--info .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #36a3f7
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #ffb822
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #ffb822
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #bb7f00
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #eea200
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #111
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #111
+}
+
+.m-wizard.m-wizard--4.m-wizard--warning .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #ffb822
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #f4516c
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    background-color: #f4516c
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span {
+    background-color: #d20d2e
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span {
+    background-color: #f12143
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info a.m-wizard__step-number:hover>span>span {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--4.m-wizard--danger .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-icon>i {
+    color: #f4516c
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head {
+    margin: 1rem 0 1rem 0
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps {
+    margin-top: 5rem;
+    margin-bottom: -.07rem;
+    width: 100%;
+    display: table;
+    table-layout: fixed
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+    display: table-cell;
+    vertical-align: middle;
+    padding-bottom: 3rem
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+    padding-left: 2rem
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number {
+    text-decoration: none;
+    display: table;
+    margin: 0 auto
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    display: table-cell;
+    font-weight: 500;
+    padding-right: .5rem;
+    padding-top: .2rem;
+    vertical-align: middle
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    font-weight: 500;
+    padding-right: .5rem;
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 1.2rem
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-icon {
+    display: table-cell;
+    vertical-align: middle
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps:last-child {
+    padding-right: 0
+}
+
+.m-wizard.m-wizard--5.m-wizard--nav-centered .m-wizard__head {
+    margin: 3rem auto;
+    width: 80%
+}
+
+@media (max-width: 1200px) {
+    .m-wizard.m-wizard--5 .m-wizard__head {
+        position:relative;
+        width: 100%!important
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav {
+        border-bottom: 0
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps {
+        width: auto;
+        margin: 1.5rem auto 0 auto
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+        padding: 0 0 .5rem 0;
+        display: block;
+        margin: 1rem 0 2rem 0;
+        width: 100%
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step:last-child {
+        margin-bottom: 0
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info {
+        padding-left: 0
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number {
+        margin: 0
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+        padding-right: .5rem
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+        padding-right: .5rem;
+        width: 100%
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-icon {
+        text-align: right;
+        display: block
+    }
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav {
+    border-bottom: 1px solid #ebedf2
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+    border-bottom: 2px solid transparent
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-label {
+    color: #9699a2
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #9699a2
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step .m-wizard__step-info .m-wizard__step-number .m-wizard__step-icon {
+    color: #fff
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--done .m-wizard__step-info .m-wizard__step-number .m-wizard__step-icon {
+    color: #9699a2
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #0f0f11
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #0f0f11
+}
+
+.m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-icon {
+    color: #fff
+}
+
+@media (max-width: 1200px) {
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav {
+        border-bottom:0
+    }
+
+    .m-wizard.m-wizard--5 .m-wizard__head .m-wizard__nav .m-wizard__steps .m-wizard__step {
+        border-bottom: 2px solid transparent
+    }
+}
+
+.m-wizard.m-wizard--5.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #716aca
+}
+
+.m-wizard.m-wizard--5.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #716aca
+}
+
+.m-wizard.m-wizard--5.m-wizard--brand .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #716aca
+}
+
+.m-wizard.m-wizard--5.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #c4c5d6
+}
+
+.m-wizard.m-wizard--5.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #c4c5d6
+}
+
+.m-wizard.m-wizard--5.m-wizard--metal .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #c4c5d6
+}
+
+.m-wizard.m-wizard--5.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #fff
+}
+
+.m-wizard.m-wizard--5.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #fff
+}
+
+.m-wizard.m-wizard--5.m-wizard--light .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #fff
+}
+
+.m-wizard.m-wizard--5.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #00c5dc
+}
+
+.m-wizard.m-wizard--5.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #00c5dc
+}
+
+.m-wizard.m-wizard--5.m-wizard--accent .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #00c5dc
+}
+
+.m-wizard.m-wizard--5.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #9816f4
+}
+
+.m-wizard.m-wizard--5.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #9816f4
+}
+
+.m-wizard.m-wizard--5.m-wizard--focus .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #9816f4
+}
+
+.m-wizard.m-wizard--5.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #5867dd
+}
+
+.m-wizard.m-wizard--5.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #5867dd
+}
+
+.m-wizard.m-wizard--5.m-wizard--primary .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #5867dd
+}
+
+.m-wizard.m-wizard--5.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #34bfa3
+}
+
+.m-wizard.m-wizard--5.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #34bfa3
+}
+
+.m-wizard.m-wizard--5.m-wizard--success .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #34bfa3
+}
+
+.m-wizard.m-wizard--5.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #36a3f7
+}
+
+.m-wizard.m-wizard--5.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #36a3f7
+}
+
+.m-wizard.m-wizard--5.m-wizard--info .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #36a3f7
+}
+
+.m-wizard.m-wizard--5.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #ffb822
+}
+
+.m-wizard.m-wizard--5.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #ffb822
+}
+
+.m-wizard.m-wizard--5.m-wizard--warning .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #ffb822
+}
+
+.m-wizard.m-wizard--5.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current {
+    border-bottom: 2px solid #f4516c
+}
+
+.m-wizard.m-wizard--5.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-seq {
+    color: #f4516c
+}
+
+.m-wizard.m-wizard--5.m-wizard--danger .m-wizard__head .m-wizard__steps .m-wizard__step.m-wizard__step--current .m-wizard__step-info .m-wizard__step-number .m-wizard__step-label {
+    color: #f4516c
+}
+
 .m-blockui {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
@@ -35299,7 +37762,10 @@ body.m-content--skin-light2 {
 
 @media (min-width: 993px) {
     .m-header {
-        height: 80px
+        height: 70px;
+        -webkit-box-shadow: 0 1px 15px 1px rgba(81,77,92,.5);
+        -moz-box-shadow: 0 1px 15px 1px rgba(81,77,92,.5);
+        box-shadow: 0 1px 15px 1px rgba(81,77,92,.5)
     }
 
     .m-header--fixed .m-header {

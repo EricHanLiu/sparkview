@@ -12,10 +12,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.16/fh-3.1.3/sc-1.4.3/datatables.min.js"></script> -->
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
-
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
-
     <script>
         WebFont.load({
             google: {
@@ -34,6 +31,7 @@
     <!--end::Page Vendors -->
     <link href="{% static 'assets/vendors/base/vendors.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/demo/demo5/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'assets/demo/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/demo/demo5/base/custom.css' %}" rel="stylesheet" type="text/css" />
     <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.16/fh-3.1.3/sc-1.4.3/datatables.min.css" /> -->
@@ -119,7 +117,7 @@
                                                         <li class="m-nav__item">
                                                             <a class="m-nav__link">
                                                                 <i class="m-nav__link-icon socicon-facebook"></i>
-                                                                <span class="m-nav__link-text">Facebook ads</span>
+                                                                <span class="m-nav__link-text">Facebook Ads</span>
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -129,13 +127,13 @@
                                     </div>
                                 </div>
                                 <!-- begin::Responsive Header Menu Toggler-->
-                                <a id="m_aside_header_menu_mobile_toggle" href="javascript:;"
+                                <a id="m_aside_header_menu_mobile_toggle" href="javascript:"
                                    class="m-brand__icon m-brand__toggler m--visible-tablet-and-mobile-inline-block">
                                     <span></span>
                                 </a>
                                 <!-- end::Responsive Header Menu Toggler-->
                                 <!-- begin::Topbar Toggler-->
-                                <a id="m_aside_header_topbar_mobile_toggle" href="javascript:;"
+                                <a id="m_aside_header_topbar_mobile_toggle" href="javascript:"
                                    class="m-brand__icon m--visible-tablet-and-mobile-inline-block">
                                     <i class="flaticon-more"></i>
                                 </a>
@@ -163,14 +161,20 @@
                                                         <li class="m-nav__item m-nav__item__submenu m-nav__item--hover ">
                                                             <a href="{% url 'budget:adwords' %}"
                                                                class="m-nav__link m-menu__toggle">
-                                                                <i class="m-nav__link-icon flaticon-internet"></i>
-                                                                <span class="m-nav__link-text">Adwords</span>
+                                                                <i class="m-nav__link-icon socicon-google"></i>
+                                                                <span class="m-nav__link-text">AdWords</span>
                                                             </a>
                                                         </li>
                                                         <li class="m-nav__item">
                                                             <a href="{% url 'budget:bing_budget' %}" class="m-nav__link">
-                                                                <i class="m-nav__link-icon flaticon-internet"></i>
-                                                                <span class="m-nav__link-text">Bing</span>
+                                                                <i class="m-nav__link-icon socicon-windows"></i>
+                                                                <span class="m-nav__link-text">Bing Ads</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="m-nav__item">
+                                                            <a class="m-nav__link">
+                                                                <i class="m-nav__link-icon socicon-facebook"></i>
+                                                                <span class="m-nav__link-text">Facebook Ads</span>
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -212,84 +216,85 @@
                                                                 <span class="m-nav__link-text">Bing Ads</span>
                                                             </a>
                                                         </li>
-{#                                                        <li class="m-nav__item">#}
-{#                                                            <a class="m-nav__link">#}
-{#                                                                <i class="m-nav__link-icon socicon-facebook"></i>#}
-{#                                                                <span class="m-nav__link-text">Facebook ads</span>#}
-{#                                                            </a>#}
-{#                                                        </li>#}
+                                                        <li class="m-nav__item">
+                                                            <a class="m-nav__link">
+                                                                <i class="m-nav__link-icon socicon-facebook"></i>
+                                                                <span class="m-nav__link-text">Facebook Ads</span>
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                             <!--end::Accounts Dropdown-->
                         </div>
-                    </div>
                     <!-- end::Brand -->
                     <!-- begin::Topbar -->
-                    <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
-                        <div id="m_header_topbar" class="m-topbar  m-stack m-stack--ver m-stack--general">
-                            <div class="m-stack__item m-topbar__nav-wrapper">
-                                <ul class="m-topbar__nav m-nav m-nav--inline">
-                                    <li class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img  m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
-                                        data-dropdown-toggle="click">
-                                        <a href="#" class="m-nav__link m-dropdown__toggle">
-													<span class="m-topbar__welcome">
-														Hello,&nbsp;
-													</span>
-                                            <span class="m-topbar__username">
-														Bloom
-													</span>
-                                        </a>
-                                        <div class="m-dropdown__wrapper">
-                                            <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
-                                            <div class="m-dropdown__inner">
-                                                <div class="m-dropdown__header m--align-center"
-                                                     style="background: url({% static 'assets/app/media/img/misc/user_profile_bg.jpg' %}); background-size: cover;">
-                                                    <div class="m-card-user m-card-user--skin-dark">
-                                                        <div class="m-card-user__pic">
-                                                        </div>
-                                                        <div class="m-card-user__details">
-																<span class="m-card-user__name m--font-weight-500">
-																		Bloom User
-																	</span>
-                                                            <a href=""
-                                                               class="m-card-user__email m--font-weight-300 m-link">
-                                                                user@makeitbloom.com
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="m-dropdown__body">
-                                                    <div class="m-dropdown__content">
-                                                        <ul class="m-nav m-nav--skin-light">
-                                                            <li class="m-nav__section m--hide">
-																	<span class="m-nav__section-text">
-																			Section
-																		</span>
-                                                            </li>
-                                                            <li class="m-nav__separator m-nav__separator--fit"></li>
-                                                            <li class="m-nav__item">
-                                                                <a href="{% url 'logout' %}"
-                                                                   class="btn m-btn--pill btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">
-                                                                    Logout
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+{#                    <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">#}
+{#                        <div id="m_header_topbar" class="m-topbar  m-stack m-stack--ver m-stack--general">#}
+{#                            <div class="m-stack__item m-topbar__nav-wrapper">#}
+{#                                <ul class="m-topbar__nav m-nav m-nav--inline">#}
+{#                                    <li class="m-nav__item m-topbar__user-profile m-topbar__user-profile--img  m-dropdown m-dropdown--medium m-dropdown--arrow m-dropdown--header-bg-fill m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"#}
+{#                                        data-dropdown-toggle="click">#}
+{#                                        <a href="#" class="m-nav__link m-dropdown__toggle">#}
+{#													<span class="m-topbar__welcome">#}
+{#														Hello,&nbsp;#}
+{#													</span>#}
+{#                                            <span class="m-topbar__username">#}
+{#														Bloom#}
+{#													</span>#}
+{#                                        </a>#}
+{#                                        <div class="m-dropdown__wrapper">#}
+{#                                            <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>#}
+{#                                            <div class="m-dropdown__inner">#}
+{#                                                <div class="m-dropdown__header m--align-center"#}
+{#                                                     style="background: url({% static 'assets/app/media/img/misc/user_profile_bg.jpg' %}); background-size: cover;">#}
+{#                                                    <div class="m-card-user m-card-user--skin-dark">#}
+{#                                                        <div class="m-card-user__pic">#}
+{#                                                        </div>#}
+{#                                                        <div class="m-card-user__details">#}
+{#																<span class="m-card-user__name m--font-weight-500">#}
+{#																		Bloom User#}
+{#																	</span>#}
+{#                                                            <a href=""#}
+{#                                                               class="m-card-user__email m--font-weight-300 m-link">#}
+{#                                                                user@makeitbloom.com#}
+{#                                                            </a>#}
+{#                                                        </div>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                                <div class="m-dropdown__body">#}
+{#                                                    <div class="m-dropdown__content">#}
+{#                                                        <ul class="m-nav m-nav--skin-light">#}
+{#                                                            <li class="m-nav__section m--hide">#}
+{#																	<span class="m-nav__section-text">#}
+{#																			Section#}
+{#																		</span>#}
+{#                                                            </li>#}
+{#                                                            <li class="m-nav__separator m-nav__separator--fit"></li>#}
+{#                                                            <li class="m-nav__item">#}
+{#                                                                <a href="{% url 'logout' %}"#}
+{#                                                                   class="btn m-btn--pill btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">#}
+{#                                                                    Logout#}
+{#                                                                </a>#}
+{#                                                            </li>#}
+{#                                                        </ul>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    </li>#}
+{#                                </ul>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
                     <!-- end::Topbar -->
                 </div>
             </div>
+        </div>
         </div>
     </header>
     <!-- end::Header -->
@@ -335,18 +340,15 @@
 <!-- begin::Quick Nav -->
 <!-- begin::Quick Nav -->
 <!--begin::Base Scripts -->
-<script src="{% static 'assets/app/js/jquery.js' %}"></script>
 <script src="{% static 'assets/vendors/base/vendors.bundle.js' %}" type="text/javascript"></script>
 <script src="{% static 'assets/demo/demo5/base/scripts.bundle.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/forms/wizard/wizard.js' %}"></script>
+
 <script src="{% static 'assets/app/js/datatables/datatables.min.js' %}"></script>
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script src="{% static 'assets/framework/base/util.js' %}"></script>
 <script src="{% static 'assets/framework/components/general/datatable.js' %}"></script>
 <script src="{% static 'assets/framework/base/app.js' %}"></script>
-<script type="text/javascript">
-</script>
-
-
 <!--end::Base Scripts -->
 <!--begin::Page Vendors -->
 <!--end::Page Vendors -->
