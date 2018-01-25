@@ -106,24 +106,50 @@ def add_client(request):
     elif request.method == 'POST':
 
         name = request.POST.get('client_name')
-        new_client = Client.objects.create(client_name=name)
+        budget = request.POST.get('budget')
 
-        adwords_accounts = set(request.POST.getlist('adwords'))
+        adwords_accounts = request.POST.getlist('adwords')
+        bing_accounts = request.POST.getlist('bing')
+
         for a in adwords_accounts:
-            print(a)
             aw_acc = DependentAccount.objects.get(dependent_account_name=a)
-            # new_client.adwords = aw_acc
-            # new_client.save()
+            print(aw_acc.dependent_account_name)
+            aw.append(aw_acc)
 
-        bing_accounts = set(request.POST.getlist('bing'))
         for b in bing_accounts:
-            print(b)
             bing_acc = BingAccounts.objects.get(account_name=b)
-            new_client.bing = bing_acc
-            new_client.save()
+            print(bing_acc)
             bng.append(bing_acc)
 
+        new_client = Client.objects.create(client_name=name, budget=budget)
+
+        for acc in aw:
+            new_client.adwords.add(acc)
+            new_client.save()
+            print('Added to new client ' + acc.dependent_account_name)
+
+        for bacc in bng:
+            new_client.bing.add(bacc)
+            new_client.save()
+            print('Added to new client ' + bacc.account_name)
+
+        aw = []
+        bng = []
 
         context = {}
         # facebook_accounts = request.POST.getlist('facebook')
         return JsonResponse(context)
+
+@login_required
+@xframe_options_exempt
+def client_details(request, client_id):
+
+    if request.method == 'GET':
+        try:
+            client = Client.objects.get(id=client_id)
+            print(client.bing)
+            context = {}
+            context['client_data'] = client
+            return render(request, 'budget/view_client.html', context)
+        except ValueError:
+            raise Http404

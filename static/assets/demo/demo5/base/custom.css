@@ -4,4 +4,101 @@
 
 .m-portlet.m-portlet--creative .m-portlet__head .m-portlet__head-caption .m-portlet__head-label.m-portlet__head-label--bloom {
   color: #fff;
-  background: #212529; }
+  background: #212529;
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head {
+    background-color: #212529;
+    border-color: #212529;
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg {
+    background: #212529;
+    border-color: #212529
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head {
+    background-color: #212529;
+    border-color: #212529
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head .m-portlet__head-icon {
+    color: #f7f7f7
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head .m-portlet__head-text {
+    color: #fff
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head .m-portlet__head-text small {
+    color: #f0f0f0
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-portlet__nav .m-portlet__nav-item .m-portlet__nav-link.m-portlet__nav-link--icon i {
+    color: #f7f7f7
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-portlet__nav .m-portlet__nav-item .m-portlet__nav-link.m-portlet__nav-link--icon:hover i {
+    color: #fff
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .btn-outline-light {
+    border-color: rgba(255, 255, 255, .1)
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line {
+    bottom: 0;
+    border: 0
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__item {
+    margin: 0 1px 0 0
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__item:last-child {
+    margin-right: 0
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link {
+    padding-left: 20px;
+    padding-right: 20px;
+    color: #fff;
+    border: 0;
+    opacity: .8
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link > i {
+    color: #f0f0f0
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link:hover {
+    border-bottom: 0
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__item.show .m-tabs__link, .m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link.active, .m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link:hover {
+    padding-left: 20px;
+    padding-right: 20px;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -ms-border-radius: 0;
+    -o-border-radius: 0;
+    border-radius: 0;
+    opacity: 1;
+    background: 0 0;
+    color: #fff;
+    border: 0;
+    background: rgba(255, 255, 255, .08)
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__item.show .m-tabs__link > i, .m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link.active > i, .m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head-tools .m-tabs-line .m-tabs__link:hover > i {
+    color: #fff
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__body {
+    background: #fff
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__foot {
+    background: #fff;
+    border-color: #212529
+}

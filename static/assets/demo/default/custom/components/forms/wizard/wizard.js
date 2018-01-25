@@ -26,7 +26,12 @@ var WizardDemo = function () {
         //== Change event
         wizard.on('change', function(wizard) {
             mApp.scrollTop();
-            data = formEl.serializeArray();
+            data = formEl.serialize();
+
+            if(wizard.isLastStep()) {
+                $('#client_name_fstep').html(client_name.value);
+                $('#client_budget_fstep').html(client_budget.value);
+            }
         });
     };
 
@@ -40,14 +45,25 @@ var WizardDemo = function () {
                 //=== Client Information(step 1)
                 //== Client details
                 client_name: {
-                    required: true
+                    required: true,
+                    minlength: 3
+                },
+                client_budget: {
+                    required: true,
+                    digits: true
+
                 }
             },
 
             //== Validation messages
             messages: {
-                name: {
-                    required: 'You must enter a client name'
+                client_name: {
+                    required: 'Please enter a client name.',
+                    minlength: jQuery.validator.format('Please, at least {0} characters are required.')
+                },
+                client_budget: {
+                    required: 'A budget for the new client is required.',
+                    digits: 'Only digits are allowed in this field.'
                 }
             },
 
@@ -61,7 +77,7 @@ var WizardDemo = function () {
                     "type": "error",
                     "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
                 });
-            },
+            }
 
             //== Submit valid form
             // submitHandler: function (form) {
@@ -77,7 +93,7 @@ var WizardDemo = function () {
 
             if (validator.form()) {
                 //== See: http://malsup.com/jquery/form/#ajaxSubmit
-                console.log(data);
+
                 formEl.ajaxSubmit({
                     type: 'POST',
                     headers: {'X-CSRFToken': csrftoken},
@@ -96,7 +112,12 @@ var WizardDemo = function () {
                         wizardEl.goFirst();
                     },
                     error: function(ajaxContext) {
-                        console.log(ajaxContext);
+                        swal({
+                            "title": "",
+                            "text": ajaxContext.statusText,
+                            "type": "error",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
                     }
                 });
             }
@@ -110,7 +131,7 @@ var WizardDemo = function () {
             formEl = $('#m_form');
             modalEl = $('#m_modal_clients');
 
-            initWizard(); 
+            initWizard();
             initValidation();
             initSubmit();
         }

@@ -5,6 +5,7 @@ from django.contrib import admin
 
 # Register your models here.
 
+
 class DependentAccountAdmin(admin.ModelAdmin):
     fields = ('dependent_account_id', 'dependent_account_name')
     list_filter = ('created_time', 'updated_time')

@@ -8,10 +8,9 @@ from bing_dashboard import models as bing_a
 
 class Client(models.Model):
 
-    client_id = models.AutoField(primary_key=True, default=1)
     client_name = models.CharField(max_length=255, default='None')
-    adwords = models.ManyToManyField(adwords_a.DependentAccount, default=None)
-    bing = models.ManyToManyField(bing_a.BingAccounts, default=None)
+    adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, null=True, related_name='adwords')
+    bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, null=True, related_name='bing')
     # facebook = models.ManyToManyField(fb.FacebookAccount, on_delete=models.CASCADE)
     budget = models.IntegerField(default=0)
     current_spend = models.IntegerField(default=0)
