@@ -27,7 +27,14 @@
               {% for item in items %}
               <tr>
                 <td>{{ item.account.account_name }}</td>
-                <td style="text-align: center">{{ item.account.current_spend }}</td>
+                <td style="text-align: center">
+                    <div class="progress m-progress--lg">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio item.account.current_spend item.account.desired_spend 100 %}%; color: #000;"
+                             aria-valuenow="{% widthratio item.account.current_spend item.account.desired_spend 100 %}" aria-valuemin="0" aria-valuemax="100"
+                             data-placement="top" title="" data-original-title="Bing">{% widthratio item.account.current_spend item.account.desired_spend 100 %}%
+                        </div>
+                    </div>
+                </td>
                 <td style="text-align: center">
                     <input id="desired_spend{{ item.account.account_id }}" style="width:70%;text-align:center;" type="number" min="0" max="10000000000" name="" value="{{item.account.desired_spend}}" readonly>
                 </td>

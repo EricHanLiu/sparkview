@@ -10,14 +10,21 @@ def startswith(text, starts):
     return false
 
 
-@register.filter
+@register.filter(name='get_type')
 def get_type(value):
     return type(value)
 
 
-@register.filter
+@register.filter(name='uni2float')
 def uni2float(value):
     try:
         return float(value)
+    except ValueError:
+        return value
+
+@register.filter(name='uni2int')
+def uni2int(value):
+    try:
+        return int(value)
     except ValueError:
         return value

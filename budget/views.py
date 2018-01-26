@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from adwords_dashboard.models import DependentAccount
 from bing_dashboard.models import BingAccounts
@@ -110,25 +110,33 @@ def add_client(request):
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
 
-        for a in adwords_accounts:
-            aw_acc = DependentAccount.objects.get(dependent_account_name=a)
-            aw.append(aw_acc)
+        if adwords_accounts:
+            for a in adwords_accounts:
+                noofaccounts = len(adwords_accounts)
+                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
+                aw_acc.desired_spend = int(budget)/2/noofaccounts
+                aw_acc.save()
+                aw.append(aw_acc)
 
-        for b in bing_accounts:
-            bing_acc = BingAccounts.objects.get(account_name=b)
-            bng.append(bing_acc)
+        if bing_accounts:
+            for b in bing_accounts:
+                noofaccounts = len(bing_accounts)
+                bing_acc = BingAccounts.objects.get(account_id=b)
+                bing_acc.desired_spend = int(budget)/2/noofaccounts
+                bing_acc.save()
+                bng.append(bing_acc)
 
         new_client = Client.objects.create(client_name=name, budget=budget)
 
-        for acc in aw:
-            new_client.adwords.add(acc)
-            new_client.save()
-            print('Added to new client ' + acc.dependent_account_name)
+        if aw:
+            for acc in aw:
+                new_client.adwords.add(acc)
+                new_client.save()
 
-        for bacc in bng:
-            new_client.bing.add(bacc)
-            new_client.save()
-            print('Added to new client ' + bacc.account_name)
+        if bng:
+            for bacc in bng:
+                new_client.bing.add(bacc)
+                new_client.save()
 
         aw = []
         bng = []
@@ -150,3 +158,13 @@ def client_details(request, client_id):
             return render(request, 'budget/view_client.html', context)
         except ValueError:
             raise Http404
+
+@login_required
+def delete_clients(request):
+
+    if request.method == 'GET':
+        return HttpResponse('What are you looking for here?')
+
+    elif request.method == 'POST':
+        context = {}
+        return JsonResponse(context)

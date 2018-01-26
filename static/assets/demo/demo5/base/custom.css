@@ -102,3 +102,24 @@
     background: #fff;
     border-color: #212529
 }
+
+.progress.m-progress--lg {
+    height: 30px;
+}
+.progress.m-progress--lg .progress-bar{
+    height: 30px;
+}
+
+.progress.m-progress--lg .progress-bar {
+    border-radius: 0;
+}
+
+.delete-client {
+    margin-left: 5px;
+    float: right;
+}
+
+.add-client {
+    margin-left: 15px;
+    fl
+}

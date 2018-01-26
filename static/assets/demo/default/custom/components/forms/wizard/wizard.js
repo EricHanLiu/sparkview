@@ -27,6 +27,7 @@ var WizardDemo = function () {
         wizard.on('change', function(wizard) {
             mApp.scrollTop();
             data = formEl.serialize();
+            console.log(data);
 
             if(wizard.isLastStep()) {
                 $('#client_name_fstep').html(client_name.value);
@@ -50,7 +51,8 @@ var WizardDemo = function () {
                 },
                 client_budget: {
                     required: true,
-                    digits: true
+                    digits: true,
+                    max: 10000000
 
                 }
             },
@@ -59,11 +61,12 @@ var WizardDemo = function () {
             messages: {
                 client_name: {
                     required: 'Please enter a client name.',
-                    minlength: jQuery.validator.format('Please, at least {0} characters are required.')
+                    minlength: jQuery.validator.format('At least {0} characters are required.')
                 },
                 client_budget: {
                     required: 'A budget for the new client is required.',
-                    digits: 'Only digits are allowed in this field.'
+                    digits: 'Only digits are allowed in this field.',
+                    max: 'You\'re not allowed to enter numbers bigger than 10000000.'
                 }
             },
 
@@ -102,14 +105,15 @@ var WizardDemo = function () {
                     success: function() {
                         formEl.resetForm();
                         modalEl.modal('hide');
-
-                        swal({
-                            "title": "",
-                            "text": "New client added to the database.",
-                            "type": "success",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
                         wizardEl.goFirst();
+                        swal({
+                                "title": "",
+                                "text": "New client added to the database.",
+                                "type": "success",
+                                "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"},
+                                function(){
+                                   location.reload();
+                                });
                     },
                     error: function(ajaxContext) {
                         swal({
