@@ -7,7 +7,7 @@ var WizardDemo = function () {
     var validator;
     var wizard;
     var data = {};
-    
+
     //== Private functions
     var initWizard = function () {
         //== Initialize form wizard
@@ -16,7 +16,7 @@ var WizardDemo = function () {
         });
 
         //== Validation before going to next page
-        wizard.on('beforeNext', function(wizard) {
+        wizard.on('beforeNext', function (wizard) {
             if (validator.form() !== true) {
                 return false;  // don't go to the next step
             }
@@ -24,19 +24,18 @@ var WizardDemo = function () {
         });
 
         //== Change event
-        wizard.on('change', function(wizard) {
+        wizard.on('change', function (wizard) {
             mApp.scrollTop();
             data = formEl.serialize();
-            console.log(data);
 
-            if(wizard.isLastStep()) {
+            if (wizard.isLastStep()) {
                 $('#client_name_fstep').html(client_name.value);
                 $('#client_budget_fstep').html(client_budget.value);
             }
         });
     };
 
-    var initValidation = function() {
+    var initValidation = function () {
         validator = formEl.validate({
             //== Validate only visible fields
             ignore: ":hidden",
@@ -71,7 +70,7 @@ var WizardDemo = function () {
             },
 
             //== Display error
-            invalidHandler: function(event, validator) {
+            invalidHandler: function (event, validator) {
                 mApp.scrollTop();
 
                 swal({
@@ -88,12 +87,11 @@ var WizardDemo = function () {
         });
     };
 
-    var initSubmit = function() {
+    var initSubmit = function () {
         var btn = formEl.find('[data-wizard-action="submit"]');
         var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-        btn.on('click', function(e) {
+        btn.on('click', function (e) {
             e.preventDefault();
-
             if (validator.form()) {
                 //== See: http://malsup.com/jquery/form/#ajaxSubmit
 
@@ -102,26 +100,29 @@ var WizardDemo = function () {
                     headers: {'X-CSRFToken': csrftoken},
                     data: data,
                     url: '',
-                    success: function() {
+                    success: function () {
+                        swal({
+                            "title": "",
+                            "text": "New client added to the database.",
+                            "type": "success",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
                         formEl.resetForm();
                         modalEl.modal('hide');
                         wizardEl.goFirst();
-                        swal({
-                                "title": "",
-                                "text": "New client added to the database.",
-                                "type": "success",
-                                "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"},
-                                function(){
-                                   location.reload();
-                                });
                     },
-                    error: function(ajaxContext) {
+                    error: function (ajaxContext) {
                         swal({
                             "title": "",
                             "text": ajaxContext.statusText,
                             "type": "error",
                             "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
                         });
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2500);
                     }
                 });
             }
@@ -130,7 +131,7 @@ var WizardDemo = function () {
 
     return {
         // public functions
-        init: function() {
+        init: function () {
             wizardEl = $('#m_wizard');
             formEl = $('#m_form');
             modalEl = $('#m_modal_clients');
@@ -142,6 +143,6 @@ var WizardDemo = function () {
     };
 }();
 
-jQuery(document).ready(function() {    
+jQuery(document).ready(function () {
     WizardDemo.init();
 });

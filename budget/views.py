@@ -162,9 +162,17 @@ def client_details(request, client_id):
 @login_required
 def delete_clients(request):
 
+    context = {}
+
     if request.method == 'GET':
         return HttpResponse('What are you looking for here?')
 
     elif request.method == 'POST':
-        context = {}
+
+        client_ids = request.POST.getlist('client_ids[]')
+        for client in client_ids:
+            rip_client = Client.objects.get(id=client)
+            rip_client.delete()
+
+        context['ok'] = 'Success!'
         return JsonResponse(context)
