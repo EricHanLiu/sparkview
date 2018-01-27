@@ -114,7 +114,10 @@ def add_client(request):
             for a in adwords_accounts:
                 noofaccounts = len(adwords_accounts)
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                aw_acc.desired_spend = int(budget)/2/noofaccounts
+                if bing_accounts:
+                    aw_acc.desired_spend = int(budget)/2/noofaccounts
+                else:
+                    aw_acc.desired_spend = int(budget)/noofaccounts
                 aw_acc.save()
                 aw.append(aw_acc)
 
@@ -122,7 +125,10 @@ def add_client(request):
             for b in bing_accounts:
                 noofaccounts = len(bing_accounts)
                 bing_acc = BingAccounts.objects.get(account_id=b)
-                bing_acc.desired_spend = int(budget)/2/noofaccounts
+                if adwords_accounts:
+                    bing_acc.desired_spend = int(budget)/2/noofaccounts
+                else:
+                    bing_acc.desired_spend = int(budget)/noofaccounts
                 bing_acc.save()
                 bng.append(bing_acc)
 
