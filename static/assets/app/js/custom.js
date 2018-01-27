@@ -49,36 +49,45 @@ $(document).ready(function () {
         e.preventDefault();
 
         var data = table.$('input[type="checkbox"]').serialize();
-        console.log(data);
 
-        $.ajax({
-            url: '/budget/clients/delete/',
-            headers: {'X-CSRFToken': csrftoken},
-            type: 'POST',
-            data: data,
-            success: function () {
-                swal({
-                    "title": "",
-                    "text": "Client(s) deleted from the database.",
-                    "type": "success",
-                    "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                });
-            },
-            error: function (ajaxContext) {
-                swal({
-                    "title": "",
-                    "text": ajaxContext.statusText,
-                    "type": "error",
-                    "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                });
-            },
-            complete: function () {
-                setTimeout(function () {
-                    location.reload();
-                }, 2500);
-            }
+        if (data) {
+            $.ajax({
+                url: '/budget/clients/delete/',
+                headers: {'X-CSRFToken': csrftoken},
+                type: 'POST',
+                data: data,
+                success: function () {
+                    swal({
+                        "title": "SUCCESS",
+                        "text": "Client(s) deleted from the database.",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                },
+                error: function (ajaxContext) {
+                    swal({
+                        "title": "ERROR",
+                        "text": ajaxContext.statusText,
+                        "type": "error",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                }
 
-        });
+            });
+        } else {
+            swal({
+                'title': 'ERROR',
+                'text': 'Please select at least one client to delete.',
+                'type': 'error',
+                'confirmButtonClass': 'btn btn-secondary m-btn m-btn--wide'
+            });
+        }
+
     });
 
 })

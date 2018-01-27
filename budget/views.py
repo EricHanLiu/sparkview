@@ -12,12 +12,12 @@ from datetime import datetime
 # from dashboard.decorators import cache_on_auth
 
 
-
 # Create your views here.
 @login_required
 @xframe_options_exempt
-def index(request):
+def index():
     return redirect(index_budget)
+
 
 @login_required
 @xframe_options_exempt
@@ -31,10 +31,9 @@ def index_budget(request):
         try:
             accounts = DependentAccount.objects.filter(blacklisted='False')
             for acc in accounts:
-                item = {}
-                item['account'] = acc
+                item = {'account': acc}
                 items.append(item)
-            return render(request, 'budget/adwords_budget.html', {'items' : items})
+            return render(request, 'budget/adwords_budget.html', {'items': items})
         except ValueError:
             raise Http404
 
@@ -45,12 +44,14 @@ def index_budget(request):
             account.desired_spend = desired_spend
             account.dependent_OVU = (float(account.current_spend) / (float(account.desired_spend) / days * now.day)) * 100
             account.save()
-            context = {}
-            context['error'] = 'OK'
-            context['OVU'] = account.dependent_OVU
+            context = {
+                'error': 'OK',
+                'OVU': account.dependent_OVU
+            }
             return JsonResponse(context)
         except ValueError:
             raise Http404
+
 
 @login_required
 @xframe_options_exempt
@@ -61,10 +62,9 @@ def bing_budget(request):
         try:
             accounts = BingAccounts.objects.filter(blacklisted='False')
             for acc in accounts:
-                item = {}
-                item['account'] = acc
+                item = {'account': acc}
                 items.append(item)
-            return render(request, 'budget/bing_budget.html', {'items' : items})
+            return render(request, 'budget/bing_budget.html', {'items': items})
         except ValueError:
             raise Http404
 
@@ -75,12 +75,14 @@ def bing_budget(request):
             account.desired_spend = desired_spend
             account.account_ovu = int(float(account.current_spend) / float(account.desired_spend) * float(100))
             account.save()
-            context = {}
-            context['error'] = 'OK'
-            context['OVU'] = account.account_ovu
+            context = {
+                'error': 'OK',
+                'OVU': account.account_ovu
+            }
             return JsonResponse(context)
         except ValueError:
             raise Http404
+
 
 @login_required
 @xframe_options_exempt
@@ -144,12 +146,10 @@ def add_client(request):
                 new_client.bing.add(bacc)
                 new_client.save()
 
-        aw = []
-        bng = []
-
         context = {}
         # facebook_accounts = request.POST.getlist('facebook')
         return JsonResponse(context)
+
 
 @login_required
 @xframe_options_exempt
@@ -159,13 +159,15 @@ def client_details(request, client_id):
         try:
             client = Client.objects.get(id=client_id)
             print(client.bing)
-            context = {}
-            context['client_data'] = client
+            context = {'client_data': client}
+            # context['client_data'] = client
             return render(request, 'budget/view_client.html', context)
         except ValueError:
             raise Http404
 
+
 @login_required
+@xframe_options_exempt
 def delete_clients(request):
 
     context = {}
@@ -176,9 +178,13 @@ def delete_clients(request):
     elif request.method == 'POST':
 
         client_ids = request.POST.getlist('client_ids[]')
-        for client in client_ids:
-            rip_client = Client.objects.get(id=client)
-            rip_client.delete()
 
-        context['ok'] = 'Success!'
+        if client_ids:
+            for client in client_ids:
+                rip_client = Client.objects.get(id=client)
+                rip_client.delete()
+                context['status'] = 'success'
+        else:
+            context['status'] = 'no data received'
+
         return JsonResponse(context)
