@@ -139,11 +139,17 @@ def add_client(request):
         if aw:
             for acc in aw:
                 new_client.adwords.add(acc)
+                new_client.current_spend += acc.current_spend
+                new_client.aw_spend += acc.current_spend
+                new_client.aw_budget += acc.desired_spend
                 new_client.save()
 
         if bng:
             for bacc in bng:
                 new_client.bing.add(bacc)
+                new_client.current_spend += bacc.current_spend
+                new_client.bing_spend += bacc.current_spend
+                new_client.bing_budget += bacc.desired_spend
                 new_client.save()
 
         context = {}
