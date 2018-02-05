@@ -51,6 +51,7 @@ var WizardDemo = function () {
                 client_budget: {
                     required: true,
                     digits: true,
+                    min: 1,
                     max: 10000000
 
                 }
