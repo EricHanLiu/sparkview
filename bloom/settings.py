@@ -163,3 +163,11 @@ DEVELOPER_TOKEN = "1215QQ0H16176244"
 DEVELOPER_TOKEN_SANDBOX = "BBD37VB98"
 ENVIRONMENT = "production"
 BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_PORT=587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = True
+DEFAULT_EMAIL_FROM = ''

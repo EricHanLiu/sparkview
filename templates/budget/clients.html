@@ -45,27 +45,27 @@
                                         </a>
                                     </td>
                                     <td style="text-align: center">
-                                        <div class="progress m-progress">
-                                            <div class="progress-bar" role="progressbar" style="width: {% widthratio client.aw_spend client.aw_budget 100 %}%"
-                                                 aria-valuenow="{% widthratio client.aw_spend client.aw_budget 100 %}" aria-valuemin="0" aria-valuemax="100"
+                                        <div class="progress m-progress--lg">
+                                            <div class="progress-bar {{ client.current_spend|percentage:client.budget }}" role="progressbar" style="width: {% widthratio client.current_spend client.budget 100 %}%"
+                                                 aria-valuenow="{% widthratio client.current_spend client.budget 100 %}" aria-valuemin="0" aria-valuemax="100"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="AW: {{ client.aw_spend }}/{{ client.aw_budget }}">
-                                                    {% widthratio client.aw_spend client.aw_budget 100 %}%
+                                                 data-original-title="{{ client.current_spend }}/{{ client.budget }}">
+                                                    {% widthratio client.current_spend client.budget 100 %}%
                                             </div>
                                         </div>
-                                        <div class="progress m-progress">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio client.bing_spend client.budget 100 %}%"
-                                                 aria-valuenow="{% widthratio client.bing_spend client.bing_budget 100 %}" aria-valuemin="0" aria-valuemax="100"
-                                                 data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="Bing: {{ client.bing_spend }}/{{ client.bing_budget }}">
-                                                {% widthratio client.bing_spend client.bing_budget 100 %}%
-                                            </div>
+{#                                        <div class="progress m-progress">#}
+{#                                            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio client.bing_spend client.budget 100 %}%"#}
+{#                                                 aria-valuenow="{% widthratio client.bing_spend client.bing_budget 100 %}" aria-valuemin="0" aria-valuemax="100"#}
+{#                                                 data-toggle="m-tooltip" data-placement="top" title=""#}
+{#                                                 data-original-title="Bing: {{ client.bing_spend }}/{{ client.bing_budget }}">#}
+{#                                                {% widthratio client.bing_spend client.bing_budget 100 %}%#}
+{#                                            </div>#}
 {#                                            <div class="progress-bar bg-info" role="progressbar" style="width: 20%"#}
 {#                                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"#}
 {#                                                 data-toggle="m-tooltip" data-placement="right" title=""#}
 {#                                                 data-original-title="Facebook">0%#}
 {#                                            </div>#}
-                                        </div>
+{#                                        </div>#}
 
                                     </td>
                                     <td style="text-align: center">

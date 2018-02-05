@@ -164,7 +164,6 @@ def client_details(request, client_id):
     if request.method == 'GET':
         try:
             client = Client.objects.get(id=client_id)
-            print(client.bing)
             context = {'client_data': client}
             # context['client_data'] = client
             return render(request, 'budget/view_client.html', context)

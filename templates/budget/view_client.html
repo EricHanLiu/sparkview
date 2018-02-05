@@ -36,25 +36,6 @@
                                                 Info
                                             </a>
                                         </li>
-                                        <li class="nav-item m-tabs__item">
-                                            <a class="nav-link m-tabs__link" data-toggle="tab"
-                                               href="#m_tabs_7_2" role="tab" aria-selected="false">
-                                                AdWords Accounts
-                                            </a>
-                                        </li>
-                                        <li class="nav-item m-tabs__item">
-                                            <a class="nav-link m-tabs__link" data-toggle="tab"
-                                               href="#m_tabs_7_3" role="tab">
-                                                Bing Accounts
-                                            </a>
-                                        </li>
-                                        <li class="nav-item m-tabs__item">
-                                            <a class="nav-link m-tabs__link" data-toggle="tab"
-                                               href="#m_tabs_7_4" role="tab">
-                                                Facebook Accounts
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </div>
                             <div class="m-portlet__body">
@@ -74,182 +55,85 @@
                                                     <span class="m-accordion__item-mode"></span>
                                                 </div>
 
-                                                <div class="m-accordion__item-body collapse"
+                                                <div class="m-accordion__item-body"
                                                      id="m_accordion_1_item_1_body"
                                                      role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
                                                      data-parent="#m_accordion_1" style="">
                                                     <div class="m-accordion__item-content">
+
+
                                                         <p>
-                                                            Budget : {{ client_data.budget }}
+                                                            <span class="m--font-boldest2">Budget </span>
+                                                            - {{ client_data.budget }}
                                                         </p>
                                                         <p>
-                                                            Current spend : {{ client_data.current_spend }}
+                                                            <span class="m--font-boldest2">Current spend</span>
+                                                            - {{ client_data.current_spend }}
                                                         </p>
+                                                        <div class="m-separator m-separator--metal"></div>
+                                                        <p>
+                                                            <h3>AdWords Accounts</h3>
+                                                            {% for a in client_data.adwords.all %}
+                                                                <span class="m-list-timeline__text">
+                                                                    <h6>
+                                                                        {{ a.dependent_account_name }}
+                                                                    </h6>
+                                                                </span>
+
+                                                                <div class="progress m-progress--lg">
+                                                                    <div class="progress-bar
+                                                                            {{ a.current_spend|percentage:a.desired_spend }}"
+                                                                         role="progressbar"
+                                                                         style="width: {% widthratio a.current_spend a.desired_spend 100 %}%"
+                                                                         aria-valuenow="{% widthratio a.current_spend a.desired_spend 100 %}"
+                                                                         aria-valuemin="0" aria-valuemax="100"
+                                                                         data-toggle="m-tooltip" data-placement="top"
+                                                                         title=""
+                                                                         data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
+                                                                        {% widthratio a.current_spend a.desired_spend 100 %}%
+                                                                    </div>
+                                                                </div>
+                                                        </p>
+                                                            {% empty %}
+                                                        <p>
+                                                            <h6>
+                                                                No accounts selected for this client...
+                                                            </h6>
+                                                        </p>
+                                                        {% endfor %}
+                                                        <div class="m-separator m-separator--metal"></div>
+                                                        <p>
+                                                            <h3>Bing Accounts</h3>
+                                                            {% for b in client_data.bing.all %}
+                                                                    <h6>
+                                                                        {{ b.account_name }}
+                                                                    </h6>
+                                                                    <div class="progress m-progress--lg">
+                                                                        <div class="progress-bar
+                                                                                {{ b.current_spend|percentage:b.desired_spend }}"
+                                                                             role="progressbar"
+                                                                             style="width: {% widthratio b.current_spend b.desired_spend 100 %}%"
+                                                                             aria-valuenow="{% widthratio b.current_spend b.desired_spend 100 %}"
+                                                                             aria-valuemin="0" aria-valuemax="100"
+                                                                             data-toggle="m-tooltip" data-placement="top"
+                                                                             title=""
+                                                                             data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
+                                                                            {% widthratio b.current_spend b.desired_spend 100 %}%
+                                                                        </div>
+                                                                    </div>
+                                                        </p>
+                                                            {% empty %}
+                                                            <p>
+                                                                <h6>
+                                                                    <p>
+                                                                        No accounts selected for this client...
+                                                                    </p>
+                                                                </h6>
+                                                            </p>
+                                                        {% endfor %}
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane" id="m_tabs_7_2" role="tabpanel">
-                                        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-                                             role="tablist">
-                                            {% for a in client_data.adwords.all %}
-                                                <!--begin::Item-->
-                                                <div class="m-accordion__item">
-                                                    <div class="m-accordion__item-head collapsed" role="tab"
-                                                         id="m_accordion_1_item_1_head" data-toggle="collapse"
-                                                         href="#{{ a.dependent_account_id }}_body"
-                                                         aria-expanded="false">
-                                            <span class="m-accordion__item-icon"><i
-                                                    class="fa fa-google"></i></span>
-                                                        <span class="m-accordion__item-title">{{ a.dependent_account_name }}</span>
-                                                        <span class="m-accordion__item-mode"></span>
-                                                    </div>
-
-                                                    <div class="m-accordion__item-body collapse"
-                                                         id="{{ a.dependent_account_id }}_body"
-                                                         role="tabpanel"
-                                                         aria-labelledby="m_accordion_1_item_1_head"
-                                                         data-parent="#m_accordion_1" style="">
-                                                        <div class="m-accordion__item-content">
-                                                            <p>
-                                                                Budget : {{ a.desired_spend }}
-                                                            </p>
-                                                            <p>
-                                                                Current Spend : {{ a.current_spend }}
-
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!--end::Item-->
-                                                {% empty %}
-                                            <div class="m-accordion__item">
-                                                    <div class="m-accordion__item-head collapsed" role="tab"
-                                                         id="m_accordion_1_item_1_head" data-toggle="collapse"
-                                                         href="#no_data_body"
-                                                         aria-expanded="false">
-                                            <span class="m-accordion__item-icon"><i
-                                                    class="fa fa-google"></i></span>
-                                                        <span class="m-accordion__item-title">No data available.</span>
-                                                        <span class="m-accordion__item-mode"></span>
-                                                    </div>
-
-                                                    <div class="m-accordion__item-body collapse"
-                                                         id="no_data_body"
-                                                         role="tabpanel"
-                                                         aria-labelledby="m_accordion_1_item_1_head"
-                                                         data-parent="#m_accordion_1" style="">
-                                                        <div class="m-accordion__item-content">
-                                                            <p>
-                                                                Budget : N/A
-                                                            </p>
-                                                            <p>
-                                                                Current Spend : N/A
-
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane " id="m_tabs_7_3" role="tabpanel">
-                                        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-                                             role="tablist">
-                                            {% for b in client_data.bing.all %}
-                                                <!--begin::Item-->
-                                                <div class="m-accordion__item">
-                                                    <div class="m-accordion__item-head collapsed" role="tab"
-                                                         id="m_accordion_1_item_1_head" data-toggle="collapse"
-                                                         href="#{{ b.account_id }}_body" aria-expanded="false">
-                                                                <span class="m-accordion__item-icon">
-                                                                    <i class="fa fa-windows"></i>
-                                                                </span>
-                                                        <span class="m-accordion__item-title">{{ b.account_name }}</span>
-                                                        <span class="m-accordion__item-mode"></span>
-                                                    </div>
-
-                                                    <div class="m-accordion__item-body collapse"
-                                                         id="{{ b.account_id }}_body"
-                                                         role="tabpanel"
-                                                         aria-labelledby="m_accordion_1_item_1_head"
-                                                         data-parent="#m_accordion_1" style="">
-                                                        <div class="m-accordion__item-content">
-                                                            <p>
-                                                                Budget : {{ b.desired_spend }}
-                                                            </p>
-                                                            <p>
-                                                                Current Spend : {{ b.current_spend }}
-
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {% empty %}
-                                            <div class="m-accordion__item">
-                                                    <div class="m-accordion__item-head collapsed" role="tab"
-                                                         id="m_accordion_1_item_1_head" data-toggle="collapse"
-                                                         href="#no_data_bing_body"
-                                                         aria-expanded="false">
-                                            <span class="m-accordion__item-icon"><i
-                                                    class="fa fa-windows"></i></span>
-                                                        <span class="m-accordion__item-title">No data available.</span>
-                                                        <span class="m-accordion__item-mode"></span>
-                                                    </div>
-
-                                                    <div class="m-accordion__item-body collapse"
-                                                         id="no_data_bing_body"
-                                                         role="tabpanel"
-                                                         aria-labelledby="m_accordion_1_item_1_head"
-                                                         data-parent="#m_accordion_1" style="">
-                                                        <div class="m-accordion__item-content">
-                                                            <p>
-                                                                Budget : N/A
-                                                            </p>
-                                                            <p>
-                                                                Current Spend : N/A
-
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!--end::Item-->
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane " id="m_tabs_7_4" role="tabpanel">
-                                        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-                                             role="tablist">
-                                            <!--begin::Item-->
-                                            <div class="m-accordion__item">
-                                                <div class="m-accordion__item-head collapsed" role="tab"
-                                                     id="m_accordion_1_item_1_head" data-toggle="collapse"
-                                                     href="#{{ f.account_id }}_body" aria-expanded="false">
-                                                                <span class="m-accordion__item-icon">
-                                                                    <i class="fa fa-facebook-official"></i>
-                                                                </span>
-                                                    <span class="m-accordion__item-title">No data available.</span>
-                                                    <span class="m-accordion__item-mode"></span>
-                                                </div>
-
-                                                <div class="m-accordion__item-body collapse"
-                                                     id="{{ f.account_id }}_body"
-                                                     role="tabpanel"
-                                                     aria-labelledby="m_accordion_1_item_1_head"
-                                                     data-parent="#m_accordion_1" style="">
-                                                    <div class="m-accordion__item-content">
-                                                        <p>
-                                                            Budget : {{ f.desired_spend }}
-                                                        </p>
-                                                        <p>
-                                                            Current Spend : {{ f.current_spend }}
-
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!--end::Item-->
                                         </div>
                                     </div>
                                 </div>
