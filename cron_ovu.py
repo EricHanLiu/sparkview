@@ -36,7 +36,6 @@ def add_ovu(data):
         if account.desired_spend == 0:
             account.current_spend = account_cost
             account.yesterday_spend = yesterday
-            print('YS' + str(yesterday))
             account.dependent_OVU = 0
             account.save()
             print('desired_spend = 0, ovu = 0')
@@ -44,7 +43,6 @@ def add_ovu(data):
         else:
             account.current_spend = account_cost
             account.yesterday_spend = yesterday
-            print(yesterday)
             account.dependent_OVU = (float(account_cost) / (float(account.desired_spend) / days * now.day)) * 100
             account.save()
             print('Calculated OVU and added to DB - ' + str(account.dependent_account_id))
@@ -58,6 +56,8 @@ def main():
             data = ovu.get_account_cost(account.dependent_account_id, adwords_client)
             add_ovu(data)
             print('Added to DB for account ' + str(account.dependent_account_id))
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except:
             print('Failed for account: ' + str(account.dependent_account_id))
 
