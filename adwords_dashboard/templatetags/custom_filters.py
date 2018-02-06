@@ -1,4 +1,6 @@
 from django import template
+from datetime import datetime
+import calendar
 
 register = template.Library()
 
@@ -46,3 +48,35 @@ def percentage(spend, budget):
 
     else:
         return 'bg-danger'
+
+
+@register.filter(name='daily_spend')
+def daily_spend(spend):
+
+    now = datetime.now()
+    value = spend / now.day
+
+    return value
+
+
+@register.filter(name='projected')
+def projected(spend):
+
+    now = datetime.now()
+    d_spend = spend / now.day
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - now.day
+    # projected value
+    rval = (d_spend * remaining) + spend
+    return rval
+
+
+@register.filter(name='gap')
+def gap(spend):
+    return spend - projected(spend)
+
+@register.filter(name='subtract')
+def subtract(value, arg):
+    return value - arg
+
+

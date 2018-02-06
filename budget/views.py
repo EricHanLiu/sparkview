@@ -161,10 +161,20 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
+    now = datetime.now()
+    current_day = now.day
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - current_day
+
     if request.method == 'GET':
         try:
             client = Client.objects.get(id=client_id)
-            context = {'client_data': client}
+            context = {
+                'client_data': client,
+                'today': current_day,
+                'no_of_days': days,
+                'remaining': remaining
+            }
             # context['client_data'] = client
             return render(request, 'budget/view_client.html', context)
         except ValueError:

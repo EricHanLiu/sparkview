@@ -60,8 +60,6 @@
                                                      role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
                                                      data-parent="#m_accordion_1" style="">
                                                     <div class="m-accordion__item-content">
-
-
                                                         <p>
                                                             <span class="m--font-boldest2">Budget </span>
                                                             - {{ client_data.budget }}
@@ -93,7 +91,21 @@
                                                                         {% widthratio a.current_spend a.desired_spend 100 %}%
                                                                     </div>
                                                                 </div>
+                                                                <div class="m-separator"></div>
+                                                                <p>
+                                                                    <b>Spend to date</b>: {{ a.current_spend }} |
+                                                                    <b>Yesterday's spend</b>: {{ a.yesterday_spend }} |
+                                                                    <b>Target spend</b>: {{ a.desired_spend }} |
+                                                                    <b>Projected</b>: {{ a.current_spend|projected|floatformat:2 }}
+                                                                </p>
+                                                                <p>
+                                                                    <b>Daily spend to date</b>: {{ a.current_spend|daily_spend|floatformat:2 }} |
+                                                                    <b>Daily spend to reach target</b>: {% widthratio a.desired_spend remaining 1 %} |
+                                                                    <b>Cycle progress</b>: {{ today }} of {{ no_of_days }} days |
+                                                                    <b>Remaining days</b>: {{ remaining }}
+                                                                </p>
                                                         </p>
+                                                                <div class="m-separator"></div>
                                                             {% empty %}
                                                         <p>
                                                             <h6>
@@ -102,7 +114,7 @@
                                                         </p>
                                                         {% endfor %}
                                                         <div class="m-separator m-separator--metal"></div>
-                                                        <p>
+{#                                                        <p>#}
                                                             <h3>Bing Accounts</h3>
                                                             {% for b in client_data.bing.all %}
                                                                     <h6>
@@ -121,15 +133,28 @@
                                                                             {% widthratio b.current_spend b.desired_spend 100 %}%
                                                                         </div>
                                                                     </div>
-                                                        </p>
+                                                                <div class="m-separator"></div>
+                                                                <p>
+                                                                    <b>Spend to date</b>: {{ b.current_spend }} |
+                                                                    <b>Yesterday's spend</b>: {{ b.yesterday_spend }} |
+                                                                    <b>Target spend</b>: {{ b.desired_spend }} |
+                                                                    <b>Projected</b>: {{ b.current_spend|projected|floatformat:2 }}
+                                                                </p>
+                                                                <p>
+                                                                    <b>Daily spend to date</b>: {{ b.current_spend|daily_spend|floatformat:2 }} |
+                                                                    <b>Daily spend to reach target</b>: {% widthratio b.desired_spend remaining 1 %} |
+                                                                    <b>Cycle progress</b>: {{ today }} of {{ no_of_days }} days |
+                                                                    <b>Remaining days</b>: {{ remaining }}
+                                                                </p>
+                                                                <div class="m-separator"></div>
                                                             {% empty %}
-                                                            <p>
+
                                                                 <h6>
                                                                     <p>
                                                                         No accounts selected for this client...
                                                                     </p>
                                                                 </h6>
-                                                            </p>
+                                                        </p>
                                                         {% endfor %}
                                                     </div>
                                                 </div>

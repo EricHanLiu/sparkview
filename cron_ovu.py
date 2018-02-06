@@ -22,6 +22,11 @@ def add_ovu(data):
         account_cost = 0
     else:
         account_cost = data['cost']
+
+    if data['yesterday'] == ' -- ':
+        yesterday = 0
+    else:
+        yesterday = data['yesterday']
     account_id = data['account_id']
 
     if data:
@@ -30,12 +35,16 @@ def add_ovu(data):
 
         if account.desired_spend == 0:
             account.current_spend = account_cost
+            account.yesterday_spend = yesterday
+            print('YS' + str(yesterday))
             account.dependent_OVU = 0
             account.save()
             print('desired_spend = 0, ovu = 0')
 
         else:
             account.current_spend = account_cost
+            account.yesterday_spend = yesterday
+            print(yesterday)
             account.dependent_OVU = (float(account_cost) / (float(account.desired_spend) / days * now.day)) * 100
             account.save()
             print('Calculated OVU and added to DB - ' + str(account.dependent_account_id))

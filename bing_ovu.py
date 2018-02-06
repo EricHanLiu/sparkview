@@ -31,7 +31,7 @@ reporting_service=ServiceClient(
     version=11,
 )
 
-def get_spend_report(account_id):
+def get_spend_report(account_id, period):
 
     global reporting_service
 
@@ -51,7 +51,7 @@ def get_spend_report(account_id):
     report_request.Scope=scope
 
     report_time=reporting_service.factory.create('ReportTime')
-    report_time.PredefinedTime='ThisMonth'
+    report_time.PredefinedTime=period
     report_request.Time=report_time
 
     report_columns=reporting_service.factory.create('ArrayOfAccountPerformanceReportColumn')
@@ -92,13 +92,14 @@ def download_and_process(reporting_download_parameters):
 
     return spend
 
-def calculate_ovu(account_id, spend):
+def calculate_ovu(account_id, spend, yesterday):
 
     now = datetime.now()
     days = calendar.monthrange(now.year, now.month)[1]
 
     account = models.BingAccounts.objects.get(account_id=account_id)
     account.current_spend = spend
+    account.yesterday_spend = yesterday
     account.save()
     if account.desired_spend > 0:
         account.account_ovu = int(float(spend) / (float(account.desired_spend)/ days * now.day)) * 100
@@ -115,10 +116,14 @@ def main():
     accounts = models.BingAccounts.objects.all()
     for acc in accounts:
         print(acc.account_name)
-        report_request = get_spend_report(acc.account_id)
-        parameters=initiate_download(acc.account_id, report_request)
+        report_request = get_spend_report(acc.account_id, 'ThisMonth')
+        report_request2 = get_spend_report(acc.account_id, 'Yesterday')
+        parameters = initiate_download(acc.account_id, report_request)
+        parameters2 = initiate_download(acc.account_id, report_request2)
         spend = download_and_process(parameters)
-        calculate_ovu(acc.account_id, spend)
+        yesterday = download_and_process(parameters2)
+        print(yesterday)
+        calculate_ovu(acc.account_id, spend, yesterday)
 
 
 if __name__ == '__main__':
