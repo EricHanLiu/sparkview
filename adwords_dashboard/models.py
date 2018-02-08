@@ -28,6 +28,8 @@ class DependentAccount(models.Model):
     dependent_OVU = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
     current_spend = models.IntegerField(default=0)
+    hist_spend = models.IntegerField(default=0)
+    hist_budget = models.IntegerField(default=0)
     yesterday_spend = models.IntegerField(default=0)
     quality_score = models.IntegerField(default=0)
     historical_qs = models.IntegerField(default=0)

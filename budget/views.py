@@ -6,7 +6,7 @@ from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from adwords_dashboard.models import DependentAccount
 from bing_dashboard.models import BingAccounts
-from budget.models import Client
+from budget.models import Client, ClientHist
 import calendar
 from datetime import datetime
 # from dashboard.decorators import cache_on_auth
@@ -175,7 +175,6 @@ def client_details(request, client_id):
                 'no_of_days': days,
                 'remaining': remaining
             }
-            # context['client_data'] = client
             return render(request, 'budget/view_client.html', context)
         except ValueError:
             raise Http404
@@ -203,3 +202,44 @@ def delete_clients(request):
             context['status'] = 'no data received'
 
         return JsonResponse(context)
+
+@login_required
+@xframe_options_exempt
+def last_month(request):
+
+
+    if request.method == 'GET':
+        try:
+            context = {}
+            hist_clients = ClientHist.objects.all()
+            adwords_accounts = DependentAccount.objects.filter(blacklisted=False)
+            bing_accounts = BingAccounts.objects.filter(blacklisted=False)
+            # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+            context['clients'] = hist_clients
+            context['adwords'] = adwords_accounts
+            context['bing'] = bing_accounts
+            return render(request, 'budget/last_month.html', context)
+        except ValueError:
+            raise Http404
+
+@login_required
+@xframe_options_exempt
+def hist_client_details(request, client_id):
+
+    now = datetime.now()
+    current_day = now.day
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - current_day
+
+    if request.method == 'GET':
+        try:
+            client = ClientHist.objects.get(id=client_id)
+            context = {
+                'client_data': client,
+                'today': current_day,
+                'no_of_days': days,
+                'remaining': remaining
+            }
+            return render(request, 'budget/view_client_hist.html', context)
+        except ValueError:
+            raise Http404

@@ -7,7 +7,8 @@ from django.contrib import admin
 
 
 class DependentAccountAdmin(admin.ModelAdmin):
-    fields = ('dependent_account_id', 'dependent_account_name')
+    fields = ('dependent_account_id', 'dependent_account_name', 'desired_spend', 'current_spend', 'hist_spend',
+              'hist_budget', 'yesterday_spend')
     list_filter = ('created_time', 'updated_time')
 
 admin.site.register(DependentAccount, DependentAccountAdmin)

@@ -9,6 +9,8 @@ class BingAccounts(models.Model):
     account_ovu = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
     current_spend = models.IntegerField(default=0)
+    hist_spend = models.IntegerField(default=0)
+    hist_budget = models.IntegerField(default=0)
     yesterday_spend = models.IntegerField(default=0)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)

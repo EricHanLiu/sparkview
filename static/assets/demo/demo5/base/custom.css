@@ -116,10 +116,44 @@
 
 .delete-client {
     margin-left: 5px;
-    float: right;
+    float: right!important;
 }
 
 .add-client {
     margin-left: 15px;
-    fl
+    float: left;
+}
+
+.m-wizard.m-wizard--1.m-wizard--success .m-wizard__progress .progress .progress-bar:after {
+    display: none;
+}
+
+a {
+    color: deepskyblue;
+    text-decoration: none;
+    background-color: transparent;
+    -webkit-text-decoration-skip: objects
+}
+
+a:hover {
+    color: dodgerblue;
+    text-decoration: underline
+}
+
+a:not([href]):not([tabindex]) {
+    color: inherit;
+    text-decoration: none
+}
+
+a:not([href]):not([tabindex]):focus, a:not([href]):not([tabindex]):hover {
+    color: inherit;
+    text-decoration: none
+}
+
+a:not([href]):not([tabindex]):focus {
+    outline: 0
+}
+
+.table-link:hover {
+    color: #FFF;
 }

@@ -1,0 +1,155 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                    <span>Client Details</span>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="m-portlet m-portlet--tabs m-portlet--bloom m-portlet--head-solid-bg m-portlet--head-sm">
+                            <div class="m-portlet__head">
+                                <div class="m-portlet__head-caption">
+                                    <div class="m-portlet__head-title">
+                                        <h3 class="m-portlet__head-text">
+                                            <a href="{% url 'budget:add_client' %}">
+                                            <span>
+                                                <i class="la la-angle-left"></i> Go Back
+                                            </span>
+                                            </a>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="m-portlet__head-tools">
+                                    <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right"
+                                        role="tablist">
+                                        <li class="nav-item m-tabs__item">
+                                            <a class="nav-link m-tabs__link active show" data-toggle="tab"
+                                               href="#m_tabs_7_1" role="tab" aria-selected="true">
+                                                Info
+                                            </a>
+                                        </li>
+                                </div>
+                            </div>
+                            <div class="m-portlet__body">
+                                <div class="tab-content">
+                                    <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
+                                        <div class="m-accordion m-accordion--default" id="m_accordion_1"
+                                             role="tablist">
+
+                                            <!--begin::Item-->
+                                            <div class="m-accordion__item">
+                                                <div class="m-accordion__item-head collapsed" role="tab"
+                                                     id="m_accordion_1_item_1_head" data-toggle="collapse"
+                                                     href="#m_accordion_1_item_1_body" aria-expanded="false">
+                                            <span class="m-accordion__item-icon"><i
+                                                    class="fa fa-user-circle"></i></span>
+                                                    <span class="m-accordion__item-title">{{ client_data.client_name }}</span>
+                                                    <span class="m-accordion__item-mode"></span>
+                                                </div>
+
+                                                <div class="m-accordion__item-body"
+                                                     id="m_accordion_1_item_1_body"
+                                                     role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
+                                                     data-parent="#m_accordion_1" style="">
+                                                    <div class="m-accordion__item-content">
+                                                        <p>
+                                                            <span class="m--font-boldest2">Budget </span>
+                                                            - {{ client_data.hist_budget }}
+                                                        </p>
+                                                        <p>
+                                                            <span class="m--font-boldest2">Current spend</span>
+                                                            - {{ client_data.hist_spend }}
+                                                        </p>
+                                                        <div class="m-separator m-separator--metal"></div>
+                                                        <p>
+                                                            <h3>AdWords Accounts</h3>
+                                                            {% for a in client_data.hist_adwords.all %}
+                                                                <span class="m-list-timeline__text">
+                                                                    <h6>
+                                                                        {{ a.dependent_account_name }}
+                                                                    </h6>
+                                                                </span>
+
+                                                                <div class="progress m-progress--lg">
+                                                                    <div class="progress-bar
+                                                                            {{ a.hist_spend|percentage:a.hist_budget }}"
+                                                                         role="progressbar"
+                                                                         style="width: {% widthratio a.hist_spend a.hist_budget 100 %}%"
+                                                                         aria-valuenow="{% widthratio a.hist_spend a.hist_budget 100 %}"
+                                                                         aria-valuemin="0" aria-valuemax="100"
+                                                                         data-toggle="m-tooltip" data-placement="top"
+                                                                         title=""
+                                                                         data-original-title="{{ a.hist_spend }}/{{ a.hist_budget }}">
+                                                                        {% widthratio a.hist_spend a.hist_budget 100 %}%
+                                                                    </div>
+                                                                </div>
+
+                                                        </p>
+                                                                <div class="m-separator"></div>
+                                                            {% empty %}
+                                                        <p>
+                                                            <h6>
+                                                                No accounts selected for this client...
+                                                            </h6>
+                                                        </p>
+                                                        {% endfor %}
+                                                        <div class="m-separator m-separator--metal"></div>
+{#                                                        <p>#}
+                                                            <h3>Bing Accounts</h3>
+                                                            {% for b in client_data.hist_bing.all %}
+                                                                    <h6>
+                                                                        {{ b.account_name }}
+                                                                    </h6>
+                                                                    <div class="progress m-progress--lg">
+                                                                        <div class="progress-bar
+                                                                                {{ b.hist_spend|percentage:b.hist_budget }}"
+                                                                             role="progressbar"
+                                                                             style="width: {% widthratio b.hist_spend b.desired_spend 100 %}%"
+                                                                             aria-valuenow="{% widthratio b.hist_spend b.hist_budget 100 %}"
+                                                                             aria-valuemin="0" aria-valuemax="100"
+                                                                             data-toggle="m-tooltip" data-placement="top"
+                                                                             title=""
+                                                                             data-original-title="{{ b.hist_spend }}/{{ b.hist_budget }}">
+                                                                            {% widthratio b.hist_spend b.hist_budget 100 %}%
+                                                                        </div>
+                                                                    </div>
+                                                                <div class="m-separator"></div>
+                                                            {% empty %}
+
+                                                                <h6>
+                                                                    <p>
+                                                                        No accounts were selected for this client...
+                                                                    </p>
+                                                                </h6>
+                                                        </p>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--begin::Section-->
+                        <!--end::Section-->
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+
+
+{% endblock %}

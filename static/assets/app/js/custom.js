@@ -10,6 +10,13 @@ $(document).ready(function () {
         // 'sScrollXInner': '220%'
     });
 
+    $("#clients_last_month").DataTable({
+        'pagingType': "full_numbers"
+        // 'scrollY': '75%',
+        // 'sScrollX': '100%',
+        // 'sScrollXInner': '220%'
+    });
+
     var table = $("#clients_datatable").DataTable({
         'columnDefs': [{
             'targets': 0,

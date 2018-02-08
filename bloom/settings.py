@@ -23,7 +23,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = Falsegit
 
 SITE_ID=1
 ALLOWED_HOSTS = ['bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226', 'localhost']
@@ -139,6 +139,7 @@ LOGIN_URL = "/"
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
 CRONJOBS = [
+    ('55 4 1 * *', 'cron_last_month.main', '> ' + BASE_DIR + '/logs/last_month.log'),
     ('0 5 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('5 5 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
     ('10 5 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
