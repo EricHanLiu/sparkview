@@ -27,10 +27,12 @@ var WizardDemo = function () {
         wizard.on('change', function (wizard) {
             mApp.scrollTop();
             data = formEl.serialize();
+            console.log(data);
 
             if (wizard.isLastStep()) {
                 $('#client_name_fstep').html(client_name.value);
-                $('#client_budget_fstep').html(client_budget.value);
+                // $('#client_budget_fstep').html(client_budget.value);
+                // $('#aw_name_fstep').html(data.adwords.value);
             }
         });
     };
@@ -48,7 +50,14 @@ var WizardDemo = function () {
                     required: true,
                     minlength: 3
                 },
-                client_budget: {
+                aw_budget: {
+                    required: true,
+                    digits: true,
+                    min: 1,
+                    max: 10000000
+
+                },
+                bing_budget: {
                     required: true,
                     digits: true,
                     min: 1,

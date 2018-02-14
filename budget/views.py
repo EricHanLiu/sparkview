@@ -108,29 +108,35 @@ def add_client(request):
     elif request.method == 'POST':
 
         name = request.POST.get('client_name')
-        budget = request.POST.get('client_budget')
+        budget = 0
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
 
         if adwords_accounts:
             for a in adwords_accounts:
-                noofaccounts = len(adwords_accounts)
+                # noofaccounts = len(adwords_accounts)
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                if bing_accounts:
-                    aw_acc.desired_spend = int(budget)/2/noofaccounts
-                else:
-                    aw_acc.desired_spend = int(budget)/noofaccounts
+                spend = request.POST.get('aw_budget_'+a)
+                # if bing_accounts:
+                #     aw_acc.desired_spend = int(budget)/2/noofaccounts
+                # else:
+                #     aw_acc.desired_spend = int(budget)/noofaccounts
+                aw_acc.desired_spend = int(spend)
+                budget += int(spend)
                 aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
             for b in bing_accounts:
-                noofaccounts = len(bing_accounts)
+                spend = request.POST.get('bing_budget_'+b)
+                # noofaccounts = len(bing_accounts)
                 bing_acc = BingAccounts.objects.get(account_id=b)
-                if adwords_accounts:
-                    bing_acc.desired_spend = int(budget)/2/noofaccounts
-                else:
-                    bing_acc.desired_spend = int(budget)/noofaccounts
+                # if adwords_accounts:
+                #     bing_acc.desired_spend = int(budget)/2/noofaccounts
+                # else:
+                #     bing_acc.desired_spend = int(budget)/noofaccounts
+                bing_acc.desired_spend = int(spend)
+                budget += int(spend)
                 bing_acc.save()
                 bng.append(bing_acc)
 
