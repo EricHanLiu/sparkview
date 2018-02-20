@@ -283,7 +283,7 @@ def sixm_budget(request, client_id):
 
     elif request.method == 'POST':
 
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
         acc_id = data['acc_id']
         budgets = data['budgets']
 
