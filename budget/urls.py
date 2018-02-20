@@ -8,6 +8,7 @@ urlpatterns = [
     url(r"^clients/$", views.add_client, name="add_client"),
     url(r"^clients/last_month$", views.last_month, name="last_month"),
     url(r"^client/(?P<client_id>\d+)", views.client_details, name="client_details"),
+    url(r"^client/sixmonths/(?P<client_id>\d+)/", views.sixm_budget, name="six_months"),
     url(r"^client/hist/(?P<client_id>\d+)", views.hist_client_details, name="hist_client_details"),
     url(r"^clients/delete/$", views.delete_clients, name="client_details"),
 

@@ -8,7 +8,11 @@ from adwords_dashboard.models import DependentAccount
 from bing_dashboard.models import BingAccounts
 from budget.models import Client, ClientHist
 import calendar
+import json
 from datetime import datetime
+from datetime import timedelta
+from datetime import date
+from dateutil.relativedelta import relativedelta
 # from dashboard.decorators import cache_on_auth
 
 
@@ -249,3 +253,56 @@ def hist_client_details(request, client_id):
             return render(request, 'budget/view_client_hist.html', context)
         except ValueError:
             raise Http404
+
+def gen_6_months():
+
+    months = []
+
+    for i in range(6):
+        i += 1
+        next_month = date.today() + relativedelta(months=+i)
+        month_name = calendar.month_name[next_month.month]
+        months.append(month_name)
+
+    return months
+
+@login_required
+@xframe_options_exempt
+def sixm_budget(request, client_id):
+
+    if request.method == 'GET':
+        try:
+            client = Client.objects.get(id=client_id)
+            context = {
+                'client_data': client,
+                'months': gen_6_months()
+            }
+            return render(request, 'budget/six_months.html', context)
+        except ValueError:
+            raise Http404
+
+    elif request.method == 'POST':
+
+        data = json.loads(request.body)
+        acc_id = data['acc_id']
+        budgets = data['budgets']
+
+        print(budgets)
+
+        try:
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+        except:
+            account = BingAccounts.objects.get(account_id=acc_id)
+
+        account.ds1 = budgets[0]
+        account.ds2 = budgets[1]
+        account.ds3 = budgets[2]
+        account.ds4 = budgets[3]
+        account.ds5 = budgets[4]
+        account.ds6 = budgets[5]
+        account.save()
+
+        context = {
+            'error': 'OK'
+        }
+        return JsonResponse(context)
