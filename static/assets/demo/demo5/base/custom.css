@@ -157,3 +157,7 @@ a:not([href]):not([tabindex]):focus {
 .table-link:hover {
     color: #FFF;
 }
+
+.black-marker {
+    border-right: 1px solid black;
+}

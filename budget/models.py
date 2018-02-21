@@ -13,6 +13,7 @@ class Client(models.Model):
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
     # facebook = models.ManyToManyField(fb.FacebookAccount, on_delete=models.CASCADE)
     current_spend = models.IntegerField(default=0)
+    yesterday_spend = models.IntegerField(default=0)
     aw_spend = models.IntegerField(default=0)
     bing_spend = models.IntegerField(default=0)
     # fb_spend = models.IntegerField(default=0)

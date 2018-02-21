@@ -62,9 +62,17 @@
                                         <a href="{% url 'budget:client_details' client.id %}">
                                             {{ client.client_name }}
                                         </a>
+                                        <div class="row">
+                                            <div class="col-md-6">Daily spend to reach target : {% widthratio client.budget remaining 1 %}</div>
+                                            <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">Daily spend to date: {{ client.current_spend|daily_spend|floatformat:2 }}</div>
+                                            <div class="col-md-6">Projected: {{ client.current_spend|projected|floatformat:2 }}</div>
+                                        </div>
+
                                     </td>
                                     <td style="text-align: center">
-{#                                        DS RT | YS | DSD#}
                                         <div class="progress m-progress--lg">
                                             <div class="progress-bar
                                                     {{ client.current_spend|percentage:client.budget }}"
@@ -76,6 +84,7 @@
                                                  data-original-title="{{ client.current_spend }}/{{ client.budget }}">
                                                 {% widthratio client.current_spend client.budget 100 %}%
                                             </div>
+                                            <div class="black-marker" role="progressbar" style="width: {% widthratio client.current_spend|daily_spend client.budget 100 %}%" aria-valuenow="{% widthratio client.current_spend|daily_spend client.budget 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                         {#                                        <div class="progress m-progress">#}
                                         {#                                            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio client.bing_spend client.budget 100 %}%"#}

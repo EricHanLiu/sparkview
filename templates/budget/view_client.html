@@ -118,6 +118,7 @@
                                                                      data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
                                                                     {% widthratio a.current_spend a.desired_spend 100 %}%
                                                                 </div>
+                                                            <div class="black-marker" role="progressbar" style="width: {% widthratio a.current_spend|daily_spend a.desired_spend 100 %}%" aria-valuenow="{% widthratio a.current_spend|daily_spend a.desired_spend 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
                                                             </div>
                                                             <div style="margin-top: 10px;">
 
