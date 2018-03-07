@@ -1,1 +1,32 @@
-var BootstrapDaterangepicker=function(){var a=function(){$("#m_daterangepicker_1, #m_daterangepicker_1_modal").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"}),$("#m_daterangepicker_2").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_2 .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))}),$("#m_daterangepicker_2_modal").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_2 .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))}),$("#m_daterangepicker_3").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_3 .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))}),$("#m_daterangepicker_3_modal").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_3 .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))}),$("#m_daterangepicker_4").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary",timePicker:!0,timePickerIncrement:30,locale:{format:"MM/DD/YYYY h:mm A"}},function(a,t,n){$("#m_daterangepicker_4 .form-control").val(a.format("MM/DD/YYYY h:mm A")+" / "+t.format("MM/DD/YYYY h:mm A"))}),$("#m_daterangepicker_5").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary",singleDatePicker:!0,showDropdowns:!0,locale:{format:"MM/DD/YYYY"}},function(a,t,n){$("#m_daterangepicker_5 .form-control").val(a.format("MM/DD/YYYY")+" / "+t.format("MM/DD/YYYY"))});var a=moment().subtract(29,"days"),t=moment();$("#m_daterangepicker_6").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary",startDate:a,endDate:t,ranges:{Today:[moment(),moment()],Yesterday:[moment().subtract(1,"days"),moment().subtract(1,"days")],"Last 7 Days":[moment().subtract(6,"days"),moment()],"Last 30 Days":[moment().subtract(29,"days"),moment()],"This Month":[moment().startOf("month"),moment().endOf("month")],"Last Month":[moment().subtract(1,"month").startOf("month"),moment().subtract(1,"month").endOf("month")]}},function(a,t,n){$("#m_daterangepicker_6 .form-control").val(a.format("MM/DD/YYYY")+" / "+t.format("MM/DD/YYYY"))})},t=function(){$("#m_daterangepicker_1_validate").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_1_validate .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))}),$("#m_daterangepicker_2_validate").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_3_validate .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))}),$("#m_daterangepicker_3_validate").daterangepicker({buttonClasses:"m-btn btn",applyClass:"btn-primary",cancelClass:"btn-secondary"},function(a,t,n){$("#m_daterangepicker_3_validate .form-control").val(a.format("YYYY-MM-DD")+" / "+t.format("YYYY-MM-DD"))})};return{init:function(){a(),t()}}}();jQuery(document).ready(function(){BootstrapDaterangepicker.init()});
+var BootstrapDaterangepicker = function () {
+    // var today = new Date();
+    // var dd = today.getDate();
+    // var mm = today.getMonth()+1; //January is 0!
+    // var mmmax = today.getMonth()+2;
+    // var yyyy = today.getFullYear();
+    // if(dd<10){ dd='0'+dd }
+    // if(mm<10){ mm='0'+mm }
+    // var tday = mm+'/'+dd+'/'+yyyy;
+    // var maxDate = mmmax+'/01/'+yyyy;
+    // var currentTime = new Date()
+    var currentTime = new Date();
+    var minDate = new Date(currentTime.getFullYear(), currentTime.getMonth(), +1); //one day next before month
+    var maxDate =  new Date(currentTime.getFullYear(), currentTime.getMonth() +1, -1); // one day before next month
+
+    var a = function () {
+        $("#m_daterangepicker_1").daterangepicker({
+            buttonClasses: "m-btn btn",
+            applyClass: "btn-primary",
+            cancelClass: "btn-secondary"
+        });
+
+    };
+    return {
+        init: function () {
+            a()
+        }
+    }
+}();
+jQuery(document).ready(function () {
+    BootstrapDaterangepicker.init()
+});

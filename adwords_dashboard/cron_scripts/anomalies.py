@@ -14,6 +14,7 @@ class Anomalies(object):
     accounts = []
     accounts_14 = []
     campaigns = []
+    campaigns_tm = []
     campaigns_14 = []
     campaign_labels = []
 
@@ -161,6 +162,37 @@ class Anomalies(object):
 
         return self.campaigns_14
 
+    def get_campaign_stats_tm(self):
+
+        campaignReport = {
+            'reportName' : 'CAMPAIGN_STATS',
+            'dateRangeType' : 'THIS_MONTH',
+            'reportType' : 'CAMPAIGN_PERFORMANCE_REPORT',
+            'downloadFormat' : 'CSV',
+            'selector' : {
+                'fields' : ['CampaignId', 'CampaignName', 'Cost'],
+                'predicates' : [{
+                    'field': 'CampaignStatus',
+                    'operator': 'IN',
+                    'values' : ['ENABLED']
+                        }]
+                    }
+                }
+
+        # One report foreach campaign
+        service = self.client.GetReportDownloader(version='v201705')
+        dataCampaignReport = service.DownloadReportAsString(campaignReport,
+                            use_raw_enum_values=True, skip_report_header=True,
+                            skip_report_summary=True)
+        # Data parsing
+        try:
+            dictData = StringIo.StringIo(dataCampaignReport)
+        except:
+            dictData = io.StringIO(dataCampaignReport)
+        self.campaigns_tm = list(csv.DictReader(dictData))
+
+        return self.campaigns_tm
+
     def convert_data(self, data):
         for item in data:
             for key, value in item.items():
@@ -194,7 +226,17 @@ class Anomalies(object):
         print('Fetched account stats...')
         self.get_campaign_stats_7_days()
         self.get_campaign_stats_14_days()
+        self.get_campaign_stats_tm()
         print('Fetched campaigns data..')
+
+    def convert_campaign_data(self, data):
+
+        for item in data:
+            for key, value in item.items():
+                if key == 'Cost':
+                    item[key] = float(value)
+
+        return data
 
     def anomalies(self, data):
 
@@ -220,33 +262,6 @@ class Anomalies(object):
             return []
         return list(map(dict, list(result['entries'])))
 
-        # campaignReport = {
-        #     'reportName' : 'CAMPAIGN_STATS',
-        #     'dateRangeType' : 'LAST_7_DAYS',
-        #     'reportType' : 'CAMPAIGN_PERFORMANCE_REPORT',
-        #     'downloadFormat' : 'CSV',
-        #     'selector' : {
-        #         'fields' : ['Labels', 'LabelIds', 'CampaignId'],
-        #         'predicates' : [{
-        #             'field': 'CampaignStatus',
-        #             'operator': 'IN',
-        #             'values' : ['ENABLED']
-        #                 }]
-        #             }
-        #         }
-        #
-        # # One report foreach campaign
-        # service = self.client.GetReportDownloader(version='v201705')
-        # dataCampaignReport = service.DownloadReportAsString(campaignReport,
-        #                     use_raw_enum_values=True, skip_report_header=True,
-        #                     skip_report_summary=True)
-        # # Data parsing
-        # try:
-        #     dictData = StringIo.StringIo(dataCampaignReport)
-        # except:
-        #     dictData = io.StringIO(dataCampaignReport)
-        # self.campaign_labels = list(csv.DictReader(dictData))
-        # return self.campaign_labels
 
     def acc7_anomalies(self):
         return self.anomalies(self.accounts)
@@ -260,11 +275,15 @@ class Anomalies(object):
     def cmp14_anomalies(self):
         return self.anomalies(self.campaigns_14)
 
+    def cmp_tm_data(self):
+        return self.convert_campaign_data(campaigns_tm)
+
     def cleanMemory(self):
         del self.accounts[:]
         del self.accounts_14[:]
         del self.campaigns[:]
         del self.campaigns_14[:]
+        del self.campaigns_tm[:]
         gc.collect()
 
 def main():

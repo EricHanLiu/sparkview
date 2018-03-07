@@ -70,7 +70,8 @@
                                                                 <span class="m--font-boldest2">Monthly up to Up-to-Date Spend</span>: {{ client_data.current_spend }}
                                                             </div>
                                                             <div class="col-md-3">
-                                                                <span class="m--font-boldest2">Cycle progress</span>: {{ today }} of {{ no_of_days }}
+                                                                <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
+                                                                of {{ no_of_days }}
                                                                 days
                                                             </div>
                                                             <div class="col-md-3">
@@ -84,15 +85,17 @@
                                                         {% for a in client_data.adwords.all %}
                                                             <span class="m-list-timeline__text">
                                                                     <h6>
-                                                                        {{ a.dependent_account_name }} - <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                                                                        <a href="{% url 'budget:findividualbudget' a.dependent_account_id %}">{{ a.dependent_account_name }}</a> - <a
+                                                                            href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                                                     </h6>
-                                                                </span>
+
+                                                            </span>
                                                             <div class="m-separator"></div>
                                                             <p>
                                                             <div class="row text-center">
                                                                 <div class="col-md-3">
                                                                     <b>Daily spend to target
-                                                                        </b>: {% widthratio a.desired_spend remaining 1 %}
+                                                                    </b>: {% widthratio a.desired_spend remaining 1 %}
                                                                 </div>
                                                                 <div class="col-md-3">
 
@@ -108,9 +111,12 @@
                                                                 </div>
                                                             </div>
                                                             </p>
-                                                            <div class="progress m-progress--lg">
-                                                                <div class="progress-bar {{ a.current_spend|percentage:a.desired_spend }}" role="progressbar"
-                                                                     style="width: {% widthratio a.current_spend a.desired_spend 100 %}%"
+                                                            <div class="progress m-progress--lg" style="position: relative;!important;">
+                                                                <div class="progress-bar
+
+                                                                        {{ a.current_spend|percentage:a.desired_spend }}"
+                                                                     role="progressbar"
+                                                                     style="width: {% widthratio a.current_spend a.desired_spend 100 %}%;"
                                                                      aria-valuenow="{% widthratio a.current_spend a.desired_spend 100 %}"
                                                                      aria-valuemin="0" aria-valuemax="100"
                                                                      data-toggle="m-tooltip" data-placement="top"
@@ -118,11 +124,15 @@
                                                                      data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
                                                                     {% widthratio a.current_spend a.desired_spend 100 %}%
                                                                 </div>
-                                                            <div class="black-marker" role="progressbar" style="width: {% widthratio a.current_spend|daily_spend a.desired_spend 100 %}%" aria-valuenow="{% widthratio a.current_spend|daily_spend a.desired_spend 100 %}" aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                            <div style="margin-top: 10px;">
+                                                                <div class="black-marker"
+                                                                     style="width: {{ blackmarker }}%"
+                                                                     aria-valuenow="{{ blackmarker }}"
+                                                                     aria-valuemin="0" aria-valuemax="100">
+
+                                                                </div>
 
                                                             </div>
+
                                                             </p>
                                                             {% empty %}
                                                             <p>
@@ -137,7 +147,8 @@
                                                         {% for b in client_data.bing.all %}
                                                             <span class="m-list-timeline__text">
                                                                     <h6>
-                                                                        {{ b.account_name }} - <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                                                                        <a href="{% url 'budget:findividualbudget' b.account_id %}">{{ b.account_name }}</a>- <a
+                                                                            href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                                                     </h6>
                                                                 </span>
                                                             <p>
@@ -162,9 +173,7 @@
                                                             </div>
                                                             </p>
                                                             <div class="progress m-progress--lg">
-                                                                <div class="progress-bar
-
-                                                                        {{ b.current_spend|percentage:b.desired_spend }}"
+                                                                <div class="progress-bar {{ b.current_spend|percentage:b.desired_spend }}"
                                                                      role="progressbar"
                                                                      style="width: {% widthratio b.current_spend b.desired_spend 100 %}%"
                                                                      aria-valuenow="{% widthratio b.current_spend b.desired_spend 100 %}"

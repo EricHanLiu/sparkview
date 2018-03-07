@@ -22,6 +22,7 @@ class ManagerAccount(models.Model):
 
 class DependentAccount(models.Model):
 
+
     manager_account = models.CharField(max_length=255, default='None')
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
@@ -126,3 +127,12 @@ class Alert(models.Model):
 
     def __str__(self):
         return self.dependent_account_id
+
+class Campaign(models.Model):
+
+    account = models.ForeignKey(DependentAccount)
+    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_name = models.CharField(max_length=255, default='None')
+    campaign_cost = models.BigIntegerField(default=0)
+    campaign_budget = models.IntegerField(default=0)
+    groupped = models.BooleanField(default=False)

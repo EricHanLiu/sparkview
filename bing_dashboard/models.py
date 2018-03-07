@@ -62,3 +62,12 @@ class BingAlerts(models.Model):
 
     def __str__(self):
         return self.account
+
+class BingCampaign(models.Model):
+
+    account = models.ForeignKey(BingAccounts, default=None)
+    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_name = models.CharField(max_length=255, default='None')
+    campaign_cost = models.BigIntegerField(default=0)
+    campaign_budget = models.IntegerField(default=0)
+    groupped = models.BooleanField(default=False)

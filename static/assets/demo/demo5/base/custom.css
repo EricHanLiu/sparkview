@@ -160,4 +160,6 @@ a:not([href]):not([tabindex]):focus {
 
 .black-marker {
     border-right: 1px solid black;
+    position: absolute;
+    height: 100%;
 }

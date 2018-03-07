@@ -25,6 +25,8 @@ def add_anomalies(anomaly, acc):
 
     campaign_14 = anomaly.get_campaign_stats_14_days()
     campaign_14 = anomaly.anomalies(campaign_14)
+    cmp_tm = anomaly.get_campaign_stats_tm()
+    cmp_tm = anomaly.convert_campaign_data(cmp_tm)
 
     if account_7 and account_14:
         if account_7[0]['Clicks'] == 0 or account_14[0]['Clicks'] == 0:
@@ -83,6 +85,7 @@ def add_anomalies(anomaly, acc):
 
     if campaign_7 and campaign_14:
         models.Performance.objects.filter(account=acc, performance_type='CAMPAIGN').delete()
+        print('Dropped all campaigns from database.')
         print('Dropped current items from Performance table at campaign level')
         a = sorted(campaign_7, key=lambda k: k['Campaign ID'])
         b = sorted(campaign_14, key=lambda k: k['Campaign ID'])
@@ -144,6 +147,20 @@ def add_anomalies(anomaly, acc):
                                           search_impr_share=0)
         print('No data found. Added 0 to DB fields. [CMP]')
 
+    if cmp_tm:
+        for c in cmp_tm:
+            print(c['Campaign'], c['Campaign ID'])
+            try:
+                cmp = models.Campaign.objects.get(account=acc, campaign_id=c['Campaign ID'])
+                cmp.campaign_cost += c['Cost']
+                cmp.save()
+                print('Updated campaign ' + c['Campaign'] + ' cost.')
+            except:
+                models.Campaign.objects.create(account=acc, campaign_name=c['Campaign'], campaign_id=c['Campaign ID'],
+                                           campaign_cost=c['Cost'])
+                print('Added campaign '+ c['Campaign'] + 'to DB.')
+
+
 
 def main():
     adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
@@ -153,8 +170,6 @@ def main():
         for account in accounts:
             try:
                 anomaly = anomalies.Anomalies(adwords_client, account.dependent_account_id)
-                anomaly.get_stats()
-                print('Got stats..')
                 add_anomalies(anomaly, account)
                 print('Inserted data in DB')
                 anomaly.cleanMemory()

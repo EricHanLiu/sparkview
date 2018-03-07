@@ -4,9 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
-from adwords_dashboard.models import DependentAccount
-from bing_dashboard.models import BingAccounts
-from budget.models import Client, ClientHist
+from adwords_dashboard.models import DependentAccount, Campaign
+from bing_dashboard.models import BingAccounts, BingAnomalies, BingCampaign
+from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping
 import calendar
 import json
 from datetime import datetime
@@ -100,6 +100,8 @@ def add_client(request):
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - current_day
 
+    black_marker = (current_day * 100) / days
+
     if request.method == 'GET':
         try:
             context = {}
@@ -110,7 +112,9 @@ def add_client(request):
             context['clients'] = clients
             context['adwords'] = adwords_accounts
             context['bing'] = bing_accounts
-            context['remaining']= remaining
+            context['remaining'] = remaining
+            context['no_of_days'] = days
+            context['blackmarker'] = round(black_marker, 2)
             return render(request, 'budget/clients.html', context)
         except ValueError:
             raise Http404
@@ -172,6 +176,9 @@ def add_client(request):
         # facebook_accounts = request.POST.getlist('facebook')
         return JsonResponse(context)
 
+# def get_flight_dates():
+#     pass
+
 
 @login_required
 @xframe_options_exempt
@@ -181,15 +188,18 @@ def client_details(request, client_id):
     current_day = now.day
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - current_day
+    black_marker = (current_day * 100) / days
 
     if request.method == 'GET':
         try:
             client = Client.objects.get(id=client_id)
+            # flight_budgets = FlightBudget.objects.get()
             context = {
                 'client_data': client,
                 'today': current_day,
                 'no_of_days': days,
-                'remaining': remaining
+                'remaining': remaining,
+                'blackmarker': round(black_marker, 2)
             }
             return render(request, 'budget/view_client.html', context)
         except ValueError:
@@ -219,10 +229,10 @@ def delete_clients(request):
 
         return JsonResponse(context)
 
+
 @login_required
 @xframe_options_exempt
 def last_month(request):
-
 
     if request.method == 'GET':
         try:
@@ -238,6 +248,7 @@ def last_month(request):
         except ValueError:
             raise Http404
 
+
 @login_required
 @xframe_options_exempt
 def hist_client_details(request, client_id):
@@ -246,6 +257,7 @@ def hist_client_details(request, client_id):
     current_day = now.day
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - current_day
+
 
     if request.method == 'GET':
         try:
@@ -272,6 +284,7 @@ def gen_6_months():
 
     return months
 
+
 @login_required
 @xframe_options_exempt
 def sixm_budget(request, client_id):
@@ -293,8 +306,6 @@ def sixm_budget(request, client_id):
         acc_id = data['acc_id']
         budgets = data['budgets']
 
-        print(budgets)
-
         try:
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
         except:
@@ -311,4 +322,129 @@ def sixm_budget(request, client_id):
         context = {
             'error': 'OK'
         }
+        return JsonResponse(context)
+
+
+@login_required
+@xframe_options_exempt
+def flight_dates(request):
+
+    if request.method == 'POST':
+
+        data = json.loads(request.body.decode('utf-8'))
+        acc_id = data['acc_id']
+        start_date = data['sdate']
+        end_date = data['edate']
+        budget = data['budget']
+
+        try:
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+            FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
+                                        adwords_account=account)
+        except:
+            account = BingAccounts.objects.get(account_id=acc_id)
+            FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
+                                        bing_account=account)
+
+        context = {
+            'error': 'OK'
+        }
+        return JsonResponse(context)
+
+
+@login_required
+@xframe_options_exempt
+def detailed_flight_dates(request, account_id):
+
+    try:
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+        budgets = FlightBudget.objects.filter(adwords_account=account)
+        platform_type = 'AW'
+    except:
+        account = BingAccounts.objects.get(account_id=account_id)
+        budgets = FlightBudget.objects.filter(bing_account=account)
+        platform_type = 'BING'
+
+    context = {
+        'platform_type': platform_type,
+        'account': account,
+        'budgets': budgets
+    }
+
+    return render(request, 'budget/flight_dates.html', context)
+
+
+@login_required
+@xframe_options_exempt
+def campaign_groupings(request, account_id):
+
+    cmps = []
+
+    if request.method == 'GET':
+        try:
+            account = DependentAccount.objects.get(dependent_account_id=account_id)
+            campaigns = Campaign.objects.filter(account=account, groupped=False)
+            groups = CampaignGrouping.objects.filter(adwords=account)
+            platform_type = 'AW'
+        except:
+            account = BingAccounts.objects.get(account_id=account_id)
+            campaigns = BingCampaign.objects.filter(account=account)
+            groups = CampaignGrouping.objects.filter(bing=account)
+            platform_type = 'BING'
+
+        context = {
+            'platform_type': platform_type,
+            'account': account,
+            'campaigns': campaigns,
+            'groups': groups
+        }
+
+        return render(request, 'budget/campaign_groupings.html', context)
+
+    elif request.method == 'POST':
+
+        campaigns = request.POST.getlist('campaigns')
+
+        try:
+            account = DependentAccount.objects.get(dependent_account_id=account_id)
+            new_grouping = CampaignGrouping.objects.create(adwords=account)
+
+            if campaigns:
+                for cmp in campaigns:
+                    cmp_obj = Campaign.objects.get(campaign_id=cmp)
+                    budget = request.POST.get('cmp_budget_' + cmp)
+                    cmp_obj.campaign_budget = int(budget)
+                    cmp_obj.groupped = True
+                    cmp_obj.save()
+                    cmps.append(cmp_obj)
+
+            if cmps:
+                for c in cmps:
+                    new_grouping.aw_campaigns.add(c)
+                    new_grouping.current_spend += c.campaign_cost
+                    new_grouping.budget += c.campaign_budget
+                    new_grouping.save()
+
+        except:
+            account = BingAccounts.objects.get(account_id=account_id)
+            new_grouping = CampaignGrouping.objects.create(bing=account)
+
+            if campaigns:
+                for cmp in campaigns:
+                    cmp_obj = BingCampaign.objects.get(campaign_id=cmp)
+                    budget = request.POST.get('cmp_budget_' + cmp)
+                    cmp_obj.campaign_budget = int(budget)
+                    cmp_obj.groupped = True
+                    cmp_obj.save()
+                    cmps.append(cmp_obj)
+
+            if cmps:
+                for c in cmps:
+                    new_grouping.bing_campaigns.add(c)
+                    new_grouping.current_spend += c.campaign_cost
+                    new_grouping.budget += c.campaign_budget
+                    new_grouping.save()
+
+        context = {}
+
         return JsonResponse(context)
