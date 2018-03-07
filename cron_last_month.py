@@ -9,7 +9,7 @@ from budget import models
 def main():
 
     clients = models.Client.objects.all()
-
+    models.ClientHist.objects.all().delete()
     for client in clients:
 
         hist_client = models.ClientHist.objects.create(client_name=client.client_name,
