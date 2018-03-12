@@ -145,6 +145,7 @@ CRONJOBS = [
     ('10 5 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('0 6 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('0 7 * * *', 'cron_404.main', '> ' + BASE_DIR + '/logs/404.log'),
+    ('45 7 * * *', 'cron_flight_dates.main', '> ' + BASE_DIR + '/logs/flight_dates.log'),
     ('0 8 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
     ('0 5 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('40 5 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),

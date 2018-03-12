@@ -498,31 +498,31 @@ def main():
     for acc in accounts:
         account_id = acc.account_id
         print(account_id)
-        # report_type = '_7'
-        # report_request7 = get_account_performance_report_7(account_id)
-        # parameters7 = initiate_download(account_id, report_type, report_request7)
-        # data7 = download_and_process(parameters7)
-        #
-        # report_type = '_14'
-        # report_request14 = get_account_performance_report_14(account_id)
-        # parameters14 = initiate_download(account_id, report_type, report_request14)
-        # data14 = download_and_process(parameters14)
-        #
-        # data_for_db = anomalies(data7, data14)
-        # add_to_db(acc, data_for_db)
-        #
-        # report_type = 'campaign_7'
-        # report_campaign7 = get_account_performance_report_7(account_id)
-        # campaign7 = initiate_download(account_id, report_type, report_campaign7)
-        # datac7 = download_and_process(campaign7)
-        #
-        # report_type = 'campaign_14'
-        # report_campaign14 = get_campaign_performance_report_14(account_id)
-        # campaign14 = initiate_download(account_id, report_type, report_campaign14)
-        # datac14 = download_and_process(campaign14)
-        #
-        # data_for_db = anomalies(datac7, datac14)
-        # add_to_db_campaigns(acc, data_for_db)
+        report_type = '_7'
+        report_request7 = get_account_performance_report_7(account_id)
+        parameters7 = initiate_download(account_id, report_type, report_request7)
+        data7 = download_and_process(parameters7)
+
+        report_type = '_14'
+        report_request14 = get_account_performance_report_14(account_id)
+        parameters14 = initiate_download(account_id, report_type, report_request14)
+        data14 = download_and_process(parameters14)
+
+        data_for_db = anomalies(data7, data14)
+        add_to_db(acc, data_for_db)
+
+        report_type = 'campaign_7'
+        report_campaign7 = get_account_performance_report_7(account_id)
+        campaign7 = initiate_download(account_id, report_type, report_campaign7)
+        datac7 = download_and_process(campaign7)
+
+        report_type = 'campaign_14'
+        report_campaign14 = get_campaign_performance_report_14(account_id)
+        campaign14 = initiate_download(account_id, report_type, report_campaign14)
+        datac14 = download_and_process(campaign14)
+
+        data_for_db = anomalies(datac7, datac14)
+        add_to_db_campaigns(acc, data_for_db)
 
         report_type = 'campaign_tm'
         report_campaign_tm = get_campaign_performance_report_tm(account_id)
