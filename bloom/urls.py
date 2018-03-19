@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from . import registration_views as lviews
+from . import profile_views as profile
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -23,6 +24,8 @@ urlpatterns = [
     url(r"^$", lviews.index, name='index'),
     url(r"^auth/login$", lviews.bloom_login, name='login'),
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
+    url(r"^profile$", profile.view_profile, name='profile'),
+    url(r"^profile/delete$", profile.remove_acc_profile, name='delete_profile'),
     url(r"^dashboards/adwords/", include('adwords_dashboard.urls', namespace='adwords')),
     url(r"^dashboards/bing/", include('bing_dashboard.urls', namespace='bing')),
     # url(r"^dashboards/facebook"), include('facebook_dashboard.urls'),

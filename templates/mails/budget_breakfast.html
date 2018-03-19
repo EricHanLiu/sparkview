@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily budget report!</title>
+</head>
+<body>
+
+<h2>Hello, {{ user }}</h2>
+
+<h4>The following AdWords accounts you manage will overspend:</h4>
+{% for a in aw_over %}
+    <p>Account name: {{ a.account }}<br />
+    Budget: {{ a.budget }}<br />
+    Current spend: {{ a.current_spend }}<br />
+    Projected: {{ a.projected }}</p>
+{% empty %}
+    <p>No accounts to display.</p>
+{% endfor %}
+<br/>
+<h4>The following AdWords accounts will underspend: </h4>
+{% for b in aw_under %}
+    <br>Account name: {{ b.account }}<br />
+    Budget: {{ b.budget }}<br />
+    Current spend: {{ b.current_spend }}<br />
+    Projected: {{ b.projected }}</p>
+{% empty %}
+    <p>No accounts to display.</p>
+{% endfor %}
+<br/>
+<h4>The following Bing accounts will overspend:</h4>
+{% for c in bing_over %}
+    <p>Account name: {{ c.account }}<br />
+    Budget: {{ c.budget }}<br />
+    Current spend: {{ c.current_spend }}<br />
+    Projected: {{ c.projected }}</p>
+{% empty %}
+    <p>No accounts to display.</p>
+{% endfor %}
+<br/>
+<h4>The following Bing accounts will underspend:</h4>
+{% for d in bing_under %}
+    <p>Account name: {{ d.account }}<br />
+    Budget: {{ d.budget }}<br />
+    Current spend: {{ d.current_spend }}<br />
+    Projected: {{ d.projected }}</p>
+{% empty %}
+    <p>No accounts to display.</p>
+{% endfor %}
+
+<b>That's all for today!</b>
+</body>
+</html>

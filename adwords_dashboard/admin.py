@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from .models import DependentAccount
+from .models import DependentAccount, Profile
 from django.contrib import admin
+
 
 # Register your models here.
 
@@ -11,4 +12,9 @@ class DependentAccountAdmin(admin.ModelAdmin):
               'hist_budget', 'yesterday_spend')
     list_filter = ('created_time', 'updated_time')
 
+class ProfileAdmin(admin.ModelAdmin):
+    fields = ('user', 'adwords', 'bing')
+    list_filter = ('created_time', 'updated_time')
+
 admin.site.register(DependentAccount, DependentAccountAdmin)
+admin.site.register(Profile, ProfileAdmin)

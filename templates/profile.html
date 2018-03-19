@@ -1,0 +1,211 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-3 col-lg-4">
+                <div class="m-portlet  ">
+                    <div class="m-portlet__body">
+                        <div class="m-card-profile">
+                            <div class="m-card-profile__title m--hide">
+                                Your Profile
+                            </div>
+                            <div class="m-card-profile__pic">
+                                <div class="m-card-profile__pic-wrapper">
+                                    <img src="{% static '/assets/app/media/img/client-logos/logo3.png' %}" alt="">
+                                </div>
+                            </div>
+                            <div class="m-card-profile__details">
+                                <span class="m-card-profile__name">{{ request.user.get_full_name }}</span>
+                                <a href="" class="m-card-profile__email m-link">{{ request.user.email }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-9 col-lg-8">
+                <div class="m-portlet m-portlet--full-height m-portlet--tabs  ">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-tools">
+                            <ul class="nav nav-tabs m-tabs m-tabs-line   m-tabs-line--left m-tabs-line--primary"
+                                role="tablist">
+                                <li class="nav-item m-tabs__item">
+                                    <a class="nav-link m-tabs__link active" data-toggle="tab"
+                                       href="#m_user_profile_tab_1" role="tab">
+                                        <i class="flaticon-share m--hide"></i>
+                                        Update Profile
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="m_user_profile_tab_1">
+                            <form class="m-form m-form--fit m-form--label-align-right" id="profile-form">
+                                <div class="m-portlet__body">
+                                    <div class="form-group m-form__group m--margin-top-10 m--hide">
+                                        <div class="alert m-alert m-alert--default" role="alert">
+                                            The example form below demonstrates common HTML form elements that receive
+                                            updated styles from Bootstrap with additional classes.
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-10 ml-auto">
+                                            <h3 class="m-form__section">1. Personal Details</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <label for="example-text-input" class="col-2 col-form-label">Full Name</label>
+                                        <div class="col-7">
+                                            <input class="form-control m-input" type="text" disabled
+                                                   value="{{ request.user.get_full_name }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group m-form__group row">
+                                        <label for="example-text-input" class="col-2 col-form-label">E-mail</label>
+                                        <div class="col-7">
+                                            <input class="form-control m-input" name="user-email" id="user-email"
+                                                   type="text" value="{{ request.user.email }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
+
+                                    <div class="form-group m-form__group row">
+                                        <div class="col-10 ml-auto">
+                                            <h3 class="m-form__section">2. Assigned accounts</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group m-form__group row">
+                                        <label for="example-text-input" class="col-2 col-form-label">AdWords</label>
+                                        <div class="col-8">
+                                            <select class="form-control m-input--large" name="adwords"
+                                                    multiple="multiple" id="m_select2_adwords"
+                                                    style="width: 100%;">
+                                                {% for a in adwords %}
+                                                    <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form_group m-form__group row">
+                                        <label class="col-2 col-form-label">Assigned</label>
+                                        <div class="col-8">
+                                            {% for al in user_profile.adwords.all %}
+                                                <span class="m-badge m-badge--info m-badge--wide">
+                                            {{ al.dependent_account_name }} <a name="acc_id" onclick="remove_acc({{ al.dependent_account_id }})">x</a>
+                                        </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="form-group m-form__group row">
+                                        <label for="example-text-input" class="col-2 col-form-label">Bing</label>
+                                        <div class="col-8">
+                                            <select class="form-control m-input" name="bing"
+                                                    multiple="" id="m_select2_bing"
+                                                    style="width: 100%">
+                                                {% for b in bing %}
+                                                    <option value="{{ b.account_id }}">{{ b.account_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form_group m-form__group row">
+                                        <label class="col-2 col-form-label">Assigned</label>
+                                        <div class="col-8">
+                                            {% for bl in user_profile.bing.all %}
+                                                <span class="m-badge m-badge--info m-badge--wide">
+                                                {{ bl.account_name }} <a name="acc_id" onclick="remove_acc({{ bl.account_id }})">x</a>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="m-portlet__foot m-portlet__foot--fit">
+                                    <div class="m-form__actions">
+                                        <div class="row">
+                                            <div class="col-2">
+                                            </div>
+                                            <div class="col-7">
+                                                <button type="button"
+                                                        class="btn btn-accent m-btn m-btn--air m-btn--custom"
+                                                        onclick="submit_changes()">Save changes
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function submit_changes() {
+
+            var data = $('#profile-form').serialize();
+
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                },
+                success: function () {
+                    swal({
+                        "title": "",
+                        "text": "Profile succesfully updated.",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                }
+            })
+                .done(function (data) {
+                    if (data['error'] === 'OK') {
+                        console.log('OK');
+                    }
+                });
+        }
+
+        function remove_acc(acc_id) {
+
+            data = JSON.stringify({
+                'acc_id': acc_id
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "/profile/delete",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                },
+                success: function () {
+                    swal({
+                        "title": "",
+                        "text": "Removed account from profile.",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                }
+            })
+                .done(function (data) {
+                    if (data['error'] === 'OK') {
+                        console.log('OK');
+                    }
+                });
+        }
+    </script>
+{% endblock %}

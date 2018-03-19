@@ -2,7 +2,10 @@
 
 from __future__ import unicode_literals
 from django.db import models
-
+from django.contrib.auth.models import User
+from bing_dashboard.models import BingAccounts
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 
@@ -42,6 +45,8 @@ class DependentAccount(models.Model):
     historical_qs = models.IntegerField(default=0)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+    assigned_to = models.ForeignKey(User, null=True, blank=True)
+    assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
 
     class Meta:
@@ -136,3 +141,20 @@ class Campaign(models.Model):
     campaign_cost = models.BigIntegerField(default=0)
     campaign_budget = models.IntegerField(default=0)
     groupped = models.BooleanField(default=False)
+
+class Profile(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    adwords = models.ManyToManyField(DependentAccount, blank=True, related_name='aw_accs')
+    bing = models.ManyToManyField(BingAccounts, blank=True, related_name='bing_accs')
+    updated_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class BingAccounts(models.Model):
@@ -18,6 +19,8 @@ class BingAccounts(models.Model):
     ds5 = models.IntegerField(default=0)
     ds6 = models.IntegerField(default=0)
     yesterday_spend = models.IntegerField(default=0)
+    assigned_to = models.ForeignKey(User, null=True, blank=True)
+    assigned = models.BooleanField(default=False)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
 

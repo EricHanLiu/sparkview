@@ -1,0 +1,43 @@
+Hello, {{ user }}!
+
+The following AdWords accounts you manage will overspend:
+{% for a in aw_over %}
+    Account name: {{ a.account }}
+    Budget: {{ a.budget }}
+    Current spend: {{ a.current_spend }}
+    Projected: {{ a.projected }}
+{% empty %}
+    No accounts to display.
+{% endfor %}
+
+The following AdWords accounts will underspend:
+{% for b in aw_under %}
+    Account name: {{ b.account }}
+    Budget: {{ b.budget }}
+    Current spend: {{ b.current_spend }}
+    Projected: {{ b.projected }}
+{% empty %}
+    No accounts to display.
+{% endfor %}
+
+The following Bing accounts will overspend:
+{% for c in bing_over %}
+    Account name: {{ c.account }}
+    Budget: {{ c.budget }}
+    Current spend: {{ c.current_spend }}
+    Projected: {{ c.projected }}
+{% empty %}
+    No accounts to display.
+{% endfor %}
+
+The following Bing accounts will underspend:
+{% for d in bing_under %}
+    Account name: {{ d.account }}
+    Budget: {{ d.budget }}
+    Current spend: {{ d.current_spend }}
+    Projected: {{ d.projected }}
+{% empty %}
+    No accounts to display.
+{% endfor %}
+
+That's all for today!
