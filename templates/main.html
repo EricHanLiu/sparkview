@@ -286,10 +286,20 @@
                                                                 </li>
                                                                 <li class="m-nav__separator m-nav__separator--fit"></li>
                                                                 <li class="m-nav__item">
-                                                                    <a href="{% url 'logout' %}"
-                                                                       class="btn m-btn--pill btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">
-                                                                        Logout
-                                                                    </a>
+                                                                    <div class="row">
+                                                                        <div class="col-md-3">
+                                                                            <a href="{% url 'logout' %}"
+                                                                               class="btn m-btn--pill btn-secondary m-btn btn-sm m-btn--custom m-btn--label-brand m-btn--bolder">
+                                                                                Logout
+                                                                            </a>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <a href="{% url 'change_password' %}"
+                                                                               class="btn m-btn--pill btn-secondary m-btn btn-sm m-btn--custom m-btn--label-brand m-btn--bolder">
+                                                                                Change password
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
                                                                 </li>
                                                             </ul>
                                                         </div>
