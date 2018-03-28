@@ -133,6 +133,7 @@ STATIC_ROOT = "/var/www/bloom/static"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
+API_VERSION = 'v201710'
 
 LOGIN_URL = "/"
 
@@ -172,6 +173,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_PORT=587
 EMAIL_HOST_USER = 'dev@makeitbloom.com'
-EMAIL_HOST_PASSWORD = 'xNlCPMmaVySwcfq9'
+EMAIL_HOST_PASSWORD = 'wzVmNhw5Xh>xdcTh'
 EMAIL_USE_TLS = True
 DEFAULT_EMAIL_FROM = 'dev@makeitbloom.com'

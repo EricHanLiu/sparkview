@@ -65,6 +65,7 @@
                         <tr>
                             <th>Account</th>
                             <th>Current Spend</th>
+                            <th>Protected</th>
                             <th>Active</th>
                             <th>Action</th>
                         </tr>
@@ -74,6 +75,14 @@
                             <tr>
                                 <td width="50%">{{ acc.dependent_account_name }}</td>
                                 <td width="30%">{{ acc.current_spend }}</td>
+                                <td>
+                                    <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+												<label>
+						                        <input type="checkbox" checked="checked" name="">
+						                        <span></span>
+						                        </label>
+                                    </span>
+                                </td>
                                 <td style="text-align:center;" id="status{{ acc.dependent_account_id }}">
                                     {% if acc.blacklisted %}
                                         <span class="m-badge m-badge--danger m-badge--wide">False</span>

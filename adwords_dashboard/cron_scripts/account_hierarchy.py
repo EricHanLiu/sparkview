@@ -1,4 +1,5 @@
 from googleads import adwords
+from bloom import settings
 
 def __getAccountTree(parents, childs, accounts, account_tree):
         """Recursive function or mapping childs accounts to its parent
@@ -27,7 +28,7 @@ def getAccounts(client, return_json=True):
         @rtype: Customer[{}]
         """
         customer_service = client.GetService(
-            'CustomerService', version=ADWORDS_SETTINGS['api_version'])
+            'CustomerService', version=settings.API_VERSION)
         accounts = customer_service.getCustomers()
         if not return_json:
             return accounts
@@ -50,7 +51,7 @@ def getAccountHierarchy(client, return_json=True):
 
     PAGE_SIZE = 500
     # client = self.__class__(self.auth, client_customer_id=mcc_id)
-    service = client.GetService('ManagedCustomerService', version='v201708')
+    service = client.GetService('ManagedCustomerService', version=settings.API_VERSION)
     offset = 0
     selector = {
 

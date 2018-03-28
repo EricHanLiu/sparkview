@@ -55,7 +55,7 @@ def get_aw_report(account_id, client, minDate, maxDate):
         }
     }
 
-    service = client.GetReportDownloader(version='v201710')
+    service = client.GetReportDownloader(version=settings.API_VERSION)
     dataAccountReport = service.DownloadReportAsString(accountReport,
                                                        use_raw_enum_values=True, skip_report_header=True,
                                                        skip_report_summary=True)

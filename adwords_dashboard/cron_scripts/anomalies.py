@@ -1,4 +1,5 @@
 from googleads import adwords
+from bloom import settings
 import datetime
 import io, csv
 import gc
@@ -37,7 +38,7 @@ class Anomalies(object):
             }
         }
 
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataAccountReport = service.DownloadReportAsString(accountReport,
                                                            use_raw_enum_values=True, skip_report_header=True,
                                                            skip_report_summary=True)
@@ -74,7 +75,7 @@ class Anomalies(object):
             }
         }
 
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataAccountReport = service.DownloadReportAsString(accountReport,
                                                                use_raw_enum_values=True, skip_report_header=True,
                                                                skip_report_summary=True)
@@ -108,7 +109,7 @@ class Anomalies(object):
                 }
 
         # One report foreach campaign
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataCampaignReport = service.DownloadReportAsString(campaignReport,
                             use_raw_enum_values=True, skip_report_header=True,
                             skip_report_summary=True)
@@ -149,7 +150,7 @@ class Anomalies(object):
                 }
 
         # One report foreach campaign
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataCampaignReport = service.DownloadReportAsString(campaignReport,
                             use_raw_enum_values=True, skip_report_header=True,
                             skip_report_summary=True)
@@ -180,7 +181,7 @@ class Anomalies(object):
                 }
 
         # One report foreach campaign
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataCampaignReport = service.DownloadReportAsString(campaignReport,
                             use_raw_enum_values=True, skip_report_header=True,
                             skip_report_summary=True)

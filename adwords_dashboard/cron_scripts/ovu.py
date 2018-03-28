@@ -1,4 +1,5 @@
 from googleads import adwords
+from bloom import settings
 import io
 import csv
 import logging
@@ -31,7 +32,7 @@ def get_account_cost(account_id, client):
         }
     }
 
-    service = client.GetReportDownloader(version='v201705')
+    service = client.GetReportDownloader(version=settings.API_VERSION)
 
     account_data = service.DownloadReportAsString(cost_report, use_raw_enum_values=True, skip_report_header=True,
                                                   skip_report_summary=True)

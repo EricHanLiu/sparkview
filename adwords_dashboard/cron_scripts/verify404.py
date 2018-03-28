@@ -1,4 +1,5 @@
 from googleads import adwords
+from bloom import settings
 from .check_404 import Check404
 import sys
 import gc
@@ -34,7 +35,7 @@ def getData(client, account, add):
     FINAL_URL_REPORT_INDEX = 4
 
     client.SetClientCustomerId(account)
-    service = client.GetReportDownloader(version='v201705')
+    service = client.GetReportDownloader(version=settings.API_VERSION)
 
     report = {
         'reportName': 'COST_REPORT',

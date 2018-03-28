@@ -1,5 +1,5 @@
 from googleads import adwords
-
+from bloom import settings
 PAGE_SIZE = 500
 
 
@@ -10,7 +10,7 @@ def get_dependent_accounts(client):
 
     PAGE_SIZE = 500
     managed_customer_service = client.GetService(
-        'ManagedCustomerService', version='v201705')
+        'ManagedCustomerService', version=settings.API_VERSION)
 
     offset = 0
     selector = {
@@ -49,7 +49,7 @@ def get_mcc_accounts(client):
 
         PAGE_SIZE = 500
         managed_customer_service = client.GetService(
-            'ManagedCustomerService', version='v201705')
+            'ManagedCustomerService', version=settings.API_VERSION)
 
         offset = 0
         selector = {

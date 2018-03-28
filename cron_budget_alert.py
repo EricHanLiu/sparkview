@@ -24,10 +24,50 @@ aw_underspenders = []
 aw_overspenders = []
 bing_under = []
 bing_over = []
+aw_campaigns = []
 
 # 99% - budget protection script
 
-def build_data():
+
+def get_campaigns(client):
+
+
+    offset = 0
+    PAGE_SIZE = 500
+
+    client.SetClientCustomerId('7637584053')
+
+    campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
+
+    campaign_selector = {'fields': ['Id', 'Status','Name'],
+                         'predicates': [
+                             {
+                                 'field': 'Status',
+                                 'operator': 'EQUALS',
+                                 'values': 'ENABLED'
+                             }],
+                         'paging': {
+                             'startIndex': str(offset),
+                             'numberResults': str(PAGE_SIZE)
+                         }}
+    more_pages = True
+
+    while more_pages:
+
+        page = campaign_service.get(campaign_selector)
+        time.sleep(0.5)
+
+        if 'entries' in page and page['entries']:
+
+            aw_campaigns.extend(page['entries'])
+            offset += PAGE_SIZE
+            campaign_selector['paging']['startIndex'] = str(offset)
+
+        more_pages = offset < int(page['totalNumEntries'])
+
+    return aw_campaigns
+
+def budget_breakfast():
 
     now = datetime.datetime.now()
     days = calendar.monthrange(now.year, now.month)[1]
@@ -116,7 +156,7 @@ def build_data():
 
         send_mail(
             'Daily budget report', msg_plain,
-            settings.EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=msg_html
+            settings.EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
         )
         print('Mail sent!')
 
@@ -125,9 +165,86 @@ def build_data():
         del bing_over[:]
         del bing_under[:]
 
+
+def budget_protection(client):
+
+    now = datetime.datetime.now()
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - now.day
+
+    users = User.objects.all()
+
+    for user in users:
+
+        aw_accounts = user.profile.adwords.all()
+
+        for a in aw_accounts:
+            spend = a.current_spend
+            daily_spend = spend / now.day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / a.desired_spend
+            except ZeroDivisionError:
+                continue
+
+            if percentage >= 99:
+
+                #pausing all campaigns from the account
+
+                client.SetClientCustomerId(a.dependent_account_id)
+
+                campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
+
+                offset = 0
+                selector = {
+                    'fields': ['Id', 'Name', 'Status'],
+                    'paging': {
+                        'startIndex': str(offset),
+                        'numberResults': str(PAGE_SIZE)
+                    },
+                    'predicates': [
+                        {
+                            'field': 'Status',
+                            'operator': 'EQUALS',
+                            'values': 'ENABLED'
+                    }],
+                }
+
+                more_pages = True
+
+                while more_pages:
+
+                    page = campaign_service.get(selector)
+
+                    if 'entries' in page and page['entries']:
+                        aw_campaigns.extend(page['entries'])
+                        offset += self.PAGE_SIZE
+                        campaign_selector['paging']['startIndex'] = str(offset)
+
+                    more_pages = offset < int(page['totalNumEntries'])
+
+
+                # campaign_criterion = {
+                #     'campaignId': campaign_id,
+                #     'status': 'PAUSED'
+                # }
+
+                # # Create operations.
+                # operations = [
+                #     {
+                #         'operator': 'SET',
+                #         'operand': campaign_criterion
+                #     }
+                # ]
+                #
+                # # Make the mutate request.
+                # result = campaign_criterion_service.mutate(operations)
+
 def main():
 
-    build_data()
+    # client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
+    # print(get_campaigns(client))
+    budget_breakfast()
 
 
 if __name__ == '__main__':

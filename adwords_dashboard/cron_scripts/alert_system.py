@@ -9,6 +9,7 @@ import datetime
 import io
 import csv
 from googleads import adwords
+from bloom import settings
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,7 +37,7 @@ class AlertSystem(object):
         now = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
         offset = 0
 
-        campaign_service = self.client.GetService('CampaignService', version='v201705')
+        campaign_service = self.client.GetService('CampaignService', version=settings.API_VERSION)
 
         campaign_selector = {'fields': ['Id', 'Status','Name'],
                              'predicates': [
@@ -44,11 +45,6 @@ class AlertSystem(object):
                                      'field': 'Status',
                                      'operator': 'EQUALS',
                                      'values': 'ENABLED'
-                                 },{
-                                     'field': 'EndDate',
-                                     'operator': 'GREATER_THAN',
-                                     'values': now
-
                                  }],
                              'paging': {
                                  'startIndex': str(offset),
@@ -71,7 +67,7 @@ class AlertSystem(object):
     def getAdgroups(self):
         offset = 0
 
-        adgroup_service = self.client.GetService('AdGroupService', version='v201705')
+        adgroup_service = self.client.GetService('AdGroupService', version=settings.API_VERSION)
 
         adgroup_selector =  {'fields': ['Id', 'AdGroupName','Status','CampaignId','CampaignName'],
                              'predicates': [
@@ -110,7 +106,7 @@ class AlertSystem(object):
     def getAds(self):
         offset = 0
 
-        ad_service = self.client.GetService('AdGroupAdService', version='v201705')
+        ad_service = self.client.GetService('AdGroupAdService', version=settings.API_VERSION)
 
         ad_selector =  {'fields':['Id', 'HeadlinePart1', 'PolicySummary', 'AdGroupName', 'AdGroupId'],
                         'predicates': [
@@ -147,7 +143,7 @@ class AlertSystem(object):
 
     def getKeywords(self):
         offset = 0
-        adgroup_criterion_service = self.client.GetService('AdGroupCriterionService', version='v201705')
+        adgroup_criterion_service = self.client.GetService('AdGroupCriterionService', version=settings.API_VERSION)
         adgroup_criterion_selector = {
                     'fields':['Id','KeywordText','KeywordMatchType','AdGroupId','Status'],
                     'predicates': [
@@ -211,7 +207,7 @@ class AlertSystem(object):
                     }
                 }
 
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataCampaignReport = service.DownloadReportAsString(positive_keywords,
                                                             use_raw_enum_values=True, skip_report_header=True,
                                                             skip_report_summary=True)
@@ -252,7 +248,7 @@ class AlertSystem(object):
                     }
                 }
 
-        service = self.client.GetReportDownloader(version='v201705')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataCampaignReport = service.DownloadReportAsString(adgroup_negatives,
                                                             use_raw_enum_values=True, skip_report_header=True,
                                                             skip_report_summary=True)
@@ -276,7 +272,7 @@ class AlertSystem(object):
                     }
                 }
 
-        service = self.client.GetReportDownloader(version='v201710')
+        service = self.client.GetReportDownloader(version=settings.API_VERSION)
         dataCampaignReport = service.DownloadReportAsString(negative_keywords,
                             use_raw_enum_values=True, skip_report_header=True,
                             skip_report_summary=True)
