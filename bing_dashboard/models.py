@@ -7,6 +7,7 @@ class BingAccounts(models.Model):
     account_name = models.CharField(max_length=255)
     account_id = models.CharField(max_length=255)
     blacklisted = models.BooleanField(default=False)
+    protected = models.BooleanField(default=False)
     account_ovu = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
     current_spend = models.IntegerField(default=0)

@@ -48,6 +48,7 @@ class DependentAccount(models.Model):
     assigned_to = models.ForeignKey(User, null=True, blank=True)
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
+    protected = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['created_time', 'updated_time']
