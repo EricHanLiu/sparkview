@@ -156,7 +156,7 @@ def budget_breakfast():
 
         send_mail(
             'Daily budget report', msg_plain,
-            settings.EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
+            settings.EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=msg_html
         )
         print('Mail sent!')
 
