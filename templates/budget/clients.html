@@ -6,11 +6,11 @@
                 <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
-{#                            <div class="m-portlet__head-title">#}
-                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                    <span>Client Interface</span>
-                                </h2>
-{#                            </div>#}
+                            {#                            <div class="m-portlet__head-title">#}
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>Client Interface</span>
+                            </h2>
+                            {#                            </div>#}
                         </div>
                     </div>
                     <div class="m-portlet__body">
@@ -27,16 +27,19 @@
                                 </button>
                         </div>
                         <div class="m-separator m-separator--dashed"></div>
-                        <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="clients_datatable">
+                        <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
+                               id="clients_datatable">
                             <div class="row">
                                 <div class="col-md-4"></div>
                                 <div class="col-md-4 text-center">
                                     <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
                                          role="group" aria-label="">
-                                        <button type="button" class="btn btn-outline-info" onclick="window.location.href='{% url 'budget:add_client' %}'">
-                                                This month
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:add_client' %}'">
+                                            This month
                                         </button>
-                                        <button type="button" class="btn btn-outline-info" onclick="window.location.href='{% url 'budget:last_month' %}'">
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:last_month' %}'">
                                             Last month
                                         </button>
                                     </div>
@@ -63,12 +66,15 @@
                                             {{ client.client_name }}
                                         </a>
                                         <div class="row">
-                                            <div class="col-md-6">Daily spend to reach target : {% widthratio client.budget remaining 1 %}</div>
+                                            <div class="col-md-6">Daily spend to reach target
+                                                : {% widthratio client.budget remaining 1 %}</div>
                                             <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">Daily spend to date: {{ client.current_spend|daily_spend|floatformat:2 }}</div>
-                                            <div class="col-md-6">Projected: {{ client.current_spend|projected|floatformat:2 }}</div>
+                                            <div class="col-md-6">Daily spend to date:
+                                                {{ client.current_spend|daily_spend|floatformat:2 }}</div>
+                                            <div class="col-md-6">Projected:
+                                                {{ client.current_spend|projected|floatformat:2 }}</div>
                                         </div>
 
                                     </td>
@@ -85,14 +91,15 @@
                                                 {% widthratio client.current_spend client.budget 100 %}%
                                             </div>
                                             <div class="black-marker"
-                                                                     style="width: {{ blackmarker }}%"
-                                                                     aria-valuenow="{{ blackmarker }}"
-                                                                     aria-valuemin="0" aria-valuemax="100">
+                                                 style="width: {{ blackmarker }}%"
+                                                 aria-valuenow="{{ blackmarker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
                                             </div>
                                         </div>
                                     </td>
-                                    <td style="text-align: center">
-                                        {{ client.budget }}
+                                    <td style="text-align: center" id="budget-{{ client.id }}">
+                                        {#                                        <input type="text" id="budget-{{ client.id }}" disabled="disabled" value="{{ client.budget }}" onclick="jQuery('#budget-{{ client.id }}').removeAttr('disabled')" size="7">#}
+                                        <span id="vbudget-{{ client.id }}" onclick="">{{ client.budget }}</span>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -276,22 +283,22 @@
                                                                     <span class="m-form__help">Please enter a name for the new client.</span>
                                                                 </div>
                                                             </div>
-{#                                                            <div class="form-group m-form__group row"><label#}
-{#                                                                    class="col-form-label col-lg-12 col-sm-12">Client#}
-{#                                                                Budget</label>#}
-{#                                                                <div class="col-lg-12 col-md-12 col-sm-12">#}
-{#                                                                    <p>#}
-{#                                                                        <input#}
-{#                                                                                type="text" class="form-control m-input"#}
-{#                                                                                name="client_budget" id="client_budget"#}
-{#                                                                                aria-describedby="client-error">#}
-{#                                                                        </input>#}
-{#                                                                    </p>#}
-{#                                                                    <div id="client-error"#}
-{#                                                                         class="form-control-feedback"></div>#}
-{#                                                                    <span class="m-form__help">Please enter a budget values for the new client.</span>#}
-{#                                                                </div>#}
-{#                                                            </div>#}
+                                                            {#                                                            <div class="form-group m-form__group row"><label#}
+                                                            {#                                                                    class="col-form-label col-lg-12 col-sm-12">Client#}
+                                                            {#                                                                Budget</label>#}
+                                                            {#                                                                <div class="col-lg-12 col-md-12 col-sm-12">#}
+                                                            {#                                                                    <p>#}
+                                                            {#                                                                        <input#}
+                                                            {#                                                                                type="text" class="form-control m-input"#}
+                                                            {#                                                                                name="client_budget" id="client_budget"#}
+                                                            {#                                                                                aria-describedby="client-error">#}
+                                                            {#                                                                        </input>#}
+                                                            {#                                                                    </p>#}
+                                                            {#                                                                    <div id="client-error"#}
+                                                            {#                                                                         class="form-control-feedback"></div>#}
+                                                            {#                                                                    <span class="m-form__help">Please enter a budget values for the new client.</span>#}
+                                                            {#                                                                </div>#}
+                                                            {#                                                            </div>#}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -482,14 +489,16 @@
                                                                                 <label class="col-xl-4 col-lg-4 col-form-label">Account
                                                                                     Name:</label>
                                                                                 <div class="col-xl-8 col-lg-8">
-                                                                                    <span class="m-form__control-static" id="aw_name_fstep"></span>
+                                                                                    <span class="m-form__control-static"
+                                                                                          id="aw_name_fstep"></span>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="form-group m-form__group m-form__group--sm row">
                                                                                 <label class="col-xl-4 col-lg-4 col-form-label">Account
                                                                                     ID:</label>
                                                                                 <div class="col-xl-8 col-lg-8">
-                                                                                    <span class="m-form__control-static" id="aw_budget_fstep"></span>
+                                                                                    <span class="m-form__control-static"
+                                                                                          id="aw_budget_fstep"></span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -647,52 +656,61 @@
 
 
     <script type="text/javascript">
-        function edit_submit_desired(trigger, acc_id) {
-            if (trigger.innerHTML === 'Submit') {
-                inp_id = "#" + trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;
-                spend = parseInt($(inp_id).val());
-                $(inp_id).attr('readonly', true);
-                changeDesired(spend, acc_id);
-                trigger.innerHTML = 'Edit';
+        {#function edit_submit_desired(trigger, acc_id) {#}
+        {#    if (trigger.innerHTML === 'Submit') {#}
+        {#        inp_id = "#" + trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;#}
+        {#        spend = parseInt($(inp_id).val());#}
+        {#        $(inp_id).attr('readonly', true);#}
+        {#        changeDesired(spend, acc_id);#}
+        {#        trigger.innerHTML = 'Edit';#}
+        {##}
+        {#    } else {#}
+        {#        trigger.innerHTML = 'Submit';#}
+        {#        inp_id = "#" + trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;#}
+        {#        $(inp_id).attr('readonly', false);#}
+        {#    }#}
 
-            } else {
-                trigger.innerHTML = 'Submit';
-                inp_id = "#" + trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;
-                $(inp_id).attr('readonly', false);
-            }
-        }
-
-        function changeDesired(desired_spend, acc_id) {
-
-            if (desired_spend > 100000000) {
-                $("#error_message p").html("<b>The number you provided is too big to store in database</b>");
-                $("#error_message").addClass('note-danger');
-                $("#error_message").removeClass('hide')
-            }
-            else if (desired_spend === 0) {
-                $("#error_message p").html("<b>Please enter a number bigger than 0</b>");
-                $("#error_message").addClass('note-danger');
-                $("#error_message").removeClass('hide')
-            }
-            else {
-                $.ajax({
-                    type: "POST",
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: {
-                        'desired_spend': desired_spend,
-                        'acc_id': acc_id
-                    }
-                })
-                    .done(function (data) {
-                        if (data['error'] === 'OK') {
-                            $("#error_message").removeClass('note-danger');
-                            $("#error_message").addClass('note-success');
-                            $("#error_message p").html("Updated spend for account " + acc_id);
-                            $("#error_message").removeClass('hide');
-                        }
-                    });
-            }
-        }
+        {##}
+        {#function changeDesired(desired_spend, acc_id) {#}
+        {##}
+        {#    if (desired_spend > 100000000) {#}
+        {#        $("#error_message p").html("<b>The number you provided is too big to store in database</b>");#}
+        {#        $("#error_message").addClass('note-danger');#}
+        {#        $("#error_message").removeClass('hide')#}
+        {#    }#}
+        {#    else if (desired_spend === 0) {#}
+        {#        $("#error_message p").html("<b>Please enter a number bigger than 0</b>");#}
+        {#        $("#error_message").addClass('note-danger');#}
+        {#        $("#error_message").removeClass('hide')#}
+        {#    }#}
+        {#    else {#}
+        {#        $.ajax({#}
+        {#            type: "POST",#}
+        {#            headers: {'X-CSRFToken': '{{ csrf_token }}'},#}
+        {#            data: {#}
+        {#                'desired_spend': desired_spend,#}
+        {#                'acc_id': acc_id#}
+        {#            }#}
+        {#        })#}
+        {#            .done(function (data) {#}
+        {#                if (data['error'] === 'OK') {#}
+        {#                    $("#error_message").removeClass('note-danger');#}
+        {#                    $("#error_message").addClass('note-success');#}
+        {#                    $("#error_message p").html("Updated spend for account " + acc_id);#}
+        {#                    $("#error_message").removeClass('hide');#}
+        {#                }#}
+        {#            });#}
+        {#    }#}
+{##}
+{#        $(document).ready(function () {#}
+{#            var vbudget = "#vbudget-" + client_id;#}
+{#            var budget = "#budget-" + client_id;#}
+{#            $(vbudget).click(function () {#}
+{#                $(vbudget).remove();#}
+{#                $(budget).html('<input type="number" value="">');#}
+{#                $(budget).val(client_budget);#}
+{#            });#}
+{#        });#}
     </script>
 
 {% endblock %}

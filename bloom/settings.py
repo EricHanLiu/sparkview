@@ -151,7 +151,7 @@ CRONJOBS = [
     ('0 5 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('40 5 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('30 6 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
-    ('45 6 * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
+    ('*/5 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
     ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
 ]
 
@@ -171,8 +171,8 @@ BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
-EMAIL_PORT=587
 EMAIL_HOST_USER = 'dev@makeitbloom.com'
 EMAIL_HOST_PASSWORD = 'ujfgvsieuwptnrgp'
+EMAIL_PORT=587
 EMAIL_USE_TLS = True
 DEFAULT_EMAIL_FROM = 'dev@makeitbloom.com'

@@ -168,6 +168,8 @@ def budget_breakfast():
 
 def budget_protection(client):
 
+    percentage = 0
+
     now = datetime.datetime.now()
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - now.day
@@ -177,11 +179,16 @@ def budget_protection(client):
     for user in users:
 
         aw_accounts = user.profile.adwords.all()
+        bing_accounts = user.profile.bing.all()
 
         for a in aw_accounts:
+
+
             spend = a.current_spend
             daily_spend = spend / now.day
             projected = (daily_spend * remaining) + spend
+            protected = a.protected
+
             try:
                 percentage = (projected * 100) / a.desired_spend
             except ZeroDivisionError:
@@ -189,56 +196,81 @@ def budget_protection(client):
 
             if percentage >= 99:
 
-                #pausing all campaigns from the account
+                if protected:
 
-                client.SetClientCustomerId(a.dependent_account_id)
+                    # pausing all campaigns from the adwords account
 
-                campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
+                    client.SetClientCustomerId(a.dependent_account_id)
 
-                offset = 0
-                selector = {
-                    'fields': ['Id', 'Name', 'Status'],
-                    'paging': {
-                        'startIndex': str(offset),
-                        'numberResults': str(PAGE_SIZE)
-                    },
-                    'predicates': [
-                        {
-                            'field': 'Status',
-                            'operator': 'EQUALS',
-                            'values': 'ENABLED'
-                    }],
-                }
+                    campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
 
-                more_pages = True
+                    offset = 0
 
-                while more_pages:
+                    selector = {
+                        'fields': ['Id', 'Name', 'Status'],
+                        'paging': {
+                            'startIndex': str(offset),
+                            'numberResults': str(PAGE_SIZE)
+                        },
+                        'predicates': [
+                            {
+                                'field': 'Status',
+                                'operator': 'EQUALS',
+                                'values': 'ENABLED'
+                        }],
+                    }
 
-                    page = campaign_service.get(selector)
+                    more_pages = True
 
-                    if 'entries' in page and page['entries']:
-                        aw_campaigns.extend(page['entries'])
-                        offset += self.PAGE_SIZE
-                        campaign_selector['paging']['startIndex'] = str(offset)
+                    while more_pages:
 
-                    more_pages = offset < int(page['totalNumEntries'])
+                        page = campaign_service.get(selector)
+
+                        if 'entries' in page and page['entries']:
+                            aw_campaigns.extend(page['entries'])
+                            offset += self.PAGE_SIZE
+                            campaign_selector['paging']['startIndex'] = str(offset)
+
+                        more_pages = offset < int(page['totalNumEntries'])
+
+                    # Loop thorugh campaign list and pause them
+                    for cmp in aw_campaigns:
+
+                        campaign_criterion = {
+                            'campaignId': cmp['Campaign ID'],
+                            'status': 'PAUSED'
+                        }
+
+                        # Create operations.
+                        operations = [
+                            {
+                                'operator': 'SET',
+                                'operand': campaign_criterion
+                            }
+                        ]
+
+                        # Make the mutate request.
+                        result = campaign_criterion_service.mutate(operations)
 
 
-                # campaign_criterion = {
-                #     'campaignId': campaign_id,
-                #     'status': 'PAUSED'
-                # }
+        for b in bing_accounts:
 
-                # # Create operations.
-                # operations = [
-                #     {
-                #         'operator': 'SET',
-                #         'operand': campaign_criterion
-                #     }
-                # ]
-                #
-                # # Make the mutate request.
-                # result = campaign_criterion_service.mutate(operations)
+            spend = b.current_spend
+            daily_spend = spend / now.day
+            projected = (daily_spend * remaining) + spend
+            protected = b.protected
+
+            try:
+                percentage = (projected * 100) / b.desired_spend
+            except ZeroDivisionError:
+                continue
+
+            if percentage >= 99:
+
+                if protected:
+
+                    # pausing all campaigns from bing account
+                    pass
 
 def main():
 

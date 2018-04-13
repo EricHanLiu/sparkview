@@ -23,6 +23,7 @@ def bing_dashboard(request):
 
     items = []
     accounts = models.BingAccounts.objects.filter(blacklisted=False)
+
     for account in accounts:
         item = {}
         item['account'] = account
@@ -38,8 +39,36 @@ def bing_dashboard(request):
         items.append(item)
     return render(request, 'bing/dashboard.html', {'items': items})
 
-def campaign_anomalies(request):
-    return HttpResponse('Ok')
+
+def campaign_anomalies(request, account_id):
+
+    account = models.BingAccounts.objects.get(account_id=account_id)
+
+    anomalies = models.BingAnomalies.objects.filter(account=account,
+                                           performance_type='CAMPAIGN')
+
+    campaigns = []
+
+    for cmp in anomalies:
+        campaign = {}
+        campaign['id'] = cmp.campaign_id
+        campaign['name'] = cmp.campaign_name
+        campaign['cpc'] = cmp.cpc
+        campaign['clicks'] = cmp.clicks
+        campaign['impressions'] = cmp.impressions
+        campaign['cost'] = cmp.cpc
+        campaign['conversions'] = cmp.cpc
+        campaign['cost_per_conversions'] = cmp.cpc
+        campaign['ctr'] = cmp.ctr
+        campaign['search_impr_share'] = cmp.search_impr_share
+        campaigns.append(campaign)
+
+    context = {
+        'account': account,
+        'campaigns': campaigns
+    }
+
+    return render(request, 'bing/campaign_anomalies.html', context)
 
 
 class BingSingin(View):

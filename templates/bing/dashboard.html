@@ -35,7 +35,9 @@
               {% for item in items %}
               <tr>
                 <td>
-                {{ item.account.account_name }} - {{ item.account.account_id }}
+                    <a href="{% url 'bing:campaign_anomalies' item.account.account_id %}">
+                        {{ item.account.account_name }}
+                        </a> - {{ item.account.account_id }}
                 </td>
                 <td>
                     {{ item.account.account_ovu }}%
