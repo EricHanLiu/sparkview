@@ -246,7 +246,7 @@ class Anomalies(object):
         return final_data
 
     def get_account_labels(self):
-        account_label_service = self.client.GetService('ManagedCustomerService', version='v201705')
+        account_label_service = self.client.GetService('ManagedCustomerService', version=settings.API_VERSION)
         selector = {'fields': ['AccountLabels', 'CustomerId']}
         result = account_label_service.get(selector)
 
@@ -255,7 +255,7 @@ class Anomalies(object):
         return list(map(dict, list(result['entries'])))
 
     def get_campaign_labels(self):
-        campaign_label_service = self.client.GetService('CampaignService', version='v201705')
+        campaign_label_service = self.client.GetService('CampaignService', version=settings.API_VERSION)
         selector = {'fields': ['Id', 'Labels', 'CampaignName']}
         result = campaign_label_service.get(selector)
 

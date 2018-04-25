@@ -187,7 +187,7 @@ def client_details(request, client_id):
     now = datetime.now()
     current_day = now.day
     days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - current_day
+    remaining = days - current_day + 1
     black_marker = (current_day * 100) / days
 
     if request.method == 'GET':
@@ -412,8 +412,8 @@ def campaign_groupings(request, account_id):
             if campaigns:
                 for cmp in campaigns:
                     cmp_obj = Campaign.objects.get(campaign_id=cmp)
-                    budget = request.POST.get('cmp_budget_' + cmp)
-                    cmp_obj.campaign_budget = int(budget)
+                    budget = request.POST.get('grouping-budget')
+                    cmp_obj.campaign_budget = int(budget)/len(campaigns)
                     cmp_obj.groupped = True
                     cmp_obj.save()
                     cmps.append(cmp_obj)
@@ -432,8 +432,8 @@ def campaign_groupings(request, account_id):
             if campaigns:
                 for cmp in campaigns:
                     cmp_obj = BingCampaign.objects.get(campaign_id=cmp)
-                    budget = request.POST.get('cmp_budget_' + cmp)
-                    cmp_obj.campaign_budget = int(budget)
+                    budget = request.POST.get('grouping-budget')
+                    cmp_obj.campaign_budget = int(budget)/len(campaigns)
                     cmp_obj.groupped = True
                     cmp_obj.save()
                     cmps.append(cmp_obj)
@@ -444,6 +444,52 @@ def campaign_groupings(request, account_id):
                     new_grouping.current_spend += c.campaign_cost
                     new_grouping.budget += c.campaign_budget
                     new_grouping.save()
+
+        context = {}
+
+        return JsonResponse(context)
+
+
+@login_required
+def update_groupings(request):
+
+    if request.method == 'POST':
+
+        data = request.POST
+
+        gr_id = data['id']
+        budget = data['budget']
+        grouping = CampaignGrouping.objects.get(id=gr_id)
+        grouping.budget = int(budget)
+        grouping.save()
+
+        for c in grouping.aw_campaigns.all():
+            c.campaign_budget = int(budget)/len(grouping.aw_campaigns.all())
+            c.save()
+
+        context = {}
+        return JsonResponse(context)
+
+
+@login_required
+def delete_groupings(request):
+
+    if request.method == 'POST':
+
+        data = request.POST.getlist('grouping_ids')
+
+        for gr_id in data:
+            grouping = CampaignGrouping.objects.get(id=gr_id)
+            if len(grouping.aw_campaigns.all()) > 0:
+                for cmp in grouping.aw_campaigns.all():
+                    cmp.groupped = False
+                    cmp.save()
+            else:
+                for cmp in grouping.bing_campaigns.all():
+                    cmp.groupped = False
+                    cmp.save()
+
+            grouping.delete()
 
         context = {}
 

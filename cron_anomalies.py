@@ -149,15 +149,17 @@ def add_anomalies(anomaly, acc):
 
     if cmp_tm:
         for c in cmp_tm:
-            print(c['Campaign'], c['Campaign ID'])
+
+            cost = c['Cost']/1000000
+
             try:
                 cmp = models.Campaign.objects.get(account=acc, campaign_id=c['Campaign ID'])
-                cmp.campaign_cost += c['Cost']
+                cmp.campaign_cost += cost
                 cmp.save()
                 print('Updated campaign ' + c['Campaign'] + ' cost.')
             except:
                 models.Campaign.objects.create(account=acc, campaign_name=c['Campaign'], campaign_id=c['Campaign ID'],
-                                           campaign_cost=c['Cost'])
+                                           campaign_cost=cost)
                 print('Added campaign '+ c['Campaign'] + 'to DB.')
 
 

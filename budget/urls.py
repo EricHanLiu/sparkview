@@ -14,5 +14,7 @@ urlpatterns = [
     url(r"^client/fbudget/$", views.flight_dates, name="fbudget"),
     url(r"^client/fbudget/(?P<account_id>\d+)$", views.detailed_flight_dates, name="findividualbudget"),
     url(r"^client/fbudget/(?P<account_id>\d+)/campaigns/$", views.campaign_groupings, name="campaign_groupings"),
+    url(r"^groupings/update/$", views.update_groupings, name='campaign_groupings_update'),
+    url(r"^groupings/delete/$", views.delete_groupings, name='campaign_groupings_delete'),
 
 ]

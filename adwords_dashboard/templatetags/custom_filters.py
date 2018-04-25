@@ -5,6 +5,16 @@ import calendar
 register = template.Library()
 
 
+@register.simple_tag
+def ds_tt(spend, budget):
+
+    now = datetime.now()
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - now.day
+    ds_tt = (budget - spend) / remaining
+    return ds_tt
+
+
 @register.filter('startswith')
 def startswith(text, starts):
     if isinstance(text, str):

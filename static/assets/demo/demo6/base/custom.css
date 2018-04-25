@@ -171,3 +171,15 @@ a:not([href]):not([tabindex]):focus {
 .m-table.m-table--head-separator-bloom thead th {
   border-top: 0;
   border-bottom: 1px solid #1b2127; }
+
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type=number].table-number  {
+    -moz-appearance: textfield;
+    background-color: inherit;
+    text-align: center;
+    border: 0px;
+    border-bottom: 1px solid #222;
+}

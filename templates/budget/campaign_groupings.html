@@ -22,10 +22,13 @@
                             <div class="row">
                                 <button type="button" class="btn btn-info add-client"
                                         data-toggle="modal"
-                                        data-target="#m_modal_campaigns"> Campaign Groupings
+                                        data-target="#m_modal_campaigns">Campaign Groupings
+                                </button>
+                                <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">Delete grouping(s)
                                 </button>
                             </div>
-                            <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="clients_last_month">
+                            <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
+                                   id="clients_last_month">
                                 <div class="row">
                                     <div class="col-md-4"></div>
                                     <div class="col-md-4 text-center">
@@ -45,6 +48,7 @@
                                 </div>
                                 <thead class="thead-inverse">
                                 <tr>
+                                    <th style="width: 5%"></th>
                                     <th>Campaigns</th>
                                     <th style="text-align: center">Budget</th>
                                     <th style="text-align: center">Current spend</th>
@@ -54,13 +58,18 @@
                                 <tbody>
                                 {% for gr in groups %}
                                     <tr>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <input type="checkbox" name="grouping_ids" id="{{ gr.id }}"
+                                                   value="{{ gr.id }}">
+                                        </td>
                                         <td>
                                             {% for c in gr.aw_campaigns.all %}
                                                 {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
                                             {% endfor %}
                                         </td>
-                                        <td style="text-align: center">
-                                            {{ gr.budget }}
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <input id="gr_budget-{{ gr.id }}" type="number" class="table-number" onkeypress="submitBudget(event, {{ gr.id }})"
+                                                   value="{{ gr.budget }}">
                                         </td>
                                         <td style="text-align: center">
                                             {{ gr.current_spend }}
@@ -75,7 +84,6 @@
                                 </div>
                                 </tbody>
                             </table>
-                            </form>
                         </div>
                     {% else %}
                         <div class="m-portlet__body">
@@ -83,6 +91,8 @@
                                 <button type="button" class="btn btn-info add-client"
                                         data-toggle="modal"
                                         data-target="#m_modal_campaigns"> Campaign Groupings
+                                </button>
+                                <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">Delete grouping(s)
                                 </button>
                             </div>
                             <table class='table table-striped m-table' id="clients_last_month">
@@ -105,29 +115,35 @@
                                 </div>
                                 <thead class="thead-inverse">
                                 <tr>
+                                    <th style="width: 5%"></th>
                                     <th>Campaigns</th>
                                     <th style="text-align: center">Budget</th>
                                     <th style="text-align: center">Spend</th>
-{#                                    <th style="text-align: center">End Date</th>#}
+                                    {#                                    <th style="text-align: center">End Date</th>#}
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for gr in groups %}
                                     <tr>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <input type="checkbox" name="grouping_ids" id="{{ gr.id }}"
+                                                   value="{{ gr.id }}">
+                                        </td>
                                         <td>
                                             {% for c in gr.bing_campaigns.all %}
                                                 {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
                                             {% endfor %}
                                         </td>
-                                        <td style="text-align: center">
-                                            {{ gr.budget }}
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <input type="number" onkeypress="submitBudget(event, {{ gr.id }})"
+                                                   value="{{ gr.budget }}" class="table-number">
                                         </td>
                                         <td style="text-align: center">
                                             {{ gr.current_spend }}
                                         </td>
-{#                                        <td style="text-align: center">#}
-{#                                            0#}
-{#                                        </td>#}
+                                        {#                                        <td style="text-align: center">#}
+                                        {#                                            0#}
+                                        {#                                        </td>#}
                                     </tr>
                                 {% endfor %}
                                 <div id="error_message" class="note hide">
@@ -135,7 +151,6 @@
                                 </div>
                                 </tbody>
                             </table>
-                            </form>
                         </div>
                     {% endif %}
                 </div>
@@ -250,13 +265,13 @@
                                                                                 name="campaigns"
                                                                                 multiple="multiple"
                                                                                 id="m_select2_campaigns"
-                                                                                style="width: 100%;">
+                                                                                style="width: 100%;" required>
                                                                             {% for cmp in campaigns %}
                                                                                 <option value="{{ cmp.campaign_id }}">{{ cmp.campaign_name }}</option>
                                                                             {% endfor %}
                                                                         </select>
-                                                                        <div id="budget-fields">
-
+                                                                        <div id="budget-field">
+                                                                            <input type="number" name="grouping-budget" class="form-control m-input" placeholder="Please enter a budget..." min="0" required>
                                                                         </div>
                                                                         <div id="adwords-error"
                                                                              class="form-control-feedback"></div>
@@ -387,6 +402,104 @@
         </div>
         <!-- End::Modal -->
     </div>
+    <script type="text/javascript">
 
+        function submitBudget(e, gr_id) {
+
+            if (window.event)
+                keycode = window.event.keyCode;
+            else if (e)
+                keycode = e.which;
+
+            if (keycode === 13) {
+
+                var keycode;
+                var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+                var budget = jQuery("#gr_budget-"+gr_id).val();
+                var new_budget = {
+                    id: gr_id,
+                    budget: budget
+                };
+
+                $.ajax({
+                    url: '/budget/groupings/update/',
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    data: new_budget,
+                    success: function () {
+                        swal({
+                            "title": "SUCCESS",
+                            "text": "Budget succesfully updated.",
+                            "type": "success",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    error: function (ajaxContext) {
+                        swal({
+                            "title": "ERROR",
+                            "text": ajaxContext.statusText,
+                            "type": "error",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2500);
+                    }
+                });
+
+            } else {
+                        return false;
+            }
+        }
+
+        function deleteGrouping(){
+
+            var data = $('input[type="checkbox"]').serialize();
+            var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+            console.log(data);
+
+            if(data) {
+            $.ajax({
+                    url: '/budget/groupings/delete/',
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    data: data,
+                    success: function () {
+                        swal({
+                            "title": "SUCCESS",
+                            "text": "Grouping succesfully deleted.",
+                            "type": "success",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    error: function (ajaxContext) {
+                        swal({
+                            "title": "ERROR",
+                            "text": ajaxContext.statusText,
+                            "type": "error",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2500);
+                    }
+                });
+
+            } else {
+                swal({
+                'title': 'ERROR',
+                'text': 'Please select at least one grouping to delete.',
+                'type': 'error',
+                'confirmButtonClass': 'btn btn-secondary m-btn m-btn--wide'
+            });
+            }
+        }
+
+    </script>
 
 {% endblock %}

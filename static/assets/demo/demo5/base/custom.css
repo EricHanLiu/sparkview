@@ -167,3 +167,7 @@ a:not([href]):not([tabindex]):focus {
 .m-brand {
     background: #1b2127;
 }
+
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}

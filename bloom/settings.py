@@ -141,9 +141,9 @@ ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntf
 
 CRONJOBS = [
     ('55 4 1 * *', 'cron_last_month.main', '> ' + BASE_DIR + '/logs/last_month.log'),
-    ('0 5 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
-    ('5 5 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
-    ('10 5 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+    ('0 4 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
+    ('5 4 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
+    ('10 4 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('0 6 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('0 7 * * *', 'cron_404.main', '> ' + BASE_DIR + '/logs/404.log'),
     ('45 7 * * *', 'cron_flight_dates.main', '> ' + BASE_DIR + '/logs/flight_dates.log'),

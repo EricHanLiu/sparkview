@@ -67,7 +67,7 @@
                                                                 <span class="m--font-boldest2">Budget</span>: {{ client_data.budget }}
                                                             </div>
                                                             <div class="col-md-3">
-                                                                <span class="m--font-boldest2">Monthly up to Up-to-Date Spend</span>: {{ client_data.current_spend }}
+                                                                <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
                                                             </div>
                                                             <div class="col-md-3">
                                                                 <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
@@ -95,7 +95,7 @@
                                                             <div class="row text-center">
                                                                 <div class="col-md-3">
                                                                     <b>Daily spend to target
-                                                                    </b>: {% widthratio a.desired_spend remaining 1 %}
+                                                                    </b>: {% ds_tt a.current_spend a.desired_spend %}
                                                                 </div>
                                                                 <div class="col-md-3">
 
