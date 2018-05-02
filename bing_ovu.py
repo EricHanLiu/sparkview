@@ -2,11 +2,11 @@ import datetime
 import os
 import csv
 import codecs
-import sys
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 django.setup()
 from bing_dashboard import auth
+from suds import WebFault
 from bingads import ServiceClient
 from bingads.v11.reporting import *
 from bloom import settings
@@ -15,7 +15,7 @@ from datetime import datetime
 import calendar
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 auth_method = auth.BingAuth().get_auth()
 
 reporting_service_manager=ReportingServiceManager(
@@ -96,7 +96,6 @@ def calculate_ovu(account_id, spend, yesterday):
 
     now = datetime.now()
     days = calendar.monthrange(now.year, now.month)[1]
-
     account = models.BingAccounts.objects.get(account_id=account_id)
     account.current_spend = spend
     account.yesterday_spend = yesterday
@@ -120,10 +119,14 @@ def main():
         report_request2 = get_spend_report(acc.account_id, 'Yesterday')
         parameters = initiate_download(acc.account_id, report_request)
         parameters2 = initiate_download(acc.account_id, report_request2)
-        spend = download_and_process(parameters)
-        yesterday = download_and_process(parameters2)
-        print(yesterday)
-        calculate_ovu(acc.account_id, spend, yesterday)
+        try:
+            spend = download_and_process(parameters)
+            yesterday = download_and_process(parameters2)
+            calculate_ovu(acc.account_id, spend, yesterday)
+        except WebFault as e:
+            print(e)
+            acc.delete()
+            print('Account not found in Bing MCC, deleted from DB [INFO]')
 
 
 if __name__ == '__main__':

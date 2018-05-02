@@ -64,7 +64,7 @@ def percentage(spend, budget):
 def daily_spend(spend):
 
     now = datetime.now()
-    value = spend / now.day
+    value = spend / (now.day - 1)
 
     return value
 
@@ -73,11 +73,11 @@ def daily_spend(spend):
 def projected(spend):
 
     now = datetime.now()
-    d_spend = spend / now.day
+    d_spend = spend / (now.day)
     days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - now.day
+    remaining = days - now.day + 1
     # projected value
-    rval = (d_spend * remaining) + spend
+    rval = spend + (d_spend * remaining)
     return round(rval ,2)
 
 
