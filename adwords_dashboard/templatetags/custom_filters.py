@@ -12,7 +12,7 @@ def ds_tt(spend, budget):
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - now.day
     ds_tt = (budget - spend) / remaining
-    return ds_tt
+    return round(ds_tt, 2)
 
 
 @register.filter('startswith')
@@ -78,7 +78,7 @@ def projected(spend):
     remaining = days - now.day
     # projected value
     rval = (d_spend * remaining) + spend
-    return rval
+    return round(rval ,2)
 
 
 @register.filter(name='gap')

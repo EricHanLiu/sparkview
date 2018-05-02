@@ -9,183 +9,208 @@
                             <div class="m-portlet__head-title">
                                 <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
                                     {% if platform_type == 'AW' %}
-                                    <span>{{ account.dependent_account_name }}</span>
+                                        <span>{{ account.dependent_account_name }}</span>
                                     {% else %}
-                                    <span>{{ account.account_name }}</span>
+                                        <span>{{ account.account_name }}</span>
                                     {% endif %}
                                 </h2>
                             </div>
                         </div>
                     </div>
                     {% if platform_type == 'AW' %}
-                    <div class="m-portlet__body">
-                    <p>
-                                                                <button type="button" class="btn btn-info" onclick="toggleFlightDates('flight-{{ account.dependent_account_id }}')">Add budget</button>
-                                                            </p>
-                                                              <div id="flight-error-{{ account.dependent_account_id }}">
-                                                                    <p></p>
-                                                                </div>
-                                                            <div id="flight-{{ account.dependent_account_id }}" class="hidden">
+                        <div class="m-portlet__body">
+                            <p>
+                                <button type="button" class="btn btn-info"
+                                        onclick="toggleFlightDates('flight-{{ account.dependent_account_id }}')">Add
+                                    budget
+                                </button>
+                            </p>
+                            <div id="flight-error-{{ account.dependent_account_id }}">
+                                <p></p>
+                            </div>
+                            <div id="flight-{{ account.dependent_account_id }}" class="hidden">
 
-                                                                <div class="form-group m-form__group row">
-                                                                                <div class="col-lg-3 col-md-3 col-sm-12">
-                                                                                    <input type="text" class="form-control sdate-{{ account.dependent_account_id }}" id="m_datepicker_1" readonly="" placeholder="Start date">
-                                                                                </div>
-                                                                                <div class="col-lg-3 col-md-3 col-sm-12">
-                                                                                    <input type="text" class="form-control edate-{{ account.dependent_account_id }}" id="m_datepicker_2" readonly="" placeholder="End date">
-                                                                                </div>
-                                                                                <div class="col-md-3">
-                                                                                    <input type="number" class="form-control fbudget-{{ account.dependent_account_id }}" min="0" placeholder="Desired budget" required>
-                                                                                </div>
-                                                                                <div class="col-md-3">
-                                                                                    <button type="button" class="btn btn-success" onclick="submitFlightBudget({{ account.dependent_account_id }})">Submit</button>
-                                                                                </div>
-                                                                </div>
-                                                            </div>
-                        <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="clients_last_month">
-                            <div class="row">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4 text-center">
-                                    <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
-                                         role="group" aria-label="">
-                                        <button type="button" class="btn btn-outline-info" onclick="window.location.href='{% url 'budget:findividualbudget' account.dependent_account_id %}'">
-                                                Flight Dates
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info" onclick="window.location.href='{% url 'budget:campaign_groupings' account.dependent_account_id %}'">
-                                            Campaign Groupings
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-3 col-md-3 col-sm-12">
+                                        <input type="text" class="form-control sdate-{{ account.dependent_account_id }}"
+                                               id="m_datepicker_1" readonly="" placeholder="Start date">
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-12">
+                                        <input type="text" class="form-control edate-{{ account.dependent_account_id }}"
+                                               id="m_datepicker_2" readonly="" placeholder="End date">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number"
+                                               class="form-control fbudget-{{ account.dependent_account_id }}" min="0"
+                                               placeholder="Desired budget" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-success"
+                                                onclick="submitFlightBudget({{ account.dependent_account_id }})">Submit
                                         </button>
                                     </div>
                                 </div>
-                                <div class="col-md-4"></div>
                             </div>
-                            <thead class="thead-inverse">
-                            <tr>
-                                <th>Budget</th>
-                                <th style="text-align: center">Budget</th>
-                                <th style="text-align: center">Start Date</th>
-                                <th style="text-align: center">End Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for budget in budgets %}
-                                <tr>
-                                    <td>
-                                        <div class="progress m-progress--lg">
-                                                                <div class="progress-bar {{ budget.current_spend|percentage:budget.budget }}"
-                                                                     role="progressbar"
-                                                                     style="width: {% widthratio budget.current_spend budget.budget 100 %}%"
-                                                                     aria-valuenow="{% widthratio budget.current_spend budget.budget 100 %}"
-                                                                     aria-valuemin="0" aria-valuemax="100"
-                                                                     data-toggle="m-tooltip" data-placement="top"
-                                                                     title=""
-                                                                     data-original-title="{{ budget.current_spend }}/{{ budget.budget }}">
-                                                                    {% widthratio budget.current_spend budget.budget 100 %}%
-                                                                </div>
+                            <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
+                                   id="clients_last_month">
+                                <div class="row">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4 text-center">
+                                        <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
+                                             role="group" aria-label="">
+                                            <button type="button" class="btn btn-outline-info"
+                                                    onclick="window.location.href='{% url 'budget:findividualbudget' account.dependent_account_id %}'">
+                                                Flight Dates
+                                            </button>
+                                            <button type="button" class="btn btn-outline-info"
+                                                    onclick="window.location.href='{% url 'budget:campaign_groupings' account.dependent_account_id %}'">
+                                                Campaign Groupings
+                                            </button>
                                         </div>
-                                    </td>
-                                    <td style="text-align: center">
-                                        {{ budget.budget }}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {{ budget.start_date }}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {{ budget.end_date }}
-                                    </td>
+                                    </div>
+                                    <div class="col-md-4"></div>
+                                </div>
+                                <thead class="thead-inverse">
+                                <tr>
+                                    <th>Budget</th>
+                                    <th style="text-align: center">Budget</th>
+                                    <th style="text-align: center">Start Date</th>
+                                    <th style="text-align: center">End Date</th>
                                 </tr>
-                            {% endfor %}
-                            <div id="error_message" class="note hide">
-                                <p></p>
-                            </div>
-                            </tbody>
-                        </table>
-                        </form>
-                    </div>
+                                </thead>
+                                <tbody>
+                                {% for budget in budgets %}
+                                    <tr>
+                                        <td>
+                                            <div class="progress m-progress--lg">
+                                                <div class="progress-bar
+                                                        {{ budget.current_spend|percentage:budget.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio budget.current_spend budget.budget 100 %}%"
+                                                     aria-valuenow="{% widthratio budget.current_spend budget.budget 100 %}"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top"
+                                                     title=""
+                                                     data-original-title="{{ budget.current_spend }}/{{ budget.budget }}">
+                                                    {% widthratio budget.current_spend budget.budget 100 %}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: center">
+                                            <input id="f_budget-{{ budget.id }}" type="number" class="table-number"
+                                                   onkeypress="updateFlightBudget(event, {{ budget.id }})"
+                                                   value="{{ budget.budget }}">
+                                        </td>
+                                        <td style="text-align: center">
+                                            {{ budget.start_date }}
+                                        </td>
+                                        <td style="text-align: center">
+                                            {{ budget.end_date }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <div id="error_message" class="note hide">
+                                    <p></p>
+                                </div>
+                                </tbody>
+                            </table>
+                            </form>
+                        </div>
                     {% else %}
-                    <div class="m-portlet__body">
-                    <p>
-                                                                <button type="button" class="btn btn-info" onclick="toggleFlightDates('flight-{{ account.account_id }}')">Add budget</button>
-                                                            </p>
-                                                              <div id="flight-error-{{ account.account_id }}">
-                                                                    <p></p>
-                                                                </div>
-                                                            <div id="flight-{{ account.account_id }}" class="hidden">
+                        <div class="m-portlet__body">
+                            <p>
+                                <button type="button" class="btn btn-info"
+                                        onclick="toggleFlightDates('flight-{{ account.account_id }}')">Add budget
+                                </button>
+                            </p>
+                            <div id="flight-error-{{ account.account_id }}">
+                                <p></p>
+                            </div>
+                            <div id="flight-{{ account.account_id }}" class="hidden">
 
-                                                                <div class="form-group m-form__group row">
-                                                                                <div class="col-lg-3 col-md-3 col-sm-12">
-                                                                                    <input type="text" class="form-control sdate-{{ account.account_id }}" id="m_datepicker_1" readonly="" placeholder="Start date">
-                                                                                </div>
-                                                                                <div class="col-lg-3 col-md-3 col-sm-12">
-                                                                                    <input type="text" class="form-control edate-{{ account.account_id }}" id="m_datepicker_2" readonly="" placeholder="End date">
-                                                                                </div>
-                                                                                <div class="col-md-3">
-                                                                                    <input type="number" class="form-control fbudget-{{ account.account_id }}" min="0" placeholder="Desired budget" required>
-                                                                                </div>
-                                                                                <div class="col-md-3">
-                                                                                    <button type="button" class="btn btn-success" onclick="submitFlightBudget({{ account.account_id }})">Submit</button>
-                                                                                </div>
-                                                                </div>
-                                                            </div>
-                        <table class='table table-striped m-table' id="clients_last_month">
-                            <div class="row">
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4 text-center">
-                                    <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
-                                         role="group" aria-label="">
-                                        <button type="button" class="btn btn-outline-info" onclick="window.location.href='{% url 'budget:findividualbudget' account.account_id %}'">
-                                                Flight Dates
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info" onclick="window.location.href='{% url 'budget:campaign_groupings' account.account_id %}'">
-                                            Campaign Groupings
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-3 col-md-3 col-sm-12">
+                                        <input type="text" class="form-control sdate-{{ account.account_id }}"
+                                               id="m_datepicker_1" readonly="" placeholder="Start date">
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-12">
+                                        <input type="text" class="form-control edate-{{ account.account_id }}"
+                                               id="m_datepicker_2" readonly="" placeholder="End date">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control fbudget-{{ account.account_id }}"
+                                               min="0" placeholder="Desired budget" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-success"
+                                                onclick="submitFlightBudget({{ account.account_id }})">Submit
                                         </button>
                                     </div>
                                 </div>
-                                <div class="col-md-4"></div>
                             </div>
-                            <thead class="thead-inverse">
-                            <tr>
-                                <th>Client Name</th>
-                                <th style="text-align: center">Budget</th>
-                                <th style="text-align: center">Start Date</th>
-                                <th style="text-align: center">End Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for budget in budgets %}
-                                <tr>
-                                    <td>
-                                        <div class="progress m-progress--lg">
-                                                                <div class="progress-bar {{ budget.current_spend|percentage:budget.budget }}"
-                                                                     role="progressbar"
-                                                                     style="width: {% widthratio budget.current_spend budget.budget 100 %}%"
-                                                                     aria-valuenow="{% widthratio budget.current_spend budget.budget 100 %}"
-                                                                     aria-valuemin="0" aria-valuemax="100"
-                                                                     data-toggle="m-tooltip" data-placement="top"
-                                                                     title=""
-                                                                     data-original-title="{{ budget.current_spend }}/{{ budget.budget }}">
-                                                                    {% widthratio budget.current_spend budget.budget 100 %}%
-                                                                </div>
+                            <table class='table table-striped m-table' id="clients_last_month">
+                                <div class="row">
+                                    <div class="col-md-4"></div>
+                                    <div class="col-md-4 text-center">
+                                        <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
+                                             role="group" aria-label="">
+                                            <button type="button" class="btn btn-outline-info"
+                                                    onclick="window.location.href='{% url 'budget:findividualbudget' account.account_id %}'">
+                                                Flight Dates
+                                            </button>
+                                            <button type="button" class="btn btn-outline-info"
+                                                    onclick="window.location.href='{% url 'budget:campaign_groupings' account.account_id %}'">
+                                                Campaign Groupings
+                                            </button>
                                         </div>
-
-                                    </td>
-                                    <td style="text-align: center">
-                                        {{ budget.budget }}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {{ budget.start_date }}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {{ budget.end_date }}
-                                    </td>
+                                    </div>
+                                    <div class="col-md-4"></div>
+                                </div>
+                                <thead class="thead-inverse">
+                                <tr>
+                                    <th>Client Name</th>
+                                    <th style="text-align: center">Budget</th>
+                                    <th style="text-align: center">Start Date</th>
+                                    <th style="text-align: center">End Date</th>
                                 </tr>
-                            {% endfor %}
-                            <div id="error_message" class="note hide">
-                                <p></p>
-                            </div>
-                            </tbody>
-                        </table>
-                        </form>
-                    </div>
+                                </thead>
+                                <tbody>
+                                {% for budget in budgets %}
+                                    <tr>
+                                        <td>
+                                            <div class="progress m-progress--lg">
+                                                <div class="progress-bar
+                                                        {{ budget.current_spend|percentage:budget.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio budget.current_spend budget.budget 100 %}%"
+                                                     aria-valuenow="{% widthratio budget.current_spend budget.budget 100 %}"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top"
+                                                     title=""
+                                                     data-original-title="{{ budget.current_spend }}/{{ budget.budget }}">
+                                                    {% widthratio budget.current_spend budget.budget 100 %}%
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                        <td style="text-align: center">
+                                            {{ budget.budget }}
+                                        </td>
+                                        <td style="text-align: center">
+                                            {{ budget.start_date }}
+                                        </td>
+                                        <td style="text-align: center">
+                                            {{ budget.end_date }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <div id="error_message" class="note hide">
+                                    <p></p>
+                                </div>
+                                </tbody>
+                            </table>
+                            </form>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -235,17 +260,17 @@
 
 
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-        function toggleFlightDates(acc_id){
+        function toggleFlightDates(acc_id) {
             event.preventDefault();
-            $("#"+acc_id).slideToggle('slow');
+            $("#" + acc_id).slideToggle('slow');
         }
 
-        function submitFlightBudget(acc_id){
-            var start_date = $('.sdate-'+acc_id).val();
-            var end_date = $('.edate-'+acc_id).val();
-            var budget = $('.fbudget-'+acc_id).val();
+        function submitFlightBudget(acc_id) {
+            var start_date = $('.sdate-' + acc_id).val();
+            var end_date = $('.edate-' + acc_id).val();
+            var budget = $('.fbudget-' + acc_id).val();
 
             var data = JSON.stringify({
                 'sdate': start_date,
@@ -259,19 +284,70 @@
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 url: '/budget/client/fbudget/',
                 data: data,
-                complete: function(){
+                complete: function () {
                     setTimeout(function () {
                         location.reload();
                     }, 2500);
                 }
             })
-                .done(function (data){
+                .done(function (data) {
                     if (data['error'] === 'OK') {
                         console.log(data['error']);
                         $("#flight-error-" + acc_id + " p").html("Added custom budget for " + acc_id);
                         $("#flight-error-" + acc_id).removeClass('hide');
                     }
-            })
+                })
+        }
+
+        function updateFlightBudget(e, budget_id) {
+
+            var keycode;
+
+            if (window.event)
+                keycode = window.event.keyCode;
+            else if (e)
+                keycode = e.which;
+
+            if (keycode === 13) {
+
+                var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+                var budget = jQuery("#f_budget-" + budget_id).val();
+                var new_budget = {
+                    id: budget_id,
+                    budget: budget
+                };
+
+                $.ajax({
+                    url: '/budget/fbudget/update/',
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    data: new_budget,
+                    success: function () {
+                        swal({
+                            "title": "SUCCESS",
+                            "text": "Budget succesfully updated.",
+                            "type": "success",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    error: function (ajaxContext) {
+                        swal({
+                            "title": "ERROR",
+                            "text": ajaxContext.statusText,
+                            "type": "error",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2500);
+                    }
+                });
+
+            } else {
+                return false;
+            }
         }
 
     </script>

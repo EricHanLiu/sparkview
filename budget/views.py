@@ -185,7 +185,7 @@ def add_client(request):
 def client_details(request, client_id):
 
     now = datetime.now()
-    current_day = now.day
+    current_day = now.day - 1
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - current_day + 1
     black_marker = (current_day * 100) / days
@@ -254,7 +254,7 @@ def last_month(request):
 def hist_client_details(request, client_id):
 
     now = datetime.now()
-    current_day = now.day
+    current_day = now.day - 1
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - current_day
 
@@ -495,6 +495,7 @@ def delete_groupings(request):
 
         return JsonResponse(context)
 
+# Update client budget
 @login_required
 def update_budget(request):
 
@@ -503,7 +504,6 @@ def update_budget(request):
         data = request.POST
         client_id = data['id']
         budget = data['budget']
-        print(client_id)
 
         client = Client.objects.get(id=client_id)
         client.budget = budget
@@ -512,3 +512,17 @@ def update_budget(request):
         context = {}
 
         return JsonResponse(context)
+
+
+# Update flight budget
+@login_required
+def update_fbudget(request):
+
+    pass
+
+
+# Delete flight budget
+@login_required
+def delete_fbudget(request):
+
+    pass
