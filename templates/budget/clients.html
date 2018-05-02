@@ -98,8 +98,8 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center" id="budget-{{ client.id }}">
-                                        {#                                        <input type="text" id="budget-{{ client.id }}" disabled="disabled" value="{{ client.budget }}" onclick="jQuery('#budget-{{ client.id }}').removeAttr('disabled')" size="7">#}
-                                        <span id="vbudget-{{ client.id }}" onclick="">{{ client.budget }}</span>
+                                        <input id="client_budget-{{ client.id }}" type="number" onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.budget }}" class="table-number">
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -656,61 +656,54 @@
 
 
     <script type="text/javascript">
-        {#function edit_submit_desired(trigger, acc_id) {#}
-        {#    if (trigger.innerHTML === 'Submit') {#}
-        {#        inp_id = "#" + trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;#}
-        {#        spend = parseInt($(inp_id).val());#}
-        {#        $(inp_id).attr('readonly', true);#}
-        {#        changeDesired(spend, acc_id);#}
-        {#        trigger.innerHTML = 'Edit';#}
-        {##}
-        {#    } else {#}
-        {#        trigger.innerHTML = 'Submit';#}
-        {#        inp_id = "#" + trigger.parentNode.parentNode.childNodes[5].childNodes[1].id;#}
-        {#        $(inp_id).attr('readonly', false);#}
-        {#    }#}
+        function submitClientBudget(e, client_id ) {
+            if (window.event)
+                keycode = window.event.keyCode;
+            else if (e)
+                keycode = e.which;
 
-        {##}
-        {#function changeDesired(desired_spend, acc_id) {#}
-        {##}
-        {#    if (desired_spend > 100000000) {#}
-        {#        $("#error_message p").html("<b>The number you provided is too big to store in database</b>");#}
-        {#        $("#error_message").addClass('note-danger');#}
-        {#        $("#error_message").removeClass('hide')#}
-        {#    }#}
-        {#    else if (desired_spend === 0) {#}
-        {#        $("#error_message p").html("<b>Please enter a number bigger than 0</b>");#}
-        {#        $("#error_message").addClass('note-danger');#}
-        {#        $("#error_message").removeClass('hide')#}
-        {#    }#}
-        {#    else {#}
-        {#        $.ajax({#}
-        {#            type: "POST",#}
-        {#            headers: {'X-CSRFToken': '{{ csrf_token }}'},#}
-        {#            data: {#}
-        {#                'desired_spend': desired_spend,#}
-        {#                'acc_id': acc_id#}
-        {#            }#}
-        {#        })#}
-        {#            .done(function (data) {#}
-        {#                if (data['error'] === 'OK') {#}
-        {#                    $("#error_message").removeClass('note-danger');#}
-        {#                    $("#error_message").addClass('note-success');#}
-        {#                    $("#error_message p").html("Updated spend for account " + acc_id);#}
-        {#                    $("#error_message").removeClass('hide');#}
-        {#                }#}
-        {#            });#}
-        {#    }#}
-{##}
-{#        $(document).ready(function () {#}
-{#            var vbudget = "#vbudget-" + client_id;#}
-{#            var budget = "#budget-" + client_id;#}
-{#            $(vbudget).click(function () {#}
-{#                $(vbudget).remove();#}
-{#                $(budget).html('<input type="number" value="">');#}
-{#                $(budget).val(client_budget);#}
-{#            });#}
-{#        });#}
+            if (keycode === 13) {
+                var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+                var budget = jQuery("#client_budget-"+client_id).val();
+                var new_budget = {
+                    id: client_id,
+                    budget: budget
+                };
+
+                console.log(new_budget);
+
+                $.ajax({
+                    url: '/budget/clientbudget/update/',
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    data: new_budget,
+                    success: function () {
+                        swal({
+                            "title": "SUCCESS",
+                            "text": "Budget succesfully updated.",
+                            "type": "success",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    error: function (ajaxContext) {
+                        swal({
+                            "title": "ERROR",
+                            "text": ajaxContext.statusText,
+                            "type": "error",
+                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                        });
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2500);
+                    }
+                });
+
+            } else {
+                        return false;
+            }
+        }
     </script>
 
 {% endblock %}

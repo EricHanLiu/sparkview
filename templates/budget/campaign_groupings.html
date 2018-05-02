@@ -406,6 +406,8 @@
 
         function submitBudget(e, gr_id) {
 
+            var keycode;
+
             if (window.event)
                 keycode = window.event.keyCode;
             else if (e)
@@ -413,7 +415,6 @@
 
             if (keycode === 13) {
 
-                var keycode;
                 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
                 var budget = jQuery("#gr_budget-"+gr_id).val();
                 var new_budget = {

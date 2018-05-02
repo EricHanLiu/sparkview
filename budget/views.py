@@ -494,3 +494,21 @@ def delete_groupings(request):
         context = {}
 
         return JsonResponse(context)
+
+@login_required
+def update_budget(request):
+
+    if request.method == 'POST':
+
+        data = request.POST
+        client_id = data['id']
+        budget = data['budget']
+        print(client_id)
+
+        client = Client.objects.get(id=client_id)
+        client.budget = budget
+        client.save()
+
+        context = {}
+
+        return JsonResponse(context)
