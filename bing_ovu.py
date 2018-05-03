@@ -115,11 +115,11 @@ def main():
     accounts = models.BingAccounts.objects.all()
     for acc in accounts:
         print(acc.account_name)
-        report_request = get_spend_report(acc.account_id, 'ThisMonth')
-        report_request2 = get_spend_report(acc.account_id, 'Yesterday')
-        parameters = initiate_download(acc.account_id, report_request)
-        parameters2 = initiate_download(acc.account_id, report_request2)
         try:
+            report_request = get_spend_report(acc.account_id, 'ThisMonth')
+            report_request2 = get_spend_report(acc.account_id, 'Yesterday')
+            parameters = initiate_download(acc.account_id, report_request)
+            parameters2 = initiate_download(acc.account_id, report_request2)
             spend = download_and_process(parameters)
             yesterday = download_and_process(parameters2)
             calculate_ovu(acc.account_id, spend, yesterday)
@@ -127,6 +127,7 @@ def main():
             print(e)
             acc.delete()
             print('Account not found in Bing MCC, deleted from DB [INFO]')
+            continue
 
 
 if __name__ == '__main__':
