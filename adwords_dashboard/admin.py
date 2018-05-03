@@ -11,7 +11,7 @@ class DependentAccountAdmin(admin.ModelAdmin):
     fields = ('dependent_account_id', 'dependent_account_name', 'desired_spend', 'current_spend', 'hist_spend',
               'hist_budget', 'yesterday_spend', 'assigned', 'assigned_to')
     list_display = ('dependent_account_name', 'blacklisted', 'assigned', 'assigned_to')
-    list_filter = ('dependent_account_name', 'created_time', 'updated_time')
+    list_filter = ('blacklisted', 'assigned', 'dependent_account_name', 'created_time', 'updated_time')
 
 class ProfileAdmin(admin.ModelAdmin):
     fields = ('user', 'adwords', 'bing')
