@@ -184,7 +184,8 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
-    now = datetime.now()
+    now = datetime.today()
+    print(now)
     current_day = now.day - 1
     days = calendar.monthrange(now.year, now.month)[1]
     remaining = days - current_day + 1

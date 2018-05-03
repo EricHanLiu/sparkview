@@ -151,6 +151,12 @@ class Profile(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['user', 'created_time', 'updated_time']
+
+    def __str__(self):
+        return self.user.username
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

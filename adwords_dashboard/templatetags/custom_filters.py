@@ -10,7 +10,7 @@ def ds_tt(spend, budget):
 
     now = datetime.now()
     days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - now.day
+    remaining = days - now.day + 1
     ds_tt = (budget - spend) / remaining
     return round(ds_tt, 2)
 
