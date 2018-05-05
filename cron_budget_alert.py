@@ -22,8 +22,10 @@ logging.basicConfig(level=logging.INFO)
 start_time = time.time()
 aw_underspenders = []
 aw_overspenders = []
+aw_nods = []
 bing_under = []
 bing_over = []
+bing_nods = []
 aw_campaigns = []
 
 now = datetime.datetime.today()
@@ -87,8 +89,15 @@ def budget_breakfast():
             try:
                 percentage = (projected * 100) / a.desired_spend
             except ZeroDivisionError:
-                continue
-            print('Percentage [AW]: ' + str(percentage))
+                percentage = 0
+
+            if a.desired_spend == 0:
+
+                details = {
+                    'account': a.dependent_account_name
+                }
+                aw_nods.append(details)
+
             if percentage < 90:
 
                 details = {
@@ -107,7 +116,7 @@ def budget_breakfast():
                     'estimated': percentage,
                     'budget': a.desired_spend,
                     'current_spend': a.current_spend,
-                    'projected': projected
+                    'projected': round(projected, 2)
                 }
                 aw_overspenders.append(details)
 
@@ -120,9 +129,14 @@ def budget_breakfast():
             try:
                 percentage = (projected * 100) / b.desired_spend
             except ZeroDivisionError:
-                continue
+                percentage = 0
 
-            print('Percentage [B]: ' + str(percentage))
+            if b.desired_spend == 0:
+
+                details = {
+                    'account': b.account_name
+                }
+                bing_nods.append(details)
 
             if percentage < 90:
 
@@ -131,7 +145,7 @@ def budget_breakfast():
                     'estimated': percentage,
                     'budget': b.desired_spend,
                     'current_spend': b.current_spend,
-                    'projected': projected
+                    'projected': round(projected, 2)
                 }
                 bing_under.append(details)
 
@@ -142,33 +156,35 @@ def budget_breakfast():
                     'estimated': percentage,
                     'budget': b.desired_spend,
                     'current_spend': b.current_spend,
-                    'projected': projected
+                    'projected': round(projected, 2)
                 }
                 bing_over.append(details)
 
         mail_details = {
             'aw_under': aw_underspenders,
             'aw_over': aw_overspenders,
+            'aw_nods': aw_nods,
             'bing_under': bing_under,
             'bing_over': bing_over,
+            'bing_nods': bing_nods,
             'user': user.get_full_name()
         }
-
-        print(mail_details)
 
         msg_plain = render_to_string(settings.TEMPLATE_DIR + '/mails/budget_breakfast.txt', mail_details)
         msg_html = render_to_string(settings.TEMPLATE_DIR + '/mails/budget_breakfast.html', mail_details)
 
         send_mail(
             'Daily budget report', msg_plain,
-            settings.EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
+            settings.EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=msg_html
         )
         print('Mail sent!')
 
         del aw_overspenders[:]
         del aw_underspenders[:]
+        del aw_nods[:]
         del bing_over[:]
         del bing_under[:]
+        del aw_nods[:]
 
 
 def budget_protection(client):

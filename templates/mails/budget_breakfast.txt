@@ -39,5 +39,17 @@ The following Bing accounts will underspend:
 {% empty %}
     No accounts to display.
 {% endfor %}
+The following AdWords accounts have no budget set:
+{% for e in aw_nods %}
+    Account name: {{ e.account }}
+{% empty %}
+    <p>No accounts to display.
+{% endfor %}
+The following Bing accounts have no budget set:
+{% for f in bing_nods %}
+    Account name: {{ f.account }}
+{% empty %}
+    No accounts to display.
+{% endfor %}
 
 That's all for today!
