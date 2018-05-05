@@ -184,7 +184,7 @@ def budget_breakfast():
         del aw_nods[:]
         del bing_over[:]
         del bing_under[:]
-        del aw_nods[:]
+        del bing_nods[:]
 
 
 def budget_protection(client):
