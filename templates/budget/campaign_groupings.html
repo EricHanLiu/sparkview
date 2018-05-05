@@ -53,7 +53,6 @@
                                     <th>Campaigns</th>
                                     <th style="text-align: center">Budget</th>
                                     <th style="text-align: center">Current spend</th>
-                                    <th style="text-align: center">End Date</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -92,7 +91,7 @@
                             <div class="row">
                                 <button type="button" class="btn btn-info add-client"
                                         data-toggle="modal"
-                                        data-target="#m_modal_campaigns"> Campaign Groupings
+                                        data-target="#m_modal_campaigns"> New grouping
                                 </button>
                                 <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">
                                     Delete grouping(s)
@@ -122,7 +121,6 @@
                                     <th>Campaigns</th>
                                     <th style="text-align: center">Budget</th>
                                     <th style="text-align: center">Spend</th>
-                                    {#                                    <th style="text-align: center">End Date</th>#}
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -475,7 +473,7 @@
                     success: function () {
                         swal({
                             "title": "SUCCESS",
-                            "text": "Grouping succesfully deleted.",
+                            "text": "Grouping(s) succesfully deleted.",
                             "type": "success",
                             "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
                         });
