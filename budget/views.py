@@ -17,6 +17,12 @@ from dateutil.relativedelta import relativedelta
 
 
 # Create your views here.
+
+now = datetime.today()
+current_day = now.day - 1
+days = calendar.monthrange(now.year, now.month)[1]
+remaining = days - current_day
+
 @login_required
 @xframe_options_exempt
 def index():
@@ -27,7 +33,7 @@ def index():
 @xframe_options_exempt
 def index_budget(request):
 
-    now = datetime.now()
+    now = datetime.today()
     days = calendar.monthrange(now.year, now.month)[1]
 
     if request.method == 'GET':
@@ -94,11 +100,6 @@ def add_client(request):
 
     aw = []
     bng = []
-
-    now = datetime.now()
-    current_day = now.day
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - current_day
 
     black_marker = (current_day * 100) / days
 
@@ -184,11 +185,6 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
-    now = datetime.today()
-    print(now)
-    current_day = now.day - 1
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - current_day + 1
     black_marker = (current_day * 100) / days
 
     if request.method == 'GET':
@@ -253,12 +249,6 @@ def last_month(request):
 @login_required
 @xframe_options_exempt
 def hist_client_details(request, client_id):
-
-    now = datetime.now()
-    current_day = now.day - 1
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - current_day
-
 
     if request.method == 'GET':
         try:
@@ -457,18 +447,24 @@ def update_groupings(request):
     if request.method == 'POST':
 
         data = request.POST
-
         gr_id = data['id']
         budget = data['budget']
+
         grouping = CampaignGrouping.objects.get(id=gr_id)
         grouping.budget = int(budget)
         grouping.save()
 
-        for c in grouping.aw_campaigns.all():
-            c.campaign_budget = int(budget)/len(grouping.aw_campaigns.all())
-            c.save()
+        if len(grouping.aw_campaigns.all()) > 0:
+            for cmp in grouping.aw_campaigns.all():
+                cmp.campaign_budget = int(budget)/len(grouping.aw_campaigns.all())
+                cmp.save()
+        else:
+            for cmp in grouping.bing_campaigns.all():
+                cmp.campaign_budget = int(budget)/len(grouping.bing_campaigns.all())
+                cmp.save()
 
         context = {}
+
         return JsonResponse(context)
 
 
@@ -496,7 +492,7 @@ def delete_groupings(request):
 
         return JsonResponse(context)
 
-# Update client budget
+# Update client budgets
 @login_required
 def update_budget(request):
 
@@ -515,15 +511,41 @@ def update_budget(request):
         return JsonResponse(context)
 
 
-# Update flight budget
+# Update flight budgets
 @login_required
 def update_fbudget(request):
 
-    pass
+    context = {}
+
+    if request.method == 'POST':
+
+        data = json.loads(request.body.decode('utf-8'))
+        print(data)
+        budget_id = data['budget_id']
+        budget = data['budget']
+        sdate = data['sdate']
+        edate = data['edate']
+        fbudget = FlightBudget.objects.get(id=budget_id)
+        fbudget.budget = budget
+        fbudget.start_date = sdate
+        fbudget.end_date = edate
+        fbudget.save()
+
+        return JsonResponse(context)
 
 
-# Delete flight budget
+# Delete flight budgets
 @login_required
 def delete_fbudget(request):
 
-    pass
+    if request.method == 'POST':
+
+        data = request.POST.getlist('flight_budgets')
+        print(data)
+        for fb_id in data:
+            fbudget = FlightBudget.objects.get(id=fb_id)
+            fbudget.delete()
+
+        context = {}
+
+        return JsonResponse(context)

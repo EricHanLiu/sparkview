@@ -46,6 +46,8 @@ class DependentAccount(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
     assigned_to = models.ForeignKey(User, null=True, blank=True)
+    # assigned_cm2 = models.ForeignKey(User, null=True, blank=True, related_name='cm2')
+    # assigned_cm3 = models.ForeignKey(User, null=True, blank=True, related_name='cm3')
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)

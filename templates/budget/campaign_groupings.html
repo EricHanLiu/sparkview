@@ -22,9 +22,10 @@
                             <div class="row">
                                 <button type="button" class="btn btn-info add-client"
                                         data-toggle="modal"
-                                        data-target="#m_modal_campaigns">Campaign Groupings
+                                        data-target="#m_modal_campaigns">New grouping
                                 </button>
-                                <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">Delete grouping(s)
+                                <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">
+                                    Delete grouping(s)
                                 </button>
                             </div>
                             <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
@@ -68,7 +69,8 @@
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle;">
-                                            <input id="gr_budget-{{ gr.id }}" type="number" class="table-number" onkeypress="submitBudget(event, {{ gr.id }})"
+                                            <input id="gr_budget-{{ gr.id }}" type="number" class="table-number"
+                                                   onkeypress="submitBudget(event, {{ gr.id }})"
                                                    value="{{ gr.budget }}">
                                         </td>
                                         <td style="text-align: center">
@@ -92,7 +94,8 @@
                                         data-toggle="modal"
                                         data-target="#m_modal_campaigns"> Campaign Groupings
                                 </button>
-                                <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">Delete grouping(s)
+                                <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">
+                                    Delete grouping(s)
                                 </button>
                             </div>
                             <table class='table table-striped m-table' id="clients_last_month">
@@ -135,7 +138,7 @@
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle;">
-                                            <input type="number" onkeypress="submitBudget(event, {{ gr.id }})"
+                                            <input type="number" id="gr_budget-{{ gr.id }}" onkeypress="submitBudget(event, {{ gr.id }})"
                                                    value="{{ gr.budget }}" class="table-number">
                                         </td>
                                         <td style="text-align: center">
@@ -271,7 +274,10 @@
                                                                             {% endfor %}
                                                                         </select>
                                                                         <div id="budget-field">
-                                                                            <input type="number" name="grouping-budget" class="form-control m-input" placeholder="Please enter a budget..." min="0" required>
+                                                                            <input type="number" name="grouping-budget"
+                                                                                   class="form-control m-input"
+                                                                                   placeholder="Please enter a budget..."
+                                                                                   min="0" required>
                                                                         </div>
                                                                         <div id="adwords-error"
                                                                              class="form-control-feedback"></div>
@@ -416,7 +422,7 @@
             if (keycode === 13) {
 
                 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-                var budget = jQuery("#gr_budget-"+gr_id).val();
+                var budget = jQuery("#gr_budget-" + gr_id).val();
                 var new_budget = {
                     id: gr_id,
                     budget: budget
@@ -451,19 +457,17 @@
                 });
 
             } else {
-                        return false;
+                return false;
             }
         }
 
-        function deleteGrouping(){
+        function deleteGrouping() {
 
             var data = $('input[type="checkbox"]').serialize();
             var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
-            console.log(data);
-
-            if(data) {
-            $.ajax({
+            if (data) {
+                $.ajax({
                     url: '/budget/groupings/delete/',
                     headers: {'X-CSRFToken': csrftoken},
                     type: 'POST',
@@ -493,11 +497,11 @@
 
             } else {
                 swal({
-                'title': 'ERROR',
-                'text': 'Please select at least one grouping to delete.',
-                'type': 'error',
-                'confirmButtonClass': 'btn btn-secondary m-btn m-btn--wide'
-            });
+                    'title': 'ERROR',
+                    'text': 'Please select at least one grouping to delete.',
+                    'type': 'error',
+                    'confirmButtonClass': 'btn btn-secondary m-btn m-btn--wide'
+                });
             }
         }
 

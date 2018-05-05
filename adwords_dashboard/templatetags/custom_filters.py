@@ -4,13 +4,14 @@ import calendar
 
 register = template.Library()
 
+now = datetime.today()
+current_day = now.day - 1
+days = calendar.monthrange(now.year, now.month)[1]
+remaining = days - current_day
 
 @register.simple_tag
 def ds_tt(spend, budget):
 
-    now = datetime.now()
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - now.day + 1
     ds_tt = (budget - spend) / remaining
     return round(ds_tt, 2)
 
@@ -63,8 +64,7 @@ def percentage(spend, budget):
 @register.filter(name='daily_spend')
 def daily_spend(spend):
 
-    now = datetime.now()
-    value = spend / (now.day - 1)
+    value = spend / current_day
 
     return value
 
@@ -72,10 +72,7 @@ def daily_spend(spend):
 @register.filter(name='projected')
 def projected(spend):
 
-    now = datetime.now()
-    d_spend = spend / (now.day)
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - now.day + 1
+    d_spend = spend / current_day
     # projected value
     rval = spend + (d_spend * remaining)
     return round(rval ,2)

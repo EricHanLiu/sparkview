@@ -26,6 +26,11 @@ bing_under = []
 bing_over = []
 aw_campaigns = []
 
+now = datetime.datetime.today()
+current_day = now.day - 1
+days = calendar.monthrange(now.year, now.month)[1]
+remaining = days - current_day
+
 # 99% - budget protection script
 
 
@@ -69,10 +74,6 @@ def get_campaigns(client):
 
 def budget_breakfast():
 
-    now = datetime.datetime.now()
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - now.day
-
     users = User.objects.all()
 
     for user in users:
@@ -81,7 +82,7 @@ def budget_breakfast():
 
         for a in aw_accounts:
             spend = a.current_spend
-            daily_spend = spend / now.day
+            daily_spend = spend / current_day
             projected = (daily_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / a.desired_spend
@@ -114,7 +115,7 @@ def budget_breakfast():
 
         for b in bing_accounts:
             spend = b.current_spend
-            daily_spend = spend / now.day
+            daily_spend = spend / current_day
             projected = (daily_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / b.desired_spend
@@ -170,10 +171,6 @@ def budget_protection(client):
 
     percentage = 0
 
-    now = datetime.datetime.now()
-    days = calendar.monthrange(now.year, now.month)[1]
-    remaining = days - now.day
-
     users = User.objects.all()
 
     for user in users:
@@ -185,7 +182,7 @@ def budget_protection(client):
 
 
             spend = a.current_spend
-            daily_spend = spend / now.day
+            daily_spend = spend / current_day
             projected = (daily_spend * remaining) + spend
             protected = a.protected
 
@@ -256,7 +253,7 @@ def budget_protection(client):
         for b in bing_accounts:
 
             spend = b.current_spend
-            daily_spend = spend / now.day
+            daily_spend = spend / current_day
             projected = (daily_spend * remaining) + spend
             protected = b.protected
 

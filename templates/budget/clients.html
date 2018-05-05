@@ -656,6 +656,7 @@
 
 
     <script type="text/javascript">
+
         function submitClientBudget(e, client_id ) {
             if (window.event)
                 keycode = window.event.keyCode;
@@ -669,8 +670,6 @@
                     id: client_id,
                     budget: budget
                 };
-
-                console.log(new_budget);
 
                 $.ajax({
                     url: '/budget/clientbudget/update/',
