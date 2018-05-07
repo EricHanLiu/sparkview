@@ -41,6 +41,7 @@ class DependentAccount(models.Model):
     ds5 = models.IntegerField(default=0)
     ds6 = models.IntegerField(default=0)
     yesterday_spend = models.IntegerField(default=0)
+    estimated_spend = models.IntegerField(default=0)
     quality_score = models.IntegerField(default=0)
     historical_qs = models.IntegerField(default=0)
     updated_time = models.DateTimeField(auto_now=True)
