@@ -44,7 +44,6 @@ def get_spend_report(account_id, period):
     report_request.ExcludeReportHeader=True
     report_request.ExcludeReportFooter=True
 
-    scope=reporting_service.factory.create('AccountThroughAdGroupReportScope')
     scope.AccountIds={'long': [account_id] }
     scope.Campaigns=None
     scope.AdGroups=None

@@ -1,9 +1,86 @@
 import csv
 import io
 from datetime import datetime
-from bloom.settings import API_VERSION
+from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
+
+
+class BingReporting:
+
+    def normalize_request(self, request):
+        request.Format = "Csv"
+        request.Language = "English"
+        request.ExcludeReportHeader = True
+        request.ExcludeReportFooter = True
+
+        return request
+
+    def generate_request(self, request, columns=None, time=None, scope=None):
+
+        request = self.normalize_request(request)
+        request.Columns = columns
+        request.Time = time
+        request.Scope = scope
+
+        return request
+
+class BingReportingService(BingReporting):
+    def __init__(self, service_manager, reporting_service):
+        self.service_manager = service_manager
+        self.reporting_service = reporting_service
+
+
+    def get_report_time(self, predefined_time):
+
+        time = self.reporting_service.factory.create('ReportTime')
+        time.PredefinedTime = predefined_time
+
+        return time
+
+
+    def get_scope(self, scope_name):
+        return self.reporting_service.factory.create(scope_name)
+
+    def get_account_performance_columns(self, fields=["TimePeriod"]):
+        columns = self.reporting_service.factory.create(
+            'ArrayOfAccountPerformanceReportColumn'
+        )
+        columns.AccountPerformanceReportColumn.extend(fields)
+
+        return columns
+
+    def get_account_performance_query(
+            self, account_id, dateRangeType="predefined", predefined_time="Last30Days"
+        ):
+
+        fields = ["TimePeriod", "AccountId", "AccountName", "Spend"]
+        request = self.reporting_service.factory.create("AccountPerformanceReportRequest")
+
+        if dateRangeType == "predefined":
+            time = self.get_report_time(predefined_time)
+
+        columns = self.get_account_performance_columns()
+        scope = self.get_scope("AccountReportScope")
+        scope.AccountIds = [account_id]
+
+        request = self.generate_request(
+            request, columns=columns, time=time, scope=scope
+        )
+
+        return request
+
+    def download_report(self, account_id, request):
+        parameters = ReportingDownloadParameters(
+            report_request=request,
+            result_file_directory = settings.BINGADS_REPORTS,
+            result_file_name = str(account_id) + '_spend.csv',
+            overwrite_result_file = True,
+            timeout_in_milliseconds=3600000
+        )
+
+        self.reporting_service_manager.download_file(parameters)
+
 
 class AdwordsReporting:
 
@@ -16,12 +93,14 @@ class AdwordsReporting:
     )
 
     def get_custom_daterange(minDate, maxDate):
+
         return dict(
             min=minDate.strftime(self.date_format),
             max=minDate.strftime(self.date_format)
         )
 
     def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
+
         fields = [
             "ExternalCustomerId",
             "CustomerDescriptiveName",
@@ -93,6 +172,21 @@ class AdwordsReporting:
 
         return cost
 
+    def get_this_month_daterange(self):
+
+        today = datetime.today()
+
+        if today.day < 2:
+            maxDate = today
+        else:
+            maxDate = today + relativedelta(days=-1)
+
+        minDate = datetime(today.year, today.month, 1)
+
+        this_month = dict(minDate=minDate, maxDate=maxDate)
+
+
+        return this_month
 
     def get_estimated_spend(self, current_spend, day_spend):
         today = datetime.today()
@@ -111,7 +205,7 @@ class AdwordsReportingService(AdwordsReporting):
 
     def __init__(self, client):
         self.client = client
-        self.api_version = API_VERSION
+        self.api_version = settings.API_VERSION
 
 
     def get_account_performance(self, customer_id=None, **kwargs):

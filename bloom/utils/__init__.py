@@ -1,3 +1,3 @@
-from .reporting import AdwordsReportingService
+from .reporting import (AdwordsReportingService, BingReportingService)
 
-__all__ = ["AdwordsReportingService"]
+__all__ = ["AdwordsReportingService", "BingReportingService"]

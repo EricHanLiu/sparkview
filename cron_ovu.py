@@ -5,21 +5,18 @@ from googleads import adwords
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
 django.setup()
-from django.conf import settings
-import gc
-import logging
+from django.conf.settings import ADWORDS_YAML
 from datetime import datetime
-import calendar
-from adwords_dashboard import models
-from adwords_dashboard.cron_scripts import ovu
+from adwords_dashboard.models import DependentAccount
 
 from bloom.utils import AdwordsReportingService
 
 def main():
-    adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
+    adwords_client = adwords.AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
-    accounts = models.DependentAccount.objects.filter(blacklisted=False)
+    accounts = DependentAccount.objects.filter(blacklisted=False)
     helper = AdwordsReportingService(adwords_client)
+    this_month = helper.get_this_month_daterange()
     for account in accounts:
 
         last_7 = helper.get_account_performance(
@@ -30,7 +27,8 @@ def main():
 
         data_this_month = helper.get_account_performance(
             customer_id=account.dependent_account_id,
-            dateRangeType="THIS_MONTH",
+            dateRangeType="CUSTOM_DATE",
+            **this_month
         )
 
 

@@ -49,7 +49,7 @@
                 </div>
                 </td>
                 <td>
-                    {{ item.account.dependent_OVU }}%
+                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
                 </td>
                 <td>
                     <a href="{% url 'adwords:url_checker' item.account.dependent_account_id %}">
