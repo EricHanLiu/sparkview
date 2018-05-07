@@ -9,7 +9,7 @@ from bloom import settings
 from bing_dashboard import models
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def get_accounts():
@@ -52,15 +52,15 @@ def get_accounts():
       PageInfo=paging,
       Predicates=predicates
   )
-
-  for account in accounts['Account']:
-    customer_service.GetAccount(AccountId=account.Id)
-    data['name'] = account['Name']
-    data['account_id'] = account['Id']
-    account_list.append(data)
-    data = {}
-
-  return account_list
+  #
+  # for account in accounts['Account']:
+  #   customer_service.GetAccount(AccountId=account.Id)
+  #   data['name'] = account['Name']
+  #   data['account_id'] = account['Id']
+  #   account_list.append(data)
+  #   data = {}
+  #
+  return accounts['Account']
 
 
 def main():
@@ -68,8 +68,8 @@ def main():
   accounts = get_accounts()
 
   for account in accounts:
-    account_name = account['name']
-    account_id = account['account_id']
+    account_name = account['Name']
+    account_id = account.Id
 
     models.BingAccounts.objects.get_or_create(account_id=account_id,
                                               account_name=account_name)
