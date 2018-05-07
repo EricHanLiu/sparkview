@@ -52,14 +52,7 @@ def get_accounts():
       PageInfo=paging,
       Predicates=predicates
   )
-  #
-  # for account in accounts['Account']:
-  #   customer_service.GetAccount(AccountId=account.Id)
-  #   data['name'] = account['Name']
-  #   data['account_id'] = account['Id']
-  #   account_list.append(data)
-  #   data = {}
-  #
+  
   return accounts['Account']
 
 
