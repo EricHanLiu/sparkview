@@ -1,0 +1,318 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                    <span>Userlist</span>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        {% for detail in details %}
+                            <div class="m-portlet m-portlet--tabs m-portlet--success m-portlet--head-solid-bg m-portlet--head-sm m-portlet--collapse"
+                                 m-portlet="true" id="m_portlet_tools_6">
+                                <div class="m-portlet__head m-portlet__head--bloom">
+                                    <div class="m-portlet__head-caption">
+                                        <div class="m-portlet__head-title">
+                                            <h3 class="m-portlet__head-text">
+                                                {{ detail.user }} <i class="fa fa-plus-circle" data-toggle="modal"
+                                                                     data-target="#m_modal_accounts"
+                                                                     data-userid="{{ detail.user.id }}"
+                                                                     style="background: #212529; color: #FFF;"></i>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="m-portlet__head-tools">
+                                        <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right" role="tablist">
+                                            <li class="nav-item m-tabs__item">
+                                                <a class="nav-link m-tabs__link active" data-toggle="tab"
+                                                   href="#m_tabs_7_1-{{ detail.user.id }}"
+                                                   role="tab" aria-selected="true">
+                                                    AdWords
+                                                </a>
+                                            </li>
+                                            <li class="nav-item m-tabs__item">
+                                                <a class="nav-link m-tabs__link" data-toggle="tab"
+                                                   href="#m_tabs_7_2-{{ detail.user.id }}"
+                                                   role="tab" aria-selected="false">
+                                                    Bing
+                                                </a>
+                                            </li>
+                                            <li class="nav-item m-tabs__item">
+                                                <a class="nav-link m-tabs__link" data-toggle="tab"
+                                                   href="#m_tabs_7_3-{{ detail.user.id }}" role="tab"
+                                                   aria-selected="false">
+                                                    Facebook
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="m-portlet__body">
+                                    <div class="tab-content">
+                                        <div class="tab-pane active show" id="m_tabs_7_1-{{ detail.user.id }}"
+                                             role="tabpanel">
+                                            <p>
+                                                {% for cm in detail.aw_to %}
+                                                    <span id="{{ cm.dependent_account_id }}"
+                                                          class="m-badge m-badge--info m-badge--wide">
+                                                CM: {{ cm.dependent_account_name }} <a style="color: #FFF;"
+                                                                                       onclick="removeAccount({{ cm.dependent_account_id }}, 'cm')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                CM: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
+                                                {% for cm2 in detail.aw_cm2 %}
+                                                    <span id="{{ cm2.dependent_account_id }}"
+                                                          class="m-badge m-badge--success m-badge--wide">
+                                                CM2: {{ cm2.dependent_account_name }}
+                                                    <a style="color: #FFF;"
+                                                       onclick="removeAccount({{ cm2.dependent_account_id }}, 'cm2')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                CM2: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
+                                                {% for cm3 in detail.aw_cm3 %}
+                                                    <span id="{{ cm3.dependent_account_id }}"
+                                                          class="m-badge m-badge--warning m-badge--wide">
+                                                CM3: {{ cm3.dependent_account_name }} <a style="color: #FFF;"
+                                                                                         onclick="removeAccount({{ cm3.dependent_account_id }}, 'cm3')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                CM3: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                        <div class="tab-pane" id="m_tabs_7_2-{{ detail.user.id }}" role="tabpanel">
+                                            <p>
+                                                {% for cm in detail.bing_to %}
+                                                    <span id="{{ cm.account_id }}"
+                                                          class="m-badge m-badge--primary m-badge--wide">
+                                                CM: {{ cm.account_name }} <a style="color: #FFF;"
+                                                                             onclick="removeAccount({{ cm.account_id }}, 'cm')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">CM: No accounts</span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
+                                                {% for cm2 in detail.bing_cm2 %}
+                                                    <span id="{{ cm2.account_id }}"
+                                                          class="m-badge m-badge--success m-badge--wide">
+                                                CM2: {{ cm2.account_name }} <a style="color: #FFF;"
+                                                                               onclick="removeAccount({{ cm2.account_id }}, 'cm2')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                CM2: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
+                                                {% for cm3 in detail.bing_cm3 %}
+                                                    <span id="{{ cm3.account_id }}"
+                                                          class="m-badge m-badge--warning m-badge--wide">
+                                                CM3: {{ cm3.account_name }} <a style="color: #FFF;"
+                                                                               onclick="removeAccount({{ cm3.account_id }}, 'cm3')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                CM3: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
+                                        </div>
+                                        <div class="tab-pane" id="m_tabs_7_3-{{ detail.user.id }}" role="tabpanel">
+                                            No accounts to display yet...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+
+    <!--Modal add accounts-->
+    <div class="modal fade" id="m_modal_accounts" tabindex="-1" role="dialog" aria-labelledby="modalAssignAccounts">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Assign accounts</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="uid">
+                    <form id="add-accounts">
+                        <div class="form-group">
+                            <h5>AdWords</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="aw-cm" class="form-control-label">CM:</label>
+                                    <select class="form-control m-input--large" name="adwords_cm"
+                                            multiple="multiple" id="m_select2_adwords"
+                                            style="width: 100%;">
+                                        {% for a in adwords %}
+                                            <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="aw-cm2" class="form-control-label">CM2:</label>
+                                    <select class="form-control m-input--large" name="adwords_cm2"
+                                            multiple="multiple" id="m_select2_adwords_cm2"
+                                            style="width: 100%;">
+                                        {% for a in adwords %}
+                                            <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="aw-cm" class="form-control-label">CM3:</label>
+                                    <select class="form-control m-input--large" name="adwords_cm3"
+                                            multiple="multiple" id="m_select2_adwords_cm3"
+                                            style="width: 100%;">
+                                        {% for a in adwords %}
+                                            <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <h5>Bing</h5>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="aw-cm" class="form-control-label">CM:</label>
+                                    <select class="form-control m-input--large" name="bing_cm"
+                                            multiple="multiple" id="m_select2_bing"
+                                            style="width: 100%;">
+                                        {% for b in bing %}
+                                            <option value="{{ b.account_id }}">{{ b.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="aw-cm2" class="form-control-label">CM2:</label>
+                                    <select class="form-control m-input--large" name="bing_cm2"
+                                            multiple="multiple" id="m_select2_bing_cm2"
+                                            style="width: 100%;">
+                                        {% for b in bing %}
+                                            <option value="{{ b.account_id }}">{{ b.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="aw-cm" class="form-control-label">CM3:</label>
+                                    <select class="form-control m-input--large" name="bing_cm3"
+                                            multiple="multiple" id="m_select2_bing_cm3"
+                                            style="width: 100%;">
+                                        {% for b in bing %}
+                                            <option value="{{ b.account_id }}">{{ b.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" onclick="submitAccounts()" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+        function removeAccount(acc_id, cm_lvl) {
+
+            data = JSON.stringify({
+                'acc_id': acc_id,
+                'cm': cm_lvl
+            });
+
+            $.ajax({
+                type: "POST",
+                url: "/users/accounts/delete",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3500);
+                },
+                success: function () {
+                    swal({
+                        "title": "",
+                        "text": "Removed account from user profile.",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                }
+            })
+                .done(function (data) {
+                    if (data['error'] === 'OK') {
+                        console.log('OK');
+                    }
+                });
+        }
+
+        function submitAccounts() {
+
+            var accounts = $('#add-accounts').serializeArray();
+            var uid = $('#uid').val();
+            accounts.push({name: 'uid', value: uid});
+            {#var data = JSON.stringify(accounts);#}
+            {#console.log(data);#}
+            $.ajax({
+                type: "POST",
+                url: "",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $.param(accounts),
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3500);
+                },
+                success: function () {
+                    swal({
+                        "title": "",
+                        "text": "Accounts assigned to user profile.",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                }
+            }).done(function (data) {
+                if (data['error'] === 'OK') {
+                    console.log('Added!');
+                }
+            });
+        }
+    </script>
+
+
+{% endblock %}

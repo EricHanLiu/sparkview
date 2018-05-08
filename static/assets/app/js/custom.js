@@ -96,6 +96,11 @@ $(document).ready(function () {
         }
 
     });
+    $('#m_modal_accounts').on('show.bs.modal', function (e) {
 
+        //get data-id attribute of the clicked element
+        var user_id = $(e.relatedTarget).data('userid');
+        $(".modal-body #uid").val(user_id);
+    });
 })
 ;

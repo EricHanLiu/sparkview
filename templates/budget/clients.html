@@ -66,15 +66,27 @@
                                             {{ client.client_name }}
                                         </a>
                                         <div class="row">
-                                            <div class="col-md-6">Daily spend to reach target
-                                                : {% ds_tt client.current_spend client.budget %}</div>
+                                            <div class="col-md-6">Target Daily Spend:
+                                                {% ds_tt client.current_spend client.budget %}</div>
                                             <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">Daily spend to date:
                                                 {{ client.current_spend|daily_spend|floatformat:2 }}</div>
-                                            <div class="col-md-6">Projected:
+                                            <div class="col-md-6">Projected Spend EOM:
                                                 {{ client.current_spend|projected|floatformat:2 }}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">Current Total Spend:
+                                                {{ client.current_spend|floatformat:2 }}</div>
+                                            <div class="col-md-6">AdWords Spend:
+                                                {{ client.aw_spend|floatformat:2 }}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">Bing spend:
+                                                {{ client.bing_spend|floatformat:2 }}</div>
+{#                                            <div class="col-md-6">Facebook Spend:#}
+{#                                                0</div>#}
                                         </div>
 
                                     </td>
