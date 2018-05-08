@@ -152,8 +152,6 @@ class BingReportingService(BingReporting):
         ):
 
         request = self.reporting_service.factory.create("AccountPerformanceReportRequest")
-        scope = self.reporting_service.factory.create("AccountReportScope")
-        scope.AccountIds={'long': [account_id] }
         fields = ["TimePeriod", "Spend"]
 
         if dateRangeType == "CUSTOM_DATE":
@@ -161,6 +159,7 @@ class BingReportingService(BingReporting):
 
         columns = self.get_account_performance_columns(fields=fields)
         scope = self.get_scope("AccountReportScope")
+        scope.AccountIds={'long': [account_id] }
 
         request = self.generate_request(
             request, columns=columns, time=time, scope=scope
@@ -168,7 +167,6 @@ class BingReportingService(BingReporting):
 
         request.Aggregation = aggregation
         report_name = kwargs.get("report_name", str(account_id) + "_spend")
-        print(report_name)
         request.ReportName = report_name
 
         return request
