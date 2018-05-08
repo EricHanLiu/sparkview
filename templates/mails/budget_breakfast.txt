@@ -2,52 +2,52 @@ Hello, {{ user }}!
 
 The following AdWords accounts you manage will overspend:
 {% for a in aw_over %}
-    Account name: {{ a.account }}
+    Account Name: {{ a.account }}
     Budget: {{ a.budget }}
-    Current spend: {{ a.current_spend }}
-    Projected: {{ a.projected }}
+    Current Total Spend: {{ a.current_spend }}
+    Projected Spend EOM: {{ a.projected }}
 {% empty %}
     No accounts to display.
 {% endfor %}
 
 The following AdWords accounts will underspend:
 {% for b in aw_under %}
-    Account name: {{ b.account }}
+    Account Name: {{ b.account }}
     Budget: {{ b.budget }}
-    Current spend: {{ b.current_spend }}
-    Projected: {{ b.projected }}
+    Current Total Spend: {{ b.current_spend }}
+    Projected Spend EOM: {{ b.projected }}
 {% empty %}
     No accounts to display.
 {% endfor %}
 
 The following Bing accounts will overspend:
 {% for c in bing_over %}
-    Account name: {{ c.account }}
+    Account Name: {{ c.account }}
     Budget: {{ c.budget }}
-    Current spend: {{ c.current_spend }}
-    Projected: {{ c.projected }}
+    Current Total Spend: {{ c.current_spend }}
+    Projected Spend EOM: {{ c.projected }}
 {% empty %}
     No accounts to display.
 {% endfor %}
 
 The following Bing accounts will underspend:
 {% for d in bing_under %}
-    Account name: {{ d.account }}
+    Account Name: {{ d.account }}
     Budget: {{ d.budget }}
-    Current spend: {{ d.current_spend }}
-    Projected: {{ d.projected }}
+    Current Total Spend: {{ d.current_spend }}
+    Projected Spend EOM: {{ d.projected }}
 {% empty %}
     No accounts to display.
 {% endfor %}
 The following AdWords accounts have no budget set:
 {% for e in aw_nods %}
-    Account name: {{ e.account }}
+    Account Name: {{ e.account }}
 {% empty %}
     <p>No accounts to display.
 {% endfor %}
 The following Bing accounts have no budget set:
 {% for f in bing_nods %}
-    Account name: {{ f.account }}
+    Account Name: {{ f.account }}
 {% empty %}
     No accounts to display.
 {% endfor %}

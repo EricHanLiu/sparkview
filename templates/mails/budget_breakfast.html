@@ -10,54 +10,54 @@
 
 <h4>The following AdWords accounts you manage will overspend:</h4>
 {% for a in aw_over %}
-    <p>Account name: {{ a.account }}<br />
+    <p>Account Name: {{ a.account }}<br />
     Budget: {{ a.budget }}<br />
-    Current spend: {{ a.current_spend }}<br />
-    Projected: {{ a.projected }}</p>
+    Current Total Spend: {{ a.current_spend }}<br />
+    Projected Spend EOM: {{ a.projected }}</p>
 {% empty %}
     <p>No accounts to display.</p>
 {% endfor %}
 <br/>
 <h4>The following AdWords accounts will underspend: </h4>
 {% for b in aw_under %}
-    <br>Account name: {{ b.account }}<br />
+    <br>Account Name: {{ b.account }}<br />
     Budget: {{ b.budget }}<br />
-    Current spend: {{ b.current_spend }}<br />
-    Projected: {{ b.projected }}</p>
+    Current Total Spend: {{ b.current_spend }}<br />
+    Projected Spend EOM: {{ b.projected }}</p>
 {% empty %}
     <p>No accounts to display.</p>
 {% endfor %}
 <br/>
 <h4>The following Bing accounts will overspend:</h4>
 {% for c in bing_over %}
-    <p>Account name: {{ c.account }}<br />
+    <p>Account Name: {{ c.account }}<br />
     Budget: {{ c.budget }}<br />
-    Current spend: {{ c.current_spend }}<br />
-    Projected: {{ c.projected }}</p>
+    Current Total Spend: {{ c.current_spend }}<br />
+    Projected Spend EOM: {{ c.projected }}</p>
 {% empty %}
     <p>No accounts to display.</p>
 {% endfor %}
 <br/>
 <h4>The following Bing accounts will underspend:</h4>
 {% for d in bing_under %}
-    <p>Account name: {{ d.account }}<br />
+    <p>Account Name: {{ d.account }}<br />
     Budget: {{ d.budget }}<br />
-    Current spend: {{ d.current_spend }}<br />
-    Projected: {{ d.projected }}</p>
+    Current Total Spend: {{ d.current_spend }}<br />
+    Projected Spend EOM: {{ d.projected }}</p>
 {% empty %}
     <p>No accounts to display.</p>
 {% endfor %}
 <br/>
 <h4>The following AdWords accounts have no budget set:</h4>
 {% for e in aw_nods %}
-    <p>Account name: {{ e.account }}</p>
+    <p>Account Name: {{ e.account }}</p>
 {% empty %}
     <p>No accounts to display.</p>
 {% endfor %}
 <br/>
 <h4>The following Bing accounts have no budget set:</h4>
 {% for f in bing_nods %}
-    <p>Account name: {{ f.account }}</p>
+    <p>Account Name: {{ f.account }}</p>
 {% empty %}
     <p>No accounts to display.</p>
 {% endfor %}

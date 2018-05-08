@@ -80,7 +80,9 @@ def budget_breakfast():
 
     for user in users:
 
-        aw_accounts = user.profile.adwords.all()
+        aw_accounts = DependentAccount.objects.filter(assigned_to=user)
+        aw_cm2 = DependentAccount.objects.filter(assigned_cm2=user)
+        aw_cm3 = DependentAccount.objects.filter(assigned_cm3=user)
 
         for a in aw_accounts:
             spend = a.current_spend
@@ -97,30 +99,108 @@ def budget_breakfast():
                     'account': a.dependent_account_name
                 }
                 aw_nods.append(details)
+            else:
+                if percentage < 90:
 
-            if percentage < 90:
+                    details = {
+                        'account': a.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': a.desired_spend,
+                        'current_spend': a.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_underspenders.append(details)
 
+                if percentage > 99:
+
+                    details = {
+                        'account': a.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': a.desired_spend,
+                        'current_spend': a.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_overspenders.append(details)
+
+        for cm2 in aw_cm2:
+            spend = cm2.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / cm2.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if cm2.desired_spend == 0:
                 details = {
-                    'account': a.dependent_account_name,
-                    'estimated': percentage,
-                    'budget': a.desired_spend,
-                    'current_spend': a.current_spend,
-                    'projected': round(projected, 2)
+                    'account': cm2.dependent_account_name
                 }
-                aw_underspenders.append(details)
+                aw_nods.append(details)
 
-            elif percentage > 99:
+            else:
+                if percentage < 90:
 
+                    details = {
+                        'account': cm2.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': cm2.desired_spend,
+                        'current_spend': cm2.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_underspenders.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': cm2.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': cm2.desired_spend,
+                        'current_spend': cm2.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_overspenders.append(details)
+
+        for cm3 in aw_cm3:
+            spend = cm3.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / cm3.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if cm3.desired_spend == 0:
                 details = {
-                    'account': a.dependent_account_name,
-                    'estimated': percentage,
-                    'budget': a.desired_spend,
-                    'current_spend': a.current_spend,
-                    'projected': round(projected, 2)
+                    'account': cm3.dependent_account_name
                 }
-                aw_overspenders.append(details)
+                aw_nods.append(details)
 
-        bing_accounts = user.profile.bing.all()
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': cm3.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': cm3.desired_spend,
+                        'current_spend': cm3.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_underspenders.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': cm3.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': cm3.desired_spend,
+                        'current_spend': cm3.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_overspenders.append(details)
+
+        bing_accounts = BingAccounts.objects.filter(assigned_to=user)
+        bing_cm2 = BingAccounts.objects.filter(assigned_cm2=user)
+        bing_cm3 = BingAccounts.objects.filter(assigned_cm3=user)
 
         for b in bing_accounts:
             spend = b.current_spend
@@ -138,27 +218,106 @@ def budget_breakfast():
                 }
                 bing_nods.append(details)
 
-            if percentage < 90:
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': b.account_name,
+                        'estimated': percentage,
+                        'budget': b.desired_spend,
+                        'current_spend': b.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': b.account_name,
+                        'estimated': percentage,
+                        'budget': b.desired_spend,
+                        'current_spend': b.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_over.append(details)
+
+        for bcm2 in bing_cm2:
+            spend = bcm2.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / bcm2.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if bcm2.desired_spend == 0:
 
                 details = {
-                    'account': b.account_name,
-                    'estimated': percentage,
-                    'budget': b.desired_spend,
-                    'current_spend': b.current_spend,
-                    'projected': round(projected, 2)
+                    'account': bcm2.account_name
                 }
-                bing_under.append(details)
+                bing_nods.append(details)
 
-            elif percentage > 99:
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': bcm2.account_name,
+                        'estimated': percentage,
+                        'budget': bcm2.desired_spend,
+                        'current_spend': bcm2.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': bcm2.account_name,
+                        'estimated': percentage,
+                        'budget': bcm2.desired_spend,
+                        'current_spend': bcm2.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_over.append(details)
+
+        for bcm3 in bing_cm3:
+            spend = bcm3.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / bcm3.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if bcm3.desired_spend == 0:
 
                 details = {
-                    'account': b.account_name,
-                    'estimated': percentage,
-                    'budget': b.desired_spend,
-                    'current_spend': b.current_spend,
-                    'projected': round(projected, 2)
+                    'account': bcm3.account_name
                 }
-                bing_over.append(details)
+                bing_nods.append(details)
+
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': bcm3.account_name,
+                        'estimated': percentage,
+                        'budget': bcm3.desired_spend,
+                        'current_spend': bcm3.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': bcm3.account_name,
+                        'estimated': percentage,
+                        'budget': bcm3.desired_spend,
+                        'current_spend': bcm3.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_over.append(details)
 
         mail_details = {
             'aw_under': aw_underspenders,

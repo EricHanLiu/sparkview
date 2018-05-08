@@ -11,8 +11,8 @@ from bloom.utils import BingReportingService
 from bing_dashboard.models import BingAccounts
 
 logging.basicConfig(level=logging.INFO)
-logging.getLogger('suds.client').setLevel(logging.DEBUG)
-logging.getLogger('suds.transport.http').setLevel(logging.DEBUG)
+logging.getLogger('suds.client').setLevel(logging.INFO)
+logging.getLogger('suds.transport.http').setLevel(logging.INFO)
 auth_method = auth.BingAuth().get_auth()
 
 reporting_service_manager=ReportingServiceManager(
@@ -34,13 +34,13 @@ def main():
     for acc in accounts:
         helper = BingReportingService(reporting_service_manager, reporting_service)
         this_month = helper.get_this_month_daterange()
-        report_name = str(acc.account_id) + "_this_month_performance"
+        report_name = str(acc.account_id) + "_this_month_performance.csv"
 
         query_this_month = helper.get_account_performance_query(
             acc.account_id, report_name=report_name, **this_month
         )
 
-        report_name_7 = str(acc.account_id) + "_last_7_performance"
+        report_name_7 = str(acc.account_id) + "_last_7_performance.csv"
         last_7 = helper.get_daterange(days=7)
         query_last_7 = helper.get_account_performance_query(
             acc.account_id, report_name=report_name_7, **last_7
@@ -50,28 +50,31 @@ def main():
         helper.download_report(acc.account_id, query_this_month)
         helper.download_report(acc.account_id, query_last_7)
 
-        report_this_month = helper.get_report(query_this_month.ReportName)
-        report_last_7 = helper.get_report(query_last_7.ReportName)
-
-        current_spend = sum([float(item['spend']) for item in report_this_month])
-        yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
-
         try:
+            report_this_month = helper.get_report(query_this_month.ReportName)
+            report_last_7 = helper.get_report(query_last_7.ReportName)
+            current_spend = sum([float(item['spend']) for item in report_this_month])
+            yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
             day_spend = sum([float(item['spend']) for item in report_last_7]) / 7
+            estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+
+        except FileNotFoundError:
+            current_spend = 0
+            yesterday_spend = 0
+            estimated_spend = 0
 
         except ZeroDivisionError:
-            day_spend = 0
+            current_spend = 0
+            yesterday_spend = 0
+            estimated_spend = 0
 
-        estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+        print(acc.account_id, current_spend)
 
         acc.estimated_spend = estimated_spend
         acc.current_spend = current_spend
         acc.yesterday_spend = float(yesterday_spend)
 
         acc.save()
-
-
-
 
 
 if __name__ == '__main__':
