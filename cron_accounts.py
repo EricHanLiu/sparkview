@@ -5,8 +5,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
 django.setup()
 from django.conf import settings
-import gc
-import logging
 from adwords_dashboard import models
 from adwords_dashboard.cron_scripts import get_accounts
 

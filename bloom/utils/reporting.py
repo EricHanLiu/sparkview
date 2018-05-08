@@ -1,18 +1,87 @@
 import csv
 import io
+import codecs
 from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
+from bingads.v11.reporting import ReportingDownloadParameters
+
+class Reporting:
+
+    def get_daterange(self, days=14):
+        today = datetime.today()
+        maxDate = today + relativedelta(days=-1)
+        minDate = maxDate + relativedelta(days=-days)
+        dateRange = dict(
+            maxDate=maxDate,
+            minDate=minDate
+        )
+
+        return dateRange
+
+    def get_this_month_daterange(self):
+
+        today = datetime.today()
+
+        if today.day < 2:
+            maxDate = today
+        else:
+            maxDate = today + relativedelta(days=-1)
+
+        minDate = datetime(today.year, today.month, 1)
+
+        this_month = dict(minDate=minDate, maxDate=maxDate)
 
 
-class BingReporting:
+        return this_month
+
+
+    def parse_report_csv(self, report, header=True, footer=True):
+        report = report.splitlines()
+        if header:
+            report_title = report.pop(0)
+
+        # You don't want spaces in json keys: thus we replace spaces with _
+        report_headers = [
+            header.lower().replace(" ", "_") for header in report[0].split(",")
+        ]
+        #Rewriting the headers
+        report[0] = ",".join(report_headers)
+
+        if footer:
+            report_totals = report.pop(-1).split(",")
+
+        dict_list = list(csv.DictReader(io.StringIO("\n".join(report))))
+
+        return dict_list
+
+    def sort_by_date(self, lst, date_format="%Y-%m-%d", key="day"):
+        for i in range(len(lst)):
+            lst[i] = {
+                k: datetime.strptime(v, date_format) if k == key else v
+                for k, v in lst[i].items()
+            }
+
+        return sorted(lst, key=itemgetter(key))
+
+    def get_estimated_spend(self, current_spend, day_spend):
+        today = datetime.today()
+        end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-7)
+        days_remaining = (end_date - today).days
+        estimated_spend = int(current_spend) + (int(day_spend) * days_remaining)
+
+        return estimated_spend
+
+
+class BingReporting(Reporting):
 
     def normalize_request(self, request):
         request.Format = "Csv"
         request.Language = "English"
         request.ExcludeReportHeader = True
         request.ExcludeReportFooter = True
+        request.ReturnOnlyCompleteData=False
 
         return request
 
@@ -25,48 +94,82 @@ class BingReporting:
 
         return request
 
+    def get_report(self, report_name):
+
+        location = settings.BINGADS_REPORTS + report_name
+        with codecs.open(location, 'r', encoding='utf-8-sig') as f:
+            report = self.parse_report_csv(f.read(), header=False, footer=False)
+
+        return report
+
+
 class BingReportingService(BingReporting):
+
     def __init__(self, service_manager, reporting_service):
         self.service_manager = service_manager
         self.reporting_service = reporting_service
 
 
-    def get_report_time(self, predefined_time):
+    def get_report_time(self, minDate=None, maxDate=None):
+
+        min = self.reporting_service.factory.create('Date')
+        min.Year = minDate.year
+        min.Day = minDate.day
+        min.Month = minDate.month
+
+        max = self.reporting_service.factory.create('Date')
+        max.Year = maxDate.year
+        max.Day = maxDate.day
+        max.Month = maxDate.month
 
         time = self.reporting_service.factory.create('ReportTime')
-        time.PredefinedTime = predefined_time
+        time.CustomDateRangeStart = min
+        time.CustomDateRangeEnd = max
+
+        del time.PredefinedTime
 
         return time
 
 
     def get_scope(self, scope_name):
-        return self.reporting_service.factory.create(scope_name)
+        scope = self.reporting_service.factory.create(scope_name)
+        return scope
 
     def get_account_performance_columns(self, fields=["TimePeriod"]):
         columns = self.reporting_service.factory.create(
             'ArrayOfAccountPerformanceReportColumn'
         )
-        columns.AccountPerformanceReportColumn.extend(fields)
+        columns.AccountPerformanceReportColumn.append(fields)
 
         return columns
 
     def get_account_performance_query(
-            self, account_id, dateRangeType="predefined", predefined_time="Last30Days"
+            self,
+            account_id,
+            dateRangeType="CUSTOM_DATE",
+            aggregation="Daily",
+            **kwargs
         ):
 
-        fields = ["TimePeriod", "AccountId", "AccountName", "Spend"]
         request = self.reporting_service.factory.create("AccountPerformanceReportRequest")
+        scope = self.reporting_service.factory.create("AccountReportScope")
+        scope.AccountIds={'long': [account_id] }
+        fields = ["TimePeriod", "Spend"]
 
-        if dateRangeType == "predefined":
-            time = self.get_report_time(predefined_time)
+        if dateRangeType == "CUSTOM_DATE":
+            time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
 
-        columns = self.get_account_performance_columns()
+        columns = self.get_account_performance_columns(fields=fields)
         scope = self.get_scope("AccountReportScope")
-        scope.AccountIds = [account_id]
 
         request = self.generate_request(
             request, columns=columns, time=time, scope=scope
         )
+
+        request.Aggregation = aggregation
+        report_name = kwargs.get("report_name", str(account_id) + "_spend")
+        print(report_name)
+        request.ReportName = report_name
 
         return request
 
@@ -74,15 +177,15 @@ class BingReportingService(BingReporting):
         parameters = ReportingDownloadParameters(
             report_request=request,
             result_file_directory = settings.BINGADS_REPORTS,
-            result_file_name = str(account_id) + '_spend.csv',
+            result_file_name = request.ReportName,
             overwrite_result_file = True,
             timeout_in_milliseconds=3600000
         )
 
-        self.reporting_service_manager.download_file(parameters)
+        self.service_manager.download_file(parameters)
 
 
-class AdwordsReporting:
+class AdwordsReporting(Reporting):
 
     date_format = "%Y%m%d"
     report_headers = dict(
@@ -134,14 +237,6 @@ class AdwordsReporting:
 
         return query
 
-    def sort_by_date(self, lst, date_format="%Y-%m-%d"):
-        for i in range(len(lst)):
-            lst[i] = {
-                k: datetime.strptime(v, date_format) if k == "day" else v
-                for k, v in lst[i].items()
-            }
-
-        return sorted(lst, key=itemgetter("day"))
 
     def stringify_date(self, date, date_format=None):
         if date_format is None:
@@ -149,21 +244,6 @@ class AdwordsReporting:
 
         return date.strftime(date_format)
 
-    def parse_report_csv(self, report):
-        report = report.splitlines()
-        report_title = report.pop(0)
-
-        # You don't want spaces in json keys: thus we replace spaces with _
-        report_headers = [
-            header.lower().replace(" ", "_") for header in report[0].split(",")
-        ]
-        #Rewriting the headers
-        report[0] = ",".join(report_headers)
-
-        report_totals = report.pop(-1).split(",")
-        dict_list = list(csv.DictReader(io.StringIO("\n".join(report))))
-
-        return dict_list
 
     def mcv(self, cost):
         cost = int(cost)
@@ -172,29 +252,7 @@ class AdwordsReporting:
 
         return cost
 
-    def get_this_month_daterange(self):
 
-        today = datetime.today()
-
-        if today.day < 2:
-            maxDate = today
-        else:
-            maxDate = today + relativedelta(days=-1)
-
-        minDate = datetime(today.year, today.month, 1)
-
-        this_month = dict(minDate=minDate, maxDate=maxDate)
-
-
-        return this_month
-
-    def get_estimated_spend(self, current_spend, day_spend):
-        today = datetime.today()
-        end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-7)
-        days_remaining = (end_date - today).days
-        estimated_spend = int(current_spend) + (int(day_spend) * days_remaining)
-
-        return estimated_spend
 
     def calculate_ovu(self, estimated_spend, desired_spend):
         return (int(estimated_spend) / int(desired_spend)) * 100

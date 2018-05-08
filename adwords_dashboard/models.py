@@ -25,7 +25,7 @@ class ManagerAccount(models.Model):
 
 class DependentAccount(models.Model):
 
-
+    #REVIEW
     manager_account = models.CharField(max_length=255, default='None')
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
