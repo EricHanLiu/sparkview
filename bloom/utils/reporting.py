@@ -195,11 +195,10 @@ class AdwordsReporting(Reporting):
         include_zero_impressions=True
     )
 
-    def get_custom_daterange(minDate, maxDate):
-
+    def get_custom_daterange(self, minDate=None, maxDate=None):
         return dict(
             min=minDate.strftime(self.date_format),
-            max=minDate.strftime(self.date_format)
+            max=maxDate.strftime(self.date_format)
         )
 
     def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
@@ -230,6 +229,7 @@ class AdwordsReporting(Reporting):
             "selector": {"fields": fields},
         }
 
+        print(kwargs)
         if dateRangeType == "CUSTOM_DATE":
             query["selector"]["dateRange"] = self.get_custom_daterange(
                 minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")

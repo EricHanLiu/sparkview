@@ -1,15 +1,17 @@
-import os
 import sys
 import io
+import logging
+import os
 from googleads import adwords
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
 django.setup()
-from django.conf.settings import ADWORDS_YAML
+from bloom.settings import ADWORDS_YAML
 from datetime import datetime
 from adwords_dashboard.models import DependentAccount
-
 from bloom.utils import AdwordsReportingService
+
+logging.basicConfig(level=logging.INFO)
 
 def main():
     adwords_client = adwords.AdWordsClient.LoadFromStorage(ADWORDS_YAML)
