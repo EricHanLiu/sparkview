@@ -31,8 +31,8 @@ reporting_service=ServiceClient(
 def main():
 
     accounts = BingAccounts.objects.filter(blacklisted=False)
+    helper = BingReportingService(reporting_service_manager, reporting_service)
     for acc in accounts:
-        helper = BingReportingService(reporting_service_manager, reporting_service)
         this_month = helper.get_this_month_daterange()
         report_name = str(acc.account_id) + "_this_month_performance.csv"
 
@@ -52,23 +52,24 @@ def main():
 
         try:
             report_this_month = helper.get_report(query_this_month.ReportName)
-            report_last_7 = helper.get_report(query_last_7.ReportName)
-            current_spend = sum([float(item['spend']) for item in report_this_month])
-            yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
-            day_spend = sum([float(item['spend']) for item in report_last_7]) / 7
-            estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+            current_spend = float(report_this_month[0]['spend'])
 
         except FileNotFoundError:
             current_spend = 0
-            yesterday_spend = 0
-            estimated_spend = 0
 
-        except ZeroDivisionError:
-            current_spend = 0
-            yesterday_spend = 0
+        try:
+            report_last_7 = helper.get_report(query_last_7.ReportName)
+            yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
+            day_spend = sum([float(item['spend']) for item in report_last_7]) / 7
+            estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+        except FileNotFoundError:
             estimated_spend = 0
+            yesterday_spend = 0
+
+
 
         print(acc.account_id, current_spend)
+        
 
         acc.estimated_spend = estimated_spend
         acc.current_spend = current_spend

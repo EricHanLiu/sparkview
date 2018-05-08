@@ -67,9 +67,9 @@ class Reporting:
 
     def get_estimated_spend(self, current_spend, day_spend):
         today = datetime.today()
-        end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-7)
+        end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-1)
         days_remaining = (end_date - today).days
-        estimated_spend = int(current_spend) + (int(day_spend) * days_remaining)
+        estimated_spend = float(current_spend) + (float(day_spend) * days_remaining)
 
         return estimated_spend
 
@@ -227,7 +227,6 @@ class AdwordsReporting(Reporting):
             "selector": {"fields": fields},
         }
 
-        print(kwargs)
         if dateRangeType == "CUSTOM_DATE":
             query["selector"]["dateRange"] = self.get_custom_daterange(
                 minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
@@ -244,9 +243,9 @@ class AdwordsReporting(Reporting):
 
 
     def mcv(self, cost):
-        cost = int(cost)
+        cost = float(cost)
         if cost > 0:
-            cost = int(cost) / 1000000
+            cost = cost / 1000000
 
         return cost
 

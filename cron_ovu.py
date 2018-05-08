@@ -35,7 +35,7 @@ def main():
 
 
         last_7_ordered = helper.sort_by_date(last_7)
-        last_7_days_cost = helper.mcv(sum([int(item['cost']) for item in last_7]))
+        last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
 
         try:
             day_spend = last_7_days_cost / 7
@@ -43,14 +43,15 @@ def main():
             day_spend = 0
         try:
             yesterday = last_7_ordered[-1]
-            yesterday_spend = helper.mcv(int(yesterday['cost']))
-            current_spend = helper.mcv(int(data_this_month[0]['cost']))
-            estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+            yesterday_spend = helper.mcv(yesterday['cost'])
+            current_spend = helper.mcv(data_this_month[0]['cost'])
         except IndexError:
             yesterday_spend = 0
             current_spend = 0
             estimated_spend = 0
 
+        estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+        print(current_spend)
         account.estimated_spend = estimated_spend
         account.yesterday_spend = yesterday_spend
         account.current_spend = current_spend
