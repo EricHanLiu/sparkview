@@ -41,11 +41,15 @@ def main():
             day_spend = last_7_days_cost / 7
         except ZeroDivisionError:
             day_spend = 0
-
-        yesterday = last_7_ordered[-1]
-        current_spend = helper.mcv(int(data_this_month[0]['cost']))
-        estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
-        yesterday_spend = helper.mcv(int(yesterday['cost']))
+        try:
+            yesterday = last_7_ordered[-1]
+            yesterday_spend = helper.mcv(int(yesterday['cost']))
+            current_spend = helper.mcv(int(data_this_month[0]['cost']))
+            estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+        except IndexError:
+            yesterday_spend = 0
+            current_spend = 0
+            estimated_spend = 0
 
         account.estimated_spend = estimated_spend
         account.yesterday_spend = yesterday_spend
