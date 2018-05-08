@@ -25,7 +25,7 @@ class ManagerAccount(models.Model):
 
 class DependentAccount(models.Model):
 
-
+    #REVIEW
     manager_account = models.CharField(max_length=255, default='None')
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
@@ -41,6 +41,7 @@ class DependentAccount(models.Model):
     ds5 = models.IntegerField(default=0)
     ds6 = models.IntegerField(default=0)
     yesterday_spend = models.IntegerField(default=0)
+    estimated_spend = models.IntegerField(default=0)
     quality_score = models.IntegerField(default=0)
     historical_qs = models.IntegerField(default=0)
     updated_time = models.DateTimeField(auto_now=True)

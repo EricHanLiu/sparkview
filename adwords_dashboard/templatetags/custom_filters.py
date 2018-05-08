@@ -87,3 +87,9 @@ def subtract(value, arg):
     return value - arg
 
 
+@register.filter(name='get_ovu')
+def calculate_ovu(estimated_spend, desired_spend):
+    try:
+        return int((estimated_spend / desired_spend) * 100)
+    except ZeroDivisionError:
+        return 0

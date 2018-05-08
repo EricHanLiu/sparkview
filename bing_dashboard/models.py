@@ -11,6 +11,7 @@ class BingAccounts(models.Model):
     account_ovu = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
     current_spend = models.IntegerField(default=0)
+    estimated_spend = models.IntegerField(default=0)
     hist_spend = models.IntegerField(default=0)
     hist_budget = models.IntegerField(default=0)
     ds1 = models.IntegerField(default=0)

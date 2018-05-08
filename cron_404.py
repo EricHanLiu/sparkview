@@ -5,8 +5,6 @@ import django
 django.setup()
 from django.conf import settings
 from bloom import settings
-import gc
-import logging
 from datetime import datetime
 from adwords_dashboard import models
 from adwords_dashboard.cron_scripts import verify404

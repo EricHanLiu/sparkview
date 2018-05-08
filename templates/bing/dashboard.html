@@ -40,7 +40,7 @@
                         </a> - {{ item.account.account_id }}
                 </td>
                 <td>
-                    {{ item.account.account_ovu }}%
+                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
                 </td>
 {#                <td>#}
 {#                    <a href="{% url 'adwords:alerts' item.account.account_id %}">#}

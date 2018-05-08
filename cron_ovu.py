@@ -1,67 +1,57 @@
-import os
 import sys
 import io
+import logging
+import os
 from googleads import adwords
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
 django.setup()
-from django.conf import settings
-import gc
-import logging
+from bloom.settings import ADWORDS_YAML
 from datetime import datetime
-import calendar
-from adwords_dashboard import models
-from adwords_dashboard.cron_scripts import ovu
+from adwords_dashboard.models import DependentAccount
+from bloom.utils import AdwordsReportingService
 
-
-def add_ovu(data):
-
-    now = datetime.now()
-    days = calendar.monthrange(now.year, now.month)[1]
-    if data['cost'] == ' -- ':
-        account_cost = 0
-    else:
-        account_cost = data['cost']
-
-    if data['yesterday'] == ' -- ':
-        yesterday = 0
-    else:
-        yesterday = data['yesterday']
-    account_id = data['account_id']
-
-    if data:
-        account = models.DependentAccount.objects.get(dependent_account_id=account_id)
-
-
-        if account.desired_spend == 0:
-            account.current_spend = account_cost
-            account.yesterday_spend = yesterday
-            account.dependent_OVU = 0
-            account.save()
-            print('desired_spend = 0, ovu = 0')
-
-        else:
-            account.current_spend = account_cost
-            account.yesterday_spend = yesterday
-            account.dependent_OVU = (float(account_cost) / (float(account.desired_spend) / days * now.day)) * 100
-            account.save()
-            print('Calculated OVU and added to DB - ' + str(account.dependent_account_id))
+logging.basicConfig(level=logging.INFO)
 
 def main():
-    adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
+    adwords_client = adwords.AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
-    accounts = models.DependentAccount.objects.filter(blacklisted=False)
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+    helper = AdwordsReportingService(adwords_client)
+    this_month = helper.get_this_month_daterange()
     for account in accounts:
-        try:
-            data = ovu.get_account_cost(account.dependent_account_id, adwords_client)
-            add_ovu(data)
-            print('Added to DB for account ' + str(account.dependent_account_id))
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            print('Failed for account: ' + str(account.dependent_account_id))
 
+        last_7 = helper.get_account_performance(
+            customer_id=account.dependent_account_id,
+            dateRangeType="LAST_7_DAYS",
+            extra_fields=["Date"]
+        )
+
+        data_this_month = helper.get_account_performance(
+            customer_id=account.dependent_account_id,
+            dateRangeType="CUSTOM_DATE",
+            **this_month
+        )
+
+
+        last_7_ordered = helper.sort_by_date(last_7)
+        last_7_days_cost = helper.mcv(sum([int(item['cost']) for item in last_7]))
+
+        try:
+            day_spend = last_7_days_cost / 7
+        except ZeroDivisionError:
+            day_spend = 0
+
+        yesterday = last_7_ordered[-1]
+        current_spend = helper.mcv(int(data_this_month[0]['cost']))
+        estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+        yesterday_spend = helper.mcv(int(yesterday['cost']))
+
+        account.estimated_spend = estimated_spend
+        account.yesterday_spend = yesterday_spend
+        account.current_spend = current_spend
+        account.save()
 
 
 if __name__ == '__main__':
-    print(main())
+    main()
