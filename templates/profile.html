@@ -43,10 +43,6 @@
                             <form class="m-form m-form--fit m-form--label-align-right" id="profile-form">
                                 <div class="m-portlet__body">
                                     <div class="form-group m-form__group m--margin-top-10 m--hide">
-                                        <div class="alert m-alert m-alert--default" role="alert">
-                                            The example form below demonstrates common HTML form elements that receive
-                                            updated styles from Bootstrap with additional classes.
-                                        </div>
                                     </div>
 
                                     <div class="form-group m-form__group row">
@@ -77,47 +73,68 @@
                                             <h3 class="m-form__section">2. Assigned accounts</h3>
                                         </div>
                                     </div>
-
-                                    <div class="form-group m-form__group row">
-                                        <label for="example-text-input" class="col-2 col-form-label">AdWords</label>
-                                        <div class="col-8">
-                                            <select class="form-control m-input--large" name="adwords"
-                                                    multiple="multiple" id="m_select2_adwords"
-                                                    style="width: 100%;">
-                                                {% for a in adwords %}
-                                                    <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="form_group m-form__group row">
-                                        <label class="col-2 col-form-label">Assigned</label>
+                                        <label class="col-2 col-form-label">CM</label>
                                         <div class="col-8">
-                                            {% for al in user_profile.adwords.all %}
+                                            {% for al in aw_to %}
                                                 <span class="m-badge m-badge--info m-badge--wide">
-                                            {{ al.dependent_account_name }} <a name="acc_id" onclick="remove_acc({{ al.dependent_account_id }})">x</a>
-                                        </span>
+                                                    {{ al.dependent_account_name }} <a name="acc_id"
+                                                                                       onclick="remove_acc({{ al.dependent_account_id }}, 'cm')">x</a>
+                                                </span>
                                             {% endfor %}
                                         </div>
                                     </div>
-                                    <div class="form-group m-form__group row">
-                                        <label for="example-text-input" class="col-2 col-form-label">Bing</label>
+                                    <div class="form_group m-form__group row">
+                                        <label class="col-2 col-form-label">CM2</label>
                                         <div class="col-8">
-                                            <select class="form-control m-input" name="bing"
-                                                    multiple="" id="m_select2_bing"
-                                                    style="width: 100%">
-                                                {% for b in bing %}
-                                                    <option value="{{ b.account_id }}">{{ b.account_name }}</option>
-                                                {% endfor %}
-                                            </select>
+                                            {% for cm2 in aw_cm2 %}
+                                                <span class="m-badge m-badge--success m-badge--wide">
+                                                    {{ cm2.dependent_account_name }} <a name="acc_id"
+                                                                                        onclick="remove_acc({{ cm2.dependent_account_id }}, 'cm2')">x</a>
+                                                </span>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                     <div class="form_group m-form__group row">
-                                        <label class="col-2 col-form-label">Assigned</label>
+                                        <label class="col-2 col-form-label">CM3</label>
                                         <div class="col-8">
-                                            {% for bl in user_profile.bing.all %}
+                                            {% for cm3 in aw_cm3 %}
+                                                <span class="m-badge m-badge--warning m-badge--wide">
+                                                    {{ cm3.dependent_account_name }} <a name="acc_id"
+                                                                                        onclick="remove_acc({{ cm3.dependent_account_id }}, 'cm3')">x</a>
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="form_group m-form__group row">
+                                        <label class="col-2 col-form-label">CM</label>
+                                        <div class="col-8">
+                                            {% for bl in bing_to %}
                                                 <span class="m-badge m-badge--info m-badge--wide">
-                                                {{ bl.account_name }} <a name="acc_id" onclick="remove_acc({{ bl.account_id }})">x</a>
+                                                {{ bl.account_name }} <a name="acc_id"
+                                                                         onclick="remove_acc({{ bl.account_id }}, 'cm')">x</a>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="form_group m-form__group row">
+                                        <label class="col-2 col-form-label">CM2</label>
+                                        <div class="col-8">
+                                            {% for bcm2 in bing_cm2 %}
+                                                <span class="m-badge m-badge--success m-badge--wide">
+                                                {{ bcm2.account_name }} <a name="acc_id"
+                                                                           onclick="remove_acc({{ bcm2.account_id }}, 'cm2')">x</a>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="form_group m-form__group row">
+                                        <label class="col-2 col-form-label">CM3</label>
+                                        <div class="col-8">
+                                            {% for bcm3 in bing_cm3 %}
+                                                <span class="m-badge m-badge--warning m-badge--wide">
+                                                {{ bcm3.account_name }} <a name="acc_id"
+                                                                           onclick="remove_acc({{ bcm3.account_id }}, 'cm3')">x</a>
                                             </span>
                                             {% endfor %}
                                         </div>
@@ -147,6 +164,7 @@
     </div>
 
     <script type="text/javascript">
+
         function submit_changes() {
 
             var data = $('#profile-form').serialize();
@@ -176,10 +194,11 @@
                 });
         }
 
-        function remove_acc(acc_id) {
+        function remove_acc(acc_id, cm_lvl) {
 
             data = JSON.stringify({
-                'acc_id': acc_id
+                'acc_id': acc_id,
+                'cm': cm_lvl
             });
 
             $.ajax({
@@ -190,12 +209,12 @@
                 complete: function () {
                     setTimeout(function () {
                         location.reload();
-                    }, 2500);
+                    }, 3500);
                 },
                 success: function () {
                     swal({
                         "title": "",
-                        "text": "Removed account from profile.",
+                        "text": "Removed account from user profile.",
                         "type": "success",
                         "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
                     });

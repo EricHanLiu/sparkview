@@ -94,14 +94,17 @@
                                                             <p>
                                                             <div class="row text-center">
                                                                 <div class="col-md-3">
+                                                                    <b>Current spend</b>:
+                                                                    {{ a.current_spend }}
+                                                                </div>
+                                                                <div class="col-md-2">
                                                                     <b>Daily spend to target
                                                                     </b>: {% ds_tt a.current_spend a.desired_spend %}
                                                                 </div>
-                                                                <div class="col-md-3">
-
+                                                                <div class="col-md-2">
                                                                     <b>Yesterday's spend</b>: {{ a.yesterday_spend }}
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
                                                                     <b>Daily spend to date</b>:
                                                                     {{ a.current_spend|daily_spend|floatformat:2 }}
                                                                 </div>
@@ -154,14 +157,17 @@
                                                             <div class="m-separator"></div>
                                                             <div class="row text-center">
                                                                 <div class="col-md-3">
+                                                                    <b>Current spend</b>: {{ b.current_spend }}
+                                                                </div>
+                                                                <div class="col-md-2">
                                                                     <b>Daily spend to reach
                                                                         target</b>: {% ds_tt b.current_spend b.desired_spend %}
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
 
                                                                     <b>Yesterday's spend</b>: {{ b.yesterday_spend }}
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
                                                                     <b>Daily spend to date</b>:
                                                                     {{ b.current_spend|daily_spend|floatformat:2 }}
                                                                 </div>

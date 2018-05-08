@@ -183,3 +183,8 @@ input[type=number].table-number  {
     border: 0px;
     border-bottom: 1px solid #222;
 }
+
+.m-portlet.m-portlet--success.m-portlet--head-solid-bg .m-portlet__head--bloom {
+    background-color: #212529;
+    border-color: #212529;
+}
