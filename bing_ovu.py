@@ -52,7 +52,7 @@ def main():
 
         try:
             report_this_month = helper.get_report(query_this_month.ReportName)
-            current_spend = float(report_this_month[0]['spend'])
+            current_spend = sum([float(item[0]['spend']) for item in report_this_month])
 
         except FileNotFoundError:
             current_spend = 0
@@ -69,7 +69,7 @@ def main():
 
 
         print(acc.account_id, current_spend)
-        
+
 
         acc.estimated_spend = estimated_spend
         acc.current_spend = current_spend
