@@ -84,9 +84,6 @@ License: You must have a valid license purchased only from themeforest(the above
                                               transform="translate(-1072 -2900)"/>
                                     </svg>
                                 </a>
-									<h3 class="m-header__title">
-										Apps
-									</h3>
 								</div>
 								<div class="m-stack__item m-stack__item--middle m-brand__tools">
 									<!-- BEGIN: Responsive Aside Left Menu Toggler -->
@@ -711,7 +708,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<span class="m-menu__link-text">
 										AdWords dashboard
 									</span>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
+{#									<i class="m-menu__ver-arrow la la-angle-right"></i>#}
 								</a>
 {#								<div class="m-menu__submenu ">#}
 {#									<span class="m-menu__arrow"></span>#}
@@ -762,7 +759,7 @@ License: You must have a valid license purchased only from themeforest(the above
 									<span class="m-menu__link-text">
 										Bing dashboard
 									</span>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
+{#									<i class="m-menu__ver-arrow la la-angle-right"></i>#}
 								</a>
 {#								<div class="m-menu__submenu ">#}
 {#									<span class="m-menu__arrow"></span>#}
@@ -792,7 +789,7 @@ License: You must have a valid license purchased only from themeforest(the above
 {#											</span>#}
 										</span>
 									</span>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
+{#									<i class="m-menu__ver-arrow la la-angle-right"></i>#}
 								</a>
 {#								<div class="m-menu__submenu ">#}
 {#									<span class="m-menu__arrow"></span>#}
@@ -930,14 +927,15 @@ License: You must have a valid license purchased only from themeforest(the above
 {#									</ul>#}
 {#								</div>#}
 							</li>
-{#							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"  data-menu-submenu-toggle="hover" data-redirect="true">#}
-{#								<a  href="inner.html" class="m-menu__link m-menu__toggle">#}
-{#									<i class="m-menu__link-icon flaticon-light"></i>#}
-{#									<span class="m-menu__link-text">#}
-{#										Administration#}
-{#									</span>#}
+                            {% if request.user.is_staff %}
+							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"  data-menu-submenu-toggle="hover" data-redirect="true">
+								<a  href="{% url 'user_list' %}" class="m-menu__link">
+									<i class="m-menu__link-icon fa fa-user"></i>
+									<span class="m-menu__link-text">
+										Users Administration
+									</span>
 {#									<i class="m-menu__ver-arrow la la-angle-right"></i>#}
-{#								</a>#}
+								</a>
 {#								<div class="m-menu__submenu ">#}
 {#									<span class="m-menu__arrow"></span>#}
 {#									<ul class="m-menu__subnav">#}
@@ -950,7 +948,8 @@ License: You must have a valid license purchased only from themeforest(the above
 {#										</li>#}
 {#									</ul>#}
 {#								</div>#}
-{#							</li>#}
+							</li>
+                            {% endif %}
 {#							<li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"  data-menu-submenu-toggle="hover" data-redirect="true">#}
 {#								<a  href="inner.html" class="m-menu__link m-menu__toggle">#}
 {#									<i class="m-menu__link-icon flaticon-share"></i>#}

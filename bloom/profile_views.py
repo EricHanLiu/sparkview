@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from adwords_dashboard.models import DependentAccount, Profile
 from bing_dashboard.models import BingAccounts
@@ -176,7 +177,7 @@ def change_password(request):
         'form': form
     })
 
-
+@staff_member_required
 def user_list(request):
 
     if request.method == 'GET':
