@@ -18,6 +18,7 @@ class Client(models.Model):
     bing_spend = models.IntegerField(default=0)
     # fb_spend = models.IntegerField(default=0)
     budget = models.IntegerField(default=0)
+    target_spend = models.IntegerField(default=0)
     aw_budget = models.IntegerField(default=0)
     bing_budget = models.IntegerField(default=0)
     # fb_budget = models.IntegerField(default=0)

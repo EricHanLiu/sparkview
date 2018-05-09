@@ -12,8 +12,12 @@ remaining = days - current_day
 @register.simple_tag
 def ds_tt(spend, budget):
 
-    ds_tt = (budget - spend) / remaining
-    return round(ds_tt, 2)
+    if budget > 0:
+        ds_tt = (budget - spend) / remaining
+        return round(ds_tt, 2)
+    else:
+        ds_tt = 0
+        return ds_tt
 
 
 @register.filter('startswith')
@@ -71,7 +75,7 @@ def daily_spend(spend):
 
 @register.filter(name='projected')
 def projected(spend):
-
+    # daily spend
     d_spend = spend / current_day
     # projected value
     rval = spend + (d_spend * remaining)

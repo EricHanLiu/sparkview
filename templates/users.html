@@ -287,8 +287,7 @@
             var accounts = $('#add-accounts').serializeArray();
             var uid = $('#uid').val();
             accounts.push({name: 'uid', value: uid});
-            {#var data = JSON.stringify(accounts);#}
-            {#console.log(data);#}
+
             $.ajax({
                 type: "POST",
                 url: "",

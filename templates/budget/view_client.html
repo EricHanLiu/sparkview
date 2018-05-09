@@ -47,8 +47,8 @@
                                             <!--begin::Item-->
                                             <div class="m-accordion__item">
                                                 <div class="m-accordion__item-head collapsed" role="tab"
-                                                     id="m_accordion_1_item_1_head" data-toggle="collapse"
-                                                     href="#m_accordion_1_item_1_body" aria-expanded="false">
+                                                     id="m_accordion_1_item_1_head" data-toggle="expand"
+                                                     href="#m_accordion_1_item_1_body">
                                             <span class="m-accordion__item-icon"><i
                                                     class="fa fa-user-circle"></i></span>
                                                     <span class="m-accordion__item-title">{{ client_data.client_name }}</span>
@@ -64,12 +64,20 @@
                                                         </p>
                                                         <div class="row text-center">
                                                             <div class="col-md-3">
+                                                                <span class="m--font-boldest2">Global Target Spend</span>: {{ client_data.target_spend }}
+                                                                <span class="fa fa-pencil-square"
+                                                                      data-clientid="{{ client_data.id }}"
+                                                                      data-target_spend ="{{ client_data.target_spend }}"
+                                                                      data-toggle="modal"
+                                                                      data-target="#m_target_spend"></span>
+                                                            </div>
+                                                            <div class="col-md-2">
                                                                 <span class="m--font-boldest2">Budget</span>: {{ client_data.budget }}
                                                             </div>
-                                                            <div class="col-md-3">
+                                                            <div class="col-md-2">
                                                                 <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
                                                             </div>
-                                                            <div class="col-md-3">
+                                                            <div class="col-md-2">
                                                                 <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
                                                                 of {{ no_of_days }}
                                                                 days
@@ -93,7 +101,19 @@
                                                             <div class="m-separator"></div>
                                                             <p>
                                                             <div class="row text-center">
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
+                                                                    <b>Budget</b>:
+                                                                    <span id="budget-{{ a.dependent_account_id }}">
+                                                                        {{ a.desired_spend }}
+                                                                    </span>
+                                                                    <span class="fa fa-pencil-square fa-4x"
+                                                                          data-toggle="modal"
+                                                                          data-target="#m_edit_budget"
+                                                                          data-channel="adwords"
+                                                                          data-accountid="{{ a.dependent_account_id }}"
+                                                                          data-budget="{{ a.desired_spend }}"></span>
+                                                                </div>
+                                                                <div class="col-md-2">
                                                                     <b>Current Total Spend</b>:
                                                                     {{ a.current_spend }}
                                                                 </div>
@@ -108,13 +128,14 @@
                                                                     <b>Current Total Spend</b>:
                                                                     {{ a.current_spend|daily_spend|floatformat:2 }}
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
                                                                     <b>Projected Spend EOM</b>:
                                                                     {{ a.current_spend|projected|floatformat:2 }}
                                                                 </div>
                                                             </div>
                                                             </p>
-                                                            <div class="progress m-progress--lg" style="position: relative;!important;">
+                                                            <div class="progress m-progress--lg"
+                                                                 style="position: relative;!important;">
                                                                 <div class="progress-bar
 
                                                                         {{ a.current_spend|percentage:a.desired_spend }}"
@@ -127,16 +148,16 @@
                                                                      data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
                                                                     {% widthratio a.current_spend a.desired_spend 100 %}%
                                                                 </div>
-{#                                                                <div class="black-marker"#}
-{#                                                                     style="width: {{ blackmarker }}%"#}
-{#                                                                     aria-valuenow="{{ blackmarker }}"#}
-{#                                                                     aria-valuemin="0" aria-valuemax="100">#}
-{#                                                                </div>#}
+                                                                {#                                                                <div class="black-marker"#}
+                                                                {#                                                                     style="width: {{ blackmarker }}%"#}
+                                                                {#                                                                     aria-valuenow="{{ blackmarker }}"#}
+                                                                {#                                                                     aria-valuemin="0" aria-valuemax="100">#}
+                                                                {#                                                                </div>#}
 
                                                             </div>
 
                                                             </p>
-                                                            {% empty %}
+                                                        {% empty %}
                                                             <p>
                                                             <h6>
                                                                 No accounts selected for this client...
@@ -156,11 +177,26 @@
                                                             <p>
                                                             <div class="m-separator"></div>
                                                             <div class="row text-center">
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
+                                                                    <b>
+                                                                        Budget
+                                                                    </b>:
+                                                                    <span id="budget-{{ b.account_id }}">
+                                                                        {{ b.desired_spend }}
+                                                                    </span>
+                                                                    <span class="fa fa-pencil-square fa-4x"
+                                                                          data-toggle="modal"
+                                                                          data-target="#m_edit_budget"
+                                                                          data-channel="bing"
+                                                                          data-accountid="{{ b.account_id }}"
+                                                                          data-budget="{{ b.desired_spend }}"></span>
+                                                                </div>
+                                                                <div class="col-md-2">
                                                                     <b>Current Total Spend</b>: {{ b.current_spend }}
                                                                 </div>
                                                                 <div class="col-md-2">
-                                                                    <b>Target Daily Spend</b>: {% ds_tt b.current_spend b.desired_spend %}
+                                                                    <b>Target Daily
+                                                                        Spend</b>: {% ds_tt b.current_spend b.desired_spend %}
                                                                 </div>
                                                                 <div class="col-md-2">
 
@@ -170,7 +206,7 @@
                                                                     <b>Current Daily Spend</b>:
                                                                     {{ b.current_spend|daily_spend|floatformat:2 }}
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-2">
                                                                     <b>Projected Spend EOM</b>:
                                                                     {{ b.current_spend|projected|floatformat:2 }}
                                                                 </div>
@@ -191,7 +227,7 @@
                                                             <div style="margin-top: 10px;">
                                                             </div>
                                                             <div class="m-separator"></div>
-                                                            {% empty %}
+                                                        {% empty %}
 
                                                             <h6>
                                                                 <p>
@@ -220,5 +256,148 @@
         <!--End::Main Portlet-->
     </div>
 
+    <!--START:Modal budget edit-->
+    <div class="modal fade" id="m_edit_budget" tabindex="-1" role="dialog" aria-labelledby="edit_budget">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="new_budget">
+                        <div class="form-group">
+                            <label for="budget" class="form-control-label">New Budget:</label>
+                            <input class="form-control text-center" name="budget" id="budget" type="number">
+                            <input type="hidden" id="aid">
+                            <input type="hidden" id="channel">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="editBudget()">Update</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal budget edit-->
 
+    <!--START:Modal budget edit-->
+    <div class="modal fade" id="m_target_spend" tabindex="-1" role="dialog" aria-labelledby="edit_budget">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="new_target_spend">
+                        <div class="form-group">
+                            <label for="target_spend" class="form-control-label">New Target Spend:</label>
+                            <input class="form-control text-center" name="target_spend" id="target_spend" type="number">
+                            <input type="hidden" id="cid">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="editTargetSpend()">Update</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal budget edit-->
+
+
+    <script type="text/javascript">
+        function editBudget() {
+
+            var modal = $('#m_edit_budget');
+            var data = $('#new_budget').serializeArray();
+            var aid = $('#aid').val();
+            var channel = $('#channel').val();
+
+            data.push(
+                {name: 'aid', value: aid},
+                {name: 'channel', value: channel});
+
+            $.ajax({
+                type: "POST",
+                url: "",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $.param(data),
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3500);
+                },
+                success: function (data) {
+                    modal.modal('hide');
+                    swal({
+                        "title": "",
+                        "text": "Budget updated for " + data['aname'] + ".",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+
+                },
+                error: function (ajaxContext) {
+                    swal({
+                        "title": "ERROR",
+                        "text": ajaxContext.statusText,
+                        "type": "error",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                }
+            }).done(function (data) {
+                if (data['error'] === 'OK') {
+                    console.log('Added!');
+                }
+            });
+        }
+
+        function editTargetSpend() {
+
+            var modal = $('#m_target_spend');
+            var data = $('#new_target_spend').serializeArray();
+            var cid = $('#cid').val();
+
+            data.push(
+                {name: 'cid', value: cid},
+                {name: 'channel', value: channel});
+
+            $.ajax({
+                type: "POST",
+                url: "",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $.param(data),
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3500);
+                },
+                success: function (data) {
+                    modal.modal('hide');
+                    swal({
+                        "title": "",
+                        "text": "Global Target Spend updated for " + data['client'] + ".",
+                        "type": "success",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+
+                },
+                error: function (ajaxContext) {
+                    swal({
+                        "title": "ERROR",
+                        "text": ajaxContext.statusText,
+                        "type": "error",
+                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
+                    });
+                }
+            }).done(function (data) {
+                if (data['error'] === 'OK') {
+                    console.log('Added!');
+                }
+            });
+        }
+    </script>
 {% endblock %}

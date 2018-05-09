@@ -50,17 +50,24 @@ var WizardDemo = function () {
                     required: true,
                     minlength: 3
                 },
-                aw_budget: {
-                    required: true,
+                target_spend: {
+                    // required: true,
                     digits: true,
-                    min: 1,
+                    // min: 1,
+                    max: 10000000
+
+                },
+                aw_budget: {
+                    // required: true,
+                    digits: true,
+                    // min: 1,
                     max: 10000000
 
                 },
                 bing_budget: {
-                    required: true,
+                    // required: true,
                     digits: true,
-                    min: 1,
+                    // min: 1,
                     max: 10000000
 
                 }
@@ -76,6 +83,9 @@ var WizardDemo = function () {
                     required: 'A budget for the new client is required.',
                     digits: 'Only digits are allowed in this field.',
                     max: 'You\'re not allowed to enter numbers bigger than 10000000.'
+                },
+                suggested_budget: {
+                    digits: 'Only digits are allowed in this field.'
                 }
             },
 

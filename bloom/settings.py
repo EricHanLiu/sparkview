@@ -26,7 +26,7 @@ SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 DEBUG = False
 
 SITE_ID=1
-ALLOWED_HOSTS = ['bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226', 'localhost']
+ALLOWED_HOSTS = ['app.mibhub.com', 'bloom.hyperdigitalserver.com', '127.0.0.1', '35.199.174.226', 'localhost']
 ADMINS = [('Octavian','octavian@hdigital.io')]
 # Application definition
 
@@ -147,8 +147,8 @@ CRONJOBS = [
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('5 8 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
-    ('10 8 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
-    ('30 8 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
+    ('10 9 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+    ('30 9 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('0 10 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('30 10 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
     ('0 11 * * *', 'cron_404.main', '> ' + BASE_DIR + '/logs/404.log'),
@@ -163,7 +163,7 @@ CRONJOBS = [
 if DEBUG:
     REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
 else:
-    REDIRECT_URI = "https://bloom.hyperdigitalserver.com/dashboards/bing/auth/exchange"
+    REDIRECT_URI = "https://app.mibhub.com/dashboards/bing/auth/exchange"
 
 CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
 CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"

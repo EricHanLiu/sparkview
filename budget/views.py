@@ -124,6 +124,8 @@ def add_client(request):
 
         name = request.POST.get('client_name')
         budget = 0
+        # suggested budget / global budget
+        target_spend = request.POST.get('target_spend')
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
 
@@ -136,9 +138,10 @@ def add_client(request):
                 #     aw_acc.desired_spend = int(budget)/2/noofaccounts
                 # else:
                 #     aw_acc.desired_spend = int(budget)/noofaccounts
-                aw_acc.desired_spend = int(spend)
-                budget += int(spend)
-                aw_acc.save()
+                if spend:
+                    aw_acc.desired_spend = int(spend)
+                    budget += int(spend)
+                    aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
@@ -150,12 +153,13 @@ def add_client(request):
                 #     bing_acc.desired_spend = int(budget)/2/noofaccounts
                 # else:
                 #     bing_acc.desired_spend = int(budget)/noofaccounts
-                bing_acc.desired_spend = int(spend)
-                budget += int(spend)
-                bing_acc.save()
+                if spend:
+                    bing_acc.desired_spend = int(spend)
+                    budget += int(spend)
+                    bing_acc.save()
                 bng.append(bing_acc)
 
-        new_client = Client.objects.create(client_name=name, budget=budget)
+        new_client = Client.objects.create(client_name=name, budget=budget, target_spend=target_spend)
 
         if aw:
             for acc in aw:
@@ -201,6 +205,46 @@ def client_details(request, client_id):
             return render(request, 'budget/view_client.html', context)
         except ValueError:
             raise Http404
+
+    elif request.method == 'POST':
+        # param: account_id
+        aid = request.POST.get('aid')
+        # param: client_id
+        cid = request.POST.get('cid')
+        budget = request.POST.get('budget')
+        target_spend = request.POST.get('target_spend')
+        channel = request.POST.get('channel')
+
+
+        if channel == 'adwords':
+            account = DependentAccount.objects.get(dependent_account_id=aid)
+            account.desired_spend = budget
+            account.save()
+            context = {
+                'aid': account.dependent_account_id,
+                'aname': account.dependent_account_name,
+                'budget': account.desired_spend
+            }
+
+        elif channel == 'bing':
+            account = BingAccounts.objects.get(account_id=aid)
+            account.desired_spend = budget
+            account.save()
+            context = {
+                'aid': account.account_id,
+                'aname': account.account_name,
+                'budget': account.desired_spend
+            }
+
+        else:
+            client = Client.objects.get(id=cid)
+            client.target_spend = target_spend
+            client.save()
+            context = {
+                'client': client.client_name,
+                'target_spend': client.target_spend
+            }
+        return JsonResponse(context)
 
 
 @login_required
