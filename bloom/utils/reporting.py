@@ -42,8 +42,8 @@ class Reporting:
         for k, v in zipped.items():
 
             if len(v) == 2 and k in valid_keys:
-                v1 = v[0]
-                v2 = v[1]
+                v1 = float(v[0])
+                v2 = float(v[1])
                 if isinstance(v[0], str) and isinstance(v[1], str):
                     v1 = re.sub("(?!\.)\D", "", v[0])
                     v2 = re.sub("(?!\.)\D", "", v[1])
@@ -51,7 +51,7 @@ class Reporting:
                     v2 = v2 if any(v2) else "0"
 
                 try:
-                    difference[k] = ((float(v1) / float(v2)) * 100) - 100
+                    difference[k] = ((v1 - v2) / v1) * 100
                 except ZeroDivisionError:
                     difference[k] = float(v1)
 
