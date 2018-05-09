@@ -1,6 +1,7 @@
 import csv
 import io
 import codecs
+import re
 from datetime import datetime
 from bloom import settings
 from operator import itemgetter
@@ -9,9 +10,74 @@ from bingads.v11.reporting import ReportingDownloadParameters
 
 class Reporting:
 
-    def get_daterange(self, days=14):
+
+    def compare_dict(self, dict1, dict2):
+        """Compares two dictionaries and returns one unified dict
+        @return: {k: (diff, dict1, dict2)}
+        """
+        format_key = lambda key: key.replace("/", "per").replace(".", "")
+
+        d1_keys = set(dict1.keys())
+        d2_keys = set(dict2.keys())
+
+        intersect_keys = d1_keys.intersection(d2_keys)
+
+        valid_keys = [
+            "ctr",
+            "conversions",
+            "clicks",
+            "impressions",
+            "cost",
+            "cost_/_conv.",
+            "avg._cpc",
+            "search_impr._share",
+        ]
+
+        if not len(intersect_keys) == len(d1_keys):
+            raise Exception("Dictionaries are not the same")
+
+        zipped = {k: (dict1[k], dict2[k]) for k in intersect_keys}
+        difference = {}
+
+        for k, v in zipped.items():
+
+            if len(v) == 2 and k in valid_keys:
+                v1 = v[0]
+                v2 = v[1]
+                if isinstance(v[0], str) and isinstance(v[1], str):
+                    v1 = re.sub("(?!\.)\D", "", v[0])
+                    v2 = re.sub("(?!\.)\D", "", v[1])
+                    v1 = v1 if any(v1) else "0"
+                    v2 = v2 if any(v2) else "0"
+
+                try:
+                    difference[k] = ((float(v1) / float(v2)) * 100) - 100
+                except ZeroDivisionError:
+                    difference[k] = float(v1)
+
+                continue
+
+
+            difference[k] = dict1[k]
+
+        summary = {k: (difference[k], dict1[k], dict2[k]) for k in intersect_keys}
+
+        return summary
+
+
+    def subtract_days(self, date, days=1):
+        if not isinstance(date, datetime):
+            raise Exception("Invalid datetime")
+
+        new_date = date + relativedelta(days=-days)
+
+        return new_date
+
+    def get_daterange(self, days=14, maxDate=None):
         today = datetime.today()
-        maxDate = today + relativedelta(days=-1)
+        if maxDate is None:
+            maxDate = today + relativedelta(days=-1)
+
         minDate = maxDate + relativedelta(days=-days)
         dateRange = dict(
             maxDate=maxDate,
@@ -234,6 +300,86 @@ class AdwordsReporting(Reporting):
 
         return query
 
+    def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
+
+        fields = [
+            "ExternalCustomerId",
+            "CustomerDescriptiveName",
+            "Conversions",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "CostPerConversion",
+            "AverageCpc",
+            "SearchImpressionShare",
+        ]
+
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
+
+        query = {
+            "reportName": "ACCOUNT_PERFORMANCE",
+            "dateRangeType": dateRangeType,
+            "reportType": "ACCOUNT_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {"fields": fields},
+        }
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        return query
+
+
+
+    def get_campaign_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
+
+        fields = [
+            "CampaignId",
+            "CampaignName",
+            "Labels",
+            "Conversions",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "CostPerConversion",
+            "AverageCpc",
+            "SearchImpressionShare",
+        ]
+
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
+
+        query = {
+            "reportName": "CAMPAIGN_PERFORMANCE",
+            "dateRangeType": dateRangeType,
+            "reportType": "CAMPAIGN_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {
+                "fields": fields,
+                "predicates": [{
+                    "field": "CampaignStatus",
+                    "operator": "IN",
+                    "values": ["ENABLED"],
+                }]
+            },
+        }
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        return query
+
 
     def stringify_date(self, date, date_format=None):
         if date_format is None:
@@ -270,6 +416,21 @@ class AdwordsReportingService(AdwordsReporting):
 
         report_downloader = client.GetReportDownloader(version=self.api_version)
         query = self.get_account_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
+
+
+    def get_campaign_performance(self, customer_id=None, **kwargs):
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_campaign_performance_query(**kwargs)
 
         downloaded_report = report_downloader.DownloadReportAsString(
             query, **self.report_headers
