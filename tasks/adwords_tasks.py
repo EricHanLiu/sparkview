@@ -47,7 +47,7 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
     return diff_list
 
 @celery_app.task(bind=True)
-def cron_anomalies(self, customer_id):
+def adwords_cron_anomalies(self, customer_id):
 
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)

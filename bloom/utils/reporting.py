@@ -31,6 +31,14 @@ class Reporting:
             "cost_/_conv.",
             "avg._cpc",
             "search_impr._share",
+            'Impressions',
+            'Clicks',
+            'Ctr',
+            'AverageCpc',
+            'Conversions',
+            'CostPerConversion',
+            'ImpressionSharePercent',
+            'Spend',
         ]
 
         if not len(intersect_keys) == len(d1_keys):
@@ -168,6 +176,32 @@ class BingReporting(Reporting):
 
         return report
 
+    def sum_report(self, report):
+        valid_metrics = [
+            'Impressions',
+            'Clicks',
+            'Ctr',
+            'AverageCpc',
+            'Conversions',
+            'CostPerConversion',
+            'ImpressionSharePercent',
+            'Spend',
+        ]
+        sums = {}
+        for k, v in report.items():
+            if k in valid_metrics:
+                sums[k] = sums.get(k, 0.0 + float(v))
+                continue
+
+            sums[k] = v
+
+        return sums
+
+
+
+
+
+
 
 class BingReportingService(BingReporting):
 
@@ -209,6 +243,14 @@ class BingReportingService(BingReporting):
 
         return columns
 
+    def get_campaign_performance_columns(self, fields=["TimePeriod"]):
+        columns = self.reporting_service.factory.create(
+            'CampaignPerformanceReportColumn'
+        )
+        columns.AccountPerformanceReportColumn.append(fields)
+
+        return columns
+
     def get_account_performance_query(
             self,
             account_id,
@@ -217,23 +259,59 @@ class BingReportingService(BingReporting):
             **kwargs
         ):
 
-        request = self.reporting_service.factory.create("AccountPerformanceReportRequest")
         fields = ["TimePeriod", "Spend"]
+        extra_fields = kwargs.get("extra_fields", None)
+        report_name = kwargs.get("report_name", str(account_id) + "_spend")
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
 
         if dateRangeType == "CUSTOM_DATE":
             time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
 
+        request = self.reporting_service.factory.create("AccountPerformanceReportRequest")
         columns = self.get_account_performance_columns(fields=fields)
         scope = self.get_scope("AccountReportScope")
+
+        request.Aggregation = aggregation
         scope.AccountIds={'long': [account_id] }
+        request.ReportName = report_name
 
         request = self.generate_request(
             request, columns=columns, time=time, scope=scope
         )
 
-        request.Aggregation = aggregation
+        return request
+
+    def get_campaign_performance_query(
+            self,
+            account_id,
+            dateRangeType="CUSTOM_DATE",
+            aggregation="Daily",
+            **kwargs
+        ):
+
+        fields = ["TimePeriod", "Spend"]
         report_name = kwargs.get("report_name", str(account_id) + "_spend")
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if dateRangeType == "CUSTOM_DATE":
+            time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
+
+        request = self.reporting_service.factory.create("CampaignPerformanceReportRequest")
+        columns = self.get_campaign_performance_columns(fields=fields)
+        scope = self.get_scope("AccountThroughCampaignReportScope")
+
+        scope.AccountIds={'long': [account_id] }
+        request.Aggregation = aggregation
         request.ReportName = report_name
+
+        request = self.generate_request(
+            request, columns=columns, time=time, scope=scope
+        )
 
         return request
 
@@ -264,41 +342,6 @@ class AdwordsReporting(Reporting):
             min=minDate.strftime(self.date_format),
             max=maxDate.strftime(self.date_format)
         )
-
-    def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
-
-        fields = [
-            "ExternalCustomerId",
-            "CustomerDescriptiveName",
-            "Conversions",
-            "Impressions",
-            "Clicks",
-            "Cost",
-            "Ctr",
-            "CostPerConversion",
-            "AverageCpc",
-            "SearchImpressionShare",
-        ]
-
-        extra_fields = kwargs.get("extra_fields", None)
-
-        if extra_fields is not None:
-            fields.extend(extra_fields)
-
-        query = {
-            "reportName": "ACCOUNT_PERFORMANCE",
-            "dateRangeType": dateRangeType,
-            "reportType": "ACCOUNT_PERFORMANCE_REPORT",
-            "downloadFormat": "CSV",
-            "selector": {"fields": fields},
-        }
-
-        if dateRangeType == "CUSTOM_DATE":
-            query["selector"]["dateRange"] = self.get_custom_daterange(
-                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
-            )
-
-        return query
 
     def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
 
