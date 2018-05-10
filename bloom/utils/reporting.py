@@ -156,7 +156,7 @@ class BingReporting(Reporting):
         request.Language = "English"
         request.ExcludeReportHeader = True
         request.ExcludeReportFooter = True
-        request.ReturnOnlyCompleteData=False
+        request.ReturnOnlyCompleteData = False
 
         return request
 
@@ -189,21 +189,32 @@ class BingReporting(Reporting):
             'spend',
         ]
         summed = {}
+        #this is so we can preserve the campaign name and id
         sample = copy.deepcopy(report[0])
         days = len(report)
 
         for metric in valid_metrics:
+
             func = lambda x: float(str(x[metric]).replace('%', '') if x[metric] else '0')
             mapped = map(func, report)
             sample[metric] = sum(list(mapped))
+
             if metric == 'impressionsharepercent' or metric == 'ctr':
+
                 sample[metric] = sample[metric] / days
 
+        if sample['clicks']:
+            sample['ctr'] = sample['clicks'] / sample['impressions']
+        else:
+            sample['ctr'] = 0
+
+
+        if sample['conversions']:
+            sample['costperconversion'] = sample['spend'] / sample['conversions']
+        else:
+            sample['costperconversion'] = 0
+
         return sample
-
-
-
-
 
     def map_campaign_stats(self, report):
         campaigns = {}
@@ -285,6 +296,9 @@ class BingReportingService(BingReporting):
         if extra_fields is not None:
             fields.extend(extra_fields)
 
+        fields = list(set(fields))
+
+
         if dateRangeType == "CUSTOM_DATE":
             time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
 
@@ -309,6 +323,19 @@ class BingReportingService(BingReporting):
             aggregation="Daily",
             **kwargs
         ):
+
+        fields = [
+            'Impressions',
+            'Clicks',
+            'Ctr',
+            'AverageCpc',
+            'Conversions',
+            'CostPerConversion',
+            'ImpressionSharePercent',
+            'Spend',
+            'CampaignId',
+            'CampaignName'
+        ]
 
         fields = ["TimePeriod", "Spend"]
         report_name = kwargs.get("report_name", str(account_id) + "_spend")

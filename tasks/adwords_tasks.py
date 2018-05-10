@@ -5,6 +5,9 @@ from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
 
 
+def get_client():
+    return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+
 def account_anomalies(account_id, helper, daterange1, daterange2):
 
     current_period_performance = helper.get_account_performance(
@@ -122,3 +125,50 @@ def adwords_cron_anomalies(self, customer_id):
             cpc=helper.mcv(cmp["avg._cpc"][0]),
             metadata=metadata_cmp
         )
+
+
+
+@celery_app.task(bind=True)
+def adwords_cron_ovu(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+
+    helper = AdwordsReportingService(get_client())
+    this_month = helper.get_this_month_daterange()
+
+    last_7 = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="LAST_7_DAYS",
+        extra_fields=["Date"]
+    )
+
+    data_this_month = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        **this_month
+    )
+
+    last_7_ordered = helper.sort_by_date(last_7)
+    last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
+
+    try:
+        day_spend = last_7_days_cost / 7
+
+    except ZeroDivisionError:
+
+        day_spend = 0
+
+    try:
+        yesterday = last_7_ordered[-1]
+        yesterday_spend = helper.mcv(yesterday['cost'])
+        current_spend = helper.mcv(data_this_month[0]['cost'])
+    except IndexError:
+        yesterday_spend = 0
+        current_spend = 0
+        estimated_spend = 0
+
+    estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
+    account.estimated_spend = estimated_spend
+    account.yesterday_spend = yesterday_spend
+    account.current_spend = current_spend
+    account.save()
