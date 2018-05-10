@@ -2,6 +2,7 @@ import csv
 import io
 import codecs
 import re
+import copy
 from datetime import datetime
 from bloom import settings
 from operator import itemgetter
@@ -178,29 +179,41 @@ class BingReporting(Reporting):
 
     def sum_report(self, report):
         valid_metrics = [
-            'Impressions',
-            'Clicks',
-            'Ctr',
-            'AverageCpc',
-            'Conversions',
-            'CostPerConversion',
-            'ImpressionSharePercent',
-            'Spend',
+            'impressions',
+            'clicks',
+            'ctr',
+            'averagecpc',
+            'conversions',
+            'costperconversion',
+            'impressionsharepercent',
+            'spend',
         ]
-        sums = {}
-        for k, v in report.items():
-            if k in valid_metrics:
-                sums[k] = sums.get(k, 0.0 + float(v))
-                continue
+        summed = {}
+        sample = copy.deepcopy(report[0])
+        days = len(report)
 
-            sums[k] = v
+        for metric in valid_metrics:
+            func = lambda x: float(str(x[metric]).replace('%', '') if x[metric] else '0')
+            mapped = map(func, report)
+            sample[metric] = sum(list(mapped))
+            if metric == 'impressionsharepercent' or metric == 'ctr':
+                sample[metric] = sample[metric] / days
 
-        return sums
+        return sample
 
 
 
 
 
+    def map_campaign_stats(self, report):
+        campaigns = {}
+        for item in report:
+            if not item['campaignid'] in campaigns:
+                campaigns[item['campaignid']] = []
+
+            campaigns[item['campaignid']].append(item)
+
+        return campaigns
 
 
 class BingReportingService(BingReporting):
@@ -236,18 +249,24 @@ class BingReportingService(BingReporting):
         return scope
 
     def get_account_performance_columns(self, fields=["TimePeriod"]):
+
         columns = self.reporting_service.factory.create(
             'ArrayOfAccountPerformanceReportColumn'
         )
+
         columns.AccountPerformanceReportColumn.append(fields)
+
 
         return columns
 
     def get_campaign_performance_columns(self, fields=["TimePeriod"]):
+
         columns = self.reporting_service.factory.create(
-            'CampaignPerformanceReportColumn'
+            'ArrayOfCampaignPerformanceReportColumn'
         )
-        columns.AccountPerformanceReportColumn.append(fields)
+
+        columns.CampaignPerformanceReportColumn.append(fields)
+        columns
 
         return columns
 
@@ -300,6 +319,8 @@ class BingReportingService(BingReporting):
 
         if extra_fields is not None:
             fields.extend(extra_fields)
+
+        fields = list(set(fields))
 
         request = self.reporting_service.factory.create("CampaignPerformanceReportRequest")
         columns = self.get_campaign_performance_columns(fields=fields)

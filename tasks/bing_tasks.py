@@ -40,7 +40,7 @@ def bing_cron_anomalies_accounts(self, customer_id):
         customer_id,
         dateRangeType="CUSTOM_DATE",
         aggregation="Daily",
-        report_name="{}_anomalies_curr.csv".format(customer_id)
+        report_name="{}_anomalies_curr.csv".format(customer_id),
         **current_period_daterange
     )
 
@@ -48,7 +48,7 @@ def bing_cron_anomalies_accounts(self, customer_id):
         customer_id,
         dateRangeType="CUSTOM_DATE",
         aggregation="Daily",
-        report_name="{}_anomalies_prev.csv".format(customer_id)
+        report_name="{}_anomalies_prev.csv".format(customer_id),
         **previous_period_daterange
     )
 
@@ -76,11 +76,25 @@ def bing_cron_anomalies_campaigns(self, customer_id):
         days=7, maxDate=maxDate
     )
 
+    fields = [
+        'Impressions',
+        'Clicks',
+        'Ctr',
+        'AverageCpc',
+        'Conversions',
+        'CostPerConversion',
+        'ImpressionSharePercent',
+        'Spend',
+        'CampaignId',
+        'CampaignName'
+    ]
+
     query = helper.get_campaign_performance_query(
         customer_id,
         dateRangeType="CUSTOM_DATE",
         aggregation="Daily",
-        report_name="{}_anomalies_curr.csv".format(customer_id)
+        report_name="{}_anomalies_curr.csv".format(customer_id),
+        extra_fields=fields,
         **current_period_daterange
     )
 
@@ -88,17 +102,36 @@ def bing_cron_anomalies_campaigns(self, customer_id):
         customer_id,
         dateRangeType="CUSTOM_DATE",
         aggregation="Daily",
-        report_name="{}_anomalies_prev.csv".format(customer_id)
+        report_name="{}_anomalies_prev.csv".format(customer_id),
+        extra_fields=fields,
         **previous_period_daterange
     )
 
     helper.download_report(customer_id, query)
     helper.download_report(customer_id, query2)
 
-    report = helper.get_report(query.ReportName)
-    report2 = helper.get_report(query.ReportName)
-    summed  = helper.sum_report(report)
-    summed2  = helper.sum_report(report2)
 
-    diffs = helper.compare_dict(summed, summed2)
-    print(diffs)
+    try:
+        report = helper.get_report(query.ReportName)
+
+    except FileNotFoundError:
+        report = {field.lower(): 0 for field in fields}
+
+    cmp_stats = helper.map_campaign_stats(report)
+    # cmp_stats2 = helper.map_campaign_stats(report2)
+    campaign_ids = helper.
+    for cmp_id, stats in cmp_stats.items():
+        summed = helper.sum_report(stats)
+        print(summed)
+
+    # try:
+    #     report2 = {field.lower(): 0 for field in fields}
+    #
+    # except FileNotFoundError:
+    #     report2 = helper.get_report(query.ReportName)
+    #
+    # summed = helper.sum_report(report)
+    # summed2  = helper.sum_report(report2)
+    #
+    # diffs = helper.compare_dict(summed, summed2)
+    # print(diffs)
