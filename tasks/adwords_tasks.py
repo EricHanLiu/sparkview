@@ -36,7 +36,6 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
     )
 
 
-    print(len(current_period_performance))
     diff_list = []
 
     for i, item in enumerate(current_period_performance):
@@ -82,6 +81,8 @@ def adwords_cron_anomalies(self, customer_id):
     acc_metadata["daterange1_max"] = helper.stringify_date(current_period_daterange["maxDate"])
     acc_metadata["daterange2_min"] = helper.stringify_date(previous_period_daterange["minDate"])
     acc_metadata["daterange2_max"] = helper.stringify_date(previous_period_daterange["maxDate"])
+    acc_metadata["vals"] = acc_anoamlies
+
 
 
     Performance.objects.filter(account=account, performance_type='ACCOUNT').delete()
@@ -110,6 +111,7 @@ def adwords_cron_anomalies(self, customer_id):
 
         metadata_cmp["daterange2_min"] = helper.stringify_date(previous_period_daterange["minDate"])
         metadata_cmp["daterange2_max"] = helper.stringify_date(previous_period_daterange["maxDate"])
+        metadata_cmp["vals"] = cmp
         Performance.objects.create(
             account=account,
             performance_type='CAMPAIGN',

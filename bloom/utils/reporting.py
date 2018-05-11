@@ -12,6 +12,12 @@ from bingads.v11.reporting import ReportingDownloadParameters
 class Reporting:
 
 
+    def stringify_date(self, date, date_format='%Y%m%d'):
+        if not isinstance(date, datetime):
+            return date
+
+        return date.strftime(date_format)
+
     def compare_dict(self, dict1, dict2):
         """Compares two dictionaries and returns one unified dict
         @return: {k: (diff, dict1, dict2)}
@@ -32,18 +38,14 @@ class Reporting:
             "cost_/_conv.",
             "avg._cpc",
             "search_impr._share",
-            'Impressions',
-            'Clicks',
-            'Ctr',
-            'AverageCpc',
-            'Conversions',
-            'CostPerConversion',
-            'ImpressionSharePercent',
-            'Spend',
+            'averagecpc',
+            'costperconversion',
+            'impressionsharepercent',
+            'spend',
         ]
 
         if not len(intersect_keys) == len(d1_keys):
-            raise Exception("Dictionaries are not the same")
+            print("dictionaries are not the same: {}".format(d1_keys - d2_keys))
 
         zipped = {k: (dict1[k], dict2[k]) for k in intersect_keys}
         difference = {}
@@ -51,25 +53,32 @@ class Reporting:
         for k, v in zipped.items():
 
             if len(v) == 2 and k in valid_keys:
-                v1 = float(v[0])
-                v2 = float(v[1])
+                v1_b = v[0]
+                v2_b = v[1]
                 if isinstance(v[0], str) and isinstance(v[1], str):
-                    v1 = re.sub("(?!\.)\D", "", v[0])
-                    v2 = re.sub("(?!\.)\D", "", v[1])
+                    pattern = "\%|\<|\-|\ "
+                    v1 = re.sub(pattern, '', v[0])
+                    v2 = re.sub(pattern, '', v[1])
                     v1 = v1 if any(v1) else "0"
                     v2 = v2 if any(v2) else "0"
+                else:
+                    v1 = v[0]
+                    v2 = v[1]
+
+                v1 = float(v1) if v1 != '' else 0.0
+                v2 = float(v2) if v1 != '' else 0.0
 
                 try:
                     difference[k] = ((v1 - v2) / v1) * 100
                 except ZeroDivisionError:
-                    difference[k] = float(v1)
+                    difference[k] = v1
 
                 continue
 
 
             difference[k] = dict1[k]
 
-        summary = {k: (difference[k], dict1[k], dict2[k]) for k in intersect_keys}
+        summary = {k: [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
 
         return summary
 
@@ -177,7 +186,7 @@ class BingReporting(Reporting):
 
         return report
 
-    def sum_report(self, report):
+    def sum_report(self, report, only=[]):
         valid_metrics = [
             'impressions',
             'clicks',
@@ -188,9 +197,15 @@ class BingReporting(Reporting):
             'impressionsharepercent',
             'spend',
         ]
+        if only:
+            valid_metrics = only
         summed = {}
         #this is so we can preserve the campaign name and id
-        sample = copy.deepcopy(report[0])
+        if isinstance(report, list):
+            sample = copy.deepcopy(report[0])
+        else:
+            sample = copy.deepcopy(report)
+
         days = len(report)
 
         for metric in valid_metrics:
@@ -201,24 +216,36 @@ class BingReporting(Reporting):
 
             if metric == 'impressionsharepercent' or metric == 'ctr':
 
-                sample[metric] = sample[metric] / days
-
-        if sample['clicks']:
-            sample['ctr'] = sample['clicks'] / sample['impressions']
-        else:
-            sample['ctr'] = 0
+                try:
+                    sample[metric] = sample[metric] / days
+                except ZeroDivisionError:
+                    pass
 
 
-        if sample['conversions']:
-            sample['costperconversion'] = sample['spend'] / sample['conversions']
-        else:
-            sample['costperconversion'] = 0
+        required = set(["clicks", "impressions", "ctr"])
+
+        if required.issubset(set(valid_metrics)):
+            try:
+                sample['ctr'] = sample['clicks'] / sample['impressions']
+            except ZeroDivisionError:
+                sample['ctr'] = 0
+
+
+        required = set(["conversions", "spend"])
+
+        if required.issubset(set(valid_metrics)):
+            try:
+                sample['costperconversion'] = sample['spend'] / sample['conversions']
+            except ZeroDivisionError:
+                sample['costperconversion'] = 0
 
         return sample
 
     def map_campaign_stats(self, report):
         campaigns = {}
         for item in report:
+            if not 'campaignid' in item:
+                continue
             if not item['campaignid'] in campaigns:
                 campaigns[item['campaignid']] = []
 
@@ -472,11 +499,6 @@ class AdwordsReporting(Reporting):
         return query
 
 
-    def stringify_date(self, date, date_format=None):
-        if date_format is None:
-            date_format = self.date_format
-
-        return date.strftime(date_format)
 
 
     def mcv(self, cost):

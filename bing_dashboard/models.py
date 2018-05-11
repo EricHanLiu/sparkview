@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 
 # Create your models here.
 class BingAccounts(models.Model):
@@ -50,12 +51,13 @@ class BingAnomalies(models.Model):
     search_impr_share = models.CharField(max_length=255, default=0)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+    metadata = JSONField(default=dict)
 
     class Meta:
         ordering = ['created_time','updated_time']
 
     def __str__(self):
-        return self.account
+        return self.account.account_name
 
 class BingAlerts(models.Model):
 

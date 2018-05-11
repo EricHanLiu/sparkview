@@ -4,6 +4,7 @@ from bloom.utils import BingReportingService
 from bingads import ServiceClient
 from bing_dashboard import auth
 from bingads.v11.reporting import ReportingServiceManager
+from bing_dashboard.models import BingAccounts, BingAnomalies
 
 
 def get_services():
@@ -36,11 +37,23 @@ def bing_cron_anomalies_accounts(self, customer_id):
         days=7, maxDate=maxDate
     )
 
+    fields = [
+        'Impressions',
+        'Clicks',
+        'Ctr',
+        'AverageCpc',
+        'Conversions',
+        'CostPerConversion',
+        'ImpressionSharePercent',
+        'Spend'
+    ]
+
     query = helper.get_account_performance_query(
         customer_id,
         dateRangeType="CUSTOM_DATE",
         aggregation="Daily",
         report_name="{}_anomalies_curr.csv".format(customer_id),
+        extra_fields=fields,
         **current_period_daterange
     )
 
@@ -49,6 +62,7 @@ def bing_cron_anomalies_accounts(self, customer_id):
         dateRangeType="CUSTOM_DATE",
         aggregation="Daily",
         report_name="{}_anomalies_prev.csv".format(customer_id),
+        extra_fields=fields,
         **previous_period_daterange
     )
 
@@ -61,15 +75,39 @@ def bing_cron_anomalies_accounts(self, customer_id):
         report = {}
 
     try:
-        report2 = helper.get_report(query.ReportName)
+        report2 = helper.get_report(query2.ReportName)
     except FileNotFoundError:
         report2 = {}
 
     summed  = helper.sum_report(report)
     summed2  = helper.sum_report(report2)
 
-    diffs = helper.compare_dict(summed, summed2)
-    print(diffs)
+    diff = helper.compare_dict(summed, summed2)
+
+    account = BingAccounts.objects.get(account_id=customer_id)
+
+    metadata = {
+        "min_daterange1": helper.stringify_date(current_period_daterange["minDate"]),
+        "max_daterange1": helper.stringify_date(current_period_daterange["maxDate"]),
+        "min_daterange2": helper.stringify_date(previous_period_daterange["minDate"]),
+        "max_daterange2": helper.stringify_date(previous_period_daterange["maxDate"]),
+        "vals": diff
+    }
+
+    BingAnomalies.objects.filter(performance_type="ACCOUNT").delete()
+    BingAnomalies.objects.create(
+        account=account,
+        performance_type="ACCOUNT",
+        cpc=diff["averagecpc"][0],
+        clicks=diff["clicks"][0],
+        conversions=diff["conversions"][0],
+        cost=diff["spend"][0],
+        cost_per_conversions=diff["costperconversion"][0],
+        ctr=diff["ctr"][0],
+        impressions=diff["impressions"][0],
+        search_impr_share=diff["impressionsharepercent"][0],
+        metadata=metadata
+    )
     #PRINT SUMM DATA
 
 
@@ -127,7 +165,7 @@ def bing_cron_anomalies_campaigns(self, customer_id):
         report = {}
 
     try:
-        report2 = helper.get_report(query.ReportName)
+        report2 = helper.get_report(query2.ReportName)
 
     except FileNotFoundError:
         report2 = {}
@@ -140,17 +178,39 @@ def bing_cron_anomalies_campaigns(self, customer_id):
     campaign_ids2 = list(cmp_stats2.keys())
 
     diffs = []
+    account = BingAccounts.objects.get(account_id=customer_id)
 
+
+    BingAnomalies.objects.filter(performance_type="CAMPAIGN").delete()
     for cmp_id in campaign_ids:
         if not cmp_id in cmp_stats2:
             continue
         summed = helper.sum_report(cmp_stats[cmp_id])
         summed2 = helper.sum_report(cmp_stats2[cmp_id])
         diff = helper.compare_dict(summed, summed2)
-        diffs.append(diff)
+        metadata = {
+            "min_daterange1": helper.stringify_date(current_period_daterange["minDate"]),
+            "max_daterange1": helper.stringify_date(current_period_daterange["maxDate"]),
+            "min_daterange2": helper.stringify_date(previous_period_daterange["minDate"]),
+            "max_daterange2": helper.stringify_date(previous_period_daterange["maxDate"]),
+            "vals": diff
+        }
 
-    # SAVE THE DATA
-    print(diffs)
+        BingAnomalies.objects.create(
+            account=account,
+            performance_type="CAMPAIGN",
+            campaign_id=cmp_id,
+            campaign_name=summed["campaignname"],
+            cpc=diff["averagecpc"][0],
+            clicks=diff["clicks"][0],
+            conversions=diff["conversions"][0],
+            cost=diff["spend"][0],
+            cost_per_conversions=diff["costperconversion"][0],
+            ctr=diff["ctr"][0],
+            impressions=diff["impressions"][0],
+            search_impr_share=diff["impressionsharepercent"][0],
+            metadata=metadata
+        )
 
 
 
@@ -159,7 +219,7 @@ def bing_cron_ovu(self, customer_id):
 
     account = BingAccounts.objects.get(account_id=customer_id)
     services = get_services()
-    helper = BingReportingService(**services)
+    helper = BingReportingService(*services)
 
     this_month = helper.get_this_month_daterange()
     last_7 = helper.get_daterange(days=7)
@@ -182,7 +242,7 @@ def bing_cron_ovu(self, customer_id):
 
     try:
         report_this_month = helper.get_report(query_this_month.ReportName)
-        current_spend = sum([float(item[0]['spend']) for item in report_this_month])
+        current_spend = sum([float(item['spend']) for item in report_this_month])
 
     except FileNotFoundError:
         current_spend = 0
