@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from bing_dashboard.models import BingAccounts
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.contrib.postgres.fields import JSONField
 # Create your models here.
 
 
@@ -76,6 +77,7 @@ class Performance(models.Model):
     search_impr_share = models.CharField(max_length=255)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+    metadata = JSONField(default=dict)
 
     class Meta:
         ordering = ['created_time', 'updated_time']
