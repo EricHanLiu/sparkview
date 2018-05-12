@@ -6,7 +6,6 @@ django.setup()
 from adwords_dashboard.models import DependentAccount
 from tasks.adwords_tasks import adwords_cron_ovu
 
-logging.basicConfig(level=logging.INFO)
 
 def main():
 
