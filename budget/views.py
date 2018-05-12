@@ -277,7 +277,7 @@ def sixm_budget(request, client_id):
 
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
-        
+
         context = {
             'client_data': client,
             'months': gen_6_months()
