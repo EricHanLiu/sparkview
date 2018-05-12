@@ -18,10 +18,6 @@ from dateutil.relativedelta import relativedelta
 
 # Create your views here.
 
-now = datetime.today()
-current_day = now.day - 1
-days = calendar.monthrange(now.year, now.month)[1]
-remaining = days - current_day
 
 @login_required
 @xframe_options_exempt
@@ -34,33 +30,25 @@ def index():
 def index_budget(request):
 
     now = datetime.today()
+    current_day = now.day - 1
     days = calendar.monthrange(now.year, now.month)[1]
 
     if request.method == 'GET':
-        items = []
-        try:
-            accounts = DependentAccount.objects.filter(blacklisted='False')
-            for acc in accounts:
-                item = {'account': acc}
-                items.append(item)
-            return render(request, 'budget/adwords_budget.html', {'items': items})
-        except ValueError:
-            raise Http404
+        accounts = DependentAccount.objects.filter(blacklisted='False')
+        return render(request, 'budget/adwords_budget.html', {'items': accounts})
 
     elif request.method == 'POST':
-        try:
-            account = DependentAccount.objects.get(dependent_account_id=request.POST['acc_id'])
-            desired_spend = request.POST['desired_spend']
-            account.desired_spend = desired_spend
-            account.dependent_OVU = (float(account.current_spend) / (float(account.desired_spend) / days * now.day)) * 100
-            account.save()
-            context = {
-                'error': 'OK',
-                'OVU': account.dependent_OVU
-            }
-            return JsonResponse(context)
-        except ValueError:
-            raise Http404
+        account = DependentAccount.objects.get(dependent_account_id=request.POST['acc_id'])
+        desired_spend = request.POST['desired_spend']
+        account.desired_spend = desired_spend
+        account.dependent_OVU = (float(account.current_spend) / (float(account.desired_spend) / days * now.day)) * 100
+        account.save()
+        context = {
+            'error': 'OK',
+            'OVU': account.dependent_OVU
+        }
+
+        return JsonResponse(context)
 
 
 @login_required
@@ -71,10 +59,7 @@ def bing_budget(request):
         items = []
         try:
             accounts = BingAccounts.objects.filter(blacklisted='False')
-            for acc in accounts:
-                item = {'account': acc}
-                items.append(item)
-            return render(request, 'budget/bing_budget.html', {'items': items})
+            return render(request, 'budget/bing_budget.html', {'items': accounts})
         except ValueError:
             raise Http404
 
@@ -101,24 +86,30 @@ def add_client(request):
     aw = []
     bng = []
 
-    black_marker = (current_day * 100) / days
+    today = datetime.today()
+    next_month = datetime(
+        year=today.year,
+        month=((today.month + 1) % 12),
+        day=1
+    )
+    lastday_month = next_month + relativedelta(days=-1)
+    black_marker = (today.day / lastday_month.day) * 100
+    remaining = lastday_month.day - today.day
 
     if request.method == 'GET':
-        try:
-            context = {}
-            clients = Client.objects.all()
-            adwords_accounts = DependentAccount.objects.filter(blacklisted=False)
-            bing_accounts = BingAccounts.objects.filter(blacklisted=False)
-            # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
-            context['clients'] = clients
-            context['adwords'] = adwords_accounts
-            context['bing'] = bing_accounts
-            context['remaining'] = remaining
-            context['no_of_days'] = days
-            context['blackmarker'] = round(black_marker, 2)
-            return render(request, 'budget/clients.html', context)
-        except ValueError:
-            raise Http404
+        context = {}
+        clients = Client.objects.all()
+        adwords_accounts = DependentAccount.objects.filter(blacklisted=False)
+        bing_accounts = BingAccounts.objects.filter(blacklisted=False)
+        # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+        context['clients'] = clients
+        context['adwords'] = adwords_accounts
+        context['bing'] = bing_accounts
+        context['remaining'] = remaining
+        context['no_of_days'] = lastday_month.day
+        context['blackmarker'] = round(black_marker, 2)
+
+        return render(request, 'budget/clients.html', context)
 
     elif request.method == 'POST':
 
@@ -185,22 +176,27 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
-    black_marker = (current_day * 100) / days
+    today = datetime.today()
+    next_month = datetime(
+        year=today.year,
+        month=((today.month + 1) % 12),
+        day=1
+    )
+    lastday_month = next_month + relativedelta(days=-1)
+    black_marker = (today.day / lastday_month.day) * 100
+    remaining = lastday_month.day - today.day
 
     if request.method == 'GET':
-        try:
-            client = Client.objects.get(id=client_id)
-            # flight_budgets = FlightBudget.objects.get()
-            context = {
-                'client_data': client,
-                'today': current_day,
-                'no_of_days': days,
-                'remaining': remaining,
-                'blackmarker': round(black_marker, 2)
-            }
-            return render(request, 'budget/view_client.html', context)
-        except ValueError:
-            raise Http404
+        client = Client.objects.get(id=client_id)
+        context = {
+            'client_data': client,
+            'today': today.day,
+            'no_of_days': lastday_month.day,
+            'remaining': remaining,
+            'blackmarker': round(black_marker, 2)
+        }
+
+        return render(request, 'budget/view_client.html', context)
 
 
 @login_required
@@ -208,11 +204,7 @@ def client_details(request, client_id):
 def delete_clients(request):
 
     context = {}
-
-    if request.method == 'GET':
-        return HttpResponse('What are you looking for here?')
-
-    elif request.method == 'POST':
+    if request.method == 'POST':
 
         client_ids = request.POST.getlist('client_ids[]')
 
@@ -232,36 +224,39 @@ def delete_clients(request):
 def last_month(request):
 
     if request.method == 'GET':
-        try:
-            context = {}
-            hist_clients = ClientHist.objects.all()
-            adwords_accounts = DependentAccount.objects.filter(blacklisted=False)
-            bing_accounts = BingAccounts.objects.filter(blacklisted=False)
-            # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
-            context['clients'] = hist_clients
-            context['adwords'] = adwords_accounts
-            context['bing'] = bing_accounts
-            return render(request, 'budget/last_month.html', context)
-        except ValueError:
-            raise Http404
+        context = {}
+        # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+        context['clients'] = ClientHist.objects.all()
+        context['adwords'] = DependentAccount.objects.filter(blacklisted=False)
+        context['bing'] = BingAccounts.objects.filter(blacklisted=False)
+
+        return render(request, 'budget/last_month.html', context)
 
 
 @login_required
 @xframe_options_exempt
 def hist_client_details(request, client_id):
 
+    today = datetime.today()
+    next_month = datetime(
+        year=today.year,
+        month=((today.month + 1) % 12),
+        day=1
+    )
+    lastday_month = next_month + relativedelta(days=-1)
+    black_marker = (today.day / lastday_month.day) * 100
+    remaining = lastday_month.day - today.day
+
     if request.method == 'GET':
-        try:
-            client = ClientHist.objects.get(id=client_id)
-            context = {
-                'client_data': client,
-                'today': current_day,
-                'no_of_days': days,
-                'remaining': remaining
-            }
-            return render(request, 'budget/view_client_hist.html', context)
-        except ValueError:
-            raise Http404
+        client = ClientHist.objects.get(id=client_id)
+        context = {
+            'client_data': client,
+            'today': today.day,
+            'no_of_days': lastday_month.day,
+            'remaining': remaining
+        }
+
+        return render(request, 'budget/view_client_hist.html', context)
 
 def gen_6_months():
 
@@ -281,15 +276,14 @@ def gen_6_months():
 def sixm_budget(request, client_id):
 
     if request.method == 'GET':
-        try:
-            client = Client.objects.get(id=client_id)
-            context = {
-                'client_data': client,
-                'months': gen_6_months()
-            }
-            return render(request, 'budget/six_months.html', context)
-        except ValueError:
-            raise Http404
+        client = Client.objects.get(id=client_id)
+        
+        context = {
+            'client_data': client,
+            'months': gen_6_months()
+        }
+
+        return render(request, 'budget/six_months.html', context)
 
     elif request.method == 'POST':
 

@@ -391,6 +391,27 @@ class AdwordsReporting(Reporting):
             max=maxDate.strftime(self.date_format)
         )
 
+    def get_ad_performance_query(self, dateRangeType="ALL_TIME", **kwargs):
+        fields = [
+            "AdGroupId",
+            "CampaignId",
+            "CampaignName",
+            "AdGroupName",
+            "PolicySummary",
+            "Headline",
+            "HeadlinePart1",
+            "Id",
+        ]
+        extra_fields = kwargs.get("extra_fields", None)
+        if extra_fields:
+            fields = list(set(fields.extend(extra_fields)))
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        pass
     def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
 
         fields = [
@@ -408,15 +429,34 @@ class AdwordsReporting(Reporting):
 
         extra_fields = kwargs.get("extra_fields", None)
 
-        if extra_fields is not None:
-            fields.extend(extra_fields)
+        if extra_fields:
+            fields = list(set(fields.extend(extra_fields)))
 
         query = {
-            "reportName": "ACCOUNT_PERFORMANCE",
+            "reportName": "AD_PERFORMANCE_REPORT",
             "dateRangeType": dateRangeType,
-            "reportType": "ACCOUNT_PERFORMANCE_REPORT",
+            "reportType": "AD_PERFORMANCE_REPORT",
             "downloadFormat": "CSV",
-            "selector": {"fields": fields},
+            "selector": {
+                "fields": fields,
+                "predicates":[
+                    {
+                        "field": "AdGroupStatus",
+                        "operator": "EQUALS",
+                        "values": "ENABLED"
+                    },
+                    {
+                        "field": "CampaignStatus",
+                        "operator": "EQUALS",
+                        "values": "ENABLED"
+                    },
+                    {
+                        "field": "Status",
+                        "operator": "EQUALS",
+                        "values": "ENABLED"
+                    },
+                ]
+            },
         }
 
         if dateRangeType == "CUSTOM_DATE":
@@ -446,8 +486,8 @@ class AdwordsReporting(Reporting):
 
         extra_fields = kwargs.get("extra_fields", None)
 
-        if extra_fields is not None:
-            fields.extend(extra_fields)
+        if extra_fields:
+            fields = list(set(fields.extend(extra_fields)))
 
         query = {
             "reportName": "CAMPAIGN_PERFORMANCE",
@@ -498,6 +538,21 @@ class AdwordsReportingService(AdwordsReporting):
     def __init__(self, client):
         self.client = client
         self.api_version = settings.API_VERSION
+
+
+    def get_ad_performance(self, customer_id=None, **kwargs):
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_ad_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
 
 
     def get_account_performance(self, customer_id=None, **kwargs):
