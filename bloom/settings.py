@@ -26,6 +26,7 @@ SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 DEBUG = False
 
 SITE_ID=1
+
 ALLOWED_HOSTS = [
     'bloom.hyperdigitalserver.com',
     '127.0.0.1',
