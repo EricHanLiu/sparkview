@@ -120,7 +120,7 @@
                                                                 </div>
                                                                 <div class="col-md-2">
                                                                     <b>Target Daily Spend
-                                                                    </b>: {% ds_tt a.current_spend a.desired_spend %}
+                                                                    </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend }}
                                                                 </div>
                                                                 <div class="col-md-2">
                                                                     <b>Yesterday's Spend</b>: {{ a.yesterday_spend }}
@@ -196,8 +196,7 @@
                                                                     <b>Current Total Spend</b>: {{ b.current_spend }}
                                                                 </div>
                                                                 <div class="col-md-2">
-                                                                    <b>Target Daily
-                                                                        Spend</b>: {% ds_tt b.current_spend b.desired_spend %}
+                                                                    <b>Target Daily Spend</b>: {{  b.current_spend | ideal_day_spend:b.desired_spend }}
                                                                 </div>
                                                                 <div class="col-md-2">
 
@@ -387,7 +386,6 @@
                         "type": "success",
                         "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
                     });
-
                 },
                 error: function (ajaxContext) {
                     swal({
@@ -405,3 +403,4 @@
         }
     </script>
 {% endblock %}
+

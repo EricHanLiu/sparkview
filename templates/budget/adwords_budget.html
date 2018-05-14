@@ -26,21 +26,24 @@
             <tbody>
               {% for item in items %}
               <tr>
-                <td>{{ item.account.dependent_account_name }}</td>
+                <td>{{ item.dependent_account_name }}</td>
                 <td style="text-align: center">
                     <div class="progress m-progress--lg">
-                        <div class="progress-bar {{ item.account.current_spend|percentage:item.account.desired_spend }}"
-                             role="progressbar" style="width: {% widthratio item.account.current_spend item.account.desired_spend 100 %}%; color: #000;"
-                             aria-valuenow="{% widthratio item.account.current_spend item.account.desired_spend 100 %}" aria-valuemin="0" aria-valuemax="100" data-toggle="m-tooltip"
-                             data-placement="top" title="Current spend: {{ item.account.current_spend }}" data-original-title="">{% widthratio item.account.current_spend item.account.desired_spend 100 %}%
+                        <div class="progress-bar {{ item.current_spend|percentage:item.desired_spend }}"
+                             role="progressbar"
+                             style="width: {% widthratio item.current_spend item.desired_spend 100 %}%; color: #000;"
+                             aria-valuenow="{% widthratio item.current_spend item.desired_spend 100 %}"
+                             aria-valuemin="0" aria-valuemax="100" data-toggle="m-tooltip"
+                             data-placement="top" title="Current spend: {{ item.current_spend }}"
+                             data-original-title="">{% widthratio item.current_spend item.desired_spend 100 %}%
                         </div>
                     </div>
                 </td>
                 <td style="text-align: center">
-                    <input id="desired_spend{{ item.account.dependent_account_id }}" style="width:70%;text-align:center;" type="number" min="0" max="10000000000" name="" value="{{item.account.desired_spend}}" readonly>
+                    <input id="desired_spend{{ item.dependent_account_id }}" style="width:70%;text-align:center;" type="number" min="0" max="10000000000" name="" value="{{item.desired_spend}}" readonly>
                 </td>
                 <td style="align-content: center">
-                    <button id="edit_submit" onclick='edit_submit_desired(this, {{ item.account.dependent_account_id }})' type="edit" name="edit" style="width: 70%;" class="btn btn-info">Edit</button>
+                    <button id="edit_submit" onclick='edit_submit_desired(this, {{ item.dependent_account_id }})' type="edit" name="edit" style="width: 70%;" class="btn btn-info">Edit</button>
                 </td>
               </tr>
               {% endfor %}

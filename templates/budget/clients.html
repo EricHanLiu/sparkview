@@ -67,7 +67,7 @@
                                         </a>
                                         <div class="row">
                                             <div class="col-md-6">Target Daily Spend:
-                                                {% ds_tt client.current_spend client.budget %}</div>
+                                                {{ client.current_spend | ideal_day_spend:client.budget }}</div>
                                             <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
                                         </div>
                                         <div class="row">
