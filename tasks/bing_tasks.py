@@ -245,8 +245,6 @@ def bing_cron_ovu(self, customer_id):
         current_spend = sum([float(item['spend']) for item in report_this_month])
 
     except FileNotFoundError:
-        print("NOT FOUND")
-        print(account.account_id)
         current_spend = 0
 
     try:
