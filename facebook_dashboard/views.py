@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.clickjacking import xframe_options_exempt
+from facebook_dashboard.models import FacebookAccount
 
 # Create your views here.
 @login_required
@@ -11,4 +12,28 @@ def index(request):
 @xframe_options_exempt
 def facebook_dashboard(request):
 
-    return HttpResponse('GG WP! It works!')
+    user = request.user
+    items = []
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
+    for account in accounts:
+        item = {}
+        # query = Performance.objects.filter(account=account.pk, performance_type='ACCOUNT')
+        item['account'] = account
+        # item['404_urls'] = CampaignStat.objects.filter(dependent_account_id=account.dependent_account_id).count()
+        # item['labels'] = Label.objects.filter(account_id=account.dependent_account_id, label_type='ACCOUNT')
+        # item['clicks'] = query[0].clicks if query else 0
+        # item['impressions'] = query[0].impressions if query else 0
+        # item['ctr'] = query[0].ctr if query else 0
+        # item['cpc'] = query[0].cpc if query else 0
+        # item['conversions'] = query[0].conversions if query else 0
+        # item['cost'] = query[0].cost if query else 0
+        # item['cost_per_conversions'] = query[0].cost_per_conversions if query else 0
+        # item['search_impr_share'] = query[0].search_impr_share if query else 0
+        # item['disapproved_ads'] = Alert.objects.filter(dependent_account_id=account.dependent_account_id,
+        #                                                alert_type='DISAPPROVED_AD').count()
+        items.append(item)
+
+    if user.is_authenticated():
+        return render(request, 'facebook/dashboard.html', {'items': items})
+    else:
+        return render(request, 'login/login.html')

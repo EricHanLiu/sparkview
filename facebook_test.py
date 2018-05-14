@@ -1,23 +1,93 @@
-from facebookads.api import FacebookAdsApi
-from facebookads.adobjects.adaccountuser import AdAccountUser
-from facebookads.adobjects.campaign import Campaign
+import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
+import django
+django.setup()
+from facebook_dashboard.models import FacebookAccount
+from facebook_business.api import FacebookAdsApi
+from facebook_business.adobjects.adaccount import AdAccount
+from facebook_business.adobjects.adaccountuser import AdAccountUser
+from datetime import date, timedelta
 
-my_app_id = '720167181523779'
-my_app_secret = '63df1a8d9448f2ea766c644c059e7b7a'
-my_access_token = 'EAAKOZCP0Im0MBAHaSTqvVgBepTJD84YvQoZAdyHmKIImHSF1J6i4BrAMH8ZB77DpBiBH7eFdZAchCVqlujcjvw3ZBdJe99i5BReNJZAYN9OsUh3HWhFn445tZCqqfZCjrj3NUgPjadfwhoZAv8FBSuKdZBRZBW6i7dN4pRzzzKLAw0IWQZDZD'
+# from facebook_business.adobjects.business import Business
+from facebook_business.adobjects.ad import Ad
 
-FacebookAdsApi.init(my_app_id, my_app_secret, my_access_token)
+now = date.today()
+minDate = date.today().replace(day=1)
+maxDate = now - timedelta(days=1)
+# print(minDate)
+# print(maxDate)
 
-me = AdAccountUser(fbid='me')
-my_account = me.get_ad_account()
+bloomworker='100025980313978'
+my_app_id = '582921108716849'
+business_id = '10154654586810511'
+my_app_secret = '17bc991966f6895650068fe41bc87aa0'
+ll_token = "EAAISKeWdZCTEBABaA5WtXSNP3vOGxEAFx2MBjKWGV6nfpOVxcMoHtTuqeyGx47rkDXJWErA4SPI1ikCHIKLOmorHpqHkNKxuEuSudMtjPdiLGV6MZArB4HRJPhDlpHmq53qrqarZBPMyClGOkhOMBGZBYmQUQXGX6pEFlHaO2gZDZD"
 
-for campaign in my_account.get_campaigns(fields=[Campaign.Field.name]):
-    for stat in campaign.get_insights(fields=[
-        'impressions',
-        'clicks',
-        'spend',
-        'unique_clicks',
-        'actions',]):
-        print(campaign[campaign.Field.name])
-        # for statfield in stat:
-        #     print("\t%s:\t\t%s" % (statfield, stat[statfield]))
+FacebookAdsApi.init(my_app_id, my_app_secret, ll_token)
+
+
+accounts = []
+# business = Business(fbid=business_id)
+
+# allAdAccounts = business.get_owned_ad_accounts({AdAccount.Field.name})
+# print(allAdAccounts[2]['id'])
+
+# for i in range(len(allAdAccounts)):
+#     print(allAdAccounts[i]['id'], allAdAccounts[i]['name'])
+
+def get_accounts():
+    me = AdAccountUser(fbid='me')
+
+    for acc in me.get_ad_accounts():
+        print(acc)
+        if acc['id'] == 'act_220247200':
+            continue
+        else:
+            account = {
+                'id': acc['id']
+            }
+        accounts.append(account)
+    sorted(accounts, key=lambda k: k['id'])
+    # accounts = accounts.pop(1)
+    # print(accounts)
+    return accounts
+def get_spend(accounts):
+    for acc in accounts:
+        my_account = AdAccount(acc['id'])
+        fields = [
+            'account_name',
+            'account_id',
+            'spend',
+        ]
+        params = {
+            'level': 'account',
+            'filtering': [],
+            'breakdowns': [],
+            'time_range': {'since':str(minDate),'until':str(maxDate)},
+        }
+
+        insights = my_account.get_insights(
+            fields=fields,
+            params=params,
+        )
+
+        print(insights)
+
+        try:
+            FacebookAccount.objects.get(account_id=insights[0]['account_id'])
+            print('Matched in DB(' + str(insights[0]['account_id']) + ')')
+        except IndexError:
+            continue
+        except:
+            FacebookAccount.objects.create(account_name=insights[0]['account_name'],
+                                                  account_id=insights[0]['account_id'],
+                                                  current_spend=insights[0]['spend'])
+            print('Added to DB - ' + str(insights[0]['account_id']) + ' - ' + insights[0]['account_name'])
+
+
+def main():
+    accounts = get_accounts()
+    get_spend(accounts)
+
+if __name__ == '__main__':
+    main()

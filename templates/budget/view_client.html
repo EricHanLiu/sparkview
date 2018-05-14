@@ -39,6 +39,7 @@
                                 </div>
                             </div>
                             <div class="m-portlet__body">
+                            {% if client_data.target_spend > 0 %}
                                 <div class="tab-content">
                                     <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
                                         <div class="m-accordion m-accordion--default" id="m_accordion_1"
@@ -239,6 +240,9 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        {% else %}
+                                        ceva aici
+                                        {% endif %}
                                         </div>
                                     </div>
                                 </div>
