@@ -18,6 +18,20 @@ class Reporting:
 
         return date.strftime(date_format)
 
+
+
+    def map_campaign_stats(self, report, identifier="campaignid"):
+        campaigns = {}
+        for item in report:
+            if not identifier in item:
+                continue
+            if not item[identifier] in campaigns:
+                campaigns[item[identifier]] = []
+
+            campaigns[item[identifier]].append(item)
+
+        return campaigns
+
     def compare_dict(self, dict1, dict2):
         """Compares two dictionaries and returns one unified dict
         @return: {k: (diff, dict1, dict2)}
@@ -241,17 +255,6 @@ class BingReporting(Reporting):
 
         return sample
 
-    def map_campaign_stats(self, report):
-        campaigns = {}
-        for item in report:
-            if not 'campaignid' in item:
-                continue
-            if not item['campaignid'] in campaigns:
-                campaigns[item['campaignid']] = []
-
-            campaigns[item['campaignid']].append(item)
-
-        return campaigns
 
 
 class BingReportingService(BingReporting):
@@ -457,32 +460,33 @@ class AdwordsReporting(Reporting):
         extra_fields = kwargs.get("extra_fields", None)
 
         if extra_fields:
-            fields = list(set(fields.extend(extra_fields)))
+            fields.extend(extra_fields)
+            fields = list(set(fields))
 
         query = {
-            "reportName": "AD_PERFORMANCE_REPORT",
+            "reportName": "ACCOUNT_PERFORMANCE_REPORT",
             "dateRangeType": dateRangeType,
-            "reportType": "AD_PERFORMANCE_REPORT",
+            "reportType": "ACCOUNT_PERFORMANCE_REPORT",
             "downloadFormat": "CSV",
             "selector": {
                 "fields": fields,
-                "predicates":[
-                    {
-                        "field": "AdGroupStatus",
-                        "operator": "EQUALS",
-                        "values": "ENABLED"
-                    },
-                    {
-                        "field": "CampaignStatus",
-                        "operator": "EQUALS",
-                        "values": "ENABLED"
-                    },
-                    {
-                        "field": "Status",
-                        "operator": "EQUALS",
-                        "values": "ENABLED"
-                    },
-                ]
+                # "predicates":[
+                #     {
+                #         "field": "AdGroupStatus",
+                #         "operator": "EQUALS",
+                #         "values": "ENABLED"
+                #     },
+                #     {
+                #         "field": "CampaignStatus",
+                #         "operator": "EQUALS",
+                #         "values": "ENABLED"
+                #     },
+                #     {
+                #         "field": "Status",
+                #         "operator": "EQUALS",
+                #         "values": "ENABLED"
+                #     },
+                # ]
             },
         }
 
