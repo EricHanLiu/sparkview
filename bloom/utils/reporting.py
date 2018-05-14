@@ -18,6 +18,20 @@ class Reporting:
 
         return date.strftime(date_format)
 
+
+
+    def map_campaign_stats(self, report, identifier="campaignid"):
+        campaigns = {}
+        for item in report:
+            if not identifier in item:
+                continue
+            if not item[identifier] in campaigns:
+                campaigns[item[identifier]] = []
+
+            campaigns[item[identifier]].append(item)
+
+        return campaigns
+
     def compare_dict(self, dict1, dict2):
         """Compares two dictionaries and returns one unified dict
         @return: {k: (diff, dict1, dict2)}
@@ -241,17 +255,6 @@ class BingReporting(Reporting):
 
         return sample
 
-    def map_campaign_stats(self, report):
-        campaigns = {}
-        for item in report:
-            if not 'campaignid' in item:
-                continue
-            if not item['campaignid'] in campaigns:
-                campaigns[item['campaignid']] = []
-
-            campaigns[item['campaignid']].append(item)
-
-        return campaigns
 
 
 class BingReportingService(BingReporting):
@@ -418,6 +421,27 @@ class AdwordsReporting(Reporting):
             max=maxDate.strftime(self.date_format)
         )
 
+    def get_ad_performance_query(self, dateRangeType="ALL_TIME", **kwargs):
+        fields = [
+            "AdGroupId",
+            "CampaignId",
+            "CampaignName",
+            "AdGroupName",
+            "PolicySummary",
+            "Headline",
+            "HeadlinePart1",
+            "Id",
+        ]
+        extra_fields = kwargs.get("extra_fields", None)
+        if extra_fields:
+            fields = list(set(fields.extend(extra_fields)))
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        pass
     def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
 
         fields = [
@@ -435,15 +459,35 @@ class AdwordsReporting(Reporting):
 
         extra_fields = kwargs.get("extra_fields", None)
 
-        if extra_fields is not None:
+        if extra_fields:
             fields.extend(extra_fields)
+            fields = list(set(fields))
 
         query = {
-            "reportName": "ACCOUNT_PERFORMANCE",
+            "reportName": "ACCOUNT_PERFORMANCE_REPORT",
             "dateRangeType": dateRangeType,
             "reportType": "ACCOUNT_PERFORMANCE_REPORT",
             "downloadFormat": "CSV",
-            "selector": {"fields": fields},
+            "selector": {
+                "fields": fields,
+                # "predicates":[
+                #     {
+                #         "field": "AdGroupStatus",
+                #         "operator": "EQUALS",
+                #         "values": "ENABLED"
+                #     },
+                #     {
+                #         "field": "CampaignStatus",
+                #         "operator": "EQUALS",
+                #         "values": "ENABLED"
+                #     },
+                #     {
+                #         "field": "Status",
+                #         "operator": "EQUALS",
+                #         "values": "ENABLED"
+                #     },
+                # ]
+            },
         }
 
         if dateRangeType == "CUSTOM_DATE":
@@ -473,8 +517,8 @@ class AdwordsReporting(Reporting):
 
         extra_fields = kwargs.get("extra_fields", None)
 
-        if extra_fields is not None:
-            fields.extend(extra_fields)
+        if extra_fields:
+            fields = list(set(fields.extend(extra_fields)))
 
         query = {
             "reportName": "CAMPAIGN_PERFORMANCE",
@@ -520,6 +564,21 @@ class AdwordsReportingService(AdwordsReporting):
     def __init__(self, client):
         self.client = client
         self.api_version = settings.API_VERSION
+
+
+    def get_ad_performance(self, customer_id=None, **kwargs):
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_ad_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
 
 
     def get_account_performance(self, customer_id=None, **kwargs):

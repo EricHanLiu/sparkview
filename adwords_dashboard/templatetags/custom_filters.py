@@ -1,19 +1,24 @@
 from django import template
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import calendar
 
 register = template.Library()
 
-now = datetime.today()
-current_day = now.day - 1
-days = calendar.monthrange(now.year, now.month)[1]
-remaining = days - current_day
+@register.filter("ideal_day_spend")
+def ideal_day_spend(spend, budget):
+    today = datetime.today()
+    next_month = datetime(
+        year=today.year,
+        month=((today.month + 1) % 12),
+        day=1
+    )
+    lastday_month = next_month + relativedelta(days=-1)
+    black_marker = (today.day / lastday_month.day) * 100
+    remaining = lastday_month.day - today.day
 
-@register.simple_tag
-def ds_tt(spend, budget):
-
-    ds_tt = (budget - spend) / remaining
-    return round(ds_tt, 2)
+    ideal_day_spend = (budget - spend) / remaining
+    return round(ideal_day_spend, 2)
 
 
 @register.filter('startswith')
@@ -26,7 +31,6 @@ def startswith(text, starts):
 @register.filter(name='get_type')
 def get_type(value):
     return type(value)
-
 
 @register.filter(name='uni2float')
 def uni2float(value):
@@ -64,7 +68,9 @@ def percentage(spend, budget):
 @register.filter(name='daily_spend')
 def daily_spend(spend):
 
-    value = spend / current_day
+    today = datetime.today()
+
+    value = spend / today.day
 
     return value
 
@@ -72,9 +78,19 @@ def daily_spend(spend):
 @register.filter(name='projected')
 def projected(spend):
 
-    d_spend = spend / current_day
+    today = datetime.today()
+    d_spend = spend / today.day
+    next_month = datetime(
+        year=today.year,
+        month=((today.month + 1) % 12),
+        day=1
+    )
+    lastday_month = next_month + relativedelta(days=-1)
+    black_marker = (today.day / lastday_month.day) * 100
+    remaining = lastday_month.day - today.day
     # projected value
     rval = spend + (d_spend * remaining)
+
     return round(rval ,2)
 
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
@@ -7,6 +6,8 @@ from bing_dashboard.models import BingAccounts
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import JSONField
+from django.core.serializers import serialize
+import json
 # Create your models here.
 
 
@@ -16,6 +17,14 @@ class ManagerAccount(models.Model):
     manager_account_name = models.CharField(max_length=255)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+
+    def json(self):
+        return dict(
+            account_id=str(self.manager_account_id),
+            account_name=str(self.manager_account_name),
+            update_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.created_time.strftime("%Y%m%d"),
+        )
 
     class Meta:
         ordering = ['created_time', 'updated_time']
@@ -54,11 +63,57 @@ class DependentAccount(models.Model):
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
 
+
+    @property
+    def json(self):
+        assigneds = {}
+        if self.assigned_to:
+            assigneds["assigned_to"] = json.loads(
+                serialize("json", [self.assigned_to])
+            )[0]["fields"]
+
+        if self.assigned_cm2:
+            assigneds["assigned_cm2"] = json.loads(
+                serialize("json", [self.assigned_cm2])
+            )[0]["fields"]
+
+        if self.assigned_cm3:
+            assigneds["assigned_cm3"] = json.loads(
+                serialize("json", [self.assigned_cm3])
+            )[0]["fields"]
+
+        return dict(
+            created_time=self.created_time.strftime("%Y%m%d"),
+            updated_time=self.updated_time.strftime("%Y%m%d"),
+            customer_id=self.dependent_account_id,
+            manager_id=self.manager_account,
+            customer_name=self.dependent_account_name,
+            desired_spend=self.desired_spend,
+            current_spend=self.current_spend,
+            hist_spend=self.hist_spend,
+            hist_budget=self.hist_budget,
+            ds1=self.ds1,
+            ds2=self.ds2,
+            ds3=self.ds3,
+            ds4=self.ds4,
+            ds5=self.ds5,
+            ds6=self.ds6,
+            yesterday_spend=self.yesterday_spend,
+            estimated_spend=self.estimated_spend,
+            quality_score=self.quality_score,
+            historical_qs=self.historical_qs,
+            blacklisted=str(self.blacklisted),
+            protected=str(self.protected),
+            assigned=str(self.assigned),
+            **assigneds
+        )
+
     class Meta:
         ordering = ['created_time', 'updated_time']
 
     def __str__(self):
         return self.dependent_account_name
+
 
 
 class Performance(models.Model):
@@ -79,8 +134,31 @@ class Performance(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
     metadata = JSONField(default=dict)
 
+    @property
+    def json(self):
+        account = json.loads(serialize("json", [self.account]))[0]["fields"]
+        return dict(
+            account=account,
+            performance_type=self.performance_type,
+            campaign_id=self.campaign_id,
+            campaign_name=self.campaign_name,
+            cpc=self.cpc,
+            clicks=self.clicks,
+            conversions=self.conversions,
+            cost=self.cost,
+            cost_per_conversions=self.cost_per_conversions,
+            ctr=self.ctr,
+            impressions=self.impressions,
+            search_impr_share=self.search_impr_share,
+            updated_time=self.updated_time.strftime("%Y%m%d"),
+            created_time = self.created_time.strftime("%Y%m%d"),
+            metadata=self.metadata
+        )
+
     class Meta:
         ordering = ['created_time', 'updated_time']
+
+
 
 
 class Label(models.Model):
@@ -93,6 +171,19 @@ class Label(models.Model):
     label_type = models.CharField(max_length=255, default='None')
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def json(self):
+        return dict(
+            account_id=self.account_id,
+            label_id=self.label_id,
+            name=self.name,
+            campaign_id=self.campaign_id,
+            campaign_name=self.campaign_name,
+            label_type=self.label_type,
+            updated_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.updated_time.strftime("%Y%m%d"),
+        )
 
     class Meta:
         ordering = ['created_time', 'updated_time']
@@ -110,6 +201,22 @@ class CampaignStat(models.Model):
     ad_url_code = models.TextField()
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+
+
+    @property
+    def json(self):
+        return dict(
+            account_id=self.dependent_account_id,
+            campaign_id=self.campaign_id,
+            campaign_name=self.campaign_name,
+            ad_group_id=self.ad_group_id,
+            ad_group_name=self.ad_group_name,
+            ad_url=self.ad_url,
+            ad_headline=self.ad_headline,
+            ad_url_code=self.ad_url_code,
+            update_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.created_time.strftime("%Y%m%d"),
+        )
 
     class Meta:
         ordering = ['created_time', 'updated_time']
@@ -133,6 +240,24 @@ class Alert(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
+
+    @property
+    def json(self):
+        return dict(
+            account_id=self.dependent_account_id,
+            alert_type=self.alert_type,
+            alert_reason=self.alert_reason,
+            ad_group_id=self.ad_group_id,
+            ad_group_name=self.ad_group_name,
+            keyword_text=self.keyWordText,
+            ad_headline=self.ad_headline,
+            campaign_id=self.campaign_id,
+            campaign_name=self.campagin_name,
+            keyword_match_type=self.keyword_match_type,
+            updated_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.created_time.strftime("%Y%m%d")
+        )
+
     class Meta:
         ordering = ['created_time', 'updated_time']
 
@@ -147,6 +272,17 @@ class Campaign(models.Model):
     campaign_cost = models.BigIntegerField(default=0)
     campaign_budget = models.IntegerField(default=0)
     groupped = models.BooleanField(default=False)
+
+    @property
+    def json(self):
+        return dict(
+            account=self.account.json,
+            campaign_id=self.campaign_id,
+            campaign_name=self.campaign_name,
+            campaign_cost=self.campaign_cost,
+            campaign_budget=self.campaign_budget,
+            groupped=self.groupped
+        )
 
 class Profile(models.Model):
 

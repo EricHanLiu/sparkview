@@ -6,7 +6,7 @@ from adwords_dashboard.models import DependentAccount
 from tasks.adwords_tasks import adwords_cron_anomalies
 
 def main():
-    accounts = DependentAccount.objects.filter(blacklisted=False)
+    accounts = DependentAccount.objects.filter(blacklisted=False)[:1]
     for account in accounts:
         adwords_cron_anomalies.delay(account.dependent_account_id)
 

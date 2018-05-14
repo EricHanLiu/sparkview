@@ -11,11 +11,13 @@ def get_client():
 def account_anomalies(account_id, helper, daterange1, daterange2):
 
     current_period_performance = helper.get_account_performance(
-        customer_id=account_id, dateRangeType="CUSTOM_DATE", **daterange1
+        customer_id=account_id, dateRangeType="CUSTOM_DATE",
+        extra_fields=["SearchImpressionShare"], **daterange1
     )
 
     previous_period_performance = helper.get_account_performance(
-        customer_id=account_id, dateRangeType="CUSTOM_DATE", **daterange2
+        customer_id=account_id, dateRangeType="CUSTOM_DATE",
+         **daterange2
     )
 
 
@@ -36,15 +38,25 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
     )
 
 
+    cmp_stats = helper.map_campaign_stats(
+        current_period_performance, identifier="campaign_id"
+    )
+
+    cmp_ids = list(cmp_stats.keys())
+
+    cmp_stats2 = helper.map_campaign_stats(
+        previous_period_performance, identifier="campaign_id"
+    )
+
     diff_list = []
 
-    for i, item in enumerate(current_period_performance):
+    for c_id in cmp_ids:
+        if c_id in cmp_stats and c_id in cmp_stats2:
 
-        differences = helper.compare_dict(
-            current_period_performance[i], previous_period_performance[i]
-        )
-        diff_list.append(differences)
-
+            differences = helper.compare_dict(
+                cmp_stats[c_id][0], cmp_stats2[c_id][0]
+            )
+            diff_list.append(differences)
 
     return diff_list
 
@@ -67,14 +79,14 @@ def adwords_cron_anomalies(self, customer_id):
         account.dependent_account_id,
         helper,
         current_period_daterange,
-        previous_period_daterange
+        previous_period_daterange,
     )
 
     cmp_anomalies = campaign_anomalies(
         account.dependent_account_id,
         helper,
         current_period_daterange,
-        previous_period_daterange
+        previous_period_daterange,
     )
     acc_metadata = {}
     acc_metadata["daterange1_min"] = helper.stringify_date(current_period_daterange["minDate"])
