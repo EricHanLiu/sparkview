@@ -1,16 +1,10 @@
-from django.shortcuts import render
-from django.http import JsonResponse, Http404
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
-from django.http import HttpResponse, JsonResponse
-from django.views import View
-from django.views.decorators.clickjacking import xframe_options_exempt
 from .auth import BingAuth
-from bingads import ServiceClient
-from bingads.v11.reporting import *
-from bing_dashboard import models
-from .auth_helper import *
+from bing_dashboard.models import BingAccounts, BingAnomalies
+from django.shortcuts import render
+from django.views import View
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 @login_required
@@ -22,12 +16,12 @@ def index(request):
 def bing_dashboard(request):
 
     items = []
-    accounts = models.BingAccounts.objects.filter(blacklisted=False)
+    accounts = BingAccounts.objects.filter(blacklisted=False)
 
     for account in accounts:
         item = {}
         item['account'] = account
-        query = models.BingAnomalies.objects.filter(account=account.pk, performance_type='ACCOUNT')
+        query = BingAnomalies.objects.filter(account=account.pk, performance_type='ACCOUNT')
         item['clicks'] = query[0].clicks if query else 0
         item['impressions'] = query[0].impressions if query else 0
         item['ctr'] = query[0].ctr if query else 0
@@ -42,9 +36,9 @@ def bing_dashboard(request):
 
 def campaign_anomalies(request, account_id):
 
-    account = models.BingAccounts.objects.get(account_id=account_id)
+    account = BingAccounts.objects.get(account_id=account_id)
 
-    anomalies = models.BingAnomalies.objects.filter(account=account,
+    anomalies = BingAnomalies.objects.filter(account=account,
                                            performance_type='CAMPAIGN')
 
     campaigns = []
@@ -117,63 +111,3 @@ class AuthenticateBing(View):
             return JsonResponse({
                 'refresh_token': creds.refresh_token,
                 'access_token': creds.access_token})
-
-
-
-class TestBing(View):
-
-    @xframe_options_exempt
-    def dispatch(self, request, *args, **kwargs):
-        return super(TestBing, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-
-        data = {}
-        account_list = []
-
-        auth = BingAuth().get_auth()
-
-        customer_service = ServiceClient(
-            service='CustomerManagementService',
-            authorization_data=auth,
-            environment='production',
-            version=11,
-        )
-
-        user = customer_service.GetUser(UserId=None).User
-        user_id = user.Id
-
-        paging={
-            'Index': 0,
-            'Size': 500
-        }
-
-        predicates={
-            'Predicate': [
-                {
-                    'Field': 'UserId',
-                    'Operator': 'Equals',
-                    'Value': user.Id,
-                },
-            ]
-        }
-
-        search_accounts_request={
-            'PageInfo': paging,
-            'Predicates': predicates
-        }
-
-        accounts = customer_service.SearchAccounts(
-            PageInfo=paging,
-            Predicates=predicates
-            )
-
-        for account in accounts['Account']:
-            customer_service.GetAccount(AccountId=account.Id)
-            data['name'] = account['Name']
-            data['account_id'] = account['Id']
-            account_list.append(data)
-            data = {}
-
-        print('data appended')
-        return HttpResponse(account_list)

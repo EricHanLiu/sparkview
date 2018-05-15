@@ -1,6 +1,7 @@
+import json
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
-from adwords_dashboard.models import DependentAccount, Performance
+from adwords_dashboard.models import DependentAccount, Performance, Alert
 from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
 
@@ -186,3 +187,39 @@ def adwords_cron_ovu(self, customer_id):
     account.yesterday_spend = yesterday_spend
     account.current_spend = current_spend
     account.save()
+
+
+
+@celery_app.task(bind=True)
+def adwords_cron_disapproved_alert(self, customer_id):
+    alert_type = "DISAPPROVED_AD"
+    helper = AdwordsReportingService(get_client())
+    predicates = [{
+        "field": "CombinedApprovalStatus",
+        "operator": "EQUALS",
+        "values": "DISAPPROVED"
+    }]
+    extra_fields = ["PolicySummary"]
+    data = helper.get_ad_performance(
+        customer_id=customer_id,
+        extra_fields=extra_fields,
+        predicates=predicates
+    )
+
+    Alert.objects.filter(
+        dependent_account_id=customer_id, alert_type=alert_type
+    ).delete()
+
+
+    for ad in data:
+        alert_reason = json.loads(ad['ad_policies'])
+        Alert.objects.create(
+            dependent_account_id=customer_id,
+            alert_type=alert_type,
+            alert_reason=":".join(alert_reason),
+            ad_group_id=ad['ad_group_id'],
+            ad_group_name=ad['ad_group'],
+            ad_headline=ad['headline_1'],
+            campaignName=ad['campaign'],
+            campaign_id=ad['campaign_id'],
+        )

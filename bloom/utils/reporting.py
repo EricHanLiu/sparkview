@@ -466,14 +466,19 @@ class AdwordsReporting(Reporting):
             "CampaignId",
             "CampaignName",
             "AdGroupName",
-            "PolicySummary",
             "Headline",
             "HeadlinePart1",
             "Id",
+            "CombinedApprovalStatus",
         ]
         extra_fields = kwargs.get("extra_fields", None)
         if extra_fields:
-            fields = list(set(fields.extend(extra_fields)))
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        extra_predicates = kwargs.get("predicates", [])
+        if not isinstance(extra_predicates, list):
+            raise Exception("Predicates should be a list of dicts")
 
         query = {
             "reportName": "AD_PERFORMANCE_REPORT",
@@ -498,6 +503,7 @@ class AdwordsReporting(Reporting):
                         "operator": "EQUALS",
                         "values": "ENABLED"
                     },
+                    *extra_predicates
                 ]
             },
         }
