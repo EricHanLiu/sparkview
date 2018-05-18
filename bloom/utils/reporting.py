@@ -7,7 +7,10 @@ from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
-from bingads.v11.reporting import ReportingDownloadParameters
+from bing_dashboard.auth import BingAuth
+from bingads.v11.reporting import (
+    ReportingDownloadParameters, ReportingServiceManager, ServiceClient
+)
 
 class Reporting:
 
@@ -17,7 +20,6 @@ class Reporting:
             return date
 
         return date.strftime(date_format)
-
 
 
     def map_campaign_stats(self, report, identifier="campaignid"):
@@ -179,6 +181,23 @@ class BingReporting(Reporting):
     exclude_report_footer = True
     return_only_complete_data = False
 
+    def __init__(self):
+        auth_method = BingAuth().get_auth()
+
+        self.service_manager = ReportingServiceManager(
+              authorization_data=auth_method,
+              poll_interval_in_milliseconds=5000,
+              environment=settings.ENVIRONMENT,
+        )
+
+        self.reporting_service = ServiceClient(
+            'ReportingService',
+            authorization_data=auth_method,
+            environment=settings.ENVIRONMENT,
+            version=11,
+        )
+
+
     def parse_report_name(self, rid, report_name):
         csv_ready = False
         id_ready = False
@@ -210,6 +229,9 @@ class BingReporting(Reporting):
 
     def generate_request(self, request, columns=None, time=None, scope=None):
 
+        if not columns or not time or not scope:
+            raise Exception("Improperly configured request")
+
         request = self.normalize_request(request)
         request.Columns = columns
         request.Time = time
@@ -220,8 +242,12 @@ class BingReporting(Reporting):
     def get_report(self, report_name):
 
         location = settings.BINGADS_REPORTS + report_name
-        with codecs.open(location, 'r', encoding='utf-8-sig') as f:
-            report = self.parse_report_csv(f.read(), header=False, footer=False)
+        try:
+            with codecs.open(location, 'r', encoding='utf-8-sig') as f:
+                report = self.parse_report_csv(f.read(), header=False, footer=False)
+        except FileNotFoundError:
+            print("Data not found")
+            report = []
 
         return report
 
@@ -280,16 +306,10 @@ class BingReporting(Reporting):
 
         return sample
 
-
-
-class BingReportingService(BingReporting):
-
-    def __init__(self, service_manager, reporting_service):
-        self.service_manager = service_manager
-        self.reporting_service = reporting_service
-
-
     def get_report_time(self, minDate=None, maxDate=None):
+
+        if not minDate or not maxDate:
+            raise Exception("Invalid daterange")
 
         min = self.reporting_service.factory.create('Date')
         min.Year = minDate.year
@@ -335,9 +355,26 @@ class BingReportingService(BingReporting):
 
         return columns
 
+    def get_adgroup_performance_columns(self, fields=["TimePeriod"]):
+        columns = self.reporting_service.factory.create(
+            'ArrayOfAdGroupPerformanceReportColumn'
+        )
+        columns.AdGroupPerformanceReportColumn.append(fields)
+
+        return columns
+
+
     def get_campaign_filters(self):
         filters = self.reporting_service.factory.create(
             "CampaignPerformanceReportFilter"
+        )
+        filters.Status = ["Active"]
+
+        return filters
+
+    def get_adgroup_filters(self):
+        filters = self.reporting_service.factory.create(
+            "AdGroupPerformanceReportFilter"
         )
         filters.Status = ["Active"]
 
@@ -402,14 +439,16 @@ class BingReportingService(BingReporting):
             'CampaignName'
         ]
 
-        fields = ["TimePeriod", "Spend"]
         report_name = self.parse_report_name(
             account_id, kwargs.get("report_name", "cmp_spend")
         )
+
         extra_fields = kwargs.get("extra_fields", None)
 
         if dateRangeType == "CUSTOM_DATE":
-            time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
+            time = self.get_report_time(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
 
         if extra_fields is not None:
             fields.extend(extra_fields)
@@ -432,6 +471,53 @@ class BingReportingService(BingReporting):
 
         return request
 
+    def get_adgroup_performance_query(
+            self,
+            account_id,
+            dateRangeType="CUSTOM_DATE",
+            aggregation="Daily",
+            **kwargs
+        ):
+        fields = [
+            'AdGroupId',
+            'AdGroupName',
+            'Status',
+            'CampaignId',
+            'CampaignName',
+            'Clicks'
+        ]
+        report_name = self.parse_report_name(
+            account_id, kwargs.get("report_name", "adgroups")
+        )
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if dateRangeType == "CUSTOM_DATE":
+            time = self.get_report_time(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
+
+        fields = list(set(fields))
+
+        request = self.reporting_service.factory.create(
+            "AdGroupPerformanceReportRequest"
+        )
+        columns = self.get_adgroup_performance_columns(fields=fields)
+        scope = self.get_scope("AccountThroughAdGroupReportScope")
+
+        scope.AccountIds={'long': [account_id] }
+        request.Filter = self.get_adgroup_filters()
+        request.Aggregation = aggregation
+        request.ReportName = report_name
+
+        request = self.generate_request(
+            request=request, scope=scope, time=time, columns=columns
+        )
+
+        return request
+
     def download_report(self, account_id, request):
         parameters = ReportingDownloadParameters(
             report_request=request,
@@ -442,6 +528,40 @@ class BingReportingService(BingReporting):
         )
 
         self.service_manager.download_file(parameters)
+
+
+
+class BingReportingService(BingReporting):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+    def get_account_performance(self, account_id, *args, **kwargs):
+
+        request = self.get_account_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
+
+
+    def get_campaign_performance(self, account_id, *args, **kwargs):
+
+        request = self.get_campaign_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
+
+    def get_adgroup_performance(self, account_id, *args, **kwargs):
+
+        request = self.get_adgroup_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
+
 
 
 class AdwordsReporting(Reporting):
@@ -605,8 +725,6 @@ class AdwordsReporting(Reporting):
             cost = cost / 1000000
 
         return cost
-
-
 
     def calculate_ovu(self, estimated_spend, desired_spend):
         return (int(estimated_spend) / int(desired_spend)) * 100

@@ -1,36 +1,17 @@
+import copy
+import json
 from bloom import celery_app
 from bloom import settings
-from bloom.utils import BingReportingService
-from bingads import ServiceClient
 from bing_dashboard import auth
-from bingads.v11.reporting import ReportingServiceManager
-from bing_dashboard.models import BingAccounts, BingAnomalies
-
-
-def get_services():
-    auth_method = auth.BingAuth().get_auth()
-
-    reporting_manager=ReportingServiceManager(
-          authorization_data=auth_method,
-          poll_interval_in_milliseconds=5000,
-          environment=settings.ENVIRONMENT,
-    )
-
-    reporting_service=ServiceClient(
-        'ReportingService',
-        authorization_data=auth_method,
-        environment=settings.ENVIRONMENT,
-        version=11,
-    )
-
-    return reporting_manager, reporting_service
+from celery import group
+from bloom.utils import BingReportingService
+from bloom.utils.service import BingService
+from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
 
-    services = get_services()
-    helper = BingReportingService(*services)
-
+    helper = BingReportingService()
     current_period_daterange = helper.get_daterange(days=7)
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
     previous_period_daterange = helper.get_daterange(
@@ -48,36 +29,21 @@ def bing_cron_anomalies_accounts(self, customer_id):
         'Spend'
     ]
 
-    query = helper.get_account_performance_query(
+    report = helper.get_account_performance(
         customer_id,
         dateRangeType="CUSTOM_DATE",
-        aggregation="Daily",
-        report_name="{}_anomalies_curr.csv".format(customer_id),
+        report_name="anomalies_curr",
         extra_fields=fields,
         **current_period_daterange
     )
 
-    query2 = helper.get_account_performance_query(
+    report2 = helper.get_account_performance(
         customer_id,
         dateRangeType="CUSTOM_DATE",
-        aggregation="Daily",
-        report_name="{}_anomalies_prev.csv".format(customer_id),
+        report_name="anomalies_prev",
         extra_fields=fields,
         **previous_period_daterange
     )
-
-    helper.download_report(customer_id, query)
-    helper.download_report(customer_id, query2)
-
-    try:
-        report = helper.get_report(query.ReportName)
-    except FileNotFoundError:
-        report = {}
-
-    try:
-        report2 = helper.get_report(query2.ReportName)
-    except FileNotFoundError:
-        report2 = {}
 
     summed  = helper.sum_report(report)
     summed2  = helper.sum_report(report2)
@@ -108,14 +74,14 @@ def bing_cron_anomalies_accounts(self, customer_id):
         search_impr_share=diff["impressionsharepercent"][0],
         metadata=metadata
     )
+
     #PRINT SUMM DATA
 
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_campaigns(self, customer_id):
 
-    services = get_services()
-    helper = BingReportingService(*services)
+    helper = BingReportingService()
 
     current_period_daterange = helper.get_daterange(days=7)
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
@@ -136,44 +102,24 @@ def bing_cron_anomalies_campaigns(self, customer_id):
         'CampaignName'
     ]
 
-    query = helper.get_campaign_performance_query(
+    report = helper.get_campaign_performance(
         customer_id,
         dateRangeType="CUSTOM_DATE",
-        aggregation="Daily",
-        report_name="{}_anomalies_curr.csv".format(customer_id),
+        report_name="anomalies_cmp_curr",
         extra_fields=fields,
         **current_period_daterange
     )
 
-    query2 = helper.get_campaign_performance_query(
+    report2 = helper.get_campaign_performance(
         customer_id,
         dateRangeType="CUSTOM_DATE",
-        aggregation="Daily",
-        report_name="{}_anomalies_prev.csv".format(customer_id),
+        report_name="anomalies_cmp_prev",
         extra_fields=fields,
         **previous_period_daterange
     )
 
-    helper.download_report(customer_id, query)
-    helper.download_report(customer_id, query2)
-
-
-    try:
-        report = helper.get_report(query.ReportName)
-
-    except FileNotFoundError:
-        report = {}
-
-    try:
-        report2 = helper.get_report(query2.ReportName)
-
-    except FileNotFoundError:
-        report2 = {}
-
-
     cmp_stats = helper.map_campaign_stats(report)
     cmp_stats2 = helper.map_campaign_stats(report2)
-    # cmp_stats2 = helper.map_campaign_stats(report2)
     campaign_ids = list(cmp_stats.keys())
     campaign_ids2 = list(cmp_stats2.keys())
 
@@ -218,8 +164,7 @@ def bing_cron_anomalies_campaigns(self, customer_id):
 def bing_cron_ovu(self, customer_id):
 
     account = BingAccounts.objects.get(account_id=customer_id)
-    services = get_services()
-    helper = BingReportingService(*services)
+    helper = BingReportingService()
 
     this_month = helper.get_this_month_daterange()
     last_7 = helper.get_daterange(days=7)
@@ -263,3 +208,39 @@ def bing_cron_ovu(self, customer_id):
     account.yesterday_spend = float(yesterday_spend)
 
     account.save()
+
+@celery_app.task(bind=True)
+def bing_cron_alerts(self, customer_id):
+    account = BingAccounts.objects.get(account_id=customer_id)
+    report_service = BingReportingService()
+    daterange = report_service.get_this_month_daterange()
+    adgs = report_service.get_adgroup_performance(
+        account_id=customer_id,
+        report_name="adgroup_performance_alerts",
+        **daterange
+    )
+    BingAlerts.objects.filter(account=account, alert_type="DISAPPROVED_AD").delete()
+    for adgroup in adgs:
+        bing_cron_disapproved_ads(customer_id, adgroup)
+
+
+
+
+def bing_cron_disapproved_ads(account_id, adgroup):
+    account = BingAccounts.objects.get(account_id=account_id)
+    service = BingService()
+    ads = service.get_ads_by_status(
+        account_id=account_id,
+        adgroup_id=adgroup['adgroupid'],
+        status="Disapproved"
+    )
+
+    for ad in ads:
+        adg = copy.deepcopy(adgroup)
+        ad_metadata = service.suds_object_to_dict(ad)
+        adg['ad'] = ad_metadata
+        BingAlerts.objects.create(
+            account=account,
+            alert_type="DISAPPROVED_AD",
+            metadata=adg
+        )
