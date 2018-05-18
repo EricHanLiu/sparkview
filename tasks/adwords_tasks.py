@@ -67,15 +67,15 @@ def adwords_cron_anomalies(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    current_period_daterange = helper.get_daterange(days=7)
+    current_period_daterange = helper.get_daterange(days=6)
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
     previous_period_daterange = helper.get_daterange(
-        days=7, maxDate=maxDate
+        days=6, maxDate=maxDate
     )
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
-    acc_anoamlies = account_anomalies(
+    acc_anomalies = account_anomalies(
         account.dependent_account_id,
         helper,
         current_period_daterange,
@@ -93,7 +93,7 @@ def adwords_cron_anomalies(self, customer_id):
     acc_metadata["daterange1_max"] = helper.stringify_date(current_period_daterange["maxDate"])
     acc_metadata["daterange2_min"] = helper.stringify_date(previous_period_daterange["minDate"])
     acc_metadata["daterange2_max"] = helper.stringify_date(previous_period_daterange["maxDate"])
-    acc_metadata["vals"] = acc_anoamlies
+    acc_metadata["vals"] = acc_anomalies
 
 
 
@@ -101,14 +101,14 @@ def adwords_cron_anomalies(self, customer_id):
 
     Performance.objects.create(
         account=account, performance_type='ACCOUNT',
-        clicks=acc_anoamlies['clicks'][0],
-        cost=acc_anoamlies['cost'][0],
-        impressions=acc_anoamlies['impressions'][0],
-        ctr=acc_anoamlies['ctr'][0],
-        conversions=acc_anoamlies['conversions'][0],
-        cpc=acc_anoamlies['avg._cpc'][0],
-        cost_per_conversions=acc_anoamlies['cost_/_conv.'][0],
-        search_impr_share=acc_anoamlies['search_impr._share'][0],
+        clicks=acc_anomalies['clicks'][0],
+        cost=acc_anomalies['cost'][0],
+        impressions=acc_anomalies['impressions'][0],
+        ctr=acc_anomalies['ctr'][0],
+        conversions=acc_anomalies['conversions'][0],
+        cpc=acc_anomalies['avg._cpc'][0],
+        cost_per_conversions=acc_anomalies['cost_/_conv.'][0],
+        search_impr_share=acc_anomalies['search_impr._share'][0],
         metadata=acc_metadata
     )
 

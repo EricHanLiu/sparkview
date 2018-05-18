@@ -1,3 +1,9 @@
-from .reporting import (AdwordsReportingService, BingReportingService, BingReporting)
+from .reporting import (
+    AdwordsReportingService, BingReportingService, FacebookReportingService
+)
 
-__all__ = ["AdwordsReportingService", "BingReportingService", "BingReporting"]
+__all__ = [
+    "AdwordsReportingService",
+    "BingReportingService",
+    "FacebookReportingService"
+]

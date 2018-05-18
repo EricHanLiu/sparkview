@@ -62,9 +62,9 @@ def campaign_anomalies(request, account_id):
         campaign['cpc'] = cmp.cpc
         campaign['clicks'] = cmp.clicks
         campaign['impressions'] = cmp.impressions
-        campaign['cost'] = cmp.cpc
-        campaign['conversions'] = cmp.cpc
-        campaign['cost_per_conversions'] = cmp.cpc
+        campaign['cost'] = cmp.cost
+        campaign['conversions'] = cmp.conversions
+        campaign['cost_per_conversions'] = cmp.cost_per_conversions
         campaign['ctr'] = cmp.ctr
         campaign['search_impr_share'] = cmp.search_impr_share
         campaigns.append(campaign)

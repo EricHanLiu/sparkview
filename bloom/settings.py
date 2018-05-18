@@ -23,15 +23,14 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 ALLOWED_HOSTS = [
-    'bloom.hyperdigitalserver.com',
+    '35.203.133.58',
     '127.0.0.1',
-    '35.199.174.226',
     'localhost',
-    'app.mibhub.com'
+    'app.mibhub.com',
 ]
 ADMINS = [('Octavian','octavian@hdigital.io')]
 # Application definition
@@ -153,12 +152,12 @@ CRONJOBS = [
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('5 8 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
-    ('30 11 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
-    ('30 11 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
-    ('0 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
+    ('30 9 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
+    ('00 12 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+    ('00 12 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
+    ('20 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('30 12 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
-    ('0 13 * * *', 'cron_flight_dates.main', '> ' + BASE_DIR + '/logs/flight_dates.log'),
-    ('30 13 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
+    ('45 12 * * *', 'cron_flight_dates.main', '> ' + BASE_DIR + '/logs/flight_dates.log'),
     ('*/5 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
     ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
 ]
@@ -170,6 +169,7 @@ if DEBUG:
 else:
     REDIRECT_URI = "https://app.mibhub.com/dashboards/bing/auth/exchange"
 
+# Bing Auth
 CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
 CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"
 DEVELOPER_TOKEN = "1215QQ0H16176244"
@@ -177,6 +177,15 @@ DEVELOPER_TOKEN_SANDBOX = "BBD37VB98"
 ENVIRONMENT = "production"
 BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
 
+# Facebook Auth
+
+bloomworker='100025980313978'
+app_id = '582921108716849'
+business_id = '10154654586810511'
+app_secret = '17bc991966f6895650068fe41bc87aa0'
+access_token = "EAAISKeWdZCTEBABaA5WtXSNP3vOGxEAFx2MBjKWGV6nfpOVxcMoHtTuqeyGx47rkDXJWErA4SPI1ikCHIKLOmorHpqHkNKxuEuSudMtjPdiLGV6MZArB4HRJPhDlpHmq53qrqarZBPMyClGOkhOMBGZBYmQUQXGX6pEFlHaO2gZDZD"
+
+# E-mail settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_HOST_USER = 'dev@makeitbloom.com'

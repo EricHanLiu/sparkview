@@ -3,11 +3,15 @@ import io
 import codecs
 import re
 import copy
+import time
+import warnings
 from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
+from functools import partial
 from bingads.v11.reporting import ReportingDownloadParameters
+from facebook_business.adobjects.adaccount import AdAccount
 
 class Reporting:
 
@@ -45,6 +49,7 @@ class Reporting:
 
         valid_keys = [
             "ctr",
+            "cpc",
             "conversions",
             "clicks",
             "impressions",
@@ -434,7 +439,8 @@ class AdwordsReporting(Reporting):
         ]
         extra_fields = kwargs.get("extra_fields", None)
         if extra_fields:
-            fields = list(set(fields.extend(extra_fields)))
+            fields.extend(extra_fields)
+            fields = list(set(fields))
 
         if dateRangeType == "CUSTOM_DATE":
             query["selector"]["dateRange"] = self.get_custom_daterange(
@@ -609,3 +615,184 @@ class AdwordsReportingService(AdwordsReporting):
         )
 
         return self.parse_report_csv(downloaded_report)
+
+
+class FacebookReporting(Reporting):
+
+    date_format = "%Y-%m-%d"
+
+    def get_daterange(self, days=14, maxDate=None):
+
+        today = datetime.today()
+
+        if maxDate is None:
+            maxDate = today + relativedelta(days=-1)
+
+        minDate = maxDate + relativedelta(days=-days)
+
+        return self.get_custom_date_range(since=minDate, until=maxDate)
+
+    def get_this_month_daterange(self):
+
+        today = datetime.today()
+
+        if today.day < 2:
+            maxDate = today
+        else:
+            maxDate = today + relativedelta(days=-1)
+
+        minDate = datetime(today.year, today.month, 1)
+
+        this_month = self.get_custom_date_range(since=minDate, until=maxDate)
+
+        return this_month
+
+    def get_custom_date_range(self, since=None, until=None):
+        return dict(since=since.strftime(self.date_format),
+                    until=until.strftime(self.date_format))
+
+    @staticmethod
+    def set_params(time_range='', date_preset='', level='', filtering=[]):
+        return {
+            'time_range': time_range,
+            'date_preset': date_preset,
+            'level': level,
+            'filtering': filtering,
+        }
+
+
+    def get_insights_query(self, **kwargs):
+
+        fields = []
+
+        params = {}
+
+        extra_fields = kwargs.get("extra_fields", None)
+        if extra_fields:
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        get_params = kwargs.get("params", None)
+        if get_params and 'time_range' in get_params:
+            params['time_range'] = get_params['time_range']
+
+        if get_params and 'date_preset' in get_params:
+            params['date_preset'] = get_params['date_preset']
+
+        if get_params and 'filtering' in get_params:
+            params['filtering'] = get_params['filtering']
+
+        if get_params and 'level' in get_params:
+            params['level'] = get_params['level']
+
+        query = {
+            'fields': fields,
+            'params': params
+        }
+
+        return query
+
+
+    def generate_batches(self, iterable, batch_size_limit):
+        """
+        Generator that yields lists of length size batch_size_limit containing
+        objects yielded by the iterable.
+        """
+        batch = []
+
+        for item in iterable:
+            if len(batch) == batch_size_limit:
+                yield batch
+                batch = []
+            batch.append(item)
+
+        if len(batch):
+            yield batch
+
+
+class FacebookReportingService(FacebookReporting):
+
+    def __init__(self, session):
+        self.session = session
+
+
+    def get_account_insights(self, account_id, **kwargs):
+
+        warnings.simplefilter("ignore")
+        account = AdAccount('act_' + account_id)
+
+        query = self.get_insights_query(**kwargs)
+
+        data = account.get_insights(
+            fields=query['fields'],
+            params=query['params']
+        )
+
+        return data
+
+
+    def get_campaign_insights_async(self, account_id, **kwargs):
+
+        account = AdAccount('act_' + account_id)
+        query = self.get_insights_query(**kwargs)
+        campaigns = account.get_campaigns()
+
+        for campaign in campaigns:
+            warnings.simplefilter("ignore")
+            job = campaign.get_insights(
+                async=True,
+                **query
+            )
+
+            job_status = job.remote_read()
+            while job_status['async_status'] != 'Job Completed':
+                time.sleep(1)
+                job_status = job.remote_read()
+            data = job.get_result()
+
+            return data
+
+    def get_campaign_insights_batch(self, account_id, **kwargs):
+
+        batch_limit = 25
+
+        account = AdAccount('act_' + account_id)
+        query = self.get_insights_query(**kwargs)
+        campaigns_iterator = account.get_campaigns()
+
+        for campaigns in self.generate_batches(campaigns_iterator, batch_limit):
+
+            api_batch = self.session.new_batch()
+
+            for cmp in campaigns:
+
+                def callback_success(response, campaign=None):
+                    print(campaign, response)
+
+                callback_success = partial(
+                    callback_success,
+                    campaign=cmp,
+                )
+
+                def callback_failure(response, campaign=None):
+                    print("FAILED to read %s." % campaign)
+                    raise response.error()
+
+                callback_failure = partial(
+                    callback_failure,
+                    campaign=cmp,
+                )
+
+                cmp.remote_read(
+                    batch=api_batch,
+                    success=callback_success,
+                    failure=callback_failure,
+                    **query
+                )
+
+            api_batch.execute()
+
+        print("\nHTTP Request Statistics: %s attempted, %s succeeded." % (
+            self.session.get_num_requests_attempted(),
+            self.session.get_num_requests_succeeded(),
+        ))

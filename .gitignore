@@ -10,6 +10,7 @@ nohup.out
 .idea/
 config.sh
 bing_dashboard/bing_creds
+budget/management
 bing_reports
 response.txt
 dump.rdb

@@ -10,7 +10,6 @@ from .auth import BingAuth
 from bingads import ServiceClient
 from bingads.v11.reporting import *
 from bing_dashboard import models
-from .auth_helper import *
 
 # Create your views here.
 @login_required
@@ -36,6 +35,7 @@ def bing_dashboard(request):
         item['cost'] = query[0].cost if query else 0
         item['cost_conv'] = query[0].cost_per_conversions if query else 0
         item['impr_share'] = query[0].search_impr_share if query else 0
+        item['metadata'] = query[0].metadata
         items.append(item)
     return render(request, 'bing/dashboard.html', {'items': items})
 
@@ -56,11 +56,12 @@ def campaign_anomalies(request, account_id):
         campaign['cpc'] = cmp.cpc
         campaign['clicks'] = cmp.clicks
         campaign['impressions'] = cmp.impressions
-        campaign['cost'] = cmp.cpc
-        campaign['conversions'] = cmp.cpc
-        campaign['cost_per_conversions'] = cmp.cpc
+        campaign['cost'] = cmp.cost
+        campaign['conversions'] = cmp.conversions
+        campaign['cost_per_conversions'] = cmp.cost_per_conversions
         campaign['ctr'] = cmp.ctr
         campaign['search_impr_share'] = cmp.search_impr_share
+        campaign['metadata'] = cmp.metadata
         campaigns.append(campaign)
 
     context = {

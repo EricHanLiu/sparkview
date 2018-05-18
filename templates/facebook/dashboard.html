@@ -14,28 +14,28 @@
             </div>
         </div>
         <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="adwords_datatable">
+          <table class='table table-striped m-table m-table--head-separator-bloom' id="adwords_datatable">
             <thead class="thead-inverse">
               <tr>
                 <th>Account</th>
                 <th>U & O</th>
-                <th>Url Checker</th>
-                <th>Disapproved Ads</th>
-                <th>Impr. Share</th>
+{#                <th>Url Checker</th>#}
+{#                <th>Disapproved Ads</th>#}
+{#                <th>Impr. Share</th>#}
                 <th>Impr.</th>
                 <th>Clicks</th>
                 <th>CTR</th>
                 <th>Avg. CPC</th>
                 <th>Cost</th>
-                <th>Conversions</th>
-                <th>Cost / conv.</th>
+{#                <th>Conversions</th>#}
+{#                <th>Cost / conv.</th>#}
               </tr>
             </thead>
             <tbody>
               {% for item in items %}
               <tr>
                 <td>
-{#                <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">#}
+                <a href="{% url 'facebook:campaign_anomalies' item.account.account_id %}">
                 {{ item.account.account_name }} </a> - {{ item.account.account_id }} {# - #}
 {#                <a href="#" onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>#}
 {#                <br />#}
@@ -49,42 +49,54 @@
 {#                </div>#}
                 </td>
                 <td>
-{#                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%#}
+                    <span>
+                        {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
+                    </span>
                 </td>
-                <td>
+{#                <td>#}
 {#                    <a href="{% url 'adwords:url_checker' item.account.dependent_account_id %}">#}
 {#                        {{ item.404_urls }}#}
 {#                    </a>#}
-                </td>
-                <td>
+{#                </td>#}
+{#                <td>#}
 {#                    <a href="{% url 'adwords:alerts' item.account.dependent_account_id %}">#}
 {#                    {{ item.disapproved_ads }}#}
 {#                    </a>#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ item.search_impr_share|uni2float|floatformat:2 }}%0#}
+{#                </td>#}
+                <td>
+                    <span>
+                        {{ item.impressions|uni2float|floatformat:2 }}%
+                    </span>
                 </td>
                 <td>
-{#                    {{ item.search_impr_share|uni2float|floatformat:2 }}%#}
+                    <span>
+                        {{ item.clicks|uni2float|floatformat:2 }}%
+                    </span>
                 </td>
                 <td>
-{#                    {{ item.impressions|uni2float|floatformat:2 }}%#}
+                    <span>
+                        {{ item.ctr|uni2float|floatformat:2 }}%
+                    </span>
                 </td>
                 <td>
-{#                    {{ item.clicks|uni2float|floatformat:2 }}%#}
+                    <span>
+                        {{ item.cpc|uni2float|floatformat:2 }}%
+                    </span>
                 </td>
                 <td>
-{#                    {{ item.ctr|uni2float|floatformat:2 }}%#}
+                    <span>
+                        {{ item.cost|uni2float|floatformat:2 }}%
+                    </span>
                 </td>
-                <td>
-{#                    {{ item.cpc|uni2float|floatformat:2 }}%#}
-                </td>
-                <td>
-{#                    {{ item.cost|uni2float|floatformat:2 }}%#}
-                </td>
-                <td>
+{#                <td>#}
 {#                    {{ item.conversions|uni2float|floatformat:2 }}%#}
-                </td>
-                <td>
+{#                </td>#}
+{#                <td>#}
 {#                      {{ item.cost_per_conversions|uni2float|floatformat:2 }}%#}
-                </td>
+{#                </td>#}
               </tr>
               {% endfor %}
             </tbody>

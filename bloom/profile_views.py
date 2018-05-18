@@ -10,6 +10,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from adwords_dashboard.models import DependentAccount, Profile
 from bing_dashboard.models import BingAccounts
+from facebook_dashboard.models import FacebookAccount
 import json
 
 
@@ -19,8 +20,9 @@ def view_profile(request):
 
     if request.method == 'GET':
 
-        bing_accounts = BingAccounts.objects.filter(assigned=False)
-        adwords_accounts = DependentAccount.objects.filter(assigned=False)
+        adwords_accounts = DependentAccount.objects.all()
+        bing_accounts = BingAccounts.objects.all()
+        facebook_accounts = FacebookAccount.objects.all()
         user_profile = Profile.objects.get(user=user)
         aw_to = DependentAccount.objects.filter(assigned_to=user)
         aw_cm2 = DependentAccount.objects.filter(assigned_cm2=user)
@@ -28,16 +30,23 @@ def view_profile(request):
         bing_to = BingAccounts.objects.filter(assigned_to=user)
         bing_cm2 = BingAccounts.objects.filter(assigned_cm2=user)
         bing_cm3 = BingAccounts.objects.filter(assigned_cm3=user)
+        fb_to = FacebookAccount.objects.filter(assigned_to=user)
+        fb_cm2 = FacebookAccount.objects.filter(assigned_cm2=user)
+        fb_cm3 = FacebookAccount.objects.filter(assigned_cm3=user)
 
         context = {
             'adwords': adwords_accounts,
             'bing': bing_accounts,
+            'facebook': facebook_accounts,
             'aw_to': aw_to,
             'aw_cm2': aw_cm2,
             'aw_cm3': aw_cm3,
             'bing_to': bing_to,
             'bing_cm2': bing_cm2,
             'bing_cm3': bing_cm3,
+            'fb_to': fb_to,
+            'fb_cm2': fb_cm2,
+            'fb_cm3': fb_cm3,
             'user_profile': user_profile
 
         }
@@ -51,6 +60,9 @@ def view_profile(request):
         bing = request.POST.getlist('bing')
         bing_cm2 = request.POST.getlist('bing_cm2')
         bing_cm3 = request.POST.getlist('bing_cm3')
+        facebook = request.POST.getlist('facebook')
+        facebook_cm2 = request.POST.getlist('facebook_cm2')
+        facebook_cm3 = request.POST.getlist('facebook_cm3')
         email = request.POST.get('user-email')
 
         if email == user.email:
@@ -100,6 +112,24 @@ def view_profile(request):
                 bing_acc = BingAccounts.objects.get(account_id=b)
                 bing_acc.assigned_cm3 = user
                 bing_acc.save()
+
+        if facebook:
+            for f in facebook:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_to = user
+                fb_acc.save()
+
+        if facebook_cm2:
+            for f in facebook:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_cm2 = user
+                fb_acc.save()
+
+        if facebook_cm3:
+            for f in facebook:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_cm3 = user
+                fb_acc.save()
 
         context = {
             'error': 'OK'
@@ -186,6 +216,7 @@ def user_list(request):
         users = User.objects.all()
         adwords = DependentAccount.objects.all()
         bing = BingAccounts.objects.all()
+        facebook = FacebookAccount.objects.all()
 
         for user in users:
             detail ={
@@ -195,14 +226,18 @@ def user_list(request):
                 'aw_cm3': DependentAccount.objects.filter(assigned_cm3=user),
                 'bing_to': BingAccounts.objects.filter(assigned_to=user),
                 'bing_cm2': BingAccounts.objects.filter(assigned_cm2=user),
-                'bing_cm3': BingAccounts.objects.filter(assigned_cm3=user)
+                'bing_cm3': BingAccounts.objects.filter(assigned_cm3=user),
+                'facebook_to': FacebookAccount.objects.filter(assigned_to=user),
+                'facebook_cm2': FacebookAccount.objects.filter(assigned_cm2=user),
+                'facebook_cm3': FacebookAccount.objects.filter(assigned_cm3=user),
             }
             details.append(detail)
 
         context = {
             'details': details,
             'adwords': adwords,
-            'bing': bing
+            'bing': bing,
+            'facebook': facebook
         }
 
         return render(request, 'users.html', context)
@@ -216,7 +251,9 @@ def user_list(request):
         bing = request.POST.getlist('bing_cm')
         bing_cm2 = request.POST.getlist('bing_cm2')
         bing_cm3 = request.POST.getlist('bing_cm3')
-
+        facebook = request.POST.getlist('facebook')
+        facebook_cm2 = request.POST.getlist('facebook_cm2')
+        facebook_cm3 = request.POST.getlist('facebook_cm3')
         user = User.objects.get(id=uid)
 
         if adwords:
@@ -254,6 +291,24 @@ def user_list(request):
                 bing_acc.assigned_cm3 = user
                 bing_acc.save()
 
+        if facebook:
+            for f in facebook:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_to = user
+                fb_acc.save()
+
+        if facebook_cm2:
+            for f in facebook_cm2:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_cm2 = user
+                fb_acc.save()
+
+        if facebook_cm3:
+            for f in facebook_cm3:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_cm3 = user
+                fb_acc.save()
+
         context = {
             'error': 'OK'
         }
@@ -264,44 +319,55 @@ def remove_user_accounts(request):
     data = json.loads(request.body.decode('utf-8'))
     acc_id = data['acc_id']
     level = data['cm']
-
-    if level == 'cm':
-        try:
+    platform = data['platform']
+    print(acc_id, level, platform)
+    if platform == 'adwords':
+        if level == 'cm':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
             account.assigned_to = None
             account.save()
-            # account.assigned = False
-            # profile.adwords.remove(account)
-            # profile.save()
 
-        except ObjectDoesNotExist:
-            account = BingAccounts.objects.get(account_id=acc_id)
-            account.assigned_to = None
-            account.save()
-            # account.assigned = False
-            # profile.bing.remove(account)
-            # profile.save()
-
-    if level == 'cm2':
-        try:
+        if level == 'cm2':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
             account.assigned_cm2 = None
             account.save()
-        except ObjectDoesNotExist:
+
+        if level == 'cm3':
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+            account.assigned_cm3 = None
+            account.save()
+
+    if platform == 'bing':
+        if level == 'cm':
             account = BingAccounts.objects.get(account_id=acc_id)
             account.assigned_cm2 = None
             account.save()
 
-    if level == 'cm3':
-        try:
-            account = DependentAccount.objects.get(dependent_account_id=acc_id)
-            account.assigned_cm3 = None
+        if level == 'cm2':
+            account = BingAccounts.objects.get(account_id=acc_id)
+            account.assigned_cm2 = None
             account.save()
-        except ObjectDoesNotExist:
+
+        if level == 'cm3':
             account = BingAccounts.objects.get(account_id=acc_id)
             account.assigned_cm3 = None
             account.save()
+    # automatically increments id by 1 ?????
+    if platform == 'facebook':
+        if level == 'cm':
+            account = FacebookAccount.objects.get(account_id=acc_id)
+            account.assigned_to = None
+            account.save()
 
+        if level == 'cm2':
+            account = FacebookAccount.objects.get(account_id=acc_id)
+            account.assigned_cm2 = None
+            account.save()
+
+        if level == 'cm3':
+            account = FacebookAccount.objects.get(account_id=acc_id)
+            account.assigned_cm3 = None
+            account.save()
     context = {
         'error': 'OK'
     }

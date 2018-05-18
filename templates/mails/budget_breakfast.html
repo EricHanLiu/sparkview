@@ -20,7 +20,7 @@
 <br/>
 <h4>The following AdWords accounts will underspend: </h4>
 {% for b in aw_under %}
-    <br>Account Name: {{ b.account }}<br />
+    <p>Account Name: {{ b.account }}<br />
     Budget: {{ b.budget }}<br />
     Current Total Spend: {{ b.current_spend }}<br />
     Projected Spend EOM: {{ b.projected }}</p>

@@ -64,7 +64,7 @@
                                                     <span id="{{ cm.dependent_account_id }}"
                                                           class="m-badge m-badge--info m-badge--wide">
                                                 CM: {{ cm.dependent_account_name }} <a style="color: #FFF;"
-                                                                                       onclick="removeAccount({{ cm.dependent_account_id }}, 'cm')">X</a>
+                                                                                       onclick="removeAccount({{ cm.dependent_account_id }}, 'cm', 'adwords')">X</a>
                                             </span>
                                                     {% empty %}
                                                     <span class="m-badge m-badge--danger m-badge--wide">
@@ -78,7 +78,7 @@
                                                           class="m-badge m-badge--success m-badge--wide">
                                                 CM2: {{ cm2.dependent_account_name }}
                                                     <a style="color: #FFF;"
-                                                       onclick="removeAccount({{ cm2.dependent_account_id }}, 'cm2')">X</a>
+                                                       onclick="removeAccount({{ cm2.dependent_account_id }}, 'cm2', 'adwords')">X</a>
                                             </span>
                                                     {% empty %}
                                                     <span class="m-badge m-badge--danger m-badge--wide">
@@ -91,8 +91,8 @@
                                                     <span id="{{ cm3.dependent_account_id }}"
                                                           class="m-badge m-badge--warning m-badge--wide">
                                                 CM3: {{ cm3.dependent_account_name }} <a style="color: #FFF;"
-                                                                                         onclick="removeAccount({{ cm3.dependent_account_id }}, 'cm3')">X</a>
-                                            </span>
+                                                 onclick="removeAccount({{ cm3.dependent_account_id }}, 'cm3', 'adwords')">X</a>
+                                                    </span>
                                                     {% empty %}
                                                     <span class="m-badge m-badge--danger m-badge--wide">
                                                 CM3: No accounts
@@ -106,7 +106,7 @@
                                                     <span id="{{ cm.account_id }}"
                                                           class="m-badge m-badge--primary m-badge--wide">
                                                 CM: {{ cm.account_name }} <a style="color: #FFF;"
-                                                                             onclick="removeAccount({{ cm.account_id }}, 'cm')">X</a>
+                                                                             onclick="removeAccount({{ cm.account_id }}, 'cm', 'bing')">X</a>
                                             </span>
                                                     {% empty %}
                                                     <span class="m-badge m-badge--danger m-badge--wide">CM: No accounts</span>
@@ -117,7 +117,7 @@
                                                     <span id="{{ cm2.account_id }}"
                                                           class="m-badge m-badge--success m-badge--wide">
                                                 CM2: {{ cm2.account_name }} <a style="color: #FFF;"
-                                                                               onclick="removeAccount({{ cm2.account_id }}, 'cm2')">X</a>
+                                                                               onclick="removeAccount({{ cm2.account_id }}, 'cm2', 'bing')">X</a>
                                             </span>
                                                     {% empty %}
                                                     <span class="m-badge m-badge--danger m-badge--wide">
@@ -130,7 +130,7 @@
                                                     <span id="{{ cm3.account_id }}"
                                                           class="m-badge m-badge--warning m-badge--wide">
                                                 CM3: {{ cm3.account_name }} <a style="color: #FFF;"
-                                                                               onclick="removeAccount({{ cm3.account_id }}, 'cm3')">X</a>
+                                                                               onclick="removeAccount({{ cm3.account_id }}, 'cm3', 'bing')">X</a>
                                             </span>
                                                     {% empty %}
                                                     <span class="m-badge m-badge--danger m-badge--wide">
@@ -140,7 +140,40 @@
                                             </p>
                                         </div>
                                         <div class="tab-pane" id="m_tabs_7_3-{{ detail.user.id }}" role="tabpanel">
-                                            No accounts to display yet...
+                                            <p>
+                                                {% for fcm in detail.facebook_to %}
+                                                    <span id="{{ fcm.account_id }}"
+                                                          class="m-badge m-badge--primary m-badge--wide">CM: {{ fcm.account_name }} <a style="color: #FFF;"
+                                                                             onclick="removeAccount('{{ fcm.account_id }}', 'cm', 'facebook')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">CM: No accounts</span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
+                                                {% for fcm2 in detail.facebook_cm2 %}
+                                                    <span id="{{ cm2.account_id }}"
+                                                          class="m-badge m-badge--success m-badge--wide">CM2: {{ fcm2.account_name }} <a style="color: #FFF;"
+                                                                               onclick="removeAccount('{{ fcm2.account_id }}', 'cm2', 'facebook')">X</a>
+                                                    </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                        CM2: No accounts
+                                                    </span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
+                                                {% for fcm3 in detail.facebook_cm3 %}
+                                                    <span id="{{ fcm3.account_id }}"
+                                                          class="m-badge m-badge--warning m-badge--wide">CM3: {{ fcm3.account_name }} <a style="color: #FFF;"
+                                                                               onclick="removeAccount('{{ fcm3.account_id }}', 'cm3', 'facebook')">X</a>
+                                            </span>
+                                                    {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                CM3: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -236,6 +269,41 @@
                                 </div>
                             </div>
                         </div>
+                        <h5>Facebook</h5>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="facebook" class="form-control-label">CM:</label>
+                                    <select class="form-control m-input--large" name="facebook"
+                                            multiple="multiple" id="m_select2_facebook"
+                                            style="width: 100%;">
+                                        {% for f in facebook %}
+                                            <option value="{{ f.account_id }}">{{ f.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="facebook_cm2" class="form-control-label">CM2:</label>
+                                    <select class="form-control m-input--large" name="facebook_cm2"
+                                            multiple="multiple" id="m_select2_facebook_cm2"
+                                            style="width: 100%;">
+                                        {% for f in facebook %}
+                                            <option value="{{ f.account_id }}">{{ f.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="facebook_cm3" class="form-control-label">CM3:</label>
+                                    <select class="form-control m-input--large" name="facebook_cm3"
+                                            multiple="multiple" id="m_select2_facebook_cm3"
+                                            style="width: 100%;">
+                                        {% for f in facebook %}
+                                            <option value="{{ f.account_id }}">{{ f.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -249,13 +317,15 @@
 
     <script type="text/javascript">
 
-        function removeAccount(acc_id, cm_lvl) {
-
+        function removeAccount(acc_id, cm_lvl, platform) {
+            // automatically increments id by 1 ?????
+            console.log(acc_id);
             data = JSON.stringify({
                 'acc_id': acc_id,
-                'cm': cm_lvl
+                'cm': cm_lvl,
+                'platform': platform
             });
-
+            console.log(data)
             $.ajax({
                 type: "POST",
                 url: "/users/accounts/delete",
@@ -285,6 +355,7 @@
         function submitAccounts() {
 
             var accounts = $('#add-accounts').serializeArray();
+            console.log(accounts)
             var uid = $('#uid').val();
             accounts.push({name: 'uid', value: uid});
 

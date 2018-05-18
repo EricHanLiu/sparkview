@@ -6,6 +6,7 @@ from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingCampaign
+from facebook_dashboard.models import FacebookAccount
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping
 import calendar
 import json
@@ -29,10 +30,6 @@ def index():
 @xframe_options_exempt
 def index_budget(request):
 
-    now = datetime.today()
-    current_day = now.day - 1
-    days = calendar.monthrange(now.year, now.month)[1]
-
     if request.method == 'GET':
         accounts = DependentAccount.objects.filter(blacklisted='False')
         return render(request, 'budget/adwords_budget.html', {'items': accounts})
@@ -41,11 +38,9 @@ def index_budget(request):
         account = DependentAccount.objects.get(dependent_account_id=request.POST['acc_id'])
         desired_spend = request.POST['desired_spend']
         account.desired_spend = desired_spend
-        account.dependent_OVU = (float(account.current_spend) / (float(account.desired_spend) / days * now.day)) * 100
         account.save()
         context = {
             'error': 'OK',
-            'OVU': account.dependent_OVU
         }
 
         return JsonResponse(context)
@@ -56,7 +51,7 @@ def index_budget(request):
 def bing_budget(request):
 
     if request.method == 'GET':
-        items = []
+        itemz = []
         try:
             accounts = BingAccounts.objects.filter(blacklisted='False')
             return render(request, 'budget/bing_budget.html', {'items': accounts})
@@ -68,11 +63,34 @@ def bing_budget(request):
             account = BingAccounts.objects.get(account_id=request.POST['acc_id'])
             desired_spend = request.POST['desired_spend']
             account.desired_spend = desired_spend
-            account.account_ovu = int(float(account.current_spend) / float(account.desired_spend) * float(100))
             account.save()
             context = {
                 'error': 'OK',
-                'OVU': account.account_ovu
+            }
+            return JsonResponse(context)
+        except ValueError:
+            raise Http404
+
+@login_required
+@xframe_options_exempt
+def facebook_budget(request):
+
+    if request.method == 'GET':
+        items = []
+        try:
+            accounts = FacebookAccount.objects.filter(blacklisted='False')
+            return render(request, 'budget/facebook_budget.html', {'items': accounts})
+        except ValueError:
+            raise Http404
+
+    elif request.method == 'POST':
+        try:
+            account = FacebookAccount.objects.get(account_id=request.POST['acc_id'])
+            desired_spend = request.POST['desired_spend']
+            account.desired_spend = desired_spend
+            account.save()
+            context = {
+                'error': 'OK',
             }
             return JsonResponse(context)
         except ValueError:
@@ -180,7 +198,7 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
     next_month = datetime(
         year=today.year,
         month=((today.month + 1) % 12),
@@ -281,7 +299,7 @@ def last_month(request):
 @xframe_options_exempt
 def hist_client_details(request, client_id):
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
     next_month = datetime(
         year=today.year,
         month=((today.month + 1) % 12),
@@ -544,7 +562,10 @@ def update_budget(request):
         client.budget = budget
         client.save()
 
-        context = {}
+        context = {
+            'width':  (client.current_spend / int(budget)) * 100,
+            'client_id': client_id
+        }
 
         return JsonResponse(context)
 

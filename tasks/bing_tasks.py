@@ -31,10 +31,10 @@ def bing_cron_anomalies_accounts(self, customer_id):
     services = get_services()
     helper = BingReportingService(*services)
 
-    current_period_daterange = helper.get_daterange(days=7)
+    current_period_daterange = helper.get_daterange(days=6)
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
     previous_period_daterange = helper.get_daterange(
-        days=7, maxDate=maxDate
+        days=6, maxDate=maxDate
     )
 
     fields = [
@@ -94,7 +94,7 @@ def bing_cron_anomalies_accounts(self, customer_id):
         "vals": diff
     }
 
-    BingAnomalies.objects.filter(performance_type="ACCOUNT").delete()
+    BingAnomalies.objects.filter(account=account, performance_type="ACCOUNT").delete()
     BingAnomalies.objects.create(
         account=account,
         performance_type="ACCOUNT",
@@ -117,10 +117,10 @@ def bing_cron_anomalies_campaigns(self, customer_id):
     services = get_services()
     helper = BingReportingService(*services)
 
-    current_period_daterange = helper.get_daterange(days=7)
+    current_period_daterange = helper.get_daterange(days=6)
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
     previous_period_daterange = helper.get_daterange(
-        days=7, maxDate=maxDate
+        days=6, maxDate=maxDate
     )
 
     fields = [
@@ -181,7 +181,7 @@ def bing_cron_anomalies_campaigns(self, customer_id):
     account = BingAccounts.objects.get(account_id=customer_id)
 
 
-    BingAnomalies.objects.filter(performance_type="CAMPAIGN").delete()
+    BingAnomalies.objects.filter(account=account, performance_type="CAMPAIGN").delete()
     for cmp_id in campaign_ids:
         if not cmp_id in cmp_stats2:
             continue

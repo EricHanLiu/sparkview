@@ -31,7 +31,7 @@ var WizardDemo = function () {
 
             if (wizard.isLastStep()) {
                 $('#client_name_fstep').html(client_name.value);
-                // $('#client_budget_fstep').html(client_budget.value);
+                $('#client_budget_fstep').html(client_budget.value);
                 // $('#aw_name_fstep').html(data.adwords.value);
             }
         });

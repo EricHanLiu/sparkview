@@ -48,7 +48,9 @@
 {#                    </a>#}
 {#                </td>#}
                 <td>
-                    {{ item.impr_share|uni2float|floatformat:2 }}%
+{#                    <span data-toggle="m-tooltip" data-original-title="{{ item.metadata.vals.impressionsharepercent }}">#}
+                        {{ item.impr_share|uni2float|floatformat:2 }}%
+{#                    </span>#}
                 </td>
                 <td>
                     {{ item.impressions|uni2float|floatformat:2 }}%
@@ -72,6 +74,12 @@
                       {{ item.cost_conv|uni2float|floatformat:2 }}%
                 </td>
               </tr>
+{#                  <p>#}
+{#                  <i style="font-size: 10px; color: grey;">#}
+{#                      *Statistics computed for {{ item.metadata.min_daterange2 }} - {{ item.metadata.max_daterange2 }} and#}
+{#                  {{ item.metadata.min_daterange1 }} - {{ item.metadata.max_daterange1 }}#}
+{#                  </i>#}
+{#                  </p>#}
               {% endfor %}
             </tbody>
           </table>
