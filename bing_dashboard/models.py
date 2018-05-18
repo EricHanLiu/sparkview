@@ -65,12 +65,14 @@ class BingAlerts(models.Model):
     alert_type = models.CharField(max_length=255, default='None')
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+    metadata = JSONField(default=dict)
 
     class Meta:
+
         ordering = ['created_time', 'updated_time']
 
     def __str__(self):
-        return self.account
+        return self.alert_type
 
 class BingCampaign(models.Model):
 

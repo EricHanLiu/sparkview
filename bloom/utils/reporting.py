@@ -242,8 +242,12 @@ class BingReporting(Reporting):
     def get_report(self, report_name):
 
         location = settings.BINGADS_REPORTS + report_name
-        with codecs.open(location, 'r', encoding='utf-8-sig') as f:
-            report = self.parse_report_csv(f.read(), header=False, footer=False)
+        try:
+            with codecs.open(location, 'r', encoding='utf-8-sig') as f:
+                report = self.parse_report_csv(f.read(), header=False, footer=False)
+        except FileNotFoundError:
+            print("Data not found")
+            report = []
 
         return report
 
@@ -478,6 +482,8 @@ class BingReporting(Reporting):
             'AdGroupId',
             'AdGroupName',
             'Status',
+            'CampaignId',
+            'CampaignName',
             'Clicks'
         ]
         report_name = self.parse_report_name(

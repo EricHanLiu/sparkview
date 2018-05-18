@@ -1,8 +1,12 @@
+import copy
+import json
 from bloom import celery_app
 from bloom import settings
 from bing_dashboard import auth
+from celery import group
 from bloom.utils import BingReportingService
-from bing_dashboard.models import BingAccounts, BingAnomalies
+from bloom.utils.service import BingService
+from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -204,3 +208,39 @@ def bing_cron_ovu(self, customer_id):
     account.yesterday_spend = float(yesterday_spend)
 
     account.save()
+
+@celery_app.task(bind=True)
+def bing_cron_alerts(self, customer_id):
+    account = BingAccounts.objects.get(account_id=customer_id)
+    report_service = BingReportingService()
+    daterange = report_service.get_this_month_daterange()
+    adgs = report_service.get_adgroup_performance(
+        account_id=customer_id,
+        report_name="adgroup_performance_alerts",
+        **daterange
+    )
+    BingAlerts.objects.filter(account=account, alert_type="DISAPPROVED_AD").delete()
+    for adgroup in adgs:
+        bing_cron_disapproved_ads(customer_id, adgroup)
+
+
+
+
+def bing_cron_disapproved_ads(account_id, adgroup):
+    account = BingAccounts.objects.get(account_id=account_id)
+    service = BingService()
+    ads = service.get_ads_by_status(
+        account_id=account_id,
+        adgroup_id=adgroup['adgroupid'],
+        status="Disapproved"
+    )
+
+    for ad in ads:
+        adg = copy.deepcopy(adgroup)
+        ad_metadata = service.suds_object_to_dict(ad)
+        adg['ad'] = ad_metadata
+        BingAlerts.objects.create(
+            account=account,
+            alert_type="DISAPPROVED_AD",
+            metadata=adg
+        )
