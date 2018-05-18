@@ -85,18 +85,18 @@
                                         <div class="row">
                                             <div class="col-md-6">Bing spend:
                                                 {{ client.bing_spend|floatformat:2 }}</div>
-{#                                            <div class="col-md-6">Facebook Spend:#}
-{#                                                0</div>#}
+                                            {#                                            <div class="col-md-6">Facebook Spend:#}
+                                            {#                                                0</div>#}
                                         </div>
 
                                     </td>
                                     <td style="text-align: center">
                                         <div class="progress m-progress--lg" style="position: relative;!important;">
-                                            <div class="progress-bar
+                                            <div id="{{ client.id }}_progressbar" class="progress-bar
                                                     {{ client.current_spend|percentage:client.budget }}"
                                                  role="progressbar"
                                                  style="width: {% widthratio client.current_spend client.budget 100 %}%"
-                                                 aria-valuenow="{% widthratio client.current_spend client.budget 100 %}"
+
                                                  aria-valuemin="0" aria-valuemax="100"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
                                                  data-original-title="{{ client.current_spend }}/{{ client.budget }}">
@@ -110,8 +110,9 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center" id="budget-{{ client.id }}">
-                                        <input id="client_budget-{{ client.id }}" type="number" onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.budget }}" class="table-number">
+                                        <input id="client_budget-{{ client.id }}" type="number"
+                                               onkeypress="submitClientBudget(event, {{ client.id }})"
+                                               value="{{ client.budget }}" class="table-number">
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -295,22 +296,22 @@
                                                                     <span class="m-form__help">Please enter a name for the new client.</span>
                                                                 </div>
                                                             </div>
-                                                            {#                                                            <div class="form-group m-form__group row"><label#}
-                                                            {#                                                                    class="col-form-label col-lg-12 col-sm-12">Client#}
-                                                            {#                                                                Budget</label>#}
-                                                            {#                                                                <div class="col-lg-12 col-md-12 col-sm-12">#}
-                                                            {#                                                                    <p>#}
-                                                            {#                                                                        <input#}
-                                                            {#                                                                                type="text" class="form-control m-input"#}
-                                                            {#                                                                                name="client_budget" id="client_budget"#}
-                                                            {#                                                                                aria-describedby="client-error">#}
-                                                            {#                                                                        </input>#}
-                                                            {#                                                                    </p>#}
-                                                            {#                                                                    <div id="client-error"#}
-                                                            {#                                                                         class="form-control-feedback"></div>#}
-                                                            {#                                                                    <span class="m-form__help">Please enter a budget values for the new client.</span>#}
-                                                            {#                                                                </div>#}
-                                                            {#                                                            </div>#}
+                                                            <div class="form-group m-form__group row"><label
+                                                                    class="col-form-label col-lg-12 col-sm-12">Global
+                                                                Target Spend</label>
+                                                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                                                    <p>
+                                                                        <input
+                                                                                type="text" class="form-control m-input"
+                                                                                name="target_spend" id="target_spend"
+                                                                                aria-describedby="target-spend">
+                                                                        </input>
+                                                                    </p>
+                                                                    <div id="client-error"
+                                                                         class="form-control-feedback"></div>
+                                                                    <span class="m-form__help">Please enter a budget value for the new client.</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -622,28 +623,28 @@
                                                         <a href="#"
                                                            class="btn btn-outline-metal m-btn m-btn--outline-2x"
                                                            data-wizard-action="prev">
-											<span>
-												<i class="la la-arrow-left"></i>&nbsp;&nbsp;
-												<span>Back</span>
-											</span>
+                                                            <span>
+                                                                <i class="la la-arrow-left"></i>&nbsp;&nbsp;
+                                                                <span>Back</span>
+                                                            </span>
                                                         </a>
                                                     </div>
                                                     <div class="col-lg-4 m--align-right">
                                                         <a href="#"
                                                            class="btn btn-outline-primary m-btn m-btn--outline-2x"
                                                            data-wizard-action="submit">
-											<span>
-												<i class="la la-check"></i>&nbsp;&nbsp;
-												<span>Submit</span>
-											</span>
+                                                            <span>
+                                                                <i class="la la-check"></i>&nbsp;&nbsp;
+                                                                <span>Submit</span>
+                                                            </span>
                                                         </a>
                                                         <a href="#"
                                                            class="btn btn-outline-accent m-btn m-btn--outline-2x"
                                                            data-wizard-action="next">
-											<span>
-												<span>Save &amp; Continue</span>&nbsp;&nbsp;
-												<i class="la la-arrow-right"></i>
-											</span>
+                                                            <span>
+                                                                <span>Save &amp; Continue</span>&nbsp;&nbsp;
+                                                                <i class="la la-arrow-right"></i>
+                                                            </span>
                                                         </a>
                                                     </div>
                                                     <div class="col-lg-2"></div>
@@ -669,7 +670,26 @@
 
     <script type="text/javascript">
 
-        function submitClientBudget(e, client_id ) {
+        function submitClientBudget(e, client_id) {
+
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": false,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
             if (window.event)
                 keycode = window.event.keyCode;
             else if (e)
@@ -677,7 +697,7 @@
 
             if (keycode === 13) {
                 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-                var budget = jQuery("#client_budget-"+client_id).val();
+                var budget = jQuery("#client_budget-" + client_id).val();
                 var new_budget = {
                     id: client_id,
                     budget: budget
@@ -688,13 +708,18 @@
                     headers: {'X-CSRFToken': csrftoken},
                     type: 'POST',
                     data: new_budget,
-                    success: function () {
+                    success: function (data) {
                         swal({
                             "title": "SUCCESS",
                             "text": "Budget succesfully updated.",
                             "type": "success",
                             "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
                         });
+                        id = '#'+ data['client_id'] + '_progressbar';
+                        elem = $(id);
+                        elem.css({'width': data['width'] + '%'});
+                        elem.html(parseInt(data['width']) + '%');
+                        toastr.success("Updated budget for " + data['client_id'] + '.');
                     },
                     error: function (ajaxContext) {
                         swal({
@@ -705,14 +730,16 @@
                         });
                     },
                     complete: function () {
-                        setTimeout(function () {
-                            location.reload();
-                        }, 2500);
+                        {#setTimeout(() => {#}
+                        {#    location.reload()#}
+                       // }, 500);
+                        {#;#}
+
                     }
                 });
 
             } else {
-                        return false;
+                return false;
             }
         }
     </script>

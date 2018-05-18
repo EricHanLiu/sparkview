@@ -1,10 +1,10 @@
-from .auth import BingAuth
-from bing_dashboard.models import BingAccounts, BingAnomalies
-from django.shortcuts import render
+from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
 from django.views import View
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.auth.decorators import login_required
+from .auth import BingAuth
 
 # Create your views here.
 @login_required
@@ -30,6 +30,8 @@ def bing_dashboard(request):
         item['cost'] = query[0].cost if query else 0
         item['cost_conv'] = query[0].cost_per_conversions if query else 0
         item['impr_share'] = query[0].search_impr_share if query else 0
+        item['disapproved_ads'] = BingAlerts.objects.filter(account_id=account.account_id,
+                                                       alert_type='DISAPPROVED_AD').count()
         items.append(item)
     return render(request, 'bing/dashboard.html', {'items': items})
 
@@ -50,11 +52,12 @@ def campaign_anomalies(request, account_id):
         campaign['cpc'] = cmp.cpc
         campaign['clicks'] = cmp.clicks
         campaign['impressions'] = cmp.impressions
-        campaign['cost'] = cmp.cpc
-        campaign['conversions'] = cmp.cpc
-        campaign['cost_per_conversions'] = cmp.cpc
+        campaign['cost'] = cmp.cost
+        campaign['conversions'] = cmp.conversions
+        campaign['cost_per_conversions'] = cmp.cost_per_conversions
         campaign['ctr'] = cmp.ctr
         campaign['search_impr_share'] = cmp.search_impr_share
+        campaign['metadata'] = cmp.metadata
         campaigns.append(campaign)
 
     context = {
@@ -63,6 +66,19 @@ def campaign_anomalies(request, account_id):
     }
 
     return render(request, 'bing/campaign_anomalies.html', context)
+
+@login_required
+def account_alerts(request, account_id):
+    # alert_types = ['DISAPPROVED_AD']
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    alerts = BingAlerts.objects.filter(account_id=account_id)
+
+    context = {
+        'alerts': alerts,
+        'account': account
+    }
+    return render(request, 'bing/account_alerts.html', context)
 
 
 class BingSingin(View):

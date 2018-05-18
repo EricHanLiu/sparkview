@@ -4,7 +4,8 @@ from budget import views
 
 urlpatterns = [
     url(r"^$", views.index_budget, name="adwords"),
-    url(r"^bing/$", views.bing_budget, name="bing_budget"),
+    url(r"^bing/$", views.bing_budget, name="bing"),
+    url(r"^facebook/$", views.facebook_budget, name="facebook"),
     url(r"^clients/$", views.add_client, name="add_client"),
     url(r"^clients/last_month$", views.last_month, name="last_month"),
     url(r"^client/(?P<client_id>\d+)", views.client_details, name="client_details"),

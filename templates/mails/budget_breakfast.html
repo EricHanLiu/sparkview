@@ -3,65 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <title>Daily budget report!</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 </head>
+
+<style media="screen">
+    * {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    h2 {
+        color: #1b2126;
+    }
+
+    .logo {
+        background: #1b2126;
+    }
+
+    .logo svg {
+        height: 100%
+    }
+
+    table {
+        background: #f2f2f2;
+        text-align: center;
+        width: 100%;
+
+    }
+
+    table thead th {
+        color: #fff;
+        background: #2c8bcb;
+        margin: 0.35em;
+    }
+
+    table tbody td {
+        border-right: 1px solid #e2e2e2;
+    }
+
+    .portlet {
+        padding: .1em;
+        /* border: 1px solid black; */
+        box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2);
+        margin-top: .5em;
+        margin-bottom: .5em;
+    }
+
+    .portlet h4 {
+        text-align: center;
+        color: #444;
+    }
+
+</style>
 <body>
 
+<div class="logo">
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 80 80">
+        <metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+            <x:xmpmeta xmlns:x="adobe:ns:meta/"
+                       x:xmptk="Adobe XMP Core 5.6-c138 79.159824, 2016/09/14-01:09:01        ">
+                <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                    <rdf:Description rdf:about=""/>
+                </rdf:RDF>
+            </x:xmpmeta>
+            <?xpacket end="w"?></metadata>
+        <defs>
+            <style>
+                .cls-1 {
+                    fill: #1b2126;
+                }
+
+                .cls-2 {
+                    fill: #fff;
+                    fill-rule: evenodd;
+                }
+            </style>
+        </defs>
+        <rect class="cls-1" width="80" height="80"/>
+        <path id="Bloom_logo_copy_2" data-name="Bloom logo copy 2" class="cls-2"
+              d="M1116.3,2916h-16.28v48.85h16.28a8.1,8.1,0,0,0,8.04-8.16v-10.67c0-3.81-2.11-5.33-4.99-5.71,2.88-.38,4.99-1.91,4.99-5.71v-10.44A8.105,8.105,0,0,0,1116.3,2916Zm-0.08,38.66a2,2,0,0,1-1.98,2.01h-6.17v-12.75h6.17a2,2,0,0,1,1.98,2.01v8.73Zm0-19.97a2,2,0,0,1-1.98,2.01h-6.17v-12.4h6.17a2,2,0,0,1,1.98,2.01v8.38Zm16.63,26.48a1.687,1.687,0,0,0,.35-1.03,1.584,1.584,0,0,0-.47-1.16,1.554,1.554,0,0,0-1.16-.48h-1.61v4.55h0.7v-1.26h0.76l1.02,1.26h0.91l-1.13-1.39A1.8,1.8,0,0,0,1132.85,2961.17Zm-2.19-.09v-1.87h0.91a0.9,0.9,0,0,1,.66.27,0.954,0.954,0,0,1,0,1.33,0.9,0.9,0,0,1-.66.27h-0.91Zm4.53-1.81a4.166,4.166,0,0,0-.87-1.31,3.946,3.946,0,0,0-1.29-.88,3.836,3.836,0,0,0-1.57-.32,3.9,3.9,0,0,0-1.59.32,3.946,3.946,0,0,0-1.29.88,4.083,4.083,0,0,0-1.18,2.93,4.074,4.074,0,0,0,.31,1.6,4.237,4.237,0,0,0,.87,1.3,3.946,3.946,0,0,0,1.29.88,3.9,3.9,0,0,0,1.59.32,3.836,3.836,0,0,0,1.57-.32,3.946,3.946,0,0,0,1.29-.88,4.237,4.237,0,0,0,.87-1.3,4.074,4.074,0,0,0,.31-1.6A4.138,4.138,0,0,0,1135.19,2959.27Zm-0.78,2.87a3.258,3.258,0,0,1-.69,1.04,3.146,3.146,0,0,1-1.02.7,3.054,3.054,0,0,1-1.24.25,3.13,3.13,0,0,1-2.28-.95,3.268,3.268,0,0,1-.94-2.29,3.357,3.357,0,0,1,.25-1.28,3.258,3.258,0,0,1,.69-1.04,3.13,3.13,0,0,1,2.28-.95,3.054,3.054,0,0,1,1.24.25,3.146,3.146,0,0,1,1.02.7,3.258,3.258,0,0,1,.69,1.04,3.357,3.357,0,0,1,.25,1.28A3.28,3.28,0,0,1,1134.41,2962.14Z"
+              transform="translate(-1072 -2900)"/>
+    </svg>
+</div>
 <h2>Hello, {{ user }}</h2>
 
-<h4>The following AdWords accounts you manage will overspend:</h4>
-{% for a in aw_over %}
-    <p>Account Name: {{ a.account }}<br />
-    Budget: {{ a.budget }}<br />
-    Current Total Spend: {{ a.current_spend }}<br />
-    Projected Spend EOM: {{ a.projected }}</p>
-{% empty %}
-    <p>No accounts to display.</p>
-{% endfor %}
-<br/>
-<h4>The following AdWords accounts will underspend: </h4>
-{% for b in aw_under %}
-    <br>Account Name: {{ b.account }}<br />
-    Budget: {{ b.budget }}<br />
-    Current Total Spend: {{ b.current_spend }}<br />
-    Projected Spend EOM: {{ b.projected }}</p>
-{% empty %}
-    <p>No accounts to display.</p>
-{% endfor %}
-<br/>
-<h4>The following Bing accounts will overspend:</h4>
-{% for c in bing_over %}
-    <p>Account Name: {{ c.account }}<br />
-    Budget: {{ c.budget }}<br />
-    Current Total Spend: {{ c.current_spend }}<br />
-    Projected Spend EOM: {{ c.projected }}</p>
-{% empty %}
-    <p>No accounts to display.</p>
-{% endfor %}
-<br/>
-<h4>The following Bing accounts will underspend:</h4>
-{% for d in bing_under %}
-    <p>Account Name: {{ d.account }}<br />
-    Budget: {{ d.budget }}<br />
-    Current Total Spend: {{ d.current_spend }}<br />
-    Projected Spend EOM: {{ d.projected }}</p>
-{% empty %}
-    <p>No accounts to display.</p>
-{% endfor %}
-<br/>
-<h4>The following AdWords accounts have no budget set:</h4>
-{% for e in aw_nods %}
-    <p>Account Name: {{ e.account }}</p>
-{% empty %}
-    <p>No accounts to display.</p>
-{% endfor %}
-<br/>
-<h4>The following Bing accounts have no budget set:</h4>
-{% for f in bing_nods %}
-    <p>Account Name: {{ f.account }}</p>
-{% empty %}
-    <p>No accounts to display.</p>
-{% endfor %}
+<div class="portlet">
+    <h4>The following AdWords accounts you manage will overspend:</h4>
+    <table>
+        <thead>
+        <tr>
+            <th>Account Name</th>
+            <th>Budget</th>
+            <th>Current Total Spend</th>
+            <th>Project Spend EOM</th>
 
-<b>That's all for today!</b>
+        </tr>
+        </thead>
+        <tbody>
+        {% for a in aw_over %}
+            <tr>
+                <td>{{ a.account }}</td>
+                <td>{{ a.budget }}</td>
+                <td>{{ a.current_spend }}</td>
+                <td>{{ a.projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="portlet">
+    <h4>The following AdWords accounts will underspend: </h4>
+
+    <table>
+        <thead>
+        <th>Account Name</th>
+        <th>Budget</th>
+        <th>Current Total Spend</th>
+        <th>Project Spend EOM</th>
+        </thead>
+        <tbody>
+        {% for b in aw_under %}
+            <tr>
+                <td>{{ b.account }}</td>
+                <td>{{ b.budget }}</td>
+                <td>{{ b.current_spend }}</td>
+                <td>{{ b.projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="portlet">
+    <h4>The following Bing accounts will overspend:</h4>
+    <table>
+        <thead>
+            <th>Account Name</th>
+            <th>Budget</th>
+            <th>Current Spend</th>
+            <th>Projected</th>
+        </thead>
+        <tbody>
+        {% for c in bing_over %}
+            <tr>
+                <td>{{ c.account }}</td>
+                <td>{{ c.budget }}</td>
+                <td>{{ c.current_spend }}</td>
+                <td>{{ c.projected }}</td>
+
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="portlet">
+    <h4>The following Bing accounts will underspend:</h4>
+    <table>
+        <thead>
+            <th>Account Name</th>
+            <th>Budget</th>
+            <th>Current Spend</th>
+            <th>Projected</th>
+        </thead>
+        <tbody>
+        {% for d in bing_under %}
+            <tr>
+                <td>{{ d.account }}</td>
+                <td>{{ d.budget }}</td>
+                <td>{{ d.current_spend }}</td>
+                <td>{{ d.projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div class="portlet">
+    <h4>AdWords accounts with no budget set:</h4>
+    <table>
+        <thead>
+            <th>Account Name</th>
+        </thead>
+        <tbody>
+        {% for e in aw_nods %}
+            <tr>
+                <td>{{ e.account }}</td>
+
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+<div class="portlet">
+    <h4>Bing accounts with no budget set:</h4>
+    <table>
+        <thead>
+            <th>Account Name</th>
+        </thead>
+        <tbody>
+        {% for f in bing_nods %}
+            <tr>
+                <td>{{ f.account }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<b style="color:#1b2126">That's all for today!</b>
+
 </body>
 </html>

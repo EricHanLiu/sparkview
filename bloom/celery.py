@@ -10,6 +10,6 @@ app = Celery(
     broker='redis://localhost:6379',
     backend='redis://localhost:6379',
     result_expires=1800,
-    include=["tasks.adwords_tasks", "tasks.bing_tasks"]
+    include=["tasks.adwords_tasks", "tasks.bing_tasks", "tasks.facebook_tasks"]
 
 )

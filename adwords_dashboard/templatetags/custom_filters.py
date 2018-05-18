@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
     next_month = datetime(
         year=today.year,
         month=((today.month + 1) % 12),
@@ -47,6 +47,13 @@ def uni2int(value):
     except ValueError:
         return value
 
+@register.filter(name='str2int')
+def str2int(value):
+    try:
+        return int(value)
+    except ValueError:
+        return value
+
 
 @register.filter(name='percentage')
 def percentage(spend, budget):
@@ -68,7 +75,7 @@ def percentage(spend, budget):
 @register.filter(name='daily_spend')
 def daily_spend(spend):
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
 
     value = spend / today.day
 
@@ -78,7 +85,7 @@ def daily_spend(spend):
 @register.filter(name='projected')
 def projected(spend):
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
     d_spend = spend / today.day
     next_month = datetime(
         year=today.year,
@@ -88,6 +95,7 @@ def projected(spend):
     lastday_month = next_month + relativedelta(days=-1)
     black_marker = (today.day / lastday_month.day) * 100
     remaining = lastday_month.day - today.day
+
     # projected value
     rval = spend + (d_spend * remaining)
 

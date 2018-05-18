@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     url(r"^$", views.facebook_dashboard, name="home"),
+    url(r"^anomalies/(?P<account_id>\d+)$", views.campaign_anomalies, name='campaign_anomalies'),
 ]

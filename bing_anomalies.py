@@ -13,7 +13,7 @@ from tasks.bing_tasks import (
 def main():
 
     # Looping through all accounts from DB
-    accounts = BingAccounts.objects.filter(blacklisted=False)[:1]
+    accounts = BingAccounts.objects.filter(blacklisted=False)
     for acc in accounts:
         bing_cron_anomalies_accounts.delay(acc.account_id)
         bing_cron_anomalies_campaigns.delay(acc.account_id)

@@ -8,7 +8,7 @@
             <div class="m-portlet__head-caption">
                 <div class="m-portlet__head-title">
                     <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>{{ account.dependent_account_name }} - Campaigns Data</span>
+                        <span>{{ account.account_name }} Alerts</span>
                     </h2>
                 </div>
             </div>
@@ -18,28 +18,22 @@
             <thead>
               <tr>
                 <th>Campaign Name</th>
-                <th>Impr. Share</th>
-                <th>Impr.</th>
-                <th>Clicks</th>
-                <th>CTR</th>
-                <th>Avg. CPC</th>
-                <th>Cost</th>
-                <th>Conversions</th>
-                <th>Cost / conv.</th>
+                <th>AdGroup Name</th>
+                <th>Alert type</th>
+                <th>Alert Reason</th>
+                <th>Keyword</th>
+                <th>Ad Headline</th>
               </tr>
             </thead>
             <tbody>
-              {% for item in campaigns %}
+              {% for item in alerts %}
               <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.search_impr_share|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.cpc|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.cost|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.conversions|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.campaignName}}</td>
+                <td>{{ item.ad_group_name }}</td>
+                <td>{{ item.alert_type }}</td>
+                <td>{{ item.alert_reason }}</td>
+                <td>{{ item.keyWordText }}</td>
+                <td>{{ item.ad_headline }}</td>
               </tr>
               {% endfor %}
             </tbody>

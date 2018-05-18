@@ -3,15 +3,15 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-12">
-      <div class="m-portlet m-portlet--mobile ">
+      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
         <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text">
-                  Campaign Data Monitoring
-                </h3>
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                        <span>{{ account.account_name }} - Campaigns Data</span>
+                    </h2>
+                </div>
             </div>
-          </div>
         </div>
         <div class="m-portlet__body">
           <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="adwords_datatable">
@@ -32,7 +32,11 @@
               {% for item in campaigns %}
               <tr>
                 <td>{{ item.name }}</td>
-                <td>{{ item.search_impr_share|uni2float|floatformat:2 }}%</td>
+                <td>
+                    <span data-toggle="m-tooltip" data-original-title="{{ item.metadata }}">
+                        {{ item.search_impr_share|uni2float|floatformat:2 }}%
+                    </span>
+                </td>
                 <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
                 <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
                 <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>

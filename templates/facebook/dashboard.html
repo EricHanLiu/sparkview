@@ -1,0 +1,117 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                        <span>Facebook Data Monitoring</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped m-table m-table--head-separator-bloom' id="adwords_datatable">
+            <thead class="thead-inverse">
+              <tr>
+                <th>Account</th>
+                <th>U & O</th>
+{#                <th>Url Checker</th>#}
+{#                <th>Disapproved Ads</th>#}
+{#                <th>Impr. Share</th>#}
+                <th>Impr.</th>
+                <th>Clicks</th>
+                <th>CTR</th>
+                <th>Avg. CPC</th>
+                <th>Cost</th>
+{#                <th>Conversions</th>#}
+{#                <th>Cost / conv.</th>#}
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>
+                <a href="{% url 'facebook:campaign_anomalies' item.account.account_id %}">
+                {{ item.account.account_name }} </a> - {{ item.account.account_id }} {# - #}
+{#                <a href="#" onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>#}
+{#                <br />#}
+{#                <div id="labels-{{ item.account.dependent_account_id }}" class="hidden">#}
+{#                {% for label in item.labels %}#}
+{##}
+{#                    <span class="m-badge {% if label.name == 'No label' %}m-badge--danger{% else %}m-badge--info{% endif %} m-badge--wide">#}
+{#                        {{ label.name }}#}
+{#                    </span>#}
+{#                {% endfor %}#}
+{#                </div>#}
+                </td>
+                <td>
+                    <span>
+                        {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
+                    </span>
+                </td>
+{#                <td>#}
+{#                    <a href="{% url 'adwords:url_checker' item.account.dependent_account_id %}">#}
+{#                        {{ item.404_urls }}#}
+{#                    </a>#}
+{#                </td>#}
+{#                <td>#}
+{#                    <a href="{% url 'adwords:alerts' item.account.dependent_account_id %}">#}
+{#                    {{ item.disapproved_ads }}#}
+{#                    </a>#}
+{#                </td>#}
+{#                <td>#}
+{#                    {{ item.search_impr_share|uni2float|floatformat:2 }}%0#}
+{#                </td>#}
+                <td>
+                    <span>
+                        {{ item.impressions|uni2float|floatformat:2 }}%
+                    </span>
+                </td>
+                <td>
+                    <span>
+                        {{ item.clicks|uni2float|floatformat:2 }}%
+                    </span>
+                </td>
+                <td>
+                    <span>
+                        {{ item.ctr|uni2float|floatformat:2 }}%
+                    </span>
+                </td>
+                <td>
+                    <span>
+                        {{ item.cpc|uni2float|floatformat:2 }}%
+                    </span>
+                </td>
+                <td>
+                    <span>
+                        {{ item.cost|uni2float|floatformat:2 }}%
+                    </span>
+                </td>
+{#                <td>#}
+{#                    {{ item.conversions|uni2float|floatformat:2 }}%#}
+{#                </td>#}
+{#                <td>#}
+{#                      {{ item.cost_per_conversions|uni2float|floatformat:2 }}%#}
+{#                </td>#}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+<script type="text/javascript">
+
+  {#function toggleLabels(label_id){#}
+  {#  $("#"+label_id).toggle();#}
+  //}
+
+</script>
+{% endblock %}

@@ -102,5 +102,23 @@ $(document).ready(function () {
         var user_id = $(e.relatedTarget).data('userid');
         $(".modal-body #uid").val(user_id);
     });
+
+    $('#m_edit_budget').on('show.bs.modal', function(e){
+        var aid = $(e.relatedTarget).data('accountid');
+        var budget = $(e.relatedTarget).data('budget');
+        var channel = $(e.relatedTarget).data('channel');
+        $(".modal-body #aid").val(aid);
+        $(".modal-body #channel").val(channel);
+        $(e.currentTarget).find('input[name="budget"]').val(budget);
+    });
+
+        $('#m_target_spend').on('show.bs.modal', function(e){
+        var cid = $(e.relatedTarget).data('clientid');
+        var target_spend = $(e.relatedTarget).data('target_spend');
+        var channel = $(e.relatedTarget).data('channel');
+        $(".modal-body #cid").val(cid);
+        $(".modal-body #channel").val(channel);
+        $(e.currentTarget).find('input[name="target_spend"]').val(target_spend);
+    });
 })
 ;
