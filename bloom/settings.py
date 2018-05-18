@@ -23,9 +23,10 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 SITE_ID=1
+
 ALLOWED_HOSTS = [
     '35.203.133.58',
     '127.0.0.1',
@@ -142,6 +143,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 API_VERSION = 'v201710'
+BING_API_VERSION = 11
 
 LOGIN_URL = "/"
 

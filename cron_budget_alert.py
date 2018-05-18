@@ -333,7 +333,7 @@ def budget_breakfast():
         msg_html = render_to_string(settings.TEMPLATE_DIR + '/mails/budget_breakfast.html', mail_details)
 
         send_mail(
-            'Daily budget report', msg_plain,
+            'Daily budget report', msg_html,
             settings.EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=msg_html
         )
         print('Mail sent!')

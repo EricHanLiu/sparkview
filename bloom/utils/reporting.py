@@ -10,8 +10,11 @@ from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
 from functools import partial
-from bingads.v11.reporting import ReportingDownloadParameters
 from facebook_business.adobjects.adaccount import AdAccount
+from bing_dashboard.auth import BingAuth
+from bingads.v11.reporting import (
+    ReportingDownloadParameters, ReportingServiceManager, ServiceClient
+)
 
 class Reporting:
 
@@ -21,7 +24,6 @@ class Reporting:
             return date
 
         return date.strftime(date_format)
-
 
 
     def map_campaign_stats(self, report, identifier="campaignid"):
@@ -178,10 +180,52 @@ class Reporting:
 
 
 class BingReporting(Reporting):
+    file_format = "csv"
+    language = "english"
+    exclude_report_header = True
+    exclude_report_footer = True
+    return_only_complete_data = False
+
+    def __init__(self):
+        auth_method = BingAuth().get_auth()
+
+        self.service_manager = ReportingServiceManager(
+              authorization_data=auth_method,
+              poll_interval_in_milliseconds=5000,
+              environment=settings.ENVIRONMENT,
+        )
+
+        self.reporting_service = ServiceClient(
+            'ReportingService',
+            authorization_data=auth_method,
+            environment=settings.ENVIRONMENT,
+            version=11,
+        )
+
+
+    def parse_report_name(self, rid, report_name):
+        csv_ready = False
+        id_ready = False
+        if report_name.endswith(self.file_format):
+            csv_ready = True
+
+        if report_name.startswith(str(rid)):
+            id_ready = True
+
+        if csv_ready and id_ready:
+            return report_name
+
+        if not csv_ready:
+            report_name = "{}.{}".format(report_name, self.file_format)
+
+        if not id_ready:
+            report_name = "{}_{}".format(rid, report_name)
+
+        return report_name
 
     def normalize_request(self, request):
-        request.Format = "Csv"
-        request.Language = "English"
+        request.Format = self.file_format.capitalize()
+        request.Language = self.language.capitalize()
         request.ExcludeReportHeader = True
         request.ExcludeReportFooter = True
         request.ReturnOnlyCompleteData = False
@@ -189,6 +233,9 @@ class BingReporting(Reporting):
         return request
 
     def generate_request(self, request, columns=None, time=None, scope=None):
+
+        if not columns or not time or not scope:
+            raise Exception("Improperly configured request")
 
         request = self.normalize_request(request)
         request.Columns = columns
@@ -200,8 +247,12 @@ class BingReporting(Reporting):
     def get_report(self, report_name):
 
         location = settings.BINGADS_REPORTS + report_name
-        with codecs.open(location, 'r', encoding='utf-8-sig') as f:
-            report = self.parse_report_csv(f.read(), header=False, footer=False)
+        try:
+            with codecs.open(location, 'r', encoding='utf-8-sig') as f:
+                report = self.parse_report_csv(f.read(), header=False, footer=False)
+        except FileNotFoundError:
+            print("Data not found")
+            report = []
 
         return report
 
@@ -260,16 +311,10 @@ class BingReporting(Reporting):
 
         return sample
 
-
-
-class BingReportingService(BingReporting):
-
-    def __init__(self, service_manager, reporting_service):
-        self.service_manager = service_manager
-        self.reporting_service = reporting_service
-
-
     def get_report_time(self, minDate=None, maxDate=None):
+
+        if not minDate or not maxDate:
+            raise Exception("Invalid daterange")
 
         min = self.reporting_service.factory.create('Date')
         min.Year = minDate.year
@@ -312,9 +357,34 @@ class BingReportingService(BingReporting):
         )
 
         columns.CampaignPerformanceReportColumn.append(fields)
-        columns
 
         return columns
+
+    def get_adgroup_performance_columns(self, fields=["TimePeriod"]):
+        columns = self.reporting_service.factory.create(
+            'ArrayOfAdGroupPerformanceReportColumn'
+        )
+        columns.AdGroupPerformanceReportColumn.append(fields)
+
+        return columns
+
+
+    def get_campaign_filters(self):
+        filters = self.reporting_service.factory.create(
+            "CampaignPerformanceReportFilter"
+        )
+        filters.Status = ["Active"]
+
+        return filters
+
+    def get_adgroup_filters(self):
+        filters = self.reporting_service.factory.create(
+            "AdGroupPerformanceReportFilter"
+        )
+        filters.Status = ["Active"]
+
+        return filters
+
 
     def get_account_performance_query(
             self,
@@ -326,7 +396,9 @@ class BingReportingService(BingReporting):
 
         fields = ["TimePeriod", "Spend"]
         extra_fields = kwargs.get("extra_fields", None)
-        report_name = kwargs.get("report_name", str(account_id) + "_spend")
+        report_name = self.parse_report_name(
+            account_id, kwargs.get("report_name", "acc_spend")
+        )
 
         if extra_fields is not None:
             fields.extend(extra_fields)
@@ -372,12 +444,16 @@ class BingReportingService(BingReporting):
             'CampaignName'
         ]
 
-        fields = ["TimePeriod", "Spend"]
-        report_name = kwargs.get("report_name", str(account_id) + "_spend")
+        report_name = self.parse_report_name(
+            account_id, kwargs.get("report_name", "cmp_spend")
+        )
+
         extra_fields = kwargs.get("extra_fields", None)
 
         if dateRangeType == "CUSTOM_DATE":
-            time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
+            time = self.get_report_time(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
 
         if extra_fields is not None:
             fields.extend(extra_fields)
@@ -387,13 +463,62 @@ class BingReportingService(BingReporting):
         request = self.reporting_service.factory.create("CampaignPerformanceReportRequest")
         columns = self.get_campaign_performance_columns(fields=fields)
         scope = self.get_scope("AccountThroughCampaignReportScope")
+        filters = self.get_campaign_filters()
 
         scope.AccountIds={'long': [account_id] }
         request.Aggregation = aggregation
         request.ReportName = report_name
+        request.Filter = filters
 
         request = self.generate_request(
             request, columns=columns, time=time, scope=scope
+        )
+
+        return request
+
+    def get_adgroup_performance_query(
+            self,
+            account_id,
+            dateRangeType="CUSTOM_DATE",
+            aggregation="Daily",
+            **kwargs
+        ):
+        fields = [
+            'AdGroupId',
+            'AdGroupName',
+            'Status',
+            'CampaignId',
+            'CampaignName',
+            'Clicks'
+        ]
+        report_name = self.parse_report_name(
+            account_id, kwargs.get("report_name", "adgroups")
+        )
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if dateRangeType == "CUSTOM_DATE":
+            time = self.get_report_time(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
+
+        fields = list(set(fields))
+
+        request = self.reporting_service.factory.create(
+            "AdGroupPerformanceReportRequest"
+        )
+        columns = self.get_adgroup_performance_columns(fields=fields)
+        scope = self.get_scope("AccountThroughAdGroupReportScope")
+
+        scope.AccountIds={'long': [account_id] }
+        request.Filter = self.get_adgroup_filters()
+        request.Aggregation = aggregation
+        request.ReportName = report_name
+
+        request = self.generate_request(
+            request=request, scope=scope, time=time, columns=columns
         )
 
         return request
@@ -408,6 +533,40 @@ class BingReportingService(BingReporting):
         )
 
         self.service_manager.download_file(parameters)
+
+
+
+class BingReportingService(BingReporting):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+    def get_account_performance(self, account_id, *args, **kwargs):
+
+        request = self.get_account_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
+
+
+    def get_campaign_performance(self, account_id, *args, **kwargs):
+
+        request = self.get_campaign_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
+
+    def get_adgroup_performance(self, account_id, *args, **kwargs):
+
+        request = self.get_adgroup_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
+
 
 
 class AdwordsReporting(Reporting):
@@ -432,22 +591,55 @@ class AdwordsReporting(Reporting):
             "CampaignId",
             "CampaignName",
             "AdGroupName",
-            "PolicySummary",
             "Headline",
             "HeadlinePart1",
             "Id",
+            "CombinedApprovalStatus",
         ]
         extra_fields = kwargs.get("extra_fields", None)
         if extra_fields:
             fields.extend(extra_fields)
             fields = list(set(fields))
 
+        extra_predicates = kwargs.get("predicates", [])
+        if not isinstance(extra_predicates, list):
+            raise Exception("Predicates should be a list of dicts")
+
+        query = {
+            "reportName": "AD_PERFORMANCE_REPORT",
+            "dateRangeType": dateRangeType,
+            "reportType": "AD_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {
+                "fields": fields,
+                "predicates":[
+                    {
+                        "field": "AdGroupStatus",
+                        "operator": "EQUALS",
+                        "values": "ENABLED"
+                    },
+                    {
+                        "field": "CampaignStatus",
+                        "operator": "EQUALS",
+                        "values": "ENABLED"
+                    },
+                    {
+                        "field": "Status",
+                        "operator": "EQUALS",
+                        "values": "ENABLED"
+                    },
+                    *extra_predicates
+                ]
+            },
+        }
+
         if dateRangeType == "CUSTOM_DATE":
             query["selector"]["dateRange"] = self.get_custom_daterange(
                 minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
             )
 
-        pass
+        return query
+
     def get_account_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
 
         fields = [
@@ -476,23 +668,6 @@ class AdwordsReporting(Reporting):
             "downloadFormat": "CSV",
             "selector": {
                 "fields": fields,
-                # "predicates":[
-                #     {
-                #         "field": "AdGroupStatus",
-                #         "operator": "EQUALS",
-                #         "values": "ENABLED"
-                #     },
-                #     {
-                #         "field": "CampaignStatus",
-                #         "operator": "EQUALS",
-                #         "values": "ENABLED"
-                #     },
-                #     {
-                #         "field": "Status",
-                #         "operator": "EQUALS",
-                #         "values": "ENABLED"
-                #     },
-                # ]
             },
         }
 
@@ -549,16 +724,12 @@ class AdwordsReporting(Reporting):
         return query
 
 
-
-
     def mcv(self, cost):
         cost = float(cost)
         if cost > 0:
             cost = cost / 1000000
 
         return cost
-
-
 
     def calculate_ovu(self, estimated_spend, desired_spend):
         return (int(estimated_spend) / int(desired_spend)) * 100

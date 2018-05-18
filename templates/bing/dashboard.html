@@ -20,7 +20,7 @@
                 <th>Account</th>
                 <th>U & O</th>
 {#                <th>Url Checker</th>#}
-{#                <th>Disapproved Ads</th>#}
+                <th>Disapproved Ads</th>
                 <th>Impr. Share</th>
                 <th>Impr.</th>
                 <th>Clicks</th>
@@ -42,11 +42,11 @@
                 <td>
                     {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
                 </td>
-{#                <td>#}
-{#                    <a href="{% url 'adwords:alerts' item.account.account_id %}">#}
-{#                    {{ item.disapproved_ads }}#}
-{#                    </a>#}
-{#                </td>#}
+                <td>
+                    <a href="{% url 'bing:alerts' item.account.account_id %}">
+                        {{ item.disapproved_ads }}
+                    </a>
+                </td>
                 <td>
 {#                    <span data-toggle="m-tooltip" data-original-title="{{ item.metadata.vals.impressionsharepercent }}">#}
                         {{ item.impr_share|uni2float|floatformat:2 }}%
