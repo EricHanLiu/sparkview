@@ -1,15 +1,16 @@
 from bloom import celery_app
 from bloom.utils import FacebookReportingService
 from datetime import datetime
-from facebook_dashboard.models import FacebookAccount, FacebookPerformance
+from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert
 from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, access_token
+
 
 def facebook_init():
     return FacebookAdsApi.init(app_id, app_secret, access_token)
 
-def account_anomalies(account_id, helper, daterange1, daterange2):
 
+def account_anomalies(account_id, helper, daterange1, daterange2):
     fields = [
         'account_name',
         'account_id',
@@ -35,8 +36,8 @@ def account_anomalies(account_id, helper, daterange1, daterange2):
 
     return differences
 
-def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
+def campaign_anomalies(account_id, helper, daterange1, daterange2):
     fields = [
         'campaign_id',
         'campaign_name',
@@ -69,7 +70,6 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
     for c_id in cmp_ids:
         if c_id in cmp_stats and c_id in cmp_stats2:
-
             differences = helper.compare_dict(
                 cmp_stats[c_id][0], cmp_stats2[c_id][0]
             )
@@ -80,7 +80,6 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
 @celery_app.task(bind=True)
 def facebook_cron_ovu(self, account_id):
-
     account = FacebookAccount.objects.get(account_id=account_id)
     helper = FacebookReportingService(facebook_init())
 
@@ -102,7 +101,6 @@ def facebook_cron_ovu(self, account_id):
     yesterday = helper.get_account_insights(account.account_id, params=yesterday_time, extra_fields=['spend'])
     last_7_days = helper.get_account_insights(account.account_id, params=last_7, extra_fields=['spend'])
 
-
     day_spend = float(last_7_days[0]['spend']) / 7
 
     current_spend = spend_this_month[0]['spend']
@@ -117,7 +115,6 @@ def facebook_cron_ovu(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_cron_anomalies(self, account_id):
-
     account = FacebookAccount.objects.get(account_id=account_id)
     helper = FacebookReportingService(facebook_init())
 
@@ -170,7 +167,6 @@ def facebook_cron_anomalies(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_cron_anomalies_campaigns(self, account_id):
-
     filtering = [{
         'field': 'campaign.effective_status',
         'operator': 'IN',
@@ -235,3 +231,49 @@ def facebook_cron_anomalies_campaigns(self, account_id):
             cpc=cpc,
             metadata=cmp_metadata
         )
+
+
+@celery_app.task(bind=True)
+def facebook_cron_alerts(self, account_id):
+    fields = [
+        'ad_name',
+        'ad_id',
+        'adset_id',
+        'adset_name',
+        'campaign_id',
+        'campaign_name',
+    ]
+
+    filtering = [{
+        'field': 'ad.effective_status',
+        'operator': 'IN',
+        'value': ['DISAPPROVED'],
+    }]
+
+    account = FacebookAccount.objects.get(account_id=account_id)
+    helper = FacebookReportingService(facebook_init())
+
+    this_month = helper.set_params(
+        time_range=helper.get_this_month_daterange(),
+        level='ad',
+        filtering=filtering,
+    )
+
+    alert_type='DISAPPROVED_AD'
+    FacebookAlert.objects.filter(account=account, alert_type=alert_type).delete()
+
+    ads = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
+
+    for ad in ads:
+        FacebookAlert.objects.create(
+            account=account,
+            alert_type=alert_type,
+            campaign_id=ad['campaign_id'],
+            campaign_name=ad['campaign_name'],
+            adset_id=ad['adset_id'],
+            adset_name=ad['adset_name'],
+            ad_id=ad['ad_id'],
+            ad_name=ad['ad_name']
+        )
+        print('[INFO] Added alert to DB.')
+

@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.clickjacking import xframe_options_exempt
-from facebook_dashboard.models import FacebookAccount, FacebookPerformance
+from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert
 
 # Create your views here.
 @login_required
@@ -29,8 +29,8 @@ def facebook_dashboard(request):
         item['cost'] = query[0].cost if query else 0
         # item['cost_per_conversions'] = query[0].cost_per_conversions if query else 0
         # item['search_impr_share'] = query[0].search_impr_share if query else 0
-        # item['disapproved_ads'] = Alert.objects.filter(dependent_account_id=account.dependent_account_id,
-        #                                                alert_type='DISAPPROVED_AD').count()
+        item['disapproved_ads'] = FacebookAlert.objects.filter(account=account,
+                                                       alert_type='DISAPPROVED_AD').count()
         items.append(item)
 
     if user.is_authenticated():
@@ -70,3 +70,16 @@ def campaign_anomalies(request, account_id):
     }
 
     return render(request, 'facebook/campaign_anomalies.html', context)
+
+
+@login_required
+def account_alerts(request, account_id):
+    alert_type = 'DISAPPROVED_AD'
+
+    account = FacebookAccount.objects.get(account_id=account_id)
+    alerts = FacebookAlert.objects.filter(account=account, alert_type=alert_type)
+    context = {
+        'alerts': alerts,
+        'account': account
+    }
+    return render(request, 'facebook/account_alerts.html', context)

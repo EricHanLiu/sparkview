@@ -56,7 +56,7 @@
                             </thead>
                             <tbody>
                             {% for client in clients %}
-                                <tr>
+                                <tr id="row-{{ client.id }}">
                                     <td style="text-align: center; vertical-align: middle;">
                                         <input type="checkbox" name="client_ids[]" id="{{ client.id }}"
                                                value="{{ client.id }}">
@@ -405,14 +405,15 @@
                                                         </div>
                                                         <div class="col-lg-12 col-md-12 col-sm-12">
                                                             <select class="form-control m-input" name="facebook"
-                                                                    multiple="" size="15"
-                                                                    aria-describedby="facebook-error"
-                                                                    aria-invalid="true">
-                                                                {#{% for f in facebook %}#}
-                                                                {#<option value="{{ f.account_id }}">{{ f.account_name }}</option>#}
-                                                                {#{% endfor %}#}
-                                                                <option>No accounts available yet.</option>
+                                                                    multiple="" id="m_select2_facebook"
+                                                                    style="width: 100%">
+                                                                {% for f in facebook %}
+                                                                    <option value="{{ f.account_id }}">{{ f.account_name }}</option>
+                                                                {% endfor %}
                                                             </select>
+                                                            <div id="budget-fields-facebook">
+
+                                                            </div>
                                                             <div id="facebook-error"
                                                                  class="form-control-feedback"></div>
                                                             <span class="m-form__help">Please select at least one account.</span>
@@ -672,24 +673,6 @@
 
         function submitClientBudget(e, client_id) {
 
-            toastr.options = {
-                "closeButton": false,
-                "debug": false,
-                "newestOnTop": false,
-                "progressBar": false,
-                "positionClass": "toast-bottom-right",
-                "preventDuplicates": false,
-                "onclick": null,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-
             if (window.event)
                 keycode = window.event.keyCode;
             else if (e)
@@ -709,32 +692,20 @@
                     type: 'POST',
                     data: new_budget,
                     success: function (data) {
-                        swal({
-                            "title": "SUCCESS",
-                            "text": "Budget succesfully updated.",
-                            "type": "success",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
                         id = '#'+ data['client_id'] + '_progressbar';
                         elem = $(id);
                         elem.css({'width': data['width'] + '%'});
                         elem.html(parseInt(data['width']) + '%');
-                        toastr.success("Updated budget for " + data['client_id'] + '.');
+                        elem.removeClass();
+                        elem.addClass('progress-bar');
+                        elem.addClass(data['pb_color']);
+                        toastr.success("Updated budget for " + data['client_name'] + '.');
                     },
                     error: function (ajaxContext) {
-                        swal({
-                            "title": "ERROR",
-                            "text": ajaxContext.statusText,
-                            "type": "error",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
+                        console.log(ajaxContext)
+                        toastr.error(ajaxContext.statusText)
                     },
                     complete: function () {
-                        {#setTimeout(() => {#}
-                        {#    location.reload()#}
-                       // }, 500);
-                        {#;#}
-
                     }
                 });
 

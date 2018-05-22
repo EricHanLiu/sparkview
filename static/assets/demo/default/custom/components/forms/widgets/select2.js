@@ -19,7 +19,7 @@ var Select2 = function () {
         $("#m_select2_bing_cm3").select2({
             placeholder: "Search..."
         });
-       $("#m_select2_facebook").select2({
+        $("#m_select2_facebook").select2({
             placeholder: "Search..."
         });
         $("#m_select2_facebook_cm2").select2({
@@ -41,6 +41,14 @@ var Select2 = function () {
             $('#budget-fields-bing').append('<input type="number" id="' + data.id + '" name="bing_budget_' + data.id + '"  class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + '">');
         });
         $('#m_select2_bing').on('select2:unselect', function (e) {
+            var data = e.params.data;
+            $("#" + data.id).remove();
+        });
+        $('#m_select2_facebook').on('select2:select', function (e) {
+            var data = e.params.data;
+            $('#budget-fields-facebook').append('<input type="number" id="' + data.id + '" name="facebook_budget_' + data.id + '"  class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + '">');
+        });
+        $('#m_select2_facebook').on('select2:unselect', function (e) {
             var data = e.params.data;
             $("#" + data.id).remove();
         });

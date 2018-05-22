@@ -1,4 +1,24 @@
 $(document).ready(function () {
+
+
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
     tbl = $('#accounts').DataTable({
         'pagingType': 'full_numbers'
     });
@@ -55,7 +75,7 @@ $(document).ready(function () {
 
         e.preventDefault();
 
-        var data = table.$('input[type="checkbox"]').serialize();
+        let data = table.$('input[type="checkbox"]').serialize();
 
         if (data) {
             $.ajax({
@@ -63,26 +83,19 @@ $(document).ready(function () {
                 headers: {'X-CSRFToken': csrftoken},
                 type: 'POST',
                 data: data,
-                success: function () {
-                    swal({
-                        "title": "SUCCESS",
-                        "text": "Client(s) deleted from the database.",
-                        "type": "success",
-                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                    });
+                success: function (data) {
+                    toastr.success("Client(s) deleted from the database.");
+                    let lst = data['deleted'];
+                    lst.forEach(item => {
+                        let elem = $('#row-'+ item['id']);
+                        elem.remove();
+                    })
+
                 },
                 error: function (ajaxContext) {
-                    swal({
-                        "title": "ERROR",
-                        "text": ajaxContext.statusText,
-                        "type": "error",
-                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                    });
+                    toastr.errror(ajaxContext.statusText)
                 },
                 complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 2500);
                 }
 
             });
@@ -103,7 +116,7 @@ $(document).ready(function () {
         $(".modal-body #uid").val(user_id);
     });
 
-    $('#m_edit_budget').on('show.bs.modal', function(e){
+    $('#m_edit_budget').on('show.bs.modal', function (e) {
         var aid = $(e.relatedTarget).data('accountid');
         var budget = $(e.relatedTarget).data('budget');
         var channel = $(e.relatedTarget).data('channel');
@@ -112,7 +125,7 @@ $(document).ready(function () {
         $(e.currentTarget).find('input[name="budget"]').val(budget);
     });
 
-        $('#m_target_spend').on('show.bs.modal', function(e){
+    $('#m_target_spend').on('show.bs.modal', function (e) {
         var cid = $(e.relatedTarget).data('clientid');
         var target_spend = $(e.relatedTarget).data('target_spend');
         var channel = $(e.relatedTarget).data('channel');

@@ -20,7 +20,7 @@
                 <th>Account</th>
                 <th>U & O</th>
 {#                <th>Url Checker</th>#}
-{#                <th>Disapproved Ads</th>#}
+                <th>Disapproved Ads</th>
 {#                <th>Impr. Share</th>#}
                 <th>Impr.</th>
                 <th>Clicks</th>
@@ -58,11 +58,11 @@
 {#                        {{ item.404_urls }}#}
 {#                    </a>#}
 {#                </td>#}
-{#                <td>#}
-{#                    <a href="{% url 'adwords:alerts' item.account.dependent_account_id %}">#}
-{#                    {{ item.disapproved_ads }}#}
-{#                    </a>#}
-{#                </td>#}
+                <td>
+                    <a href="{% url 'facebook:alerts' item.account.account_id %}">
+                        {{ item.disapproved_ads }}
+                    </a>
+                </td>
 {#                <td>#}
 {#                    {{ item.search_impr_share|uni2float|floatformat:2 }}%0#}
 {#                </td>#}
