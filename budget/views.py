@@ -136,10 +136,18 @@ def add_client(request):
         name = request.POST.get('client_name')
         budget = 0
         # suggested budget / global budget
-        target_spend = request.POST.get('target_spend', 0)
+        has_gts = request.POST.get('global_target_spend')
+        gts_value = request.POST.get('gts_value')
+        print(has_gts, gts_value)
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
         facebook_accounts = request.POST.getlist('facebook')
+
+        new_client = Client.objects.create(client_name=name)
+
+        if has_gts == '1':
+            new_client.has_gts = True
+            new_client.target_spend = gts_value
 
         if adwords_accounts:
             for a in adwords_accounts:
@@ -174,8 +182,6 @@ def add_client(request):
                     fb_acc.save()
                 fb.append(fb_acc)
 
-        new_client = Client.objects.create(client_name=name, budget=budget, target_spend=target_spend)
-
         if aw:
             for acc in aw:
                 new_client.adwords.add(acc)
@@ -201,11 +207,8 @@ def add_client(request):
                 new_client.save()
 
         context = {}
-        # facebook_accounts = request.POST.getlist('facebook')
-        return JsonResponse(context)
 
-# def get_flight_dates():
-#     pass
+        return JsonResponse(context)
 
 
 @login_required
@@ -297,7 +300,7 @@ def delete_clients(request):
 
     if request.method == 'POST':
 
-        client_ids = request.POST.getlist('client_ids[]')
+        client_ids = request.POST.getlist('client_ids')
 
         if client_ids:
             for client in client_ids:
@@ -325,7 +328,7 @@ def last_month(request):
 
     if request.method == 'GET':
         context = {}
-        facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+        context['facebook'] = FacebookAccount.objects.filter(blacklisted=False)
         context['clients'] = ClientHist.objects.all()
         context['adwords'] = DependentAccount.objects.filter(blacklisted=False)
         context['bing'] = BingAccounts.objects.filter(blacklisted=False)
@@ -593,13 +596,21 @@ def update_budget(request):
     if request.method == 'POST':
 
         data = request.POST
+        print(data)
         client_id = data['id']
-        budget = data['budget']
-
         client = Client.objects.get(id=client_id)
-        client.budget = budget
+
+        if 'budget' in data:
+            budget = data['budget']
+            client.budget = budget
+            width = (client.current_spend / int(budget)) * 100
+
+        if 'target_spend' in data:
+            target_spend = data['target_spend']
+            client.target_spend = target_spend
+            width = (client.current_spend / int(target_spend)) * 100
+
         client.save()
-        width = (client.current_spend / int(budget)) * 100
 
         if 90 < width < 100:
             pb_color = 'bg-success'
@@ -611,7 +622,8 @@ def update_budget(request):
             pb_color = 'bg-danger'
 
         context = {
-            'width':  width,
+            'bwidth':  width,
+            'twidth': width,
             'client_id': client_id,
             'client_name': client.client_name,
             'pb_color': pb_color,

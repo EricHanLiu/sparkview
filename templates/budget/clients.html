@@ -51,23 +51,33 @@
                                 <th style="width: 5%;"></th>
                                 <th>Client Name</th>
                                 <th style="text-align: center">Monthly up to Up-to-Date Spend</th>
-                                <th style="text-align: center">Budget</th>
+                                <th style="text-align: center">Budget/Global Target Spend</th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for client in clients %}
                                 <tr id="row-{{ client.id }}">
                                     <td style="text-align: center; vertical-align: middle;">
-                                        <input type="checkbox" name="client_ids[]" id="{{ client.id }}"
-                                               value="{{ client.id }}">
+                                        <label class="m-checkbox m-checkbox--solid m-checkbox-primary">
+                                            <input type="checkbox" name="client_ids" id="{{ client.id }}"
+                                                value="{{ client.id }}">
+                                            <span></span>
+                                        </label>
                                     </td>
                                     <td>
                                         <a href="{% url 'budget:client_details' client.id %}">
                                             {{ client.client_name }}
                                         </a>
                                         <div class="row">
+                                            {% if client.has_gts %}
                                             <div class="col-md-6">Target Daily Spend:
-                                                {{ client.current_spend | ideal_day_spend:client.budget }}</div>
+                                                {{ client.current_spend | ideal_day_spend:client.target_spend }}
+                                            </div>
+                                            {% else %}
+                                            <div class="col-md-6">Target Daily Spend:
+                                                {{ client.current_spend | ideal_day_spend:client.budget }}
+                                            </div>
+                                            {% endif %}
                                             <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
                                         </div>
                                         <div class="row">
@@ -85,23 +95,31 @@
                                         <div class="row">
                                             <div class="col-md-6">Bing spend:
                                                 {{ client.bing_spend|floatformat:2 }}</div>
-                                            {#                                            <div class="col-md-6">Facebook Spend:#}
-                                            {#                                                0</div>#}
+                                            <div class="col-md-6">Facebook Spend:
+                                                {{ client.fb_spend|floatformat:2 }}
+                                            </div>
                                         </div>
 
                                     </td>
                                     <td style="text-align: center">
                                         <div class="progress m-progress--lg" style="position: relative;!important;">
-                                            <div id="{{ client.id }}_progressbar" class="progress-bar
-                                                    {{ client.current_spend|percentage:client.budget }}"
+                                            {% if client.has_gts %}
+                                                <div id="{{ client.id }}_progressbar" class="progress-bar {{ client.current_spend|percentage:client.target_spend }}"
                                                  role="progressbar"
-                                                 style="width: {% widthratio client.current_spend client.budget 100 %}%"
-
-                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 style="width: {% widthratio client.current_spend client.target_spend 100 %}%" aria-valuemin="0" aria-valuemax="100"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ client.current_spend }}/{{ client.budget }}">
-                                                {% widthratio client.current_spend client.budget 100 %}%
+                                                 data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
+                                                {% widthratio client.current_spend client.target_spend 100 %}%
                                             </div>
+                                            {% else %}
+                                                <div id="{{ client.id }}_progressbar" class="progress-bar {{ client.current_spend|percentage:client.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%" aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top" title=""
+                                                     data-original-title="{{ client.current_spend }}/{{ client.budget }}">
+                                                    {% widthratio client.current_spend client.budget 100 %}%
+                                                </div>
+                                            {% endif %}
                                             <div class="black-marker"
                                                  style="width: {{ blackmarker }}%"
                                                  aria-valuenow="{{ blackmarker }}"
@@ -109,11 +127,19 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td style="text-align: center" id="budget-{{ client.id }}">
-                                        <input id="client_budget-{{ client.id }}" type="number"
+                                    {% if client.has_gts %}
+                                        <td style="text-align: center" id="gts-{{ client.id }}">
+                                        <input id="client_gts-{{ client.id }}" type="number"
                                                onkeypress="submitClientBudget(event, {{ client.id }})"
-                                               value="{{ client.budget }}" class="table-number">
-                                    </td>
+                                               value="{{ client.target_spend }}" class="table-number">
+                                        </td>
+                                    {% else %}
+                                        <td style="text-align: center" id="budget-{{ client.id }}">
+                                            <input id="client_budget-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.budget }}" class="table-number">
+                                        </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             <div id="error_message" class="note hide">
@@ -183,19 +209,13 @@
 
                                     <!--begin: Form Wizard Nav -->
                                     <div class="m-wizard__nav">
-                                        <div class="m-wizard__steps">
+                                        <div class="m-wizard__steps col-xl-12">
                                             <div class="m-wizard__step m-wizard__step--current"
                                                  data-wizard-target="#m_wizard_form_step_1">
                                                 <div class="m-wizard__step-info">
                                                     <a href="#" class="m-wizard__step-number">
                                                         <span><span>1</span></span>
                                                     </a>
-                                                    {#									<div class="m-wizard__step-line">#}
-                                                    {#										<span></span>#}
-                                                    {#									</div>#}
-                                                    {#									<div class="m-wizard__step-label">#}
-                                                    {#                                        &nbsp;&nbsp;AdWords#}
-                                                    {#									</div>#}
                                                 </div>
                                             </div>
                                             <div class="m-wizard__step m-wizard__step"
@@ -204,12 +224,6 @@
                                                     <a href="#" class="m-wizard__step-number">
                                                         <span><span>2</span></span>
                                                     </a>
-                                                    {#									<div class="m-wizard__step-line">#}
-                                                    {#										<span></span>#}
-                                                    {#									</div>#}
-                                                    {#									<div class="m-wizard__step-label">#}
-                                                    {#                                        &nbsp;&nbsp;AdWords#}
-                                                    {#									</div>#}
                                                 </div>
                                             </div>
                                             <div class="m-wizard__step" data-wizard-target="#m_wizard_form_step_3">
@@ -217,13 +231,6 @@
                                                     <a href="#" class="m-wizard__step-number">
                                                         <span><span>3</span></span>
                                                     </a>
-                                                    {#									<div class="m-wizard__step-line">#}
-                                                    {#										<span></span>#}
-                                                    {#									</div>#}
-                                                    {#									<div class="m-wizard__step-label">#}
-                                                    {#										&nbsp;&nbsp;Bing#}
-                                                    {#									</div>#}
-
                                                 </div>
                                             </div>
                                             <div class="m-wizard__step" data-wizard-target="#m_wizard_form_step_4">
@@ -231,12 +238,6 @@
                                                     <a href="#" class="m-wizard__step-number">
                                                         <span><span>4</span></span>
                                                     </a>
-                                                    {#									<div class="m-wizard__step-line">#}
-                                                    {#										<span></span>#}
-                                                    {#									</div>#}
-                                                    {#									<div class="m-wizard__step-label">#}
-                                                    {#										&nbsp;&nbsp;Facebook#}
-                                                    {#									</div>#}
                                                 </div>
                                             </div>
                                             <div class="m-wizard__step" data-wizard-target="#m_wizard_form_step_5">
@@ -244,12 +245,6 @@
                                                     <a href="#" class="m-wizard__step-number">
                                                         <span><span>5</span></span>
                                                     </a>
-                                                    {#									<div class="m-wizard__step-line">#}
-                                                    {#										<span></span>#}
-                                                    {#									</div>#}
-                                                    {#									<div class="m-wizard__step-label">#}
-                                                    {#										&nbsp;&nbsp;Confirmation#}
-                                                    {#									</div>#}
                                                 </div>
                                             </div>
                                         </div>
@@ -274,7 +269,7 @@
                                                  id="m_wizard_form_step_1">
                                                 <div class="row">
                                                     <div class="col-xl-12">
-                                                        <div class="m-form__section m-form__section--first">
+                                                        <div class="m-form__section m-form__section--first col-xl-12">
                                                             <div class="m-form__heading"><h3
                                                                     class="m-form__heading-title">Please enter a client
                                                                 name.</h3></div>
@@ -296,21 +291,25 @@
                                                                     <span class="m-form__help">Please enter a name for the new client.</span>
                                                                 </div>
                                                             </div>
-                                                            <div class="form-group m-form__group row"><label
-                                                                    class="col-form-label col-lg-12 col-sm-12">Global
-                                                                Target Spend</label>
-                                                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                                                    <p>
-                                                                        <input
-                                                                                type="text" class="form-control m-input"
-                                                                                name="target_spend" id="target_spend"
-                                                                                aria-describedby="target-spend">
-                                                                        </input>
-                                                                    </p>
-                                                                    <div id="client-error"
-                                                                         class="form-control-feedback"></div>
-                                                                    <span class="m-form__help">Please enter a budget value for the new client.</span>
+                                                            <div class="form-group m-form__group row col-xl-12">
+                                                                <div class="m-checkbox-inline">
+                                                                    <label class="m-checkbox m-checkbox--solid m-checkbox--success">
+                                                                        <input type="checkbox"
+                                                                               name="global_target_spend"
+                                                                               value="1"
+                                                                               id="m_gts_check">
+                                                                        Global Target Spend
+                                                                        <span></span>
+                                                                    </label>
+                                                                    <label class="m-checkbox m-checkbox--solid m-checkbox--success" id="m_budget_label">
+                                                                        <input type="checkbox"
+                                                                               name="global_target_spend"
+                                                                               value="0" id="m_budget_check"> Budget
+                                                                        <span></span>
+                                                                    </label>
                                                                 </div>
+                                                            </div>
+                                                            <div id="gts_inp" class="form-group m-form__group row col-xl-12">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -463,8 +462,8 @@
                                                                                           id="client_name_fstep"></span>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="form-group m-form__group m-form__group--sm row">
-                                                                                <label class="col-xl-4 col-lg-4 col-form-label">Budget</label>
+                                                                            <div class="form-group m-form__group m-form__group--sm row" id="budget_fstep">
+                                                                                <label class="col-xl-4 col-lg-4 col-form-label">Global Target Spend:</label>
                                                                                 <div class="col-xl-8 col-lg-8">
                                                                                     <span class="m-form__control-static"
                                                                                           id="client_budget_fstep"></span>
@@ -681,28 +680,35 @@
             if (keycode === 13) {
                 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
                 var budget = jQuery("#client_budget-" + client_id).val();
+                var target_spend = jQuery("#client_gts-" + client_id).val();
                 var new_budget = {
                     id: client_id,
-                    budget: budget
+                    budget: budget,
+                    target_spend: target_spend
                 };
-
+                console.log(new_budget);
                 $.ajax({
                     url: '/budget/clientbudget/update/',
                     headers: {'X-CSRFToken': csrftoken},
                     type: 'POST',
                     data: new_budget,
+
                     success: function (data) {
-                        id = '#'+ data['client_id'] + '_progressbar';
+                        id = '#' + data['client_id'] + '_progressbar';
                         elem = $(id);
-                        elem.css({'width': data['width'] + '%'});
-                        elem.html(parseInt(data['width']) + '%');
+                        if (data['bwidth']) {
+                            elem.css({'width': data['bwidth'] + '%'});
+                            elem.html(parseInt(data['bwidth']) + '%');
+                        } else if (data['twidth']) {
+                            elem.css({'width': data['twidth'] + '%'});
+                            elem.html(parseInt(data['twidth']) + '%');
+                        }
                         elem.removeClass();
                         elem.addClass('progress-bar');
                         elem.addClass(data['pb_color']);
                         toastr.success("Updated budget for " + data['client_name'] + '.');
                     },
                     error: function (ajaxContext) {
-                        console.log(ajaxContext)
                         toastr.error(ajaxContext.statusText)
                     },
                     complete: function () {

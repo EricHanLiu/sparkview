@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponse, redirect, HttpResponseRedirect, reverse
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -76,11 +75,9 @@ def view_profile(request):
         if adwords:
             for a in adwords:
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                # aw_acc.assigned = True
                 aw_acc.assigned_to = user
-                # profile.adwords.add(aw_acc)
                 aw_acc.save()
-                # profile.save()
+
         if adwords_cm2:
             for a in adwords_cm2:
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
@@ -95,11 +92,8 @@ def view_profile(request):
         if bing:
             for b in bing:
                 bing_acc = BingAccounts.objects.get(account_id=b)
-                # bing_acc.assigned = True
                 bing_acc.assigned_to = user
-                # profile.bing.add(bing_acc)
                 bing_acc.save()
-                # profile.save()
 
         if bing_cm2:
             for b in bing_cm2:
@@ -146,48 +140,78 @@ def remove_acc_profile(request):
         data = json.loads(request.body.decode('utf-8'))
         acc_id = data['acc_id']
         level = data['cm']
+        channel = data['channel']
 
-
-        if level == 'cm':
-            try:
+        if channel == 'adwords':
+            if level == 'cm':
                 account = DependentAccount.objects.get(dependent_account_id=acc_id)
-                # account.assigned = False
                 account.assigned_to = None
                 profile.adwords.remove(account)
                 account.save()
                 profile.save()
 
-            except ObjectDoesNotExist:
+            if level == 'cm2':
+                account = DependentAccount.objects.get(dependent_account_id=acc_id)
+                account.assigned_cm2 = None
+                account.save()
+
+            if level == 'cm3':
+                account = DependentAccount.objects.get(dependent_account_id=acc_id)
+                account.assigned_cm3 = None
+                account.save()
+
+            context = {
+                'account_name': account.dependent_account_name,
+                'account_id': account.dependent_account_id,
+                'channel': channel
+            }
+
+        if channel == 'bing':
+            if level == 'cm':
                 account = BingAccounts.objects.get(account_id=acc_id)
-                # account.assigned = False
                 account.assigned_to = None
                 profile.bing.remove(account)
                 account.save()
                 profile.save()
 
-        if level == 'cm2':
-            try:
-                account = DependentAccount.objects.get(dependent_account_id=acc_id)
-                account.assigned_cm2 = None
-                account.save()
-            except ObjectDoesNotExist:
+            if level == 'cm2':
                 account = BingAccounts.objects.get(account_id=acc_id)
                 account.assigned_cm2 = None
                 account.save()
 
-        if level == 'cm3':
-            try:
-                account = DependentAccount.objects.get(dependent_account_id=acc_id)
-                account.assigned_cm3 = None
-                account.save()
-            except ObjectDoesNotExist:
+            if level == 'cm3':
                 account = BingAccounts.objects.get(account_id=acc_id)
                 account.assigned_cm3 = None
                 account.save()
 
-        context = {
-            'error': 'OK'
-        }
+            context = {
+                'account_name': account.account_name,
+                'account_id': account.account_id,
+                'channel': channel
+            }
+
+        if channel == 'facebook':
+            if level == 'cm':
+                account = FacebookAccount.objects.get(account_id=acc_id)
+                account.assigned_to = None
+                account.save()
+
+            if level == 'cm2':
+                account = FacebookAccount.objects.get(account_id=acc_id)
+                account.assigned_cm2 = None
+                account.save()
+
+            if level == 'cm3':
+                account = FacebookAccount.objects.get(account_id=acc_id)
+                account.assigned_cm3 = None
+                account.save()
+
+            context = {
+                'account_name': account.account_name,
+                'account_id': account.account_id,
+                'channel': channel
+            }
+
         return JsonResponse(context)
 
 def change_password(request):
@@ -352,7 +376,7 @@ def remove_user_accounts(request):
             account = BingAccounts.objects.get(account_id=acc_id)
             account.assigned_cm3 = None
             account.save()
-    # automatically increments id by 1 ?????
+
     if platform == 'facebook':
         if level == 'cm':
             account = FacebookAccount.objects.get(account_id=acc_id)
@@ -368,7 +392,9 @@ def remove_user_accounts(request):
             account = FacebookAccount.objects.get(account_id=acc_id)
             account.assigned_cm3 = None
             account.save()
+
     context = {
         'error': 'OK'
     }
+
     return JsonResponse(context)

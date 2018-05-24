@@ -19,7 +19,7 @@ $(document).ready(function () {
         "hideMethod": "fadeOut"
     };
 
-    tbl = $('#accounts').DataTable({
+    $('#accounts').DataTable({
         'pagingType': 'full_numbers'
     });
 
@@ -37,40 +37,18 @@ $(document).ready(function () {
         // 'sScrollXInner': '220%'
     });
 
-    var table = $("#clients_datatable").DataTable({
+    let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
             'targets': 0,
             'searchable': false,
             'orderable': false
-            // 'render': function (data, type, full, meta) {
-            //     return '<input type="checkbox" name="id-{{ client_data.client_id }}" value="' + $('<div/>').text(data).html() + '">';
-
         }],
         'order': [[1, 'asc']]
     });
 
-    $('#clients_select_all').on('click', function () {
-        // Get all rows with search applied
-        var rows = table.rows({'search': 'applied'}).nodes();
-        // Check/uncheck checkboxes for all rows in the table
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-    });
-
-    $('#clients_datatable tbody').on('change', 'input[type="checkbox"]', function () {
-        // If checkbox is not checked
-        if (!this.checked) {
-            var el = $('#clients_select_all').get(0);
-            // If "Select all" control is checked and has 'indeterminate' property
-            if (el && el.checked && ('indeterminate' in el)) {
-                // Set visual state of "Select all" control
-                // as 'indeterminate'
-                el.indeterminate = true;
-            }
-        }
-    });
-
-    var form = $('#delete_clients');
-    var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+    // Delete one or multiple clients
+    let form = $('#delete_clients');
+    let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
     form.click(function (e) {
 
         e.preventDefault();
@@ -87,51 +65,67 @@ $(document).ready(function () {
                     toastr.success("Client(s) deleted from the database.");
                     let lst = data['deleted'];
                     lst.forEach(item => {
-                        let elem = $('#row-'+ item['id']);
+                        let elem = $('#row-' + item['id']);
                         elem.remove();
                     })
 
                 },
                 error: function (ajaxContext) {
-                    toastr.errror(ajaxContext.statusText)
+                    toastr.error(ajaxContext.statusText)
                 },
                 complete: function () {
                 }
 
             });
         } else {
-            swal({
-                'title': 'ERROR',
-                'text': 'Please select at least one client to delete.',
-                'type': 'error',
-                'confirmButtonClass': 'btn btn-secondary m-btn m-btn--wide'
-            });
-        }
+            toastr.error('Please select at least one client to delete.');
 
+        }
     });
+
+    // Get data from page an send it to modal
+    // Userpage
     $('#m_modal_accounts').on('show.bs.modal', function (e) {
 
         //get data-id attribute of the clicked element
-        var user_id = $(e.relatedTarget).data('userid');
+        let user_id = $(e.relatedTarget).data('userid');
         $(".modal-body #uid").val(user_id);
     });
 
+    // Budget edit on view_client
     $('#m_edit_budget').on('show.bs.modal', function (e) {
-        var aid = $(e.relatedTarget).data('accountid');
-        var budget = $(e.relatedTarget).data('budget');
-        var channel = $(e.relatedTarget).data('channel');
+        let aid = $(e.relatedTarget).data('accountid');
+        let budget = $(e.relatedTarget).data('budget');
+        let channel = $(e.relatedTarget).data('channel');
         $(".modal-body #aid").val(aid);
         $(".modal-body #channel").val(channel);
         $(e.currentTarget).find('input[name="budget"]').val(budget);
     });
 
+    // Global target spend edit
     $('#m_target_spend').on('show.bs.modal', function (e) {
-        var cid = $(e.relatedTarget).data('clientid');
-        var target_spend = $(e.relatedTarget).data('target_spend');
-        var channel = $(e.relatedTarget).data('channel');
+        let cid = $(e.relatedTarget).data('clientid');
+        let target_spend = $(e.relatedTarget).data('target_spend');
+        let channel = $(e.relatedTarget).data('channel');
         $(".modal-body #cid").val(cid);
         $(".modal-body #channel").val(channel);
         $(e.currentTarget).find('input[name="target_spend"]').val(target_spend);
     });
-})
-;
+
+
+    // Handles the switch between Global Target Spend and normal client budget
+    let budget_cbox = $('#m_client_budget_cbox');
+    let gts_cbox = $('#m_gts_client_cbox');
+
+    budget_cbox.on('change', function () {
+        if (this.checked){
+            console.log('Budget checked');
+        }
+    })
+
+    gts_cbox.on('change', function () {
+        if (this.checked){
+            console.log('Global Target Spend');
+        }
+    })
+});

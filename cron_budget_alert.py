@@ -411,23 +411,20 @@ def budget_protection(client):
 
                     # Loop thorugh campaign list and pause them
                     for cmp in aw_campaigns:
-
-                        campaign_criterion = {
-                            'campaignId': cmp['Campaign ID'],
-                            'status': 'PAUSED'
-                        }
+                        campaign_id = cmp['Campaign ID']
 
                         # Create operations.
-                        operations = [
-                            {
-                                'operator': 'SET',
-                                'operand': campaign_criterion
+                        operations = [{
+                            'operator': 'SET',
+                            'operand': {
+                                'id': campaign_id,
+                                'status': 'PAUSED'
                             }
-                        ]
+                        }]
 
-                        # Make the mutate request.
+                        # Pause campaign if percentage > 99
                         result = campaign_criterion_service.mutate(operations)
-
+                        print(result)
 
         for b in bing_accounts:
 

@@ -21,6 +21,10 @@ def ideal_day_spend(spend, budget):
     return round(ideal_day_spend, 2)
 
 
+@register.filter("div")
+def perc(value, div):
+    return round((value / div) * 100, 2)
+
 @register.filter('startswith')
 def startswith(text, starts):
     if isinstance(text, str):

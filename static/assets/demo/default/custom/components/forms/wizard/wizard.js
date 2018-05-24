@@ -7,6 +7,7 @@ var WizardDemo = function () {
     var validator;
     var wizard;
     var data = {};
+    var gts = $('#m_gts_check');
 
     //== Private functions
     var initWizard = function () {
@@ -23,16 +24,51 @@ var WizardDemo = function () {
 
         });
 
+        var step = wizard.getStep();
+
+        if ( step === 1 ) {
+
+            gts.change(function () {
+
+                var checked = $(this).prop('checked');
+
+                if (checked) {
+                    $('#m_budget_check').attr('disabled', true);
+                    $('#m_budget_label').addClass('m-checkbox--disabled');
+                    $('#gts_inp').html('<input id="gts_input" name="gts_value" type="text" class="form-control m-input" placeholder="Global Target Spend">')
+                }
+
+                if(!checked) {
+                    $('#m_budget_check').attr('disabled', false);
+                    $('#m_budget_label').removeClass('m-checkbox--disabled');
+                    $('#gts_input').remove();
+                }
+
+            });
+        }
+
+
         //== Change event
         wizard.on('change', function (wizard) {
             mApp.scrollTop();
-            data = formEl.serialize();
-            console.log(data);
+            let data = formEl.serializeArray();
 
             if (wizard.isLastStep()) {
-                $('#client_name_fstep').html(client_name.value);
-                $('#client_budget_fstep').html(client_budget.value);
-                // $('#aw_name_fstep').html(data.adwords.value);
+                console.log(data);
+                let dataObj = {};
+                $(data).each(function(i, field) {
+                    dataObj[field.name] = field.value
+                });
+                console.log(dataObj);
+                $('#client_name_fstep').html(dataObj['client_name']);
+
+                // if (budget.prop('checked')) {
+                //     $('#budget_fstep').remove();
+                // } else {
+                //     $('#client_budget_fstep').html(dataObj['gts_value']);
+                // }
+                //
+                // $('#aw_name_fstep').html(dataObj['adwords']);
             }
         });
     };
@@ -50,26 +86,25 @@ var WizardDemo = function () {
                     required: true,
                     minlength: 3
                 },
-                target_spend: {
-                    // required: true,
+                gts_value: {
+                    required: true,
                     digits: true,
-                    // min: 1,
                     max: 10000000
 
                 },
                 aw_budget: {
-                    // required: true,
                     digits: true,
-                    // min: 1,
                     max: 10000000
 
                 },
                 bing_budget: {
-                    // required: true,
                     digits: true,
-                    // min: 1,
                     max: 10000000
 
+                },
+                facebook_budget: {
+                    digits: true,
+                    max: 10000000
                 }
             },
 
@@ -84,21 +119,16 @@ var WizardDemo = function () {
                     digits: 'Only digits are allowed in this field.',
                     max: 'You\'re not allowed to enter numbers bigger than 10000000.'
                 },
-                suggested_budget: {
-                    digits: 'Only digits are allowed in this field.'
+                gts_value: {
+                    digits: 'Only digits are allowed in this field.',
+                    required: 'A global target spend for the new client is required.'
                 }
             },
 
             //== Display error
             invalidHandler: function (event, validator) {
                 mApp.scrollTop();
-
-                swal({
-                    "title": "",
-                    "text": "There are some errors in your submission. Please correct them.",
-                    "type": "error",
-                    "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                });
+                toastr.error("There are some errors in your submission. Please correct them.");
             }
 
             //== Submit valid form
@@ -113,7 +143,6 @@ var WizardDemo = function () {
         btn.on('click', function (e) {
             e.preventDefault();
             if (validator.form()) {
-                //== See: http://malsup.com/jquery/form/#ajaxSubmit
 
                 formEl.ajaxSubmit({
                     type: 'POST',
@@ -121,23 +150,13 @@ var WizardDemo = function () {
                     data: data,
                     url: '',
                     success: function () {
-                        swal({
-                            "title": "",
-                            "text": "New client added to the database.",
-                            "type": "success",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
+                        toastr.success("New client added to the database.");
                         formEl.resetForm();
                         modalEl.modal('hide');
                         wizardEl.goFirst();
                     },
                     error: function (ajaxContext) {
-                        swal({
-                            "title": "",
-                            "text": ajaxContext.statusText,
-                            "type": "error",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
+                        toastr.error(ajaxContext.statusText)
                     },
                     complete: function () {
                         setTimeout(function () {
@@ -246,13 +265,7 @@ var WizardCampaigns = function () {
             //== Display error
             invalidHandler: function (event, validator) {
                 mApp.scrollTop();
-
-                swal({
-                    "title": "",
-                    "text": "There are some errors in your submission. Please correct them.",
-                    "type": "error",
-                    "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                });
+                toastr.error("There are some errors in your submission. Please correct them.");
             }
 
             //== Submit valid form
