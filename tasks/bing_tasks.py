@@ -191,7 +191,7 @@ def bing_cron_ovu(self, customer_id):
 
     except FileNotFoundError:
         current_spend = 0
-
+    print(account.account_name, current_spend)
     try:
         report_last_7 = helper.get_report(query_last_7.ReportName)
         yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
@@ -200,11 +200,12 @@ def bing_cron_ovu(self, customer_id):
     except FileNotFoundError:
         estimated_spend = 0
         yesterday_spend = 0
+    except IndexError:
+        estimated_spend = 0
+        yesterday_spend = 0
 
-
-
-    account.estimated_spend = estimated_spend
     account.current_spend = current_spend
+    account.estimated_spend = estimated_spend
     account.yesterday_spend = float(yesterday_spend)
 
     account.save()

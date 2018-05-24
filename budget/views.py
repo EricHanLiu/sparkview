@@ -103,6 +103,7 @@ def add_client(request):
 
     aw = []
     bng = []
+    fb = []
 
     today = datetime.today()
     next_month = datetime(
@@ -119,10 +120,11 @@ def add_client(request):
         clients = Client.objects.all()
         adwords_accounts = DependentAccount.objects.filter(blacklisted=False)
         bing_accounts = BingAccounts.objects.filter(blacklisted=False)
-        # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+        facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
         context['clients'] = clients
         context['adwords'] = adwords_accounts
         context['bing'] = bing_accounts
+        context['facebook'] = facebook_accounts
         context['remaining'] = remaining
         context['no_of_days'] = lastday_month.day
         context['blackmarker'] = round(black_marker, 2)
@@ -134,41 +136,51 @@ def add_client(request):
         name = request.POST.get('client_name')
         budget = 0
         # suggested budget / global budget
-        target_spend = request.POST.get('target_spend')
+        has_gts = request.POST.get('global_target_spend')
+        gts_value = request.POST.get('gts_value')
+        print(has_gts, gts_value)
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
+        facebook_accounts = request.POST.getlist('facebook')
+
+        new_client = Client.objects.create(client_name=name)
+
+        if has_gts == '1':
+            new_client.has_gts = True
+            new_client.target_spend = gts_value
 
         if adwords_accounts:
             for a in adwords_accounts:
-                # noofaccounts = len(adwords_accounts)
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
                 spend = request.POST.get('aw_budget_'+a)
-                # if bing_accounts:
-                #     aw_acc.desired_spend = int(budget)/2/noofaccounts
-                # else:
-                #     aw_acc.desired_spend = int(budget)/noofaccounts
+
                 if spend:
-                    aw_acc.desired_spend = int(spend)
+                    aw_acc.desired_spend = float(spend)
                     budget += int(spend)
                     aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
             for b in bing_accounts:
-                spend = request.POST.get('bing_budget_'+b)
-                # noofaccounts = len(bing_accounts)
+                spend = request.POST.get('bing_budget_' + b)
                 bing_acc = BingAccounts.objects.get(account_id=b)
-                # if adwords_accounts:
-                #     bing_acc.desired_spend = int(budget)/2/noofaccounts
-                # else:
-                #     bing_acc.desired_spend = int(budget)/noofaccounts
+
                 if spend:
-                    bing_acc.desired_spend = int(spend)
+                    bing_acc.desired_spend = float(spend)
                     budget += int(spend)
                     bing_acc.save()
                 bng.append(bing_acc)
 
-        new_client = Client.objects.create(client_name=name, budget=budget, target_spend=target_spend)
+        if facebook_accounts:
+            for f in facebook_accounts:
+                spend = request.POST.get('facebook_budget_' + f)
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+
+                if spend:
+                    fb_acc.desired_spend = float(spend)
+                    budget += float(spend)
+                    fb_acc.save()
+                fb.append(fb_acc)
 
         if aw:
             for acc in aw:
@@ -186,12 +198,17 @@ def add_client(request):
                 new_client.bing_budget += bacc.desired_spend
                 new_client.save()
 
-        context = {}
-        # facebook_accounts = request.POST.getlist('facebook')
-        return JsonResponse(context)
+        if fb:
+            for facc in fb:
+                new_client.facebook.add(facc)
+                new_client.current_spend += facc.current_spend
+                new_client.fb_spend += facc.current_spend
+                new_client.fb_budget += facc.desired_spend
+                new_client.save()
 
-# def get_flight_dates():
-#     pass
+        context = {}
+
+        return JsonResponse(context)
 
 
 @login_required
@@ -250,14 +267,28 @@ def client_details(request, client_id):
                 'budget': account.desired_spend
             }
 
+        elif channel == 'facebook':
+            account = FacebookAccount.objects.get(account_id=aid)
+            account.desired_spend = budget
+            account.save()
+            context = {
+                'aid': account.account_id,
+                'aname': account.account_name,
+                'budget': account.desired_spend
+            }
+
         else:
+
             client = Client.objects.get(id=cid)
             client.target_spend = target_spend
             client.save()
+
             context = {
                 'client': client.client_name,
-                'target_spend': client.target_spend
+                'target_spend': client.target_spend,
+                'error_message': 'Please enter a value greater than 0(zero).',
             }
+
         return JsonResponse(context)
 
 
@@ -265,18 +296,28 @@ def client_details(request, client_id):
 @xframe_options_exempt
 def delete_clients(request):
 
-    context = {}
+    deleted_clients = []
+
     if request.method == 'POST':
 
-        client_ids = request.POST.getlist('client_ids[]')
+        client_ids = request.POST.getlist('client_ids')
 
         if client_ids:
             for client in client_ids:
                 rip_client = Client.objects.get(id=client)
+                client = {
+                    'name': rip_client.client_name,
+                    'id': rip_client.id
+                }
+                deleted_clients.append(client)
                 rip_client.delete()
-                context['status'] = 'success'
+            context = {
+                'deleted': deleted_clients
+            }
         else:
-            context['status'] = 'no data received'
+            context = {
+                'status': 'No data received'
+            }
 
         return JsonResponse(context)
 
@@ -287,7 +328,7 @@ def last_month(request):
 
     if request.method == 'GET':
         context = {}
-        # facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+        context['facebook'] = FacebookAccount.objects.filter(blacklisted=False)
         context['clients'] = ClientHist.objects.all()
         context['adwords'] = DependentAccount.objects.filter(blacklisted=False)
         context['bing'] = BingAccounts.objects.filter(blacklisted=False)
@@ -555,16 +596,37 @@ def update_budget(request):
     if request.method == 'POST':
 
         data = request.POST
+        print(data)
         client_id = data['id']
-        budget = data['budget']
-
         client = Client.objects.get(id=client_id)
-        client.budget = budget
+
+        if 'budget' in data:
+            budget = data['budget']
+            client.budget = budget
+            width = (client.current_spend / int(budget)) * 100
+
+        if 'target_spend' in data:
+            target_spend = data['target_spend']
+            client.target_spend = target_spend
+            width = (client.current_spend / int(target_spend)) * 100
+
         client.save()
 
+        if 90 < width < 100:
+            pb_color = 'bg-success'
+
+        elif 0 < width <= 90:
+            pb_color = 'bg-warning'
+
+        else:
+            pb_color = 'bg-danger'
+
         context = {
-            'width':  (client.current_spend / int(budget)) * 100,
-            'client_id': client_id
+            'bwidth':  width,
+            'twidth': width,
+            'client_id': client_id,
+            'client_name': client.client_name,
+            'pb_color': pb_color,
         }
 
         return JsonResponse(context)

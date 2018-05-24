@@ -43,16 +43,18 @@ def get_spend(time_range=None, date_preset=None, **kwargs):
 
     my_account = AdAccount('act_10152692686812910')
     fields = [
-        'campaign_name',
-        'campaign_id',
+        'ad_name',
+        'ad_id',
+        'adset_id',
+        'adset_name',
 
     ]
     params = {
-        'level': 'campaign',
+        'level': 'ad',
         'filtering': [{
-            'field': 'campaign.configured_status',
+            'field': 'ad.effective_status',
             'operator': 'IN',
-            'value': ['ACTIVE'],
+            'value': ['DISAPPROVED'],
         }],
         'breakdowns': [],
         'time_range': time_range,
@@ -79,21 +81,21 @@ def main():
     # print(this_month)
     # accounts = get_accounts()
     # print(accounts)
-    current_period_daterange = helper.get_daterange(days=6)
-    current_period = helper.set_params(
-        time_range=current_period_daterange,
-    )
-    maxDate = helper.subtract_days(
-        datetime.strptime(current_period['time_range']['since'], '%Y-%m-%d'),
-        days=1
-    )
-    previous_period_daterange = helper.get_daterange(
-        days=6, maxDate=maxDate
-    )
-    previous_period = helper.set_params(
-        time_range=previous_period_daterange,
-    )
-    get_spend(time_range=previous_period_daterange, extra_fields=['clicks', 'spend', 'ctr', 'cpc'])
+    # current_period_daterange = helper.get_daterange(days=6)
+    # current_period = helper.set_params(
+    #     time_range=current_period_daterange,
+    # )
+    # maxDate = helper.subtract_days(
+    #     datetime.strptime(current_period['time_range']['since'], '%Y-%m-%d'),
+    #     days=1
+    # )
+    # previous_period_daterange = helper.get_daterange(
+    #     days=6, maxDate=maxDate
+    # )
+    # previous_period = helper.set_params(
+    #     time_range=previous_period_daterange,
+    # )
+    get_spend(date_preset='this_month') #, extra_fields=['clicks', 'spend', 'ctr', 'cpc'])
     # my_business = Business(fbid=settings.business_id)
     # my_accounts = list(my_business.get_client_ad_accounts())
     # print(my_accounts)
