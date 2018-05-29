@@ -691,6 +691,7 @@ class AdwordsReporting(Reporting):
             "Clicks",
             "Cost",
             "Ctr",
+            "CampaignStatus",
             "CostPerConversion",
             "AverageCpc",
             "SearchImpressionShare",
