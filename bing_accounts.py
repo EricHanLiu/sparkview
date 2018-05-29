@@ -65,7 +65,8 @@ def main():
     account_id = account.Id
 
     models.BingAccounts.objects.get_or_create(account_id=account_id,
-                                              account_name=account_name)
+                                              account_name=account_name,
+                                              channel='bing')
     print('Added to DB - ' + str(account_name) + ' - ' + str(account_id))
 
 

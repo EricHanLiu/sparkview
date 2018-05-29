@@ -1,529 +1,70 @@
 <!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
 
     <div class="m-content">
-    <div class="row">
-    <div class="col-xl-12">
-    <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
-        <div class="m-portlet__head">
-            <div class="m-portlet__head-caption">
-                <div class="m-portlet__head-title">
-                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>Client Details</span>
-                    </h2>
-                </div>
-            </div>
-        </div>
-        <div class="m-portlet__body">
-            <div class="m-portlet m-portlet--tabs m-portlet--bloom m-portlet--head-solid-bg m-portlet--head-sm">
-                <div class="m-portlet__head">
-                    <div class="m-portlet__head-caption">
-                        <div class="m-portlet__head-title">
-                            <h3 class="m-portlet__head-text">
-                                <a href="{% url 'budget:add_client' %}">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                    <span>Client Details</span>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="m-portlet m-portlet--tabs m-portlet--bloom m-portlet--head-solid-bg m-portlet--head-sm">
+                            <div class="m-portlet__head">
+                                <div class="m-portlet__head-caption">
+                                    <div class="m-portlet__head-title">
+                                        <h3 class="m-portlet__head-text">
+                                            <a href="{% url 'budget:add_client' %}">
                                             <span>
                                                 <i class="la la-angle-left"></i> Go Back
                                             </span>
-                                </a>
-                            </h3>
-                        </div>
-                    </div>
-                    <div class="m-portlet__head-tools">
-                        <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right"
-                            role="tablist">
-                            <li class="nav-item m-tabs__item">
-                                <a class="nav-link m-tabs__link active show" data-toggle="tab"
-                                   href="#m_tabs_7_1" role="tab" aria-selected="true">
-                                    Info
-                                </a>
-                            </li>
-                    </div>
-                </div>
-                <div class="m-portlet__body">
-
-                    {# If client has global target spend set display this view #}
-                    {% if client_data.has_gts %}
-                        <div class="tab-content">
-                        <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
-                        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-                             role="tablist">
-
-                        <!--begin::Item-->
-                        <div class="m-accordion__item">
-                            <div class="m-accordion__item-head collapsed" role="tab"
-                                 id="m_accordion_1_item_1_head" data-toggle="expand"
-                                 href="#m_accordion_1_item_1_body">
-                                            <span class="m-accordion__item-icon"><i
-                                                    class="fa fa-user-circle"></i></span>
-                                <span class="m-accordion__item-title">{{ client_data.client_name }}</span>
-                                <span class="m-accordion__item-mode"></span>
-                            </div>
-
-                            <div class="m-accordion__item-body"
-                                 id="m_accordion_1_item_1_body"
-                                 role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
-                                 data-parent="#m_accordion_1" style="">
-                                <div class="m-accordion__item-content">
-                                    <p>
-                                    </p>
-                                    <div class="row text-center">
-                                        <div class="col-md-3">
-                                            <span class="m--font-boldest2"">Global Target Spend</span>:
-                                            <span id="gts_{{ client_data.id }}">{{ client_data.target_spend }}</span>
-                                            <span class="fa fa-pencil-square"
-                                                  data-clientid="{{ client_data.id }}"
-                                                  data-target_spend="{{ client_data.target_spend }}"
-                                                  data-toggle="modal"
-                                                  data-target="#m_target_spend"></span>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="m-checkbox m-checkbox--solid">
-                                                <input type="checkbox" id="m_client_budget_cbox">Budget
-                                                <span></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
-                                            of {{ no_of_days }}
-                                            days
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
-                                        </div>
+                                            </a>
+                                        </h3>
                                     </div>
-                                    </p>
-
-                                    {% widthratio client_data.current_spend client_data.target_spend 100 as width %}
-                                    <div class="progress m-progress--lg">
-                                        <div class="progress-bar {{ client_data.current_spend|percentage:client_data.target_spend }}"
-                                             role="progressbar"
-                                             style="width: {{ client_data.current_spend|div:client_data.target_spend }}%"
-                                             aria-valuenow="{{ client_data.current_spend|div:client_data.target_spend }}"
-                                             aria-valuemin="0" aria-valuemax="100"
-                                             data-toggle="m-tooltip" data-placement="top"
-                                             title=""
-                                             data-original-title="{{ client_data.current_spend }}/{{ client_data.target_spend }}">
-                                            {{ client_data.current_spend|div:client_data.target_spend }}%
-                                        </div>
-                                    </div>
-                                    <div class="m-separator m-separator--metal"></div>
-                                    <p>
-                                    <h3>AdWords Accounts</h3>
-                                    {% for a in client_data.adwords.all %}
-                                        <div class="m-separator"></div>
-                                        <span class="m-list-timeline__text">
-                                            <h6>
-                                                <a href="{% url 'budget:findividualbudget' a.dependent_account_id %}">{{ a.dependent_account_name }}</a> - <a
-                                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                            </h6>
-
-                                        </span>
-                                        <p>
-                                        <div class="row text-center">
-                                            <div class="col-md-3">
-                                                <b>Current Total Spend</b>:
-                                                {{ a.current_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Target Daily Spend
-                                                </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Yesterday's Spend</b>: {{ a.yesterday_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Daily Spend</b>:
-                                                {{ a.current_spend|daily_spend|floatformat:2 }}
-                                            </div>
-                                            <div class="col-md-3">
-                                                <b>Projected Spend EOM</b>:
-                                                {{ a.current_spend|projected|floatformat:2 }}
-                                            </div>
-                                        </div>
-                                        </p>
-
-                                        </p>
-                                    {% empty %}
-                                        <p>
-                                        <h6>
-                                            No accounts selected for this client...
-                                        </h6>
-                                        </p>
-                                        <div class="m-separator"></div>
-                                    {% endfor %}
-
-                                    <div class="m-separator"></div>
-
-                                    <h3>Bing Accounts</h3>
-                                    {% for b in client_data.bing.all %}
-                                        <div class="m-separator"></div>
-                                        <span class="m-list-timeline__text">
-                                            <h6>
-                                                <a href="{% url 'budget:findividualbudget' b.account_id %}">{{ b.account_name }}</a> - <a
-                                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                            </h6>
-                                        </span>
-                                        <p>
-                                        <div class="row text-center">
-                                            <div class="col-md-3">
-                                                <b>Current Total Spend</b>: {{ b.current_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Target Daily
-                                                    Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-
-                                                <b>Yesterday's spend</b>: {{ b.yesterday_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Daily Spend</b>:
-                                                {{ b.current_spend|daily_spend|floatformat:2 }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Projected Spend EOM</b>:
-                                                {{ b.current_spend|projected|floatformat:2 }}
-                                            </div>
-                                        </div>
-                                        </p>
-                                        <div style="margin-top: 10px;"></div>
-                                    {% empty %}
-
-                                        <h6>
-                                            <p>
-                                                No accounts selected for this client...
-                                            </p>
-                                        </h6>
-                                        </p>
-                                        <div class="m-separator"></div>
-                                    {% endfor %}
-                                    <h3>Facebook Accounts</h3>
-                                    {% for f in client_data.facebook.all %}
-                                        <div class="m-separator"></div>
-                                        <span class="m-list-timeline__text">
-                                            <h6>
-                                                <a href="{% url 'budget:findividualbudget' f.account_id %}">{{ f.account_name }}</a> - <a
-                                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                            </h6>
-                                        </span>
-                                        <p>
-                                        <div class="row text-center">
-                                            <div class="col-md-3">
-                                                <b>Current Total Spend</b>: {{ f.current_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Target Daily
-                                                    Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-
-                                                <b>Yesterday's spend</b>: {{ f.yesterday_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Daily Spend</b>:
-                                                {{ f.current_spend|daily_spend|floatformat:2 }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Projected Spend EOM</b>:
-                                                {{ f.current_spend|projected|floatformat:2 }}
-                                            </div>
-                                        </div>
-                                        </p>
-                                        <div style="margin-top: 10px;">
-                                        </div>
-                                        <div class="m-separator"></div>
-                                    {% empty %}
-
-                                        <h6>
-                                            <p>
-                                                No accounts selected for this client...
-                                            </p>
-                                        </h6>
-                                        </p>
-                                        <div class="m-separator"></div>
-                                    {% endfor %}
+                                </div>
+                                <div class="m-portlet__head-tools">
+                                    <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right"
+                                        role="tablist">
+                                        <li class="nav-item m-tabs__item">
+                                            <a class="nav-link m-tabs__link active show" data-toggle="tab"
+                                               href="#m_tabs_7_1" role="tab" aria-selected="true">
+                                                Info
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                        </div>
-                        {# If there is no global target spend set we display this view #}
-                    {% else %}
-                        <div class="tab-content">
-                        <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
-                        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-                             role="tablist">
+                            <div class="m-portlet__body">
 
-                        <!--begin::Item-->
-                        <div class="m-accordion__item">
-                            <div class="m-accordion__item-head collapsed" role="tab"
-                                 id="m_accordion_1_item_1_head" data-toggle="expand"
-                                 href="#m_accordion_1_item_1_body">
-                                <span class="m-accordion__item-icon">
-                                    <i class="fa fa-user-circle"></i>
-                                </span>
-                                <span class="m-accordion__item-title">{{ client_data.client_name }}</span>
-                                <span class="m-accordion__item-mode"></span>
-                            </div>
-
-                            <div class="m-accordion__item-body"
-                                 id="m_accordion_1_item_1_body"
-                                 role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
-                                 data-parent="#m_accordion_1" style="">
-                                <div class="m-accordion__item-content">
-                                    <p>
-                                    </p>
-                                    <div class="row text-center">
-                                        <div class="col-md-3">
-                                            <label class="m-checkbox m-checkbox--solid">
-                                                <input type="checkbox" id="m_gts_client_cbox"> Global Target Spend
-                                                <span></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <span class="m--font-boldest2">Budget</span>: {{ client_data.budget }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
-                                            of {{ no_of_days }}
-                                            days
-                                        </div>
-                                        <div class="col-md-3">
-                                            <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
-                                        </div>
-                                    </div>
-                                    </p>
-                                    <div class="m-separator m-separator--metal"></div>
-                                    <p>
-                                    <h3>AdWords Accounts</h3>
-                                    {% for a in client_data.adwords.all %}
-                                        <div class="m-separator"></div>
-                                        <span class="m-list-timeline__text">
-                                            <h6>
-                                                <a href="{% url 'budget:findividualbudget' a.dependent_account_id %}">{{ a.dependent_account_name }}</a> - <a
-                                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                            </h6>
-                                        </span>
-                                        <p>
-                                        <div class="row text-center">
-                                            <div class="col-md-2">
-                                                <b>Budget</b>:
-                                                <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend }}</span>
-                                                <span class="fa fa-pencil-square fa-4x"
-                                                      data-toggle="modal"
-                                                      data-target="#m_edit_budget"
-                                                      data-channel="adwords"
-                                                      data-accountid="{{ a.dependent_account_id }}"
-                                                      data-budget="{{ a.desired_spend }}"></span>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Total Spend</b>:
-                                                {{ a.current_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Target Daily Spend
-                                                </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Yesterday's Spend</b>: {{ a.yesterday_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Daily Spend</b>:
-                                                {{ a.current_spend|daily_spend|floatformat:2 }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Projected Spend EOM</b>:
-                                                {{ a.current_spend|projected|floatformat:2 }}
-                                            </div>
-                                        </div>
-                                        </p>
-                                        <div class="progress m-progress--lg"
-                                             style="position: relative;!important;">
-                                            <div class="progress-bar {{ a.current_spend|percentage:a.desired_spend }}"
-                                                 role="progressbar"
-                                                 style="width: {% widthratio a.current_spend a.desired_spend 100 %}%;"
-                                                 aria-valuenow="{% widthratio a.current_spend a.desired_spend 100 %}"
-                                                 aria-valuemin="0" aria-valuemax="100"
-                                                 data-toggle="m-tooltip" data-placement="top"
-                                                 title=""
-                                                 data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
-                                                {% widthratio a.current_spend a.desired_spend 100 %}%
-                                            </div>
-                                        </div>
-
-                                        </p>
-                                    {% empty %}
-                                        <p>
-                                        <h6>
-                                            No accounts selected for this client...
-                                        </h6>
-                                        </p>
-                                    {% endfor %}
-
-                                    <div class="m-separator m-separator--metal"></div>
-
-                                    <h3>Bing Accounts</h3>
-                                    {% for b in client_data.bing.all %}
-                                        <div class="m-separator"></div>
-                                        <span class="m-list-timeline__text">
-                                            <h6>
-                                                <a href="{% url 'budget:findividualbudget' b.account_id %}">{{ b.account_name }}</a> - <a
-                                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                            </h6>
-                                        </span>
-                                        <p>
-                                        <div class="row text-center">
-                                            <div class="col-md-2">
-                                                <b>
-                                                    Budget
-                                                </b>:
-                                                <span id="budget-{{ b.account_id }}">
-                                                                        {{ b.desired_spend }}
-                                                                    </span>
-                                                <span class="fa fa-pencil-square fa-4x"
-                                                      data-toggle="modal"
-                                                      data-target="#m_edit_budget"
-                                                      data-channel="bing"
-                                                      data-accountid="{{ b.account_id }}"
-                                                      data-budget="{{ b.desired_spend }}"></span>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Total Spend</b>: {{ b.current_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Target Daily
-                                                    Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-
-                                                <b>Yesterday's spend</b>: {{ b.yesterday_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Daily Spend</b>:
-                                                {{ b.current_spend|daily_spend|floatformat:2 }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Projected Spend EOM</b>:
-                                                {{ b.current_spend|projected|floatformat:2 }}
-                                            </div>
-                                        </div>
-                                        </p>
-                                        <div class="progress m-progress--lg">
-                                            <div class="progress-bar {{ b.current_spend|percentage:b.desired_spend }}"
-                                                 role="progressbar"
-                                                 style="width: {% widthratio b.current_spend b.desired_spend 100 %}%"
-                                                 aria-valuenow="{% widthratio b.current_spend b.desired_spend 100 %}"
-                                                 aria-valuemin="0" aria-valuemax="100"
-                                                 data-toggle="m-tooltip" data-placement="top"
-                                                 title=""
-                                                 data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
-                                                {% widthratio b.current_spend b.desired_spend 100 %}%
-                                            </div>
-                                        </div>
-                                        <div style="margin-top: 10px;">
-                                        </div>
-                                    {% empty %}
-
-                                        <h6>
-                                            <p>
-                                                No accounts selected for this client...
-                                            </p>
-                                        </h6>
-                                        </p>
-                                    {% endfor %}
-                                    <div class="m-separator m-separator--metal"></div>
-
-                                    <h3>Facebook Accounts</h3>
-                                    {% for f in client_data.facebook.all %}
-                                        <div class="m-separator"></div>
-                                        <span class="m-list-timeline__text">
-                                                                    <h6>
-                                                                        <a href="{% url 'budget:findividualbudget' f.account_id %}">{{ f.account_name }}</a> - <a
-                                                                            href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                                                    </h6>
-                                                                </span>
-                                        <p>
-                                        <div class="row text-center">
-                                            <div class="col-md-2">
-                                                <b>
-                                                    Budget
-                                                </b>:
-                                                <span id="budget-{{ f.account_id }}">
-                                                                        {{ f.desired_spend }}
-                                                                    </span>
-                                                <span class="fa fa-pencil-square fa-4x"
-                                                      data-toggle="modal"
-                                                      data-target="#m_edit_budget"
-                                                      data-channel="facebook"
-                                                      data-accountid="{{ f.account_id }}"
-                                                      data-budget="{{ f.desired_spend }}"></span>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Total Spend</b>: {{ f.current_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Target Daily
-                                                    Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-
-                                                <b>Yesterday's spend</b>: {{ f.yesterday_spend }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Current Daily Spend</b>:
-                                                {{ f.current_spend|daily_spend|floatformat:2 }}
-                                            </div>
-                                            <div class="col-md-2">
-                                                <b>Projected Spend EOM</b>:
-                                                {{ f.current_spend|projected|floatformat:2 }}
-                                            </div>
-                                        </div>
-                                        </p>
-                                        <div class="progress m-progress--lg">
-                                            <div class="progress-bar {{ f.current_spend|percentage:f.desired_spend }}"
-                                                 role="progressbar"
-                                                 style="width: {% widthratio f.current_spend f.desired_spend 100 %}%"
-                                                 aria-valuenow="{% widthratio f.current_spend f.desired_spend 100 %}"
-                                                 aria-valuemin="0" aria-valuemax="100"
-                                                 data-toggle="m-tooltip" data-placement="top"
-                                                 title=""
-                                                 data-original-title="{{ f.current_spend }}/{{ f.desired_spend }}">
-                                                {% widthratio f.current_spend f.desired_spend 100 %}%
-                                            </div>
-                                        </div>
-                                        <div style="margin-top: 10px;">
-                                        </div>
-                                    {% empty %}
-
-                                        <h6>
-                                            <p>
-                                                No accounts selected for this client...
-                                            </p>
-                                        </h6>
-                                        </p>
-                                    {% endfor %}
-                                </div>
+                                {# If client has global target spend and budget set display this view #}
+                                {% if client_data.has_gts and client_data.has_budget %}
+                                    {% include 'budget/has_both.html' %}
+                                    {# If client has global target spend set display this view#}
+                                {% elif client_data.has_gts %}
+                                    {% include 'budget/has_gts.html' %}
+                                    {# If client has budget set display this view #}
+                                {% elif client_data.has_budget %}
+                                    {% include 'budget/has_budget.html' %}
+                                {% else %}
+                                    {% include 'budget/has_none.html' %}
+                                {% endif %}
                             </div>
                         </div>
-                    {% endif %}
-                    </div>
-                    </div>
-                    </div>
-                    </div>
-                    </div>
-                    <!--begin::Section-->
-                    <!--end::Section-->
-
                     </div>
                 </div>
-
-
             </div>
         </div>
-        <!--End::Main Portlet-->
+    </div>
+
+
+    </div>
+    </div>
+    <!--End::Main Portlet-->
     </div>
 
     <!--START:Modal budget edit-->
@@ -579,6 +120,9 @@
 
 
     <script type="text/javascript">
+
+        let csrftoken = '{{ csrf_token }}';
+
         function editBudget() {
 
             var modal = $('#m_edit_budget');
@@ -596,9 +140,12 @@
                 $.ajax({
                     type: "POST",
                     url: "",
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    headers: {'X-CSRFToken': csrftoken},
                     data: $.param(data),
                     complete: function () {
+                        setTimeout(function () {
+                        location.reload();
+                    }, 2500);
                     },
                     success: function (data) {
                         modal.modal('hide');
@@ -629,6 +176,9 @@
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 data: $.param(data),
                 complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
                 },
                 success: function (data) {
                     modal.modal('hide');
@@ -643,5 +193,5 @@
         }
 
     </script>
-{% endblock %}
+{% endblock content %}
 

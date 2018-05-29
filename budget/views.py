@@ -2,16 +2,15 @@
 from __future__ import unicode_literals
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404, HttpResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.clickjacking import xframe_options_exempt
 from adwords_dashboard.models import DependentAccount, Campaign
-from bing_dashboard.models import BingAccounts, BingAnomalies, BingCampaign
-from facebook_dashboard.models import FacebookAccount
+from bing_dashboard.models import BingAccounts, BingCampaign
+from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping
 import calendar
 import json
 from datetime import datetime
-from datetime import timedelta
 from datetime import date
 from dateutil.relativedelta import relativedelta
 # from dashboard.decorators import cache_on_auth
@@ -51,7 +50,6 @@ def index_budget(request):
 def bing_budget(request):
 
     if request.method == 'GET':
-        itemz = []
         try:
             accounts = BingAccounts.objects.filter(blacklisted='False')
             return render(request, 'budget/bing_budget.html', {'items': accounts})
@@ -76,7 +74,6 @@ def bing_budget(request):
 def facebook_budget(request):
 
     if request.method == 'GET':
-        items = []
         try:
             accounts = FacebookAccount.objects.filter(blacklisted='False')
             return render(request, 'budget/facebook_budget.html', {'items': accounts})
@@ -138,7 +135,6 @@ def add_client(request):
         # suggested budget / global budget
         has_gts = request.POST.get('global_target_spend')
         gts_value = request.POST.get('gts_value')
-        print(has_gts, gts_value)
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
         facebook_accounts = request.POST.getlist('facebook')
@@ -148,6 +144,9 @@ def add_client(request):
         if has_gts == '1':
             new_client.has_gts = True
             new_client.target_spend = gts_value
+
+        elif has_gts == '0':
+            new_client.has_budget = True
 
         if adwords_accounts:
             for a in adwords_accounts:
@@ -332,6 +331,7 @@ def last_month(request):
         context['clients'] = ClientHist.objects.all()
         context['adwords'] = DependentAccount.objects.filter(blacklisted=False)
         context['bing'] = BingAccounts.objects.filter(blacklisted=False)
+        context['facebook'] = FacebookAccount.objects.filter(blacklisted=False)
 
         return render(request, 'budget/last_month.html', context)
 
@@ -393,11 +393,14 @@ def sixm_budget(request, client_id):
         data = json.loads(request.body.decode('utf-8'))
         acc_id = data['acc_id']
         budgets = data['budgets']
+        channel = data['channel']
 
-        try:
+        if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
-        except:
+        elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
+        elif channel == 'facebook':
+            account = FacebookAccount.objects.get(account_id=acc_id)
 
         account.ds1 = budgets[0]
         account.ds2 = budgets[1]
@@ -414,7 +417,6 @@ def sixm_budget(request, client_id):
 
 
 @login_required
-@xframe_options_exempt
 def flight_dates(request):
 
     if request.method == 'POST':
@@ -424,15 +426,21 @@ def flight_dates(request):
         start_date = data['sdate']
         end_date = data['edate']
         budget = data['budget']
+        channel = data['channel']
 
-        try:
+        if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
             FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
                                         adwords_account=account)
-        except:
+        elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
             FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
                                         bing_account=account)
+
+        elif channel == 'facebook':
+            account = FacebookAccount.objects.get(account_id=acc_id)
+            FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
+                                        facebook_account=account)
 
         context = {
             'error': 'OK'
@@ -441,44 +449,59 @@ def flight_dates(request):
 
 
 @login_required
-@xframe_options_exempt
-def detailed_flight_dates(request, account_id):
+def detailed_flight_dates(request):
 
-    try:
+    account_id = request.GET.get('account_id')
+    channel = request.GET.get('channel')
+    context = {}
+
+    if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
-        budgets = FlightBudget.objects.filter(adwords_account=account)
-        platform_type = 'AW'
-    except:
+        context['account'] = account
+        context['budgets'] = FlightBudget.objects.filter(adwords_account=account)
+        context['platform_type'] = 'AW'
+        return render(request, 'budget/flight_dates.html', context)
+
+    if channel == 'bing':
         account = BingAccounts.objects.get(account_id=account_id)
-        budgets = FlightBudget.objects.filter(bing_account=account)
-        platform_type = 'BING'
+        context['account'] = account
+        context['budgets'] = FlightBudget.objects.filter(bing_account=account)
+        context['platform_type'] = 'BING'
+        return render(request, 'budget/flight_dates.html', context)
 
-    context = {
-        'platform_type': platform_type,
-        'account': account,
-        'budgets': budgets
-    }
-
-    return render(request, 'budget/flight_dates.html', context)
+    if channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+        context['account'] = account
+        context['budgets'] = FlightBudget.objects.filter(facebook_account=account)
+        context['platform_type'] = 'FACEBOOK'
+        return render(request, 'budget/flight_dates.html', context)
 
 
 @login_required
-@xframe_options_exempt
-def campaign_groupings(request, account_id):
+def campaign_groupings(request):
 
-    cmps = []
+    account_id = request.GET.get('account_id')
+    channel =  request.GET.get('channel')
 
     if request.method == 'GET':
-        try:
+
+        if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=account_id)
             campaigns = Campaign.objects.filter(account=account, groupped=False)
             groups = CampaignGrouping.objects.filter(adwords=account)
             platform_type = 'AW'
-        except:
+
+        elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=account_id)
-            campaigns = BingCampaign.objects.filter(account=account)
+            campaigns = BingCampaign.objects.filter(account=account, groupped=False)
             groups = CampaignGrouping.objects.filter(bing=account)
             platform_type = 'BING'
+
+        elif channel == 'facebook':
+            account = FacebookAccount.objects.get(account_id=account_id)
+            campaigns = FacebookCampaign.objects.filter(account=account, groupped=False)
+            groups = CampaignGrouping.objects.filter(facebook=account)
+            platform_type = 'FB'
 
         context = {
             'platform_type': platform_type,
@@ -491,9 +514,12 @@ def campaign_groupings(request, account_id):
 
     elif request.method == 'POST':
 
+        cmps = []
         campaigns = request.POST.getlist('campaigns')
+        campaigns = set(campaigns)
+        channel = request.POST.get('channel')
 
-        try:
+        if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=account_id)
             new_grouping = CampaignGrouping.objects.create(adwords=account)
 
@@ -513,7 +539,7 @@ def campaign_groupings(request, account_id):
                     new_grouping.budget += c.campaign_budget
                     new_grouping.save()
 
-        except:
+        elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=account_id)
             new_grouping = CampaignGrouping.objects.create(bing=account)
 
@@ -529,6 +555,26 @@ def campaign_groupings(request, account_id):
             if cmps:
                 for c in cmps:
                     new_grouping.bing_campaigns.add(c)
+                    new_grouping.current_spend += c.campaign_cost
+                    new_grouping.budget += c.campaign_budget
+                    new_grouping.save()
+
+        elif channel == 'facebook':
+            account = FacebookAccount.objects.get(account_id=account_id)
+            new_grouping = CampaignGrouping.objects.create(facebook=account)
+
+            if campaigns:
+                for cmp in campaigns:
+                    cmp_obj = FacebookCampaign.objects.get(campaign_id=cmp)
+                    budget = request.POST.get('grouping-budget')
+                    cmp_obj.campaign_budget = int(budget)/len(campaigns)
+                    cmp_obj.groupped = True
+                    cmp_obj.save()
+                    cmps.append(cmp_obj)
+
+            if cmps:
+                for c in cmps:
+                    new_grouping.fb_campaigns.add(c)
                     new_grouping.current_spend += c.campaign_cost
                     new_grouping.budget += c.campaign_budget
                     new_grouping.save()
@@ -552,12 +598,21 @@ def update_groupings(request):
         grouping.save()
 
         if len(grouping.aw_campaigns.all()) > 0:
+
             for cmp in grouping.aw_campaigns.all():
                 cmp.campaign_budget = int(budget)/len(grouping.aw_campaigns.all())
                 cmp.save()
-        else:
+
+        elif len(grouping.bing_campaigns.all()) > 0:
+
             for cmp in grouping.bing_campaigns.all():
                 cmp.campaign_budget = int(budget)/len(grouping.bing_campaigns.all())
+                cmp.save()
+
+        elif len(grouping.fb_campaigns.all()) > 0:
+
+            for cmp in grouping.fb_campaigns.all():
+                cmp.campaign_budget = int(budget)/len(grouping.fb_campaigns.all())
                 cmp.save()
 
         context = {}
@@ -578,8 +633,12 @@ def delete_groupings(request):
                 for cmp in grouping.aw_campaigns.all():
                     cmp.groupped = False
                     cmp.save()
-            else:
+            elif len(grouping.bing_campaigns.all()) > 0:
                 for cmp in grouping.bing_campaigns.all():
+                    cmp.groupped = False
+                    cmp.save()
+            elif len(grouping.fb_campaigns.all()) > 0:
+                for cmp in grouping.fb_campaigns.all():
                     cmp.groupped = False
                     cmp.save()
 
@@ -596,19 +655,20 @@ def update_budget(request):
     if request.method == 'POST':
 
         data = request.POST
-        print(data)
         client_id = data['id']
         client = Client.objects.get(id=client_id)
 
-        if 'budget' in data:
+        if 'budget' in data and int(data['budget']) > 0:
             budget = data['budget']
             client.budget = budget
             width = (client.current_spend / int(budget)) * 100
+            gts_budget = 'budget'
 
-        if 'target_spend' in data:
+        if 'target_spend' in data and int(data['target_spend']) > 0:
             target_spend = data['target_spend']
             client.target_spend = target_spend
             width = (client.current_spend / int(target_spend)) * 100
+            gts_budget = 'gts'
 
         client.save()
 
@@ -622,11 +682,11 @@ def update_budget(request):
             pb_color = 'bg-danger'
 
         context = {
-            'bwidth':  width,
-            'twidth': width,
+            'width':  round(width, 2),
             'client_id': client_id,
             'client_name': client.client_name,
             'pb_color': pb_color,
+            'gts_budget': gts_budget
         }
 
         return JsonResponse(context)
@@ -641,7 +701,6 @@ def update_fbudget(request):
     if request.method == 'POST':
 
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
         budget_id = data['budget_id']
         budget = data['budget']
         sdate = data['sdate']
@@ -662,7 +721,6 @@ def delete_fbudget(request):
     if request.method == 'POST':
 
         data = request.POST.getlist('flight_budgets')
-        print(data)
         for fb_id in data:
             fbudget = FlightBudget.objects.get(id=fb_id)
             fbudget.delete()
@@ -670,3 +728,35 @@ def delete_fbudget(request):
         context = {}
 
         return JsonResponse(context)
+
+@login_required
+def gts_or_budget(request):
+
+    data = request.POST
+    client = Client.objects.get(id=data['cid'])
+
+    context = {
+        'client_name': client.client_name,
+    }
+
+    if 'gts' in data and data['gts'] == 'on':
+        client.has_gts = True
+        client.save()
+        context['gtson'] = '1'
+
+    elif 'gts' in data and data['gts'] == 'off':
+        client.has_gts = False
+        client.save()
+        context['gtsoff'] = '1'
+
+    elif 'budget' in data and data['budget'] == 'on':
+        client.has_budget = True
+        client.save()
+        context['budgeton'] = '1'
+
+    elif 'budget' in data and data['budget'] == 'off':
+        client.has_budget = False
+        client.save()
+        context['budgetoff'] = '1'
+
+    return JsonResponse(context)

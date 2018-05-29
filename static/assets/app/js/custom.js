@@ -1,5 +1,5 @@
 $(document).ready(function () {
-
+    let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
     toastr.options = {
         "closeButton": false,
@@ -48,7 +48,7 @@ $(document).ready(function () {
 
     // Delete one or multiple clients
     let form = $('#delete_clients');
-    let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
     form.click(function (e) {
 
         e.preventDefault();
@@ -112,20 +112,83 @@ $(document).ready(function () {
         $(e.currentTarget).find('input[name="target_spend"]').val(target_spend);
     });
 
-
     // Handles the switch between Global Target Spend and normal client budget
     let budget_cbox = $('#m_client_budget_cbox');
     let gts_cbox = $('#m_gts_client_cbox');
 
+    function sendAjaxRequest(d) {
+
+        $.ajax({
+            url: '/budget/gtsorbudget/',
+            headers: {'X-CSRFToken': csrftoken},
+            type: 'POST',
+            data: d,
+
+            success: function (data) {
+                console.log(data);
+                if (data['gtson'] === '1') {
+                    toastr.success("Activated Global Target Spend on  " + data['client_name'] + ".");
+                }
+                else if (data['gtsoff'] === '1') {
+                    toastr.success("Deactivated Global Target Spend on  " + data['client_name'] + ".");
+                }
+                else if (data['budgeton'] === '1') {
+                    toastr.success("Activated Budget on  " + data['client_name'] + ".");
+                }
+                else if (data['budgetoff'] === '1') {
+                    toastr.success("Deactivated Budget on  " + data['client_name'] + ".");
+                }
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+            complete: function () {
+                setTimeout(function () {
+                    location.reload()
+                }, 2000)
+            }
+        });
+    }
+
     budget_cbox.on('change', function () {
-        if (this.checked){
-            console.log('Budget checked');
+
+        let clientid = $(this).data('cid');
+
+        if (this.checked) {
+            let data = {
+                budget: 'on',
+                cid: clientid
+            };
+            sendAjaxRequest(data);
         }
-    })
+
+        if (!this.checked) {
+            let data = {
+                budget: 'off',
+                cid: clientid
+            };
+            sendAjaxRequest(data);
+        }
+    });
 
     gts_cbox.on('change', function () {
-        if (this.checked){
-            console.log('Global Target Spend');
+
+        let clientid = $(this).data('cid');
+
+        if (this.checked) {
+            let data = {
+                gts: 'on',
+                cid: clientid
+            };
+            sendAjaxRequest(data);
         }
-    })
+
+        if (!this.checked) {
+            let data = {
+                gts: 'off',
+                cid: clientid
+            };
+            sendAjaxRequest(data);
+        }
+    });
 });

@@ -22,8 +22,11 @@ def ideal_day_spend(spend, budget):
 
 
 @register.filter("div")
-def perc(value, div):
-    return round((value / div) * 100, 2)
+def div(value, div):
+    try:
+        return round((value / div) * 100, 2)
+    except ZeroDivisionError:
+        return 0
 
 @register.filter('startswith')
 def startswith(text, starts):

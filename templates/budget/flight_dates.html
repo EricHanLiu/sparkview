@@ -64,11 +64,11 @@
                                         <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
                                              role="group" aria-label="">
                                             <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:findividualbudget' account.dependent_account_id %}'">
+                                                    onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
                                                 Flight Dates
                                             </button>
                                             <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:campaign_groupings' account.dependent_account_id %}'">
+                                                    onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
                                                 Campaign Groupings
                                             </button>
                                         </div>
@@ -173,11 +173,11 @@
                                         <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
                                              role="group" aria-label="">
                                             <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:findividualbudget' account.account_id %}'">
+                                                    onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
                                                 Flight Dates
                                             </button>
                                             <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:campaign_groupings' account.account_id %}'">
+                                                    onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
                                                 Campaign Groupings
                                             </button>
                                         </div>
@@ -292,6 +292,21 @@
 
     <script type="text/javascript">
 
+        var getUrlParameter = function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
         function toggleFlightDates(acc_id) {
             event.preventDefault();
             $("#" + acc_id).slideToggle('slow');
@@ -301,18 +316,20 @@
             var start_date = $('.sdate-' + acc_id).val();
             var end_date = $('.edate-' + acc_id).val();
             var budget = $('.fbudget-' + acc_id).val();
+            var channel = getUrlParameter('channel');
 
             var data = JSON.stringify({
                 'sdate': start_date,
                 'edate': end_date,
                 'budget': budget,
-                'acc_id': acc_id
+                'acc_id': acc_id,
+                'channel': channel
             });
 
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                url: '/budget/client/fbudget/',
+                url: '/budget/fbudget/create/',
                 data: data,
                 complete: function () {
                     setTimeout(function () {

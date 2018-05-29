@@ -60,22 +60,6 @@
                                                      role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
                                                      data-parent="#m_accordion_1" style="">
                                                     <div class="m-accordion__item-content">
-                                                        {#                                                        <div class="row text-center">#}
-                                                        {#                                                            <div class="col-md-3">#}
-                                                        {#                                                                <span class="m--font-boldest2">Budget</span>: {{ client_data.budget }}#}
-                                                        {#                                                            </div>#}
-                                                        {#                                                            <div class="col-md-3">#}
-                                                        {#                                                                <span class="m--font-boldest2">Monthly up to Up-to-Date Spend</span>: {{ client_data.current_spend }}#}
-                                                        {#                                                            </div>#}
-                                                        {#                                                            <div class="col-md-3">#}
-                                                        {#                                                                <span class="m--font-boldest2">Cycle progress</span>: {{ today }} of {{ no_of_days }}#}
-                                                        {#                                                                days#}
-                                                        {#                                                            </div>#}
-                                                        {#                                                            <div class="col-md-3">#}
-                                                        {#                                                                <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}#}
-                                                        {#                                                            </div>#}
-                                                        {#                                                        </div>#}
-                                                        {#                                                        <div class="m-separator m-separator--metal"></div>#}
                                                         <p>
                                                         <h3>AdWords Accounts</h3>
                                                         {% for a in client_data.adwords.all %}
@@ -92,7 +76,7 @@
                                                                     <button type="button"
                                                                             class="btn m-btn--pill m-btn--air btn-outline-info"
                                                                             style="float: right!important;"
-                                                                            onclick="edit_submit_sixm(this, {{ a.dependent_account_id }})">
+                                                                            onclick="edit_submit_sixm(this, {{ a.dependent_account_id }}, {{ a.channel }})">
                                                                         Edit
                                                                     </button>
                                                                 </div>
@@ -113,7 +97,6 @@
                                                                 </thead>
                                                                 <tbody>
                                                                 <tr>
-                                                                    {#                                                                        {% for i in months %}#}
                                                                     <td class="text-center">
                                                                         <input value="{{ a.ds1 }}" type="number"
                                                                                class="input-lg text-center month-input-{{ a.dependent_account_id }}"
@@ -121,7 +104,6 @@
                                                                                id="{{ a.dependent_account_id }}-ds1"
                                                                                readonly>
                                                                     </td>
-                                                                    {#                                                                        {% endfor %}#}
                                                                     <td class="text-center">
                                                                         <input value="{{ a.ds2 }}" type="number"
                                                                                class="input-lg text-center month-input-{{ a.dependent_account_id }}"
@@ -162,7 +144,7 @@
                                                             </table>
                                                             </p>
                                                             </p>
-                                                            {% empty %}
+                                                        {% empty %}
                                                             <p>
                                                             <h6>
                                                                 No accounts selected for this client...
@@ -170,7 +152,6 @@
                                                             </p>
                                                         {% endfor %}
                                                         <div class="m-separator m-separator--metal"></div>
-                                                        {#                                                        <p>#}
                                                         <h3>Bing Accounts</h3>
                                                         {% for b in client_data.bing.all %}
                                                             <div class="row">
@@ -186,7 +167,7 @@
                                                                     <button type="button"
                                                                             class="btn m-btn--pill m-btn--air btn-outline-info"
                                                                             style="float: right!important;"
-                                                                            onclick="edit_submit_sixm(this, {{ b.account_id }})">
+                                                                            onclick="edit_submit_sixm(this, {{ b.account_id }}, {{ b.channel }})">
                                                                         Edit
                                                                     </button>
                                                                 </div>
@@ -207,14 +188,12 @@
                                                                 </thead>
                                                                 <tbody>
                                                                 <tr>
-                                                                    {#                                                                        {% for i in months %}#}
                                                                     <td class="text-center">
                                                                         <input value="{{ b.ds1 }}" type="number"
                                                                                class="input-lg text-center month-input-{{ b.account_id }}"
                                                                                min="0" id="{{ b.account_id }}-ds1"
                                                                                readonly>
                                                                     </td>
-                                                                    {#                                                                        {% endfor %}#}
                                                                     <td class="text-center">
                                                                         <input value="{{ b.ds2 }}" type="number"
                                                                                class="input-lg text-center month-input-{{ b.account_id }}"
@@ -245,12 +224,97 @@
                                                                                min="0" id="{{ b.account_id }}-ds6"
                                                                                readonly>
                                                                     </td>
-                                                                    {#                                                                        {% endfor %}#}
                                                                 </tr>
                                                                 </tbody>
                                                             </table>
                                                             </p>
-                                                            {% empty %}
+                                                        {% empty %}
+
+                                                            <h6>
+                                                                <p>
+                                                                    No accounts selected for this client...
+                                                                </p>
+                                                            </h6>
+                                                            </p>
+                                                        {% endfor %}
+                                                        <div class="m-separator m-separator--metal"></div>
+                                                        <h3>Facebook Accounts</h3>
+                                                        {% for f in client_data.facebook.all %}
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                <span class="m-list-timeline__text">
+                                                                        <h6>
+                                                                            {{ f.account_name }}
+                                                                        </h6>
+                                                                </span>
+                                                                </div>
+                                                                <div class="col-md-4"></div>
+                                                                <div class="col-md-4">
+                                                                    <button type="button"
+                                                                            class="btn m-btn--pill m-btn--air btn-outline-info"
+                                                                            style="float: right!important;"
+                                                                            onclick="edit_submit_sixm(this, {{ f.account_id }}, {{ f.channel }})">
+                                                                        Edit
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div id="error-budget-{{ f.account_id }}">
+                                                                <p></p>
+                                                            </div>
+                                                            <div class="m-separator"></div>
+                                                            <p>
+                                                            <table class="table table-responsive m-table m-table--head-separator-bloom dataTable"
+                                                                   id="table-{{ f.account_id }}">
+                                                                <thead class="table-inverse">
+                                                                <tr>
+                                                                    {% for m in months %}
+                                                                        <th class="text-center">{{ m }}</th>
+                                                                    {% endfor %}
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td class="text-center">
+                                                                        <input value="{{ f.ds1 }}" type="number"
+                                                                               class="input-lg text-center month-input-{{ f.account_id }}"
+                                                                               min="0" id="{{ f.account_id }}-ds1"
+                                                                               readonly>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input value="{{ f.ds2 }}" type="number"
+                                                                               class="input-lg text-center month-input-{{ f.account_id }}"
+                                                                               min="0" id="{{ f.account_id }}-ds2"
+                                                                               readonly>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input value="{{ f.ds3 }}" type="number"
+                                                                               class="input-lg text-center month-input-{{ f.account_id }}"
+                                                                               min="0" id="{{ b.account_id }}-ds3"
+                                                                               readonly>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input value="{{ f.ds4 }}" type="number"
+                                                                               class="input-lg text-center month-input-{{ f.account_id }}"
+                                                                               min="0" id="{{ f.account_id }}-ds4"
+                                                                               readonly>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input value="{{ f.ds5 }}" type="number"
+                                                                               class="input-lg text-center month-input-{{ f.account_id }}"
+                                                                               min="0" id="{{ f.account_id }}-ds5"
+                                                                               readonly>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <input value="{{ f.ds6 }}" type="number"
+                                                                               class="input-lg text-center month-input-{{ f.account_id }}"
+                                                                               min="0" id="{{ f.account_id }}-ds6"
+                                                                               readonly>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            </p>
+                                                        {% empty %}
 
                                                             <h6>
                                                                 <p>
@@ -281,7 +345,7 @@
 
     <script type="text/javascript">
 
-        function edit_submit_sixm(trigger, acc_id) {
+        function edit_submit_sixm(trigger, acc_id, channel) {
             var months = $('.month-input-' + acc_id);
             var data = [];
             if (trigger.innerHTML === 'Submit') {
@@ -291,7 +355,7 @@
                     var inp_id = "#" + months[m].id;
                     data.push(parseInt($(inp_id).val()));
                 }
-                update_budget(data, acc_id)
+                update_budget(data, acc_id, channel)
 
             } else {
                 trigger.innerHTML = 'Submit';
@@ -299,18 +363,20 @@
             }
         }
 
-        function update_budget(data, acc_id) {
+        function update_budget(data, acc_id, channel) {
 
             data1 = JSON.stringify({
                 'budgets': data,
-                'acc_id': acc_id
+                'acc_id': acc_id,
+                'channel': channel
             });
+            console.log(data1);
 
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 data: data1,
-                complete: function(){
+                complete: function () {
                     setTimeout(function () {
                         location.reload();
                     }, 2500);

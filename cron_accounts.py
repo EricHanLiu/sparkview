@@ -19,8 +19,8 @@ def add_accounts(client):
             print('Matched in DB(' + str(acc_id) + ')')
 
         except:
-            models.DependentAccount.objects.create(dependent_account_id=acc_id,
-                                                   dependent_account_name=name)
+            models.DependentAccount.objects.create(dependent_account_id=acc_id, dependent_account_name=name,
+                                                   channel='adwords')
             print('Added to DB - ' + str(acc_id) + ' - ' + name)
 
 def main():
