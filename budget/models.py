@@ -20,6 +20,7 @@ class Client(models.Model):
     budget = models.IntegerField(default=0)
     target_spend = models.IntegerField(default=0)
     has_gts = models.BooleanField(default=False)
+    has_budget = models.BooleanField(default=False)
     aw_budget = models.IntegerField(default=0)
     bing_budget = models.IntegerField(default=0)
     fb_budget = models.IntegerField(default=0)

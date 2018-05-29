@@ -6,11 +6,9 @@
                 <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
-                            {#                            <div class="m-portlet__head-title">#}
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
                                 <span>Client Interface</span>
                             </h2>
-                            {#                            </div>#}
                         </div>
                     </div>
                     <div class="m-portlet__body">
@@ -51,7 +49,8 @@
                                 <th style="width: 5%;"></th>
                                 <th>Client Name</th>
                                 <th style="text-align: center">Monthly up to Up-to-Date Spend</th>
-                                <th style="text-align: center">Budget/Global Target Spend</th>
+                                <th style="text-align: center">Budget</th>
+                                <th style="text-align: center">Global Target Spend</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -60,23 +59,31 @@
                                     <td style="text-align: center; vertical-align: middle;">
                                         <label class="m-checkbox m-checkbox--solid m-checkbox-primary">
                                             <input type="checkbox" name="client_ids" id="{{ client.id }}"
-                                                value="{{ client.id }}">
+                                                   value="{{ client.id }}">
                                             <span></span>
                                         </label>
                                     </td>
                                     <td>
                                         <a href="{% url 'budget:client_details' client.id %}">
-                                            {{ client.client_name }}
+                                                {{ client.client_name }}
                                         </a>
+                                        {% if client.has_gts and client.has_budget %}
+                                            <i class="la la-star-o"></i>
+                                            <i class="la la-star"></i>
+                                        {% elif client.has_budget %}
+                                            <i class="la la-star-o"></i>
+                                        {% elif client.has_gts %}
+                                            <i class="la la-star"></i>
+                                        {% endif %}
                                         <div class="row">
                                             {% if client.has_gts %}
-                                            <div class="col-md-6">Target Daily Spend:
-                                                {{ client.current_spend | ideal_day_spend:client.target_spend }}
-                                            </div>
+                                                <div class="col-md-6">Target Daily Spend:
+                                                    {{ client.current_spend | ideal_day_spend:client.target_spend }}
+                                                </div>
                                             {% else %}
-                                            <div class="col-md-6">Target Daily Spend:
-                                                {{ client.current_spend | ideal_day_spend:client.budget }}
-                                            </div>
+                                                <div class="col-md-6">Target Daily Spend:
+                                                    {{ client.current_spend | ideal_day_spend:client.budget }}
+                                                </div>
                                             {% endif %}
                                             <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
                                         </div>
@@ -103,18 +110,32 @@
                                     </td>
                                     <td style="text-align: center">
                                         <div class="progress m-progress--lg" style="position: relative;!important;">
-                                            {% if client.has_gts %}
-                                                <div id="{{ client.id }}_progressbar" class="progress-bar {{ client.current_spend|percentage:client.target_spend }}"
-                                                 role="progressbar"
-                                                 style="width: {% widthratio client.current_spend client.target_spend 100 %}%" aria-valuemin="0" aria-valuemax="100"
-                                                 data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
-                                                {% widthratio client.current_spend client.target_spend 100 %}%
-                                            </div>
-                                            {% else %}
-                                                <div id="{{ client.id }}_progressbar" class="progress-bar {{ client.current_spend|percentage:client.budget }}"
+                                            {% if client.has_gts and client.has_budget %}
+                                                <div id="{{ client.id }}_progressbar"
+                                                     class="progress-bar {{ client.current_spend|percentage:client.target_spend }}"
                                                      role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%" aria-valuemin="0" aria-valuemax="100"
+                                                     style="width: {% widthratio client.current_spend client.target_spend 100 %}%"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top" title=""
+                                                     data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
+                                                    {% widthratio client.current_spend client.target_spend 100 %}%
+                                                </div>
+                                            {% elif client.has_gts %}
+                                                <div id="{{ client.id }}_progressbar"
+                                                     class="progress-bar {{ client.current_spend|percentage:client.target_spend }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio client.current_spend client.target_spend 100 %}%"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top" title=""
+                                                     data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
+                                                    {% widthratio client.current_spend client.target_spend 100 %}%
+                                                </div>
+                                            {% elif client.has_budget %}
+                                                <div id="{{ client.id }}_progressbar"
+                                                     class="progress-bar {{ client.current_spend|percentage:client.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%"
+                                                     aria-valuemin="0" aria-valuemax="100"
                                                      data-toggle="m-tooltip" data-placement="top" title=""
                                                      data-original-title="{{ client.current_spend }}/{{ client.budget }}">
                                                     {% widthratio client.current_spend client.budget 100 %}%
@@ -127,17 +148,49 @@
                                             </div>
                                         </div>
                                     </td>
-                                    {% if client.has_gts %}
+                                    {% if client.has_gts and client.has_budget %}
+                                        <td style="text-align: center" id="budget-{{ client.id }}">
+                                            <input id="client_budget-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.budget }}" class="table-number">
+                                        </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
-                                        <input id="client_gts-{{ client.id }}" type="number"
-                                               onkeypress="submitClientBudget(event, {{ client.id }})"
-                                               value="{{ client.target_spend }}" class="table-number">
+                                            <input id="client_gts-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.target_spend }}" class="table-number">
+                                        </td>
+                                    {% elif client.has_gts %}
+                                        <td style="text-align: center" id="budget-{{ client.id }}">
+                                            <input id="client_budget-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.budget }}" class="table-number" disabled>
+                                        </td>
+                                        <td style="text-align: center" id="gts-{{ client.id }}">
+                                            <input id="client_gts-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.target_spend }}" class="table-number">
+                                        </td>
+                                    {% elif client.has_budget %}
+                                        <td style="text-align: center" id="budget-{{ client.id }}">
+                                            <input id="client_budget-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.budget }}" class="table-number">
+                                        </td>
+                                        <td style="text-align: center" id="gts-{{ client.id }}">
+                                            <input id="client_gts-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.target_spend }}" class="table-number" disabled>
                                         </td>
                                     {% else %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
                                             <input id="client_budget-{{ client.id }}" type="number"
                                                    onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.budget }}" class="table-number">
+                                                   value="{{ client.budget }}" class="table-number" disabled>
+                                        </td>
+                                        <td style="text-align: center" id="gts-{{ client.id }}">
+                                            <input id="client_gts-{{ client.id }}" type="number"
+                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
+                                                   value="{{ client.target_spend }}" class="table-number" disabled>
                                         </td>
                                     {% endif %}
                                 </tr>
@@ -148,6 +201,13 @@
                             </tbody>
                         </table>
                         </form>
+                        <p></p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <i class="la la-star-o"></i> - Client has Budget feature. <i class="la la-star"></i> - Client has GTS feature.
+                                <i class="la la-star-o"></i><i class="la la-star"></i> - Client has both features.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -301,7 +361,8 @@
                                                                         Global Target Spend
                                                                         <span></span>
                                                                     </label>
-                                                                    <label class="m-checkbox m-checkbox--solid m-checkbox--success" id="m_budget_label">
+                                                                    <label class="m-checkbox m-checkbox--solid m-checkbox--success"
+                                                                           id="m_budget_label">
                                                                         <input type="checkbox"
                                                                                name="global_target_spend"
                                                                                value="0" id="m_budget_check"> Budget
@@ -309,7 +370,8 @@
                                                                     </label>
                                                                 </div>
                                                             </div>
-                                                            <div id="gts_inp" class="form-group m-form__group row col-xl-12">
+                                                            <div id="gts_inp"
+                                                                 class="form-group m-form__group row col-xl-12">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -462,8 +524,10 @@
                                                                                           id="client_name_fstep"></span>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="form-group m-form__group m-form__group--sm row" id="budget_fstep">
-                                                                                <label class="col-xl-4 col-lg-4 col-form-label">Global Target Spend:</label>
+                                                                            <div class="form-group m-form__group m-form__group--sm row"
+                                                                                 id="budget_fstep">
+                                                                                <label class="col-xl-4 col-lg-4 col-form-label">Global
+                                                                                    Target Spend:</label>
                                                                                 <div class="col-xl-8 col-lg-8">
                                                                                     <span class="m-form__control-static"
                                                                                           id="client_budget_fstep"></span>
@@ -678,10 +742,23 @@
                 keycode = e.which;
 
             if (keycode === 13) {
-                var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-                var budget = jQuery("#client_budget-" + client_id).val();
-                var target_spend = jQuery("#client_gts-" + client_id).val();
-                var new_budget = {
+                let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+                let budget = jQuery("#client_budget-" + client_id);
+                if (budget.prop('disabled')) {
+                    budget = undefined;
+                } else {
+                    budget = budget.val()
+                }
+
+                let target_spend = jQuery("#client_gts-" + client_id);
+                if (target_spend.prop('disabled')) {
+                    target_spend = undefined;
+                } else {
+                    target_spend = target_spend.val()
+                }
+
+                let new_budget = {
                     id: client_id,
                     budget: budget,
                     target_spend: target_spend
@@ -694,19 +771,15 @@
                     data: new_budget,
 
                     success: function (data) {
+                        console.log(data);
                         id = '#' + data['client_id'] + '_progressbar';
                         elem = $(id);
-                        if (data['bwidth']) {
-                            elem.css({'width': data['bwidth'] + '%'});
-                            elem.html(parseInt(data['bwidth']) + '%');
-                        } else if (data['twidth']) {
-                            elem.css({'width': data['twidth'] + '%'});
-                            elem.html(parseInt(data['twidth']) + '%');
-                        }
                         elem.removeClass();
                         elem.addClass('progress-bar');
                         elem.addClass(data['pb_color']);
-                        toastr.success("Updated budget for " + data['client_name'] + '.');
+                        elem.css({'width': data['width'] + '%'});
+                        elem.html(parseFloat(data['width']) + '%');
+                        toastr.success("Updated Budget/Global Target Spend for " + data['client_name'] + '.');
                     },
                     error: function (ajaxContext) {
                         toastr.error(ajaxContext.statusText)

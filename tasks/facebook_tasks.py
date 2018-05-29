@@ -235,6 +235,7 @@ def facebook_cron_anomalies_campaigns(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_cron_alerts(self, account_id):
+
     fields = [
         'ad_name',
         'ad_id',

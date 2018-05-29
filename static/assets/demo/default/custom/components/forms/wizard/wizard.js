@@ -26,7 +26,7 @@ var WizardDemo = function () {
 
         var step = wizard.getStep();
 
-        if ( step === 1 ) {
+        if (step === 1) {
 
             gts.change(function () {
 
@@ -38,7 +38,7 @@ var WizardDemo = function () {
                     $('#gts_inp').html('<input id="gts_input" name="gts_value" type="text" class="form-control m-input" placeholder="Global Target Spend">')
                 }
 
-                if(!checked) {
+                if (!checked) {
                     $('#m_budget_check').attr('disabled', false);
                     $('#m_budget_label').removeClass('m-checkbox--disabled');
                     $('#gts_input').remove();
@@ -56,7 +56,7 @@ var WizardDemo = function () {
             if (wizard.isLastStep()) {
                 console.log(data);
                 let dataObj = {};
-                $(data).each(function(i, field) {
+                $(data).each(function (i, field) {
                     dataObj[field.name] = field.value
                 });
                 console.log(dataObj);
@@ -192,6 +192,21 @@ var WizardCampaigns = function () {
     var data = {};
 
     //== Private functions
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : sParameterName[1];
+            }
+        }
+    };
+
     var initWizard = function () {
         //== Initialize form wizard
         wizard = wizardEl.mWizard({
@@ -209,11 +224,12 @@ var WizardCampaigns = function () {
         //== Change event
         wizard.on('change', function (wizard) {
             mApp.scrollTop();
-            data = formEl.serialize();
-            console.log(data);
+            data = formEl.serializeArray();
+            // console.log(data);
 
             if (wizard.isLastStep()) {
-                $('#client_name_fstep').html(client_name.value);
+                console.log(data);
+                // $('#client_name_fstep').html(client_name.value);
                 // $('#client_budget_fstep').html(client_budget.value);
                 // $('#aw_name_fstep').html(data.adwords.value);
             }

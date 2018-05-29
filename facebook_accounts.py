@@ -23,7 +23,7 @@ def add_accounts(account_id):
         print('Matched in DB(' + account[AdAccount.Field.account_id] +')')
     except ObjectDoesNotExist:
         FacebookAccount.objects.create(account_id=account[AdAccount.Field.account_id],
-                                       account_name=account[AdAccount.Field.name])
+                                       account_name=account[AdAccount.Field.name], channel='facebook')
         print('Added to DB - ' + str(account[AdAccount.Field.name]) + '.')
 
 def add_campaigns():
