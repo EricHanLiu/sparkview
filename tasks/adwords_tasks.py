@@ -1,7 +1,7 @@
 import json
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
-from adwords_dashboard.models import DependentAccount, Performance, Alert
+from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign
 from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
 
@@ -223,3 +223,32 @@ def adwords_cron_disapproved_alert(self, customer_id):
             campaignName=ad['campaign'],
             campaign_id=ad['campaign_id'],
         )
+
+@celery_app.task(bind=True)
+def adwords_cron_campaign_stats(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    this_month = helper.get_this_month_daterange()
+
+    campaign_this_month = helper.get_campaign_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        **this_month
+    )
+
+    for campaign in campaign_this_month:
+        cost = helper.mcv(campaign['cost'])
+        try:
+            cmp = Campaign.objects.get(account=account, campaign_id=campaign['campaign_id'])
+            print('Matched in DB - [' + campaign['campaign'] + '].')
+            cmp.campaign_cost = cost
+            cmp.save()
+        except:
+            Campaign.objects.create(
+                account=account, campaign_id=campaign['campaign_id'],
+                campaign_name=campaign['campaign'], campaign_cost=cost)
+            print('Added to DB - [' + campaign['campaign'] + '].')

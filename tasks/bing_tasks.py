@@ -6,7 +6,7 @@ from bing_dashboard import auth
 from celery import group
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
-from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts
+from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -245,3 +245,44 @@ def bing_cron_disapproved_ads(account_id, adgroup):
             alert_type="DISAPPROVED_AD",
             metadata=adg
         )
+
+@celery_app.task(bind=True)
+def bing_cron_campaign_stats(self, account_id):
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    helper = BingReportingService()
+
+    this_month = helper.get_this_month_daterange()
+
+    fields = [
+        'CampaignName',
+        'CampaignId',
+        'Spend'
+    ]
+
+    report = helper.get_campaign_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="campaign_stats_tm",
+        extra_fields=fields,
+        **this_month
+    )
+
+    cmp_stats = helper.map_campaign_stats(report)
+
+    for k, v in cmp_stats.items():
+
+        campaign_id = v[0]['campaignid']
+        campaign_name = v[0]['campaignname']
+        campaign_cost = float(v[0]['spend'])
+
+        try:
+            cmp = BingCampaign.objects.get(campaign_id=campaign_id, campaign_name=campaign_name)
+            cmp.campaign_cost = campaign_cost
+            cmp.save()
+            print('Matched in DB and updated cost - [' + campaign_name +'].')
+        except:
+            BingCampaign.objects.create(
+                account=account, campaign_id=campaign_id,
+                campaign_name=campaign_name, campaign_cost=campaign_cost)
+            print('Added to DB - [' + campaign_name + '].')

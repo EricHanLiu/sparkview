@@ -30,6 +30,13 @@ $(document).ready(function () {
         // 'sScrollXInner': '220%'
     });
 
+    $("#campaign_groupings").DataTable({
+        'pagingType': "full_numbers"
+        // 'scrollY': '75%',
+        // 'sScrollX': '100%',
+        // 'sScrollXInner': '220%'
+    });
+
     $("#clients_last_month").DataTable({
         'pagingType': "full_numbers"
         // 'scrollY': '75%',

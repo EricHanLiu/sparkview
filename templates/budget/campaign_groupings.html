@@ -28,31 +28,30 @@
                                     Delete grouping(s)
                                 </button>
                             </div>
-                            <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
-                                   id="clients_last_month">
-                                <div class="row">
-                                    <div class="col-md-4"></div>
-                                    <div class="col-md-4 text-center">
-                                        <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
-                                             role="group" aria-label="">
-                                            <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
-                                                Flight Dates
-                                            </button>
-                                            <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
-                                                Campaign Groupings
-                                            </button>
-                                        </div>
+                            <div class="row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4 text-center">
+                                    <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
+                                         role="group" aria-label="">
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                            Flight Dates
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                            Campaign Groupings
+                                        </button>
                                     </div>
-                                    <div class="col-md-4"></div>
                                 </div>
+                                <div class="col-md-4"></div>
+                            </div>
+                            <table class='table table-striped m-table' id="campaign_groupings">
                                 <thead class="thead-inverse">
                                 <tr>
                                     <th style="width: 5%"></th>
                                     <th>Campaigns</th>
-                                    <th style="text-align: center">Budget</th>
-                                    <th style="text-align: center">Current spend</th>
+                                    <th style="text-align: center; width: 30%">Spend</th>
+                                    <th style="text-align: center; width: 20%">Budget</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -67,16 +66,23 @@
                                                 {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
                                             {% endfor %}
                                         </td>
+                                        <td style="text-align: center; vertical-align: middle">
+                                            <div class="progress m-progress--lg">
+                                                <div id="{{ gr.id }}_progressbar"
+                                                     class="progress-bar {{ gr.current_spend|percentage:gr.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top" title=""
+                                                     data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
+                                                    {% widthratio gr.current_spend gr.budget 100 %}%
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td style="text-align: center; vertical-align: middle;">
                                             <input id="gr_budget-{{ gr.id }}" type="number" class="table-number"
                                                    onkeypress="submitBudget(event, {{ gr.id }})"
                                                    value="{{ gr.budget }}">
-                                        </td>
-                                        <td style="text-align: center">
-                                            {{ gr.current_spend }}
-                                        </td>
-                                        <td style="text-align: center">
-                                            0
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -91,36 +97,36 @@
                             <div class="row">
                                 <button type="button" class="btn btn-info add-client"
                                         data-toggle="modal"
-                                        data-target="#m_modal_campaigns"> New grouping
+                                        data-target="#m_modal_campaigns">New grouping
                                 </button>
                                 <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">
                                     Delete grouping(s)
                                 </button>
                             </div>
-                            <table class='table table-striped m-table' id="clients_last_month">
-                                <div class="row">
-                                    <div class="col-md-4"></div>
-                                    <div class="col-md-4 text-center">
-                                        <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
-                                             role="group" aria-label="">
-                                            <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
-                                                Flight Dates
-                                            </button>
-                                            <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
-                                                Campaign Groupings
-                                            </button>
-                                        </div>
+                            <div class="row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4 text-center">
+                                    <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
+                                         role="group" aria-label="">
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                            Flight Dates
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                            Campaign Groupings
+                                        </button>
                                     </div>
-                                    <div class="col-md-4"></div>
                                 </div>
+                                <div class="col-md-4"></div>
+                            </div>
+                            <table class='table table-striped m-table' id="campaign_groupings">
                                 <thead class="thead-inverse">
                                 <tr>
                                     <th style="width: 5%"></th>
                                     <th>Campaigns</th>
-                                    <th style="text-align: center">Budget</th>
-                                    <th style="text-align: center">Spend</th>
+                                    <th style="text-align: center; width: 30%">Spend</th>
+                                    <th style="text-align: center; width: 20%">Budget</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -135,12 +141,23 @@
                                                 {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
                                             {% endfor %}
                                         </td>
-                                        <td style="text-align: center; vertical-align: middle;">
-                                            <input type="number" id="gr_budget-{{ gr.id }}" onkeypress="submitBudget(event, {{ gr.id }})"
-                                                   value="{{ gr.budget }}" class="table-number">
+                                        <td style="text-align: center; vertical-align: middle">
+                                            <div class="progress m-progress--lg">
+                                                <div id="{{ gr.id }}_progressbar"
+                                                     class="progress-bar {{ gr.current_spend|percentage:gr.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top" title=""
+                                                     data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
+                                                    {% widthratio gr.current_spend gr.budget 100 %}%
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td style="text-align: center">
-                                            {{ gr.current_spend }}
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <input id="gr_budget-{{ gr.id }}" type="number" class="table-number"
+                                                   onkeypress="submitBudget(event, {{ gr.id }})"
+                                                   value="{{ gr.budget }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -150,41 +167,41 @@
                                 </tbody>
                             </table>
                         </div>
-                        {% elif platform_type == 'FB' %}
+                    {% elif platform_type == 'FB' %}
                         <div class="m-portlet__body">
                             <div class="row">
                                 <button type="button" class="btn btn-info add-client"
                                         data-toggle="modal"
-                                        data-target="#m_modal_campaigns"> New grouping
+                                        data-target="#m_modal_campaigns">New grouping
                                 </button>
                                 <button type="button" class="btn btn-danger add-client" onclick="deleteGrouping()">
                                     Delete grouping(s)
                                 </button>
                             </div>
-                            <table class='table table-striped m-table' id="clients_last_month">
-                                <div class="row">
-                                    <div class="col-md-4"></div>
-                                    <div class="col-md-4 text-center">
-                                        <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
-                                             role="group" aria-label="">
-                                            <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
-                                                Flight Dates
-                                            </button>
-                                            <button type="button" class="btn btn-outline-info"
-                                                    onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
-                                                Campaign Groupings
-                                            </button>
-                                        </div>
+                            <div class="row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4 text-center">
+                                    <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
+                                         role="group" aria-label="">
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                            Flight Dates
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                            Campaign Groupings
+                                        </button>
                                     </div>
-                                    <div class="col-md-4"></div>
                                 </div>
+                                <div class="col-md-4"></div>
+                            </div>
+                            <table class='table table-striped m-table' id="campaign_groupings">
                                 <thead class="thead-inverse">
                                 <tr>
                                     <th style="width: 5%"></th>
                                     <th>Campaigns</th>
-                                    <th style="text-align: center">Budget</th>
-                                    <th style="text-align: center">Spend</th>
+                                    <th style="text-align: center; width: 30%">Spend</th>
+                                    <th style="text-align: center; width: 20%">Budget</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -199,12 +216,23 @@
                                                 {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
                                             {% endfor %}
                                         </td>
-                                        <td style="text-align: center; vertical-align: middle;">
-                                            <input type="number" id="gr_budget-{{ gr.id }}" onkeypress="submitBudget(event, {{ gr.id }})"
-                                                   value="{{ gr.budget }}" class="table-number">
+                                        <td style="text-align: center; vertical-align: middle">
+                                            <div class="progress m-progress--lg">
+                                                <div id="{{ gr.id }}_progressbar"
+                                                     class="progress-bar {{ gr.current_spend|percentage:gr.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top" title=""
+                                                     data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
+                                                    {% widthratio gr.current_spend gr.budget 100 %}%
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td style="text-align: center">
-                                            {{ gr.current_spend }}
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <input id="gr_budget-{{ gr.id }}" type="number" class="table-number"
+                                                   onkeypress="submitBudget(event, {{ gr.id }})"
+                                                   value="{{ gr.budget }}">
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -337,7 +365,9 @@
                                                                                    class="form-control m-input"
                                                                                    placeholder="Please enter a budget..."
                                                                                    min="0" required>
-                                                                            <input type="hidden" id="channel" name="channel" value="{{ account.channel }}">
+                                                                            <input type="hidden" id="channel"
+                                                                                   name="channel"
+                                                                                   value="{{ account.channel }}">
                                                                         </div>
                                                                         <div id="adwords-error"
                                                                              class="form-control-feedback"></div>
