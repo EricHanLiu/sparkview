@@ -130,6 +130,10 @@ def add_client(request):
 
     elif request.method == 'POST':
 
+        new_aw = []
+        new_bing = []
+        new_fb = []
+
         name = request.POST.get('client_name')
         budget = 0
         # suggested budget / global budget
@@ -138,6 +142,19 @@ def add_client(request):
         adwords_accounts = request.POST.getlist('adwords')
         bing_accounts = request.POST.getlist('bing')
         facebook_accounts = request.POST.getlist('facebook')
+
+        for i in range(len(adwords_accounts)):
+            tmp_val = adwords_accounts[i].split('|')
+            new_aw.append(tmp_val[0])
+
+        for i in range(len(bing_accounts)):
+            tmp_val = bing_accounts[i].split('|')
+            new_bing.append(tmp_val[0])
+
+        for i in range(len(facebook_accounts)):
+            tmp_val = facebook_accounts[i].split('|')
+            new_fb.append(tmp_val[0])
+
 
         new_client = Client.objects.create(client_name=name)
 
@@ -149,31 +166,31 @@ def add_client(request):
             new_client.has_budget = True
 
         if adwords_accounts:
-            for a in adwords_accounts:
+            for a in new_aw:
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                spend = request.POST.get('aw_budget_'+a)
+                spend = request.POST.get('aw_budget_' + a + '|' + aw_acc.dependent_account_name)
 
                 if spend:
                     aw_acc.desired_spend = float(spend)
-                    budget += int(spend)
+                    budget += float(spend)
                     aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
-            for b in bing_accounts:
-                spend = request.POST.get('bing_budget_' + b)
+            for b in new_bing:
                 bing_acc = BingAccounts.objects.get(account_id=b)
+                spend = request.POST.get('bing_budget_' + b + '|' + bing_acc.account_name)
 
                 if spend:
                     bing_acc.desired_spend = float(spend)
-                    budget += int(spend)
+                    budget += float(spend)
                     bing_acc.save()
                 bng.append(bing_acc)
 
         if facebook_accounts:
-            for f in facebook_accounts:
-                spend = request.POST.get('facebook_budget_' + f)
+            for f in new_fb:
                 fb_acc = FacebookAccount.objects.get(account_id=f)
+                spend = request.POST.get('facebook_budget_' + f + '|' + fb_acc.account_name)
 
                 if spend:
                     fb_acc.desired_spend = float(spend)
@@ -514,6 +531,9 @@ def campaign_groupings(request):
 
     elif request.method == 'POST':
 
+
+        data = request.POST
+        print(data)
         cmps = []
         campaigns = request.POST.getlist('campaigns')
         campaigns = set(campaigns)
@@ -525,7 +545,8 @@ def campaign_groupings(request):
 
             if campaigns:
                 for cmp in campaigns:
-                    cmp_obj = Campaign.objects.get(campaign_id=cmp)
+                    cmp = cmp.split("|")
+                    cmp_obj = Campaign.objects.get(campaign_id=cmp[0])
                     budget = request.POST.get('grouping-budget')
                     cmp_obj.campaign_budget = int(budget)/len(campaigns)
                     cmp_obj.groupped = True
@@ -545,7 +566,8 @@ def campaign_groupings(request):
 
             if campaigns:
                 for cmp in campaigns:
-                    cmp_obj = BingCampaign.objects.get(campaign_id=cmp)
+                    cmp = cmp.split("|")
+                    cmp_obj = BingCampaign.objects.get(campaign_id=cmp[0])
                     budget = request.POST.get('grouping-budget')
                     cmp_obj.campaign_budget = int(budget)/len(campaigns)
                     cmp_obj.groupped = True
@@ -565,7 +587,8 @@ def campaign_groupings(request):
 
             if campaigns:
                 for cmp in campaigns:
-                    cmp_obj = FacebookCampaign.objects.get(campaign_id=cmp)
+                    cmp = cmp.split("|")
+                    cmp_obj = FacebookCampaign.objects.get(campaign_id=cmp[0])
                     budget = request.POST.get('grouping-budget')
                     cmp_obj.campaign_budget = int(budget)/len(campaigns)
                     cmp_obj.groupped = True

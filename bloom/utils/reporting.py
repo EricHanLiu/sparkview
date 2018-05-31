@@ -125,6 +125,13 @@ class Reporting:
 
         return dateRange
 
+    def create_daterange(self, minDate, maxDate):
+
+        return dict(
+            minDate=minDate,
+            maxDate=maxDate
+        )
+
     def get_this_month_daterange(self):
 
         today = datetime.today()

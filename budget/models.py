@@ -44,10 +44,10 @@ class ClientHist(models.Model):
 
 class FlightBudget(models.Model):
 
-    budget = models.IntegerField(default=0)
+    budget = models.FloatField(default=0)
     start_date = models.DateField()
     end_date = models.DateField()
-    current_spend = models.IntegerField(default=0)
+    current_spend = models.FloatField(default=0)
     adwords_account = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
     bing_account = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     facebook_account = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)

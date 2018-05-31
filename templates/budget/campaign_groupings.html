@@ -63,7 +63,7 @@
                                         </td>
                                         <td>
                                             {% for c in gr.aw_campaigns.all %}
-                                                {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
+                                                {{ c.campaign_name }} - {{ c.campaign_budget|floatformat:2 }}<br/>
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
@@ -138,7 +138,7 @@
                                         </td>
                                         <td>
                                             {% for c in gr.bing_campaigns.all %}
-                                                {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
+                                                {{ c.campaign_name }} - {{ c.campaign_budget|floatformat:2 }}<br/>
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
@@ -184,11 +184,11 @@
                                     <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
                                          role="group" aria-label="">
                                         <button type="button" class="btn btn-outline-info"
-                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
                                             Flight Dates
                                         </button>
                                         <button type="button" class="btn btn-outline-info"
-                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
                                             Campaign Groupings
                                         </button>
                                     </div>
@@ -213,7 +213,7 @@
                                         </td>
                                         <td>
                                             {% for c in gr.fb_campaigns.all %}
-                                                {{ c.campaign_name }} - {{ c.campaign_budget }}<br/>
+                                                {{ c.campaign_name }} - {{ c.campaign_budget|floatformat:2 }}<br/>
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
@@ -357,7 +357,7 @@
                                                                                 id="m_select2_campaigns"
                                                                                 style="width: 100%;" required>
                                                                             {% for cmp in campaigns %}
-                                                                                <option value="{{ cmp.campaign_id }}">{{ cmp.campaign_name }}</option>
+                                                                                <option value="{{ cmp.campaign_id }}|{{ cmp.campaign_name }}">{{ cmp.campaign_name }}</option>
                                                                             {% endfor %}
                                                                         </select>
                                                                         <div id="budget-field">
@@ -407,23 +407,22 @@
                                                                         <!--begin::Content-->
                                                                         <div class="tab-content  m--padding-30">
                                                                             <div class="m-form__section m-form__section--first">
-                                                                                <div class="m-form__heading">
-                                                                                    <h4 class="m-form__heading-title">
-                                                                                    </h4>
-                                                                                </div>
+{#                                                                                <div class="m-form__heading">#}
+{#                                                                                    <h6 class="m-form__heading-title">#}
+{#                                                                                        #}
+{#                                                                                    </h6>#}
+{#                                                                                </div>#}
                                                                                 <div class="form-group m-form__group m-form__group--sm row">
-                                                                                    <label class="col-xl-4 col-lg-4 col-form-label">Campaigns:
-                                                                                    </label>
-                                                                                    <div class="col-xl-8 col-lg-8">
+                                                                                    <div class="col-xl-12 col-lg-12">
                                                                                     <span class="m-form__control-static"
-                                                                                          id="client_name_fstep"></span>
+                                                                                          id="campaigns_name_fstep"></span>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="form-group m-form__group m-form__group--sm row">
                                                                                     <label class="col-xl-4 col-lg-4 col-form-label">Budget: </label>
                                                                                     <div class="col-xl-8 col-lg-8">
                                                                                     <span class="m-form__control-static"
-                                                                                          id="client_budget_fstep"></span>
+                                                                                          id="campaigns_budget_fstep"></span>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
