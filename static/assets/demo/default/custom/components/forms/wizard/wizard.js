@@ -8,6 +8,7 @@ var WizardDemo = function () {
     var wizard;
     var data = {};
     var gts = $('#m_gts_check');
+    let budget = $("#m_budget_check");
 
     //== Private functions
     var initWizard = function () {
@@ -56,19 +57,37 @@ var WizardDemo = function () {
             if (wizard.isLastStep()) {
                 console.log(data);
                 let dataObj = {};
-                $(data).each(function (i, field) {
-                    dataObj[field.name] = field.value
+
+                let aw = $('#aw_name_fstep');
+                let bing = $('#bing_name_fstep');
+                let fb = $('#fb_name_fstep');
+
+                $(data).each(function (i, item) {
+                    dataObj[item.name] = item.value
                 });
-                console.log(dataObj);
+
+                const acc_budgets = [[aw, "adwords"], [bing, "bing"], [fb, "facebook"]];
+
+                for (acc_type of acc_budgets) {
+                    let $acc_elm = acc_type[0];
+                    let acc_name = acc_type[1];
+
+                    $acc_elm.html($(`select[name=${acc_name}] option:selected`).map(function () {
+                        let value = $(this).val();
+                        value = value.split('|');
+                        return '<span class="m-badge m-badge--success m-badge--wide">' + value[1] + '</span>';
+                    }).get().join(' '));
+                }
+
                 $('#client_name_fstep').html(dataObj['client_name']);
 
-                // if (budget.prop('checked')) {
-                //     $('#budget_fstep').remove();
-                // } else {
-                //     $('#client_budget_fstep').html(dataObj['gts_value']);
-                // }
-                //
-                // $('#aw_name_fstep').html(dataObj['adwords']);
+                if (budget.prop('checked')) {
+                    $('#budget_fstep').html('Budget: ');
+                } else {
+                    $('#client_budget_fstep').html(
+                        dataObj['gts_value']
+                    );
+                }
             }
         });
     };
@@ -225,13 +244,22 @@ var WizardCampaigns = function () {
         wizard.on('change', function (wizard) {
             mApp.scrollTop();
             data = formEl.serializeArray();
-            // console.log(data);
+            let $cmp_elem = $("#campaigns_name_fstep");
 
             if (wizard.isLastStep()) {
+                let dataObj = {};
+                $(data).each(function (i, item) {
+                    dataObj[item.name] = item.value
+                });
+
                 console.log(data);
-                // $('#client_name_fstep').html(client_name.value);
-                // $('#client_budget_fstep').html(client_budget.value);
-                // $('#aw_name_fstep').html(data.adwords.value);
+                $cmp_elem.html($("select[name='campaigns'] option:selected").map(function () {
+                        let value = $(this).val();
+                        value = value.split('|');
+                        return '<span class="m-badge m-badge--success m-badge--wide">' + value[1] + '</span>';
+                    }).get().join(' '));
+
+                $('#campaigns_budget_fstep').html('<p>' + dataObj['grouping-budget'] + '</p>');
             }
         });
     };

@@ -2,6 +2,7 @@ import json
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign
+from budget.models import FlightBudget
 from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
 
@@ -252,3 +253,24 @@ def adwords_cron_campaign_stats(self, customer_id):
                 account=account, campaign_id=campaign['campaign_id'],
                 campaign_name=campaign['campaign'], campaign_cost=cost)
             print('Added to DB - [' + campaign['campaign'] + '].')
+
+
+@celery_app.task(bind=True)
+def adwords_cron_flight_dates(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    budgets = FlightBudget.objects.filter(adwords_account=account)
+
+    for b in budgets:
+        date_range = helper.create_daterange(b.start_date, b.end_date)
+        data = helper.get_account_performance(
+            customer_id=account.dependent_account_id,
+            dateRangeType="CUSTOM_DATE",
+            **date_range
+        )
+        spend = helper.mcv(data[0]['cost'])
+        b.current_spend = spend
+        b.save()

@@ -7,6 +7,7 @@ from celery import group
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
+from budget.models import FlightBudget
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -181,7 +182,6 @@ def bing_cron_ovu(self, customer_id):
         account.account_id, report_name=report_name_7, **last_7
     )
 
-
     helper.download_report(account.account_id, query_this_month)
     helper.download_report(account.account_id, query_last_7)
 
@@ -191,7 +191,7 @@ def bing_cron_ovu(self, customer_id):
 
     except FileNotFoundError:
         current_spend = 0
-    print(account.account_name, current_spend)
+
     try:
         report_last_7 = helper.get_report(query_last_7.ReportName)
         yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
@@ -286,3 +286,29 @@ def bing_cron_campaign_stats(self, account_id):
                 account=account, campaign_id=campaign_id,
                 campaign_name=campaign_name, campaign_cost=campaign_cost)
             print('Added to DB - [' + campaign_name + '].')
+
+
+@celery_app.task(bind=True)
+def bing_cron_flight_dates(self, customer_id):
+
+    fields = [
+        'Spend'
+    ]
+
+    account = BingAccounts.objects.get(account_id=customer_id)
+    helper = BingReportingService()
+
+    budgets = FlightBudget.objects.filter(bing_account=account)
+
+    for b in budgets:
+        date_range = helper.create_daterange(b.start_date, b.end_date)
+        data = helper.get_account_performance(
+            account_id=account.account_id,
+            dateRangeType="CUSTOM_DATE",
+            report_name="account_flight_dates",
+            extra_fields=fields,
+            **date_range
+        )
+        spend = sum([float(item['spend']) for item in data])
+        b.current_spend = spend
+        b.save()

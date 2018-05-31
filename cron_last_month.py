@@ -32,6 +32,13 @@ def main():
             hist_client.hist_bing.add(bing)
             hist_client.save()
 
+        for facebook in client.facebook.all():
+            facebook.hist_spend = facebook.current_spend
+            facebook.hist_budget = facebook.desired_spend
+            facebook.save()
+            hist_client.hist_facebook.add(facebook)
+            hist_client.save()
+
         print('Client '+ client.client_name +' copied to ClientHist.')
 
 

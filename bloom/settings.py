@@ -157,6 +157,7 @@ CRONJOBS = [
     ('5 8 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
     ('30 8 * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
     ('30 8 * * *', 'bing_campaigns.main', '> ' + BASE_DIR + '/logs/bing_campaigns.log'),
+    ('30 8 * * *', 'facebook_campaigns.main', '> ' + BASE_DIR + '/logs/facebook_campaigns.log'),
     ('30 9 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
     ('30 9 * * *', 'bing_alerts.main', '> ' + BASE_DIR + '/logs/bing_alerts.log'),
     ('30 9 * * *', 'facebook_alerts.main', '> ' + BASE_DIR + '/logs/facebook_alerts.log'),

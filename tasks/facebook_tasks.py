@@ -1,7 +1,9 @@
 from bloom import celery_app
 from bloom.utils import FacebookReportingService
+from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
-from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert
+from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
+from budget.models import FlightBudget
 from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, access_token
 
@@ -278,3 +280,78 @@ def facebook_cron_alerts(self, account_id):
         )
         print('[INFO] Added alert to DB.')
 
+@celery_app.task(bind=True)
+def facebook_cron_campaign_stats(self, account_id):
+
+    account = FacebookAccount.objects.get(account_id=account_id)
+    helper = FacebookReportingService(facebook_init())
+
+    fields = [
+        'campaign_id',
+        'campaign_name',
+        'spend',
+        'date_stop',
+    ]
+
+    filtering = [{
+        'field': 'campaign.effective_status',
+        'operator': 'IN',
+        'value': ['ACTIVE'],
+    }]
+
+    this_month = helper.set_params(
+        time_range=helper.get_this_month_daterange(),
+        level='campaign',
+        filtering=filtering,
+    )
+
+    campaigns = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
+
+    for cmp in campaigns:
+        print(cmp)
+        campaign_name = cmp['campaign_name']
+        campaign_id = cmp['campaign_id']
+        campaign_cost = cmp['spend']
+
+        try:
+            cmp = FacebookCampaign.objects.get(account=account, campaign_id=campaign_id)
+            cmp.campaign_cost = campaign_cost
+            cmp.save()
+            print('Matched in DB and updated cost - [' + campaign_name + '].')
+        except ObjectDoesNotExist:
+            FacebookCampaign.objects.create(
+                account=account,
+                campaign_name=campaign_name,
+                campaign_id=campaign_id,
+                campaign_cost=campaign_cost
+            )
+            print('Added to DB - [' + campaign_name + '].')
+
+
+@celery_app.task(bind=True)
+def facebook_cron_flight_dates(self, customer_id):
+
+    fields = [
+        'spend',
+    ]
+
+    account = FacebookAccount.objects.get(account_id=customer_id)
+    helper = FacebookReportingService(facebook_init())
+
+    budgets = FlightBudget.objects.filter(facebook_account=account)
+
+    for b in budgets:
+        date_range = helper.get_custom_date_range(b.start_date, b.end_date)
+        params = helper.set_params(
+            time_range=date_range,
+            level='account',
+        )
+        data = helper.get_account_insights(
+            account.account_id,
+            params=params,
+            extra_fields=fields
+        )
+
+        spend = data[0]['spend']
+        b.current_spend = spend
+        b.save()

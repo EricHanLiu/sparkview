@@ -70,66 +70,96 @@
                                                         </p>
                                                         <div class="m-separator m-separator--metal"></div>
                                                         <p>
-                                                            <h3>AdWords Accounts</h3>
-                                                            {% for a in client_data.hist_adwords.all %}
-                                                                <span class="m-list-timeline__text">
+                                                        <h3>AdWords Accounts</h3>
+                                                        {% for a in client_data.hist_adwords.all %}
+                                                            <span class="m-list-timeline__text">
                                                                     <h6>
                                                                         {{ a.dependent_account_name }}
                                                                     </h6>
                                                                 </span>
 
-                                                                <div class="progress m-progress--lg">
-                                                                    <div class="progress-bar
+                                                            <div class="progress m-progress--lg">
+                                                                <div class="progress-bar
                                                                             {{ a.hist_spend|percentage:a.hist_budget }}"
-                                                                         role="progressbar"
-                                                                         style="width: {% widthratio a.hist_spend a.hist_budget 100 %}%"
-                                                                         aria-valuenow="{% widthratio a.hist_spend a.hist_budget 100 %}"
-                                                                         aria-valuemin="0" aria-valuemax="100"
-                                                                         data-toggle="m-tooltip" data-placement="top"
-                                                                         title=""
-                                                                         data-original-title="{{ a.hist_spend }}/{{ a.hist_budget }}">
-                                                                        {% widthratio a.hist_spend a.hist_budget 100 %}%
-                                                                    </div>
+                                                                     role="progressbar"
+                                                                     style="width: {% widthratio a.hist_spend a.hist_budget 100 %}%"
+                                                                     aria-valuenow="{% widthratio a.hist_spend a.hist_budget 100 %}"
+                                                                     aria-valuemin="0" aria-valuemax="100"
+                                                                     data-toggle="m-tooltip" data-placement="top"
+                                                                     title=""
+                                                                     data-original-title="{{ a.hist_spend }}/{{ a.hist_budget }}">
+                                                                    {% widthratio a.hist_spend a.hist_budget 100 %}%
                                                                 </div>
+                                                            </div>
 
-                                                        </p>
-                                                                <div class="m-separator"></div>
-                                                            {% empty %}
-                                                        <p>
+                                                            </p>
+                                                            <div class="m-separator"></div>
+                                                        {% empty %}
+                                                            <p>
                                                             <h6>
                                                                 No accounts selected for this client...
                                                             </h6>
-                                                        </p>
+                                                            </p>
                                                         {% endfor %}
                                                         <div class="m-separator m-separator--metal"></div>
-{#                                                        <p>#}
-                                                            <h3>Bing Accounts</h3>
-                                                            {% for b in client_data.hist_bing.all %}
-                                                                    <h6>
-                                                                        {{ b.account_name }}
-                                                                    </h6>
-                                                                    <div class="progress m-progress--lg">
-                                                                        <div class="progress-bar
+                                                        <p>
+                                                        <h3>Bing Accounts</h3>
+                                                        {% for b in client_data.hist_bing.all %}
+                                                            <h6>
+                                                                {{ b.account_name }}
+                                                            </h6>
+                                                            <div class="progress m-progress--lg">
+                                                                <div class="progress-bar
                                                                                 {{ b.hist_spend|percentage:b.hist_budget }}"
-                                                                             role="progressbar"
-                                                                             style="width: {% widthratio b.hist_spend b.desired_spend 100 %}%"
-                                                                             aria-valuenow="{% widthratio b.hist_spend b.hist_budget 100 %}"
-                                                                             aria-valuemin="0" aria-valuemax="100"
-                                                                             data-toggle="m-tooltip" data-placement="top"
-                                                                             title=""
-                                                                             data-original-title="{{ b.hist_spend }}/{{ b.hist_budget }}">
-                                                                            {% widthratio b.hist_spend b.hist_budget 100 %}%
-                                                                        </div>
-                                                                    </div>
-                                                                <div class="m-separator"></div>
-                                                            {% empty %}
+                                                                     role="progressbar"
+                                                                     style="width: {% widthratio b.hist_spend b.desired_spend 100 %}%"
+                                                                     aria-valuenow="{% widthratio b.hist_spend b.hist_budget 100 %}"
+                                                                     aria-valuemin="0" aria-valuemax="100"
+                                                                     data-toggle="m-tooltip" data-placement="top"
+                                                                     title=""
+                                                                     data-original-title="{{ b.hist_spend }}/{{ b.hist_budget }}">
+                                                                    {% widthratio b.hist_spend b.hist_budget 100 %}%
+                                                                </div>
+                                                            </div>
+                                                            <div class="m-separator"></div>
+                                                        {% empty %}
 
-                                                                <h6>
-                                                                    <p>
-                                                                        No accounts were selected for this client...
-                                                                    </p>
-                                                                </h6>
-                                                        </p>
+                                                            <h6>
+                                                                <p>
+                                                                    No accounts were selected for this client...
+                                                                </p>
+                                                            </h6>
+                                                            </p>
+                                                        {% endfor %}
+                                                        <div class="m-separator m-separator--metal"></div>
+                                                        <p>
+                                                        <h3>Facebook Accounts</h3>
+                                                        {% for f in client_data.hist_facebook.all %}
+                                                            <h6>
+                                                                {{ f.account_name }}
+                                                            </h6>
+                                                            <div class="progress m-progress--lg">
+                                                                <div class="progress-bar
+                                                                                {{ f.hist_spend|percentage:f.hist_budget }}"
+                                                                     role="progressbar"
+                                                                     style="width: {% widthratio f.hist_spend f.desired_spend 100 %}%"
+                                                                     aria-valuenow="{% widthratio f.hist_spend f.hist_budget 100 %}"
+                                                                     aria-valuemin="0" aria-valuemax="100"
+                                                                     data-toggle="m-tooltip" data-placement="top"
+                                                                     title=""
+                                                                     data-original-title="{{ f.hist_spend }}/{{ f.hist_budget }}">
+                                                                    {% widthratio f.hist_spend f.hist_budget 100 %}%
+                                                                </div>
+                                                            </div>
+                                                            <div class="m-separator"></div>
+                                                        {% empty %}
+
+                                                            <h6>
+                                                                <p>
+                                                                    No accounts were selected for this client...
+                                                                </p>
+                                                            </h6>
+                                                            </p>
                                                         {% endfor %}
                                                     </div>
                                                 </div>
