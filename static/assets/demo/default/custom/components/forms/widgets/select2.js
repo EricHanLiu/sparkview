@@ -43,37 +43,50 @@ var Select2 = function () {
 
                 if (!checkbox.prop('checked')) {
                     var data = e.params.data;
-                    $('#budget-fields').append('<input type="number" id="' + data.id + '"name="aw_budget_' + data.id + '" class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + ' ">');
+                    let iid = data.id;
+                    iid = iid.split('|');
+                    $('#budget-fields').append('<input type="number" id="' + iid[0] + '"name="aw_budget_' + data.id + '" class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + ' ">');
                 }
             });
 
             $('#m_select2_adwords').on('select2:unselect', function (e) {
                 var data = e.params.data;
-                $("#" + data.id).remove();
+                let iid = data.id;
+                iid = iid.split('|');
+                $("#" + iid[0]).remove();
             });
 
             $('#m_select2_bing').on('select2:select', function (e) {
                 if (!checkbox.prop('checked')) {
                     var data = e.params.data;
-                    $('#budget-fields-bing').append('<input type="number" id="' + data.id + '" name="bing_budget_' + data.id + '"  class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + '">');
+                    let iid = data.id;
+                    iid = iid.split('|');
+                    $('#budget-fields-bing').append('<input type="number" id="' + iid[0] + '" name="bing_budget_' + data.id + '"  class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + '">');
                 }
             });
 
             $('#m_select2_bing').on('select2:unselect', function (e) {
                 var data = e.params.data;
-                $("#" + data.id).remove();
+                let iid = data.id;
+                iid = iid.split('|');
+                $("#" + iid[0]).remove();
             });
 
             $('#m_select2_facebook').on('select2:select', function (e) {
-                    if (!checkbox.prop('checked')) {
-                        var data = e.params.data;
-                        $('#budget-fields-facebook').append('<input type="number" id="' + data.id + '" name="facebook_budget_' + data.id + '"  class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + '">');
-                    }
+                if (!checkbox.prop('checked')) {
+                    var data = e.params.data;
+                    let iid = data.id;
+                    iid = iid.split('|');
+                    $('#budget-fields-facebook').append('<input type="number" id="' + iid[0] + '" name="facebook_budget_' + data.id + '"  class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + '">');
                 }
+            }
             );
+
             $('#m_select2_facebook').on('select2:unselect', function (e) {
                 var data = e.params.data;
-                $("#" + data.id).remove();
+                let iid = data.id;
+                iid = iid.split('|');
+                $("#" + iid[0]).remove();
             });
             $("#m_select2_campaigns").select2({
                 placeholder: "Search..."
