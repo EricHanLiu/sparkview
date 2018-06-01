@@ -141,10 +141,13 @@ class Reporting:
         else:
             maxDate = today + relativedelta(days=-1)
 
-        minDate = datetime(today.year, today.month, 1)
+        if today.day == 1:
+            minDate = today - relativedelta(months=1)
+            maxDate = today - relativedelta(days=1)
+        else:
+            minDate = datetime(today.year, today.month, 1)
 
         this_month = dict(minDate=minDate, maxDate=maxDate)
-
 
         return this_month
 
@@ -811,6 +814,7 @@ class FacebookReporting(Reporting):
 
         return self.get_custom_date_range(since=minDate, until=maxDate)
 
+
     def get_this_month_daterange(self):
 
         today = datetime.today()
@@ -820,7 +824,11 @@ class FacebookReporting(Reporting):
         else:
             maxDate = today + relativedelta(days=-1)
 
-        minDate = datetime(today.year, today.month, 1)
+        if today.day == 1:
+            minDate = today - relativedelta(months=1)
+            maxDate = today - relativedelta(days=1)
+        else:
+            minDate = datetime(today.year, today.month, 1)
 
         this_month = self.get_custom_date_range(since=minDate, until=maxDate)
 
