@@ -16,8 +16,10 @@ def ideal_day_spend(spend, budget):
     lastday_month = next_month + relativedelta(days=-1)
     black_marker = (today.day / lastday_month.day) * 100
     remaining = lastday_month.day - today.day
-
-    ideal_day_spend = (budget - spend) / remaining
+    if remaining > 0:
+        ideal_day_spend = (budget - spend) / remaining
+    else:
+        ideal_day_spend = budget - spend
     return round(ideal_day_spend, 2)
 
 
