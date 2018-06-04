@@ -26,6 +26,7 @@ urlpatterns = [
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^profile$", profile.view_profile, name='profile'),
     url(r"^users$", profile.user_list, name='user_list'),
+    url(r"^users/add$", profile.create_user, name='create_user'),
     url(r"^users/accounts/delete$", profile.remove_user_accounts, name='remove_user_accounts'),
     url(r'^password/$', profile.change_password, name='change_password'),
     url(r"^profile/delete$", profile.remove_acc_profile, name='delete_profile'),
