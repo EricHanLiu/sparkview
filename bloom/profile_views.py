@@ -431,3 +431,17 @@ def create_user(request):
 
 
     return JsonResponse(response)
+
+
+def delete_user(request):
+
+    data = json.loads(request.body.decode('utf-8'))
+
+    user = User.objects.get(id=data['user_id'])
+
+    response = {
+        'username': user.username
+    }
+    user.delete()
+
+    return JsonResponse(response)

@@ -22,7 +22,6 @@
                                     <button type="button" class="m-btn btn btn-outline-accent" data-toggle="modal"
                                             data-target="#m_modal_add_user">Add user
                                     </button>
-                                    <button type="button" class="m-btn btn btn-outline-danger">Delete User(s)</button>
                                 </div>
                             </div>
                         </div>
@@ -38,7 +37,10 @@
                                                                      data-target="#m_modal_accounts"
                                                                      data-userid="{{ detail.user.id }}"
                                                                      style="background: #212529; color: #FFF;"></i>
-                                                <i class="fa fa-minus-circle"></i>
+                                                <i class="fa fa-minus-circle" data-toggle="modal"
+                                                    data-target="#m_modal_delete_user"
+                                                    data-userid="{{ detail.user.id }}"
+                                                    data-username="{{ detail.user }}"></i>
                                             </h3>
                                         </div>
                                     </div>
@@ -323,8 +325,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" onclick="submitAccounts()" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -405,15 +407,65 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" onclick="submitNewUser()" class="btn btn-brand">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
     <!--End::Modal add new user -->
 
+    <!--Modal delete user-->
+    <div class="modal fade" id="m_modal_delete_user" tabindex="-1" role="dialog" aria-labelledby="modalDeleteUser">
+        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="m_title_username">
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="d_uid">
+                    <span class="text-center">Are you sure you want to delete the user?</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" onclick="deleteUser()" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::Modal delete user -->
+
     <script type="text/javascript">
+
+        function deleteUser() {
+            let uid = $('#d_uid').val();
+            let data = JSON.stringify({
+                'user_id': uid
+            });
+            console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "/users/delete",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: data,
+                complete: function() {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                },
+                success: function (data) {
+                    $('#m_modal_delete_user').modal('hide');
+                    toastr.success(data['username'] + ' deleted from the database');
+                },
+                error: function (ajaxContext) {
+                        toastr.error(ajaxContext.statusText)
+                }
+            })
+        }
 
         function removeAccount(acc_id, cm_lvl, platform) {
 
@@ -431,7 +483,7 @@
                 complete: function () {
                     setTimeout(function () {
                         location.reload();
-                    }, 3500);
+                    }, 2500);
                 },
                 success: function () {
                     swal({
@@ -463,7 +515,7 @@
                 complete: function () {
                     setTimeout(function () {
                         location.reload();
-                    }, 3500);
+                    }, 2500);
                 },
                 success: function () {
                     swal({
@@ -486,7 +538,7 @@
             let data = form.serializeArray();
 
             $.validator.addMethod('specialChars', function (value) {
-                return /^[a-zA-Z0-9\@.+-\_]$/.test(value);
+                return /^[a-zA-Z0-9@.+\-_]+$/.test(value);
             }, 'Letters, digits and  @/./+/-/_ characters are permitted.');
 
             let validator = form.validate({

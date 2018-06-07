@@ -55,7 +55,6 @@ var WizardDemo = function () {
             let data = formEl.serializeArray();
 
             if (wizard.isLastStep()) {
-                console.log(data);
                 let dataObj = {};
 
                 let aw = $('#aw_name_fstep');
@@ -252,7 +251,6 @@ var WizardCampaigns = function () {
                     dataObj[item.name] = item.value
                 });
 
-                console.log(data);
                 $cmp_elem.html($("select[name='campaigns'] option:selected").map(function () {
                         let value = $(this).val();
                         value = value.split('|');
