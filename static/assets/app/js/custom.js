@@ -99,6 +99,16 @@ $(document).ready(function () {
         $(".modal-body #uid").val(user_id);
     });
 
+    $('#m_modal_delete_user').on('show.bs.modal', function (e) {
+
+        //get data-userid and data-username attribute of the clicked element
+        let user_id = $(e.relatedTarget).data('userid');
+        let username = $(e.relatedTarget).data('username');
+        console.log(username);
+        $(".modal-body #d_uid").val(user_id);
+        $(".modal-header #m_title_username").html(username);
+    });
+
     // Budget edit on view_client
     $('#m_edit_budget').on('show.bs.modal', function (e) {
         let aid = $(e.relatedTarget).data('accountid');

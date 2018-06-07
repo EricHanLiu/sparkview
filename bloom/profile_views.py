@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
@@ -398,3 +399,49 @@ def remove_user_accounts(request):
     }
 
     return JsonResponse(context)
+
+
+def create_user(request):
+
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    hashed_password = make_password(password)
+    first_name = request.POST.get('first_name')
+    last_name = request.POST.get('last_name')
+    email = request.POST.get('email')
+    is_staff = request.POST.get('is_staff')
+
+    is_taken = User.objects.filter(username__iexact=username).exists()
+
+    if is_taken:
+        response = {
+            'error_message': 'User ' + username + ' already exists.'
+        }
+
+    else:
+        u = User.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
+
+        if is_staff == 'on':
+            u.is_staff = True
+            u.save()
+
+        response = {
+            'username': username
+        }
+
+
+    return JsonResponse(response)
+
+
+def delete_user(request):
+
+    data = json.loads(request.body.decode('utf-8'))
+
+    user = User.objects.get(id=data['user_id'])
+
+    response = {
+        'username': user.username
+    }
+    user.delete()
+
+    return JsonResponse(response)
