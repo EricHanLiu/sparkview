@@ -11,6 +11,7 @@ urlpatterns = [
     url(r"^client/(?P<client_id>\d+)", views.client_details, name="client_details"),
     url(r"^client/sixmonths/(?P<client_id>\d+)/", views.sixm_budget, name="six_months"),
     url(r"^client/hist/(?P<client_id>\d+)", views.hist_client_details, name="hist_client_details"),
+    url(r"^client/accounts/add", views.assign_client_accounts),
     url(r"^clients/delete/$", views.delete_clients, name="client_details"),
     url(r"^clientbudget/update/$", views.update_budget, name="client_budget_update"),
     url(r"^groupings/read/$", views.campaign_groupings, name="campaign_groupings_read"),

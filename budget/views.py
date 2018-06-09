@@ -248,7 +248,10 @@ def client_details(request, client_id):
             'today': today.day,
             'no_of_days': lastday_month.day,
             'remaining': remaining,
-            'blackmarker': round(black_marker, 2)
+            'blackmarker': round(black_marker, 2),
+            'adwords': DependentAccount.objects.filter(blacklisted=False),
+            'bing': BingAccounts.objects.filter(blacklisted=False),
+            'facebook': FacebookAccount.objects.filter(blacklisted=False)
         }
 
         return render(request, 'budget/view_client.html', context)
@@ -783,3 +786,38 @@ def gts_or_budget(request):
         context['budgetoff'] = '1'
 
     return JsonResponse(context)
+
+@login_required
+def assign_client_accounts(request):
+
+    adwords = request.POST.getlist('adwords')
+    bing = request.POST.getlist('bing')
+    facebook = request.POST.getlist('facebook')
+    client_id = request.POST.get('cid')
+
+    client = Client.objects.get(id=client_id)
+
+    if adwords:
+        for a in adwords:
+            acc = DependentAccount.objects.get(dependent_account_id=a)
+            client.adwords.add(acc)
+            client.save()
+
+    if bing:
+        for b in bing:
+            acc = BingAccounts.objects.get(account_id=b)
+            client.bing.add(acc)
+            client.save()
+
+    if facebook:
+        for f in facebook:
+            acc = FacebookAccount.objects.get(account_id=f)
+            client.facebook.add(acc)
+            client.save()
+
+
+    response = {
+        'client': client.client_name
+    }
+
+    return JsonResponse(response)
