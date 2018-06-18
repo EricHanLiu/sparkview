@@ -13,7 +13,6 @@ import json
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
-# from dashboard.decorators import cache_on_auth
 
 
 # Create your views here.
@@ -133,7 +132,8 @@ def add_client(request):
         new_aw = []
         new_bing = []
         new_fb = []
-
+        data = request.POST
+        print(data)
         name = request.POST.get('client_name')
         budget = 0
         # suggested budget / global budget
@@ -168,7 +168,7 @@ def add_client(request):
         if adwords_accounts:
             for a in new_aw:
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                spend = request.POST.get('aw_budget_' + a + '|' + aw_acc.dependent_account_name)
+                spend = request.POST.get('aw_budget_' + a)
 
                 if spend:
                     aw_acc.desired_spend = float(spend)
@@ -179,7 +179,7 @@ def add_client(request):
         if bing_accounts:
             for b in new_bing:
                 bing_acc = BingAccounts.objects.get(account_id=b)
-                spend = request.POST.get('bing_budget_' + b + '|' + bing_acc.account_name)
+                spend = request.POST.get('bing_budget_' + b)
 
                 if spend:
                     bing_acc.desired_spend = float(spend)
@@ -190,7 +190,7 @@ def add_client(request):
         if facebook_accounts:
             for f in new_fb:
                 fb_acc = FacebookAccount.objects.get(account_id=f)
-                spend = request.POST.get('facebook_budget_' + f + '|' + fb_acc.account_name)
+                spend = request.POST.get('facebook_budget_' + f)
 
                 if spend:
                     fb_acc.desired_spend = float(spend)
@@ -346,8 +346,8 @@ def delete_clients(request):
 def last_month(request):
 
     if request.method == 'GET':
+
         context = {}
-        context['facebook'] = FacebookAccount.objects.filter(blacklisted=False)
         context['clients'] = ClientHist.objects.all()
         context['adwords'] = DependentAccount.objects.filter(blacklisted=False)
         context['bing'] = BingAccounts.objects.filter(blacklisted=False)

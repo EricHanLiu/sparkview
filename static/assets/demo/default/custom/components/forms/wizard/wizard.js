@@ -56,7 +56,7 @@ var WizardDemo = function () {
 
             if (wizard.isLastStep()) {
                 let dataObj = {};
-
+                console.log(data);
                 let aw = $('#aw_name_fstep');
                 let bing = $('#bing_name_fstep');
                 let fb = $('#fb_name_fstep');
@@ -81,7 +81,7 @@ var WizardDemo = function () {
                 $('#client_name_fstep').html(dataObj['client_name']);
 
                 if (budget.prop('checked')) {
-                    $('#budget_fstep').html('Budget: ');
+                    $('#budget_fstep').html('');
                 } else {
                     $('#client_budget_fstep').html(
                         dataObj['gts_value']

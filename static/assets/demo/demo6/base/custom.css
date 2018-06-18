@@ -188,3 +188,27 @@ input[type=number].table-number  {
     background-color: #212529;
     border-color: #212529;
 }
+
+.budget-container {
+    position: relative;
+}
+
+.budget-container > label.nl {
+    position: absolute;
+    right: 17px;
+    top: 10px;
+}
+.budget-container > label.yt {
+    position: absolute;
+    right: 124px;
+    top: 10px;
+}
+
+m-table--head-separator-bloom {
+    background-color: #212529;
+}
+
+.m-portlet.m-portlet--bloom.m-portlet--head-solid-bg {
+    background: #212529;
+    border-color: #212529;
+}

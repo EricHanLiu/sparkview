@@ -23,6 +23,10 @@ $(document).ready(function () {
         'pagingType': 'full_numbers'
     });
 
+    $("#labels").DataTable({
+        'pagingType': 'full_numbers'
+    });
+
     $("#adwords_datatable").DataTable({
         'pagingType': "full_numbers"
         // 'scrollY': '75%',
@@ -207,5 +211,13 @@ $(document).ready(function () {
             };
             sendAjaxRequest(data);
         }
+    });
+
+    $("#select_adwords").select2({
+                placeholder: "Search accounts..."
+            });
+
+    $("#select_labels").select2({
+        placeholder: "Search labels..."
     });
 });

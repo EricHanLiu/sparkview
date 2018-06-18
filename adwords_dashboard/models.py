@@ -164,7 +164,7 @@ class Performance(models.Model):
 
 class Label(models.Model):
 
-    account_id = models.CharField(max_length=255, default='None')
+    accounts = models.ManyToManyField(DependentAccount, blank=True, related_name='lbl_assigned_aw')
     label_id = models.CharField(max_length=255, default='None')
     name = models.CharField(max_length=255)
     campaign_id = models.CharField(max_length=255, default='None')

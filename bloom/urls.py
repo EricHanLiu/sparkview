@@ -36,5 +36,6 @@ urlpatterns = [
     url(r"^dashboards/facebook/", include('facebook_dashboard.urls', namespace='facebook')),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^budget/', include('budget.urls', namespace='budget')),
+    url(r'^tools/', include('tools.urls', namespace='tools')),
     url(r'^admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
