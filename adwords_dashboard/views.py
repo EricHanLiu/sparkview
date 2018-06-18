@@ -27,7 +27,7 @@ def adwords_dashboard(request):
         query = Performance.objects.filter(account=account.pk, performance_type='ACCOUNT')
         item['account'] = account
         item['404_urls'] = CampaignStat.objects.filter(dependent_account_id=account.dependent_account_id).count()
-        item['labels'] = Label.objects.filter(account_id=account.dependent_account_id, label_type='ACCOUNT')
+        item['labels'] = Label.objects.filter(accounts=account, label_type='ACCOUNT')
         item['clicks'] = query[0].clicks if query else 0
         item['impressions'] = query[0].impressions if query else 0
         item['ctr'] = query[0].ctr if query else 0

@@ -735,7 +735,7 @@
                     budget: budget,
                     target_spend: target_spend
                 };
-                console.log(new_budget);
+
                 $.ajax({
                     url: '/budget/clientbudget/update/',
                     headers: {'X-CSRFToken': csrftoken},
@@ -743,7 +743,6 @@
                     data: new_budget,
 
                     success: function (data) {
-                        console.log(data);
                         id = '#' + data['client_id'] + '_progressbar';
                         elem = $(id);
                         elem.removeClass();

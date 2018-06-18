@@ -1,0 +1,250 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+    {% csrf_token %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>Tools</span>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="m-portlet m-portlet--tabs m-portlet--bloom m-portlet--head-solid-bg m-portlet--head-sm">
+                            <div class="m-portlet__head">
+                                <div class="m-portlet__head-caption">
+                                    <div class="m-portlet__head-title">
+                        <span class="m-portlet__head-icon">
+							<i class="fa fa-tags"></i>
+						</span>
+                                        <h3 class="m-portlet__head-text">
+                                            Labels
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="m-portlet__head-tools">
+                                    <ul class="nav navhabs m-tabs m-tabs-line  m-tabs-line--right" role="tablist">
+                                        <li class="nav-item m-tabs__item">
+                                            <a class="nav-link m-tabs__link active show" data-toggle="tab"
+                                               href="#m_tabs_7_1"
+                                               role="tab" aria-selected="true">
+                                                <i class="fa fa-plus-circle"></i>
+                                                Create label
+                                            </a>
+                                        </li>
+                                        <li class="nav-item m-tabs__item">
+                                            <a class="nav-link m-tabs__link" data-toggle="tab" href="#m_tabs_7_2"
+                                               role="tab"
+                                               aria-selected="false">
+                                                <i class="fa fa-minus-square"></i>
+                                                Remove label from account
+                                            </a>
+
+                                        </li>
+                                        <li class="nav-item m-tabs__item">
+                                            <a class="nav-link m-tabs__link" data-toggle="tab" href="#m_tabs_7_3"
+                                               role="tab"
+                                               aria-selected="false">
+                                                <i class="fa fa-plus-square"></i>
+                                                Assign label to account
+                                            </a>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="m-portlet__body">
+                                <div class="tab-content">
+                                    <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
+                                        <div id="create_template">
+                                            <div style="display: flex; flex-wrap: wrap">
+                                                <input type="text" style="width: 90%"
+                                                       class="form-control m-input" id="label_name"
+                                                       aria-describedby="labelHelp"
+                                                       placeholder="Label name (ex: exampleLabel1,exampleLabel2,exampleLabel3)">
+                                                <a href="#" onclick="submitLabel()"
+                                                   class="btn btn-accent m-btn m-btn--icon">
+                                                    <span>
+                                                    <span>Submit</span>
+                                                </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="m_tabs_7_2" role="tabpanel">
+                                        <div id="delete_template">
+
+                                            <table class="table table-sm m-table m-table--head-separator-bloom"
+                                                   id="labels">
+                                                <thead class="thead-inverse">
+                                                <tr>
+                                                    <th>Label</th>
+                                                    <th>Assigned To</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for label in labels %}
+                                                    <tr>
+                                                        <td>
+                                                    <span class="m-badge m-badge--warning m-badge--wide">
+                                                        {{ label.name }}
+                                                    </span>
+                                                        </td>
+                                                        <td>
+                                                            {% for acc in label.accounts.all %}
+                                                                <span class="m-badge m-badge--info m-badge--wide">
+                                                            {{ acc.dependent_account_name }} <a href="#"
+                                                                                                onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
+                                                         </span>
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="m_tabs_7_3" role="tabpanel">
+                                        <div id="assign_template">
+                                            <form name="submitLabelAssign" id="submitLabelAssign">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <select class="form-control m-input" name="aw_acc"
+                                                                id="select_adwords" style="width: 100%;">
+                                                            {% for a in accounts %}
+                                                                <option name="account"
+                                                                        value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-4">
+                                                        <select class="form-control m-input" name="labels"
+                                                                id="select_labels" multiple="multiple"
+                                                                style="width: 100%;">
+                                                            {% for l in labels %}
+                                                                <option name="label"
+                                                                        value="{{ l.label_id }}">{{ l.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <a href="#" onclick="assignLabel()"
+                                                           class="btn btn-success m-btn m-btn--icon">
+                                                <span>
+                                                    <i class="fa fa-plus"></i>
+                                                    <span>Submit</span>
+                                                </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--End::Main Portlet-->
+    </div>
+
+    <div id="create_response_template" style="display: none">
+        <span></span>
+    </div>
+
+    <script type="text/javascript">
+
+        function submitLabel() {
+
+            let name = $("#label_name").val();
+            let data = {
+                'label_name': name
+            }
+            $.ajax({
+                url: '/tools/labels/create',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label added to DB and AdWords.')
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                }
+            });
+        }
+
+        function deassignLabel(label_id, account_id) {
+
+            let data = {
+                'label_id': label_id,
+                'account_id': account_id
+            }
+            $.ajax({
+                url: '/tools/labels/deassign',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label deassigned from account.')
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                }
+            });
+        }
+
+        function assignLabel() {
+
+            let data = $("#submitLabelAssign").serializeArray();
+            console.log(data);
+
+            $.ajax({
+                url: '/tools/labels/assign',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label assigned to account.')
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                }
+            });
+        }
+
+    </script>
+
+
+{% endblock %}
