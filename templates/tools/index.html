@@ -95,10 +95,10 @@
                                                         </td>
                                                         <td>
                                                             {% for acc in label.accounts.all %}
-                                                                <span class="m-badge m-badge--info m-badge--wide">
-                                                            {{ acc.dependent_account_name }} <a href="#"
-                                                                                                onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
-                                                         </span>
+                                                                <span class="m-badge m-badge--info m-badge--wide" id="{{ label.label_id }}-label-{{ acc.dependent_account_id }}">
+                                                                    {{ acc.dependent_account_name }} <a href="#"
+                                                                    onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
+                                                                </span>
                                                             {% endfor %}
                                                         </td>
                                                     </tr>
@@ -114,6 +114,7 @@
                                                     <div class="col-md-4">
                                                         <select class="form-control m-input" name="aw_acc"
                                                                 id="select_adwords" style="width: 100%;">
+                                                                <option></option>
                                                             {% for a in accounts %}
                                                                 <option name="account"
                                                                         value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
@@ -166,7 +167,8 @@
             let name = $("#label_name").val();
             let data = {
                 'label_name': name
-            }
+            };
+
             $.ajax({
                 url: '/tools/labels/create',
                 headers: {
@@ -182,9 +184,7 @@
                     toastr.error(ajaxContext.statusText)
                 },
                 complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 2500);
+                    $("#label_name").val("");
                 }
             });
         }
@@ -194,7 +194,8 @@
             let data = {
                 'label_id': label_id,
                 'account_id': account_id
-            }
+            };
+
             $.ajax({
                 url: '/tools/labels/deassign',
                 headers: {
@@ -210,9 +211,7 @@
                     toastr.error(ajaxContext.statusText)
                 },
                 complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 2500);
+                    $("#" + label_id + '-label-' + account_id).remove();
                 }
             });
         }
@@ -220,7 +219,6 @@
         function assignLabel() {
 
             let data = $("#submitLabelAssign").serializeArray();
-            console.log(data);
 
             $.ajax({
                 url: '/tools/labels/assign',
@@ -237,9 +235,8 @@
                     toastr.error(ajaxContext.statusText)
                 },
                 complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 2500);
+                    $("#select_labels").val(null).trigger('change');
+                    $("#select_adwords").val(null).trigger('change');
                 }
             });
         }

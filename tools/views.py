@@ -49,16 +49,16 @@ def create_labels(request):
 
     result = managed_customer_service.mutate(operations)
 
-    labels = []
+    c_labels = []
 
     aw_response = dict(result['labels'])
     if aw_response:
         for key, value in aw_response.items():
-            labels.append(value[1])
+            c_labels.append(value[1])
             Label.objects.create(name=value[1], label_id=key[1], label_type='ACCOUNT')
 
     response = {
-        'labels': labels
+        'labels': c_labels
     }
 
     return JsonResponse(response)
@@ -77,8 +77,10 @@ def deassign_labels(request):
     label_id = request.POST.get('label_id')
     acc_id = request.POST.get('account_id')
     account = DependentAccount.objects.get(dependent_account_id=acc_id)
+
     client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
     managed_customer_service = client.GetService('ManagedCustomerService', version=settings.API_VERSION)
+
     operations = [
         {
             'operator': 'REMOVE',
@@ -90,13 +92,14 @@ def deassign_labels(request):
         }
     ]
     result = managed_customer_service.mutateLabel(operations)
-    print(result)
+
     if result:
         label = Label.objects.get(label_id=label_id)
         label.accounts.remove(account)
         label.save()
 
     response = {}
+
     return JsonResponse(response)
 
 
@@ -111,6 +114,7 @@ def assign_labels(request):
     :rtype: dict
     """
     operations = []
+
     acc_id = request.POST.get('aw_acc')
     labels = request.POST.getlist('labels')
     account = DependentAccount.objects.get(dependent_account_id=acc_id)
@@ -126,17 +130,18 @@ def assign_labels(request):
                 }
             }
         )
+
     client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
     managed_customer_service = client.GetService('ManagedCustomerService', version=settings.API_VERSION)
 
     result = managed_customer_service.mutateLabel(operations)
-    print(result)
+
     if result:
         for label_id in labels:
             label = Label.objects.get(label_id=label_id)
             label.accounts.add(account)
             label.save()
 
-    response = {
-    }
+    response = {}
+
     return JsonResponse(response)
