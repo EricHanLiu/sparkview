@@ -90,10 +90,10 @@
                                 <div class="row text-center">
                                     <div class="col-md-3">
                                         <b>Current Total Spend</b>:
-                                        {{ a.current_spend }}
+                                        {{ a.current_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-3">
-                                        <b>Yesterday's Spend</b>: {{ a.yesterday_spend }}
+                                        <b>Yesterday's Spend</b>: {{ a.yesterday_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-3">
                                         <b>Current Daily Spend</b>:
@@ -130,11 +130,11 @@
                                 <p>
                                 <div class="row text-center">
                                     <div class="col-md-3">
-                                        <b>Current Total Spend</b>: {{ b.current_spend }}
+                                        <b>Current Total Spend</b>: {{ b.current_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-3">
 
-                                        <b>Yesterday's spend</b>: {{ b.yesterday_spend }}
+                                        <b>Yesterday's spend</b>: {{ b.yesterday_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-3">
                                         <b>Current Daily Spend</b>:
@@ -172,10 +172,10 @@
                                 <p>
                                 <div class="row text-center">
                                     <div class="col-md-3">
-                                        <b>Current Total Spend</b>: {{ f.current_spend }}
+                                        <b>Current Total Spend</b>: {{ f.current_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-3">
-                                        <b>Yesterday's spend</b>: {{ f.yesterday_spend }}
+                                        <b>Yesterday's spend</b>: {{ f.yesterday_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-3">
                                         <b>Current Daily Spend</b>:
