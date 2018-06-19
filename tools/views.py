@@ -130,9 +130,7 @@ def assign_labels(request):
     managed_customer_service = client.GetService('ManagedCustomerService', version=settings.API_VERSION)
 
     result = managed_customer_service.mutateLabel(operations)
-
     print(result)
-
     if result:
         for label_id in labels:
             label = Label.objects.get(label_id=label_id)
@@ -140,6 +138,5 @@ def assign_labels(request):
             label.save()
 
     response = {
-        'result': result
     }
     return JsonResponse(response)

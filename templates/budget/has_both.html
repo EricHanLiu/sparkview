@@ -101,14 +101,14 @@
                                     </div>
                                     <div class="col-md-2">
                                         <b>Current Total Spend</b>:
-                                        {{ a.current_spend }}
+                                        {{ a.current_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Target Daily Spend
-                                        </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend }}
+                                        </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
-                                        <b>Yesterday's Spend</b>: {{ a.yesterday_spend }}
+                                        <b>Yesterday's Spend</b>: {{ a.yesterday_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Current Daily Spend</b>:
@@ -171,11 +171,11 @@
                                               data-budget="{{ b.desired_spend }}"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <b>Current Total Spend</b>: {{ b.current_spend }}
+                                        <b>Current Total Spend</b>: {{ b.current_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Target Daily
-                                            Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend }}
+                                            Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
 
@@ -242,11 +242,11 @@
                                               data-budget="{{ f.desired_spend }}"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <b>Current Total Spend</b>: {{ f.current_spend }}
+                                        <b>Current Total Spend</b>: {{ f.current_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Target Daily
-                                            Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend }}
+                                            Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|floatformat:2 }}
                                     </div>
                                     <div class="col-md-2">
 
