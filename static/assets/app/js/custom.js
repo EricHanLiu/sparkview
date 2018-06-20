@@ -123,6 +123,14 @@ $(document).ready(function () {
         $(e.currentTarget).find('input[name="budget"]').val(budget);
     });
 
+    // Client name edit on view_client
+    $('#m_edit_cname').on('show.bs.modal', function (e) {
+        let c_name = $(e.relatedTarget).data('cname');
+        let cid = $(e.relatedTarget).data('clientid');
+        $(e.currentTarget).find('input[name="client_name"]').val(c_name);
+        $(".modal-body #cid").val(cid);
+    });
+
     // Global target spend edit
     $('#m_target_spend').on('show.bs.modal', function (e) {
         let cid = $(e.relatedTarget).data('clientid');

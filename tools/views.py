@@ -142,6 +142,10 @@ def assign_labels(request):
             label.accounts.add(account)
             label.save()
 
-    response = {}
+    response = {
+        'labels': labels,
+        'acc_name': account.dependent_account_name,
+        'acc_id': account.dependent_account_id
+    }
 
     return JsonResponse(response)

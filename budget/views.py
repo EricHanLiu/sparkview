@@ -821,3 +821,19 @@ def assign_client_accounts(request):
     }
 
     return JsonResponse(response)
+
+@login_required
+def edit_client_name(request):
+
+    data = request.POST
+    client_id = data['cid']
+    new_name = data['client_name']
+
+    client = Client.objects.get(id=client_id)
+    client.client_name = new_name
+    client.save()
+
+    response = {
+        'client_name': new_name
+    }
+    return JsonResponse(response)
