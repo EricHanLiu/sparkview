@@ -13,7 +13,15 @@
                                 <span class="m-accordion__item-icon">
                                     <i class="fa fa-user-circle"></i>
                                 </span>
-                        <span class="m-accordion__item-title">{{ client_data.client_name }}</span>
+                        <span class="m-accordion__item-title">
+                            {{ client_data.client_name }}
+                            <span class="fa fa-pencil-square fa-4x"
+                              data-toggle="modal"
+                              data-target="#m_edit_cname"
+                              data-clientid="{{ client_data.id }}"
+                              data-cname="{{ client_data.client_name }}">
+                        </span>
+                        </span>
                         <span class="m-accordion__item-mode" data-toggle="modal" data-target="#m_assign_accounts"></span>
                     </div>
 

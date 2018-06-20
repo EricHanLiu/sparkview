@@ -93,6 +93,31 @@
     </div>
     <!--END:Modal budget edit-->
 
+    <!--START:Modal client name edit-->
+    <div class="modal fade" id="m_edit_cname" tabindex="-1" role="dialog" aria-labelledby="edit_cname">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="new_cname">
+                        <div class="form-group">
+                            <label for="budget" class="form-control-label">New client name:</label>
+                            <input class="form-control text-center" name="client_name" id="new_client_name" type="text">
+                            <input type="hidden" id="cid">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="editCName()">Update</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal client name edit-->
+
     <!--START:Modal budget edit-->
     <div class="modal fade" id="m_target_spend" tabindex="-1" role="dialog" aria-labelledby="edit_budget">
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -102,7 +127,7 @@
                         <div class="form-group">
                             <label for="target_spend" class="form-control-label">New Target Spend:</label>
                             <input class="form-control text-center" name="target_spend" id="target_spend" type="number">
-                            <input type="hidden" id="cid" value="{{ client_data.id }}">
+                            <input type="hidden" id="cid">
                         </div>
                     </form>
                 </div>
@@ -229,9 +254,9 @@
 
         function editTargetSpend() {
 
-            var modal = $('#m_target_spend');
-            var data = $('#new_target_spend').serializeArray();
-            var cid = $('#cid').val();
+            let modal = $('#m_target_spend');
+            let data = $('#new_target_spend').serializeArray();
+            let cid = $('#cid').val();
 
             data.push({
                     name: 'cid', value: cid
@@ -278,6 +303,37 @@
                 success: function (data) {
                     modal.modal('hide');
                     toastr.success("Assigned new accounts to " + data['client'])
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                }
+            });
+        }
+
+        function editCName() {
+
+            let modal = $('#m_edit_cname');
+            let data = $('#new_client_name').serializeArray();
+            let cid = $('#cid').val();
+
+            data.push({
+                    name: 'cid', value: cid
+                }
+            );
+            console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "/budget/client/editname",
+                headers: {'X-CSRFToken': csrftoken},
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                },
+                success: function (data) {
+                    modal.modal('hide');
+                    toastr.success("Client name changed to " + data['client_name'])
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)

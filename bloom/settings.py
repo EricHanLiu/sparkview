@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'bing_dashboard',
     'facebook_dashboard',
     'budget',
+    'tools',
     'django_crontab',
     'django_extensions',
     'django.contrib.admin',

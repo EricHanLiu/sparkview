@@ -89,11 +89,11 @@
                                                 {% for label in labels %}
                                                     <tr>
                                                         <td>
-                                                    <span class="m-badge m-badge--warning m-badge--wide">
-                                                        {{ label.name }}
-                                                    </span>
+                                                            <span class="m-badge m-badge--warning m-badge--wide">
+                                                                {{ label.name }}
+                                                            </span>
                                                         </td>
-                                                        <td>
+                                                        <td id="lcell-{{ label.label_id }}">
                                                             {% for acc in label.accounts.all %}
                                                                 <span class="m-badge m-badge--info m-badge--wide" id="{{ label.label_id }}-label-{{ acc.dependent_account_id }}">
                                                                     {{ acc.dependent_account_name }} <a href="#"
@@ -229,12 +229,20 @@
                 data: data,
 
                 success: function (data) {
-                    toastr.success('Label assigned to account.')
+                    toastr.success('Label(s) assigned to account.');
+                    let labels = data['labels'];
+                    for(let i = 0; i < labels.length; i++) {
+                        let cell = $("#lcell-"+labels[i]);
+                        cell.append('<span class="m-badge m-badge--info m-badge--wide" id="'+labels[i]+'-label-'+ data['acc_id'] +'">\n' +
+                         data['acc_name'] + ' <a href="#" onclick="deassignLabel('+ labels[i] +', \''+ data['acc_id'] +'\')">x</a>' +
+                        '</span>');
+                    }
+
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
                 },
-                complete: function () {
+                complete: function (data) {
                     $("#select_labels").val(null).trigger('change');
                     $("#select_adwords").val(null).trigger('change');
                 }
