@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from adwords_dashboard.models import Label, DependentAccount
 from googleads import adwords
 from django.conf import settings
-
+import suds
 
 # Create your views here.
 @login_required
@@ -47,19 +47,23 @@ def create_labels(request):
             }
         )
 
-    result = managed_customer_service.mutate(operations)
-
+    response = {}
     c_labels = []
 
-    aw_response = dict(result['labels'])
-    if aw_response:
-        for key, value in aw_response.items():
-            c_labels.append(value[1])
-            Label.objects.create(name=value[1], label_id=key[1], label_type='ACCOUNT')
+    for op in operations:
+        try:
+            result = managed_customer_service.mutate(op)
 
-    response = {
-        'labels': c_labels
-    }
+            if 'labels' in result:
+                aw_response = dict(result['labels'])
+                for key, value in aw_response.items():
+                    c_labels.append(value[1])
+                    Label.objects.create(name=value[1], label_id=key[1], label_type='ACCOUNT')
+                response['labels'] = c_labels
+
+        except suds.WebFault as e:
+            response['error'] = e.fault['detail']['ApiExceptionFault']['errors'][0]['reason'] + ': ' + op['operand']['name']
+
 
     return JsonResponse(response)
 
@@ -139,7 +143,10 @@ def assign_labels(request):
     if result:
         for label_id in labels:
             label = Label.objects.get(label_id=label_id)
-            label.accounts.add(account)
+            if account in label.accounts.all():
+                continue
+            else:
+                label.accounts.add(account)
             label.save()
 
     response = {
