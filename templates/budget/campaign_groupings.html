@@ -109,11 +109,11 @@
                                     <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm"
                                          role="group" aria-label="">
                                         <button type="button" class="btn btn-outline-info"
-                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                                onclick="window.location.href='{% url 'budget:flight_budget_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
                                             Flight Dates
                                         </button>
                                         <button type="button" class="btn btn-outline-info"
-                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.dependent_account_id }}&channel={{ account.channel }}'">
+                                                onclick="window.location.href='{% url 'budget:campaign_groupings_read' %}?account_id={{ account.account_id }}&channel={{ account.channel }}'">
                                             Campaign Groupings
                                         </button>
                                     </div>
