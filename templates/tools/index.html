@@ -94,12 +94,12 @@
                                                             </span>
                                                         </td>
                                                         <td id="lcell-{{ label.label_id }}">
-                                                            {% for acc in label.accounts.all %}
-                                                                <span class="m-badge m-badge--info m-badge--wide" id="{{ label.label_id }}-label-{{ acc.dependent_account_id }}">
-                                                                    {{ acc.dependent_account_name }} <a href="#"
-                                                                    onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
-                                                                </span>
-                                                            {% endfor %}
+                                                                {% for acc in label.accounts.all %}
+                                                                    <span class="m-badge m-badge--info m-badge--wide" id="{{ label.label_id }}-label-{{ acc.dependent_account_id }}">
+                                                                        {{ acc.dependent_account_name }} <a href="#"
+                                                                        onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
+                                                                    </span>
+                                                                {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -230,13 +230,8 @@
 
                 success: function (data) {
                     toastr.success('Label(s) assigned to account.');
-                    let labels = data['labels'];
-                    for(let i = 0; i < labels.length; i++) {
-                        let cell = $("#lcell-"+labels[i]);
-                        cell.append('<span class="m-badge m-badge--info m-badge--wide" id="'+labels[i]+'-label-'+ data['acc_id'] +'">\n' +
-                         data['acc_name'] + ' <a href="#" onclick="deassignLabel('+ labels[i] +', \''+ data['acc_id'] +'\')">x</a>' +
-                        '</span>');
-                    }
+                    {#let labels = data['labels'];#}
+
 
                 },
                 error: function (ajaxContext) {
@@ -245,6 +240,16 @@
                 complete: function (data) {
                     $("#select_labels").val(null).trigger('change');
                     $("#select_adwords").val(null).trigger('change');
+                    let table = $("#labels").DataTable();
+                    let labels = data['responseJSON']['labels'];
+                    labels.forEach(function(labelId) {
+                        let cell = table.cell('#lcell-'+labelId);
+                        let current_data = cell.data();
+                        let new_data = current_data + ' <span class="m-badge m-badge--info m-badge--wide" id="'+labelId+'-label-'+ data['responseJSON']['acc_id'] +'">\n' +
+                         data['responseJSON']['acc_name'] + ' <a href="#" onclick="deassignLabel('+ labelId +', \''+ data['responseJSON']['acc_id'] +'\')">x</a>' +
+                        '</span>'
+                        cell.data(new_data);
+                    })
                 }
             });
         }
