@@ -16,13 +16,14 @@
                         <span class="m-accordion__item-title">
                             {{ client_data.client_name }}
                             <span class="fa fa-pencil-square fa-4x"
-                              data-toggle="modal"
-                              data-target="#m_edit_cname"
-                              data-clientid="{{ client_data.id }}"
-                              data-cname="{{ client_data.client_name }}">
+                                  data-toggle="modal"
+                                  data-target="#m_edit_cname"
+                                  data-clientid="{{ client_data.id }}"
+                                  data-cname="{{ client_data.client_name }}">
                         </span>
                         </span>
-                        <span class="m-accordion__item-mode" data-toggle="modal" data-target="#m_assign_accounts"></span>
+                        <span class="m-accordion__item-mode" data-toggle="modal"
+                              data-target="#m_assign_accounts"></span>
                     </div>
 
                     <div class="m-accordion__item-body"
@@ -36,7 +37,8 @@
                                 <div class="col-md-3">
                                     <label class="m-checkbox m-checkbox--solid">
                                         <input type="checkbox" {% if client_data.has_gts %}checked{% endif %}
-                                               id="m_gts_client_cbox" data-cid="{{ client_data.id }}"> Global Target Spend
+                                               id="m_gts_client_cbox" data-cid="{{ client_data.id }}"> Global Target
+                                        Spend
                                         <span></span>
                                     </label>
                                     <span id="m_gts_value"></span>
@@ -119,9 +121,63 @@
                                          data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
                                         {{ a.current_spend|div:a.desired_spend }}%
                                     </div>
+                                    <div class="black-marker"
+                                         style="width: {{ blackmarker }}%"
+                                         aria-valuenow="{{ blackmarker }}"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
                                 </div>
+                                <div class="m-separator"></div>
+                                <small>Spend by network <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <a href="#" data-toggle="modal" data-target="#m_add_kpi"
+                                       data-acc_id="{{ a.dependent_account_id }}"
+                                       data-acc_name="{{ a.dependent_account_name }}"> Add KPI</a></small>
 
-                                </p>
+                                {% for budget in budgets %}
+                                    {% if budget.adwords == a %}
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                {{ budget.network_type }}
+
+                                                <i class="fa fa-minus-circle" data-toggle="modal"
+                                                   data-target="#m_delete_kpi" data-budgetid="{{ budget.id }}"
+                                                   data-network="{{ budget.network_type }}"></i>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                                Current spend: {{ budget.spend }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                                Target Spend: {{ budget.budget }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress m-progress--lg" style="position: relative;!important;">
+                                                    <div class="progress-bar {{ budget.spend|percentage:budget.budget }}"
+                                                         role="progressbar"
+                                                         style="width: {{ budget.spend|div:budget.budget }}%;"
+                                                         aria-valuenow="{{ budget.spend|div:budget.budget }}"
+                                                         aria-valuemin="0" aria-valuemax="100"
+                                                         data-toggle="m-tooltip" data-placement="top"
+                                                         title=""
+                                                         data-original-title="{{ budget.spend }}/{{ budget.budget }}">
+                                                        {{ budget.spend|div:budget.budget }}%
+                                                    </div>
+                                                    <div class="black-marker"
+                                                         style="width: {{ blackmarker }}%"
+                                                         aria-valuenow="{{ blackmarker }}"
+                                                         aria-valuemin="0" aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        </p>
+                                    {% endif %}
+                                {% endfor %}
+
                             {% empty %}
                                 <p>
                                 <h6>
@@ -178,7 +234,7 @@
                                     </div>
                                 </div>
                                 </p>
-                                <div class="progress m-progress--lg">
+                                <div class="progress m-progress--lg" style="position: relative;!important;">
                                     <div class="progress-bar {{ b.current_spend|percentage:b.desired_spend }}"
                                          role="progressbar"
                                          style="width: {{ b.current_spend|div:b.desired_spend }}%;"
@@ -188,6 +244,11 @@
                                          title=""
                                          data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
                                         {{ b.current_spend|div:b.desired_spend }}%
+                                    </div>
+                                    <div class="black-marker"
+                                         style="width: {{ blackmarker }}%"
+                                         aria-valuenow="{{ blackmarker }}"
+                                         aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px;">
@@ -249,7 +310,7 @@
                                     </div>
                                 </div>
                                 </p>
-                                <div class="progress m-progress--lg">
+                                <div class="progress m-progress--lg" style="position: relative;!important;">
                                     <div class="progress-bar {{ f.current_spend|percentage:f.desired_spend }}"
                                          role="progressbar"
                                          style="width: {{ f.current_spend|div:f.desired_spend }}%;"
@@ -259,6 +320,11 @@
                                          title=""
                                          data-original-title="{{ f.current_spend }}/{{ f.desired_spend }}">
                                         {{ f.current_spend|div:f.desired_spend }}%
+                                    </div>
+                                    <div class="black-marker"
+                                         style="width: {{ blackmarker }}%"
+                                         aria-valuenow="{{ blackmarker }}"
+                                         aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px;">
@@ -272,8 +338,8 @@
                                 </h6>
                                 </p>
                             {% endfor %}
+                            </div>
                         </div>
                     </div>
-                </div>
 
 {% endblock view_client_block %}

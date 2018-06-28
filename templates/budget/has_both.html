@@ -1,20 +1,20 @@
 <!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% block view_client_block %}
 
 
-{% csrf_token %}
-<div class="tab-content">
-    <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
-        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-             role="tablist">
+    {% csrf_token %}
+    <div class="tab-content">
+        <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
+            <div class="m-accordion m-accordion--default" id="m_accordion_1"
+                 role="tablist">
 
-            <!--begin::Item-->
-            <div class="m-accordion__item">
-                <div class="m-accordion__item-head collapsed" role="tab"
-                     id="m_accordion_1_item_1_head" data-toggle="expand"
-                     href="#m_accordion_1_item_1_body">
+                <!--begin::Item-->
+                <div class="m-accordion__item">
+                    <div class="m-accordion__item-head collapsed" role="tab"
+                         id="m_accordion_1_item_1_head" data-toggle="expand"
+                         href="#m_accordion_1_item_1_body">
                                             <span class="m-accordion__item-icon"><i
                                                     class="fa fa-user-circle"></i></span>
-                    <span class="m-accordion__item-title">
+                        <span class="m-accordion__item-title">
                         {{ client_data.client_name }}
                         <span class="fa fa-pencil-square fa-4x"
                               data-toggle="modal"
@@ -23,70 +23,76 @@
                               data-cname="{{ client_data.client_name }}">
                         </span>
                     </span>
-                    <span class="m-accordion__item-mode" data-toggle="modal" data-target="#m_assign_accounts"></span>
-                </div>
+                        <span class="m-accordion__item-mode" data-toggle="modal"
+                              data-target="#m_assign_accounts"></span>
+                    </div>
 
-                <div class="m-accordion__item-body"
-                     id="m_accordion_1_item_1_body"
-                     role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
-                     data-parent="#m_accordion_1" style="">
-                    <div class="m-accordion__item-content">
-                        <p>
-                        </p>
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <label class="m-checkbox m-checkbox--solid">
-                                    <input type="checkbox" {% if client_data.has_gts %} checked {% endif %} }}
-                                           id="m_gts_client_cbox" data-cid="{{ client_data.id }}">
-                                    <b>Global Target Spend</b>:
-                                    <span></span>
-                                </label>
-                                <span id="gts_{{ client_data.id }}">{{ client_data.target_spend }}</span>
-                                <span class="fa fa-pencil-square"
+                    <div class="m-accordion__item-body"
+                         id="m_accordion_1_item_1_body"
+                         role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
+                         data-parent="#m_accordion_1" style="">
+                        <div class="m-accordion__item-content">
+                            <p>
+                            </p>
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <label class="m-checkbox m-checkbox--solid">
+                                        <input type="checkbox" {% if client_data.has_gts %} checked {% endif %} }}
+                                               id="m_gts_client_cbox" data-cid="{{ client_data.id }}">
+                                        <b>Global Target Spend</b>:
+                                        <span></span>
+                                    </label>
+                                    <span id="gts_{{ client_data.id }}">{{ client_data.target_spend }}</span>
+                                    <span class="fa fa-pencil-square"
                                           data-clientid="{{ client_data.id }}"
                                           data-target_spend="{{ client_data.target_spend }}"
                                           data-toggle="modal"
                                           data-target="#m_target_spend">
                                 </span>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="m-checkbox m-checkbox--solid">
+                                        <input type="checkbox" {% if client_data.has_budget %} checked {% endif %}
+                                               id="m_client_budget_cbox" data-cid="{{ client_data.id }}">
+                                        <b>Budget</b>:
+                                        <span></span>
+                                    </label>
+                                    <span id="m_budget_value">{{ client_data.budget }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
+                                    of {{ no_of_days }}
+                                    days
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
+                                </div>
                             </div>
-                            <div class="col-md-2">
-                                <label class="m-checkbox m-checkbox--solid">
-                                    <input type="checkbox" {% if client_data.has_budget %} checked {% endif %}
-                                           id="m_client_budget_cbox" data-cid="{{ client_data.id }}">
-                                    <b>Budget</b>:
-                                    <span></span>
-                                </label>
-                                <span id="m_budget_value">{{ client_data.budget }}</span>
-                            </div>
-                            <div class="col-md-2">
-                                <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
-                            </div>
-                            <div class="col-md-2">
-                                <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
-                                of {{ no_of_days }}
-                                days
-                            </div>
-                            <div class="col-md-3">
-                                <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
-                            </div>
-                        </div>
-                        </p>
+                            </p>
 
-                        <div class="progress m-progress--lg">
-                            <div class="progress-bar {{ client_data.current_spend|percentage:client_data.target_spend }}"
-                                 role="progressbar"
-                                 style="width: {{ client_data.current_spend|div:client_data.target_spend }}%"
-                                 aria-valuenow="{{ client_data.current_spend|div:client_data.target_spend }}"
-                                 aria-valuemin="0" aria-valuemax="100"
-                                 data-toggle="m-tooltip" data-placement="top"
-                                 title=""
-                                 data-original-title="{{ client_data.current_spend }}/{{ client_data.target_spend }}">
-                                {{ client_data.current_spend|div:client_data.target_spend }}%
+                            <div class="progress m-progress--lg" style="position: relative;!important;">
+                                <div class="progress-bar {{ client_data.current_spend|percentage:client_data.target_spend }}"
+                                     role="progressbar"
+                                     style="width: {{ client_data.current_spend|div:client_data.target_spend }}%"
+                                     aria-valuenow="{{ client_data.current_spend|div:client_data.target_spend }}"
+                                     aria-valuemin="0" aria-valuemax="100"
+                                     data-toggle="m-tooltip" data-placement="top"
+                                     title=""
+                                     data-original-title="{{ client_data.current_spend }}/{{ client_data.target_spend }}">
+                                    {{ client_data.current_spend|div:client_data.target_spend }}%
+                                </div>
+                                <div class="black-marker"
+                                     style="width: {{ blackmarker }}%"
+                                     aria-valuenow="{{ blackmarker }}"
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
                             </div>
-                        </div>
-                        <div class="m-separator m-separator--metal"></div>
-                        <p>
-                        <h3>AdWords Accounts</h3>
+                            <div class="m-separator m-separator--metal"></div>
+                            <p>
+                            <h3>AdWords Accounts</h3>
                             {% for a in client_data.adwords.all %}
                                 <div class="m-separator"></div>
                                 <span class="m-list-timeline__text">
@@ -140,9 +146,64 @@
                                          data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
                                         {{ a.current_spend|div:a.desired_spend }}%
                                     </div>
+                                    <div class="black-marker"
+                                         style="width: {{ blackmarker }}%"
+                                         aria-valuenow="{{ blackmarker }}"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
                                 </div>
 
                                 </p>
+                                <div class="m-separator"></div>
+                                <small>Spend by network <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <a href="#" data-toggle="modal" data-target="#m_add_kpi"
+                                       data-acc_id="{{ a.dependent_account_id }}"
+                                       data-acc_name="{{ a.dependent_account_name }}"> Add KPI</a></small>
+
+                                {% for budget in budgets %}
+                                    {% if budget.adwords == a %}
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                {{ budget.network_type }}
+
+                                                <i class="fa fa-minus-circle" data-toggle="modal"
+                                                   data-target="#m_delete_kpi" data-budgetid="{{ budget.id }}"
+                                                   data-network="{{ budget.network_type }}"></i>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                                Current spend: {{ budget.spend }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                                Target Spend: {{ budget.budget }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="progress m-progress--lg" style="position: relative;!important;">
+                                                    <div class="progress-bar {{ budget.spend|percentage:budget.budget }}"
+                                                         role="progressbar"
+                                                         style="width: {{ budget.spend|div:budget.budget }}%;"
+                                                         aria-valuenow="{{ budget.spend|div:budget.budget }}"
+                                                         aria-valuemin="0" aria-valuemax="100"
+                                                         data-toggle="m-tooltip" data-placement="top"
+                                                         title=""
+                                                         data-original-title="{{ budget.spend }}/{{ budget.budget }}">
+                                                        {{ budget.spend|div:budget.budget }}%
+                                                    </div>
+                                                    <div class="black-marker"
+                                                         style="width: {{ blackmarker }}%"
+                                                         aria-valuenow="{{ blackmarker }}"
+                                                         aria-valuemin="0" aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        </p>
+                                    {% endif %}
+                                {% endfor %}
                             {% empty %}
                                 <p>
                                 <h6>
@@ -199,7 +260,7 @@
                                     </div>
                                 </div>
                                 </p>
-                                <div class="progress m-progress--lg">
+                                <div class="progress m-progress--lg" style="position: relative;!important;">
                                     <div class="progress-bar {{ b.current_spend|percentage:b.desired_spend }}"
                                          role="progressbar"
                                          style="width: {{ b.current_spend|div:b.desired_spend }}%;"
@@ -209,6 +270,11 @@
                                          title=""
                                          data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
                                         {{ b.current_spend|div:b.desired_spend }}%
+                                    </div>
+                                    <div class="black-marker"
+                                         style="width: {{ blackmarker }}%"
+                                         aria-valuenow="{{ blackmarker }}"
+                                         aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px;">
@@ -270,7 +336,7 @@
                                     </div>
                                 </div>
                                 </p>
-                                <div class="progress m-progress--lg">
+                                <div class="progress m-progress--lg" style="position: relative;!important;">
                                     <div class="progress-bar {{ f.current_spend|percentage:f.desired_spend }}"
                                          role="progressbar"
                                          style="width: {{ f.current_spend|div:f.desired_spend }}%;"
@@ -280,6 +346,11 @@
                                          title=""
                                          data-original-title="{{ f.current_spend }}/{{ f.desired_spend }}">
                                         {{ f.current_spend|div:f.desired_spend }}%
+                                    </div>
+                                    <div class="black-marker"
+                                         style="width: {{ blackmarker }}%"
+                                         aria-valuenow="{{ blackmarker }}"
+                                         aria-valuemin="0" aria-valuemax="100">
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px;">

@@ -162,6 +162,7 @@ CRONJOBS = [
     ('30 9 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
     ('30 9 * * *', 'bing_alerts.main', '> ' + BASE_DIR + '/logs/bing_alerts.log'),
     ('30 9 * * *', 'facebook_alerts.main', '> ' + BASE_DIR + '/logs/facebook_alerts.log'),
+    ('00 12 * * *', 'cron_budgets.main', '> ' + BASE_DIR + '/logs/budgets.log'),
     ('00 12 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('00 12 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('00 12 * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),

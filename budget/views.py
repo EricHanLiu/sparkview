@@ -7,7 +7,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping
+from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget
 import calendar
 import json
 from datetime import datetime
@@ -133,7 +133,7 @@ def add_client(request):
         new_bing = []
         new_fb = []
         data = request.POST
-        print(data)
+
         name = request.POST.get('client_name')
         budget = 0
         # suggested budget / global budget
@@ -167,13 +167,32 @@ def add_client(request):
 
         if adwords_accounts:
             for a in new_aw:
-                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                spend = request.POST.get('aw_budget_' + a)
 
-                if spend:
-                    aw_acc.desired_spend = float(spend)
-                    budget += float(spend)
-                    aw_acc.save()
+                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
+                spend = request.POST.getlist('aw_budget_' + a)
+                networks = request.POST.getlist('network_type_' + a)
+
+                for a, b in zip(spend, networks):
+                    new_budget = Budget.objects.create(
+                        adwords=aw_acc,
+                        budget=float(a),
+                        network_type=b
+                    )
+                    if b == 'All':
+                        aw_acc.desired_spend = float(a)
+                        new_budget.spend = aw_acc.current_spend
+                        budget += float(a)
+                        aw_acc.save()
+                        new_budget.save()
+                    else:
+                        aw_acc.desired_spend += float(a)
+                        budget += float(a)
+
+                # if spend:
+                #     for s in spend:
+                #         aw_acc.desired_spend = float(s)
+                #         budget += float(s)
+                #     aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
@@ -243,6 +262,7 @@ def client_details(request, client_id):
 
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
+        budgets = Budget.objects.all()
         context = {
             'client_data': client,
             'today': today.day,
@@ -251,7 +271,8 @@ def client_details(request, client_id):
             'blackmarker': round(black_marker, 2),
             'adwords': DependentAccount.objects.filter(blacklisted=False),
             'bing': BingAccounts.objects.filter(blacklisted=False),
-            'facebook': FacebookAccount.objects.filter(blacklisted=False)
+            'facebook': FacebookAccount.objects.filter(blacklisted=False),
+            'budgets': budgets
         }
 
         return render(request, 'budget/view_client.html', context)
@@ -836,4 +857,29 @@ def edit_client_name(request):
     response = {
         'client_name': new_name
     }
+    return JsonResponse(response)
+
+@login_required
+def add_kpi(request):
+
+    data = request.POST
+    account = DependentAccount.objects.get(dependent_account_id=data['acc_id'])
+    Budget.objects.create(adwords=account, network_type=data['network_type'], budget=data['network_budget'])
+
+    response = {
+        'account': account.dependent_account_name
+    }
+    return JsonResponse(response)
+
+@login_required
+def delete_kpi(request):
+
+    budget_id = request.POST.get('bid')
+    budget = Budget.objects.get(id=budget_id)
+
+    response = {
+        'kpi': budget.network_type
+    }
+    budget.delete()
+
     return JsonResponse(response)

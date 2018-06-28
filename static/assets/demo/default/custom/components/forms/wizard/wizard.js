@@ -53,10 +53,18 @@ var WizardDemo = function () {
         wizard.on('change', function (wizard) {
             mApp.scrollTop();
             let data = formEl.serializeArray();
+            console.log(data);
+            var obj = {};
+
+            for(var i = 0; i < data.length; i++){
+                obj[data[i].name] = data[i].value;
+            }
+
+            console.log(obj);
 
             if (wizard.isLastStep()) {
+
                 let dataObj = {};
-                console.log(data);
                 let aw = $('#aw_name_fstep');
                 let bing = $('#bing_name_fstep');
                 let fb = $('#fb_name_fstep');
@@ -252,10 +260,10 @@ var WizardCampaigns = function () {
                 });
 
                 $cmp_elem.html($("select[name='campaigns'] option:selected").map(function () {
-                        let value = $(this).val();
-                        value = value.split('|');
-                        return '<span class="m-badge m-badge--success m-badge--wide">' + value[1] + '</span>';
-                    }).get().join(' '));
+                    let value = $(this).val();
+                    value = value.split('|');
+                    return '<span class="m-badge m-badge--success m-badge--wide">' + value[1] + '</span>';
+                }).get().join(' '));
 
                 $('#campaigns_budget_fstep').html('<p>' + dataObj['grouping-budget'] + '</p>');
             }

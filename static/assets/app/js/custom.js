@@ -108,7 +108,6 @@ $(document).ready(function () {
         //get data-userid and data-username attribute of the clicked element
         let user_id = $(e.relatedTarget).data('userid');
         let username = $(e.relatedTarget).data('username');
-        console.log(username);
         $(".modal-body #d_uid").val(user_id);
         $(".modal-header #m_title_username").html(username);
     });
@@ -129,6 +128,20 @@ $(document).ready(function () {
         let cid = $(e.relatedTarget).data('clientid');
         $(e.currentTarget).find('input[name="client_name"]').val(c_name);
         $(".modal-body #cid").val(cid);
+    });
+
+    $("#m_add_kpi").on('show.bs.modal', function(e){
+       let acc_id = $(e.relatedTarget).data('acc_id');
+       let acc_name = $(e.relatedTarget).data('acc_name');
+       $(".modal-body #acc_id").val(acc_id);
+       $(".modal-body #akpi_acc_name").html(acc_name);
+    });
+
+    $("#m_delete_kpi").on('show.bs.modal', function(e){
+       let budgetid = $(e.relatedTarget).data('budgetid');
+       let network = $(e.relatedTarget).data('network');
+       $(".modal-body #bid").val(budgetid);
+       $(".modal-body #dkpi_network_type").html(network);
     });
 
     // Global target spend edit
@@ -154,7 +167,6 @@ $(document).ready(function () {
             data: d,
 
             success: function (data) {
-                console.log(data);
                 if (data['gtson'] === '1') {
                     toastr.success("Activated Global Target Spend on  " + data['client_name'] + ".");
                 }
@@ -222,8 +234,8 @@ $(document).ready(function () {
     });
 
     $("#select_adwords").select2({
-                placeholder: "Search accounts..."
-            });
+        placeholder: "Search accounts..."
+    });
 
     $("#select_labels").select2({
         placeholder: "Search labels..."
