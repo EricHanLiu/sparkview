@@ -2,7 +2,7 @@ import json
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign
-from budget.models import FlightBudget
+from budget.models import FlightBudget, Budget
 from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
 
@@ -90,14 +90,13 @@ def adwords_cron_anomalies(self, customer_id):
         current_period_daterange,
         previous_period_daterange,
     )
-    acc_metadata = {}
-    acc_metadata["daterange1_min"] = helper.stringify_date(current_period_daterange["minDate"])
-    acc_metadata["daterange1_max"] = helper.stringify_date(current_period_daterange["maxDate"])
-    acc_metadata["daterange2_min"] = helper.stringify_date(previous_period_daterange["minDate"])
-    acc_metadata["daterange2_max"] = helper.stringify_date(previous_period_daterange["maxDate"])
-    acc_metadata["vals"] = acc_anomalies
-
-
+    acc_metadata = {
+        "daterange1_min": helper.stringify_date(current_period_daterange["minDate"]),
+        "daterange1_max": helper.stringify_date(current_period_daterange["maxDate"]),
+        "daterange2_min": helper.stringify_date(previous_period_daterange["minDate"]),
+        "daterange2_max": helper.stringify_date(previous_period_daterange["maxDate"]),
+        "vals": acc_anomalies
+    }
 
     Performance.objects.filter(account=account, performance_type='ACCOUNT').delete()
 
@@ -274,3 +273,36 @@ def adwords_cron_flight_dates(self, customer_id):
         spend = helper.mcv(data[0]['cost'])
         b.current_spend = spend
         b.save()
+
+@celery_app.task(bind=True)
+def adwords_cron_budgets(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    budgets = Budget.objects.filter(adwords=account)
+    this_month = helper.get_this_month_daterange()
+
+    data_this_month = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=['AdNetworkType1'],
+        **this_month
+    )
+
+    for b in budgets:
+
+        if b.adwords == account:
+            b.spend = 0
+            for d in data_this_month:
+                print(d)
+                if b.network_type == 'All':
+                    b.spend += helper.mcv(d['cost'])
+
+                if d['network'] == b.network_type:
+                    b.spend = helper.mcv(d['cost'])
+
+                b.save()
+        else:
+            print('No budgets found on this account')

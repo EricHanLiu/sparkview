@@ -13,14 +13,14 @@
                     </div>
                     <div class="m-portlet__body">
                         <div class="row">
-                            <button type="button" class="btn btn-outline-info m-btn m-btn--outline-2x add-client"
+                            <button type="button" class="btn btn-info m-btn add-client"
                                     data-toggle="modal"
                                     data-target="#m_modal_clients"> Add a new client
                             </button>
                             <form id="delete_clients" method="POST" action="">
                                 {% csrf_token %}
                                 <button type="submit"
-                                        class="btn btn-outline-danger m-btn m-btn--outline-2x delete-client"
+                                        class="btn btn-danger m-btn delete-client"
                                         id="clients_delete_btn"> Delete client(s)
                                 </button>
                         </div>
@@ -657,7 +657,7 @@
                                                     <div class="col-lg-2"></div>
                                                     <div class="col-lg-4 m--align-left">
                                                         <a href="#"
-                                                           class="btn btn-outline-metal m-btn m-btn--outline-2x"
+                                                           class="btn btn-metal m-btn"
                                                            data-wizard-action="prev">
                                                             <span>
                                                                 <i class="la la-arrow-left"></i>&nbsp;&nbsp;
@@ -667,7 +667,7 @@
                                                     </div>
                                                     <div class="col-lg-4 m--align-right">
                                                         <a href="#"
-                                                           class="btn btn-outline-primary m-btn m-btn--outline-2x"
+                                                           class="btn btn-primary m-btn"
                                                            data-wizard-action="submit">
                                                             <span>
                                                                 <i class="la la-check"></i>&nbsp;&nbsp;
@@ -675,7 +675,7 @@
                                                             </span>
                                                         </a>
                                                         <a href="#"
-                                                           class="btn btn-outline-accent m-btn m-btn--outline-2x"
+                                                           class="btn btn-accent m-btn"
                                                            data-wizard-action="next">
                                                             <span>
                                                                 <span>Save &amp; Continue</span>&nbsp;&nbsp;

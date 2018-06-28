@@ -15,13 +15,14 @@
                         <span class="m-accordion__item-title">
                             {{ client_data.client_name }}
                             <span class="fa fa-pencil-square fa-4x"
-                              data-toggle="modal"
-                              data-target="#m_edit_cname"
-                              data-clientid="{{ client_data.id }}"
-                              data-cname="{{ client_data.client_name }}">
+                                  data-toggle="modal"
+                                  data-target="#m_edit_cname"
+                                  data-clientid="{{ client_data.id }}"
+                                  data-cname="{{ client_data.client_name }}">
                         </span>
                         </span>
-                        <span class="m-accordion__item-mode" data-toggle="modal" data-target="#m_assign_accounts"></span>
+                        <span class="m-accordion__item-mode" data-toggle="modal"
+                              data-target="#m_assign_accounts"></span>
                     </div>
 
                     <div class="m-accordion__item-body"
@@ -70,7 +71,7 @@
                             </div>
                             </p>
 
-                            <div class="progress m-progress--lg">
+                            <div class="progress m-progress--lg" style="position: relative;!important;">
                                 <div class="progress-bar {{ client_data.current_spend|percentage:client_data.target_spend }}"
                                      role="progressbar"
                                      style="width: {{ client_data.current_spend|div:client_data.target_spend }}%"
@@ -81,6 +82,11 @@
                                      data-original-title="{{ client_data.current_spend }}/{{ client_data.target_spend }}">
                                     {{ client_data.current_spend|div:client_data.target_spend }}%
                                 </div>
+                                <div class="black-marker"
+                                     style="width: {{ blackmarker }}%"
+                                     aria-valuenow="{{ blackmarker }}"
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
                             </div>
                             <div class="m-separator m-separator--metal"></div>
                             <p>
@@ -89,7 +95,7 @@
                                 <div class="m-separator"></div>
                                 <span class="m-list-timeline__text">
                                             <h6>
-                                                <a href="{% url 'budget:flight_budget_read' %}?account_id={{ a.dependent_account_id }}&channel={{ a.channel }}%}">{{ a.dependent_account_name }}</a> -
+                                                <a href="{% url 'budget:flight_budget_read' %}?account_id={{ a.dependent_account_id }}&channel={{ a.channel }}">{{ a.dependent_account_name }}</a> -
                                                 <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                             </h6>
 

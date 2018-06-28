@@ -143,6 +143,70 @@
     </div>
     <!--END:Modal budget edit-->
 
+    <!--START:Modal add KPI-->
+    <div class="modal fade" id="m_add_kpi" tabindex="-1" role="dialog" aria-labelledby="add_budget">
+        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="new_kpi">
+                        <input type="hidden" id="acc_id">
+                        <p>Add new KPI for <span id="akpi_acc_name"></span></p>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input class="form-control" name="network_budget" id="kpi_budget"
+                                           placeholder="Budget.." type="number">
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-control m-input" name="network_type">
+                                        <option selected disabled>Network type</option>
+                                        <option>Search Network</option>
+                                        <option>Display Network</option>
+                                        <option>Youtube Search</option>
+                                        <option>Youtube Videos</option>
+                                        <option>Not related</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="addKpi()">Submit</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal add KPI-->
+
+    <!--START:Modal delete KPI-->
+    <div class="modal fade" id="m_delete_kpi" tabindex="-1" role="dialog" aria-labelledby="delete_kpi">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Are you sure you want to delete <b><span id="dkpi_network_type"></span></b> KPI?</p>
+                    </div>
+                    <input type="hidden" id="bid">
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="deleteKpi()">Yes</button>
+                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="No">No
+                        </button>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal delete KPI-->
+
     <!--Modal assign accounts-->
     <div class="modal fade" id="m_assign_accounts" tabindex="-1" role="dialog" aria-labelledby="modalDeleteUser">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -157,8 +221,8 @@
                 </div>
                 <div class="modal-body">
                     <form id="assign_accounts">
-                    <input type="hidden" name="cid" value="{{ client_data.id }}">
-                    <p>
+                        <input type="hidden" name="cid" value="{{ client_data.id }}">
+                        <p>
                         <div class="row>">
                             <div class="col-md-12">
                                 <label for="adwords" class="form-control-label">AdWords: </label>
@@ -171,8 +235,8 @@
                                 </select>
                             </div>
                         </div>
-                    </p>
-                    <p>
+                        </p>
+                        <p>
                         <div class="row>">
                             <div class="col-md-12">
                                 <label for="bing" class="form-control-label">Bing: </label>
@@ -185,8 +249,8 @@
                                 </select>
                             </div>
                         </div>
-                    </p>
-                    <p>
+                        </p>
+                        <p>
                         <div class="row>">
                             <div class="col-md-12">
                                 <label for="facebook" class="form-control-label">Facebook: </label>
@@ -199,7 +263,7 @@
                                 </select>
                             </div>
                         </div>
-                    </p>
+                        </p>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -320,7 +384,7 @@
                     name: 'cid', value: cid
                 }
             );
-            console.log(data);
+
             $.ajax({
                 type: "POST",
                 url: "/budget/client/editname",
@@ -334,6 +398,63 @@
                 success: function (data) {
                     modal.modal('hide');
                     toastr.success("Client name changed to " + data['client_name'])
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                }
+            });
+        }
+
+        function addKpi() {
+
+            let modal = $("#m_add_kpi");
+            let data = $("#new_kpi").serializeArray();
+            let account_id = $("#acc_id").val();
+            data.push({
+                    name: 'acc_id', value: account_id
+                }
+            );
+
+            $.ajax({
+                type: "POST",
+                url: "/budget/client/kpi/add",
+                headers: {'X-CSRFToken': csrftoken},
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                },
+                success: function (data) {
+                    modal.modal('hide');
+                    toastr.success("KPI added for " + data['account']);
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                }
+            });
+        }
+
+        function deleteKpi() {
+            let modal = $('#m_delete_kpi');
+            let budget_id = $("#bid").val();
+            let data = {
+                bid: budget_id
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/budget/client/kpi/delete",
+                headers: {'X-CSRFToken': csrftoken},
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2500);
+                },
+                success: function (data) {
+                    modal.modal('hide');
+                    toastr.success("KPI " + data['kpi'] + " deleted.");
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)

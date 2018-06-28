@@ -178,19 +178,27 @@
                 data: data,
 
                 success: function (data) {
-                    console.log(data);
+
                     if(data['error']) {
                         toastr.error(data['error'])
                     }
+
                     if (data['labels']) {
                         toastr.success('Added ' + data['labels'] +' to DB and AdWords.')
                     }
+
+                    for(var i=0; i < data['labels'].length; i++){
+                        let select = $("#select_labels");
+                        var new_option = new Option('label', data['labels'][i], false, false)
+                        select.append(new_option).trigger('change');
+                    };
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
                 },
                 complete: function () {
                     $("#label_name").val("");
+
                 }
             });
         }
@@ -245,7 +253,7 @@
                     $("#select_adwords").val(null).trigger('change');
                     let table = $("#labels").DataTable();
                     let labels = data['responseJSON']['labels'];
-                    labels.forEach(function(labelId) {
+                    labels.forEach( function(labelId) {
                         let cell = table.cell('#lcell-'+labelId);
                         let current_data = cell.data();
                         let new_data = current_data + ' <span class="m-badge m-badge--info m-badge--wide" id="'+labelId+'-label-'+ data['responseJSON']['acc_id'] +'">\n' +
