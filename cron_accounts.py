@@ -16,6 +16,8 @@ def add_accounts(client):
 
         try:
             account = models.DependentAccount.objects.get(dependent_account_id=acc_id)
+            account.dependent_account_name = name
+            account.save()
             print('Matched in DB(' + str(acc_id) + ')')
 
         except:

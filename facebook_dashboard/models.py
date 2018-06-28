@@ -129,7 +129,7 @@ class FacebookCampaign(models.Model):
 
     account = models.ForeignKey(FacebookAccount)
     campaign_id = models.CharField(max_length=255, default='None')
-    campaign_name = models.CharField(max_length=255, default='None')
+    campaign_name = models.CharField(max_length=455, default='None')
     campaign_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
