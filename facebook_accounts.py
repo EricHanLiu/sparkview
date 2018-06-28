@@ -55,7 +55,6 @@ def main():
     for acc in accounts:
         add_accounts(acc['id'])
 
-    add_campaigns()
 
 if __name__ == '__main__':
     main()

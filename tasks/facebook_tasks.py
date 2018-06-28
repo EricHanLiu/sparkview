@@ -308,7 +308,6 @@ def facebook_cron_campaign_stats(self, account_id):
     campaigns = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
 
     for cmp in campaigns:
-        print(cmp)
         campaign_name = cmp['campaign_name']
         campaign_id = cmp['campaign_id']
         campaign_cost = cmp['spend']
