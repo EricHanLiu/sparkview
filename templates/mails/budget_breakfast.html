@@ -191,6 +191,71 @@
 
 </div>
 
+<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">The following Facebook accounts will overspend:</h4>
+    <table style="background: #f2f2f2; text-align: center; width: 100%;">
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Account Name</th>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Budget</th>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Current Total Spend</th>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Projected Spend EOM</th>
+        {% for g in fb_over %}
+            <tr>
+                <td style="border: 1px solid #e2e2e2;">{{ g.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ g.budget }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ g.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ g.projected }}</td>
+
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">The following Facebook accounts will underspend:</h4>
+    <table style="background: #f2f2f2; text-align: center; width: 100%;">
+        <thead>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Account Name</th>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Budget</th>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Current Total Spend</th>
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Projected Spend EOM</th>
+        {% for j in fb_under %}
+            <tr>
+                <td style="border: 1px solid #e2e2e2;">{{ j.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ j.budget }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ j.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ j.projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">Facebook accounts with no budget set:</h4>
+    <table style="background: #f2f2f2; text-align: center; width: 100%;">
+        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Account Name</th>
+        {% for f in fb_nods %}
+            <tr>
+                <td>{{ f.account }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No accounts to display.</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
 <b style="color:#1b2126">That's all for today!</b>
 
 </body>
