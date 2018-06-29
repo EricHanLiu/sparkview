@@ -151,8 +151,7 @@
                                     {% if client.has_gts and client.has_budget %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
                                             <input id="client_budget-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.budget }}" class="table-number">
+                                                   value="{{ client.budget }}" class="table-number" disabled>
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
                                             <input id="client_gts-{{ client.id }}" type="number"
@@ -162,7 +161,6 @@
                                     {% elif client.has_gts %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
                                             <input id="client_budget-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
                                                    value="{{ client.budget }}" class="table-number" disabled>
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
@@ -173,8 +171,7 @@
                                     {% elif client.has_budget %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
                                             <input id="client_budget-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.budget }}" class="table-number">
+                                                   value="{{ client.budget }}" class="table-number" disabled>
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
                                             <input id="client_gts-{{ client.id }}" type="number"
@@ -184,7 +181,6 @@
                                     {% else %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
                                             <input id="client_budget-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
                                                    value="{{ client.budget }}" class="table-number" disabled>
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">

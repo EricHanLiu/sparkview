@@ -16,6 +16,7 @@ from googleads import adwords
 
 from adwords_dashboard.models import DependentAccount
 from bing_dashboard.models import BingAccounts
+from facebook_dashboard.models import FacebookAccount
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,6 +27,9 @@ aw_nods = []
 bing_under = []
 bing_over = []
 bing_nods = []
+fb_under = []
+fb_over = []
+fb_nods = []
 aw_campaigns = []
 
 now = datetime.datetime.today()
@@ -37,7 +41,6 @@ remaining = days - current_day
 
 
 def get_campaigns(client):
-
 
     offset = 0
     PAGE_SIZE = 500
@@ -144,7 +147,7 @@ def budget_breakfast():
                         'account': cm2.dependent_account_name,
                         'estimated': percentage,
                         'budget': cm2.desired_spend,
-                        'current_spend': cm2.current_spend,
+                        'current_spend': round(cm2.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     aw_underspenders.append(details)
@@ -155,7 +158,7 @@ def budget_breakfast():
                         'account': cm2.dependent_account_name,
                         'estimated': percentage,
                         'budget': cm2.desired_spend,
-                        'current_spend': cm2.current_spend,
+                        'current_spend': round(cm2.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     aw_overspenders.append(details)
@@ -182,7 +185,7 @@ def budget_breakfast():
                         'account': cm3.dependent_account_name,
                         'estimated': percentage,
                         'budget': cm3.desired_spend,
-                        'current_spend': cm3.current_spend,
+                        'current_spend': round(cm3.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     aw_underspenders.append(details)
@@ -193,7 +196,7 @@ def budget_breakfast():
                         'account': cm3.dependent_account_name,
                         'estimated': percentage,
                         'budget': cm3.desired_spend,
-                        'current_spend': cm3.current_spend,
+                        'current_spend': round(cm3.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     aw_overspenders.append(details)
@@ -264,7 +267,7 @@ def budget_breakfast():
                         'account': bcm2.account_name,
                         'estimated': percentage,
                         'budget': bcm2.desired_spend,
-                        'current_spend': bcm2.current_spend,
+                        'current_spend': round(bcm2.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     bing_under.append(details)
@@ -275,7 +278,7 @@ def budget_breakfast():
                         'account': bcm2.account_name,
                         'estimated': percentage,
                         'budget': bcm2.desired_spend,
-                        'current_spend': bcm2.current_spend,
+                        'current_spend': round(bcm2.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     bing_over.append(details)
@@ -303,7 +306,7 @@ def budget_breakfast():
                         'account': bcm3.account_name,
                         'estimated': percentage,
                         'budget': bcm3.desired_spend,
-                        'current_spend': bcm3.current_spend,
+                        'current_spend': round(bcm3.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     bing_under.append(details)
@@ -314,10 +317,131 @@ def budget_breakfast():
                         'account': bcm3.account_name,
                         'estimated': percentage,
                         'budget': bcm3.desired_spend,
-                        'current_spend': bcm3.current_spend,
+                        'current_spend': round(bcm3.current_spend, 2),
                         'projected': round(projected, 2)
                     }
                     bing_over.append(details)
+
+        fb_accounts = FacebookAccount.objects.filter(assigned_to=user)
+        fb_cm2 = FacebookAccount.objects.filter(assigned_cm2=user)
+        fb_cm3 = FacebookAccount.objects.filter(assigned_cm3=user)
+
+        for f in fb_accounts:
+            spend = f.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / f.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if f.desired_spend == 0:
+
+                details = {
+                    'account': f.account_name
+                }
+                fb_nods.append(details)
+
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': f.account_name,
+                        'estimated': percentage,
+                        'budget': f.desired_spend,
+                        'current_spend': round(f.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    bing_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': b.account_name,
+                        'estimated': percentage,
+                        'budget': b.desired_spend,
+                        'current_spend': round(b.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    bing_over.append(details)
+
+        for fcm2 in fb_cm2:
+            spend = fcm2.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / fcm2.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if fcm2.desired_spend == 0:
+
+                details = {
+                    'account': fcm2.account_name
+                }
+                bing_nods.append(details)
+
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': fcm2.account_name,
+                        'estimated': percentage,
+                        'budget': fcm2.desired_spend,
+                        'current_spend': round(fcm2.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    fb_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': fcm2.account_name,
+                        'estimated': percentage,
+                        'budget': fcm2.desired_spend,
+                        'current_spend': round(fcm2.current_spend,2),
+                        'projected': round(projected, 2)
+                    }
+                    fb_over.append(details)
+
+        for fcm3 in fb_cm3:
+            spend = fcm3.current_spend
+            daily_spend = spend / current_day
+            projected = (daily_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / fcm3.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if fcm3.desired_spend == 0:
+
+                details = {
+                    'account': fcm3.account_name
+                }
+                fb_nods.append(details)
+
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': fcm3.account_name,
+                        'estimated': percentage,
+                        'budget': fcm3.desired_spend,
+                        'current_spend': round(fcm3.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    fb_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': fcm3.account_name,
+                        'estimated': percentage,
+                        'budget': fcm3.desired_spend,
+                        'current_spend': round(fcm3.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    fb_over.append(details)
 
         mail_details = {
             'aw_under': aw_underspenders,
@@ -326,6 +450,9 @@ def budget_breakfast():
             'bing_under': bing_under,
             'bing_over': bing_over,
             'bing_nods': bing_nods,
+            'fb_under': fb_under,
+            'fb_over': fb_over,
+            'fb_nods': fb_nods,
             'user': user.get_full_name()
         }
 

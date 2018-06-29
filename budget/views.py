@@ -705,13 +705,13 @@ def update_budget(request):
         client_id = data['id']
         client = Client.objects.get(id=client_id)
 
-        if 'budget' in data and int(data['budget']) > 0:
+        if 'budget' in data and float(data['budget']) > 0:
             budget = data['budget']
             client.budget = budget
             width = (client.current_spend / int(budget)) * 100
             gts_budget = 'budget'
 
-        if 'target_spend' in data and int(data['target_spend']) > 0:
+        if 'target_spend' in data and float(data['target_spend']) > 0:
             target_spend = data['target_spend']
             client.target_spend = target_spend
             width = (client.current_spend / int(target_spend)) * 100
