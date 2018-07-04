@@ -40,7 +40,6 @@
                                 </div>
                             </div>
                             <div class="m-portlet__body">
-
                                 {# If client has global target spend and budget set display this view #}
                                 {% if client_data.has_gts and client_data.has_budget %}
                                     {% include 'budget/has_both.html' %}
@@ -278,6 +277,196 @@
 
     <script type="text/javascript">
 
+        function gen_xy(data) {
+
+            lst = [];
+
+            for (key in data) {
+                if (data.hasOwnProperty(key)) {
+                    lst.push({
+                        'x': key,
+                        'y': data[key]
+                    })
+                }
+            }
+            lst.sort(function(a, b){
+                if (a.y == b.y) return a.x - b.x;
+                return a.y - b.y;
+            });
+
+            return lst
+        }
+
+        function generateChart(data) {
+            console.log(data)
+            var new_awb = gen_xy(data.aw_budget);
+            var new_aws = gen_xy(data.aw_spend);
+            var new_awp = gen_xy(data.aw_projected);
+
+            var new_bingb = gen_xy(data.bing_budget);
+            var new_bings = gen_xy(data.bing_spend);
+            var new_bingp = gen_xy(data.bing_projected);
+
+            var new_fbb = gen_xy(data.fb_budget);
+            var new_fbs = gen_xy(data.fb_spend);
+            var new_fbp = gen_xy(data.fb_projected);
+
+
+            var ctx = document.getElementById('spendChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: "AdWords Spend",
+                        backgroundColor: 'rgba(236, 76, 51)',
+                        borderColor: 'rgb(236, 76, 51)',
+                        data: new_aws,
+                        fill: false,
+                        borderWidth: 0.90,
+                    },
+                        {
+                            label: "AdWords Target Spend",
+                            backgroundColor: 'rgb(255, 72, 51)',
+                            borderColor: 'rgb(255, 72, 51)',
+                            data: new_awp,
+                            borderDash: [5, 5],
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                        {
+                            label: "AdWords Projected Spend",
+                            backgroundColor: 'rgb(255, 128, 114)',
+                            borderColor: 'rgb(0, 0, 0)',
+                            data: new_awb,
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                        {
+                            label: "Bing Spend",
+                            backgroundColor: 'rgb(12, 181, 74)',
+                            borderColor: 'rgb(12, 181, 74)',
+                            data: new_bings,
+                            borderWidth: 0.90,
+                            fill: false,
+                        },
+                        {
+                            label: "Bing Target Spend",
+                            backgroundColor: 'rgb(0, 215, 116)',
+                            borderColor: 'rgb(0, 215, 116)',
+                            data: new_bingb,
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                        {
+                            label: "Bing Projected Spend",
+                            backgroundColor: 'rgb(0, 227, 149)',
+                            borderColor: 'rgb(0, 0, 0)',
+                            data: new_bingp,
+                            borderDash: [5,5],
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                        {
+                            label: "Facebook Spend",
+                            backgroundColor: 'rgb(44, 139, 203)',
+                            borderColor: 'rgb(44, 139, 203)',
+                            data: new_fbs,
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                        {
+                            label: "Facebook Target Spend",
+                            backgroundColor: 'rgb(0, 160, 219)',
+                            borderColor: 'rgb(0, 160, 219)',
+                            data: new_fbb,
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                        {
+                            label: "Facebook Projected Spend",
+                            backgroundColor: 'rgb(93, 185, 229)',
+                            borderColor: 'rgb(0, 0, 0)',
+                            data: new_fbp,
+                            borderDash: [5,5],
+                            fill: false,
+                            borderWidth: 0.90,
+                        },
+                    ]
+                },
+
+                // Configuration options go here
+                options: {
+                    responsive: true,
+                    display: true,
+                    title: {
+                        display: true,
+                        text: '',
+                        fontSize: 20,
+                        padding: 25,
+                        fontStyle: 'normal'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 1,
+
+                        }
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    elements: {
+                        point: {
+                            pointStyle: 'circle',
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            radius: 2.2,
+                            hitRadius: 20,
+                            hoverBorderWidth: 1,
+                        },
+                        line: {
+                            tension: 0.4,
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'MMM D',
+                                displayFormats: {
+                                    day: 'MMM D'
+                                }
+
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        }],
+                        yAxes: [{
+                            display: true,
+                            type: 'linear',
+                            gridLines: {
+                                display: true,
+                            },
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                },
+
+            });
+        }
+
         let csrftoken = '{{ csrf_token }}';
 
         function editBudget() {
@@ -461,6 +650,12 @@
                 }
             });
         }
+
+
+        document.addEventListener("DOMContentLoaded", function (event) {
+            let data = {{ chdata|safe }};
+            generateChart(data);
+        });
 
     </script>
 {% endblock content %}

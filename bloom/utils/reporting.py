@@ -839,12 +839,13 @@ class FacebookReporting(Reporting):
                     until=until.strftime(self.date_format))
 
     @staticmethod
-    def set_params(time_range='', date_preset='', level='', filtering=[]):
+    def set_params(time_range='', date_preset='', level='', filtering=[], time_increment=''):
         return {
             'time_range': time_range,
             'date_preset': date_preset,
             'level': level,
             'filtering': filtering,
+            'time_increment': time_increment
         }
 
 
@@ -871,6 +872,9 @@ class FacebookReporting(Reporting):
 
         if get_params and 'level' in get_params:
             params['level'] = get_params['level']
+
+        if get_params and 'time_increment' in get_params:
+            params['time_increment'] = get_params['time_increment']
 
         query = {
             'fields': fields,

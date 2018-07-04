@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
@@ -24,6 +25,19 @@ class Client(models.Model):
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
+
+class ClientCData(models.Model):
+
+    client = models.ForeignKey(Client, blank=True, null=True)
+    aw_budget = JSONField(default=dict)
+    aw_projected = JSONField(default=dict)
+    aw_spend = JSONField(default=dict)
+    bing_budget = JSONField(default=dict)
+    bing_projected = JSONField(default=dict)
+    bing_spend = JSONField(default=dict)
+    fb_budget = JSONField(default=dict)
+    fb_projected = JSONField(default=dict)
+    fb_spend = JSONField(default=dict)
 
 
 class ClientHist(models.Model):

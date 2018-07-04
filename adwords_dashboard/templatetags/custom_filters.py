@@ -5,6 +5,13 @@ import calendar
 
 register = template.Library()
 
+
+@register.filter("get_dict_value")
+def get_dict_value(data, key):
+
+    return data[key]
+
+
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
     today = datetime.today() - relativedelta(days=1)
