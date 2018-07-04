@@ -95,8 +95,6 @@ def main():
             client.yesterday_spend += b.yesterday_spend
             client.bing_budget += b.desired_spend
 
-
-
             for k, v in sorted(b.segmented_spend.items()):
                 b_temp = b_temp + float(v['spend'])
                 bing_spend[v['gregoriandate']] = round(b_temp, 2)
@@ -113,7 +111,6 @@ def main():
             client.fb_spend += f.current_spend
             client.yesterday_spend += f.yesterday_spend
             client.fb_budget += f.desired_spend
-
 
             for k, v in sorted(f.segmented_spend.items()):
                 fb_temp = fb_temp + float(v)
