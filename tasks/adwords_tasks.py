@@ -156,8 +156,6 @@ def adwords_cron_ovu(self, customer_id):
         dateRangeType="LAST_7_DAYS",
         extra_fields=["Date"]
     )
-    print(last_7)
-
 
     data_this_month = helper.get_account_performance(
         customer_id=account.dependent_account_id,

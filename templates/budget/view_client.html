@@ -298,7 +298,7 @@
         }
 
         function generateChart(data) {
-            console.log(data)
+            
             var new_awb = gen_xy(data.aw_budget);
             var new_aws = gen_xy(data.aw_spend);
             var new_awp = gen_xy(data.aw_projected);
@@ -330,7 +330,6 @@
                             backgroundColor: 'rgb(255, 72, 51)',
                             borderColor: 'rgb(255, 72, 51)',
                             data: new_awp,
-                            borderDash: [5, 5],
                             fill: false,
                             borderWidth: 0.90,
                         },
@@ -339,6 +338,7 @@
                             backgroundColor: 'rgb(255, 128, 114)',
                             borderColor: 'rgb(0, 0, 0)',
                             data: new_awb,
+                            borderDash: [5, 5],
                             fill: false,
                             borderWidth: 0.90,
                         },
