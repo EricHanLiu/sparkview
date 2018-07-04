@@ -1,5 +1,10 @@
 <!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% block view_client_block %}
     {% csrf_token %}
+    <script type="text/javascript">
+        function testCeva(){
+            console.log('COOL BRO');
+        }
+    </script>
     <div class="tab-content">
         <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
             <div class="m-accordion m-accordion--default" id="m_accordion_1"
@@ -65,6 +70,11 @@
                                 </div>
                             </div>
                             </p>
+                            <div class="m-separator m-separator--metal"></div>
+                            <div id="myChart">
+                                <canvas id="spendChart"></canvas>
+                            </div>
+
                             <div class="m-separator m-separator--metal"></div>
                             <p>
                             <h3>AdWords Accounts</h3>

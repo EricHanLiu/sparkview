@@ -10,6 +10,7 @@ class FacebookAccount(models.Model):
     account_name = models.CharField(max_length=255, default="None")
     desired_spend = models.IntegerField(default=0)
     current_spend = models.FloatField(default=0)
+    segmented_spend = JSONField(default=dict)
     channel = models.CharField(max_length=255, default='None')
     hist_spend = models.FloatField(default=0)
     hist_budget = models.FloatField(default=0)

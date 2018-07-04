@@ -4,7 +4,6 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign
 from budget.models import FlightBudget, Budget
 from googleads.adwords import AdWordsClient
-from googleads.errors import GoogleAdsError
 from bloom.settings import ADWORDS_YAML
 
 
@@ -157,15 +156,20 @@ def adwords_cron_ovu(self, customer_id):
         dateRangeType="LAST_7_DAYS",
         extra_fields=["Date"]
     )
+    print(last_7)
 
-    try:
-        data_this_month = helper.get_account_performance(
-            customer_id=account.dependent_account_id,
-            dateRangeType="CUSTOM_DATE",
-            **this_month
-        )
-    except GoogleAdsError:
-        print('Account not in DB')
+
+    data_this_month = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=["Date"],
+        **this_month
+    )
+
+    segmented_data = {
+        i['day']: i for i in data_this_month
+    }
+
 
     last_7_ordered = helper.sort_by_date(last_7)
     last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
@@ -190,6 +194,7 @@ def adwords_cron_ovu(self, customer_id):
     account.estimated_spend = estimated_spend
     account.yesterday_spend = yesterday_spend
     account.current_spend = current_spend
+    account.segmented_spend = segmented_data
     account.save()
 
 

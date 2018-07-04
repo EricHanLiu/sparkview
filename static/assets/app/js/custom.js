@@ -1,3 +1,5 @@
+
+
 $(document).ready(function () {
     let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
@@ -130,18 +132,18 @@ $(document).ready(function () {
         $(".modal-body #cid").val(cid);
     });
 
-    $("#m_add_kpi").on('show.bs.modal', function(e){
-       let acc_id = $(e.relatedTarget).data('acc_id');
-       let acc_name = $(e.relatedTarget).data('acc_name');
-       $(".modal-body #acc_id").val(acc_id);
-       $(".modal-body #akpi_acc_name").html(acc_name);
+    $("#m_add_kpi").on('show.bs.modal', function (e) {
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        $(".modal-body #acc_id").val(acc_id);
+        $(".modal-body #akpi_acc_name").html(acc_name);
     });
 
-    $("#m_delete_kpi").on('show.bs.modal', function(e){
-       let budgetid = $(e.relatedTarget).data('budgetid');
-       let network = $(e.relatedTarget).data('network');
-       $(".modal-body #bid").val(budgetid);
-       $(".modal-body #dkpi_network_type").html(network);
+    $("#m_delete_kpi").on('show.bs.modal', function (e) {
+        let budgetid = $(e.relatedTarget).data('budgetid');
+        let network = $(e.relatedTarget).data('network');
+        $(".modal-body #bid").val(budgetid);
+        $(".modal-body #dkpi_network_type").html(network);
     });
 
     // Global target spend edit
@@ -240,4 +242,8 @@ $(document).ready(function () {
     $("#select_labels").select2({
         placeholder: "Search labels..."
     });
-});
+
+
+
+})
+;

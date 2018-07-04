@@ -60,8 +60,6 @@ var WizardDemo = function () {
                 obj[data[i].name] = data[i].value;
             }
 
-            console.log(obj);
-
             if (wizard.isLastStep()) {
 
                 let dataObj = {};

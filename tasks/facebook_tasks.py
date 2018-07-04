@@ -87,7 +87,8 @@ def facebook_cron_ovu(self, account_id):
 
     this_month = helper.set_params(
         time_range=helper.get_this_month_daterange(),
-        level='account'
+        level='account',
+        time_increment=1
     )
 
     yesterday_time = helper.set_params(
@@ -96,22 +97,41 @@ def facebook_cron_ovu(self, account_id):
 
     last_7 = helper.set_params(
         date_preset='last_7d',
+        level='account',
+        time_increment=1
+    )
+
+    segmented_param = helper.set_params(
+        time_range=helper.get_this_month_daterange(),
+        time_increment=1,
         level='account'
     )
 
     spend_this_month = helper.get_account_insights(account.account_id, params=this_month, extra_fields=['spend'])
+    segmented = helper.get_account_insights(account.account_id, params=segmented_param)
+
     yesterday = helper.get_account_insights(account.account_id, params=yesterday_time, extra_fields=['spend'])
     last_7_days = helper.get_account_insights(account.account_id, params=last_7, extra_fields=['spend'])
 
-    day_spend = float(last_7_days[0]['spend']) / 7
 
-    current_spend = spend_this_month[0]['spend']
+    segmented_data = {
+        i['date_stop']: i['spend'] for i in segmented
+    }
 
-    yesterday_spend = float(yesterday[0]['spend'])
+    try:
+        day_spend = float(last_7_days[0]['spend']) / 7
+        current_spend = spend_this_month[0]['spend']
+        yesterday_spend = float(yesterday[0]['spend'])
+    except IndexError:
+        day_spend = 0.0
+        current_spend = 0.0
+        yesterday_spend = 0.0
+
     estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
     account.estimated_spend = estimated_spend
     account.yesterday_spend = yesterday_spend
     account.current_spend = current_spend
+    account.segmented_spend = segmented_data
     account.save()
 
 

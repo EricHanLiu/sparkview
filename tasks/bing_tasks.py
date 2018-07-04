@@ -187,11 +187,14 @@ def bing_cron_ovu(self, customer_id):
 
     try:
         report_this_month = helper.get_report(query_this_month.ReportName)
+        segmented_data = {
+            i["gregoriandate"]: i for i in report_this_month
+        }
         current_spend = sum([float(item['spend']) for item in report_this_month])
 
     except FileNotFoundError:
         current_spend = 0
-
+        segmented_data = {}
     try:
         report_last_7 = helper.get_report(query_last_7.ReportName)
         yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
@@ -207,6 +210,7 @@ def bing_cron_ovu(self, customer_id):
     account.current_spend = current_spend
     account.estimated_spend = estimated_spend
     account.yesterday_spend = float(yesterday_spend)
+    account.segmented_spend = segmented_data
 
     account.save()
 

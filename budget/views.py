@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
@@ -7,7 +8,10 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget
+from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
+from django.core import serializers
+import os
+import subprocess
 import calendar
 import json
 from datetime import datetime
@@ -16,7 +20,7 @@ from dateutil.relativedelta import relativedelta
 
 
 # Create your views here.
-
+clients_file = settings.BASE_DIR + "/cron_clients.py"
 
 @login_required
 @xframe_options_exempt
@@ -165,6 +169,9 @@ def add_client(request):
         elif has_gts == '0':
             new_client.has_budget = True
 
+        elif not has_gts:
+            new_client.has_budget = True
+
         if adwords_accounts:
             for a in new_aw:
 
@@ -173,26 +180,40 @@ def add_client(request):
                 networks = request.POST.getlist('network_type_' + a)
 
                 for a, b in zip(spend, networks):
-                    new_budget = Budget.objects.create(
-                        adwords=aw_acc,
-                        budget=float(a),
-                        network_type=b
-                    )
-                    if b == 'All':
-                        aw_acc.desired_spend = float(a)
-                        new_budget.spend = aw_acc.current_spend
-                        budget += float(a)
-                        aw_acc.save()
-                        new_budget.save()
-                    else:
-                        aw_acc.desired_spend += float(a)
-                        budget += float(a)
+                    if a:
+                        new_budget = Budget.objects.create(
+                            adwords=aw_acc,
+                            budget=float(a),
+                            network_type=b
+                        )
 
-                # if spend:
-                #     for s in spend:
-                #         aw_acc.desired_spend = float(s)
-                #         budget += float(s)
-                #     aw_acc.save()
+                        if b == 'All':
+                            aw_acc.desired_spend = float(a)
+                            budget += float(a)
+                            new_budget.spend = aw_acc.current_spend
+                            aw_acc.save()
+                            new_budget.save()
+                        else:
+                            aw_acc.desired_spend += float(a)
+                            budget += float(a)
+                    else:
+                        a = 0
+                        new_budget = Budget.objects.create(
+                            adwords=aw_acc,
+                            budget=float(a),
+                            network_type=b
+                        )
+
+                        if b == 'All':
+                            aw_acc.desired_spend = float(a)
+                            budget += float(a)
+                            new_budget.spend = aw_acc.current_spend
+                            aw_acc.save()
+                            new_budget.save()
+                        else:
+                            aw_acc.desired_spend += float(a)
+                            budget += float(a)
+
                 aw.append(aw_acc)
 
         if bing_accounts:
@@ -243,6 +264,8 @@ def add_client(request):
 
         context = {}
 
+        subprocess.Popen("python " + clients_file, shell=True)
+
         return JsonResponse(context)
 
 
@@ -263,6 +286,9 @@ def client_details(request, client_id):
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
         budgets = Budget.objects.all()
+        chdata = ClientCData.objects.filter(client=client)
+        chdata_json = json.loads(serializers.serialize("json", chdata))
+
         context = {
             'client_data': client,
             'today': today.day,
@@ -272,7 +298,8 @@ def client_details(request, client_id):
             'adwords': DependentAccount.objects.filter(blacklisted=False),
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
-            'budgets': budgets
+            'budgets': budgets,
+            'chdata': chdata_json[0]['fields']
         }
 
         return render(request, 'budget/view_client.html', context)
@@ -328,7 +355,7 @@ def client_details(request, client_id):
                 'target_spend': client.target_spend,
                 'error_message': 'Please enter a value greater than 0(zero).',
             }
-
+        subprocess.Popen("python " + clients_file, shell=True)
         return JsonResponse(context)
 
 
@@ -735,7 +762,7 @@ def update_budget(request):
             'pb_color': pb_color,
             'gts_budget': gts_budget
         }
-
+        subprocess.Popen("python " + clients_file, shell=True)
         return JsonResponse(context)
 
 
@@ -840,7 +867,7 @@ def assign_client_accounts(request):
     response = {
         'client': client.client_name
     }
-
+    subprocess.Popen("python " + clients_file, shell=True)
     return JsonResponse(response)
 
 @login_required
