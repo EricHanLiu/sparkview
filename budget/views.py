@@ -286,6 +286,7 @@ def client_details(request, client_id):
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
         budgets = Budget.objects.all()
+        fbudgets = FlightBudget.objects.all()
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
 
@@ -299,7 +300,8 @@ def client_details(request, client_id):
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
             'budgets': budgets,
-            'chdata': chdata_json[0]['fields']
+            'chdata': chdata_json[0]['fields'],
+            'fbudgets': fbudgets,
         }
 
         return render(request, 'budget/view_client.html', context)
