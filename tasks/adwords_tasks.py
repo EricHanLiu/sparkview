@@ -182,7 +182,7 @@ def adwords_cron_ovu(self, customer_id):
     try:
         yesterday = last_7_ordered[-1]
         yesterday_spend = helper.mcv(yesterday['cost'])
-        current_spend = helper.mcv(data_this_month[0]['cost'])
+        current_spend = sum(helper.mcv(item['cost'])for item in data_this_month)
     except IndexError:
         yesterday_spend = 0
         current_spend = 0
