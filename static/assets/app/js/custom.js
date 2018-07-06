@@ -179,6 +179,35 @@ $(document).ready(function () {
         $(".modal-body #fd_acc_channel").val(channel);
     });
 
+    $("#m_add_campaign_group").on('show.bs.modal', function (e) {
+
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        let channel = $(e.relatedTarget).data('channel');
+
+        $(".modal-body #cgr_acc_name").html(acc_name);
+        $(".modal-body #cgr_acc_id").val(acc_id);
+        $(".modal-body #cgr_channel").val(channel);
+    });
+
+    $("#m_edit_campaign_group").on('show.bs.modal', function (e) {
+
+        let gr_id = $(e.relatedTarget).data('grid');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        let group_name = $(e.relatedTarget).data('group_name');
+        let group_by = $(e.relatedTarget).data('group_by');
+        let budget = $(e.relatedTarget).data('group_budget');
+
+        $(e.currentTarget).find('input[name="group_budget"]').val(budget);
+        $(e.currentTarget).find('input[name="cgr_group_name"]').val(group_name);
+        $(e.currentTarget).find('input[name="cgr_group_by"]').val(group_by);
+
+        $(".modal-body #cgr_acc_name").html(acc_name);
+        $(".modal-body #cgr_gr_id").val(gr_id);
+        $(".modal-body #cgr_group_name").html(group_name);
+
+    });
+
     $("#m_edit_flight_date").on('show.bs.modal', function (e) {
 
         let budget_id = $(e.relatedTarget).data('budgetid');
@@ -194,8 +223,6 @@ $(document).ready(function () {
         $(".modal-body #fde_acc_name").html(acc_name);
         $(".modal-body #fde_budget_id").val(budget_id);
         $(".modal-body #fde_acc_channel").val(channel);
-        // $(".modal-body .sdate").val(sdate);
-        // $(".modal-body .edate").val(edate);
         $(e.currentTarget).find('input[name="fbudget_edit"]').val(budget);
     });
 
@@ -209,6 +236,11 @@ $(document).ready(function () {
      $("#m_delete_flight_date").on('show.bs.modal', function (e) {
         let fbudgetid = $(e.relatedTarget).data('fbudgetid');
         $(".modal-body #fid").val(fbudgetid);
+    });
+
+     $("#m_delete_campaign_group").on('show.bs.modal', function (e) {
+        let gr_id = $(e.relatedTarget).data('grid');
+        $(".modal-body #gr_id").val(gr_id);
     });
 
     // Global target spend edit

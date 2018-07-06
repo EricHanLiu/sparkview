@@ -661,6 +661,55 @@ def campaign_groupings(request):
 
         return JsonResponse(context)
 
+@login_required
+def add_groupings(request):
+
+    if request.method == 'POST':
+
+        channel = request.POST.get('cgr_channel')
+        acc_id = request.POST.get('cgr_acc_id')
+        group_name = request.POST.get('cgr_group_name')
+        group_by = request.POST.get('cgr_group_by')
+        budget = request.POST.get('group_budget')
+
+        response = {}
+
+        if channel == 'adwords':
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by,
+                budget=budget,
+                adwords=account
+            )
+            response['group_name'] = new_group.group_name
+
+        elif channel == 'bing':
+            account = BingAccounts.objects.get(account_id=acc_id)
+
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by,
+                budget=budget,
+                bing=account
+            )
+            response['group_name'] = new_group.group_name
+
+        elif channel == 'facebook':
+
+            account = FacebookAccount.objects.get(account_id=acc_id)
+
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by,
+                budget=budget,
+                facebook=account
+            )
+            response['group_name'] = new_group.group_name
+
+
+        return JsonResponse(response)
 
 @login_required
 def update_groupings(request):
@@ -668,30 +717,19 @@ def update_groupings(request):
     if request.method == 'POST':
 
         data = request.POST
-        gr_id = data['id']
-        budget = data['budget']
+
+        print(data)
+        gr_id = data['cgr_gr_id']
+        budget = data['group_budget']
+        group_name = data['cgr_group_name']
+        group_by = data['cgr_group_by']
 
         grouping = CampaignGrouping.objects.get(id=gr_id)
-        grouping.budget = int(budget)
+        grouping.budget = float(budget)
+        grouping.group_name = group_name
+        grouping.group_by = group_by
         grouping.save()
 
-        if len(grouping.aw_campaigns.all()) > 0:
-
-            for cmp in grouping.aw_campaigns.all():
-                cmp.campaign_budget = int(budget)/len(grouping.aw_campaigns.all())
-                cmp.save()
-
-        elif len(grouping.bing_campaigns.all()) > 0:
-
-            for cmp in grouping.bing_campaigns.all():
-                cmp.campaign_budget = int(budget)/len(grouping.bing_campaigns.all())
-                cmp.save()
-
-        elif len(grouping.fb_campaigns.all()) > 0:
-
-            for cmp in grouping.fb_campaigns.all():
-                cmp.campaign_budget = int(budget)/len(grouping.fb_campaigns.all())
-                cmp.save()
 
         context = {}
 
@@ -703,26 +741,13 @@ def delete_groupings(request):
 
     if request.method == 'POST':
 
-        data = request.POST.getlist('grouping_ids')
+        data = json.loads(request.body.decode('utf-8'))
+        group = CampaignGrouping.objects.get(id=data['gr_id'])
+        context = {
+            'group_name': group.group_name
+        }
+        group.delete()
 
-        for gr_id in data:
-            grouping = CampaignGrouping.objects.get(id=gr_id)
-            if len(grouping.aw_campaigns.all()) > 0:
-                for cmp in grouping.aw_campaigns.all():
-                    cmp.groupped = False
-                    cmp.save()
-            elif len(grouping.bing_campaigns.all()) > 0:
-                for cmp in grouping.bing_campaigns.all():
-                    cmp.groupped = False
-                    cmp.save()
-            elif len(grouping.fb_campaigns.all()) > 0:
-                for cmp in grouping.fb_campaigns.all():
-                    cmp.groupped = False
-                    cmp.save()
-
-            grouping.delete()
-
-        context = {}
 
         return JsonResponse(context)
 
