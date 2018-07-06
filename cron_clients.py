@@ -56,6 +56,7 @@ def main():
 
     for client in clients:
 
+        new_client_cdata, created = ClientCData.objects.get_or_create(client=client)
         aw_temp = 0.0
         b_temp = 0.0
         fb_temp = 0.0
@@ -72,65 +73,77 @@ def main():
         client.save()
 
         adwords = client.adwords.all()
-        for a in adwords:
-            client.budget += a.desired_spend
-            client.current_spend += a.current_spend
-            client.aw_spend += a.current_spend
-            client.yesterday_spend += a.yesterday_spend
-            client.aw_budget += a.desired_spend
+        if len(adwords) > 0:
+            for a in adwords:
+                client.budget += a.desired_spend
+                client.current_spend += a.current_spend
+                client.aw_spend += a.current_spend
+                client.yesterday_spend += a.yesterday_spend
+                client.aw_budget += a.desired_spend
 
-            for k, v in sorted(a.segmented_spend.items()):
-                aw_temp = aw_temp + float(int(v['cost']) / 1000000)
-                aw_spend[v['day']] = round(aw_temp, 2)
+                for k, v in sorted(a.segmented_spend.items()):
+                    aw_temp = aw_temp + float(int(v['cost']) / 1000000)
+                    aw_spend[v['day']] = round(aw_temp, 2)
 
-        aw_projected_val = projected(client.aw_spend)
-        aw_budget_per_day = round(client.aw_budget / last_day.day, 2)
-        aw_projected_per_day = round(aw_projected_val / last_day.day, 2)
+            aw_projected_val = projected(client.aw_spend)
+            aw_budget_per_day = round(client.aw_budget / last_day.day, 2)
+            aw_projected_per_day = round(aw_projected_val / last_day.day, 2)
+            for index, val in enumerate(days, start=1):
+                aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
+                aw_projected[val.strftime("%Y-%m-%d")] = round(aw_projected_per_day * index, 2)
+        else:
+            aw_spend = {}
+            aw_budget = {}
+            aw_projected = {}
 
         bing = client.bing.all()
-        for b in bing:
-            client.budget += b.desired_spend
-            client.current_spend += b.current_spend
-            client.bing_spend += b.current_spend
-            client.yesterday_spend += b.yesterday_spend
-            client.bing_budget += b.desired_spend
+        if len(bing) > 0:
+            for b in bing:
+                client.budget += b.desired_spend
+                client.current_spend += b.current_spend
+                client.bing_spend += b.current_spend
+                client.yesterday_spend += b.yesterday_spend
+                client.bing_budget += b.desired_spend
 
-            for k, v in sorted(b.segmented_spend.items()):
-                b_temp = b_temp + float(v['spend'])
-                bing_spend[v['gregoriandate']] = round(b_temp, 2)
+                for k, v in sorted(b.segmented_spend.items()):
+                    b_temp = b_temp + float(v['spend'])
+                    bing_spend[v['gregoriandate']] = round(b_temp, 2)
 
-        bing_projected_val = projected(client.bing_spend)
-        bing_budget_per_day = round(client.bing_budget / last_day.day, 2)
-        bing_projected_per_day = round(bing_projected_val / last_day.day, 2)
+            bing_projected_val = projected(client.bing_spend)
+            bing_budget_per_day = round(client.bing_budget / last_day.day, 2)
+            bing_projected_per_day = round(bing_projected_val / last_day.day, 2)
+            for index, val in enumerate(days, start=1):
+                bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
+                bing_projected[val.strftime("%Y-%m-%d")] = round(bing_projected_per_day * index, 2)
+        else:
+            bing_spend = {}
+            bing_projected = {}
+            bing_budget = {}
 
 
         facebook = client.facebook.all()
-        for f in facebook:
-            client.budget += f.desired_spend
-            client.current_spend += f.current_spend
-            client.fb_spend += f.current_spend
-            client.yesterday_spend += f.yesterday_spend
-            client.fb_budget += f.desired_spend
+        if len(facebook) > 0:
+            for f in facebook:
+                client.budget += f.desired_spend
+                client.current_spend += f.current_spend
+                client.fb_spend += f.current_spend
+                client.yesterday_spend += f.yesterday_spend
+                client.fb_budget += f.desired_spend
 
-            for k, v in sorted(f.segmented_spend.items()):
-                fb_temp = fb_temp + float(v)
-                fb_spend[k] = round(fb_temp, 2)
+                for k, v in sorted(f.segmented_spend.items()):
+                    fb_temp = fb_temp + float(v)
+                    fb_spend[k] = round(fb_temp, 2)
 
-        fb_projected_val = projected(client.fb_spend)
-        fb_budget_per_day = round(client.fb_budget / last_day.day, 2)
-        fb_projected_per_day = round(fb_projected_val / last_day.day, 2)
-
-        new_client_cdata, created = ClientCData.objects.get_or_create(client=client)
-
-        for index, val in enumerate(days, start=1):
-            aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
-            aw_projected[val.strftime("%Y-%m-%d")] = round(aw_projected_per_day * index, 2)
-
-            bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
-            bing_projected[val.strftime("%Y-%m-%d")] = round(bing_projected_per_day * index, 2)
-
-            fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
-            fb_projected[val.strftime("%Y-%m-%d")] = round(fb_projected_per_day * index, 2)
+            fb_projected_val = projected(client.fb_spend)
+            fb_budget_per_day = round(client.fb_budget / last_day.day, 2)
+            fb_projected_per_day = round(fb_projected_val / last_day.day, 2)
+            for index, val in enumerate(days, start=1):
+                fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
+                fb_projected[val.strftime("%Y-%m-%d")] = round(fb_projected_per_day * index, 2)
+        else:
+            fb_spend = {}
+            fb_projected = {}
+            fb_budget = {}
 
         new_client_cdata.aw_budget = aw_budget
         new_client_cdata.aw_spend = aw_spend
