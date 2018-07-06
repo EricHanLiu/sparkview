@@ -69,6 +69,8 @@ class FlightBudget(models.Model):
 
 class CampaignGrouping(models.Model):
 
+    group_name = models.CharField(max_length=255, default='')
+    group_by = models.CharField(max_length=255, default='')
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='bing_campaigns')
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='facebook_campaigns')

@@ -3,7 +3,7 @@ from bloom.utils import FacebookReportingService
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
-from budget.models import FlightBudget
+from budget.models import FlightBudget, CampaignGrouping
 from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, access_token
 
@@ -304,6 +304,10 @@ def facebook_cron_alerts(self, account_id):
 def facebook_cron_campaign_stats(self, account_id):
 
     account = FacebookAccount.objects.get(account_id=account_id)
+    groupings = CampaignGrouping.objects.filter(facebook=account)
+
+    cmps = []
+
     helper = FacebookReportingService(facebook_init())
 
     fields = [
@@ -332,20 +336,37 @@ def facebook_cron_campaign_stats(self, account_id):
         campaign_id = cmp['campaign_id']
         campaign_cost = cmp['spend']
 
-        try:
-            cmp = FacebookCampaign.objects.get(account=account, campaign_id=campaign_id)
-            cmp.campaign_cost = campaign_cost
-            cmp.save()
-            print('Matched in DB and updated cost - [' + campaign_name + '].')
-        except ObjectDoesNotExist:
-            FacebookCampaign.objects.create(
-                account=account,
-                campaign_name=campaign_name,
-                campaign_id=campaign_id,
-                campaign_cost=campaign_cost
-            )
-            print('Added to DB - [' + campaign_name + '].')
 
+        cmp, created = FacebookCampaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign_id,
+            campaign_name=campaign_name
+        )
+        cmp.campaign_cost = campaign_cost
+        cmp.save()
+
+        cmps.append(cmp)
+        if created:
+            print('Added to DB - [' + cmp.campaign_name + '].')
+        else:
+            print('Matched in DB - [' + cmp.campaign_name + '].')
+
+    if groupings:
+        for gr in groupings:
+            for c in cmps:
+                if gr.group_by in c.campaign_name and c in gr.fb_campaigns.all():
+                    gr.current_spend = 0
+                    gr.current_spend += float(c.campaign_cost)
+                    gr.save()
+                elif gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
+                    gr.fb_campaigns.delete(c)
+                    gr.current_spend -= float(c.campaign_cost)
+                    gr.save()
+                elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
+                    gr.fb_campaigns.add(c)
+                    print(type(c.campaign_cost))
+                    gr.current_spend += float(c.campaign_cost)
+                    gr.save()
 
 @celery_app.task(bind=True)
 def facebook_cron_flight_dates(self, customer_id):

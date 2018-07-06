@@ -236,7 +236,9 @@ def adwords_cron_disapproved_alert(self, customer_id):
 def adwords_cron_campaign_stats(self, customer_id):
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    # groupings = CampaignGrouping.objects.filter(adwords=account)
+    groupings = CampaignGrouping.objects.filter(adwords=account)
+
+    cmps = []
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -251,15 +253,36 @@ def adwords_cron_campaign_stats(self, customer_id):
 
     for campaign in campaign_this_month:
         cost = helper.mcv(campaign['cost'])
-        try:
-            cmp = Campaign.objects.get(account=account, campaign_id=campaign['campaign_id'])
-            cmp.campaign_cost = cost
-            cmp.save()
-        except:
-            Campaign.objects.create(
-                account=account, campaign_id=campaign['campaign_id'],
-                campaign_name=campaign['campaign'], campaign_cost=cost)
-            print('Added to DB - [' + campaign['campaign'] + '].')
+
+        cmp, created = Campaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign['campaign_id'],
+            campaign_name=campaign['campaign']
+        )
+        cmp.campaign_cost = cost
+        cmp.save()
+
+        cmps.append(cmp)
+        if created:
+            print('Added to DB - [' + cmp.campaign_name + '].')
+        else:
+            print('Matched in DB - [' + cmp.campaign_name + '].')
+
+    if groupings:
+        for gr in groupings:
+            for c in cmps:
+                if gr.group_by in c.campaign_name and c in gr.aw_campaigns.all():
+                    gr.current_spend = 0
+                    gr.current_spend += c.campaign_cost
+                    gr.save()
+                elif gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
+                    gr.aw_campaigns.delete(c)
+                    gr.current_spend -= c.campaign_cost
+                    gr.save()
+                elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
+                    gr.aw_campaigns.add(c)
+                    gr.current_spend += c.campaign_cost
+                    gr.save()
 
 
 @celery_app.task(bind=True)

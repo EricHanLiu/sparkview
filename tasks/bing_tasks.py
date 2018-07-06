@@ -7,7 +7,7 @@ from celery import group
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
-from budget.models import FlightBudget
+from budget.models import FlightBudget, CampaignGrouping
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -254,7 +254,10 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 def bing_cron_campaign_stats(self, account_id):
 
     account = BingAccounts.objects.get(account_id=account_id)
+    groupings = CampaignGrouping.objects.filter(bing=account)
     helper = BingReportingService()
+
+    cmps = []
 
     this_month = helper.get_this_month_daterange()
 
@@ -280,17 +283,36 @@ def bing_cron_campaign_stats(self, account_id):
         campaign_name = v[0]['campaignname']
         campaign_cost = float(v[0]['spend'])
 
-        try:
-            cmp = BingCampaign.objects.get(campaign_id=campaign_id, campaign_name=campaign_name)
-            cmp.campaign_cost = campaign_cost
-            cmp.save()
-            print('Matched in DB and updated cost - [' + campaign_name +'].')
-        except:
-            BingCampaign.objects.create(
-                account=account, campaign_id=campaign_id,
-                campaign_name=campaign_name, campaign_cost=campaign_cost)
-            print('Added to DB - [' + campaign_name + '].')
+        cmp, created =  BingCampaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign_id,
+            campaign_name=campaign_name
+        )
 
+        cmp.campaign_cost = campaign_cost
+        cmp.save()
+
+        cmps.append(cmp)
+        if created:
+            print('Added to DB - [' + cmp.campaign_name + '].')
+        else:
+            print('Matched in DB - [' + cmp.campaign_name + '].')
+
+    if groupings:
+        for gr in groupings:
+            for c in cmps:
+                if gr.group_by in c.campaign_name and c in gr.bing_campaigns.all():
+                    gr.current_spend = 0
+                    gr.current_spend += c.campaign_cost
+                    gr.save()
+                elif gr.group_by not in c.campaign_name and c in gr.bing_campaigns.all():
+                    gr.bing_campaigns.delete(c)
+                    gr.current_spend -= c.campaign_cost
+                    gr.save()
+                elif gr.group_by in c.campaign_name and c not in gr.bing_campaigns.all():
+                    gr.bing_campaigns.add(c)
+                    gr.current_spend += c.campaign_cost
+                    gr.save()
 
 @celery_app.task(bind=True)
 def bing_cron_flight_dates(self, customer_id):
