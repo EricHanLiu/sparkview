@@ -287,6 +287,7 @@ def client_details(request, client_id):
         client = Client.objects.get(id=client_id)
         budgets = Budget.objects.all()
         fbudgets = FlightBudget.objects.all()
+        cmp_groupings = CampaignGrouping.objects.all()
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
 
@@ -302,6 +303,7 @@ def client_details(request, client_id):
             'budgets': budgets,
             'chdata': chdata_json[0]['fields'],
             'fbudgets': fbudgets,
+            'groupings': cmp_groupings
         }
 
         return render(request, 'budget/view_client.html', context)
@@ -586,7 +588,7 @@ def campaign_groupings(request):
 
 
         data = request.POST
-        print(data)
+
         cmps = []
         campaigns = request.POST.getlist('campaigns')
         campaigns = set(campaigns)
@@ -796,10 +798,10 @@ def delete_fbudget(request):
 
     if request.method == 'POST':
 
-        data = request.POST.getlist('flight_budgets')
-        for fb_id in data:
-            fbudget = FlightBudget.objects.get(id=fb_id)
-            fbudget.delete()
+        data = json.loads(request.body.decode('utf-8'))
+        print(data)
+        fbudget = FlightBudget.objects.get(id=data['budget_id'])
+        fbudget.delete()
 
         context = {}
 

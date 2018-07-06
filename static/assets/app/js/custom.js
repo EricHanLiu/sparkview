@@ -96,6 +96,35 @@ $(document).ready(function () {
         }
     });
 
+    // $("#m_datepicker_1").on('show.bs.modal', function (event) {
+    //         event.stopPropagation();
+    //     });
+    //
+    // $("#m_datepicker_2").on('show.bs.modal', function (event) {
+    //     event.stopPropagation();
+    // });
+
+    let dp1 = $("#m_datepicker_1");
+    let dp2 = $("#m_datepicker_2");
+    let dp3 = $("#m_datepicker_3");
+    let dp4 = $("#m_datepicker_4");
+
+    dp1.on('show.bs.modal', function(event){
+        x.stopPropagation();
+    });
+
+    dp2.on('show.bs.modal', function(event){
+        event.stopPropagation();
+    });
+
+    dp3.on('show.bs.modal', function(event){
+        event.stopPropagation();
+    });
+
+    dp4.on('show.bs.modal', function(event){
+        event.stopPropagation();
+    });
+
     // Get data from page an send it to modal
     // Userpage
     $('#m_modal_accounts').on('show.bs.modal', function (e) {
@@ -139,11 +168,47 @@ $(document).ready(function () {
         $(".modal-body #akpi_acc_name").html(acc_name);
     });
 
+    $("#m_add_flight_dates").on('show.bs.modal', function (e) {
+
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        let channel = $(e.relatedTarget).data('channel');
+
+        $(".modal-body #fd_acc_name").html(acc_name);
+        $(".modal-body #fd_acc_id").val(acc_id);
+        $(".modal-body #fd_acc_channel").val(channel);
+    });
+
+    $("#m_edit_flight_date").on('show.bs.modal', function (e) {
+
+        let budget_id = $(e.relatedTarget).data('budgetid');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        let channel = $(e.relatedTarget).data('channel');
+        let sdate = $(e.relatedTarget).data('sdate');
+        let edate = $(e.relatedTarget).data('edate');
+        let budget = $(e.relatedTarget).data('budget');
+
+        dp3.datepicker("setDate", new Date(sdate));
+        dp4.datepicker("setDate", new Date(edate));
+
+        $(".modal-body #fde_acc_name").html(acc_name);
+        $(".modal-body #fde_budget_id").val(budget_id);
+        $(".modal-body #fde_acc_channel").val(channel);
+        // $(".modal-body .sdate").val(sdate);
+        // $(".modal-body .edate").val(edate);
+        $(e.currentTarget).find('input[name="fbudget_edit"]').val(budget);
+    });
+
     $("#m_delete_kpi").on('show.bs.modal', function (e) {
         let budgetid = $(e.relatedTarget).data('budgetid');
         let network = $(e.relatedTarget).data('network');
         $(".modal-body #bid").val(budgetid);
         $(".modal-body #dkpi_network_type").html(network);
+    });
+
+     $("#m_delete_flight_date").on('show.bs.modal', function (e) {
+        let fbudgetid = $(e.relatedTarget).data('fbudgetid');
+        $(".modal-body #fid").val(fbudgetid);
     });
 
     // Global target spend edit

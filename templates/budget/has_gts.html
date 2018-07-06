@@ -126,6 +126,45 @@
                                 </p>
 
                                 </p>
+                                <div class="m-separator"></div>
+                                <small>Flight dates <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
+                                       data-acc_id="{{ a.dependent_account_id }}"
+                                       data-channel="adwords"
+                                       data-acc_name="{{ a.dependent_account_name }}"> Add</a></small>
+
+                                    {% for fbudget in fbudgets %}
+                                        {% if fbudget.adwords_account == a %}
+                                            <p>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <b>Spend</b>: {{ fbudget.current_spend }}
+                                                    <i class="fa fa-minus-circle" data-toggle="modal" data-target="#m_delete_flight_date" data-fbudgetid="{{ fbudget.id }}"></i>
+                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal" data-target="#m_edit_flight_date"
+                                                       data-channel="adwords" data-sdate="{{ fbudget.start_date }}" data-edate="{{ fbudget.end_date }}"
+                                                       data-acc_name="{{ a.dependent_account_name }}" data-budget="{{ fbudget.budget }}"
+                                                       data-budgetid="{{ fbudget.id }}"></i>
+                                                </div>
+                                                <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget }}</div>
+                                                <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date }}</div>
+                                                <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date }}</div>
+                                            </div>
+                                            <div class="progress m-progress--lg">
+                                                <div class="progress-bar
+                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
+                                                     aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top"
+                                                     title=""
+                                                     data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
+                                                    {% widthratio fbudget.current_spend fbudget.budget 100 %}%
+                                                </div>
+                                            </div>
+                                            </p>
+                                        {% endif %}
+                                    {% endfor %}
                             {% empty %}
                                 <p>
                                 <h6>
@@ -166,6 +205,45 @@
                                 </div>
                                 </p>
                                 <div style="margin-top: 10px;"></div>
+                                <div class="m-separator"></div>
+                                <small>Flight dates <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
+                                       data-acc_id="{{ b.account_id }}"
+                                       data-channel="bing"
+                                       data-acc_name="{{ b.account_name }}"> Add</a></small>
+
+                                    {% for fbudget in fbudgets %}
+                                        {% if fbudget.bing_account == b %}
+                                            <p>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <b>Spend</b>: {{ fbudget.current_spend }}
+                                                    <i class="fa fa-minus-circle" data-toggle="modal" data-target="#m_delete_flight_date" data-fbudgetid="{{ fbudget.id }}"></i>
+                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal" data-target="#m_edit_flight_date"
+                                                       data-channel="bing" data-sdate="{{ fbudget.start_date }}" data-edate="{{ fbudget.end_date }}"
+                                                       data-acc_name="{{ b.account_name }}" data-budget="{{ fbudget.budget }}"
+                                                       data-budgetid="{{ fbudget.id }}"></i>
+                                                </div>
+                                                <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget }}</div>
+                                                <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date }}</div>
+                                                <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date }}</div>
+                                            </div>
+                                            <div class="progress m-progress--lg">
+                                                <div class="progress-bar
+                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
+                                                     aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top"
+                                                     title=""
+                                                     data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
+                                                    {% widthratio fbudget.current_spend fbudget.budget 100 %}%
+                                                </div>
+                                            </div>
+                                            </p>
+                                        {% endif %}
+                                    {% endfor %}
                             {% empty %}
 
                                 <h6>
@@ -209,6 +287,44 @@
                                 <div style="margin-top: 10px;">
                                 </div>
                                 <div class="m-separator"></div>
+                                <small>Flight dates <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
+                                       data-acc_id="{{ f.account_id }}"
+                                       data-channel="facebook"
+                                       data-acc_name="{{ f.account_name }}"> Add</a></small>
+
+                                    {% for fbudget in fbudgets %}
+                                        {% if fbudget.facebook_account == f %}
+                                            <p>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <b>Spend</b>: {{ fbudget.current_spend }}
+                                                    <i class="fa fa-minus-circle" data-toggle="modal" data-target="#m_delete_flight_date" data-fbudgetid="{{ fbudget.id }}"></i>
+                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal" data-target="#m_edit_flight_date"
+                                                       data-channel="facebook" data-sdate="{{ fbudget.start_date }}" data-edate="{{ fbudget.end_date }}"
+                                                       data-acc_name="{{ f.account_name }}" data-budget="{{ fbudget.budget }}"
+                                                       data-budgetid="{{ fbudget.id }}"></i>
+                                                </div>
+                                                <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget }}</div>
+                                                <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date }}</div>
+                                                <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date }}</div>
+                                            </div>
+                                            <div class="progress m-progress--lg">
+                                                <div class="progress-bar
+                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
+                                                     role="progressbar"
+                                                     style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
+                                                     aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     data-toggle="m-tooltip" data-placement="top"
+                                                     title=""
+                                                     data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
+                                                    {% widthratio fbudget.current_spend fbudget.budget 100 %}%
+                                                </div>
+                                            </div>
+                                            </p>
+                                        {% endif %}
+                                    {% endfor %}
                             {% empty %}
 
                                 <h6>
