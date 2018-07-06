@@ -2,9 +2,10 @@ import json
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign
-from budget.models import FlightBudget, Budget
+from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_client():
@@ -235,6 +236,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
 def adwords_cron_campaign_stats(self, customer_id):
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    # groupings = CampaignGrouping.objects.filter(adwords=account)
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -251,7 +253,6 @@ def adwords_cron_campaign_stats(self, customer_id):
         cost = helper.mcv(campaign['cost'])
         try:
             cmp = Campaign.objects.get(account=account, campaign_id=campaign['campaign_id'])
-            print('Matched in DB - [' + campaign['campaign'] + '].')
             cmp.campaign_cost = cost
             cmp.save()
         except:

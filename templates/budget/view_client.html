@@ -182,6 +182,109 @@
     </div>
     <!--END:Modal add KPI-->
 
+    <!--START:Modal add flight date-->
+    <div class="modal fade" id="m_add_flight_dates" tabindex="-1" role="dialog" aria-labelledby="add_flight_date">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="new_flight_date">
+                        <input type="hidden" id="fd_acc_id">
+                        <input type="hidden" id="fd_acc_channel">
+                        <p>Add flight date for <span id="fd_acc_name"></span></p>
+                        <div class="form-group">
+
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                        <input type="text" class="form-control sdate"
+                                               id="m_datepicker_1" placeholder="Start date">
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                        <input type="text" class="form-control edate"
+                                               id="m_datepicker_2" placeholder="End date">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="number" class="form-control fbudget"
+                                               min="0" placeholder="Desired budget" required>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="submitFlightBudget()">Submit</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal add flight date-->
+
+    <!--START:Modal edit flight date-->
+    <div class="modal fade" id="m_edit_flight_date" tabindex="-1" role="dialog" aria-labelledby="edit_flight_date">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="edit_flight_date">
+                        <input type="hidden" id="fde_budget_id">
+                        <p>Edit flight date for <span id="fde_acc_name"></span></p>
+                        <div class="form-group">
+
+                                <div class="form-group m-form__group row">
+                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                        <input type="text" class="form-control sdate"
+                                               id="m_datepicker_3" placeholder="Start date">
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-12">
+                                        <input type="text" class="form-control edate"
+                                               id="m_datepicker_4" placeholder="End date">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="number" class="form-control fbudget_edit" name="fbudget_edit"
+                                               min="0" placeholder="Desired budget" required>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="updateFlightBudget()">Submit</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal edit flight date-->
+
+     <!--START:Modal delete flight date-->
+    <div class="modal fade" id="m_delete_flight_date" tabindex="-1" role="dialog" aria-labelledby="delete_flight_date">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Are you sure you want to delete flight date?</p>
+                    </div>
+                    <input type="hidden" id="fid">
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="deleteFlightBudget()">Yes</button>
+                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="No">No
+                        </button>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal delete flight date-->
+
     <!--START:Modal delete KPI-->
     <div class="modal fade" id="m_delete_kpi" tabindex="-1" role="dialog" aria-labelledby="delete_kpi">
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -651,6 +754,111 @@
             });
         }
 
+        function submitFlightBudget() {
+
+            var modal = $("#m_add_flight_dates");
+            var start_date = $('.sdate').val();
+            var end_date = $('.edate').val();
+            var budget = $('.fbudget').val();
+            var acc_id = $("#fd_acc_id").val();
+            var channel = $("#fd_acc_channel").val();
+
+            var data = JSON.stringify({
+                'sdate': start_date,
+                'edate': end_date,
+                'budget': budget,
+                'acc_id': acc_id,
+                'channel': channel,
+            });
+
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                url: '/budget/fbudget/create/',
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
+                },
+                success: function () {
+                    modal.modal('hide');
+                    toastr.success("Budget succesfully added to the database.");
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText);
+                }
+            })
+        }
+
+        function updateFlightBudget() {
+
+            var modal = $("#m_edit_flight_date");
+            var start_date = $('#m_datepicker_3').val();
+            var end_date = $('#m_datepicker_4').val();
+            var budget = $('.fbudget_edit').val();
+            var budget_id = $("#fde_budget_id").val();
+
+            var data = JSON.stringify({
+                'sdate': start_date,
+                'edate': end_date,
+                'budget': budget,
+                'budget_id': budget_id,
+            });
+
+            $.ajax({
+                type: "POST",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                url: '/budget/fbudget/update/',
+                data: data,
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
+                },
+                success: function () {
+                    modal.modal('hide');
+                    toastr.success("Budget succesfully updated.")
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                }
+            })
+        }
+
+        function deleteFlightBudget() {
+
+            var modal = $("#m_delete_flight_date");
+            var budget_id = $("#fid").val();
+
+            var data = JSON.stringify({
+                'budget_id': budget_id,
+            });
+            console.log(data)
+            $.ajax({
+                url: '/budget/fbudget/delete/',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: data,
+                success: function () {
+                    modal.modal('hide');
+                    toastr.success("Budget succesfully updated.")
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText);
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
+                }
+            });
+        }
+
+        function toggleChart(){
+            event.preventDefault();
+            $("#myChart").slideToggle("slow")
+        }
 
         document.addEventListener("DOMContentLoaded", function (event) {
             let data = {{ chdata|safe }};
