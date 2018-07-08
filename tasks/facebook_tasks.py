@@ -354,19 +354,18 @@ def facebook_cron_campaign_stats(self, account_id):
     if groupings:
         for gr in groupings:
             for c in cmps:
-                if gr.group_by in c.campaign_name and c in gr.fb_campaigns.all():
-                    gr.current_spend = 0
-                    gr.current_spend += float(c.campaign_cost)
+                if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
+                    gr.fb_campaigns.remove(c)
                     gr.save()
-                elif gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
-                    gr.fb_campaigns.delete(c)
-                    gr.current_spend -= float(c.campaign_cost)
-                    gr.save()
+
                 elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
                     gr.fb_campaigns.add(c)
-                    print(type(c.campaign_cost))
-                    gr.current_spend += float(c.campaign_cost)
                     gr.save()
+
+            gr.current_spend = 0
+            for cmp in gr.fb_campaigns.all():
+                gr.current_spend += cmp.campaign_cost
+                gr.save()
 
 @celery_app.task(bind=True)
 def facebook_cron_flight_dates(self, customer_id):

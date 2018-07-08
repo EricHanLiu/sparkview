@@ -254,12 +254,12 @@ def adwords_cron_campaign_stats(self, customer_id):
     for campaign in campaign_this_month:
         cost = helper.mcv(campaign['cost'])
 
-        cmp, created = Campaign.objects.get_or_create(
+        cmp, created = Campaign.objects.update_or_create(
             account=account,
-            campaign_id=campaign['campaign_id'],
-            campaign_name=campaign['campaign']
+            campaign_id=campaign['campaign_id']
         )
         cmp.campaign_cost = cost
+        cmp.campaign_name = campaign['campaign']
         cmp.save()
 
         cmps.append(cmp)
@@ -271,19 +271,18 @@ def adwords_cron_campaign_stats(self, customer_id):
     if groupings:
         for gr in groupings:
             for c in cmps:
-                if gr.group_by in c.campaign_name and c in gr.aw_campaigns.all():
-                    gr.current_spend = 0
-                    gr.current_spend += c.campaign_cost
-                    gr.save()
-                elif gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
-                    gr.aw_campaigns.delete(c)
-                    gr.current_spend -= c.campaign_cost
-                    gr.save()
-                elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                    gr.aw_campaigns.add(c)
-                    gr.current_spend += c.campaign_cost
+                if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
+                    gr.aw_campaigns.remove(c)
                     gr.save()
 
+                elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
+                    gr.aw_campaigns.add(c)
+                    gr.save()
+
+            gr.current_spend = 0
+            for cmp in gr.aw_campaigns.all():
+                gr.current_spend += cmp.campaign_cost
+                gr.save()
 
 @celery_app.task(bind=True)
 def adwords_cron_flight_dates(self, customer_id):
