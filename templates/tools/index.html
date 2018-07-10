@@ -32,7 +32,7 @@
                                                href="#m_tabs_7_1"
                                                role="tab" aria-selected="true">
                                                 <i class="fa fa-plus-circle"></i>
-                                                Create label
+                                                Create labels
                                             </a>
                                         </li>
                                         <li class="nav-item m-tabs__item">
@@ -40,7 +40,7 @@
                                                role="tab"
                                                aria-selected="false">
                                                 <i class="fa fa-minus-square"></i>
-                                                Remove label from account
+                                                Remove labels
                                             </a>
 
                                         </li>
@@ -49,7 +49,7 @@
                                                role="tab"
                                                aria-selected="false">
                                                 <i class="fa fa-plus-square"></i>
-                                                Assign label to account
+                                                Assign labels
                                             </a>
 
                                         </li>
@@ -59,22 +59,64 @@
                             <div class="m-portlet__body">
                                 <div class="tab-content">
                                     <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
-                                        <div id="create_template">
-                                            <div style="display: flex; flex-wrap: wrap">
-                                                <input type="text" style="width: 90%"
-                                                       class="form-control m-input" id="label_name"
-                                                       aria-describedby="labelHelp"
-                                                       placeholder="Label name (ex: exampleLabel1,exampleLabel2,exampleLabel3)">
-                                                <a href="#" onclick="submitLabel()"
-                                                   class="btn btn-accent m-btn m-btn--icon">
+                                        <span>Account labels</span>
+                                        <form id="create_labels">
+                                            <div class="row" id="create_template">
+                                                <div style="display: flex; flex-wrap: wrap" class="col-md-10">
+                                                    <input type="text" style="width: 90%"
+                                                           class="form-control m-input" id="label_name"
+                                                           aria-describedby="labelHelp" name="label_name"
+                                                           placeholder="Label name (ex: exampleLabel1,exampleLabel2,exampleLabel3)">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <a href="#" onclick="submitLabel()"
+                                                       class="btn btn-accent m-btn m-btn--icon">
+                                                        <span>
+                                                        <span>Submit</span>
+                                                    </span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <div class="m-separator"></div>
+                                        <span>Text Labels(used for campaign, adgroups)</span>
+                                        <form id="create_labels">
+                                            <div class="row" id="create_template">
+                                                <div style="display: flex; flex-wrap: wrap" class="col-md-4">
+                                                    <select class="form-control m-input" name="aw_acc"
+                                                            id="select_adwords" style="width: 100%;">
+                                                        <option></option>
+                                                        {% for a in accounts %}
+                                                            <option name="account"
+                                                                    value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div style="display: flex; flex-wrap: wrap" class="col-md-4">
+                                                    <input type="text" style="width: 90%"
+                                                           class="form-control m-input" id="label_name_cmp"
+                                                           aria-describedby="labelHelp" name="label_name"
+                                                           placeholder="Label name (ex: exampleLabel1,exampleLabel2,exampleLabel3)">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <select class="form-control m-input m-input--square"
+                                                            id="label_type" name="label_type">
+                                                        <option value="textlabel">Text Label</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <a href="#" onclick="submitLabel()"
+                                                       class="btn btn-accent m-btn m-btn--icon">
                                                     <span>
                                                     <span>Submit</span>
                                                 </span>
-                                                </a>
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </form>
                                     </div>
                                     <div class="tab-pane" id="m_tabs_7_2" role="tabpanel">
+                                        <span>Account level</span>
                                         <div id="delete_template">
 
                                             <table class="table table-sm m-table m-table--head-separator-bloom"
@@ -94,27 +136,96 @@
                                                             </span>
                                                         </td>
                                                         <td id="lcell-{{ label.label_id }}">
-                                                                {% for acc in label.accounts.all %}
-                                                                    <span class="m-badge m-badge--info m-badge--wide" id="{{ label.label_id }}-label-{{ acc.dependent_account_id }}">
+                                                            {% for acc in label.accounts.all %}
+                                                                <span class="m-badge m-badge--info m-badge--wide"
+                                                                      id="{{ label.label_id }}-label-{{ acc.dependent_account_id }}">
                                                                         {{ acc.dependent_account_name }} <a href="#"
-                                                                        onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
+                                                                                                            onclick="deassignLabel({{ label.label_id }}, '{{ acc.dependent_account_id }}')">x</a>
                                                                     </span>
-                                                                {% endfor %}
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <div class="m-separator"></div>
+                                        <div class="">
+                                            <span>Campaign level</span>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <select class="form-control m-input" name="aw_acc"
+                                                            id="select_adwords5" style="width: 100%;">
+                                                        <option></option>
+                                                        {% for a in accounts %}
+                                                            <option name="account"
+                                                                    value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control m-input" name="aw_acc"
+                                                            id="select_campaigns3" style="width: 100%;">
+                                                        <option></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            Assigned labels:
+                                            <div class="m-list-badge">
+                                                <div class="m-list-badge__items" id="labels_content">
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="m-separator"></div>
+                                        <div class="">
+                                            <span>Adgroup level</span>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <select class="form-control m-input" name="aw_acc"
+                                                            id="select_adwords6" style="width: 100%;">
+                                                        <option></option>
+                                                        {% for a in accounts %}
+                                                            <option name="account"
+                                                                    value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control m-input" name="campaign"
+                                                            id="select_campaigns4" style="width: 100%;">
+                                                        <option></option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select class="form-control m-input" name="adgroup"
+                                                            id="select_adgroups2"
+                                                            style="width: 100%;">
+                                                        <option disabled selected value> -- select an option -- </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            Assigned labels:
+                                            <div class="m-list-badge">
+                                                <div class="m-list-badge__items" id="ag_labels_content">
+
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                     <div class="tab-pane" id="m_tabs_7_3" role="tabpanel">
                                         <div id="assign_template">
+                                            <span>Account labels</span>
                                             <form name="submitLabelAssign" id="submitLabelAssign">
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <select class="form-control m-input" name="aw_acc"
-                                                                id="select_adwords" style="width: 100%;">
-                                                                <option></option>
+                                                                id="select_adwords2" style="width: 100%;">
+                                                            <option></option>
                                                             {% for a in accounts %}
                                                                 <option name="account"
                                                                         value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
@@ -133,12 +244,95 @@
                                                         </select>
                                                     </div>
                                                     <div class="col-md-4">
-                                                        <a href="#" onclick="assignLabel()"
+                                                        <a href="#" onclick="assignAccountLabels()"
                                                            class="btn btn-success m-btn m-btn--icon">
                                                 <span>
                                                     <i class="fa fa-plus"></i>
                                                     <span>Submit</span>
                                                 </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <div class="m-separator"></div>
+                                            <span>Text Labels(Campaign level)</span>
+                                            <form name="submitLabelAssignCampaign" id="submitLabelAssignCampaign">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <select class="form-control m-input" name="aw_acc"
+                                                                id="select_adwords3" style="width: 100%;">
+                                                            <option></option>
+                                                            {% for a in accounts %}
+                                                                <option name="account"
+                                                                        value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <select class="form-control m-input" name="campaigns"
+                                                                id="select_campaigns" multiple="multiple"
+                                                                style="width: 100%;">
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <select class="form-control m-input" name="labels"
+                                                                id="select_labels2" multiple="multiple"
+                                                                style="width: 100%;">
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <a href="#" onclick="assignCampaignLabels()"
+                                                           class="btn btn-success m-btn m-btn--icon">
+                                                            <span><i class="fa fa-plus"></i>
+                                                                <span>Submit</span>
+                                                            </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <div class="m-separator"></div>
+                                            <span>Text Labels(AdGroup level)</span>
+                                            <form name="submitLabelAssignAdGroup" id="submitLabelAssignAdGroup">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <select class="form-control m-input" name="aw_acc"
+                                                                id="select_adwords4" style="width: 100%;">
+                                                            <option></option>
+                                                            {% for a in accounts %}
+                                                                <option name="account"
+                                                                        value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-3">
+                                                        <select class="form-control m-input" name="campaigns"
+                                                                id="select_campaigns2"
+                                                                style="width: 100%;">
+                                                            <option></option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <select class="form-control m-input" name="adgroups"
+                                                                id="select_adgroups" multiple="multiple"
+                                                                style="width: 100%;">
+                                                            <option></option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <select class="form-control m-input" name="labels"
+                                                                id="select_labels3" multiple="multiple"
+                                                                style="width: 100%;">
+                                                            <option></option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <a href="#" onclick="assignAdgroupLabels()"
+                                                           class="btn btn-success m-btn m-btn--icon">
+                                                            <span><i class="fa fa-plus"></i>
+                                                                <span>Submit</span>
+                                                            </span>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -163,12 +357,18 @@
     <script type="text/javascript">
 
         function submitLabel() {
-
             let name = $("#label_name").val();
-            let data = {
-                'label_name': name
-            };
+            let label_name_cmp = $("#label_name_cmp").val();
+            let acc_id = $("#select_adwords").val();
+            let label_type = $("#label_type").val();
 
+            let data = {
+                'acc_id': acc_id,
+                'label_name': name,
+                'label_name_cmp': label_name_cmp,
+                'label_type': label_type
+            };
+            console.log(data);
             $.ajax({
                 url: '/tools/labels/create',
                 headers: {
@@ -178,23 +378,25 @@
                 data: data,
 
                 success: function (data) {
-
-                    if(data['error']) {
+                    console.log(data);
+                    if (data['error']) {
                         toastr.error(data['error'])
                     }
 
                     if (data['labels']) {
-                        toastr.success('Added ' + data['labels'] +' to DB and AdWords.')
+                        toastr.success('Added ' + data['labels'] + ' to DB and AdWords.')
                     }
 
-                    for(var i=0; i < data['labels'].length; i++){
+                    for (var i = 0; i < data['labels'].length; i++) {
+
                         let select = $("#select_labels");
-                        var new_option = new Option('label', data['labels'][i], false, false)
+                        var new_option = new Option('label', data['labels'][i], false, false);
                         select.append(new_option).trigger('change');
-                    };
+                    }
+                    ;
                 },
-                error: function (ajaxContext) {
-                    toastr.error(ajaxContext.statusText)
+                error: function (data) {
+                    toastr.error(data.responseText)
                 },
                 complete: function () {
                     $("#label_name").val("");
@@ -230,7 +432,7 @@
             });
         }
 
-        function assignLabel() {
+        function assignAccountLabels() {
 
             let data = $("#submitLabelAssign").serializeArray();
 
@@ -253,14 +455,126 @@
                     $("#select_adwords").val(null).trigger('change');
                     let table = $("#labels").DataTable();
                     let labels = data['responseJSON']['labels'];
-                    labels.forEach( function(labelId) {
-                        let cell = table.cell('#lcell-'+labelId);
+                    labels.forEach(function (labelId) {
+                        let cell = table.cell('#lcell-' + labelId);
                         let current_data = cell.data();
-                        let new_data = current_data + ' <span class="m-badge m-badge--info m-badge--wide" id="'+labelId+'-label-'+ data['responseJSON']['acc_id'] +'">\n' +
-                         data['responseJSON']['acc_name'] + ' <a href="#" onclick="deassignLabel('+ labelId +', \''+ data['responseJSON']['acc_id'] +'\')">x</a>' +
-                        '</span>'
+                        let new_data = current_data + ' <span class="m-badge m-badge--info m-badge--wide" id="' + labelId + '-label-' + data['responseJSON']['acc_id'] + '">\n' +
+                            data['responseJSON']['acc_name'] + ' <a href="#" onclick="deassignLabel(' + labelId + ', \'' + data['responseJSON']['acc_id'] + '\')">x</a>' +
+                            '</span>';
                         cell.data(new_data);
                     })
+                }
+            });
+        }
+
+        function assignCampaignLabels() {
+
+            let form = $("#submitLabelAssignCampaign");
+            let data = form.serializeArray();
+
+            $.ajax({
+                url: '/tools/labels/assign',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label(s) assigned to campaigns.');
+                    $("#select_campaigns").empty().trigger('change');
+                    $("#select_labels2").empty().trigger('change');
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function (data) {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        }
+
+        function assignAdgroupLabels() {
+            let form = $("#submitLabelAssignAdGroup");
+            let data = form.serializeArray();
+
+            $.ajax({
+                url: '/tools/labels/assign',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label(s) assigned to adgroups.');
+                    $("#select_campaigns2").empty().trigger('change');
+                    $("#select_adgroups").empty().trigger('change');
+                    $("#select_labels3").empty().trigger('change');
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function (data) {
+
+                }
+            });
+        }
+
+        function deassignAdGroupLabel(acc_id, label_id, adgroup_id) {
+            let data = {
+                'account_id': acc_id,
+                'label_id': label_id,
+                'adgroup_id': adgroup_id
+            };
+
+            $.ajax({
+                url: '/tools/labels/deassign',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label deassigned from adgroup.');
+                    $("#" + data['label_id'] + "-" + data['adgroup_id']).remove();
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function (data) {
+
+                }
+            });
+        }
+
+        function deassignCampaignLabel(acc_id, label_id, campaign_id) {
+            let data = {
+                'account_id': acc_id,
+                'label_id': label_id,
+                'campaign_id': campaign_id
+            };
+
+            $.ajax({
+                url: '/tools/labels/deassign',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: data,
+
+                success: function (data) {
+                    toastr.success('Label deassigned from campaign.');
+                    $("#" + data['label_id'] + "-" + data['campaign_id']).remove();
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function (data) {
+
                 }
             });
         }

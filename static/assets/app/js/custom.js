@@ -26,7 +26,8 @@ $(document).ready(function () {
     });
 
     $("#labels").DataTable({
-        'pagingType': 'full_numbers'
+        'pagingType': 'full_numbers',
+        'pageLength': 5
     });
 
     $("#adwords_datatable").DataTable({

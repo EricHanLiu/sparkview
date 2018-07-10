@@ -710,7 +710,8 @@ class AdwordsReporting(Reporting):
         extra_fields = kwargs.get("extra_fields", None)
 
         if extra_fields:
-            fields = list(set(fields.extend(extra_fields)))
+            fields.extend(extra_fields)
+            fields = list(set(fields))
 
         query = {
             "reportName": "CAMPAIGN_PERFORMANCE",
@@ -721,6 +722,58 @@ class AdwordsReporting(Reporting):
                 "fields": fields,
                 "predicates": [{
                     "field": "CampaignStatus",
+                    "operator": "IN",
+                    "values": ["ENABLED"],
+                }]
+            },
+        }
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        return query
+
+
+    def get_adgroup_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
+
+        fields = [
+            "CampaignId",
+            "CampaignName",
+            "AdGroupName",
+            "AdGroupId",
+            "Labels",
+            "Conversions",
+            "Impressions",
+            "Clicks",
+            "Cost",
+            "Ctr",
+            "CampaignStatus",
+            "CostPerConversion",
+            "AverageCpc",
+            "SearchImpressionShare",
+        ]
+
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if extra_fields:
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        query = {
+            "reportName": "ADGROUP_PERFORMANCE",
+            "dateRangeType": dateRangeType,
+            "reportType": "ADGROUP_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {
+                "fields": fields,
+                "predicates": [{
+                    "field": "CampaignStatus",
+                    "operator": "IN",
+                    "values": ["ENABLED"],
+                },{
+                    "field": "AdGroupStatus",
                     "operator": "IN",
                     "values": ["ENABLED"],
                 }]
@@ -797,6 +850,104 @@ class AdwordsReportingService(AdwordsReporting):
         )
 
         return self.parse_report_csv(downloaded_report)
+
+
+    def get_adgroup_performance(self, customer_id=None, **kwargs):
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_adgroup_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
+
+
+    def get_account_labels(self, customer_id=None):
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        account_label_service = client.GetService('ManagedCustomerService', version=self.api_version)
+
+
+        selector = {'fields': ['AccountLabels', 'CustomerId']}
+        result = account_label_service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
+
+
+    def get_text_labels(self, customer_id=None):
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        label_service = client.GetService('LabelService', version=self.api_version)
+
+        selector = {'fields': ['LabelId', 'LabelName']}
+        result = label_service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
+
+
+    def get_campaign_labels(self, customer_id=None):
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        campaign_label_service = client.GetService('CampaignService', version=settings.API_VERSION)
+        selector = {
+            'fields': ['Id', 'Labels', 'Name', 'Status'],
+            'predicates': [{
+                "field": "Status",
+                "operator": "IN",
+                "values": ["ENABLED"],
+            }]
+        }
+        result = campaign_label_service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
+
+    def get_adgroup_labels(self, customer_id=None):
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        service = client.GetService('AdGroupService', version=self.api_version)
+
+        selector = {
+            'fields': ['Name', 'Labels', 'CampaignId', 'CampaignName', 'Status'],
+            'predicates': [{
+                "field": "Status",
+                "operator": "IN",
+                "values": ["ENABLED"],
+            },
+                {
+                    "field": "CampaignStatus",
+                    "operator": "IN",
+                    "values": ["ENABLED"],
+                }
+            ]
+        }
+        result = service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
 
 
 class FacebookReporting(Reporting):
