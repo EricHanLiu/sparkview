@@ -161,36 +161,6 @@ class Performance(models.Model):
         ordering = ['created_time', 'updated_time']
 
 
-
-
-class Label(models.Model):
-
-    accounts = models.ManyToManyField(DependentAccount, blank=True, related_name='lbl_assigned_aw')
-    label_id = models.CharField(max_length=255, default='None')
-    name = models.CharField(max_length=255)
-    campaign_id = models.CharField(max_length=255, default='None')
-    campaign_name = models.CharField(max_length=255, default='None')
-    label_type = models.CharField(max_length=255, default='None')
-    updated_time = models.DateTimeField(auto_now=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-
-    @property
-    def json(self):
-        return dict(
-            account_id=self.account_id,
-            label_id=self.label_id,
-            name=self.name,
-            campaign_id=self.campaign_id,
-            campaign_name=self.campaign_name,
-            label_type=self.label_type,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.updated_time.strftime("%Y%m%d"),
-        )
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
-
-
 class CampaignStat(models.Model):
 
     dependent_account_id = models.CharField(max_length=255)
@@ -273,7 +243,6 @@ class Campaign(models.Model):
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
-    groupped = models.BooleanField(default=False)
 
     @property
     def json(self):
@@ -283,8 +252,54 @@ class Campaign(models.Model):
             campaign_name=self.campaign_name,
             campaign_cost=self.campaign_cost,
             campaign_budget=self.campaign_budget,
-            groupped=self.groupped
         )
+
+class Adgroup(models.Model):
+
+    account = models.ForeignKey(DependentAccount, null=True, blank=True)
+    campaign = models.ForeignKey(Campaign, null=True, blank=True)
+    adgroup_id = models.CharField(max_length=255, default='None')
+    adgroup_name = models.CharField(max_length=255, default='None')
+    adgroup_cost = models.FloatField(default=0)
+    adgroup_budget = models.FloatField(default=0)
+
+    @property
+    def json(self):
+        return dict(
+            account=self.account.json,
+            campaign_id=self.adgroup_id,
+            campaign_name=self.adgroup_name,
+            campaign_cost=self.adgroup_cost,
+            campaign_budget=self.adgroup_budget
+        )
+
+class Label(models.Model):
+
+    # used for filtering text labels
+    account = models.ForeignKey(DependentAccount, blank=True, null=True)
+    # used for account labels
+    accounts = models.ManyToManyField(DependentAccount, blank=True, related_name='lbl_assigned_aw')
+    campaigns = models.ManyToManyField(Campaign, blank=True, related_name='lbl_assigned_cmp')
+    adgroups = models.ManyToManyField(Adgroup, blank=True, related_name='lbl_assigned_cmp')
+    label_id = models.CharField(max_length=255, default='None')
+    name = models.CharField(max_length=255)
+    label_type = models.CharField(max_length=255, default='None')
+    updated_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def json(self):
+        return dict(
+            account_id=self.account.dependent_account_id,
+            label_id=self.label_id,
+            name=self.name,
+            label_type=self.label_type,
+            updated_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.updated_time.strftime("%Y%m%d"),
+        )
+
+    class Meta:
+        ordering = ['created_time', 'updated_time']
 
 class Profile(models.Model):
 

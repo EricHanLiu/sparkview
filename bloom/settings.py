@@ -143,7 +143,7 @@ STATIC_ROOT = "/var/www/bloom/static"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
-API_VERSION = 'v201806'
+API_VERSION = 'v201802'
 BING_API_VERSION = 11
 
 LOGIN_URL = "/"
@@ -166,6 +166,7 @@ CRONJOBS = [
     ('00 12 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('00 12 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('00 12 * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
+    ('15 12 * * *', 'cron_adgroups.main', '> ' + BASE_DIR + '/logs/adwords_adgroups.log'),
     ('20 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('30 12 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
     ('30 12 * * *', 'facebook_anomalies.main', '> ' + BASE_DIR + '/logs/facebook_anomalies.log'),

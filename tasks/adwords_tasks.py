@@ -1,11 +1,10 @@
 import json
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
-from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign
+from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
 from bloom.settings import ADWORDS_YAML
-from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_client():
@@ -253,7 +252,6 @@ def adwords_cron_campaign_stats(self, customer_id):
 
     for campaign in campaign_this_month:
         cost = helper.mcv(campaign['cost'])
-
         cmp, created = Campaign.objects.update_or_create(
             account=account,
             campaign_id=campaign['campaign_id']
@@ -283,6 +281,43 @@ def adwords_cron_campaign_stats(self, customer_id):
             for cmp in gr.aw_campaigns.all():
                 gr.current_spend += cmp.campaign_cost
                 gr.save()
+
+@celery_app.task(bind=True)
+def adwords_cron_adgroup_stats(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    this_month = helper.get_this_month_daterange()
+
+    adgroups_this_month = helper.get_adgroup_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        **this_month
+    )
+
+    print(adgroups_this_month)
+
+    for adgroup in adgroups_this_month:
+        cost = helper.mcv(adgroup['cost'])
+        campaign = Campaign.objects.get(campaign_id=adgroup['campaign_id'])
+
+        ag, created = Adgroup.objects.update_or_create(
+            account=account,
+            campaign=campaign,
+            adgroup_id=adgroup['ad_group_id']
+        )
+        ag.campaign_cost = cost
+        ag.adgroup_name = adgroup['ad_group']
+        ag.save()
+
+        if created:
+            print('Added to DB - [' + ag.adgroup_name + '].')
+        else:
+            print('Matched in DB - [' + ag.adgroup_name + '].')
+
 
 @celery_app.task(bind=True)
 def adwords_cron_flight_dates(self, customer_id):
@@ -336,3 +371,61 @@ def adwords_cron_budgets(self, customer_id):
                 b.save()
         else:
             print('No budgets found on this account')
+
+
+@celery_app.task(bind=True)
+def adwords_text_labels(self, customer_id):
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    data = helper.get_text_labels(customer_id=account.dependent_account_id)
+    print(data)
+    for d in data:
+        lbl, created = Label.objects.update_or_create(
+            account=account,
+            label_id=d['id'],
+            name=d['name'],
+            label_type=d['Label.Type']
+        )
+
+        if created:
+            print('Added to DB - TextLabel - ' + lbl.name)
+        else:
+            print('Updated label ' + lbl.name)
+
+
+@celery_app.task(bind=True)
+def adwords_campaign_labels(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    data = helper.get_campaign_labels(customer_id=account.dependent_account_id)
+    for item in data:
+        campaign = Campaign.objects.get(campaign_id=item['id'])
+        for label in item['labels']:
+            lbl = Label.objects.get(label_id=label['id'])
+            lbl.campaigns.add(campaign)
+            lbl.save()
+
+
+@celery_app.task(bind=True)
+def adwords_adgroup_labels(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    data = helper.get_adgroup_labels(customer_id=account.dependent_account_id)
+
+    for item in data:
+
+        adgroup = Adgroup.objects.get(adgroup_id=item['id'])
+        if len(item['labels']) > 0:
+            for label in item['labels']:
+                lbl = Label.objects.get(label_id=label['id'])
+                lbl.adgroups.add(adgroup)
+                lbl.save()
+
