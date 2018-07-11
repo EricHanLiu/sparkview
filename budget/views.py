@@ -10,7 +10,7 @@ from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
 from django.core import serializers
-import os
+from tasks import adwords_tasks, bing_tasks, facebook_tasks
 import subprocess
 import calendar
 import json
@@ -21,9 +21,6 @@ from dateutil.relativedelta import relativedelta
 
 # Create your views here.
 clients_file = settings.BASE_DIR + "/cron_clients.py"
-aw_cmp = settings.BASE_DIR + "/cron_campaigns.py"
-bing_cmp = settings.BASE_DIR + "/bing_campaigns.py"
-fb_cmp = settings.BASE_DIR + "/facebook_campaigns.py"
 
 @login_required
 @xframe_options_exempt
@@ -507,15 +504,19 @@ def flight_dates(request):
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
             FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
                                         adwords_account=account)
+            adwords_tasks.adwords_cron_flight_dates.delay(account.dependent_account_id)
+
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
             FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
                                         bing_account=account)
+            bing_tasks.bing_cron_flight_dates.delay(account.account_id)
 
         elif channel == 'facebook':
             account = FacebookAccount.objects.get(account_id=acc_id)
             FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
                                         facebook_account=account)
+            facebook_tasks.facebook_cron_flight_dates.delay(account.account_id)
 
         context = {
             'error': 'OK'
@@ -687,7 +688,7 @@ def add_groupings(request):
                 adwords=account
             )
             response['group_name'] = new_group.group_name
-            subprocess.Popen("python " + aw_cmp, shell=True)
+            adwords_tasks.adwords_cron_campaign_stats.delay(account.dependent_account_id)
 
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
@@ -699,7 +700,7 @@ def add_groupings(request):
                 bing=account
             )
             response['group_name'] = new_group.group_name
-            subprocess.Popen("python " + bing_cmp, shell=True)
+            bing_tasks.bing_cron_campaign_stats.delay(account.account_id)
 
         elif channel == 'facebook':
 
@@ -712,7 +713,7 @@ def add_groupings(request):
                 facebook=account
             )
             response['group_name'] = new_group.group_name
-            subprocess.Popen("python " + fb_cmp, shell=True)
+            facebook_tasks.facebook_cron_campaign_stats.delay(account.account_id)
 
         return JsonResponse(response)
 
@@ -734,9 +735,12 @@ def update_groupings(request):
         grouping.group_by = group_by
         grouping.save()
 
-        subprocess.Popen("python " + aw_cmp, shell=True)
-        subprocess.Popen("python " + bing_cmp, shell=True)
-        subprocess.Popen("python " + fb_cmp, shell=True)
+        if grouping.adwords is not None:
+            adwords_tasks.adwords_cron_campaign_stats.delay(grouping.adwords.dependent_account_id)
+        elif grouping.bing is not None:
+            bing_tasks.bing_cron_campaign_stats.delay(grouping.bing.account_id)
+        elif grouping.facebook is not None:
+            facebook_tasks.facebook_cron_campaign_stats.delay(grouping.facebook.account_id)
 
         context = {}
 
@@ -820,6 +824,14 @@ def update_fbudget(request):
         fbudget.start_date = sdate
         fbudget.end_date = edate
         fbudget.save()
+
+        if fbudget.adwords_account is not None:
+            adwords_tasks.adwords_cron_flight_dates.delay(fbudget.adwords_account.dependent_account_id)
+        elif fbudget.bing_account is not None:
+            bing_tasks.bing_cron_flight_dates.delay(fbudget.bing_account.account_id)
+        elif fbudget.facebook_account is not None:
+            facebook_tasks.facebook_cron_flight_dates.delay(fbudget.facebook_account.account_id)
+
 
         return JsonResponse(context)
 

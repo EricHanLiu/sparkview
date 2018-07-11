@@ -65,6 +65,18 @@
                                                    type="text" value="{{ request.user.email }}">
                                         </div>
                                     </div>
+                                    <div class="form-group m-form__group row">
+                                        <label class="col-2 col-form-label">Google Account</label>
+                                        <div class="col-7">
+                                            <div class="m-input-icon m-input-icon--left">
+                                                <input type="text" class="form-control m-input" disabled
+                                                       type="text" value="{{ google_login.uid }}">
+                                                <span class="m-input-icon__icon m-input-icon__icon--left"><span>
+                                                    <i class="socicon-google"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="m-form__seperator m-form__seperator--dashed m-form__seperator--space-2x"></div>
 
@@ -82,7 +94,8 @@
                                         <label class="col-2 col-form-label">CM</label>
                                         <div class="col-8">
                                             {% for al in aw_to %}
-                                                <span class="m-badge m-badge--info m-badge--wide" id="aw-{{ al.dependent_account_id }}">
+                                                <span class="m-badge m-badge--info m-badge--wide"
+                                                      id="aw-{{ al.dependent_account_id }}">
                                                     {{ al.dependent_account_name }} <a name="acc_id"
                                                                                        onclick="remove_acc({{ al.dependent_account_id }}, 'cm', 'adwords')">x</a>
                                                 </span>
@@ -93,7 +106,8 @@
                                         <label class="col-2 col-form-label">CM2</label>
                                         <div class="col-8">
                                             {% for cm2 in aw_cm2 %}
-                                                <span class="m-badge m-badge--success m-badge--wide" id="aw-{{ cm2.dependent_account_id }}">
+                                                <span class="m-badge m-badge--success m-badge--wide"
+                                                      id="aw-{{ cm2.dependent_account_id }}">
                                                     {{ cm2.dependent_account_name }} <a name="acc_id"
                                                                                         onclick="remove_acc({{ cm2.dependent_account_id }}, 'cm2', 'adwords')">x</a>
                                                 </span>
@@ -104,7 +118,8 @@
                                         <label class="col-2 col-form-label">CM3</label>
                                         <div class="col-8">
                                             {% for cm3 in aw_cm3 %}
-                                                <span class="m-badge m-badge--warning m-badge--wide" id="aw-{{ cm3.dependent_account_id }}">
+                                                <span class="m-badge m-badge--warning m-badge--wide"
+                                                      id="aw-{{ cm3.dependent_account_id }}">
                                                     {{ cm3.dependent_account_name }} <a name="acc_id"
                                                                                         onclick="remove_acc({{ cm3.dependent_account_id }}, 'cm3', 'adwords')">x</a>
                                                 </span>
@@ -121,7 +136,8 @@
                                         <label class="col-2 col-form-label">CM</label>
                                         <div class="col-8">
                                             {% for bl in bing_to %}
-                                                <span class="m-badge m-badge--info m-badge--wide" id="bing-{{ bl.account_id }}">
+                                                <span class="m-badge m-badge--info m-badge--wide"
+                                                      id="bing-{{ bl.account_id }}">
                                                 {{ bl.account_name }} <a name="acc_id"
                                                                          onclick="remove_acc({{ bl.account_id }}, 'cm', 'bing')">x</a>
                                             </span>
@@ -132,7 +148,8 @@
                                         <label class="col-2 col-form-label">CM2</label>
                                         <div class="col-8">
                                             {% for bcm2 in bing_cm2 %}
-                                                <span class="m-badge m-badge--success m-badge--wide" id="bing-{{ bcm2.account_id }}">
+                                                <span class="m-badge m-badge--success m-badge--wide"
+                                                      id="bing-{{ bcm2.account_id }}">
                                                 {{ bcm2.account_name }} <a name="acc_id"
                                                                            onclick="remove_acc({{ bcm2.account_id }}, 'cm2', 'bing')">x</a>
                                             </span>
@@ -143,7 +160,8 @@
                                         <label class="col-2 col-form-label">CM3</label>
                                         <div class="col-8">
                                             {% for bcm3 in bing_cm3 %}
-                                                <span class="m-badge m-badge--warning m-badge--wide" id="bing-{{ bcm3.account_id }}">
+                                                <span class="m-badge m-badge--warning m-badge--wide"
+                                                      id="bing-{{ bcm3.account_id }}">
                                                 {{ bcm3.account_name }} <a name="acc_id"
                                                                            onclick="remove_acc({{ bcm3.account_id }}, 'cm3', 'bing')">x</a>
                                             </span>
@@ -160,7 +178,8 @@
                                         <label class="col-2 col-form-label">CM</label>
                                         <div class="col-8">
                                             {% for f in fb_to %}
-                                                <span class="m-badge m-badge--info m-badge--wide" id="fb-{{ f.account_id }}">
+                                                <span class="m-badge m-badge--info m-badge--wide"
+                                                      id="fb-{{ f.account_id }}">
                                                 {{ f.account_name }} <a name="acc_id"
                                                                         onclick="remove_acc('{{ f.account_id }}', 'cm', 'facebook')">x</a>
                                             </span>
@@ -171,7 +190,8 @@
                                         <label class="col-2 col-form-label">CM2</label>
                                         <div class="col-8">
                                             {% for fcm2 in fb_cm2 %}
-                                                <span class="m-badge m-badge--success m-badge--wide" id="fb-{{ fcm2.account_id }}">
+                                                <span class="m-badge m-badge--success m-badge--wide"
+                                                      id="fb-{{ fcm2.account_id }}">
                                                 {{ fcm2.account_name }} <a name="acc_id"
                                                                            onclick="remove_acc('{{ fcm2.account_id }}', 'cm2', 'facebook')">x</a>
                                             </span>
@@ -182,7 +202,8 @@
                                         <label class="col-2 col-form-label">CM3</label>
                                         <div class="col-8">
                                             {% for fcm3 in fb_cm3 %}
-                                                <span class="m-badge m-badge--warning m-badge--wide" id="fb-{{ fcm3.account_id }}">
+                                                <span class="m-badge m-badge--warning m-badge--wide"
+                                                      id="fb-{{ fcm3.account_id }}">
                                                 {{ fcm3.account_name }} <a name="acc_id"
                                                                            onclick="remove_acc('{{ fcm3.account_id }}', 'cm3', 'facebook')">x</a>
                                             </span>
@@ -261,9 +282,9 @@
                 },
                 success: function (data) {
                     toastr.success('Removed ' + data['account_name'] + ' from user profile.');
-                    if (data['channel'] === 'adwords'){
+                    if (data['channel'] === 'adwords') {
                         $('#aw-' + data['account_id']).remove();
-                    } else if ( data['channel'] === 'bing') {
+                    } else if (data['channel'] === 'bing') {
                         $('#bing-' + data['account_id']).remove();
                     } else if (data['channel'] === 'facebook') {
                         $('#fb-' + data['account_id']).remove();

@@ -10,6 +10,8 @@
     <meta name="description" content="Latest updates and statistic charts">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="google-signin-client_id"
+          content="967183304564-54i17l22sad6f9dt28eos6bjaohf1frh.apps.googleusercontent.com">
     <!--begin::Web font -->
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
     <script>
@@ -21,11 +23,18 @@
         });
     </script>
     <!--end::Web font -->
+    <!-- Compiled and minified CSS -->
+
+
+    <!-- Compiled and minified JavaScript -->
+    <!-- Google API JS Sign-in library -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <!--begin::Base Styles -->
     <link href="{% static 'assets/vendors/base/vendors.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/demo/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <!--end::Base Styles -->
-    <link rel="shortcut icon" href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>
+    <link rel="shortcut icon"
+          href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>
 </head>
 <!-- end::Head -->
 <!-- end::Body -->
@@ -79,6 +88,7 @@
                             Sign In To Admin
                         </h3>
                     </div>
+                    <div class="m-login__account-msg" id="error-login"></div>
                     <form class="m-login__form m-form" id="custom_login" action=".">
                         {% csrf_token %}
                         <div class="form-group m-form__group">
@@ -103,15 +113,23 @@
                                     class="btn btn-focus m-btn m-btn--pill m-btn--custom m-btn--air  m-login__btn">
                                 Sign In
                             </button>
+                            <a href="{% url "social:begin" "google-oauth2" %}" style="text-transform:none"
+                               class="btn btn-focus m-btn m-btn--pill m-btn--custom m-btn--air  m-login__btn">
+                                <img width="15px" alt="Google Logo"
+                                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+                                Login with Google
+                            </a>
                         </div>
-                    </form>
                 </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+</div>
 
 <script>
+
     function getCookie(name) {
         var value = "; " + document.cookie;
         var parts = value.split("; " + name + "=");
@@ -122,7 +140,7 @@
     function ajaxPOST(url, data, callback) {
         let xml = new XMLHttpRequest();
         let ready = function () {
-            return ((xml['readyState'] === 4) && (xml['status'] == 200)) ? callback(xml['responseText']) : '';
+            return ((xml['readyState'] === 4) && (xml['status'] == 200)) ? callback(xml['response']) : '';
         };
         let csrftoken = getCookie('csrftoken');
         xml['open']('POST', url, true);
@@ -150,11 +168,16 @@
             username = this.querySelectorAll('[name=username]')[0];
             password = this.querySelectorAll('[name=password]')[0];
             e.preventDefault();
-            ajaxPOST('{% url 'login' %}',
-		{'username': username.value, 'password': password.value},
+            ajaxPOST(
+                '{% url 'login' %}',
+                {'username': username.value, 'password': password.value},
                 function (data) {
-			console.log('success');
-                    	window.location.replace('{% url 'index' %}');
+                    if (data.includes("error")) {
+                        toastr.error(data);
+                    } else {
+                        toastr.success(data);
+                        window.location.replace('{% url 'index' %}');
+                    }
                 })
         }
     };

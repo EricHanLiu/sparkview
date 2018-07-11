@@ -40,6 +40,7 @@ def create_labels(request):
     l_type = request.POST.get('label_type')
     acc_id = request.POST.get('acc_id')
 
+    account = DependentAccount.objects.get(dependent_account_id=acc_id)
 
     if not l_type:
         managed_customer_service = client.GetService('AccountLabelService', version=settings.API_VERSION)
@@ -90,7 +91,7 @@ def create_labels(request):
                 aw_response = result['value']
                 for item in aw_response:
                     c_labels.append(item['name'])
-                    Label.objects.create(name=item['name'], label_id=item['id'], label_type=item['Label.Type'])
+                    Label.objects.create(account=account, name=item['name'], label_id=item['id'], label_type=item['Label.Type'])
                 response['labels'] = c_labels
         except suds.WebFault as e:
             response['error'] = e.fault['detail']['ApiExceptionFault']['errors'][0]['reason'] + ': ' + op['operand']['name']

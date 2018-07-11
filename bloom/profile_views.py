@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from adwords_dashboard.models import DependentAccount, Profile
 from bing_dashboard.models import BingAccounts
 from facebook_dashboard.models import FacebookAccount
+from social_django.models import UserSocialAuth
 import json
 
 
@@ -34,8 +35,14 @@ def view_profile(request):
         fb_cm2 = FacebookAccount.objects.filter(assigned_cm2=user)
         fb_cm3 = FacebookAccount.objects.filter(assigned_cm3=user)
 
+        try:
+            google_login = user.social_auth.get(provider='google-oauth2')
+        except UserSocialAuth.DoesNotExist:
+            google_login = None
+
         context = {
             'adwords': adwords_accounts,
+            'google_login': google_login,
             'bing': bing_accounts,
             'facebook': facebook_accounts,
             'aw_to': aw_to,
@@ -54,15 +61,6 @@ def view_profile(request):
 
     elif request.method == 'POST':
 
-        adwords = request.POST.getlist('adwords')
-        adwords_cm2 = request.POST.getlist('adwords_cm2')
-        adwords_cm3 = request.POST.getlist('adwords_cm3')
-        bing = request.POST.getlist('bing')
-        bing_cm2 = request.POST.getlist('bing_cm2')
-        bing_cm3 = request.POST.getlist('bing_cm3')
-        facebook = request.POST.getlist('facebook')
-        facebook_cm2 = request.POST.getlist('facebook_cm2')
-        facebook_cm3 = request.POST.getlist('facebook_cm3')
         email = request.POST.get('user-email')
 
         if email == user.email:
@@ -70,61 +68,6 @@ def view_profile(request):
         else:
             user.email = email
             user.save()
-
-        profile = Profile.objects.get(user=user)
-
-        if adwords:
-            for a in adwords:
-                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                aw_acc.assigned_to = user
-                aw_acc.save()
-
-        if adwords_cm2:
-            for a in adwords_cm2:
-                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                aw_acc.assigned_cm2 = user
-                aw_acc.save()
-        if adwords_cm3:
-            for a in adwords_cm3:
-                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                aw_acc.assigned_cm3 = user
-                aw_acc.save()
-
-        if bing:
-            for b in bing:
-                bing_acc = BingAccounts.objects.get(account_id=b)
-                bing_acc.assigned_to = user
-                bing_acc.save()
-
-        if bing_cm2:
-            for b in bing_cm2:
-                bing_acc = BingAccounts.objects.get(account_id=b)
-                bing_acc.assigned_cm2 = user
-                bing_acc.save()
-
-        if bing_cm3:
-            for b in bing_cm3:
-                bing_acc = BingAccounts.objects.get(account_id=b)
-                bing_acc.assigned_cm3 = user
-                bing_acc.save()
-
-        if facebook:
-            for f in facebook:
-                fb_acc = FacebookAccount.objects.get(account_id=f)
-                fb_acc.assigned_to = user
-                fb_acc.save()
-
-        if facebook_cm2:
-            for f in facebook:
-                fb_acc = FacebookAccount.objects.get(account_id=f)
-                fb_acc.assigned_cm2 = user
-                fb_acc.save()
-
-        if facebook_cm3:
-            for f in facebook:
-                fb_acc = FacebookAccount.objects.get(account_id=f)
-                fb_acc.assigned_cm3 = user
-                fb_acc.save()
 
         context = {
             'error': 'OK'
