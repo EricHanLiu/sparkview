@@ -25,13 +25,14 @@ def bloom_login(request):
             username = login_data['username']
             password = login_data['password']
             user = authenticate(username=username, password=password)
-
+            print(user)
             if user is not None:
                 login(request, user)
-                response['success'] = '1'
+                print()
+                response['success'] = 'Login successful'
                 return JsonResponse(response)
             else:
-                response['error'] = '0'
+                response['error'] = 'Invalid username or password.'
                 return JsonResponse(response)
     return redirect("/")
 
