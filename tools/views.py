@@ -2,11 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from adwords_dashboard.models import Label, DependentAccount, Campaign, Adgroup
-from googleads import adwords
+from googleads import adwords, errors
 from django.conf import settings
 import suds
 import json
 from django.core import serializers
+from tasks import adwords_tasks
 
 # Create your views here.
 @login_required
@@ -79,7 +80,7 @@ def create_labels(request):
     for op in operations:
         try:
             result = managed_customer_service.mutate(op)
-
+            print(suds.WebFault)
             if 'labels' in result:
                 aw_response = result['labels']
                 for item in aw_response:
@@ -93,8 +94,9 @@ def create_labels(request):
                     c_labels.append(item['name'])
                     Label.objects.create(account=account, name=item['name'], label_id=item['id'], label_type=item['Label.Type'])
                 response['labels'] = c_labels
-        except suds.WebFault as e:
-            response['error'] = e.fault['detail']['ApiExceptionFault']['errors'][0]['reason'] + ': ' + op['operand']['name']
+
+        except errors.GoogleAdsServerFault as e:
+            response['error'] = e.errors[0]['reason']
 
 
     return JsonResponse(response)

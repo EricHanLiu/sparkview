@@ -108,6 +108,13 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="row m-form__help">
+                            {% for message in messages %}
+                                <span style="color: #FFF;">
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                            {% endfor %}
+                                </span>
+                        </div>
                         <div class="m-login__form-action">
                             <button type="submit" id="m_login_signin_submit"
                                     class="btn btn-focus m-btn m-btn--pill m-btn--custom m-btn--air  m-login__btn">
@@ -119,6 +126,7 @@
                                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
                                 Login with Google
                             </a>
+                            <span class="m-form__help" style="color: white;">Only @makeitbloom.com e-mails are allowed.</span>
                         </div>
                 </div>
                 </form>
