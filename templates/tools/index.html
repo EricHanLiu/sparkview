@@ -396,7 +396,7 @@
                     ;
                 },
                 error: function (data) {
-                    toastr.error(data.responseText)
+                    toastr.error(data['error'])
                 },
                 complete: function () {
                     $("#label_name").val("");

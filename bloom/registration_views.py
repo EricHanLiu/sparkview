@@ -1,12 +1,13 @@
 from __future__ import unicode_literals
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, HttpResponse, redirect, HttpResponseRedirect, reverse
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 import json
 
-def index(request):
 
+
+def index(request):
     if request.user.is_authenticated:
         return redirect('/dashboards/adwords/')
 
@@ -14,7 +15,6 @@ def index(request):
 
 
 def bloom_login(request):
-
     if not request.user.is_authenticated:
         if request.method == "POST":
             response = {}
@@ -25,16 +25,18 @@ def bloom_login(request):
             username = login_data['username']
             password = login_data['password']
             user = authenticate(username=username, password=password)
-            print(user)
+
             if user is not None:
                 login(request, user)
-                print()
                 response['success'] = 'Login successful'
                 return JsonResponse(response)
             else:
                 response['error'] = 'Invalid username or password.'
                 return JsonResponse(response)
+
+
     return redirect("/")
+
 
 @login_required
 def bloom_logout(request):

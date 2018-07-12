@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -158,6 +159,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'hd': 'makeitbloom.com',
     'access_type': 'online',
 }
+SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['makeitbloom.com', 'hdigital.io']
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '967183304564-54i17l22sad6f9dt28eos6bjaohf1frh.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'AFQ5EqzWXICEFMwLfEumz9C5'
 
@@ -176,6 +179,8 @@ BING_API_VERSION = 11
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = 'index'
+LOGIN_ERROR_URL = 'login'
+SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
