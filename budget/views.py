@@ -843,7 +843,6 @@ def delete_fbudget(request):
     if request.method == 'POST':
 
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
         fbudget = FlightBudget.objects.get(id=data['budget_id'])
         fbudget.delete()
 

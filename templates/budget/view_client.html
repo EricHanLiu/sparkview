@@ -193,27 +193,28 @@
                         <p>Add flight date for <span id="fd_acc_name"></span></p>
                         <div class="form-group">
 
-                                <div class="form-group m-form__group row">
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <input type="text" class="form-control sdate"
-                                               id="m_datepicker_1" placeholder="Start date">
-                                    </div>
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <input type="text" class="form-control edate"
-                                               id="m_datepicker_2" placeholder="End date">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="number" class="form-control fbudget"
-                                               min="0" placeholder="Desired budget" required>
-                                    </div>
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control sdate"
+                                           id="m_datepicker_1" placeholder="Start date">
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control edate"
+                                           id="m_datepicker_2" placeholder="End date">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control fbudget"
+                                           min="0" placeholder="Desired budget" required>
                                 </div>
                             </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="submitFlightBudget()">Submit</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="submitFlightBudget()">Submit
+                        </button>
                     </div>
                     <div class="col-md-4"></div>
                 </div>
@@ -232,27 +233,28 @@
                         <p>Edit flight date for <span id="fde_acc_name"></span></p>
                         <div class="form-group">
 
-                                <div class="form-group m-form__group row">
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <input type="text" class="form-control sdate"
-                                               id="m_datepicker_3" placeholder="Start date">
-                                    </div>
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <input type="text" class="form-control edate"
-                                               id="m_datepicker_4" placeholder="End date">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="number" class="form-control fbudget_edit" name="fbudget_edit"
-                                               min="0" placeholder="Desired budget" required>
-                                    </div>
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control sdate"
+                                           id="m_datepicker_3" placeholder="Start date">
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control edate"
+                                           id="m_datepicker_4" placeholder="End date">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control fbudget_edit" name="fbudget_edit"
+                                           min="0" placeholder="Desired budget" required>
                                 </div>
                             </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="updateFlightBudget()">Submit</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="updateFlightBudget()">Submit
+                        </button>
                     </div>
                     <div class="col-md-4"></div>
                 </div>
@@ -261,7 +263,7 @@
     </div>
     <!--END:Modal edit flight date-->
 
-     <!--START:Modal delete flight date-->
+    <!--START:Modal delete flight date-->
     <div class="modal fade" id="m_delete_flight_date" tabindex="-1" role="dialog" aria-labelledby="delete_flight_date">
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -320,27 +322,28 @@
                         <p>Add campaign group for <span id="cgr_acc_name"></span></p>
                         <div class="form-group">
 
-                                <div class="form-group m-form__group row">
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <input type="text" class="form-control group-name"
-                                               name="cgr_group_name" placeholder="Group name" required>
-                                    </div>
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <input type="text" class="form-control group-by"
-                                               name="cgr_group_by" placeholder="Group by.." required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="number" class="form-control group_budget" name="group_budget"
-                                               min="0" placeholder="Group budget" required>
-                                    </div>
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control group-name"
+                                           name="cgr_group_name" placeholder="Group name" required>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control group-by"
+                                           name="cgr_group_by" placeholder="Group by.." required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" class="form-control group_budget" name="group_budget"
+                                           min="0" placeholder="Group budget" required>
                                 </div>
                             </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="addCampaignGroup()">Submit</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="addCampaignGroup()">Submit
+                        </button>
                     </div>
                     <div class="col-md-4"></div>
                 </div>
@@ -350,7 +353,8 @@
     <!--END:Modal add_campaign_group-->
 
     <!--START:Modal edit_campaign_group-->
-    <div class="modal fade" id="m_edit_campaign_group" tabindex="-1" role="dialog" aria-labelledby="edit_campaign_group">
+    <div class="modal fade" id="m_edit_campaign_group" tabindex="-1" role="dialog"
+         aria-labelledby="edit_campaign_group">
         <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
@@ -359,30 +363,31 @@
                         <p>Edit campaign group for <span id="cgr_acc_name"></span></p>
                         <div class="form-group">
 
-                                <div class="form-group m-form__group row">
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <label for="cgr_group_name">Group name:</label>
-                                        <input type="text" class="form-control group-name"
-                                               name="cgr_group_name" placeholder="Group name" required>
-                                    </div>
-                                    <div class="col-lg-4 col-md-4 col-sm-12">
-                                        <label for="cgr_group_by">Group by:</label>
-                                        <input type="text" class="form-control group-by"
-                                               name="cgr_group_by" placeholder="Group by.." required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="group_budget">Budget:</label>
-                                        <input type="number" class="form-control group_budget" name="group_budget"
-                                               min="0" placeholder="Group budget" required>
-                                    </div>
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <label for="cgr_group_name">Group name:</label>
+                                    <input type="text" class="form-control group-name"
+                                           name="cgr_group_name" placeholder="Group name" required>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <label for="cgr_group_by">Group by:</label>
+                                    <input type="text" class="form-control group-by"
+                                           name="cgr_group_by" placeholder="Group by.." required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="group_budget">Budget:</label>
+                                    <input type="number" class="form-control group_budget" name="group_budget"
+                                           min="0" placeholder="Group budget" required>
                                 </div>
                             </div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="updateCampaignGroup()">Submit</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="updateCampaignGroup()">Submit
+                        </button>
                     </div>
                     <div class="col-md-4"></div>
                 </div>
@@ -391,8 +396,9 @@
     </div>
     <!--END:Modal edit_campaign_group-->
 
-     <!--START:Modal delete campaign group-->
-    <div class="modal fade" id="m_delete_campaign_group" tabindex="-1" role="dialog" aria-labelledby="delete_campaign_group">
+    <!--START:Modal delete campaign group-->
+    <div class="modal fade" id="m_delete_campaign_group" tabindex="-1" role="dialog"
+         aria-labelledby="delete_campaign_group">
         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
@@ -404,7 +410,8 @@
                 <div class="modal-footer">
                     <div class="col-md-2"></div>
                     <div class="col-md-8 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="deleteCampaignGroup()">Yes</button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="deleteCampaignGroup()">Yes
+                        </button>
                         <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="No">No
                         </button>
                     </div>
@@ -493,18 +500,18 @@
             for (key in data) {
                 if (data.hasOwnProperty(key)) {
                     lst.push({
-                        'x': key,
+                        'x': moment(key),
                         'y': data[key]
                     })
                 }
             }
-            lst.sort(function(a, b){
-                if (a.y == b.y) return a.x - b.x;
-                return a.y - b.y;
-            });
 
+            lst.sort(function (a, b) {
+                return new Date(b.x) - new Date(a.x);
+            });
             return lst
         }
+
 
         function generateChart(data) {
 
@@ -520,87 +527,94 @@
             var new_fbs = gen_xy(data.fb_spend);
             var new_fbp = gen_xy(data.fb_projected);
 
+            var s1 = {
+                label: "AdWords Spend",
+                backgroundColor: 'rgba(236, 76, 51, 0.15)',
+                borderColor: 'rgb(236, 76, 51)',
+                data: gen_xy(data.aw_spend),
+                fill: true,
+                borderWidth: 0.90,
+            };
+
+            var s2 = {
+                label: "AdWords Target Spend",
+                backgroundColor: 'rgb(255, 72, 51)',
+                borderColor: 'rgb(255, 72, 51)',
+                data: gen_xy(data.aw_budget),
+                fill: false,
+                borderWidth: 0.90,
+            };
+
+            var s3 = {
+                label: "AdWords Projected Spend",
+                backgroundColor: 'rgba(236, 76, 51, 0.15)',
+                borderColor: 'rgb(0, 0, 0)',
+                data: gen_xy(data.aw_projected),
+                borderDash: [2, 2],
+                fill: true,
+                borderWidth: 0.90,
+                type: 'scatter',
+                beginAtZero: false,
+            };
+
+            var s4 = {
+                label: "Bing Spend",
+                backgroundColor: 'rgb(12, 181, 74)',
+                borderColor: 'rgb(12, 181, 74)',
+                data: new_bings,
+                borderWidth: 0.90,
+                fill: false,
+            };
+            var s5 = {
+                label: "Bing Target Spend",
+                backgroundColor: 'rgb(0, 215, 116)',
+                borderColor: 'rgb(0, 215, 116)',
+                data: new_bingb,
+                fill: false,
+                borderWidth: 0.90,
+            };
+            var s6 = {
+                label: "Bing Projected Spend",
+                backgroundColor: 'rgba(0, 227, 149, 0.3)',
+                borderColor: 'rgb(0, 0, 0)',
+                data: new_bingp,
+                borderDash: [2, 2],
+                fill: true,
+                borderWidth: 0.90,
+            };
+            var s7 = {
+                label: "Facebook Spend",
+                backgroundColor: 'rgb(44, 139, 203)',
+                borderColor: 'rgb(44, 139, 203)',
+                data: new_fbs,
+                fill: false,
+                borderWidth: 0.90,
+            };
+            var s8 = {
+                label: "Facebook Target Spend",
+                backgroundColor: 'rgb(0, 160, 219)',
+                borderColor: 'rgb(0, 160, 219)',
+                data: new_fbb,
+                fill: false,
+                borderWidth: 0.90,
+            };
+            var s9 = {
+                label: "Facebook Projected Spend",
+                backgroundColor: 'rgba(93, 185, 229, 0.3)',
+                borderColor: 'rgb(0, 0, 0)',
+                data: new_fbp,
+                borderDash: [2, 2],
+                fill: true,
+                borderWidth: 0.90,
+            };
 
             var ctx = document.getElementById('spendChart').getContext('2d');
             var chart = new Chart(ctx, {
                 // The type of chart we want to create
-                type: 'line',
+                type: 'scatter',
                 data: {
-                    datasets: [{
-                        label: "AdWords Spend",
-                        backgroundColor: 'rgba(236, 76, 51)',
-                        borderColor: 'rgb(236, 76, 51)',
-                        data: new_aws,
-                        fill: false,
-                        borderWidth: 0.90,
-                    },
-                        {
-                            label: "AdWords Target Spend",
-                            backgroundColor: 'rgb(255, 72, 51)',
-                            borderColor: 'rgb(255, 72, 51)',
-                            data: new_awp,
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
-                        {
-                            label: "AdWords Projected Spend",
-                            backgroundColor: 'rgb(255, 128, 114)',
-                            borderColor: 'rgb(0, 0, 0)',
-                            data: new_awb,
-                            borderDash: [5, 5],
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
-                        {
-                            label: "Bing Spend",
-                            backgroundColor: 'rgb(12, 181, 74)',
-                            borderColor: 'rgb(12, 181, 74)',
-                            data: new_bings,
-                            borderWidth: 0.90,
-                            fill: false,
-                        },
-                        {
-                            label: "Bing Target Spend",
-                            backgroundColor: 'rgb(0, 215, 116)',
-                            borderColor: 'rgb(0, 215, 116)',
-                            data: new_bingb,
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
-                        {
-                            label: "Bing Projected Spend",
-                            backgroundColor: 'rgb(0, 227, 149)',
-                            borderColor: 'rgb(0, 0, 0)',
-                            data: new_bingp,
-                            borderDash: [5,5],
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
-                        {
-                            label: "Facebook Spend",
-                            backgroundColor: 'rgb(44, 139, 203)',
-                            borderColor: 'rgb(44, 139, 203)',
-                            data: new_fbs,
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
-                        {
-                            label: "Facebook Target Spend",
-                            backgroundColor: 'rgb(0, 160, 219)',
-                            borderColor: 'rgb(0, 160, 219)',
-                            data: new_fbb,
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
-                        {
-                            label: "Facebook Projected Spend",
-                            backgroundColor: 'rgb(93, 185, 229)',
-                            borderColor: 'rgb(0, 0, 0)',
-                            data: new_fbp,
-                            borderDash: [5,5],
-                            fill: false,
-                            borderWidth: 0.90,
-                        },
+                    datasets: [
+                        s1, s2, s3, s4, s5, s6, s7, s8, s9
                     ]
                 },
 
@@ -620,23 +634,15 @@
                         position: 'bottom',
                         labels: {
                             usePointStyle: true,
-                            boxWidth: 1,
+                            boxWidth: 0.5,
 
                         }
-                    },
-                    tooltips: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    hover: {
-                        mode: 'nearest',
-                        intersect: true
                     },
                     elements: {
                         point: {
                             pointStyle: 'circle',
                             backgroundColor: 'rgba(0,0,0,0.5)',
-                            radius: 2.2,
+                            radius: 1.6,
                             hitRadius: 20,
                             hoverBorderWidth: 1,
                         },
@@ -650,11 +656,10 @@
                             type: 'time',
                             time: {
                                 unit: 'day',
-                                tooltipFormat: 'MMM D',
+                                tooltipFormat: 'MMM DD',
                                 displayFormats: {
-                                    day: 'MMM D'
-                                }
-
+                                    day: 'MMM DD'
+                                },
                             },
                             gridLines: {
                                 display: false,
@@ -667,7 +672,7 @@
                                 display: true,
                             },
                             ticks: {
-                                beginAtZero: true
+                                beginAtZero: true,
                             }
                         }]
                     }
@@ -965,8 +970,6 @@
             let modal = $("#m_add_campaign_group");
             let data = $("#add_campaign_group").serializeArray();
 
-            console.log(data);
-
             $.ajax({
                 url: '/budget/groupings/create/',
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -1044,7 +1047,7 @@
 
         function toggleCampaigns(gr_id) {
             event.preventDefault();
-            $("#campaigns_"+gr_id).toggle("slow");
+            $("#campaigns_" + gr_id).toggle("slow");
         }
 
 

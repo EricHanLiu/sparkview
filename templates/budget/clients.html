@@ -150,8 +150,7 @@
                                     </td>
                                     {% if client.has_gts and client.has_budget %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
-                                            <input id="client_budget-{{ client.id }}" type="number"
-                                                   value="{{ client.budget }}" class="table-number" disabled>
+                                            {{ client.budget }}
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
                                             <input id="client_gts-{{ client.id }}" type="number"
@@ -160,8 +159,7 @@
                                         </td>
                                     {% elif client.has_gts %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
-                                            <input id="client_budget-{{ client.id }}" type="number"
-                                                   value="{{ client.budget }}" class="table-number" disabled>
+                                            {{ client.budget }}
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
                                             <input id="client_gts-{{ client.id }}" type="number"
@@ -170,8 +168,7 @@
                                         </td>
                                     {% elif client.has_budget %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
-                                            <input id="client_budget-{{ client.id }}" type="number"
-                                                   value="{{ client.budget }}" class="table-number" disabled>
+                                            {{ client.budget }}
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
                                             <input id="client_gts-{{ client.id }}" type="number"
@@ -180,8 +177,7 @@
                                         </td>
                                     {% else %}
                                         <td style="text-align: center" id="budget-{{ client.id }}">
-                                            <input id="client_budget-{{ client.id }}" type="number"
-                                                   value="{{ client.budget }}" class="table-number" disabled>
+                                            {{ client.budget }}
                                         </td>
                                         <td style="text-align: center" id="gts-{{ client.id }}">
                                             <input id="client_gts-{{ client.id }}" type="number"

@@ -1,3 +1,4 @@
+import calendar
 from bloom import celery_app
 from bloom.utils import FacebookReportingService
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,7 +7,7 @@ from facebook_dashboard.models import FacebookAccount, FacebookPerformance, Face
 from budget.models import FlightBudget, CampaignGrouping
 from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, access_token
-
+from dateutil.relativedelta import relativedelta
 
 def facebook_init():
     return FacebookAdsApi.init(app_id, app_secret, access_token)
@@ -88,7 +89,6 @@ def facebook_cron_ovu(self, account_id):
     this_month = helper.set_params(
         time_range=helper.get_this_month_daterange(),
         level='account',
-        time_increment=1
     )
 
     yesterday_time = helper.set_params(
@@ -394,3 +394,65 @@ def facebook_cron_flight_dates(self, customer_id):
         spend = data[0]['spend']
         b.current_spend = spend
         b.save()
+
+
+@celery_app.task(bind=True)
+def facebook_result_trends(self, customer_id):
+    account = FacebookAccount.objects.get(account_id=customer_id)
+    helper = FacebookReportingService(facebook_init())
+
+    today = datetime.today()
+    minDate = (today - relativedelta(months=2)).replace(day=1)
+    daterange = helper.get_custom_date_range(minDate, today)
+
+    params = helper.set_params(
+        time_range=daterange,
+        level='account',
+        time_increment='monthly'
+    )
+    fields = [
+        'ctr',
+    ]
+
+    data = helper.get_account_insights(
+        account.account_id,
+        params=params,
+        extra_fields=fields
+    )
+
+    trends_data = {}
+    to_parse = []
+
+    for item in data:
+        month_num = item['date_start'].split('-')[1]
+        month = calendar.month_name[int(month_num)]
+
+        ctr = "{0:.2f}".format(float(item['ctr']))
+
+        trends_data[month] = {
+            'ctr': ctr,
+            # 'cvr': item['conv._rate'],
+            # 'conversions': item['conversions']
+        }
+
+    print(trends_data)
+    for v in sorted(trends_data.items(), reverse=True):
+        to_parse.append(v)
+
+    ctr_change = helper.get_change(to_parse[2][1]['ctr'], to_parse[0][1]['ctr'])
+    ctr_score = helper.get_score(round(ctr_change, 2))
+
+    # cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
+    # cvr_score = helper.get_score(round(cvr_change, 2))
+
+    # conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
+    # conv_score = helper.get_score(round(conv_change, 2))
+
+    trends_score = int(ctr_score)
+
+    account.trends = trends_data
+    # account.ctr_score = ctr_score
+    # account.cvr_score = cvr_score
+    # account.conversion_score = conv_score
+    account.trends_score = trends_score
+    account.save()

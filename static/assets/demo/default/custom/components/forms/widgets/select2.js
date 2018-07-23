@@ -30,6 +30,20 @@ var Select2 = function () {
 
         let checkbox = $('#m_gts_check');
 
+        $("#select_analyser").select2({
+            placeholder: 'Search account...'
+        });
+
+        $("#select_report").select2({
+            placeholder: 'Select report...'
+        });
+
+        $("#select_analyser").on('select2:select', function (e) {
+            let account_id = $("#select_analyser").val();
+            let channel = $("#select_analyser").find(":selected").data("channel");
+            window.location.href = '/tools/ppcanalyser/account/overview/' + account_id + '/' + channel;
+        });
+
         $("#m_select2_adwords").select2({
             placeholder: "Search..."
         });
@@ -196,7 +210,7 @@ var Select2 = function () {
             placeholder: "Search adgroups..."
         });
 
-        $("#select_adgroups2").on('select2:select', function(){
+        $("#select_adgroups2").on('select2:select', function () {
             let ag_labels = $("#ag_labels_content");
             ag_labels.empty();
 
@@ -222,7 +236,7 @@ var Select2 = function () {
 
                         let new_label = '' +
                             '<span class="m-badge m-badge--success m-badge--wide" id="' + label_id + '-' + ag_id + '">' +
-                            ''+ label_name + ' <i class="fa fa-trash" onclick="deassignAdGroupLabel('+ acc_id +', ' + label_id +', '+ ag_id+')"></i>\n' +
+                            '' + label_name + ' <i class="fa fa-trash" onclick="deassignAdGroupLabel(' + acc_id + ', ' + label_id + ', ' + ag_id + ')"></i>\n' +
                             '</span> ';
 
                         ag_labels.append(new_label);
@@ -336,8 +350,8 @@ var Select2 = function () {
                 type: 'GET',
 
                 success: function (data) {
-                    var new_= new Option('','' , false, false);
-                        select_campaigns.append(new_).trigger('change');
+                    var new_ = new Option('', '', false, false);
+                    select_campaigns.append(new_).trigger('change');
                     for (var i = 0; i < data['campaigns'].length; i++) {
                         let campaign_name = data['campaigns'][i]['fields']['campaign_name'];
                         let campaign_id = data['campaigns'][i]['fields']['campaign_id'];
@@ -376,8 +390,8 @@ var Select2 = function () {
                 type: 'GET',
 
                 success: function (data) {
-                    var new_= new Option('','' , false, false);
-                        select_campaigns.append(new_).trigger('change');
+                    var new_ = new Option('', '', false, false);
+                    select_campaigns.append(new_).trigger('change');
                     for (var i = 0; i < data['campaigns'].length; i++) {
                         let campaign_name = data['campaigns'][i]['fields']['campaign_name'];
                         let campaign_id = data['campaigns'][i]['fields']['campaign_id'];
@@ -421,8 +435,8 @@ var Select2 = function () {
                 type: 'GET',
 
                 success: function (data) {
-                    var new_= new Option('','' , false, false);
-                        select_adgroups.append(new_).trigger('change');
+                    var new_ = new Option('', '', false, false);
+                    select_adgroups.append(new_).trigger('change');
                     for (var i = 0; i < data['adgroups'].length; i++) {
                         let adgroup_name = data['adgroups'][i]['fields']['adgroup_name'];
                         let adgroup_id = data['adgroups'][i]['fields']['adgroup_id'];
@@ -461,8 +475,8 @@ var Select2 = function () {
                         let label_id = data['labels'][i]['fields']['label_id'];
 
                         let new_label = '' +
-                            '<span class="m-badge m-badge--success m-badge--wide" id="' + label_id +'-'+ cmp_id +'">' +
-                            ''+ label_name + ' <i class="fa fa-trash" onclick="deassignCampaignLabel('+ acc_id +', ' + label_id +', '+ cmp_id +')"></i>\n' +
+                            '<span class="m-badge m-badge--success m-badge--wide" id="' + label_id + '-' + cmp_id + '">' +
+                            '' + label_name + ' <i class="fa fa-trash" onclick="deassignCampaignLabel(' + acc_id + ', ' + label_id + ', ' + cmp_id + ')"></i>\n' +
                             '</span> ';
 
                         cmp_labels.append(new_label);
@@ -496,8 +510,8 @@ var Select2 = function () {
                 type: 'GET',
 
                 success: function (data) {
-                    var new_= new Option('','' , false, false);
-                        select_adgroups.append(new_).trigger('change');
+                    var new_ = new Option('', '', false, false);
+                    select_adgroups.append(new_).trigger('change');
                     for (var i = 0; i < data['adgroups'].length; i++) {
                         let adgroup_name = data['adgroups'][i]['fields']['adgroup_name'];
                         let adgroup_id = data['adgroups'][i]['fields']['adgroup_id'];

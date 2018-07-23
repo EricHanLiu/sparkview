@@ -1,0 +1,285 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+    {% csrf_token %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>Account results -
+                                    {% if account.channel == 'adwords' %}
+                                        {{ account.dependent_account_name }}
+                                    {% else %}
+                                        {{ account.account_name }}
+                                    {% endif %}
+                                </span>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="pull-right">
+                            <i class="fa fa-4x fa-play-circle fa-5x" style="font-size: 2.1rem!important;"
+                               title="Run reports now" onclick="runReports(
+                                   {% if account.channel == 'adwords' %}
+                                   '{{ account.dependent_account_id }}',
+                                    {% else %}
+                                    '{{ account.account_id }}',
+                                    {% endif %}
+                                   '{{ account.channel }}')">
+                            </i>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div id="orangecircle" data-percent="{{ account.trends_score }}"
+                                     class="orange center percircle animate">
+                                    <span>{{ account.trends_score }}</span>
+                                    <div class="slice">
+                                        <div class="bar"></div>
+                                        <div class="fill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group m-form__group">
+                                    <div class="alert m-alert m-alert--default" role="alert">
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi finibus vehicula
+                                        laoreet. Aliquam non efficitur sem, eget pulvinar urna. Vestibulum sem velit,
+                                        maximus ut quam sit amet, ullamcorper gravida risus.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <table class="table m-table m-table--head-separator-primary" id="trends_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>CTR</th>
+                                        <th>CVR</th>
+                                        <th>Conv.</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for key, value in trends.items %}
+                                        <tr>
+                                            <td>{{ key }}</td>
+                                            <td>{{ value.ctr }}</td>
+                                            <td>{{ value.cvr }}</td>
+                                            <td>{{ value.conversions }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group m-form__group">
+                                    <select class="form-control m-input" id="select_report">
+                                        <option></option>
+                                        <option>Trends report - {{ account.trends_score }}/100</option>
+                                        <option>QS Report</option>
+                                        <option>Wasted spend</option>
+                                        <option>Account Activity</option>
+                                        <option>Change History Report</option>
+                                        <option>Disapproved Ads</option>
+                                        <option>Account Errors</option>
+                                        <option>Tags Report</option>
+                                        <option>Extension Report</option>
+                                        <option>Conversion Tracking</option>
+                                        <option>NLC Attribution</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-separator"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="myChart">
+                                    <canvas id="trendsChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group m-form__group">
+                                    <div class="alert m-alert m-alert--default" role="alert"
+                                         style="min-height: 300px!important;">
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi finibus vehicula
+                                        laoreet. Aliquam non efficitur sem, eget pulvinar urna. Vestibulum sem velit,
+                                        maximus ut quam sit amet, ullamcorper gravida risus.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--End::Main Portlet-->
+    </div>
+
+
+    <script type="text/javascript">
+        let trends = {{ trends|safe }};
+
+        function gen_xy(data, parameter) {
+
+            lst = [];
+
+            for (key in data) {
+                if (data.hasOwnProperty(key)) {
+
+                    if (parameter === 'ctr' || parameter == 'cvr') {
+
+                        lst.push({
+                            'x': new Date('2018' + key),
+                            'y': data[key][parameter].replace('%', '')
+                        })
+                    } else {
+                        lst.push({
+                            'x': new Date('2018' + key),
+                            'y': data[key][parameter]
+                        })
+                    }
+
+
+                }
+            }
+            lst.sort(function (a, b) {
+                return new Date(b.x) - new Date(a.x);
+            });
+
+            return lst
+        }
+
+        let config = {
+            // The type of chart we want to create
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: "CTR",
+                    backgroundColor: 'rgba(236, 76, 51)',
+                    borderColor: 'rgb(236, 76, 51)',
+                    data: gen_xy(trends, 'ctr'),
+                    fill: false,
+                    borderWidth: 0.90,
+                },
+                    {
+                        label: "Conversion Rate",
+                        backgroundColor: 'rgba(51, 204, 51)',
+                        borderColor: 'rgb(51, 204, 51)',
+                        data: gen_xy(trends, 'cvr'),
+                        fill: false,
+                        borderWidth: 0.90,
+                    },
+                    {
+                        label: "Conversions",
+                        backgroundColor: 'rgba(0, 51, 204)',
+                        borderColor: 'rgb(0, 51, 204)',
+                        data: gen_xy(trends, 'conversions'),
+                        fill: false,
+                        borderWidth: 0.90,
+                    }
+                ]
+            },
+
+            // Configuration options go here
+            options: {
+                responsive: true,
+                display: true,
+                title: {
+                    display: true,
+                    text: 'Trends',
+                    fontSize: 20,
+                    padding: 25,
+                    fontStyle: 'normal'
+                },
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: .5,
+
+                    }
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: true,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                elements: {
+                    point: {
+                        pointStyle: 'circle',
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        radius: 2.2,
+                        hitRadius: 20,
+                        hoverBorderWidth: 1,
+                    },
+                    line: {
+                        tension: 0.4,
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'MMM',
+                            displayFormats: {
+                                month: 'MMM'
+                            }
+
+                        },
+                        gridLines: {
+                            display: false,
+                        },
+                    }],
+                    yAxes: [{
+                        display: true,
+                        type: 'linear',
+                        gridLines: {
+                            display: false,
+                        },
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            },
+
+        };
+
+        window.onload = function () {
+            var ctx = document.getElementById('trendsChart').getContext('2d');
+            window.myLine = new Chart(ctx, config);
+        }
+
+        function runReports(customer_id, channel) {
+
+            let data = {
+                'account_id': customer_id,
+                'channel': channel
+            };
+
+            $.ajax({
+                url: '{% url 'tools:report_run' %}',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    toastr.success("Reqeust sent. Wait a few minutes and refresh the page for updated information.")
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText);
+                },
+                complete: function () {
+                }
+            });
+        }
+    </script>
+
+{% endblock %}
