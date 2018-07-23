@@ -2,12 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from adwords_dashboard.models import Label, DependentAccount, Campaign, Adgroup
+from bing_dashboard.models import BingAccounts
+from facebook_dashboard.models import FacebookAccount
 from googleads import adwords, errors
 from django.conf import settings
-import suds
 import json
 from django.core import serializers
-from tasks import adwords_tasks
+from tasks import adwords_tasks, bing_tasks
 
 # Create your views here.
 @login_required
@@ -21,8 +22,74 @@ def index_tools(request):
         'accounts': accounts
     }
 
-    return render(request, 'tools/index.html', context)
+    return render(request, 'tools/labels.html', context)
 
+@login_required
+def analyser(request):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+    bing_accounts = BingAccounts.objects.filter(blacklisted=False)
+    facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)
+
+    context = {
+        'accounts': accounts,
+        'bing_accounts': bing_accounts,
+        'facebook_accounts': facebook_accounts
+    }
+    return render(request, 'tools/ppcanalyser/analyser.html', context)
+
+
+@login_required
+def account_results(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    context = {
+        'account': account,
+        'trends': account.trends
+    }
+    return render(request, 'tools/ppcanalyser/account_results.html', context)
+
+@login_required
+def account_overview(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    context = {
+        'account': account,
+        'trends': account.trends
+    }
+    print(context)
+    return render(request, 'tools/ppcanalyser/overview.html', context)
+
+@login_required
+def run_reports(request):
+
+    data = request.POST
+
+    account_id = data['account_id']
+    channel = data['channel']
+
+    if channel == 'adwords':
+        adwords_tasks.adwords_result_trends.delay(account_id)
+    elif channel == 'bing':
+        bing_tasks.bing_result_trends.delay(account_id)
+    elif channel == 'facebook':
+        pass
+
+    response = {}
+
+    return JsonResponse(response)
 
 @login_required
 def create_labels(request):
@@ -79,8 +146,8 @@ def create_labels(request):
 
     for op in operations:
         try:
+
             result = managed_customer_service.mutate(op)
-            print(suds.WebFault)
             if 'labels' in result:
                 aw_response = result['labels']
                 for item in aw_response:
@@ -216,6 +283,7 @@ def assign_labels(request):
     adgroups = request.POST.getlist('adgroups')
     account = DependentAccount.objects.get(dependent_account_id=acc_id)
 
+    response = {}
 
     if 'campaigns' in request.POST and 'adgroups' in request.POST:
         for label_id in labels:
@@ -232,16 +300,20 @@ def assign_labels(request):
 
         client.SetClientCustomerId(acc_id)
         adgroup_service = client.GetService('AdGroupService', version=settings.API_VERSION)
-        result = adgroup_service.mutateLabel(operations)
+        try:
+            result = adgroup_service.mutateLabel(operations)
 
-        for item in result['value']:
+            for item in result['value']:
 
-            label = Label.objects.get(label_id=item['labelId'])
-            adgroup = Adgroup.objects.get(adgroup_id=item['adGroupId'])
-            if adgroup in label.adgroups.all():
-                continue
-            else:
-                label.adgroups.add(adgroup)
+                label = Label.objects.get(label_id=item['labelId'])
+                adgroup = Adgroup.objects.get(adgroup_id=item['adGroupId'])
+                if adgroup in label.adgroups.all():
+                    continue
+                else:
+                    label.adgroups.add(adgroup)
+        except errors.GoogleAdsServerFault as e:
+            print(e)
+            response['error'] = e.errors[0]['reason']
 
     elif 'campaigns' in request.POST:
         for label_id in labels:
@@ -258,15 +330,20 @@ def assign_labels(request):
 
         client.SetClientCustomerId(acc_id)
         campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
-        result = campaign_service.mutateLabel(operations)
+        try:
+            result = campaign_service.mutateLabel(operations)
 
-        for item in result['value']:
-            label = Label.objects.get(label_id=item['labelId'])
-            campaign = Campaign.objects.get(campaign_id=item['campaignId'])
-            if campaign in label.campaigns.all():
-                continue
-            else:
-                label.campaigns.add(campaign)
+            for item in result['value']:
+                label = Label.objects.get(label_id=item['labelId'])
+                campaign = Campaign.objects.get(campaign_id=item['campaignId'])
+                if campaign in label.campaigns.all():
+                    continue
+                else:
+                    label.campaigns.add(campaign)
+
+        except errors.GoogleAdsServerFault as e:
+            print(e.errors)
+            response['error'] = e.errors[0]['reason']
 
     else:
         for label_id in labels:
@@ -282,21 +359,22 @@ def assign_labels(request):
             )
 
         managed_customer_service = client.GetService('ManagedCustomerService', version=settings.API_VERSION)
-        result = managed_customer_service.mutateLabel(operations)
+        try:
+            result = managed_customer_service.mutateLabel(operations)
 
-        for item in result['value']:
-            label = Label.objects.get(label_id=item['labelId'])
-            if account in label.accounts.all():
-                continue
-            else:
-                label.accounts.add(account)
-            label.save()
+            for item in result['value']:
+                label = Label.objects.get(label_id=item['labelId'])
+                if account in label.accounts.all():
+                    continue
+                else:
+                    label.accounts.add(account)
+                label.save()
+        except errors.GoogleAdsServerFault as e:
+            response['error'] = e.errors[0]['reason']
 
-    response = {
-        'labels': labels,
-        'acc_name': account.dependent_account_name,
-        'acc_id': account.dependent_account_id
-    }
+    response['labels'] = labels
+    response['acc_name'] = account.dependent_account_name,
+    response['acc_id'] = account.dependent_account_id
 
     return JsonResponse(response)
 

@@ -1,5 +1,3 @@
-
-
 $(document).ready(function () {
     let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
@@ -20,6 +18,12 @@ $(document).ready(function () {
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     };
+
+    $("#trends_table").DataTable({
+        bFilter: false,
+        bPaginate: false,
+        bInfo: false,
+    });
 
     $('#accounts').DataTable({
         'pagingType': 'full_numbers'
@@ -97,32 +101,24 @@ $(document).ready(function () {
         }
     });
 
-    // $("#m_datepicker_1").on('show.bs.modal', function (event) {
-    //         event.stopPropagation();
-    //     });
-    //
-    // $("#m_datepicker_2").on('show.bs.modal', function (event) {
-    //     event.stopPropagation();
-    // });
-
     let dp1 = $("#m_datepicker_1");
     let dp2 = $("#m_datepicker_2");
     let dp3 = $("#m_datepicker_3");
     let dp4 = $("#m_datepicker_4");
 
-    dp1.on('show.bs.modal', function(event){
+    dp1.on('show.bs.modal', function (event) {
         x.stopPropagation();
     });
 
-    dp2.on('show.bs.modal', function(event){
+    dp2.on('show.bs.modal', function (event) {
         event.stopPropagation();
     });
 
-    dp3.on('show.bs.modal', function(event){
+    dp3.on('show.bs.modal', function (event) {
         event.stopPropagation();
     });
 
-    dp4.on('show.bs.modal', function(event){
+    dp4.on('show.bs.modal', function (event) {
         event.stopPropagation();
     });
 
@@ -234,12 +230,12 @@ $(document).ready(function () {
         $(".modal-body #dkpi_network_type").html(network);
     });
 
-     $("#m_delete_flight_date").on('show.bs.modal', function (e) {
+    $("#m_delete_flight_date").on('show.bs.modal', function (e) {
         let fbudgetid = $(e.relatedTarget).data('fbudgetid');
         $(".modal-body #fid").val(fbudgetid);
     });
 
-     $("#m_delete_campaign_group").on('show.bs.modal', function (e) {
+    $("#m_delete_campaign_group").on('show.bs.modal', function (e) {
         let gr_id = $(e.relatedTarget).data('grid');
         $(".modal-body #gr_id").val(gr_id);
     });
@@ -341,6 +337,59 @@ $(document).ready(function () {
         placeholder: "Search labels..."
     });
 
+
+    $(function () {
+        $("[id$='circle']").percircle();
+
+        $("#clock").percircle({
+            perclock: true
+        });
+
+        $("#countdown").percircle({
+            perdown: true,
+            secs: 14,
+            timeUpText: 'finally!',
+            reset: true
+        });
+
+        $("#custom").percircle({
+            text: "custom",
+            percent: 27
+        });
+        $("#custom-color").percircle({
+            progressBarColor: "#CC3366",
+            percent: 64.5
+        });
+    });
+
+
+    $("#redBecomesBlue").percircle({percent: 61, text: "61"});
+    $("#fiftyTo30").percircle({percent: 51, text: "51"});
+
+    $('#changeCircle').click(function (e) {
+        e.preventDefault();
+        changeCircle();
+    });
+    $('#fiftyToThirtyBtn').click(function (e) {
+        e.preventDefault();
+        fiftyToThirty();
+    });
+
+    function changeCircle() {
+        $("#redBecomesBlue").percircle({
+            text: "95.5",
+            percent: 95.5,
+            progressBarColor: "#4f18c0"
+        });
+    }
+
+    function fiftyToThirty() {
+        $("#fiftyTo30").percircle({
+            text: "30",
+            percent: 30,
+            progressBarColor: "#1ec0b0"
+        });
+    }
 
 
 })

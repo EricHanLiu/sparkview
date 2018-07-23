@@ -1,13 +1,12 @@
 import copy
-import json
+import calendar
 from bloom import celery_app
-from bloom import settings
-from bing_dashboard import auth
-from celery import group
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
 from budget.models import FlightBudget, CampaignGrouping
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -338,3 +337,57 @@ def bing_cron_flight_dates(self, customer_id):
         spend = sum([float(item['spend']) for item in data])
         b.current_spend = spend
         b.save()
+
+@celery_app.task(bind=True)
+def bing_result_trends(self, customer_id):
+    print(customer_id)
+    account = BingAccounts.objects.get(account_id=customer_id)
+    helper = BingReportingService()
+
+    today = datetime.today()
+    minDate = (today - relativedelta(months=2)).replace(day=1)
+    daterange = helper.create_daterange(minDate, today)
+
+    data = helper.get_account_performance(
+        account_id=account.account_id,
+        aggregation="Monthly",
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=[
+            'ConversionRate',
+            'Conversions',
+            'Ctr'
+        ],
+        **daterange
+    )
+
+    trends_data = {}
+    to_parse = []
+
+    for item in data:
+        month_num = item['month'].split('-')[1]
+        month = calendar.month_name[int(month_num)]
+        trends_data[month] = {
+            'ctr': item['ctr'],
+            'cvr': item['conversionrate'],
+            'conversions': item['conversions']
+        }
+
+    for v in sorted(trends_data.items(), reverse=True):
+        to_parse.append(v)
+
+    ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
+    ctr_score = helper.get_score(round(ctr_change, 2))
+
+    cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
+    cvr_score = helper.get_score(round(cvr_change, 2))
+
+    conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
+    conv_score = helper.get_score(round(conv_change, 2))
+    trends_score = int(ctr_score + cvr_score + conv_score) / 3
+
+    account.trends = trends_data
+    # account.ctr_score = ctr_score
+    # account.cvr_score = cvr_score
+    # account.conversion_score = conv_score
+    account.trends_score = trends_score
+    account.save()

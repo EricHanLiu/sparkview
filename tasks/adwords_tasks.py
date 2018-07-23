@@ -4,14 +4,39 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
+from googleads.errors import GoogleAdsError, AdWordsReportBadRequestError
 from bloom.settings import ADWORDS_YAML
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
+
+def month_converter(month):
+    months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ]
+
+    current_year = str(datetime.today().year)
+    month_to_int = str(months.index(month) + 1)
+
+    return month_to_int
 
 
 def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
-def account_anomalies(account_id, helper, daterange1, daterange2):
 
+def account_anomalies(account_id, helper, daterange1, daterange2):
     current_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
         extra_fields=["SearchImpressionShare"], **daterange1
@@ -19,9 +44,8 @@ def account_anomalies(account_id, helper, daterange1, daterange2):
 
     previous_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
-         **daterange2
+        **daterange2
     )
-
 
     differences = helper.compare_dict(
         current_period_performance[0], previous_period_performance[0]
@@ -39,7 +63,6 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
         customer_id=account_id, dateRangeType="CUSTOM_DATE", **daterange2
     )
 
-
     cmp_stats = helper.map_campaign_stats(
         current_period_performance, identifier="campaign_id"
     )
@@ -54,7 +77,6 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
     for c_id in cmp_ids:
         if c_id in cmp_stats and c_id in cmp_stats2:
-
             differences = helper.compare_dict(
                 cmp_stats[c_id][0], cmp_stats2[c_id][0]
             )
@@ -62,10 +84,9 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
     return diff_list
 
+
 @celery_app.task(bind=True)
 def adwords_cron_anomalies(self, customer_id):
-
-
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
@@ -113,11 +134,9 @@ def adwords_cron_anomalies(self, customer_id):
         metadata=acc_metadata
     )
 
-
     Performance.objects.filter(account=account, performance_type='CAMPAIGN').delete()
 
     for cmp in cmp_anomalies:
-
         metadata_cmp = {}
         metadata_cmp["daterange1_min"] = helper.stringify_date(current_period_daterange["minDate"])
         metadata_cmp["daterange1_max"] = helper.stringify_date(current_period_daterange["maxDate"])
@@ -142,10 +161,8 @@ def adwords_cron_anomalies(self, customer_id):
         )
 
 
-
 @celery_app.task(bind=True)
 def adwords_cron_ovu(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     helper = AdwordsReportingService(get_client())
@@ -167,8 +184,7 @@ def adwords_cron_ovu(self, customer_id):
     segmented_data = {
         i['day']: i for i in data_this_month
     }
-
-
+    print(segmented_data)
     last_7_ordered = helper.sort_by_date(last_7)
     last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
 
@@ -182,7 +198,7 @@ def adwords_cron_ovu(self, customer_id):
     try:
         yesterday = last_7_ordered[-1]
         yesterday_spend = helper.mcv(yesterday['cost'])
-        current_spend = sum(helper.mcv(item['cost'])for item in data_this_month)
+        current_spend = sum(helper.mcv(item['cost']) for item in data_this_month)
     except IndexError:
         yesterday_spend = 0
         current_spend = 0
@@ -196,7 +212,6 @@ def adwords_cron_ovu(self, customer_id):
     account.save()
 
 
-
 @celery_app.task(bind=True)
 def adwords_cron_disapproved_alert(self, customer_id):
     alert_type = "DISAPPROVED_AD"
@@ -207,33 +222,41 @@ def adwords_cron_disapproved_alert(self, customer_id):
         "values": "DISAPPROVED"
     }]
     extra_fields = ["PolicySummary"]
-    data = helper.get_ad_performance(
-        customer_id=customer_id,
-        extra_fields=extra_fields,
-        predicates=predicates
-    )
-
-    Alert.objects.filter(
-        dependent_account_id=customer_id, alert_type=alert_type
-    ).delete()
-
-
-    for ad in data:
-        alert_reason = json.loads(ad['ad_policies'])
-        Alert.objects.create(
-            dependent_account_id=customer_id,
-            alert_type=alert_type,
-            alert_reason=":".join(alert_reason),
-            ad_group_id=ad['ad_group_id'],
-            ad_group_name=ad['ad_group'],
-            ad_headline=ad['headline_1'],
-            campaignName=ad['campaign'],
-            campaign_id=ad['campaign_id'],
+    try:
+        data = helper.get_ad_performance(
+            customer_id=customer_id,
+            extra_fields=extra_fields,
+            predicates=predicates
         )
+
+        Alert.objects.filter(
+            dependent_account_id=customer_id, alert_type=alert_type
+        ).delete()
+
+        for ad in data:
+            alert_reason = json.loads(ad['ad_policies'])
+            Alert.objects.create(
+                dependent_account_id=customer_id,
+                alert_type=alert_type,
+                alert_reason=":".join(alert_reason),
+                ad_group_id=ad['ad_group_id'],
+                ad_group_name=ad['ad_group'],
+                ad_headline=ad['headline_1'],
+                campaignName=ad['campaign'],
+                campaign_id=ad['campaign_id'],
+            )
+
+    except AdWordsReportBadRequestError as e:
+        print(e.type)
+        if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
+            account = DependentAccount.objects.get(dependent_account_id=customer_id)
+            # account.blacklisted = True
+            # account.save()
+            print('Account ' + account.dependent_account_name + ' unlinked from MCC')
+
 
 @celery_app.task(bind=True)
 def adwords_cron_campaign_stats(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     groupings = CampaignGrouping.objects.filter(adwords=account)
 
@@ -282,9 +305,9 @@ def adwords_cron_campaign_stats(self, customer_id):
                 gr.current_spend += cmp.campaign_cost
                 gr.save()
 
+
 @celery_app.task(bind=True)
 def adwords_cron_adgroup_stats(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
@@ -321,7 +344,6 @@ def adwords_cron_adgroup_stats(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_cron_flight_dates(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -339,9 +361,9 @@ def adwords_cron_flight_dates(self, customer_id):
         b.current_spend = spend
         b.save()
 
+
 @celery_app.task(bind=True)
 def adwords_cron_budgets(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -397,7 +419,6 @@ def adwords_text_labels(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_campaign_labels(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -413,7 +434,6 @@ def adwords_campaign_labels(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_adgroup_labels(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -429,3 +449,55 @@ def adwords_adgroup_labels(self, customer_id):
                 lbl.adgroups.add(adgroup)
                 lbl.save()
 
+
+@celery_app.task(bind=True)
+def adwords_result_trends(self, customer_id):
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    today = datetime.today()
+    minDate = (today - relativedelta(months=2)).replace(day=1)
+    daterange = helper.create_daterange(minDate, today)
+
+    data = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=[
+            'MonthOfYear',
+            'ConversionRate'
+        ],
+        **daterange
+    )
+
+    trends_data = {}
+    to_parse = []
+
+    for item in data:
+        trends_data[item['month_of_year']] = {
+            'ctr': item['ctr'],
+            'cvr': item['conv._rate'],
+            'conversions': item['conversions']
+        }
+
+
+    for v in sorted(trends_data.items(), reverse=True):
+        to_parse.append(v)
+
+    ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
+    ctr_score = helper.get_score(round(ctr_change, 2))
+
+    cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
+    cvr_score = helper.get_score(round(cvr_change, 2))
+
+    conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
+    conv_score = helper.get_score(round(conv_change, 2))
+
+    trends_score = int(ctr_score + cvr_score + conv_score) / 3
+
+    account.trends = trends_data
+    # account.ctr_score = ctr_score
+    # account.cvr_score = cvr_score
+    # account.conversion_score = conv_score
+    account.trends_score = trends_score
+    account.save()

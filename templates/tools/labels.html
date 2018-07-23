@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>Tools</span>
+                                <span>Labels</span>
                             </h2>
                         </div>
                     </div>
@@ -20,9 +20,9 @@
                         <span class="m-portlet__head-icon">
 							<i class="fa fa-tags"></i>
 						</span>
-                                        <h3 class="m-portlet__head-text">
-                                            Labels
-                                        </h3>
+{#                                        <h3 class="m-portlet__head-text">#}
+{#                                            Labels#}
+{#                                        </h3>#}
                                     </div>
                                 </div>
                                 <div class="m-portlet__head-tools">
@@ -378,7 +378,7 @@
                 data: data,
 
                 success: function (data) {
-                    console.log(data);
+
                     if (data['error']) {
                         toastr.error(data['error'])
                     }
@@ -445,7 +445,11 @@
                 data: data,
 
                 success: function (data) {
-                    toastr.success('Label(s) assigned to account.');
+                    if (data['error']) {
+                        toastr.error(data['error'])
+                    } else {
+                        toastr.success('Label(s) assigned to account.');
+                    }
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
@@ -481,17 +485,18 @@
                 data: data,
 
                 success: function (data) {
-                    toastr.success('Label(s) assigned to campaigns.');
-                    $("#select_campaigns").empty().trigger('change');
-                    $("#select_labels2").empty().trigger('change');
+                    if (data['error']) {
+                        toastr.error(data['error'])
+                    } else {
+                        toastr.success('Label(s) assigned to campaigns.');
+                        $("#select_campaigns").empty().trigger('change');
+                        $("#select_labels2").empty().trigger('change');
+                    }
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
                 },
                 complete: function (data) {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1000);
                 }
             });
         }
@@ -509,16 +514,19 @@
                 data: data,
 
                 success: function (data) {
-                    toastr.success('Label(s) assigned to adgroups.');
-                    $("#select_campaigns2").empty().trigger('change');
-                    $("#select_adgroups").empty().trigger('change');
-                    $("#select_labels3").empty().trigger('change');
+                    if (data['error']) {
+                        toastr.error(data['error'])
+                    } else {
+                        toastr.success('Label(s) assigned to adgroups.');
+                        $("#select_campaigns2").empty().trigger('change');
+                        $("#select_adgroups").empty().trigger('change');
+                        $("#select_labels3").empty().trigger('change');
+                    }
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
                 },
                 complete: function (data) {
-
                 }
             });
         }

@@ -18,6 +18,42 @@ from bingads.v11.reporting import (
 
 class Reporting:
 
+    def get_change(self, current, previous):
+        if float(current) == float(previous):
+            return 100.0
+        try:
+            return (float(current) - float(previous)) / float(previous) * 100.0
+        except ZeroDivisionError:
+            return 0
+
+    def get_score(self, change):
+
+        score = 0
+
+        if change > 25:
+            score = 100
+        elif change > 20:
+            score = 90
+        elif change > 10:
+            score = 80
+        elif change > 5:
+            score = 70
+        elif change > 0:
+            score = 60
+        elif change == 0:
+            score = 50
+        elif 0 > change > -4.99:
+            score = 40
+        elif -5 > change > -9.99:
+            score = 30
+        elif -10 > change > -19.99:
+            score = 20
+        elif -20 > change > -24.99:
+            score = 10
+        elif -25 > change:
+            score = 0
+
+        return score
 
     def stringify_date(self, date, date_format='%Y%m%d'):
         if not isinstance(date, datetime):

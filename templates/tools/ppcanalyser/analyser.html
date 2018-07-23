@@ -1,0 +1,144 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+    {% csrf_token %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>PPC Analyser</span>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+
+                        <select class="form-control m-input" name="analyser"
+                                id="select_analyser" style="width: 100%;">
+                            <option></option>
+                            {% for a in accounts %}
+                                <option name="account" value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">
+                                    A - {{ a.dependent_account_name }}
+                                </option>
+                            {% endfor %}
+                            {% for b in bing_accounts %}
+                                <option name="account" value="{{ b.account_id }}" data-channel="{{ b.channel }}">
+                                    B - {{ b.account_name }}
+                                </option>
+
+                            {% endfor %}
+{#                            {% for f in facebook_accounts %}#}
+{#                                <option name="account" value="{{ f.account_id }}" data-channel="{{ f.channel }}">#}
+{#                                    F - {{ f.account_name }}#}
+{#                                </option>#}
+{##}
+{#                            {% endfor %}#}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+
+    {#    <div class="row">#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <p>Keyword Performance</p>#}
+    {#            <div id="orangecircle" data-percent="60" class="red center percircle animate">#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <p>Account results</p>#}
+    {#            <a>#}
+    {#                <div id="orangecircle" data-percent="47" class="darkblue center percircle animate">#}
+    {#                    <div class="slice">#}
+    {#                        <div class="bar"></div>#}
+    {#                        <div class="fill"></div>#}
+    {#                    </div>#}
+    {#                </div>#}
+    {#            </a>#}
+    {#        </div>#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <p>Targeting</p>#}
+    {#            <div id="orangecircle" data-percent="23" class="yellow center percircle animate"><span>23%</span>#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <p>Bid Management</p>#}
+    {#            <div id="orangecircle" data-percent="11" class="green center percircle animate"><span>11%</span>#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
+    {#    <!-- Center row !-->#}
+    {#    <div class="row">#}
+    {#        <div class="col-md-12 text-center">#}
+    {#            <p>Overall</p>#}
+    {#            <div id="orangecircle" data-percent="40" class="blue center percircle animate">#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
+    {#    <!-- End Center row !-->#}
+    {#    <!-- Bottom row !-->#}
+    {#    <div class="row">#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <div id="orangecircle" data-percent="37" class="pink center percircle animate">#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#            <p style="padding-top: 10px;">Search</p>#}
+    {#        </div>#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <div id="orangecircle" data-percent="44" class="purple center percircle animate"><span>44%</span>#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#            <p style="padding-top: 10px;">Display</p>#}
+    {#        </div>#}
+    {#        <div class="col-md-3 text-center">#}
+    {#            <div id="orangecircle" data-percent="87" class="darkblue center percircle animate">#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#            <p style="padding-top: 10px;">Video</p>#}
+    {#        </div>#}
+    {#        <div class="col-md-3 text-center">#}
+    {##}
+    {#            <div id="orangecircle" data-percent="17" class="darkgreen center percircle animate">#}
+    {#                <div class="slice">#}
+    {#                    <div class="bar"></div>#}
+    {#                    <div class="fill"></div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#            <p style="padding-top: 10px;">Remarketing</p>#}
+    {#        </div>#}
+    {#    </div>#}
+    {#    <!-- End bottom row !-->#}
+
+    <script type="text/javascript">
+
+    </script>
+
+{% endblock %}

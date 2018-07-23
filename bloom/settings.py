@@ -175,7 +175,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 API_VERSION = 'v201802'
-BING_API_VERSION = 11
+BING_API_VERSION = 12
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = 'index'
@@ -209,6 +209,8 @@ CRONJOBS = [
     ('45 12 * * *', 'facebook_flight_dates.main', '> ' + BASE_DIR + '/logs/fb_flight_dates.log'),
     ('*/5 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
     ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
+    ('00 13 * * *', 'cron_trends.main', '> ' + BASE_DIR + '/logs/trends_report.log'),
+    ('00 13 * * *', 'bing_trends.main', '> ' + BASE_DIR + '/logs/bing_trends_report.log'),
 ]
 
 # Bing Stuff
@@ -232,8 +234,8 @@ bloomworker='100025980313978'
 app_id = '582921108716849'
 business_id = '10154654586810511'
 app_secret = '17bc991966f6895650068fe41bc87aa0'
-access_token = "EAAISKeWdZCTEBABaA5WtXSNP3vOGxEAFx2MBjKWGV6nfpOVxcMoHtTuqeyGx47rkDXJWErA4SPI1ikCHIKLOmorHpqHkNKxuEuSudMtjPdiLGV6MZArB4HRJPhDlpHmq53qrqarZBPMyClGOkhOMBGZBYmQUQXGX6pEFlHaO2gZDZD"
-
+# access_token = "EAAISKeWdZCTEBABaA5WtXSNP3vOGxEAFx2MBjKWGV6nfpOVxcMoHtTuqeyGx47rkDXJWErA4SPI1ikCHIKLOmorHpqHkNKxuEuSudMtjPdiLGV6MZArB4HRJPhDlpHmq53qrqarZBPMyClGOkhOMBGZBYmQUQXGX6pEFlHaO2gZDZD"
+access_token = "EAAISKeWdZCTEBAGyyF5cheVZAGbr546TflaDJ4BhThFKigmetLZAW3SB0YHIGoZAoGGI0wZAYlPZBvV2hHUv6wtO8gD3is8eQGNIqKZAyBkVO5H8FnCTG6lRvV4TSLDpovlAgUrCYqA34I5zWBHrlOKALg8vo8dBqAZD"
 # E-mail settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'
