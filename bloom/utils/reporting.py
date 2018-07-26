@@ -16,6 +16,7 @@ from bingads.v11.reporting import (
     ReportingDownloadParameters, ReportingServiceManager, ServiceClient
 )
 
+
 class Reporting:
 
     def get_change(self, current, previous):
@@ -26,41 +27,61 @@ class Reporting:
         except ZeroDivisionError:
             return 0
 
-    def get_score(self, change):
+    def get_score(self, change, parameter):
 
         score = 0
+        message = ''
 
         if change > 25:
             score = 100
+            message = 'Your ' + parameter + ' has increased significantly over the last 3 months.\n' \
+            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 20:
             score = 90
+            message = 'Your ' + parameter + ' has increased significantly over the last 3 months.\n' \
+            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 10:
             score = 80
+            message = 'Your ' + parameter + ' has increased significantly over the last 3 months.\n' \
+            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 5:
             score = 70
+            message = 'Your ' + parameter + ' has increased slightly over the last 3 months.\n' \
+            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 0:
             score = 60
+            message = 'Your ' + parameter + ' has increased slightly over the last 3 months.\n' \
+            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change == 0:
             score = 50
+            message = 'Your ' + parameter + ' has not changed over the last 3 months.\n'
         elif 0 > change > -4.99:
             score = 40
+            message = 'Your ' + parameter + ' has decreased slightly over the last 3 months.\n' \
+            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' drop.'
         elif -5 > change > -9.99:
             score = 30
+            message = 'Your ' + parameter + ' has decreased slightly over the last 3 months.\n' \
+            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' drop.'
         elif -10 > change > -19.99:
             score = 20
+            message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
+            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
         elif -20 > change > -24.99:
             score = 10
+            message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
+            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
         elif -25 > change:
             score = 0
-
-        return score
+            message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
+            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
+        return (score, message)
 
     def stringify_date(self, date, date_format='%Y%m%d'):
         if not isinstance(date, datetime):
             return date
 
         return date.strftime(date_format)
-
 
     def map_campaign_stats(self, report, identifier="campaignid"):
         campaigns = {}
@@ -132,13 +153,11 @@ class Reporting:
 
                 continue
 
-
             difference[k] = dict1[k]
 
         summary = {k: [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
 
         return summary
-
 
     def subtract_days(self, date, days=1):
         if not isinstance(date, datetime):
@@ -187,7 +206,6 @@ class Reporting:
 
         return this_month
 
-
     def parse_report_csv(self, report, header=True, footer=True):
         report = report.splitlines()
         if header:
@@ -197,7 +215,7 @@ class Reporting:
         report_headers = [
             header.lower().replace(" ", "_") for header in report[0].split(",")
         ]
-        #Rewriting the headers
+        # Rewriting the headers
         report[0] = ",".join(report_headers)
 
         if footer:
@@ -236,9 +254,9 @@ class BingReporting(Reporting):
         auth_method = BingAuth().get_auth()
 
         self.service_manager = ReportingServiceManager(
-              authorization_data=auth_method,
-              poll_interval_in_milliseconds=5000,
-              environment=settings.ENVIRONMENT,
+            authorization_data=auth_method,
+            poll_interval_in_milliseconds=5000,
+            environment=settings.ENVIRONMENT,
         )
 
         self.reporting_service = ServiceClient(
@@ -247,7 +265,6 @@ class BingReporting(Reporting):
             environment=settings.ENVIRONMENT,
             version=11,
         )
-
 
     def parse_report_name(self, rid, report_name):
         csv_ready = False
@@ -316,7 +333,7 @@ class BingReporting(Reporting):
         if only:
             valid_metrics = only
         summed = {}
-        #this is so we can preserve the campaign name and id
+        # this is so we can preserve the campaign name and id
         if isinstance(report, list):
             sample = copy.deepcopy(report[0])
         else:
@@ -337,7 +354,6 @@ class BingReporting(Reporting):
                 except ZeroDivisionError:
                     pass
 
-
         required = set(["clicks", "impressions", "ctr"])
 
         if required.issubset(set(valid_metrics)):
@@ -345,7 +361,6 @@ class BingReporting(Reporting):
                 sample['ctr'] = sample['clicks'] / sample['impressions']
             except ZeroDivisionError:
                 sample['ctr'] = 0
-
 
         required = set(["conversions", "spend"])
 
@@ -380,7 +395,6 @@ class BingReporting(Reporting):
 
         return time
 
-
     def get_scope(self, scope_name):
         scope = self.reporting_service.factory.create(scope_name)
         return scope
@@ -392,7 +406,6 @@ class BingReporting(Reporting):
         )
 
         columns.AccountPerformanceReportColumn.append(fields)
-
 
         return columns
 
@@ -414,6 +427,13 @@ class BingReporting(Reporting):
 
         return columns
 
+    def get_keyword_performance_columns(self, fields=["TimePeriod"]):
+        columns = self.reporting_service.factory.create(
+            'ArrayOfKeywordPerformanceReportColumn'
+        )
+        columns.KeywordPerformanceReportColumn.append(fields)
+
+        return columns
 
     def get_campaign_filters(self):
         filters = self.reporting_service.factory.create(
@@ -431,6 +451,15 @@ class BingReporting(Reporting):
 
         return filters
 
+    def get_keyword_filters(self):
+        filters = self.reporting_service.factory.create(
+            "KeywordPerformanceReportFilter"
+        )
+        filters.CampaignStatus = ["Active"]
+        filters.AdGroupStatus = ["Active"]
+        filters.KeywordStatus = ["Active"]
+
+        return filters
 
     def get_account_performance_query(
             self,
@@ -438,7 +467,7 @@ class BingReporting(Reporting):
             dateRangeType="CUSTOM_DATE",
             aggregation="Daily",
             **kwargs
-        ):
+    ):
 
         fields = ["TimePeriod", "Spend"]
         extra_fields = kwargs.get("extra_fields", None)
@@ -451,7 +480,6 @@ class BingReporting(Reporting):
 
         fields = list(set(fields))
 
-
         if dateRangeType == "CUSTOM_DATE":
             time = self.get_report_time(minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate"))
 
@@ -460,7 +488,7 @@ class BingReporting(Reporting):
         scope = self.get_scope("AccountReportScope")
 
         request.Aggregation = aggregation
-        scope.AccountIds={'long': [account_id] }
+        scope.AccountIds = {'long': [account_id]}
         request.ReportName = report_name
 
         request = self.generate_request(
@@ -475,7 +503,7 @@ class BingReporting(Reporting):
             dateRangeType="CUSTOM_DATE",
             aggregation="Daily",
             **kwargs
-        ):
+    ):
 
         fields = [
             'Impressions',
@@ -511,7 +539,7 @@ class BingReporting(Reporting):
         scope = self.get_scope("AccountThroughCampaignReportScope")
         filters = self.get_campaign_filters()
 
-        scope.AccountIds={'long': [account_id] }
+        scope.AccountIds = {'long': [account_id]}
         request.Aggregation = aggregation
         request.ReportName = report_name
         request.Filter = filters
@@ -528,7 +556,7 @@ class BingReporting(Reporting):
             dateRangeType="CUSTOM_DATE",
             aggregation="Daily",
             **kwargs
-        ):
+    ):
         fields = [
             'AdGroupId',
             'AdGroupName',
@@ -558,8 +586,53 @@ class BingReporting(Reporting):
         columns = self.get_adgroup_performance_columns(fields=fields)
         scope = self.get_scope("AccountThroughAdGroupReportScope")
 
-        scope.AccountIds={'long': [account_id] }
+        scope.AccountIds = {'long': [account_id]}
         request.Filter = self.get_adgroup_filters()
+        request.Aggregation = aggregation
+        request.ReportName = report_name
+
+        request = self.generate_request(
+            request=request, scope=scope, time=time, columns=columns
+        )
+
+        return request
+
+    def get_keyword_performance_query(
+            self,
+            account_id,
+            dateRangeType="CUSTOM_DATE",
+            aggregation="Monthly",
+            **kwargs
+    ):
+
+        fields = [
+            'TimePeriod',
+            'Keyword',
+            'Impressions',
+            'QualityScore'
+        ]
+        report_name = self.parse_report_name(
+            account_id, kwargs.get("report_name")
+        )
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if dateRangeType == "CUSTOM_DATE":
+            time = self.get_report_time(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        if extra_fields is not None:
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        request = self.reporting_service.factory.create(
+            "KeywordPerformanceReportRequest"
+        )
+        columns = self.get_keyword_performance_columns(fields=fields)
+        scope = self.get_scope("AccountThroughAdGroupReportScope")
+
+        scope.AccountIds = {'long': [account_id]}
+        request.Filter = self.get_keyword_filters()
         request.Aggregation = aggregation
         request.ReportName = report_name
 
@@ -572,14 +645,13 @@ class BingReporting(Reporting):
     def download_report(self, account_id, request):
         parameters = ReportingDownloadParameters(
             report_request=request,
-            result_file_directory = settings.BINGADS_REPORTS,
-            result_file_name = request.ReportName,
-            overwrite_result_file = True,
+            result_file_directory=settings.BINGADS_REPORTS,
+            result_file_name=request.ReportName,
+            overwrite_result_file=True,
             timeout_in_milliseconds=3600000
         )
 
         self.service_manager.download_file(parameters)
-
 
 
 class BingReportingService(BingReporting):
@@ -587,18 +659,14 @@ class BingReportingService(BingReporting):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
     def get_account_performance(self, account_id, *args, **kwargs):
-
         request = self.get_account_performance_query(account_id, *args, **kwargs)
         self.download_report(account_id, request)
         report = self.get_report(request.ReportName)
 
         return report
 
-
     def get_campaign_performance(self, account_id, *args, **kwargs):
-
         request = self.get_campaign_performance_query(account_id, *args, **kwargs)
         self.download_report(account_id, request)
         report = self.get_report(request.ReportName)
@@ -606,17 +674,21 @@ class BingReportingService(BingReporting):
         return report
 
     def get_adgroup_performance(self, account_id, *args, **kwargs):
-
         request = self.get_adgroup_performance_query(account_id, *args, **kwargs)
         self.download_report(account_id, request)
         report = self.get_report(request.ReportName)
 
         return report
 
+    def get_keyword_performance(self, account_id, *args, **kwargs):
+        request = self.get_keyword_performance_query(account_id, *args, **kwargs)
+        self.download_report(account_id, request)
+        report = self.get_report(request.ReportName)
+
+        return report
 
 
 class AdwordsReporting(Reporting):
-
     date_format = "%Y%m%d"
     report_headers = dict(
         skip_report_header=False,
@@ -658,7 +730,7 @@ class AdwordsReporting(Reporting):
             "downloadFormat": "CSV",
             "selector": {
                 "fields": fields,
-                "predicates":[
+                "predicates": [
                     {
                         "field": "AdGroupStatus",
                         "operator": "EQUALS",
@@ -724,8 +796,6 @@ class AdwordsReporting(Reporting):
 
         return query
 
-
-
     def get_campaign_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
 
         fields = [
@@ -771,7 +841,6 @@ class AdwordsReporting(Reporting):
 
         return query
 
-
     def get_adgroup_performance_query(self, dateRangeType="LAST_30_DAYS", **kwargs):
 
         fields = [
@@ -808,7 +877,7 @@ class AdwordsReporting(Reporting):
                     "field": "CampaignStatus",
                     "operator": "IN",
                     "values": ["ENABLED"],
-                },{
+                }, {
                     "field": "AdGroupStatus",
                     "operator": "IN",
                     "values": ["ENABLED"],
@@ -823,6 +892,55 @@ class AdwordsReporting(Reporting):
 
         return query
 
+    def get_keyword_performance_query(
+            self,
+            dateRangeType="LAST_14_DAYS",
+            enabled=True,
+            **kwargs
+    ):
+        fields = [
+            "AccountDescriptiveName",
+            "QualityScore",
+            "Impressions",
+            "Criteria"
+        ]
+
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if extra_fields:
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        query = {
+            "reportName": "KEYWORD_PERFORMANCE_REPORT",
+            "dateRangeType": dateRangeType,
+            "reportType": "KEYWORDS_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {
+                "fields": fields
+            },
+        }
+
+        predicates = [
+            {"field": "Status", "operator": "EQUALS", "values": ["ENABLED"]},
+            {
+                "field": "CampaignStatus",
+                "operator": "EQUALS",
+                "values": ["ENABLED"],
+            },
+            {"field": "AdGroupStatus", "operator": "EQUALS", "values": ["ENABLED"]},
+            {"field": "HasQualityScore", "operator": "EQUALS", "values": ["true"]},
+        ]
+
+        if enabled:
+            query["selector"]["predicates"] = predicates
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        return query
 
     def mcv(self, cost):
         cost = float(cost)
@@ -835,13 +953,11 @@ class AdwordsReporting(Reporting):
         return (int(estimated_spend) / int(desired_spend)) * 100
 
 
-
 class AdwordsReportingService(AdwordsReporting):
 
     def __init__(self, client):
         self.client = client
         self.api_version = settings.API_VERSION
-
 
     def get_ad_performance(self, customer_id=None, **kwargs):
         client = self.client
@@ -857,7 +973,6 @@ class AdwordsReportingService(AdwordsReporting):
 
         return self.parse_report_csv(downloaded_report)
 
-
     def get_account_performance(self, customer_id=None, **kwargs):
         client = self.client
         if customer_id is not None:
@@ -871,7 +986,6 @@ class AdwordsReportingService(AdwordsReporting):
         )
 
         return self.parse_report_csv(downloaded_report)
-
 
     def get_campaign_performance(self, customer_id=None, **kwargs):
         client = self.client
@@ -887,7 +1001,6 @@ class AdwordsReportingService(AdwordsReporting):
 
         return self.parse_report_csv(downloaded_report)
 
-
     def get_adgroup_performance(self, customer_id=None, **kwargs):
         client = self.client
         if customer_id is not None:
@@ -902,6 +1015,20 @@ class AdwordsReportingService(AdwordsReporting):
 
         return self.parse_report_csv(downloaded_report)
 
+    def get_account_quality_score(self, customer_id=None, **kwargs):
+
+        client = self.client
+
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_keyword_performance_query(**kwargs)
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
 
     def get_account_labels(self, customer_id=None):
 
@@ -911,14 +1038,12 @@ class AdwordsReportingService(AdwordsReporting):
 
         account_label_service = client.GetService('ManagedCustomerService', version=self.api_version)
 
-
         selector = {'fields': ['AccountLabels', 'CustomerId']}
         result = account_label_service.get(selector)
 
         if not result:
             return []
         return result['entries']
-
 
     def get_text_labels(self, customer_id=None):
 
@@ -934,7 +1059,6 @@ class AdwordsReportingService(AdwordsReporting):
         if not result:
             return []
         return result['entries']
-
 
     def get_campaign_labels(self, customer_id=None):
 
@@ -987,7 +1111,6 @@ class AdwordsReportingService(AdwordsReporting):
 
 
 class FacebookReporting(Reporting):
-
     date_format = "%Y-%m-%d"
 
     def get_daterange(self, days=14, maxDate=None):
@@ -1000,7 +1123,6 @@ class FacebookReporting(Reporting):
         minDate = maxDate + relativedelta(days=-days)
 
         return self.get_custom_date_range(since=minDate, until=maxDate)
-
 
     def get_this_month_daterange(self):
 
@@ -1034,7 +1156,6 @@ class FacebookReporting(Reporting):
             'filtering': filtering,
             'time_increment': time_increment
         }
-
 
     def get_insights_query(self, **kwargs):
 
@@ -1070,7 +1191,6 @@ class FacebookReporting(Reporting):
 
         return query
 
-
     def generate_batches(self, iterable, batch_size_limit):
         """
         Generator that yields lists of length size batch_size_limit containing
@@ -1093,7 +1213,6 @@ class FacebookReportingService(FacebookReporting):
     def __init__(self, session):
         self.session = session
 
-
     def get_account_insights(self, account_id, **kwargs):
 
         warnings.simplefilter("ignore")
@@ -1107,7 +1226,6 @@ class FacebookReportingService(FacebookReporting):
         )
 
         return data
-
 
     def get_campaign_insights_async(self, account_id, **kwargs):
 
@@ -1143,7 +1261,6 @@ class FacebookReportingService(FacebookReporting):
             api_batch = self.session.new_batch()
 
             for cmp in campaigns:
-
                 def callback_success(response, campaign=None):
                     print(campaign, response)
 

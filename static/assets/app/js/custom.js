@@ -25,6 +25,13 @@ $(document).ready(function () {
         bInfo: false,
     });
 
+    $("#qs_table").DataTable({
+        bFilter: true,
+        bPaginate: true,
+        pageLength: 5,
+        bInfo: false,
+    });
+
     $('#accounts').DataTable({
         'pagingType': 'full_numbers'
     });

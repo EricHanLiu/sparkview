@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from bing_dashboard.models import BingAccounts
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.serializers import serialize
 import json
 # Create your models here.
@@ -44,6 +44,7 @@ class DependentAccount(models.Model):
     current_spend = models.FloatField(default=0)
     segmented_spend = JSONField(default=dict)
     trends = JSONField(default=dict)
+    qscore_data = JSONField(default=dict)
     channel = models.CharField(max_length=255, default='None')
     hist_spend = models.FloatField(default=0)
     hist_budget = models.FloatField(default=0)
@@ -55,9 +56,13 @@ class DependentAccount(models.Model):
     ds6 = models.IntegerField(default=0)
     yesterday_spend = models.FloatField(default=0)
     estimated_spend = models.FloatField(default=0)
-    quality_score = models.IntegerField(default=0)
-    trends_score = models.IntegerField(default=0)
-    historical_qs = models.IntegerField(default=0)
+    qs_score = models.FloatField(default=0)
+    ctr_score = JSONField(default=dict, null=True, blank=True)
+    cvr_score = JSONField(default=dict, null=True, blank=True)
+    conversions_score = JSONField(default=dict, null=True, blank=True)
+    trends_score = models.FloatField(default=0)
+    account_score = models.FloatField(default=0)
+    hist_qs = JSONField(default=dict, blank=True, null=True)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
     assigned_to = models.ForeignKey(User, null=True, blank=True)

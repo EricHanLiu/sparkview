@@ -38,6 +38,13 @@ var Select2 = function () {
             placeholder: 'Select report...'
         });
 
+        $("#select_report").on('select2:select', function (e) {
+            let report = $("#select_report").val();
+            let channel = $("#select_report").find(":selected").data("channel");
+            let account_id = $("#select_report").find(":selected").data("account_id");
+            window.location.href = '/tools/ppcanalyser/account/' + report + '/' + account_id + '/' + channel;
+        });
+
         $("#select_analyser").on('select2:select', function (e) {
             let account_id = $("#select_analyser").val();
             let channel = $("#select_analyser").find(":selected").data("channel");

@@ -8,6 +8,8 @@ from googleads.errors import GoogleAdsError, AdWordsReportBadRequestError
 from bloom.settings import ADWORDS_YAML
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import itertools
+from operator import itemgetter
 
 
 def month_converter(month):
@@ -96,7 +98,7 @@ def adwords_cron_anomalies(self, customer_id):
         days=6, maxDate=maxDate
     )
 
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    account = DependentAccount.objects.get(account_id=customer_id)
 
     acc_anomalies = account_anomalies(
         account.dependent_account_id,
@@ -163,7 +165,7 @@ def adwords_cron_anomalies(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_cron_ovu(self, customer_id):
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    account = DependentAccount.objects.get(account_id=customer_id)
 
     helper = AdwordsReportingService(get_client())
     this_month = helper.get_this_month_daterange()
@@ -230,13 +232,13 @@ def adwords_cron_disapproved_alert(self, customer_id):
         )
 
         Alert.objects.filter(
-            dependent_account_id=customer_id, alert_type=alert_type
+            account_id=customer_id, alert_type=alert_type
         ).delete()
 
         for ad in data:
             alert_reason = json.loads(ad['ad_policies'])
             Alert.objects.create(
-                dependent_account_id=customer_id,
+                account_id=customer_id,
                 alert_type=alert_type,
                 alert_reason=":".join(alert_reason),
                 ad_group_id=ad['ad_group_id'],
@@ -249,10 +251,10 @@ def adwords_cron_disapproved_alert(self, customer_id):
     except AdWordsReportBadRequestError as e:
         print(e.type)
         if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
-            account = DependentAccount.objects.get(dependent_account_id=customer_id)
+            account = DependentAccount.objects.get(adependent_ccount_id=customer_id)
             # account.blacklisted = True
             # account.save()
-            print('Account ' + account.dependent_account_name + ' unlinked from MCC')
+            print('Account ' + account.account_name + ' unlinked from MCC')
 
 
 @celery_app.task(bind=True)
@@ -452,6 +454,7 @@ def adwords_adgroup_labels(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_result_trends(self, customer_id):
+
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -485,19 +488,88 @@ def adwords_result_trends(self, customer_id):
         to_parse.append(v)
 
     ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
-    ctr_score = helper.get_score(round(ctr_change, 2))
+    ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
     cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
-    cvr_score = helper.get_score(round(cvr_change, 2))
+    cvr_score = helper.get_score(round(cvr_change, 2), 'CVR')
 
     conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
-    conv_score = helper.get_score(round(conv_change, 2))
+    conv_score = helper.get_score(round(conv_change, 2), 'Conversions')
 
-    trends_score = int(ctr_score + cvr_score + conv_score) / 3
+    trends_score = float(ctr_score[0] + cvr_score[0] + conv_score[0]) / 3
 
     account.trends = trends_data
-    # account.ctr_score = ctr_score
-    # account.cvr_score = cvr_score
-    # account.conversion_score = conv_score
-    account.trends_score = trends_score
+    account.ctr_score = ctr_score
+    account.cvr_score = cvr_score
+    account.conversions_score = conv_score
+    account.trends_score = round(trends_score, 2)
     account.save()
+
+
+@celery_app.task(bind=True)
+def adwords_account_quality_score(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    today = datetime.today()
+    minDate = (today - relativedelta(months=2)).replace(day=1)
+    daterange = helper.create_daterange(minDate, today)
+
+    data = helper.get_account_quality_score(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=['MonthOfYear'],
+        **daterange
+    )
+
+    ### QS * IMP / sum(Imp)
+    impressions = 0
+    total_qs = 0
+    qs_final = 0
+    segmented_ = {}
+    final_ = {}
+    to_parse = []
+    qs_data = []
+
+    sorted_data = sorted(data, key=itemgetter('month_of_year'))
+
+    for key, group in itertools.groupby(sorted_data, key=lambda x: x['month_of_year']):
+        segmented_[key] = list(group)
+
+    for key, value in segmented_.items():
+        for i in range(len(value)):
+            impressions += int(value[i]["impressions"])
+            total_qs += int(value[i]["quality_score"]) * int(value[i]["impressions"])
+
+        if not total_qs or not impressions:
+            qs_final = 0
+        else:
+            qs_final = total_qs / impressions
+        final_[key] = round(qs_final, 2)
+
+        for i in range(len(value)):
+            if  i < 1000:
+                if float(value[i]["quality_score"]) < qs_final:
+                    qs_data.append(
+                        {
+                            'keyword': str(value[i]['keyword'].encode('utf-8')),
+                            'quality_score': value[i]['quality_score']
+                        }
+                    )
+    print(to_parse)
+    for v in sorted(final_.items(), reverse=True):
+        to_parse.append(v)
+    if to_parse:
+        qs_score = to_parse[2][1] * 10
+    else:
+        qs_score = 0
+    account.qs_score = qs_score
+    account.qscore_data = qs_data
+    account.hist_qs = to_parse
+    account.account_score = (account.trends_score + qs_score) / 2
+    account.save()
+
+    del qs_data[:]
+    del to_parse[:]

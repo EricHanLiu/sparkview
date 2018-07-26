@@ -69,8 +69,25 @@ def account_overview(request, account_id, channel):
         'account': account,
         'trends': account.trends
     }
-    print(context)
+
     return render(request, 'tools/ppcanalyser/overview.html', context)
+
+@login_required
+def account_qs(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    context = {
+        'account': account,
+        'qs_data': account.qscore_data,
+        'hist_qs': account.hist_qs
+    }
+    return render(request, 'tools/ppcanalyser/quality_score.html', context)
 
 @login_required
 def run_reports(request):
@@ -108,7 +125,7 @@ def create_labels(request):
     l_type = request.POST.get('label_type')
     acc_id = request.POST.get('acc_id')
 
-    account = DependentAccount.objects.get(dependent_account_id=acc_id)
+    account = DependentAccount.objects.get(account_id=acc_id)
 
     if not l_type:
         managed_customer_service = client.GetService('AccountLabelService', version=settings.API_VERSION)
@@ -312,7 +329,6 @@ def assign_labels(request):
                 else:
                     label.adgroups.add(adgroup)
         except errors.GoogleAdsServerFault as e:
-            print(e)
             response['error'] = e.errors[0]['reason']
 
     elif 'campaigns' in request.POST:
@@ -342,7 +358,6 @@ def assign_labels(request):
                     label.campaigns.add(campaign)
 
         except errors.GoogleAdsServerFault as e:
-            print(e.errors)
             response['error'] = e.errors[0]['reason']
 
     else:
@@ -373,8 +388,8 @@ def assign_labels(request):
             response['error'] = e.errors[0]['reason']
 
     response['labels'] = labels
-    response['acc_name'] = account.dependent_account_name,
-    response['acc_id'] = account.dependent_account_id
+    response['acc_name'] = account.account_name,
+    response['acc_id'] = account.account_id
 
     return JsonResponse(response)
 

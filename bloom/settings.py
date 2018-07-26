@@ -211,6 +211,8 @@ CRONJOBS = [
     ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
     ('00 13 * * *', 'cron_trends.main', '> ' + BASE_DIR + '/logs/trends_report.log'),
     ('00 13 * * *', 'bing_trends.main', '> ' + BASE_DIR + '/logs/bing_trends_report.log'),
+    ('05 13 * * *', 'cron_qualityscore.main', '> ' + BASE_DIR + '/logs/cron_qualityscore_report.log'),
+    ('25 13 * * *', 'bing_qualityscore.main', '> ' + BASE_DIR + '/logs/bing_qualityscore_report.log'),
 ]
 
 # Bing Stuff

@@ -33,14 +33,14 @@
                                         {% else %}
                                             <a href="{% url 'tools:account_results' account.account_id account.channel %}">
                                         {% endif %}
-				                                {{ account.trends_score }}%
+				                                {{ account.account_score|floatformat:2 }}%
                                             </a>
 				                        </span>
                                         <div class="m--space-10"></div>
                                         <div class="progress m-progress--sm">
                                             <div class="progress-bar m--bg-brand" role="progressbar"
-                                                 style="width: {{ account.trends_score }}%;"
-                                                 aria-valuenow="{{ account.trends_score }}" aria-valuemin="0"
+                                                 style="width: {{ account.account_score }}%;"
+                                                 aria-valuenow="{{ account.account_score }}" aria-valuemin="0"
                                                  aria-valuemax="100"></div>
                                         </div>
                                     </div>
@@ -50,24 +50,24 @@
                                 <div class="m-widget24">
                                     <div class="m-widget24__item">
                                         <h4 class="m-widget24__title">
-                                            <span class="m--font-bolder">Improve your score by following recomandations in the section below</span>
+                                            <span class="m--font-bolder">Improve your score by following recommendations in the section below</span>
                                         </h4><br>
                                         <div class="m--space-10"></div>
                                         <div class="container-fluid">
                                             <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recomandation #1
+                                                Recommendation #1
                                             </button>
                                             <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recomandation #2
+                                                Recommendation #2
                                             </button>
                                             <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recomandation #3
+                                                Recommendation #3
                                             </button>
                                             <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recomandation #4
+                                                Recommendation #4
                                             </button>
                                             <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recomandation #5
+                                                Recommendation #5
                                             </button>
                                         </div>
                                     </div>

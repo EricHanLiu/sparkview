@@ -51,7 +51,6 @@ def main():
     for item in data:
         try:
             print('Inside of data')
-            print(item.dependent_account_id)
             models.CampaignStat.objects.filter(dependent_account_id=item.dependent_account_id).delete()
             verify404.getData(client, item.dependent_account_id, add_404)
 
