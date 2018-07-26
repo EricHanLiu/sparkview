@@ -383,8 +383,6 @@ def bing_result_trends(self, customer_id):
     conv_score = helper.get_score(round(conv_change, 2), 'Conversions')
     trends_score = float(ctr_score[0] + cvr_score[0] + conv_score[0]) / 3
 
-    print(conv_score)
-
     account.trends = trends_data
     account.ctr_score = ctr_score
     account.cvr_score = cvr_score
@@ -437,17 +435,21 @@ def bing_account_quality_score(self, customer_id):
         else:
             qs_final = total_qs / impressions
         final_[key] = round(qs_final, 2)
-
-        for i in range(len(value)):
-            if i < 1000:
-                if float(value[i]["qualityscore"]) < qs_final:
-                    qs_data.append(
-                        {
-                            'keyword': str(value[i]['keyword'].encode('utf-8')),
-                            'quality_score': value[i]['qualityscore']
-                        }
-                    )
-
+        print(key, today.month)
+        if key.split('-')[1] == '0'+ str(today.month):
+            for i in range(len(value)):
+                if i < 1000:
+                    if float(value[i]["qualityscore"]) < qs_final:
+                        qs_data.append(
+                            {
+                                'keyword': str(value[i]['keyword'].encode('utf-8')),
+                                'quality_score': value[i]['qualityscore'],
+                                'campaign': value[i]['campaignname'],
+                                'adgroup': value[i]['adgroupname'],
+                                'cost': value[i]['spend'],
+                                'conversions': value[i]['conversions']
+                            }
+                        )
     for v in sorted(final_.items(), reverse=True):
         month_num = v[0].split('-')[1]
         month = calendar.month_name[int(month_num)]
