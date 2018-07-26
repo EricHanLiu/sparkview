@@ -910,7 +910,10 @@ class AdwordsReporting(Reporting):
             "CampaignName",
             "AdGroupName",
             "Cost",
-            "Conversions"
+            "Conversions",
+            "CreativeQualityScore",
+            "PostClickQualityScore",
+            "SearchPredictedCtr",
         ]
 
         extra_fields = kwargs.get("extra_fields", None)

@@ -92,40 +92,10 @@
                                     <canvas id="trendsChart"></canvas>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <table class="table m-table m-table--head-separator-primary" id="qs_table">
-                                    <thead>
-                                    <tr>
-                                        <th>Keyword</th>
-                                        <th>Quality score</th>
-                                        <th>Cost</th>
-                                        <th>Conversions</th>
-                                        <th>Ad Group</th>
-                                        <th>Campaign</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for item in qs_data %}
-                                        <tr>
-                                            <td>{{ item.keyword }}</td>
-                                            <td>{{ item.quality_score }}</td>
-                                            <td>{{ item.cost }}</td>
-                                            <td>{{ item.conversions }}</td>
-                                            <td>{{ item.adgroup }}</td>
-                                            <td>{{ item.campaign }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-2"></div>
-
-                            <div class="col-md-8 text-center">
+                            <div class="col-md-6 text-center">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert"
-                                         style="min-height: 150px!important;">
+                                         style="min-height: 250px!important;">
                                         <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline
                                             alert alert-danger alert-dismissible fade show" role="alert">
                                             <div class="m-alert__icon">
@@ -147,8 +117,72 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-2"></div>
+
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table m-table m-table--head-separator-primary" id="qs_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Keyword</th>
+                                        <th>Cost</th>
+                                        <th>Conversions</th>
+                                        <th>Ad Group</th>
+                                        <th>Campaign</th>
+                                        <th>Quality score</th>
+                                        <th>Ad relevance</th>
+                                        <th>Landing page exp.</th>
+                                        <th>Exp. CTR</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in qs_data %}
+                                        <tr>
+                                            <td>{{ item.keyword }}</td>
+                                            <td>{{ item.cost }}</td>
+                                            <td>{{ item.conversions }}</td>
+                                            <td>{{ item.adgroup }}</td>
+                                            <td>{{ item.campaign }}</td>
+                                            <td>{{ item.quality_score }}</td>
+                                            <td>{{ item.ad_relevance }}</td>
+                                            <td>{{ item.landing_page_exp }}</td>
+                                            <td>{{ item.expected_clickthrough_rate }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+{#                        <div class="row">#}
+{#                            <div class="col-md-2"></div>#}
+{##}
+{#                            <div class="col-md-8 text-center">#}
+{#                                <div class="form-group m-form__group">#}
+{#                                    <div class="alert m-alert m-alert--default" role="alert"#}
+{#                                         style="min-height: 150px!important;">#}
+{#                                        <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline#}
+{#                                            alert alert-danger alert-dismissible fade show" role="alert">#}
+{#                                            <div class="m-alert__icon">#}
+{#                                                <i class="flaticon-exclamation-1"></i>#}
+{#                                                <span></span>#}
+{#                                            </div>#}
+{#                                            <div class="m-alert__text">#}
+{#                                                Please review the keywords mentioned in the table and modify them in#}
+{#                                                order to#}
+{#                                                achieve better quality scores and lower your CPC and CPA.#}
+{#                                            </div>#}
+{#                                            <div class="m-alert__close">#}
+{#                                                <button type="button" class="close" data-dismiss="alert"#}
+{#                                                        aria-label="Close">#}
+{#                                                </button>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{##}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                            <div class="col-md-2"></div>#}
+{#                        </div>#}
                     </div>
                 </div>
             </div>
