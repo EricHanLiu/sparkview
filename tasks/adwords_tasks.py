@@ -564,7 +564,10 @@ def adwords_account_quality_score(self, customer_id):
                                 'campaign': value[i]['campaign'],
                                 'adgroup': value[i]['ad_group'],
                                 'cost': helper.mcv(value[i]['cost']),
-                                'conversions': value[i]['conversions']
+                                'conversions': value[i]['conversions'],
+                                'ad_relevance': value[i]['ad_relevance'],
+                                'landing_page_exp': value[i]['landing_page_experience'],
+                                'expected_clickthrough_rate': value[i]['expected_clickthrough_rate']
                             }
                         )
 
