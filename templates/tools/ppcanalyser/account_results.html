@@ -178,9 +178,9 @@
                                             </div>
                                         </div>
                                         <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.conversion_score.0 > 50 %}
+                                        {% if account.conversions_score.0 > 50 %}
                                         alert-success
-                                        {% elif account.conversion_score == 50 %}
+                                        {% elif account.conversions_score == 50 %}
                                         alert-info
                                         {% else %}
                                         alert-danger
@@ -215,8 +215,8 @@
 
 
     <script type="text/javascript">
+
         let trends = {{ trends|safe }};
-        console.log(trends)
         function gen_xy(data, parameter) {
 
             lst = [];
@@ -358,7 +358,8 @@
 
             let data = {
                 'account_id': customer_id,
-                'channel': channel
+                'channel': channel,
+                'report': 'results'
             };
 
             $.ajax({
@@ -367,7 +368,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Trends report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);

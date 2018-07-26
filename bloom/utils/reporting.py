@@ -609,7 +609,11 @@ class BingReporting(Reporting):
             'TimePeriod',
             'Keyword',
             'Impressions',
-            'QualityScore'
+            'QualityScore',
+            'CampaignName',
+            'AdGroupName',
+            'Conversions',
+            'Spend'
         ]
         report_name = self.parse_report_name(
             account_id, kwargs.get("report_name")
@@ -902,7 +906,11 @@ class AdwordsReporting(Reporting):
             "AccountDescriptiveName",
             "QualityScore",
             "Impressions",
-            "Criteria"
+            "Criteria",
+            "CampaignName",
+            "AdGroupName",
+            "Cost",
+            "Conversions"
         ]
 
         extra_fields = kwargs.get("extra_fields", None)

@@ -4,11 +4,12 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
-from googleads.errors import GoogleAdsError, AdWordsReportBadRequestError
+from googleads.errors import AdWordsReportBadRequestError
 from bloom.settings import ADWORDS_YAML
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import itertools
+import calendar
 from operator import itemgetter
 
 
@@ -549,22 +550,31 @@ def adwords_account_quality_score(self, customer_id):
             qs_final = total_qs / impressions
         final_[key] = round(qs_final, 2)
 
-        for i in range(len(value)):
-            if  i < 1000:
+        month_num = today.month
+        month_name = calendar.month_name[month_num]
+
+        if key == month_name:
+            for i in range(len(value)):
                 if float(value[i]["quality_score"]) < qs_final:
-                    qs_data.append(
-                        {
-                            'keyword': str(value[i]['keyword'].encode('utf-8')),
-                            'quality_score': value[i]['quality_score']
-                        }
-                    )
-    print(to_parse)
+                    if  i < 1000:
+                        qs_data.append(
+                            {
+                                'keyword': str(value[i]['keyword'].encode('utf-8')),
+                                'quality_score': value[i]['quality_score'],
+                                'campaign': value[i]['campaign'],
+                                'adgroup': value[i]['ad_group'],
+                                'cost': helper.mcv(value[i]['cost']),
+                                'conversions': value[i]['conversions']
+                            }
+                        )
+
     for v in sorted(final_.items(), reverse=True):
         to_parse.append(v)
     if to_parse:
         qs_score = to_parse[2][1] * 10
     else:
         qs_score = 0
+
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse

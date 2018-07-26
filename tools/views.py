@@ -96,11 +96,18 @@ def run_reports(request):
 
     account_id = data['account_id']
     channel = data['channel']
-
+    report = data['report']
     if channel == 'adwords':
-        adwords_tasks.adwords_result_trends.delay(account_id)
+        if report == 'results':
+            adwords_tasks.adwords_result_trends.delay(account_id)
+        elif report == 'qualityscore':
+            adwords_tasks.adwords_account_quality_score.delay(account_id)
     elif channel == 'bing':
-        bing_tasks.bing_result_trends.delay(account_id)
+        if report == 'results':
+            bing_tasks.bing_result_trends.delay(account_id)
+        elif report == 'qualityscore':
+            bing_tasks.bing_account_quality_score.delay(account_id)
+
     elif channel == 'facebook':
         pass
 
