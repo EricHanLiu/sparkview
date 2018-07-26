@@ -19,16 +19,11 @@ def facebook_dashboard(request):
         item = {}
         query = FacebookPerformance.objects.filter(account=account.pk, performance_type='ACCOUNT')
         item['account'] = account
-        # item['404_urls'] = CampaignStat.objects.filter(dependent_account_id=account.dependent_account_id).count()
-        # item['labels'] = Label.objects.filter(account_id=account.dependent_account_id, label_type='ACCOUNT')
         item['clicks'] = query[0].clicks if query else 0
         item['impressions'] = query[0].impressions if query else 0
         item['ctr'] = query[0].ctr if query else 0
         item['cpc'] = query[0].cpc if query else 0
-        # item['conversions'] = query[0].conversions if query else 0
         item['cost'] = query[0].cost if query else 0
-        # item['cost_per_conversions'] = query[0].cost_per_conversions if query else 0
-        # item['search_impr_share'] = query[0].search_impr_share if query else 0
         item['disapproved_ads'] = FacebookAlert.objects.filter(account=account,
                                                        alert_type='DISAPPROVED_AD').count()
         items.append(item)
@@ -58,10 +53,8 @@ def campaign_anomalies(request, account_id):
         campaign['clicks'] = cmp.clicks
         campaign['impressions'] = cmp.impressions
         campaign['cost'] = cmp.cpc
-        # campaign['conversions'] = cmp.cpc
         campaign['cost_per_conversions'] = cmp.cpc
         campaign['ctr'] = cmp.ctr
-        # campaign['search_impr_share'] = cmp.search_impr_share
         campaigns.append(campaign)
 
     context = {

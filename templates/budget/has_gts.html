@@ -100,7 +100,7 @@
                                 <div class="m-separator"></div>
                                 <span class="m-list-timeline__text">
                                             <h6>
-                                                <a href="{% url 'tools:account_results' a.dependent_account_id a.channel %}">
+                                                <a href="{% url 'tools:account_overview' a.dependent_account_id a.channel %}">
                                                 {{ a.dependent_account_name }}</a> -
                                                 <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                             </h6>
@@ -233,7 +233,7 @@
                                 <div class="m-separator"></div>
                                 <span class="m-list-timeline__text">
                                             <h6>
-                                                <a href="{% url 'tools:account_results' b.account_id b.channel %}">
+                                                <a href="{% url 'tools:account_overview' b.account_id b.channel %}">
                                                     {{ b.account_name }}
                                                 </a>
                                                 -

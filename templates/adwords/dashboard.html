@@ -19,8 +19,6 @@
               <tr>
                 <th>Account</th>
                 <th>U & O</th>
-                <th>Url Checker</th>
-                <th>Disapproved Ads</th>
                 <th>Impr. Share</th>
                 <th>Impr.</th>
                 <th>Clicks</th>
@@ -50,16 +48,6 @@
                 </td>
                 <td>
                     {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
-                </td>
-                <td>
-                    <a href="{% url 'adwords:url_checker' item.account.dependent_account_id %}">
-                        {{ item.404_urls }}
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'adwords:alerts' item.account.dependent_account_id %}">
-                    {{ item.disapproved_ads }}
-                    </a>
                 </td>
                 <td>
                     {{ item.search_impr_share|uni2float|floatformat:2 }}%

@@ -7,10 +7,13 @@ from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingC
 from budget.models import FlightBudget, CampaignGrouping
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import itertools
+from operator import itemgetter
+
+
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
-
     helper = BingReportingService()
     current_period_daterange = helper.get_daterange(days=6)
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
@@ -45,8 +48,8 @@ def bing_cron_anomalies_accounts(self, customer_id):
         **previous_period_daterange
     )
 
-    summed  = helper.sum_report(report)
-    summed2  = helper.sum_report(report2)
+    summed = helper.sum_report(report)
+    summed2 = helper.sum_report(report2)
 
     diff = helper.compare_dict(summed, summed2)
 
@@ -75,12 +78,11 @@ def bing_cron_anomalies_accounts(self, customer_id):
         metadata=metadata
     )
 
-    #PRINT SUMM DATA
+    # PRINT SUMM DATA
 
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_campaigns(self, customer_id):
-
     helper = BingReportingService()
 
     current_period_daterange = helper.get_daterange(days=6)
@@ -126,7 +128,6 @@ def bing_cron_anomalies_campaigns(self, customer_id):
     diffs = []
     account = BingAccounts.objects.get(account_id=customer_id)
 
-
     BingAnomalies.objects.filter(account=account, performance_type="CAMPAIGN").delete()
     for cmp_id in campaign_ids:
         if not cmp_id in cmp_stats2:
@@ -159,10 +160,8 @@ def bing_cron_anomalies_campaigns(self, customer_id):
         )
 
 
-
 @celery_app.task(bind=True)
 def bing_cron_ovu(self, customer_id):
-
     account = BingAccounts.objects.get(account_id=customer_id)
     helper = BingReportingService()
 
@@ -171,7 +170,6 @@ def bing_cron_ovu(self, customer_id):
 
     report_name = str(account.account_id) + "_this_month_performance.csv"
     report_name_7 = str(account.account_id) + "_last_7_performance.csv"
-
 
     query_this_month = helper.get_account_performance_query(
         account.account_id, report_name=report_name, **this_month
@@ -213,6 +211,7 @@ def bing_cron_ovu(self, customer_id):
 
     account.save()
 
+
 @celery_app.task(bind=True)
 def bing_cron_alerts(self, customer_id):
     account = BingAccounts.objects.get(account_id=customer_id)
@@ -226,8 +225,6 @@ def bing_cron_alerts(self, customer_id):
     BingAlerts.objects.filter(account=account, alert_type="DISAPPROVED_AD").delete()
     for adgroup in adgs:
         bing_cron_disapproved_ads(customer_id, adgroup)
-
-
 
 
 def bing_cron_disapproved_ads(account_id, adgroup):
@@ -249,9 +246,9 @@ def bing_cron_disapproved_ads(account_id, adgroup):
             metadata=adg
         )
 
+
 @celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id):
-
     account = BingAccounts.objects.get(account_id=account_id)
     groupings = CampaignGrouping.objects.filter(bing=account)
     helper = BingReportingService()
@@ -282,7 +279,7 @@ def bing_cron_campaign_stats(self, account_id):
         campaign_name = v[0]['campaignname']
         campaign_cost = float(v[0]['spend'])
 
-        cmp, created =  BingCampaign.objects.get_or_create(
+        cmp, created = BingCampaign.objects.get_or_create(
             account=account,
             campaign_id=campaign_id,
             campaign_name=campaign_name
@@ -313,9 +310,9 @@ def bing_cron_campaign_stats(self, account_id):
                 gr.current_spend += cmp.campaign_cost
                 gr.save()
 
+
 @celery_app.task(bind=True)
 def bing_cron_flight_dates(self, customer_id):
-
     fields = [
         'Spend'
     ]
@@ -338,9 +335,9 @@ def bing_cron_flight_dates(self, customer_id):
         b.current_spend = spend
         b.save()
 
+
 @celery_app.task(bind=True)
 def bing_result_trends(self, customer_id):
-    print(customer_id)
     account = BingAccounts.objects.get(account_id=customer_id)
     helper = BingReportingService()
 
@@ -375,19 +372,98 @@ def bing_result_trends(self, customer_id):
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
 
+
     ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
-    ctr_score = helper.get_score(round(ctr_change, 2))
+    ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
     cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
-    cvr_score = helper.get_score(round(cvr_change, 2))
+    cvr_score = helper.get_score(round(cvr_change, 2), 'CVR')
 
     conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
-    conv_score = helper.get_score(round(conv_change, 2))
-    trends_score = int(ctr_score + cvr_score + conv_score) / 3
+    conv_score = helper.get_score(round(conv_change, 2), 'Conversions')
+    trends_score = float(ctr_score[0] + cvr_score[0] + conv_score[0]) / 3
+
+    print(conv_score)
 
     account.trends = trends_data
-    # account.ctr_score = ctr_score
-    # account.cvr_score = cvr_score
-    # account.conversion_score = conv_score
+    account.ctr_score = ctr_score
+    account.cvr_score = cvr_score
+    account.conversions_score = conv_score
     account.trends_score = trends_score
     account.save()
+
+
+@celery_app.task(bind=True)
+def bing_account_quality_score(self, customer_id):
+
+    account = BingAccounts.objects.get(account_id=customer_id)
+    helper = BingReportingService()
+
+    today = datetime.today()
+    minDate = (today - relativedelta(months=2)).replace(day=1)
+    daterange = helper.create_daterange(minDate, today)
+
+    report_name = str(account.account_id) + "_kw_3month_performance.csv"
+
+    data = helper.get_keyword_performance(
+        account_id=account.account_id,
+        aggregation="Monthly",
+        dateRangeType="CUSTOM_DATE",
+        report_name=report_name,
+        **daterange
+    )
+
+    ### QS * IMP / sum(Imp)
+    impressions = 0
+    total_qs = 0
+    qs_final = 0
+    segmented_ = {}
+    final_ = {}
+    to_parse = []
+    qs_data = []
+
+    sorted_data = sorted(data, key=itemgetter('month'))
+
+    for key, group in itertools.groupby(sorted_data, key=lambda x: x['month']):
+        segmented_[key] = list(group)
+
+    for key, value in segmented_.items():
+        for i in range(len(value)):
+            impressions += int(value[i]["impressions"])
+            total_qs += int(value[i]["qualityscore"]) * int(value[i]["impressions"])
+
+        if not total_qs or not impressions:
+            qs_final = 0
+        else:
+            qs_final = total_qs / impressions
+        final_[key] = round(qs_final, 2)
+
+        for i in range(len(value)):
+            if i < 1000:
+                if float(value[i]["qualityscore"]) < qs_final:
+                    qs_data.append(
+                        {
+                            'keyword': str(value[i]['keyword'].encode('utf-8')),
+                            'quality_score': value[i]['qualityscore']
+                        }
+                    )
+
+    for v in sorted(final_.items(), reverse=True):
+        month_num = v[0].split('-')[1]
+        month = calendar.month_name[int(month_num)]
+        item = (month, v[1])
+        to_parse.append(item)
+
+    if to_parse:
+        qs_score = to_parse[2][1] * 10
+    else:
+        qs_score = 0
+
+    account.qs_score = qs_score
+    account.qscore_data = qs_data
+    account.hist_qs = to_parse
+    account.account_score = (account.trends_score + qs_score) / 2
+    account.save()
+
+    del qs_data[:]
+    del to_parse[:]
