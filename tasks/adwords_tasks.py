@@ -99,7 +99,7 @@ def adwords_cron_anomalies(self, customer_id):
         days=6, maxDate=maxDate
     )
 
-    account = DependentAccount.objects.get(account_id=customer_id)
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     acc_anomalies = account_anomalies(
         account.dependent_account_id,
@@ -166,7 +166,7 @@ def adwords_cron_anomalies(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_cron_ovu(self, customer_id):
-    account = DependentAccount.objects.get(account_id=customer_id)
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     helper = AdwordsReportingService(get_client())
     this_month = helper.get_this_month_daterange()
