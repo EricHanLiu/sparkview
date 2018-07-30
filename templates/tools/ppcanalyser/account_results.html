@@ -52,9 +52,15 @@
 
                                     </div>
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        CTR Score: {{ account.ctr_score.0 }}% | CVR Score : {{ account.cvr_score.0 }}% |
-                                        Conv. score : {{ account.conversions_score.0 }}%
-                                        <p>Trends score: (CTR+CVR+CONV) / 3</p>
+                                        <p>Trends score: (CVR+CONV+ROI+CPA+COST) / 5</p>
+
+                                        <div class="row">
+                                            <div class="col-md-2">CVR : {{ account.cvr_score.0 }}%</div>
+                                            <div class="col-md-2">Conv. : {{ account.conversions_score.0 }}%</div>
+                                            <div class="col-md-2">ROI : {{ account.roi_score.0 }}%</div>
+                                            <div class="col-md-2">CPA: {{ account.cpa_score.0 }}%</div>
+                                            <div class="col-md-3">Cost: {{ account.cost_score.0 }}%</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -106,18 +112,24 @@
                                     <thead>
                                     <tr>
                                         <th>Month</th>
-                                        <th>CTR</th>
+                                        {#<th>CTR</th>#}
                                         <th>CVR</th>
                                         <th>Conv.</th>
+                                        <th>ROI</th>
+                                        <th>CPA</th>
+                                        <th>Cost</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for key, value in trends.items %}
                                         <tr>
                                             <td>{{ key }}</td>
-                                            <td>{{ value.ctr }}</td>
+                                            {#<td>{{ value.ctr }}</td>#}
                                             <td>{{ value.cvr }}</td>
                                             <td>{{ value.conversions }}</td>
+                                            <td>{{ value.roi }}</td>
+                                            <td>{{ value.cpa|floatformat:2 }}</td>
+                                            <td>{{ value.cost }}</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
@@ -129,32 +141,7 @@
 
                             <div class="col-md-8 text-center">
                                 <div class="form-group m-form__group">
-                                    <div class="alert m-alert m-alert--default" role="alert"
-                                         style="min-height: 200px!important;">
-                                        <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.ctr_score.0 > 50 %}
-                                        alert-success
-                                        {% elif account.ctr_score == 50 %}
-                                        alert-info
-                                        {% else %}
-                                        alert-danger
-                                        {% endif %}
-                                        alert-dismissible fade show"
-                                             role="alert">
-                                            <div class="m-alert__icon">
-                                                <i class="flaticon-exclamation-1"></i>
-                                                <span></span>
-                                            </div>
-                                            <div class="m-alert__text">
-                                                {{ account.ctr_score.1 }}
-                                            </div>
-                                            <div class="m-alert__close">
-                                                <button type="button" class="close" data-dismiss="alert"
-                                                        aria-label="Close">
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
                                         {% if account.cvr_score.0 > 50 %}
                                         alert-success
                                         {% elif account.cvr_score == 50 %}
@@ -163,21 +150,22 @@
                                         alert-danger
                                         {% endif %}
                                         alert-dismissible fade show"
-                                             role="alert">
-                                            <div class="m-alert__icon">
-                                                <i class="flaticon-exclamation-1"></i>
-                                                <span></span>
-                                            </div>
-                                            <div class="m-alert__text">
-                                                {{ account.cvr_score.1 }}
-                                            </div>
-                                            <div class="m-alert__close">
-                                                <button type="button" class="close" data-dismiss="alert"
-                                                        aria-label="Close">
-                                                </button>
-                                            </div>
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
                                         </div>
-                                        <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        <div class="m-alert__text">
+                                            {{ account.cvr_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
                                         {% if account.conversions_score.0 > 50 %}
                                         alert-success
                                         {% elif account.conversions_score == 50 %}
@@ -186,19 +174,90 @@
                                         alert-danger
                                         {% endif %}
                                         alert-dismissible fade show"
-                                             role="alert">
-                                            <div class="m-alert__icon">
-                                                <i class="flaticon-exclamation-1"></i>
-                                                <span></span>
-                                            </div>
-                                            <div class="m-alert__text">
-                                                {{ account.conversions_score.1 }}
-                                            </div>
-                                            <div class="m-alert__close">
-                                                <button type="button" class="close" data-dismiss="alert"
-                                                        aria-label="Close">
-                                                </button>
-                                            </div>
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.conversions_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.roi_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.roi_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.roi_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.cpa_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.cpa_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.cpa_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.cost_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.cost_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.cost_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -217,6 +276,7 @@
     <script type="text/javascript">
 
         let trends = {{ trends|safe }};
+
         function gen_xy(data, parameter) {
 
             lst = [];
@@ -224,7 +284,7 @@
             for (key in data) {
                 if (data.hasOwnProperty(key)) {
 
-                    if (parameter === 'ctr' || parameter == 'cvr') {
+                    if (parameter === 'conversion_rate' || parameter == 'cvr') {
 
                         lst.push({
                             'x': new Date('2018' + key),
@@ -252,10 +312,10 @@
             type: 'line',
             data: {
                 datasets: [{
-                    label: "CTR",
+                    label: "CPA",
                     backgroundColor: 'rgba(236, 76, 51)',
                     borderColor: 'rgb(236, 76, 51)',
-                    data: gen_xy(trends, 'ctr'),
+                    data: gen_xy(trends, 'cpa'),
                     fill: false,
                     borderWidth: 0.90,
                 },
@@ -272,6 +332,22 @@
                         backgroundColor: 'rgba(0, 51, 204)',
                         borderColor: 'rgb(0, 51, 204)',
                         data: gen_xy(trends, 'conversions'),
+                        fill: false,
+                        borderWidth: 0.90,
+                    },
+                    {
+                        label: "ROI",
+                        backgroundColor: 'rgba(212, 151, 224)',
+                        borderColor: 'rgb(212, 151, 224)',
+                        data: gen_xy(trends, 'roi'),
+                        fill: false,
+                        borderWidth: 0.90,
+                    },
+                    {
+                        label: "Cost",
+                        backgroundColor: 'rgba(112, 51, 124)',
+                        borderColor: 'rgb(112, 51, 124)',
+                        data: gen_xy(trends, 'cost'),
                         fill: false,
                         borderWidth: 0.90,
                     }

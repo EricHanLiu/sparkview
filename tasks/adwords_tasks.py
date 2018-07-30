@@ -187,7 +187,7 @@ def adwords_cron_ovu(self, customer_id):
     segmented_data = {
         i['day']: i for i in data_this_month
     }
-    print(segmented_data)
+
     last_7_ordered = helper.sort_by_date(last_7)
     last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
 
@@ -233,7 +233,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
         )
 
         Alert.objects.filter(
-            account_id=customer_id, alert_type=alert_type
+            dependent_account_id=customer_id, alert_type=alert_type
         ).delete()
 
         for ad in data:
@@ -250,7 +250,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
             )
 
     except AdWordsReportBadRequestError as e:
-        print(e.type)
+
         if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
             account = DependentAccount.objects.get(adependent_ccount_id=customer_id)
             # account.blacklisted = True
@@ -324,8 +324,6 @@ def adwords_cron_adgroup_stats(self, customer_id):
         **this_month
     )
 
-    print(adgroups_this_month)
-
     for adgroup in adgroups_this_month:
         cost = helper.mcv(adgroup['cost'])
         campaign = Campaign.objects.get(campaign_id=adgroup['campaign_id'])
@@ -338,11 +336,6 @@ def adwords_cron_adgroup_stats(self, customer_id):
         ag.campaign_cost = cost
         ag.adgroup_name = adgroup['ad_group']
         ag.save()
-
-        if created:
-            print('Added to DB - [' + ag.adgroup_name + '].')
-        else:
-            print('Matched in DB - [' + ag.adgroup_name + '].')
 
 
 @celery_app.task(bind=True)
@@ -405,7 +398,7 @@ def adwords_text_labels(self, customer_id):
     helper = AdwordsReportingService(client)
 
     data = helper.get_text_labels(customer_id=account.dependent_account_id)
-    print(data)
+
     for d in data:
         lbl, created = Label.objects.update_or_create(
             account=account,
@@ -469,7 +462,9 @@ def adwords_result_trends(self, customer_id):
         dateRangeType="CUSTOM_DATE",
         extra_fields=[
             'MonthOfYear',
-            'ConversionRate'
+            'ConversionRate',
+            'CostPerConversion',
+            'ConversionValue'
         ],
         **daterange
     )
@@ -479,17 +474,19 @@ def adwords_result_trends(self, customer_id):
 
     for item in data:
         trends_data[item['month_of_year']] = {
-            'ctr': item['ctr'],
             'cvr': item['conv._rate'],
-            'conversions': item['conversions']
+            'conversions': item['conversions'],
+            'cost': helper.mcv(item['cost']),
+            'roi': round(float(item['total_conv._value'])/helper.mcv(item['cost']),2),
+            'cpa': helper.mcv(item['cost_/_conv.'])
         }
 
 
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
 
-    ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
-    ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
+    # ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
+    # ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
     cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
     cvr_score = helper.get_score(round(cvr_change, 2), 'CVR')
@@ -497,12 +494,24 @@ def adwords_result_trends(self, customer_id):
     conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
     conv_score = helper.get_score(round(conv_change, 2), 'Conversions')
 
-    trends_score = float(ctr_score[0] + cvr_score[0] + conv_score[0]) / 3
+    roi_change = helper.get_change(to_parse[2][1]['roi'], to_parse[0][1]['roi'])
+    roi_score = helper.get_score(round(roi_change, 2), 'ROI')
+
+    cost_change = helper.get_change(to_parse[2][1]['cost'], to_parse[0][1]['cost'])
+    cost_score = helper.get_score(round(cost_change, 2), 'Cost')
+
+    cpa_change = helper.get_change(to_parse[2][1]['cpa'], to_parse[0][1]['cpa'])
+    cpa_score = helper.get_score(round(cpa_change, 2), 'CPA')
+
+    trends_score = float(cvr_score[0] + conv_score[0] + roi_score[0] + cpa_score[0] + cost_score[0]) / 5
 
     account.trends = trends_data
-    account.ctr_score = ctr_score
+    # account.ctr_score = ctr_score
     account.cvr_score = cvr_score
     account.conversions_score = conv_score
+    account.roi_score = roi_score
+    account.cost_score = cost_score
+    account.cpa_score = cpa_score
     account.trends_score = round(trends_score, 2)
     account.save()
 

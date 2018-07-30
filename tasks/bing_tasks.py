@@ -352,7 +352,8 @@ def bing_result_trends(self, customer_id):
         extra_fields=[
             'ConversionRate',
             'Conversions',
-            'Ctr'
+            'CostPerConversion',
+            'ReturnOnAdSpend'
         ],
         **daterange
     )
@@ -364,30 +365,45 @@ def bing_result_trends(self, customer_id):
         month_num = item['month'].split('-')[1]
         month = calendar.month_name[int(month_num)]
         trends_data[month] = {
-            'ctr': item['ctr'],
             'cvr': item['conversionrate'],
-            'conversions': item['conversions']
+            'conversions': item['conversions'],
+            'cost': item['spend'],
+            'cpa': item['costperconversion'],
+            'roi': item['returnonadspend']
         }
 
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
 
 
-    ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
-    ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
+    # ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
+    # ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
     cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
     cvr_score = helper.get_score(round(cvr_change, 2), 'CVR')
 
     conv_change = helper.get_change(to_parse[2][1]['conversions'], to_parse[0][1]['conversions'])
     conv_score = helper.get_score(round(conv_change, 2), 'Conversions')
-    trends_score = float(ctr_score[0] + cvr_score[0] + conv_score[0]) / 3
+
+    roi_change = helper.get_change(to_parse[2][1]['roi'].strip('%'), to_parse[0][1]['roi'].strip('%'))
+    roi_score = helper.get_score(round(roi_change, 2), 'ROI')
+
+    cost_change = helper.get_change(to_parse[2][1]['cost'], to_parse[0][1]['cost'])
+    cost_score = helper.get_score(round(cost_change, 2), 'Cost')
+
+    cpa_change = helper.get_change(to_parse[2][1]['cpa'], to_parse[0][1]['cpa'])
+    cpa_score = helper.get_score(round(cpa_change, 2), 'CPA')
+
+    trends_score = float(cvr_score[0] + conv_score[0] + roi_score[0] + cpa_score[0] + cost_score[0]) / 5
 
     account.trends = trends_data
-    account.ctr_score = ctr_score
+    # account.ctr_score = ctr_score
     account.cvr_score = cvr_score
     account.conversions_score = conv_score
-    account.trends_score = trends_score
+    account.roi_score = roi_score
+    account.cost_score = cost_score
+    account.cpa_score = cpa_score
+    account.trends_score = round(trends_score, 2)
     account.save()
 
 
