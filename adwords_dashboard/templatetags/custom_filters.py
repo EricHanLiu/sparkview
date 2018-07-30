@@ -99,7 +99,7 @@ def daily_spend(spend):
 
 
 @register.filter(name='projected')
-def projected(spend):
+def projected(spend, yspend):
 
     today = datetime.today() - relativedelta(days=1)
     d_spend = spend / today.day
@@ -113,7 +113,7 @@ def projected(spend):
     remaining = lastday_month.day - today.day
 
     # projected value
-    rval = spend + (d_spend * remaining)
+    rval = spend + (yspend * remaining)
 
     return round(rval ,2)
 

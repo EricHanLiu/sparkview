@@ -12,7 +12,6 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from bloom import settings
-from googleads import adwords
 
 from adwords_dashboard.models import DependentAccount
 from bing_dashboard.models import BingAccounts
@@ -89,8 +88,7 @@ def budget_breakfast():
 
         for a in aw_accounts:
             spend = a.current_spend
-            daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (a.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / a.desired_spend
             except ZeroDivisionError:
@@ -128,7 +126,7 @@ def budget_breakfast():
         for cm2 in aw_cm2:
             spend = cm2.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (cm2.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / cm2.desired_spend
             except ZeroDivisionError:
@@ -166,7 +164,7 @@ def budget_breakfast():
         for cm3 in aw_cm3:
             spend = cm3.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (cm3.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / cm3.desired_spend
             except ZeroDivisionError:
@@ -208,7 +206,7 @@ def budget_breakfast():
         for b in bing_accounts:
             spend = b.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (b.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / b.desired_spend
             except ZeroDivisionError:
@@ -247,7 +245,7 @@ def budget_breakfast():
         for bcm2 in bing_cm2:
             spend = bcm2.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (bcm2.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / bcm2.desired_spend
             except ZeroDivisionError:
@@ -286,7 +284,7 @@ def budget_breakfast():
         for bcm3 in bing_cm3:
             spend = bcm3.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (bcm3.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / bcm3.desired_spend
             except ZeroDivisionError:
@@ -329,7 +327,7 @@ def budget_breakfast():
         for f in fb_accounts:
             spend = f.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (f.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / f.desired_spend
             except ZeroDivisionError:
@@ -368,7 +366,7 @@ def budget_breakfast():
         for fcm2 in fb_cm2:
             spend = fcm2.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (fcm2.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / fcm2.desired_spend
             except ZeroDivisionError:
@@ -407,7 +405,7 @@ def budget_breakfast():
         for fcm3 in fb_cm3:
             spend = fcm3.current_spend
             daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
+            projected = (fcm3.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / fcm3.desired_spend
             except ZeroDivisionError:
@@ -532,7 +530,7 @@ def budget_protection(client):
                         if 'entries' in page and page['entries']:
                             aw_campaigns.extend(page['entries'])
                             offset += self.PAGE_SIZE
-                            campaign_selector['paging']['startIndex'] = str(offset)
+                            selector['paging']['startIndex'] = str(offset)
 
                         more_pages = offset < int(page['totalNumEntries'])
 
@@ -550,7 +548,7 @@ def budget_protection(client):
                         }]
 
                         # Pause campaign if percentage > 99
-                        result = campaign_criterion_service.mutate(operations)
+                        result = campaign_service.mutate(operations)
                         print(result)
 
         for b in bing_accounts:

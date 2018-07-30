@@ -112,7 +112,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <b>Projected Spend EOM</b>:
-                                        {{ a.current_spend|projected|floatformat:2 }}
+                                        {{ a.current_spend|projected:a.yesterday_spend|floatformat:2 }}
                                     </div>
                                 </div>
                                 </p>
@@ -331,7 +331,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <b>Projected Spend EOM</b>:
-                                        {{ b.current_spend|projected|floatformat:2 }}
+                                        {{ b.current_spend|projected:b.yesterday_spend|floatformat:2 }}
                                     </div>
                                 </div>
                                 </p>
@@ -498,7 +498,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <b>Projected Spend EOM</b>:
-                                        {{ f.current_spend|projected|floatformat:2 }}
+                                        {{ f.current_spend|projected:f.yesterday_spend|floatformat:2 }}
                                     </div>
                                 </div>
                                 </p>
