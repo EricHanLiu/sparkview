@@ -456,7 +456,7 @@ def adwords_result_trends(self, customer_id):
     today = datetime.today()
     minDate = (today - relativedelta(months=2)).replace(day=1)
     daterange = helper.create_daterange(minDate, today)
-
+    weekly = helper.get_this_month_daterange()
     data = helper.get_account_performance(
         customer_id=account.dependent_account_id,
         dateRangeType="CUSTOM_DATE",
@@ -469,18 +469,39 @@ def adwords_result_trends(self, customer_id):
         **daterange
     )
 
-    trends_data = {}
-    to_parse = []
+    weekly_data = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=[
+            'Week',
+            'ConversionRate',
+            'CostPerConversion',
+            'ConversionValue'
+        ],
+        **weekly
+    )
 
+    trends_data = {}
+    w_data = {}
+    to_parse = []
+    # print(data)
     for item in data:
         trends_data[item['month_of_year']] = {
             'cvr': item['conv._rate'],
             'conversions': item['conversions'],
             'cost': helper.mcv(item['cost']),
-            'roi': round(float(item['total_conv._value'])/helper.mcv(item['cost']),2),
+            'roi': round(float(item['total_conv._value'])/helper.mcv(item['cost'])),
             'cpa': helper.mcv(item['cost_/_conv.'])
         }
 
+    for item in sorted(weekly_data, key=lambda k: k['week']):
+        w_data[item['week']] = {
+            'cvr': item['conv._rate'],
+            'conversions': item['conversions'],
+            'cost': helper.mcv(item['cost']),
+            'roi': round(float(item['total_conv._value']) / helper.mcv(item['cost'])),
+            'cpa': helper.mcv(item['cost_/_conv.'])
+        }
 
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
@@ -513,6 +534,7 @@ def adwords_result_trends(self, customer_id):
     account.cost_score = cost_score
     account.cpa_score = cpa_score
     account.trends_score = round(trends_score, 2)
+    account.weekly_data = w_data
     account.save()
 
 

@@ -344,6 +344,7 @@ def bing_result_trends(self, customer_id):
     today = datetime.today()
     minDate = (today - relativedelta(months=2)).replace(day=1)
     daterange = helper.create_daterange(minDate, today)
+    weekly = helper.get_this_month_daterange()
 
     data = helper.get_account_performance(
         account_id=account.account_id,
@@ -358,7 +359,22 @@ def bing_result_trends(self, customer_id):
         **daterange
     )
 
+    weekly_data = helper.get_account_performance(
+        account_id=account.account_id,
+        aggregation="Weekly",
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=[
+            'ConversionRate',
+            'Conversions',
+            'CostPerConversion',
+            'ReturnOnAdSpend'
+        ],
+        **weekly
+    )
+    print(weekly_data)
+
     trends_data = {}
+    w_data = {}
     to_parse = []
 
     for item in data:
@@ -370,6 +386,15 @@ def bing_result_trends(self, customer_id):
             'cost': item['spend'],
             'cpa': item['costperconversion'],
             'roi': item['returnonadspend']
+        }
+
+    for item in sorted(weekly_data, key=lambda k: k['week']):
+        w_data[item['week']] = {
+            'cvr': item['conversionrate'],
+            'conversions': item['conversions'],
+            'cost': item['spend'],
+            'roi': item['returnonadspend'],
+            'cpa': item['costperconversion']
         }
 
     for v in sorted(trends_data.items(), reverse=True):
@@ -404,6 +429,7 @@ def bing_result_trends(self, customer_id):
     account.cost_score = cost_score
     account.cpa_score = cpa_score
     account.trends_score = round(trends_score, 2)
+    account.weekly_data = w_data
     account.save()
 
 
