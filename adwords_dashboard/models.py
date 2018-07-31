@@ -65,6 +65,7 @@ class DependentAccount(models.Model):
     conversions_score = JSONField(default=dict, null=True, blank=True)
     trends_score = models.FloatField(default=0)
     account_score = models.FloatField(default=0)
+    weekly_data = JSONField(default=dict, null=True, blank=True)
     hist_qs = JSONField(default=dict, blank=True, null=True)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)

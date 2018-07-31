@@ -56,6 +56,23 @@ def account_results(request, account_id, channel):
     return render(request, 'tools/ppcanalyser/account_results.html', context)
 
 @login_required
+def account_results_weekly(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    context = {
+        'account': account,
+        'trends': account.trends,
+        'weekly': account.weekly_data
+    }
+    return render(request, 'tools/ppcanalyser/account_results_weekly.html', context)
+
+@login_required
 def account_overview(request, account_id, channel):
 
     if channel == 'adwords':

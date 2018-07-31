@@ -21,7 +21,8 @@ class Reporting:
 
     def get_change(self, current, previous):
         if float(current) == float(previous):
-            return 100.0
+            return 0.0
+
         try:
             return (float(current) - float(previous)) / float(previous) * 100.0
         except ZeroDivisionError:
@@ -194,7 +195,7 @@ class Reporting:
         if today.day < 2:
             maxDate = today
         else:
-            maxDate = today + relativedelta(days=-1)
+            maxDate = today - relativedelta(days=1)
 
         if today.day == 1:
             minDate = today - relativedelta(months=1)

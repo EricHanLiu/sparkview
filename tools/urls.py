@@ -7,6 +7,7 @@ urlpatterns = [
     url(r"^ppcanalyser/reports/run$", views.run_reports, name="report_run"),
     url(r"^ppcanalyser/account/overview/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_overview, name="account_overview"),
     url(r"^ppcanalyser/account/trends/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_results, name="account_results"),
+    url(r"^ppcanalyser/account/trends/weekly/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_results_weekly, name="account_results_weekly"),
     url(r"^ppcanalyser/account/qscore/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_qs, name="account_qs"),
     url(r"^labels/create$", views.create_labels, name="create_labels"),
     url(r"^labels/deassign$", views.deassign_labels, name="deassign_labels"),
