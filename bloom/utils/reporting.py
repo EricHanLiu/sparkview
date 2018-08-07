@@ -1121,6 +1121,22 @@ class AdwordsReportingService(AdwordsReporting):
             return []
         return result['entries']
 
+    def get_account_changes(self, customer_id=None):
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        service = client.GetService('CustomerSyncService', version=self.api_version)
+
+        selector = {
+            'fields': ['ChangedCampaigns', 'LastChangedTimestamp'],
+        }
+        result = service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
 
 class FacebookReporting(Reporting):
     date_format = "%Y-%m-%d"
