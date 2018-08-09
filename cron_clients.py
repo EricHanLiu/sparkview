@@ -14,7 +14,7 @@ def perdelta(start, end, delta):
         yield curr
         curr += delta
 
-def projected(spend):
+def projected(spend, yspend):
 
     today = datetime.today() - relativedelta(days=1)
     d_spend = spend / today.day
@@ -27,7 +27,7 @@ def projected(spend):
     remaining = lastday_month.day - today.day
 
     # projected value
-    rval = spend + (d_spend * remaining)
+    rval = spend + (yspend * remaining)
 
     return round(rval ,2)
 
@@ -92,7 +92,7 @@ def main():
                         aw_temp = aw_temp + float(int(v['cost']) / 1000000)
                     aw_spend[v['day']] = round(aw_temp, 2)
 
-                aw_projected_val = projected(client.aw_spend)
+                aw_projected_val = projected(client.aw_spend, a.yesterday_spend)
                 aw_projected_per_day = aw_projected_val / last_day.day
                 for index, val in enumerate(pdays):
                     aw_projected[val.strftime("%Y-%m-%d")] = round((aw_projected_per_day * index) + a.current_spend, 2)
@@ -118,7 +118,7 @@ def main():
                     b_temp = b_temp + float(v['spend'])
                     bing_spend[v['gregoriandate']] = round(b_temp, 2)
 
-                bing_projected_val = projected(client.bing_spend)
+                bing_projected_val = projected(client.bing_spend, b.yesterday_spend)
                 bing_projected_per_day = bing_projected_val / last_day.day
                 for index, val in enumerate(pdays):
                     bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend, 2)
@@ -146,7 +146,7 @@ def main():
                     fb_temp = fb_temp + float(v)
                     fb_spend[k] = round(fb_temp, 2)
 
-                fb_projected_val = projected(client.fb_spend)
+                fb_projected_val = projected(client.fb_spend, f.yesterday_spend)
                 fb_projected_per_day = fb_projected_val / last_day.day
                 for index, val in enumerate(pdays):
                     fb_projected[val.strftime("%Y-%m-%d")] = round((fb_projected_per_day * index) + f.current_spend, 2)

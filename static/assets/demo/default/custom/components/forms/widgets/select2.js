@@ -543,7 +543,7 @@ var Select2 = function () {
         $("#select_labels3").select2({
             placeholder: "Search labels..."
         });
-    }
+    };
     return {
         init: function () {
             e()
