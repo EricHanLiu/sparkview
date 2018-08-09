@@ -828,17 +828,41 @@ def get_campaigns(request):
 
     account_id = request.POST.get('account_id')
     gr_id = request.POST.get('gr_id')
-    account = DependentAccount.objects.get(dependent_account_id=account_id)
+    channel = request.POST.get('channel')
     response = {}
 
-    campaigns = Campaign.objects.filter(account=account)
-    campaigns_json = json.loads(serializers.serialize("json", campaigns))
-    response['campaigns'] = campaigns_json
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+        campaigns = Campaign.objects.filter(account=account)
+        campaigns_json = json.loads(serializers.serialize("json", campaigns))
+        response['campaigns'] = campaigns_json
 
-    if gr_id:
-        gr = CampaignGrouping.objects.filter(id=gr_id)
-        gr_json = json.loads(serializers.serialize("json", gr))
-        response['group'] = gr_json
+        if gr_id:
+            gr = CampaignGrouping.objects.filter(id=gr_id)
+            gr_json = json.loads(serializers.serialize("json", gr))
+            response['group'] = gr_json
+
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+        campaigns = BingCampaign.objects.filter(account=account)
+        campaigns_json = json.loads(serializers.serialize("json", campaigns))
+        response['campaigns'] = campaigns_json
+
+        if gr_id:
+            gr = CampaignGrouping.objects.filter(id=gr_id)
+            gr_json = json.loads(serializers.serialize("json", gr))
+            response['group'] = gr_json
+
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+        campaigns = FacebookCampaign.objects.filter(account=account)
+        campaigns_json = json.loads(serializers.serialize("json", campaigns))
+        response['campaigns'] = campaigns_json
+
+        if gr_id:
+            gr = CampaignGrouping.objects.filter(id=gr_id)
+            gr_json = json.loads(serializers.serialize("json", gr))
+            response['group'] = gr_json
 
     return JsonResponse(response)
 

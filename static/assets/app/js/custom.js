@@ -211,6 +211,7 @@ $(document).ready(function () {
         data = {
             'account_id': acc_id,
             'gr_id': gr_id,
+            'channel': channel
         };
 
         if (group_by === 'manual') {
