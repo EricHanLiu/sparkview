@@ -201,10 +201,81 @@ $(document).ready(function () {
         let group_name = $(e.relatedTarget).data('group_name');
         let group_by = $(e.relatedTarget).data('group_by');
         let budget = $(e.relatedTarget).data('group_budget');
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let channel = $(e.relatedTarget).data('channel');
 
         $(e.currentTarget).find('input[name="group_budget"]').val(budget);
         $(e.currentTarget).find('input[name="cgr_group_name"]').val(group_name);
-        $(e.currentTarget).find('input[name="cgr_group_by"]').val(group_by);
+        $(e.currentTarget).find('input[name="cgr_channel"]').val(channel);
+
+        data = {
+            'account_id': acc_id,
+            'gr_id': gr_id,
+        };
+
+        if (group_by === 'manual') {
+
+            $("#gr_manual_edit").prop("checked", true);
+            $($('#campaigns_gr_edit').data('select2').$container).removeClass('hidden');
+            $("#cgr_group_by_edit").addClass('hidden');
+
+            $("#campaigns_gr_edit").val(null).trigger('change');
+
+            $.ajax({
+                url: '/budget/groupings/get_campaigns/',
+                headers: {'X-CSRFToken': csrftoken},
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    let campaigns = data['campaigns'];
+                    let cmps_in_gr = data['group'];
+
+                    campaigns.forEach(item => {
+                        if (cmps_in_gr[0]['fields']['aw_campaigns'].length > 0) {
+                            if (cmps_in_gr[0]['fields']['aw_campaigns'].includes(item['pk'])) {
+                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                $("#campaigns_gr_edit").append(new_option).trigger('change');
+                            } else {
+                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                $("#campaigns_gr_edit").append(new_option).trigger('change');
+                            }
+                        } else if (data['group'][0]['fields']['bing_campaigns'].length > 0) {
+                            if (cmps_in_gr[0]['fields']['bing_campaigns'].includes(item['pk'])) {
+                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                $("#campaigns_gr_edit").append(new_option).trigger('change');
+                            } else {
+                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                $("#campaigns_gr_edit").append(new_option).trigger('change');
+                            }
+                        } else if (data['group'][0]['fields']['fb_campaigns'].length > 0) {
+                            if (cmps_in_gr[0]['fields']['fb_campaigns'].includes(item['pk'])) {
+                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                $("#campaigns_gr_edit").append(new_option).trigger('change');
+                            } else {
+                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                $("#campaigns_gr_edit").append(new_option).trigger('change');
+                            }
+                        } else {
+                            let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                            $("#campaigns_gr_edit").append(new_option).trigger('change');
+                        }
+                    });
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText)
+                },
+                complete: function () {
+                }
+
+            });
+
+        } else {
+            $("#gr_text_edit").prop("checked", true);
+            $(e.currentTarget).find('input[name="cgr_group_by_edit"]').val(group_by);
+            $($('#campaigns_gr_edit').data('select2').$container).addClass('hidden');
+            $("#cgr_group_by_edit").removeClass('hidden');
+        }
+
 
         $(".modal-body #cgr_acc_name").html(acc_name);
         $(".modal-body #cgr_gr_id").val(gr_id);
@@ -344,6 +415,56 @@ $(document).ready(function () {
         placeholder: "Search labels..."
     });
 
+    $("#campaigns_gr").select2({
+        placeholder: "Select campaigns..."
+    });
+
+    $("#campaigns_gr_edit").select2({
+        placeholder: "Select campaigns..."
+    });
+
+    $($('#campaigns_gr').data('select2').$container).addClass('hidden');
+
+    $("#gr_text").change(function () {
+        $($('#campaigns_gr').data('select2').$container).addClass('hidden');
+        $("#campaign_list").append('<input type="text" class="form-control group-by"\n' +
+            'name="cgr_group_by" id="cgr_group_by" placeholder="Group by.." required>');
+    });
+    $("#gr_manual").change(function () {
+        $("#cgr_group_by").remove();
+        $($('#campaigns_gr').data('select2').$container).removeClass('hidden');
+
+        data = {
+            'account_id': $("#cgr_acc_id").val(),
+        };
+
+        $.ajax({
+            url: '/budget/groupings/get_campaigns/',
+            headers: {'X-CSRFToken': csrftoken},
+            type: 'POST',
+            data: data,
+            success: function (data) {
+
+                let campaigns = data['campaigns'];
+                campaigns.forEach(item => {
+                    //$("#campaign_list").append(
+                    //    '<label class="m-checkbox m-checkbox--air m-checkbox--solid">' +
+                    //	'<input type="checkbox" name="campaigns" value="'+ item['fields']['campaign_id'] +'">' + item['fields']['campaign_name'] +
+                    //	'<span></span>' +
+                    //	'</label>' +
+                    //  '<p>' + '</p>');
+                    var new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                    $("#campaigns_gr").append(new_option).trigger('change');
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+            complete: function () {
+            }
+
+        });
+    });
 
     $(function () {
         $("[id$='circle']").percircle();
@@ -399,5 +520,4 @@ $(document).ready(function () {
     }
 
 
-})
-;
+});

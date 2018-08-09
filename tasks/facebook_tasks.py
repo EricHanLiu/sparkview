@@ -354,13 +354,16 @@ def facebook_cron_campaign_stats(self, account_id):
     if groupings:
         for gr in groupings:
             for c in cmps:
-                if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
-                    gr.fb_campaigns.remove(c)
-                    gr.save()
+                if gr.group_by == 'manual':
+                    continue
+                else:
+                    if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
+                        gr.aw_campaigns.remove(c)
+                        gr.save()
 
-                elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
-                    gr.fb_campaigns.add(c)
-                    gr.save()
+                    elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
+                        gr.aw_campaigns.add(c)
+                        gr.save()
 
             gr.current_spend = 0
             for cmp in gr.fb_campaigns.all():

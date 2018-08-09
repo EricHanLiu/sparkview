@@ -20,6 +20,7 @@ urlpatterns = [
     url(r"^groupings/read/$", views.campaign_groupings, name="campaign_groupings_read"),
     url(r"^groupings/update/$", views.update_groupings, name='campaign_groupings_update'),
     url(r"^groupings/delete/$", views.delete_groupings, name='campaign_groupings_delete'),
+    url(r"^groupings/get_campaigns/$", views.get_campaigns, name='campaign_groupings_get_campaigns'),
     url(r"^fbudget/read/$", views.detailed_flight_dates, name="flight_budget_read"),
     url(r"^fbudget/create/$", views.flight_dates, name="flight_budget_create"),
     url(r"^fbudget/update/$", views.update_fbudget, name='flight_budget_update'),

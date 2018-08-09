@@ -245,7 +245,9 @@
                                                    data-target="#m_delete_campaign_group" data-grid="{{ gr.id }}"></i>
                                                 <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
                                                    data-target="#m_edit_campaign_group"
-                                                   data-acc_name="{{ b.account_name }}"
+                                                   data-acc_name="{{ a.dependent_account_name }}"
+                                                   data-acc_id="{{ a.dependent_account_id }}"
+                                                   data-channel="{{ a.channel }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
                                                    data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"></i>
@@ -414,6 +416,8 @@
                                                 <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
                                                    data-target="#m_edit_campaign_group"
                                                    data-acc_name="{{ b.account_name }}"
+                                                   data-acc_id="{{ b.account_id }}"
+                                                   data-channel="{{ b.channel }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
                                                    data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"></i>
@@ -581,6 +585,8 @@
                                                 <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
                                                    data-target="#m_edit_campaign_group"
                                                    data-acc_name="{{ f.account_name }}"
+                                                   data-acc_id="{{ f.account_id }}"
+                                                   data-channel="{{ f.channel }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
                                                    data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"></i>

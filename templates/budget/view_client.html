@@ -313,7 +313,7 @@
 
     <!--START:Modal add_campaign_group-->
     <div class="modal fade" id="m_add_campaign_group" tabindex="-1" role="dialog" aria-labelledby="add_campaign_group">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
                     <form id="add_campaign_group">
@@ -328,14 +328,29 @@
                                            name="cgr_group_name" placeholder="Group name" required>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-12">
-                                    <input type="text" class="form-control group-by"
-                                           name="cgr_group_by" placeholder="Group by.." required>
+                                    <div class="m-radio-inline">
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text"> Text
+                                            <span></span>
+                                        </label>
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="manual" id="gr_manual">
+                                            Manual
+                                            <span></span>
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="col-md-4">
                                     <input type="number" class="form-control group_budget" name="group_budget"
                                            min="0" placeholder="Group budget" required>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-group" id="campaign_list">
+                            <select class="form-control m-input--large" name="campaigns"
+                                    multiple="multiple" id="campaigns_gr" style="width: 100%;">
+                                <option></option>
+                            </select>
                         </div>
                     </form>
                 </div>
@@ -355,11 +370,12 @@
     <!--START:Modal edit_campaign_group-->
     <div class="modal fade" id="m_edit_campaign_group" tabindex="-1" role="dialog"
          aria-labelledby="edit_campaign_group">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
                     <form id="edit_campaign_group">
                         <input type="hidden" name="cgr_gr_id" id="cgr_gr_id">
+                        <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Edit campaign group for <span id="cgr_acc_name"></span></p>
                         <div class="form-group">
 
@@ -370,15 +386,31 @@
                                            name="cgr_group_name" placeholder="Group name" required>
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-12">
-                                    <label for="cgr_group_by">Group by:</label>
-                                    <input type="text" class="form-control group-by"
-                                           name="cgr_group_by" placeholder="Group by.." required>
+                                    <div class="m-radio-inline">
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text_edit"> Text
+                                            <span></span>
+                                        </label>
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="manual" id="gr_manual_edit">
+                                            Manual
+                                            <span></span>
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="group_budget">Budget:</label>
                                     <input type="number" class="form-control group_budget" name="group_budget"
                                            min="0" placeholder="Group budget" required>
                                 </div>
+                            </div>
+                            <div class="form-group" id="campaign_list">
+                                <select class="form-control m-input--large" name="campaigns_edit"
+                                        multiple="multiple" id="campaigns_gr_edit" style="width: 100%;">
+                                </select>
+                                <input type="text" class="form-control" name="cgr_group_by_edit"
+                                       id="cgr_group_by_edit">
+                                <div id="cmps_in_gr"></div>
                             </div>
                         </div>
                     </form>
@@ -969,7 +1001,7 @@
         function addCampaignGroup() {
             let modal = $("#m_add_campaign_group");
             let data = $("#add_campaign_group").serializeArray();
-
+            console.log(data);
             $.ajax({
                 url: '/budget/groupings/create/',
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
