@@ -437,6 +437,7 @@ $(document).ready(function () {
 
         data = {
             'account_id': $("#cgr_acc_id").val(),
+            'channel': $("#cgr_channel").val()
         };
 
         $.ajax({
@@ -448,12 +449,6 @@ $(document).ready(function () {
 
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
-                    //$("#campaign_list").append(
-                    //    '<label class="m-checkbox m-checkbox--air m-checkbox--solid">' +
-                    //	'<input type="checkbox" name="campaigns" value="'+ item['fields']['campaign_id'] +'">' + item['fields']['campaign_name'] +
-                    //	'<span></span>' +
-                    //	'</label>' +
-                    //  '<p>' + '</p>');
                     var new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                     $("#campaigns_gr").append(new_option).trigger('change');
                 });
