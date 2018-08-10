@@ -28,12 +28,15 @@ def view_profile(request):
         aw_to = DependentAccount.objects.filter(assigned_to=user)
         aw_cm2 = DependentAccount.objects.filter(assigned_cm2=user)
         aw_cm3 = DependentAccount.objects.filter(assigned_cm3=user)
+        aw_am = DependentAccount.objects.filter(assigned_am=user)
         bing_to = BingAccounts.objects.filter(assigned_to=user)
         bing_cm2 = BingAccounts.objects.filter(assigned_cm2=user)
         bing_cm3 = BingAccounts.objects.filter(assigned_cm3=user)
+        bing_am = BingAccounts.objects.filter(assigned_am=user)
         fb_to = FacebookAccount.objects.filter(assigned_to=user)
         fb_cm2 = FacebookAccount.objects.filter(assigned_cm2=user)
         fb_cm3 = FacebookAccount.objects.filter(assigned_cm3=user)
+        fb_am = FacebookAccount.objects.filter(assigned_am=user)
 
         try:
             google_login = user.social_auth.get(provider='google-oauth2')
@@ -192,12 +195,15 @@ def user_list(request):
                 'aw_to': DependentAccount.objects.filter(assigned_to=user),
                 'aw_cm2': DependentAccount.objects.filter(assigned_cm2=user),
                 'aw_cm3': DependentAccount.objects.filter(assigned_cm3=user),
+                'aw_am': DependentAccount.objects.filter(assigned_am=user),
                 'bing_to': BingAccounts.objects.filter(assigned_to=user),
                 'bing_cm2': BingAccounts.objects.filter(assigned_cm2=user),
                 'bing_cm3': BingAccounts.objects.filter(assigned_cm3=user),
+                'bing_am': BingAccounts.objects.filter(assigned_am=user),
                 'facebook_to': FacebookAccount.objects.filter(assigned_to=user),
                 'facebook_cm2': FacebookAccount.objects.filter(assigned_cm2=user),
                 'facebook_cm3': FacebookAccount.objects.filter(assigned_cm3=user),
+                'facebook_am': FacebookAccount.objects.filter(assigned_am=user),
             }
             details.append(detail)
 
@@ -216,12 +222,15 @@ def user_list(request):
         adwords = request.POST.getlist('adwords_cm')
         adwords_cm2 = request.POST.getlist('adwords_cm2')
         adwords_cm3 = request.POST.getlist('adwords_cm3')
+        adwords_am = request.POST.getlist('adwords_am')
         bing = request.POST.getlist('bing_cm')
         bing_cm2 = request.POST.getlist('bing_cm2')
         bing_cm3 = request.POST.getlist('bing_cm3')
+        bing_am = request.POST.getlist('bing_am')
         facebook = request.POST.getlist('facebook')
         facebook_cm2 = request.POST.getlist('facebook_cm2')
         facebook_cm3 = request.POST.getlist('facebook_cm3')
+        facebook_am = request.POST.getlist('facebook_am')
         user = User.objects.get(id=uid)
 
         if adwords:
@@ -241,6 +250,13 @@ def user_list(request):
                 aw_acc.assigned_cm3 = user
                 aw_acc.save()
 
+        if adwords_am:
+            for a in adwords_am:
+                aw_acc = DependentAccount.objects.get(dependent_account_id=a)
+                aw_acc.assigned_am = user
+                aw_acc.save()
+
+
         if bing:
             for b in bing:
                 bing_acc = BingAccounts.objects.get(account_id=b)
@@ -257,6 +273,12 @@ def user_list(request):
             for b in bing_cm3:
                 bing_acc = BingAccounts.objects.get(account_id=b)
                 bing_acc.assigned_cm3 = user
+                bing_acc.save()
+
+        if bing_am:
+            for b in bing_am:
+                bing_acc = BingAccounts.objects.get(account_id=b)
+                bing_acc.assigned_am = user
                 bing_acc.save()
 
         if facebook:
@@ -277,6 +299,12 @@ def user_list(request):
                 fb_acc.assigned_cm3 = user
                 fb_acc.save()
 
+        if facebook_am:
+            for f in facebook_am:
+                fb_acc = FacebookAccount.objects.get(account_id=f)
+                fb_acc.assigned_am = user
+                fb_acc.save()
+
         context = {
             'error': 'OK'
         }
@@ -288,8 +316,13 @@ def remove_user_accounts(request):
     acc_id = data['acc_id']
     level = data['cm']
     platform = data['platform']
-    print(acc_id, level, platform)
+
     if platform == 'adwords':
+        if level == 'am':
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+            account.assigned_am = None
+            account.save()
+
         if level == 'cm':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
             account.assigned_to = None
@@ -306,6 +339,11 @@ def remove_user_accounts(request):
             account.save()
 
     if platform == 'bing':
+        if level == 'am':
+            account = BingAccounts.objects.get(account_id=acc_id)
+            account.assigned_am = None
+            account.save()
+
         if level == 'cm':
             account = BingAccounts.objects.get(account_id=acc_id)
             account.assigned_cm2 = None
@@ -322,6 +360,11 @@ def remove_user_accounts(request):
             account.save()
 
     if platform == 'facebook':
+        if level == 'am':
+            account = FacebookAccount.objects.get(account_id=acc_id)
+            account.assigned_am = None
+            account.save()
+
         if level == 'cm':
             account = FacebookAccount.objects.get(account_id=acc_id)
             account.assigned_to = None

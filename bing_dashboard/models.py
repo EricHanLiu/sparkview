@@ -40,6 +40,7 @@ class BingAccounts(models.Model):
     assigned_to = models.ForeignKey(User, null=True, blank=True)
     assigned_cm2 = models.ForeignKey(User, null=True, blank=True, related_name='bing_cm2')
     assigned_cm3 = models.ForeignKey(User, null=True, blank=True, related_name='bing_cm3')
+    assigned_am = models.ForeignKey(User, null=True, blank=True, related_name='bing_am')
     assigned = models.BooleanField(default=False)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
