@@ -55,6 +55,18 @@ var Select2 = function () {
             placeholder: "Search..."
         });
 
+        $("#m_select2_adwords_am").select2({
+            placeholder: "Search..."
+        });
+
+        $("#m_select2_bing_am").select2({
+            placeholder: "Search..."
+        });
+
+        $("#m_select2_facebook_am").select2({
+            placeholder: "Search..."
+        });
+
         $("#m_select2_adwords_cm2").select2({
             placeholder: "Search..."
         });

@@ -72,6 +72,7 @@ class DependentAccount(models.Model):
     assigned_to = models.ForeignKey(User, null=True, blank=True)
     assigned_cm2 = models.ForeignKey(User, null=True, blank=True, related_name='aw_cm2')
     assigned_cm3 = models.ForeignKey(User, null=True, blank=True, related_name='aw_cm3')
+    assigned_am = models.ForeignKey(User, null=True, blank=True, related_name='aw_am')
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)

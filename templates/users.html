@@ -38,9 +38,9 @@
                                                                      data-userid="{{ detail.user.id }}"
                                                                      style="background: #212529; color: #FFF;"></i>
                                                 <i class="fa fa-minus-circle" data-toggle="modal"
-                                                    data-target="#m_modal_delete_user"
-                                                    data-userid="{{ detail.user.id }}"
-                                                    data-username="{{ detail.user }}"></i>
+                                                   data-target="#m_modal_delete_user"
+                                                   data-userid="{{ detail.user.id }}"
+                                                   data-username="{{ detail.user }}"></i>
                                             </h3>
                                         </div>
                                     </div>
@@ -74,6 +74,19 @@
                                     <div class="tab-content">
                                         <div class="tab-pane active show" id="m_tabs_7_1-{{ detail.user.id }}"
                                              role="tabpanel">
+                                            <p>
+                                                {% for am in detail.aw_am %}
+                                                    <span id="{{ am.dependent_account_id }}"
+                                                          class="m-badge m-badge--info m-badge--wide">
+                                                AM: {{ am.dependent_account_name }} <a style="color: #FFF;"
+                                                                                       onclick="removeAccount({{ am.dependent_account_id }}, 'am', 'adwords')">X</a>
+                                            </span>
+                                                {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                AM: No accounts
+                                            </span>
+                                                {% endfor %}
+                                            </p>
                                             <p>
                                                 {% for cm in detail.aw_to %}
                                                     <span id="{{ cm.dependent_account_id }}"
@@ -117,6 +130,17 @@
                                         </div>
                                         <div class="tab-pane" id="m_tabs_7_2-{{ detail.user.id }}" role="tabpanel">
                                             <p>
+                                                {% for am in detail.bing_am %}
+                                                    <span id="{{ am.account_id }}"
+                                                          class="m-badge m-badge--primary m-badge--wide">
+                                                CM: {{ am.account_name }} <a style="color: #FFF;"
+                                                                             onclick="removeAccount({{ am.account_id }}, 'am', 'bing')">X</a>
+                                            </span>
+                                                {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">CM: No accounts</span>
+                                                {% endfor %}
+                                            </p>
+                                            <p>
                                                 {% for cm in detail.bing_to %}
                                                     <span id="{{ cm.account_id }}"
                                                           class="m-badge m-badge--primary m-badge--wide">
@@ -155,6 +179,17 @@
                                             </p>
                                         </div>
                                         <div class="tab-pane" id="m_tabs_7_3-{{ detail.user.id }}" role="tabpanel">
+                                            <p>
+                                                {% for fam in detail.facebook_am %}
+                                                    <span id="{{ fam.account_id }}"
+                                                          class="m-badge m-badge--primary m-badge--wide">CM: {{ fam.account_name }} <a
+                                                            style="color: #FFF;"
+                                                            onclick="removeAccount('{{ fam.account_id }}', 'cm', 'facebook')">X</a>
+                                            </span>
+                                                {% empty %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">CM: No accounts</span>
+                                                {% endfor %}
+                                            </p>
                                             <p>
                                                 {% for fcm in detail.facebook_to %}
                                                     <span id="{{ fcm.account_id }}"
@@ -220,7 +255,17 @@
                         <div class="form-group">
                             <h5>AdWords</h5>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label for="aw-am" class="form-control-label">AM:</label>
+                                    <select class="form-control m-input--large" name="adwords_am"
+                                            multiple="multiple" id="m_select2_adwords_am"
+                                            style="width: 100%;">
+                                        {% for a in adwords %}
+                                            <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label for="aw-cm" class="form-control-label">CM:</label>
                                     <select class="form-control m-input--large" name="adwords_cm"
                                             multiple="multiple" id="m_select2_adwords"
@@ -230,7 +275,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="aw-cm2" class="form-control-label">CM2:</label>
                                     <select class="form-control m-input--large" name="adwords_cm2"
                                             multiple="multiple" id="m_select2_adwords_cm2"
@@ -240,7 +285,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="aw-cm" class="form-control-label">CM3:</label>
                                     <select class="form-control m-input--large" name="adwords_cm3"
                                             multiple="multiple" id="m_select2_adwords_cm3"
@@ -255,7 +300,17 @@
                         <h5>Bing</h5>
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label for="bing-am" class="form-control-label">AM:</label>
+                                    <select class="form-control m-input--large" name="bing_am"
+                                            multiple="multiple" id="m_select2_bing_am"
+                                            style="width: 100%;">
+                                        {% for b in bing %}
+                                            <option value="{{ b.account_id }}">{{ b.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label for="aw-cm" class="form-control-label">CM:</label>
                                     <select class="form-control m-input--large" name="bing_cm"
                                             multiple="multiple" id="m_select2_bing"
@@ -265,7 +320,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="aw-cm2" class="form-control-label">CM2:</label>
                                     <select class="form-control m-input--large" name="bing_cm2"
                                             multiple="multiple" id="m_select2_bing_cm2"
@@ -275,7 +330,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="aw-cm" class="form-control-label">CM3:</label>
                                     <select class="form-control m-input--large" name="bing_cm3"
                                             multiple="multiple" id="m_select2_bing_cm3"
@@ -290,7 +345,17 @@
                         <h5>Facebook</h5>
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label for="facebook" class="form-control-label">AM:</label>
+                                    <select class="form-control m-input--large" name="facebook_am"
+                                            multiple="multiple" id="m_select2_facebook_am"
+                                            style="width: 100%;">
+                                        {% for f in facebook %}
+                                            <option value="{{ f.account_id }}">{{ f.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label for="facebook" class="form-control-label">CM:</label>
                                     <select class="form-control m-input--large" name="facebook"
                                             multiple="multiple" id="m_select2_facebook"
@@ -300,7 +365,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="facebook_cm2" class="form-control-label">CM2:</label>
                                     <select class="form-control m-input--large" name="facebook_cm2"
                                             multiple="multiple" id="m_select2_facebook_cm2"
@@ -310,7 +375,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="facebook_cm3" class="form-control-label">CM3:</label>
                                     <select class="form-control m-input--large" name="facebook_cm3"
                                             multiple="multiple" id="m_select2_facebook_cm3"
@@ -451,7 +516,7 @@
                 url: "/users/delete",
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 data: data,
-                complete: function() {
+                complete: function () {
                     setTimeout(function () {
                         location.reload();
                     }, 2500);
@@ -461,7 +526,7 @@
                     toastr.success(data['username'] + ' deleted from the database');
                 },
                 error: function (ajaxContext) {
-                        toastr.error(ajaxContext.statusText)
+                    toastr.error(ajaxContext.statusText)
                 }
             })
         }
@@ -517,12 +582,7 @@
                     }, 2500);
                 },
                 success: function () {
-                    swal({
-                        "title": "",
-                        "text": "Accounts assigned to user profile.",
-                        "type": "success",
-                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                    });
+                    toastr.success("Accounts assigned to user profile.")
                 }
             }).done(function (data) {
                 if (data['error'] === 'OK') {
@@ -596,7 +656,7 @@
                 },
             });
 
-            if(validator.form()){
+            if (validator.form()) {
                 $.ajax({
                     url: '/users/add',
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -604,7 +664,7 @@
                     data: data,
 
                     success: function (data) {
-                        if(data['error_message']) {
+                        if (data['error_message']) {
                             toastr.error(data['error_message'])
                         } else {
                             toastr.success('User ' + data['username'] + ' added to database.');

@@ -85,6 +85,44 @@ def budget_breakfast():
         aw_accounts = DependentAccount.objects.filter(assigned_to=user)
         aw_cm2 = DependentAccount.objects.filter(assigned_cm2=user)
         aw_cm3 = DependentAccount.objects.filter(assigned_cm3=user)
+        aw_am = DependentAccount.objects.filter(assigned_am=user)
+
+        for am in aw_am:
+            spend = am.current_spend
+            projected = (am.yesterday_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / am.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if am.desired_spend == 0:
+
+                details = {
+                    'account': am.dependent_account_name
+                }
+                aw_nods.append(details)
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': am.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': am.desired_spend,
+                        'current_spend': am.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_underspenders.append(details)
+
+                if percentage > 99:
+
+                    details = {
+                        'account': am.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': am.desired_spend,
+                        'current_spend': am.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    aw_overspenders.append(details)
 
         for a in aw_accounts:
             spend = a.current_spend
@@ -125,7 +163,6 @@ def budget_breakfast():
 
         for cm2 in aw_cm2:
             spend = cm2.current_spend
-            daily_spend = spend / current_day
             projected = (cm2.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / cm2.desired_spend
@@ -163,7 +200,6 @@ def budget_breakfast():
 
         for cm3 in aw_cm3:
             spend = cm3.current_spend
-            daily_spend = spend / current_day
             projected = (cm3.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / cm3.desired_spend
@@ -202,10 +238,49 @@ def budget_breakfast():
         bing_accounts = BingAccounts.objects.filter(assigned_to=user)
         bing_cm2 = BingAccounts.objects.filter(assigned_cm2=user)
         bing_cm3 = BingAccounts.objects.filter(assigned_cm3=user)
+        bing_am = BingAccounts.objects.filter(assigned_am=user)
+
+        for bam in bing_am:
+            spend = bam.current_spend
+            projected = (bam.yesterday_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / bam.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if bam.desired_spend == 0:
+
+                details = {
+                    'account': bam.account_name
+                }
+                bing_nods.append(details)
+
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': bam.account_name,
+                        'estimated': percentage,
+                        'budget': bam.desired_spend,
+                        'current_spend': bam.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': bam.account_name,
+                        'estimated': percentage,
+                        'budget': bam.desired_spend,
+                        'current_spend': bam.current_spend,
+                        'projected': round(projected, 2)
+                    }
+                    bing_over.append(details)
+
 
         for b in bing_accounts:
             spend = b.current_spend
-            daily_spend = spend / current_day
             projected = (b.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / b.desired_spend
@@ -244,7 +319,6 @@ def budget_breakfast():
 
         for bcm2 in bing_cm2:
             spend = bcm2.current_spend
-            daily_spend = spend / current_day
             projected = (bcm2.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / bcm2.desired_spend
@@ -283,7 +357,6 @@ def budget_breakfast():
 
         for bcm3 in bing_cm3:
             spend = bcm3.current_spend
-            daily_spend = spend / current_day
             projected = (bcm3.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / bcm3.desired_spend
@@ -323,10 +396,48 @@ def budget_breakfast():
         fb_accounts = FacebookAccount.objects.filter(assigned_to=user)
         fb_cm2 = FacebookAccount.objects.filter(assigned_cm2=user)
         fb_cm3 = FacebookAccount.objects.filter(assigned_cm3=user)
+        fb_am = FacebookAccount.objects.filter(assigned_am=user)
+
+        for fam in fb_am:
+            spend = fam.current_spend
+            projected = (fam.yesterday_spend * remaining) + spend
+            try:
+                percentage = (projected * 100) / fam.desired_spend
+            except ZeroDivisionError:
+                percentage = 0
+
+            if fam.desired_spend == 0:
+
+                details = {
+                    'account': fam.account_name
+                }
+                fb_nods.append(details)
+
+            else:
+                if percentage < 90:
+
+                    details = {
+                        'account': fam.account_name,
+                        'estimated': percentage,
+                        'budget': fam.desired_spend,
+                        'current_spend': round(fam.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    fb_under.append(details)
+
+                elif percentage > 99:
+
+                    details = {
+                        'account': fam.account_name,
+                        'estimated': percentage,
+                        'budget': fam.desired_spend,
+                        'current_spend': round(fam.current_spend, 2),
+                        'projected': round(projected, 2)
+                    }
+                    fb_over.append(details)
 
         for f in fb_accounts:
             spend = f.current_spend
-            daily_spend = spend / current_day
             projected = (f.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / f.desired_spend
@@ -350,22 +461,21 @@ def budget_breakfast():
                         'current_spend': round(f.current_spend, 2),
                         'projected': round(projected, 2)
                     }
-                    bing_under.append(details)
+                    fb_under.append(details)
 
                 elif percentage > 99:
 
                     details = {
-                        'account': b.account_name,
+                        'account': f.account_name,
                         'estimated': percentage,
-                        'budget': b.desired_spend,
-                        'current_spend': round(b.current_spend, 2),
+                        'budget': f.desired_spend,
+                        'current_spend': round(f.current_spend, 2),
                         'projected': round(projected, 2)
                     }
-                    bing_over.append(details)
+                    fb_over.append(details)
 
         for fcm2 in fb_cm2:
             spend = fcm2.current_spend
-            daily_spend = spend / current_day
             projected = (fcm2.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / fcm2.desired_spend
@@ -377,7 +487,7 @@ def budget_breakfast():
                 details = {
                     'account': fcm2.account_name
                 }
-                bing_nods.append(details)
+                fb_nods.append(details)
 
             else:
                 if percentage < 90:
@@ -404,7 +514,6 @@ def budget_breakfast():
 
         for fcm3 in fb_cm3:
             spend = fcm3.current_spend
-            daily_spend = spend / current_day
             projected = (fcm3.yesterday_spend * remaining) + spend
             try:
                 percentage = (projected * 100) / fcm3.desired_spend
