@@ -240,9 +240,9 @@ def adwords_cron_disapproved_alert(self, customer_id):
             predicates=predicates
         )
 
-        # Alert.objects.filter(
-        #     dependent_account_id=customer_id, alert_type=alert_type
-        # ).delete()
+        Alert.objects.filter(
+            dependent_account_id=customer_id, alert_type=alert_type
+        ).delete()
 
         for ad in data:
             alert_reason = json.loads(ad['ad_policies'])
@@ -291,7 +291,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
         account.account_score = (account.trends_score + account.qs_score + ads_score) / 3
         account.save()
 
-        if new_ads:
+        if len(new_ads) > 0:
             mail_details = {
                 'ads': new_ads,
                 'account': account
@@ -687,3 +687,72 @@ def adwords_account_quality_score(self, customer_id):
 
     del qs_data[:]
     del to_parse[:]
+
+@celery_app.task(bind=True)
+def adwords_account_change_history(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    today = datetime.today()
+    minDate = today.replace(day=1)
+    maxDate = today.replace(day=31)
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    campaigns = Campaign.objects.filter(account=account)
+
+    campaign_ids = []
+    for c in campaigns:
+        campaign_ids.append(c.campaign_id)
+
+    if customer_id is not None:
+        client.client_customer_id = customer_id
+
+    service = client.GetService('CustomerSyncService', version=API_VERSION)
+
+    selector = {
+        'dateTimeRange': {
+            'min': minDate.strftime('%Y%m%d %H%M%S'),
+            'max': maxDate.strftime('%Y%m%d %H%M%S')
+        },
+        'campaignIds': campaign_ids
+    }
+
+    changes = {}
+
+    account_changes = service.get(selector)
+    if 'lastChangeTimestamp' in account_changes:
+        changes['last_change'] = account_changes['lastChangeTimestamp']
+        print('Most recent changes: %s' % account_changes['lastChangeTimestamp'])
+    if account_changes['changedCampaigns']:
+        for data in account_changes['changedCampaigns']:
+            print('Campaign with id "%s" has change status "%s".'
+                  % (data['campaignId'], data['campaignChangeStatus']))
+            if (data['campaignChangeStatus'] != 'NEW' and
+                    data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
+                changes['campaigns'] = data['campaignId']
+                if 'addedCampaignCriteria' in data:
+                    print('  Added campaign criteria: %s' %
+                          data['addedCampaignCriteria'])
+                if 'removedCampaignCriteria' in data:
+                    print('  Removed campaign criteria: %s' %
+                          data['removedCampaignCriteria'])
+                if 'changedAdGroups' in data:
+                    for ad_group_data in data['changedAdGroups']:
+                        print('  Ad group with id "%s" has change status "%s".'
+                              % (ad_group_data['adGroupId'],
+                                 ad_group_data['adGroupChangeStatus']))
+                        if ad_group_data['adGroupChangeStatus'] != 'NEW':
+                            if 'changedAds' in ad_group_data:
+                                print('    Changed ads: %s' % ad_group_data['changedAds'])
+                            if 'changedCriteria' in ad_group_data:
+                                print('    Changed criteria: %s' %
+                                      ad_group_data['changedCriteria'])
+                            if 'removedCriteria' in ad_group_data:
+                                print('    Removed criteria: %s' %
+                                      ad_group_data['removedCriteria'])
+
+    else:
+        print('No changes were found.')
+

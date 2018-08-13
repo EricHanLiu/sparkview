@@ -36,7 +36,16 @@ def get_account_changes(client, customer_id=None):
     }
 
     account_changes = service.get(selector)
+    print(len(account_changes))
+    changes = {}
+    changed_campaigns = []
+    changed_adgroups = []
+    changed_ads = []
+    changed_criteria = []
+    removed_criteria = []
+
     if 'lastChangeTimestamp' in account_changes:
+        changes['last_change'] = account_changes['lastChangeTimestamp']
         print('Most recent changes: %s' % account_changes['lastChangeTimestamp'])
     if account_changes['changedCampaigns']:
         for data in account_changes['changedCampaigns']:
@@ -44,6 +53,7 @@ def get_account_changes(client, customer_id=None):
                   % (data['campaignId'], data['campaignChangeStatus']))
             if (data['campaignChangeStatus'] != 'NEW' and
                     data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
+                changed_campaigns.append(data['campaignId'])
                 if 'addedCampaignCriteria' in data:
                     print('  Added campaign criteria: %s' %
                           data['addedCampaignCriteria'])
@@ -67,7 +77,9 @@ def get_account_changes(client, customer_id=None):
 
     else:
         print('No changes were found.')
-
+    # changes['campaigns'] = changed_campaigns
+    # print(len(changes['campaigns']))
+    # print(account_changes)
 
 def main():
     client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
