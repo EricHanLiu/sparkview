@@ -246,7 +246,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
         for ad in data:
             alert_reason = json.loads(ad['ad_policies'])
-            already, created = Alert.objects.get_or_create(
+            Alert.objects.create(
                 dependent_account_id=customer_id,
                 alert_type=alert_type,
                 alert_reason=":".join(alert_reason),
@@ -257,13 +257,11 @@ def adwords_cron_disapproved_alert(self, customer_id):
                 campaign_id=ad['campaign_id'],
             )
 
-            if created:
-                new_ads.append(ad)
-
+            new_ads.append(ad)
 
         # E-mail foreach ad
         ads_no = len(data)
-
+        print(ads_no)
         if ads_no == 0:
             ads_score = 100
         elif ads_no == 1:
@@ -313,7 +311,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
             send_mail(
                 'Disapproved ads alert', msg_html,
-                EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
+                EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
             )
 
     except AdWordsReportBadRequestError as e:
