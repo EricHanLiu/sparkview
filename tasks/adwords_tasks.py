@@ -311,7 +311,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
             send_mail(
                 'Disapproved ads alert', msg_html,
-                EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
+                EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
             )
 
     except AdWordsReportBadRequestError as e:
