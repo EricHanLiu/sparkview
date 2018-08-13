@@ -10,7 +10,7 @@ class Service(object):
         authorization = auth.BingAuth().get_auth()
         self.campaign_service = ServiceClient(
             "CampaignManagementService",
-            version=BING_API_VERSION,
+            version=11,
             authorization_data=authorization,
             environment=ENVIRONMENT
         )

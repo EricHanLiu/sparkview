@@ -246,3 +246,4 @@ EMAIL_HOST_PASSWORD = 'ujfgvsieuwptnrgp'
 EMAIL_PORT=587
 EMAIL_USE_TLS = True
 DEFAULT_EMAIL_FROM = 'dev@makeitbloom.com'
+MAIL_ADS = ['xurxo@makeitbloom.com', 'jeff@makeitbloom.com', 'franck@makeitbloom.com', 'marina@makeitbloom.com', 'lexi@makeitbloon.com']

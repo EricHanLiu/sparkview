@@ -1,38 +1,78 @@
 import os
 from googleads import adwords
-os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
+
 django.setup()
 from bloom import settings
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from adwords_dashboard.models import DependentAccount, Campaign
 
 
 def get_account_changes(client, customer_id=None):
-
     today = datetime.today()
     minDate = today.replace(day=1)
     maxDate = today.replace(day=31)
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    campaigns = Campaign.objects.filter(account=account)
+
+    campaign_ids = []
+    for c in campaigns:
+        campaign_ids.append(c.campaign_id)
 
     if customer_id is not None:
         client.client_customer_id = customer_id
 
     service = client.GetService('CustomerSyncService', version=settings.API_VERSION)
-    print('yes')
-    selector = {
-        'campaignIds': ['ChangedCampaigns', 'LastChangedTimestamp'],
-        'dateTimeRange': minDate.strftime("%Y%M%d %H%m%s") + ' America/Montreal ' + maxDate.strftime("%Y%M%d %H%m%s") + ' America/Montreal'
-    }
-    result = service.get(selector)
 
-    if not result:
-        return []
-    return result['entries']
+    selector = {
+        'dateTimeRange': {
+            'min': minDate.strftime('%Y%m%d %H%M%S'),
+            'max': maxDate.strftime('%Y%m%d %H%M%S')
+        },
+        'campaignIds': campaign_ids
+    }
+
+    account_changes = service.get(selector)
+    if 'lastChangeTimestamp' in account_changes:
+        print('Most recent changes: %s' % account_changes['lastChangeTimestamp'])
+    if account_changes['changedCampaigns']:
+        for data in account_changes['changedCampaigns']:
+            print('Campaign with id "%s" has change status "%s".'
+                  % (data['campaignId'], data['campaignChangeStatus']))
+            if (data['campaignChangeStatus'] != 'NEW' and
+                    data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
+                if 'addedCampaignCriteria' in data:
+                    print('  Added campaign criteria: %s' %
+                          data['addedCampaignCriteria'])
+                if 'removedCampaignCriteria' in data:
+                    print('  Removed campaign criteria: %s' %
+                          data['removedCampaignCriteria'])
+                if 'changedAdGroups' in data:
+                    for ad_group_data in data['changedAdGroups']:
+                        print('  Ad group with id "%s" has change status "%s".'
+                              % (ad_group_data['adGroupId'],
+                                 ad_group_data['adGroupChangeStatus']))
+                        if ad_group_data['adGroupChangeStatus'] != 'NEW':
+                            if 'changedAds' in ad_group_data:
+                                print('    Changed ads: %s' % ad_group_data['changedAds'])
+                            if 'changedCriteria' in ad_group_data:
+                                print('    Changed criteria: %s' %
+                                      ad_group_data['changedCriteria'])
+                            if 'removedCriteria' in ad_group_data:
+                                print('    Removed criteria: %s' %
+                                      ad_group_data['removedCriteria'])
+
+    else:
+        print('No changes were found.')
+
 
 def main():
-
     client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
-    print(get_account_changes(client, '6805575888'))
+    get_account_changes(client, '6805575888')
+
 
 if __name__ == '__main__':
     main()

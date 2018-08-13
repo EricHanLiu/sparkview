@@ -35,8 +35,8 @@ def adwords_dashboard(request):
         item['cost'] = query[0].cost if query else 0
         item['cost_per_conversions'] = query[0].cost_per_conversions if query else 0
         item['search_impr_share'] = query[0].search_impr_share if query else 0
-        # item['disapproved_ads'] = Alert.objects.filter(dependent_account_id=account.dependent_account_id,
-        #                                                alert_type='DISAPPROVED_AD').count()
+        item['disapproved_ads'] = Alert.objects.filter(dependent_account_id=account.dependent_account_id,
+                                                       alert_type='DISAPPROVED_AD').count()
         items.append(item)
 
     if user.is_authenticated():

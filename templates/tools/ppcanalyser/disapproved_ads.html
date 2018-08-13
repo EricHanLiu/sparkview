@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>Quality score -
+                                <span>Disapproved ads -
                                     {% if account.channel == 'adwords' %}
                                         {{ account.dependent_account_name }}
                                     {% else %}
@@ -32,9 +32,9 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <div id="orangecircle" data-percent="{{ account.qs_score|floatformat:2 }}"
+                                <div id="orangecircle" data-percent="{{ account.dads_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.qs_score }}</span>
+                                    <span>{{ account.dads_score }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -44,9 +44,7 @@
                             <div class="col-md-4">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        In this report you can find the trend of your account quality score for the past
-                                        3 months, as well as the keywords from your account that are below that score,
-                                        along with their cost and conversions.
+                                        This report shows the number of disapproved ads in this account.
                                     </div>
                                 </div>
                             </div>
@@ -95,12 +93,12 @@
                         </div>
                         <div class="m-separator"></div>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div id="myChart">
-                                    <canvas id="trendsChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-6 text-center">
+{#                            <div class="col-md-6">#}
+{#                                <div id="myChart">#}
+{#                                    <canvas id="trendsChart"></canvas>#}
+{#                                </div>#}
+{#                            </div>#}
+                            <div class="col-md-12 text-center">
                                 <div class="form-group m-form__group">
                                     <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline
                                             alert alert-danger alert-dismissible fade show" role="alert">
@@ -109,9 +107,8 @@
                                             <span></span>
                                         </div>
                                         <div class="m-alert__text">
-                                            Please review the keywords mentioned in the table and modify them in
-                                            order to
-                                            achieve better quality scores and lower your CPC and CPA.
+                                            Please find the disapproved ads and the reason of disapproval in the table
+                                            below.
                                         </div>
                                         <div class="m-alert__close">
                                             <button type="button" class="close" data-dismiss="alert"
@@ -128,65 +125,25 @@
                                 <table class="table m-table m-table--head-separator-primary" id="qs_table">
                                     <thead>
                                     <tr>
-                                        <th>Keyword</th>
-                                        <th>Cost</th>
-                                        <th>Conversions</th>
-                                        <th>Ad Group</th>
                                         <th>Campaign</th>
-                                        <th>Quality score</th>
-                                        <th>Ad relevance</th>
-                                        <th>Landing page exp.</th>
-                                        <th>Exp. CTR</th>
+                                        <th>Ad Group</th>
+                                        <th>Ad Headline</th>
+                                        <th>Alert reason</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for item in qs_data %}
+                                    {% for item in alerts %}
                                         <tr>
-                                            <td>{{ item.keyword }}</td>
-                                            <td>{{ item.cost }}</td>
-                                            <td>{{ item.conversions }}</td>
-                                            <td>{{ item.adgroup }}</td>
-                                            <td>{{ item.campaign }}</td>
-                                            <td>{{ item.quality_score }}</td>
-                                            <td>{{ item.ad_relevance }}</td>
-                                            <td>{{ item.landing_page_exp }}</td>
-                                            <td>{{ item.expected_clickthrough_rate }}</td>
+                                            <td>{{ item.campaignName }}</td>
+                                            <td>{{ item.ad_group_name }}</td>
+                                            <td>{{ item.ad_headline }}</td>
+                                            <td>{{ item.alert_reason }}</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        {#                        <div class="row">#}
-                        {#                            <div class="col-md-2"></div>#}
-                        {##}
-                        {#                            <div class="col-md-8 text-center">#}
-                        {#                                <div class="form-group m-form__group">#}
-                        {#                                    <div class="alert m-alert m-alert--default" role="alert"#}
-                        {#                                         style="min-height: 150px!important;">#}
-                        {#                                        <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline#}
-                        {#                                            alert alert-danger alert-dismissible fade show" role="alert">#}
-                        {#                                            <div class="m-alert__icon">#}
-                        {#                                                <i class="flaticon-exclamation-1"></i>#}
-                        {#                                                <span></span>#}
-                        {#                                            </div>#}
-                        {#                                            <div class="m-alert__text">#}
-                        {#                                                Please review the keywords mentioned in the table and modify them in#}
-                        {#                                                order to#}
-                        {#                                                achieve better quality scores and lower your CPC and CPA.#}
-                        {#                                            </div>#}
-                        {#                                            <div class="m-alert__close">#}
-                        {#                                                <button type="button" class="close" data-dismiss="alert"#}
-                        {#                                                        aria-label="Close">#}
-                        {#                                                </button>#}
-                        {#                                            </div>#}
-                        {#                                        </div>#}
-                        {##}
-                        {#                                    </div>#}
-                        {#                                </div>#}
-                        {#                            </div>#}
-                        {#                            <div class="col-md-2"></div>#}
-                        {#                        </div>#}
                     </div>
                 </div>
             </div>
@@ -197,121 +154,13 @@
 
 
     <script type="text/javascript">
-        let qs_data = {{ hist_qs|safe }};
-
-        function gen_xy(data) {
-
-            lst = [];
-
-            for (var i = 0; i < data.length; i++) {
-                lst.push({
-                    'x': new Date('2018' + data[i][0]),
-                    'y': data[i][1]
-                })
-            }
-            lst.sort(function (a, b) {
-                return new Date(b.x) - new Date(a.x);
-            });
-
-            return lst
-        };
-
-        let config = {
-            // The type of chart we want to create
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: "Quality Score",
-                    backgroundColor: 'rgba(236, 76, 51)',
-                    borderColor: 'rgb(236, 76, 51)',
-                    data: gen_xy(qs_data),
-                    fill: false,
-                    borderWidth: 0.90,
-                }]
-            },
-
-            // Configuration options go here
-            options: {
-                responsive: true,
-                display: true,
-                title: {
-                    display: true,
-                    text: 'Trends',
-                    fontSize: 20,
-                    padding: 25,
-                    fontStyle: 'normal'
-                },
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: .5,
-
-                    }
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: true,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                elements: {
-                    point: {
-                        pointStyle: 'circle',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        radius: 2.2,
-                        hitRadius: 20,
-                        hoverBorderWidth: 1,
-                    },
-                    line: {
-                        tension: 0.4,
-                    }
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        type: 'time',
-                        time: {
-                            unit: 'month',
-                            tooltipFormat: 'MMM',
-                            displayFormats: {
-                                month: 'MMM'
-                            }
-
-                        },
-                        gridLines: {
-                            display: false,
-                        },
-                    }],
-                    yAxes: [{
-                        display: true,
-                        type: 'linear',
-                        gridLines: {
-                            display: false,
-                        },
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            },
-
-        };
-
-        window.onload = function () {
-            var ctx = document.getElementById('trendsChart').getContext('2d');
-            window.myLine = new Chart(ctx, config);
-        };
 
         function runReports(customer_id, channel) {
 
             let data = {
                 'account_id': customer_id,
                 'channel': channel,
-                'report': 'qualityscore'
+                'report': 'disapprovedads'
             };
 
             $.ajax({
