@@ -7,7 +7,7 @@ from adwords_dashboard.models import DependentAccount, Performance, Alert, Campa
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError
-from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS
+from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import itertools
