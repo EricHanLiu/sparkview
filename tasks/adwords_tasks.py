@@ -1,11 +1,13 @@
 import json
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError
-from bloom.settings import ADWORDS_YAML
+from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import itertools
@@ -217,6 +219,12 @@ def adwords_cron_ovu(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_cron_disapproved_alert(self, customer_id):
+
+    ads_score = 0
+    new_ads = []
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+
     alert_type = "DISAPPROVED_AD"
     helper = AdwordsReportingService(get_client())
     predicates = [{
@@ -232,14 +240,14 @@ def adwords_cron_disapproved_alert(self, customer_id):
             predicates=predicates
         )
 
-        Alert.objects.filter(
-            dependent_account_id=customer_id, alert_type=alert_type
-        ).delete()
+        # Alert.objects.filter(
+        #     dependent_account_id=customer_id, alert_type=alert_type
+        # ).delete()
 
         for ad in data:
             alert_reason = json.loads(ad['ad_policies'])
-            Alert.objects.create(
-                account_id=customer_id,
+            already, created = Alert.objects.get_or_create(
+                dependent_account_id=customer_id,
                 alert_type=alert_type,
                 alert_reason=":".join(alert_reason),
                 ad_group_id=ad['ad_group_id'],
@@ -249,12 +257,71 @@ def adwords_cron_disapproved_alert(self, customer_id):
                 campaign_id=ad['campaign_id'],
             )
 
+            if created:
+                new_ads.append(ad)
+
+
+        # E-mail foreach ad
+        ads_no = len(data)
+
+        if ads_no == 0:
+            ads_score = 100
+        elif ads_no == 1:
+            ads_score = 90
+        elif ads_no == 2:
+            ads_score = 80
+        elif ads_no == 3:
+            ads_score = 70
+        elif ads_no == 4:
+            ads_score = 60
+        elif ads_no == 5:
+            ads_score = 50
+        elif ads_no == 6:
+            ads_score = 40
+        elif ads_no == 7:
+            ads_score = 30
+        elif ads_no == 8:
+            ads_score = 20
+        elif ads_no == 9:
+            ads_score = 10
+        elif ads_no >= 10:
+            ads_score = 0
+
+        account.dads_score = ads_score
+        account.account_score = (account.trends_score + account.qs_score + ads_score) / 3
+        account.save()
+
+        if new_ads:
+            mail_details = {
+                'ads': new_ads,
+                'account': account
+            }
+
+            if account.assigned_am:
+                MAIL_ADS.append(account.assigned_am.email)
+
+            if account.assigned_to:
+                MAIL_ADS.append(account.assigned_to.email)
+
+            if account.assigned_cm2:
+                MAIL_ADS.append(account.assigned_cm2.email)
+
+            if account.assigned_cm3:
+                MAIL_ADS.append(account.assigned_cm3.email)
+
+            msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
+
+            send_mail(
+                'Disapproved ads alert', msg_html,
+                EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
+            )
+
     except AdWordsReportBadRequestError as e:
 
         if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
-            account = DependentAccount.objects.get(adependent_ccount_id=customer_id)
-            # account.blacklisted = True
-            # account.save()
+            account = DependentAccount.objects.get(dependent_ccount_id=customer_id)
+            account.blacklisted = True
+            account.save()
             print('Account ' + account.account_name + ' unlinked from MCC')
 
 
@@ -595,8 +662,8 @@ def adwords_account_quality_score(self, customer_id):
                             {
                                 'keyword': str(value[i]['keyword'].encode('utf-8')),
                                 'quality_score': value[i]['quality_score'],
-                                'campaign': value[i]['campaign'],
-                                'adgroup': value[i]['ad_group'],
+                                'campaign': str(value[i]['campaign'].encode('utf-8')),
+                                'adgroup': str(value[i]['ad_group'].encode('utf-8')),
                                 'cost': helper.mcv(value[i]['cost']),
                                 'conversions': value[i]['conversions'],
                                 'ad_relevance': value[i]['ad_relevance'],
@@ -615,7 +682,7 @@ def adwords_account_quality_score(self, customer_id):
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse
-    account.account_score = (account.trends_score + qs_score) / 2
+    account.account_score = (account.trends_score + qs_score + account.dads_score) / 3
     account.save()
 
     del qs_data[:]

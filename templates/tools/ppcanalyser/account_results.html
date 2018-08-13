@@ -35,7 +35,7 @@
                             <div class="col-md-3 text-center">
                                 <div id="orangecircle" data-percent="{{ account.trends_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.trends_score }}</span>
+                                    <span>{{ account.trends_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -91,7 +91,15 @@
                                         <option>Wasted spend</option>
                                         <option>Account Activity</option>
                                         <option>Change History Report</option>
-                                        <option>Disapproved Ads</option>
+                                        <option value="disapprovedads"
+                                                {% if account.channel == 'adwords' %}
+                                                data-account_id="{{ account.dependent_account_id }}"
+                                                {% else %}
+                                                data-account_id="{{ account.account_id }}"
+                                                {% endif %}
+                                                data-channel="{{ account.channel }}">
+                                            Disapproved ads report - {{ account.dads_score|floatformat:2 }}/100
+                                        </option>
                                         <option>Account Errors</option>
                                         <option>Tags Report</option>
                                         <option>Extension Report</option>

@@ -5,6 +5,9 @@ from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
 from budget.models import FlightBudget, CampaignGrouping
+from bloom.settings import EMAIL_HOST_USER, MAIL_ADS, TEMPLATE_DIR
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import itertools
@@ -228,6 +231,10 @@ def bing_cron_alerts(self, customer_id):
 
 
 def bing_cron_disapproved_ads(account_id, adgroup):
+
+    ads_score = 0
+    new_ads = []
+
     account = BingAccounts.objects.get(account_id=account_id)
     service = BingService()
     ads = service.get_ads_by_status(
@@ -244,6 +251,61 @@ def bing_cron_disapproved_ads(account_id, adgroup):
             account=account,
             alert_type="DISAPPROVED_AD",
             metadata=adg
+        )
+        new_ads.append(ad)
+
+    ads_no = len(ads)
+
+    if ads_no == 0:
+        ads_score = 100
+    elif ads_no == 1:
+        ads_score = 90
+    elif ads_no == 2:
+        ads_score = 80
+    elif ads_no == 3:
+        ads_score = 70
+    elif ads_no == 4:
+        ads_score = 60
+    elif ads_no == 5:
+        ads_score = 50
+    elif ads_no == 6:
+        ads_score = 40
+    elif ads_no == 7:
+        ads_score = 30
+    elif ads_no == 8:
+        ads_score = 20
+    elif ads_no == 9:
+        ads_score = 10
+    elif ads_no >= 10:
+        ads_score = 0
+
+    account.dads_score = ads_score
+    account.account_score = (account.trends_score + account.qs_score + ads_score) / 3
+    account.save()
+
+    if new_ads:
+        mail_details = {
+            'ads': new_ads,
+            'account': account
+        }
+
+        if account.assigned_am:
+            MAIL_ADS.append(account.assigned_am.email)
+
+        if account.assigned_to:
+            MAIL_ADS.append(account.assigned_to.email)
+
+        if account.assigned_cm2:
+            MAIL_ADS.append(account.assigned_cm2.email)
+
+        if account.assigned_cm3:
+            MAIL_ADS.append(account.assigned_cm3.email)
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
+
+        send_mail(
+            'Disapproved ads alert', msg_html,
+            EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
         )
 
 
@@ -489,8 +551,8 @@ def bing_account_quality_score(self, customer_id):
                             {
                                 'keyword': str(value[i]['keyword'].encode('utf-8')),
                                 'quality_score': value[i]['qualityscore'],
-                                'campaign': value[i]['campaignname'],
-                                'adgroup': value[i]['adgroupname'],
+                                'campaign': str(value[i]['campaignname'].encode('utf-8')),
+                                'adgroup': str(value[i]['adgroupname'].encode('utf-8')),
                                 'cost': value[i]['spend'],
                                 'conversions': value[i]['conversions']
                             }
