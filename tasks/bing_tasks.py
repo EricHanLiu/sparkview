@@ -280,7 +280,7 @@ def bing_cron_disapproved_ads(account_id, adgroup):
         ads_score = 0
 
     account.dads_score = ads_score
-    account.account_score = (account.trends_score + account.qs_score + ads_score) / 3
+    account.account_score = (account.trends_score + account.qs_score + ads_score + account.nr_score) / 4
     account.save()
 
     if new_ads:
@@ -571,8 +571,68 @@ def bing_account_quality_score(self, customer_id):
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse
-    account.account_score = (account.trends_score + qs_score) / 2
+    account.account_score = (account.trends_score + qs_score + account.nr_score + account.dads_score) / 4
     account.save()
 
     del qs_data[:]
     del to_parse[:]
+
+
+
+@celery_app.task(bind=True)
+def bing_accounts_not_running(self, account_id):
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    helper = BingReportingService()
+
+    cmps = []
+    today = datetime.today() - relativedelta(days=1)
+    yesterday = helper.create_daterange(today, today)
+
+    fields = [
+        'CampaignName',
+        'CampaignId',
+        'Spend'
+    ]
+
+    report = helper.get_campaign_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="campaign_stats_tm",
+        extra_fields=fields,
+        **yesterday
+    )
+
+    for item in report:
+        if item['impressions'] == '0':
+            cmps.append(item)
+
+    nr_no = len(cmps)
+    nr_score = 0
+
+    if nr_no == 0:
+        nr_score = 100
+    elif nr_no == 1:
+        nr_score = 90
+    elif nr_no == 2:
+        nr_score = 80
+    elif nr_no == 3:
+        nr_score = 70
+    elif nr_no == 4:
+        nr_score = 60
+    elif nr_no == 5:
+        nr_score = 50
+    elif nr_no == 6:
+        nr_score = 40
+    elif nr_no == 7:
+        nr_score = 30
+    elif nr_no == 8:
+        nr_score = 20
+    elif nr_no == 9:
+        nr_score = 10
+    elif nr_no >= 10:
+        nr_score = 0
+
+    account.nr_data = cmps
+    account.nr_score = nr_score
+    account.save()

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from adwords_dashboard.models import Label, DependentAccount, Campaign, Adgroup, Alert
-from bing_dashboard.models import BingAccounts, BingAlerts
+from bing_dashboard.models import BingAccounts, BingAlerts, BingCampaign
 from facebook_dashboard.models import FacebookAccount
 from googleads import adwords, errors
 from django.conf import settings
@@ -131,18 +131,42 @@ def change_history(request, account_id, channel):
         account = DependentAccount.objects.get(dependent_account_id=account_id)
         campaigns = Campaign.objects.filter(account=account)
         adgroups = Adgroup.objects.filter(account=account)
+
+        context = {
+            'account': account,
+            'campaigns': campaigns,
+            'adgroups': adgroups
+        }
+
+    elif channel == 'bing':
+
+        account = BingAccounts.objects.get(account_id=account_id)
+
+        context = {
+            'account': account
+        }
+
+    elif channel == 'facebook':
+
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    return render(request, 'tools/ppcanalyser/change_history.html', context)
+
+@login_required
+def not_running(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
     elif channel == 'bing':
         account = BingAccounts.objects.get(account_id=account_id)
     elif channel == 'facebook':
         account = FacebookAccount.objects.get(account_id=account_id)
 
     context = {
-        'account': account,
-        'campaigns': campaigns,
-        'adgroups': adgroups
+        'account': account
     }
 
-    return render(request, 'tools/ppcanalyser/change_history.html', context)
+    return render(request, 'tools/ppcanalyser/not_running.html', context)
 
 @login_required
 def run_reports(request):
@@ -161,6 +185,8 @@ def run_reports(request):
             adwords_tasks.adwords_cron_disapproved_alert.delay(account_id)
         elif report == 'changehistory':
             adwords_tasks.adwords_account_change_history.delay(account_id)
+        elif report == 'notrunning':
+            adwords_tasks.adwords_account_not_running.delay(account_id)
     elif channel == 'bing':
         if report == 'results':
             bing_tasks.bing_result_trends.delay(account_id)
@@ -168,6 +194,8 @@ def run_reports(request):
             bing_tasks.bing_account_quality_score.delay(account_id)
         elif report == 'disapprovedads':
             bing_tasks.bing_cron_alerts.delay(account_id)
+        elif report == 'notrunning':
+            bing_tasks.bing_accounts_not_running.delay(account_id)
 
     elif channel == 'facebook':
         pass
