@@ -28,12 +28,12 @@
             <tbody>
               {% for item in alerts %}
               <tr>
-                <td>{{ item.campaignName}}</td>
-                <td>{{ item.ad_group_name }}</td>
+                <td>{{ item.metadata.campaignname}}</td>
+                <td>{{ item.metadata.adgroupname }}</td>
                 <td>{{ item.alert_type }}</td>
-                <td>{{ item.alert_reason }}</td>
+                <td>{{ item.metadata.ad.EditorialStatus }}</td>
                 <td>{{ item.keyWordText }}</td>
-                <td>{{ item.ad_headline }}</td>
+                <td>{{ item.metadata.ad.TitlePart1 }}</td>
               </tr>
               {% endfor %}
             </tbody>

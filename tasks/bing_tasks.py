@@ -282,7 +282,7 @@ def bing_cron_disapproved_ads(account_id, adgroup):
     account.dads_score = ads_score
     account.account_score = (account.trends_score + account.qs_score + ads_score + account.nr_score) / 4
     account.save()
-
+    print(new_ads)
     if new_ads:
         mail_details = {
             'ads': new_ads,
@@ -301,11 +301,11 @@ def bing_cron_disapproved_ads(account_id, adgroup):
         if account.assigned_cm3:
             MAIL_ADS.append(account.assigned_cm3.email)
 
-        msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads_bing.html', mail_details)
 
         send_mail(
             'Disapproved ads alert', msg_html,
-            EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
+            EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
         )
 
 

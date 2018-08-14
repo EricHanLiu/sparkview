@@ -30,8 +30,7 @@ def bing_dashboard(request):
         item['cost'] = query[0].cost if query else 0
         item['cost_conv'] = query[0].cost_per_conversions if query else 0
         item['impr_share'] = query[0].search_impr_share if query else 0
-        item['disapproved_ads'] = BingAlerts.objects.filter(account_id=account.account_id,
-                                                       alert_type='DISAPPROVED_AD').count()
+        item['disapproved_ads'] = BingAlerts.objects.filter(account=account).count()
         items.append(item)
     return render(request, 'bing/dashboard.html', {'items': items})
 
@@ -72,7 +71,7 @@ def account_alerts(request, account_id):
     # alert_types = ['DISAPPROVED_AD']
 
     account = BingAccounts.objects.get(account_id=account_id)
-    alerts = BingAlerts.objects.filter(account_id=account_id)
+    alerts = BingAlerts.objects.filter(account=account)
 
     context = {
         'alerts': alerts,
