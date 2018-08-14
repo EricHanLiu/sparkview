@@ -262,7 +262,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
         # E-mail foreach ad
         ads_no = len(data)
-        print(ads_no)
+
         if ads_no == 0:
             ads_score = 100
         elif ads_no == 1:
@@ -287,7 +287,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
             ads_score = 0
 
         account.dads_score = ads_score
-        account.account_score = (account.trends_score + account.qs_score + ads_score + account.changed_score[0]) / 3
+        account.account_score = (account.trends_score + account.qs_score + ads_score + int(account.changed_score[0])) / 4
         account.save()
 
         if len(new_ads) > 0:
@@ -681,7 +681,8 @@ def adwords_account_quality_score(self, customer_id):
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse
-    account.account_score = (account.trends_score + qs_score + account.dads_score + account.changed_score[0]) / 4
+    account.account_score = (account.trends_score + qs_score + account.dads_score + int(account.changed_score[0])) / 4
+
     account.save()
 
     del qs_data[:]
@@ -823,4 +824,52 @@ def adwords_account_change_history(self, customer_id):
     account.changed_data = changes_dict
     account.changed_score = change_score
     account.account_score = (account.trends_score + account.qs_score + account.dads_score + change_score[0]) / 4
+    account.save()
+
+@celery_app.task(bind=True)
+def adwords_account_not_running(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    nr_data = []
+
+    campaign_yesterday = helper.get_campaign_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="YESTERDAY",
+    )
+
+    for item in campaign_yesterday:
+        if item['impressions'] == '0':
+            nr_data.append(item)
+
+    nr_no = len(nr_data)
+    nr_score = 0
+
+    if nr_no == 0:
+        nr_score = 100
+    elif nr_no == 1:
+        nr_score = 90
+    elif nr_no == 2:
+        nr_score = 80
+    elif nr_no == 3:
+        nr_score = 70
+    elif nr_no == 4:
+        nr_score = 60
+    elif nr_no == 5:
+        nr_score = 50
+    elif nr_no == 6:
+        nr_score = 40
+    elif nr_no == 7:
+        nr_score = 30
+    elif nr_no == 8:
+        nr_score = 20
+    elif nr_no == 9:
+        nr_score = 10
+    elif nr_no >= 10:
+        nr_score = 0
+
+    account.nr_data = nr_data
+    account.nr_score = nr_score
     account.save()

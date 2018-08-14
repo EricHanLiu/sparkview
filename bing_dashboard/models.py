@@ -34,6 +34,8 @@ class BingAccounts(models.Model):
     conversions_score = JSONField(default=dict, null=True, blank=True)
     trends_score = models.FloatField(default=0)
     dads_score = models.FloatField(default=0)
+    nr_data = JSONField(default=dict, null=True, blank=True)
+    nr_score = models.FloatField(default=0)
     account_score = models.FloatField(default=0)
     weekly_data = JSONField(default=dict, null=True, blank=True)
     yesterday_spend = models.FloatField(default=0)
