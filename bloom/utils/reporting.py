@@ -28,6 +28,47 @@ class Reporting:
         except ZeroDivisionError:
             return 0
 
+    def get_change_score(self, change):
+
+        score = 0
+        message = ''
+
+        if change == 0 or change > 0:
+            score = 100
+            message = 'The account has had more changes compared to previous month, please review the table below.'
+        elif 0 > change > -9.99:
+            score = 90
+            message = 'The account has had more than 5% less changes compared to previous month, please review the table below.'
+        elif 10 > change > -19.99:
+            score = 80
+            message = 'The account has had more than 10% less changes compared to previous month, please review the table below.'
+        elif 20 > change > -29.99:
+            score = 70
+            message = 'The account has had more than 30% less changes compared to previous month, please review the table below.'
+        elif 30 > change > -39.99:
+            score = 60
+            message = 'The account has had more than 40% less changes compared to previous month, please review the table below.'
+        elif 40 > change > -49.99:
+            score = 50
+            message = 'The account has had more than 50% less changes compared to previous month, please review the table below.'
+        elif 50 > change > -59.99:
+            score = 40
+            message = 'The account has had more than 50% less changes compared to previous month, please review the table below.'
+        elif 60 > change > -69.99:
+            score = 30
+            message = 'The account has had more than 60% less changes compared to previous month, please review the table below.'
+        elif 70 > change > -79.99:
+            score = 20
+            message = 'The account has had more than 70% less changes compared to previous month, please review the table below.'
+        elif 80 > change > -89.99:
+            score = 10
+            message = 'The account has had more than 80% less changes compared to previous month, please review the table below.'
+        elif 90 > change > -99.99:
+            score = 0
+            message = 'The account has had more than 90% less changes compared to previous month, please review the table below.'
+
+        return (score, message)
+
     def get_score(self, change, parameter):
 
         score = 0

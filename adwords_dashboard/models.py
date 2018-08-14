@@ -65,6 +65,8 @@ class DependentAccount(models.Model):
     conversions_score = JSONField(default=dict, null=True, blank=True)
     trends_score = models.FloatField(default=0)
     dads_score = models.FloatField(default=0)
+    changed_data = JSONField(default=dict, null=True, blank=True)
+    changed_score = JSONField(default=dict, null=True, blank=True)
     account_score = models.FloatField(default=0)
     weekly_data = JSONField(default=dict, null=True, blank=True)
     hist_qs = JSONField(default=dict, blank=True, null=True)

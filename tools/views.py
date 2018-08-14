@@ -125,6 +125,26 @@ def disapproved_ads(request, account_id, channel):
     return render(request, 'tools/ppcanalyser/disapproved_ads.html', context)
 
 @login_required
+def change_history(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+        campaigns = Campaign.objects.filter(account=account)
+        adgroups = Adgroup.objects.filter(account=account)
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    context = {
+        'account': account,
+        'campaigns': campaigns,
+        'adgroups': adgroups
+    }
+
+    return render(request, 'tools/ppcanalyser/change_history.html', context)
+
+@login_required
 def run_reports(request):
 
     data = request.POST
@@ -139,6 +159,8 @@ def run_reports(request):
             adwords_tasks.adwords_account_quality_score.delay(account_id)
         elif report == 'disapprovedads':
             adwords_tasks.adwords_cron_disapproved_alert.delay(account_id)
+        elif report == 'changehistory':
+            adwords_tasks.adwords_account_change_history.delay(account_id)
     elif channel == 'bing':
         if report == 'results':
             bing_tasks.bing_result_trends.delay(account_id)

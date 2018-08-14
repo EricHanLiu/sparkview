@@ -10,6 +10,7 @@ urlpatterns = [
     url(r"^ppcanalyser/account/trends/weekly/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_results_weekly, name="account_results_weekly"),
     url(r"^ppcanalyser/account/qscore/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_qs, name="account_qs"),
     url(r"^ppcanalyser/account/disapprovedads/(?P<account_id>\d+)/(?P<channel>\w+)", views.disapproved_ads, name="disapproved_ads"),
+    url(r"^ppcanalyser/account/changehistory/(?P<account_id>\d+)/(?P<channel>\w+)", views.change_history, name="change_history"),
     url(r"^labels/create$", views.create_labels, name="create_labels"),
     url(r"^labels/deassign$", views.deassign_labels, name="deassign_labels"),
     url(r"^labels/assign$", views.assign_labels, name="assing_labels"),
