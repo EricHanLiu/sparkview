@@ -140,6 +140,7 @@
                             <div class="col-md-12">
                                 <table class="table m-table m-table--head-separator-primary" id="qs_table">
                                     <thead>
+                                    {% if account.channel == 'adwords' %}
                                     <tr>
                                         <th>Campaign</th>
                                         <th>Ad Group</th>
@@ -157,6 +158,26 @@
                                         </tr>
                                     {% endfor %}
                                     </tbody>
+                                {% elif account.channel == 'bing' %}
+                                    <tr>
+                                        <th>Campaign</th>
+                                        <th>Ad Group</th>
+                                        <th>Ad Headline</th>
+                                        <th>Alert reason</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in alerts %}
+                                        {{ item.metadata }}
+                                        <tr>
+                                            <td>{{ item.metadata.campaignname }}</td>
+                                            <td>{{ item.metadata.adgroupname }}</td>
+                                            <td>{{ item.metadata.ad.TitlePart1 }}</td>
+                                            <td>{{ item.metadata.ad.EditorialStatus }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                {% endif %}
                                 </table>
                             </div>
                         </div>
