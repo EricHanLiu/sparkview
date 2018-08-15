@@ -6,9 +6,9 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
-from googleads.errors import AdWordsReportBadRequestError
+from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
-from datetime import datetime
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 import itertools
 import calendar
@@ -733,98 +733,99 @@ def adwords_account_change_history(self, customer_id):
     change_counter2 = 0
 
     account_changes = service.get(selector)
-    account_changes_last = service.get(selector2)
+    try:
+        account_changes_last = service.get(selector2)
+
+        if account_changes_last['changedCampaigns']:
+            for data in account_changes_last['changedCampaigns']:
+                change_counter2 += len(account_changes_last['changedCampaigns'])
+                if (data['campaignChangeStatus'] != 'NEW' and
+                        data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
+                    if 'addedCampaignCriteria' in data:
+                        change_counter2 += len(data['addedCampaignCriteria'])
+                    if 'removedCampaignCriteria' in data:
+                        change_counter2 += len(data['removedCampaignCriteria'])
+                    if 'changedAdGroups' in data:
+                        change_counter2 += len(data['changedAdGroups'])
+                        for ad_group_data in data['changedAdGroups']:
+                            if ad_group_data['adGroupChangeStatus'] != 'NEW':
+                                if 'changedAds' in ad_group_data:
+                                    change_counter2 += len(ad_group_data['changedAds'])
+                                if 'changedCriteria' in ad_group_data:
+                                    change_counter2 += len(ad_group_data['changedCriteria'])
+                                if 'removedCriteria' in ad_group_data:
+                                    change_counter2 += len(ad_group_data['removedCriteria'])
+        else:
+            print('No changes were found.')
+            change_counter2 = 0
+    except GoogleAdsServerFault as e:
+        change_counter2 = 15000
 
     temp = serialize_object(account_changes)
     changes_dict = json.loads(json.dumps(temp))
 
-    # if 'lastChangeTimestamp' in account_changes:
-    #     print('Most recent changes: %s' % account_changes['lastChangeTimestamp'])
     if account_changes['changedCampaigns']:
         for data in account_changes['changedCampaigns']:
             change_counter += len(account_changes['changedCampaigns'])
-            # print('Campaign with id "%s" has change status "%s".'
-            #       % (data['campaignId'], data['campaignChangeStatus']))
             if (data['campaignChangeStatus'] != 'NEW' and
                     data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
                 if 'addedCampaignCriteria' in data:
                     change_counter += len(data['addedCampaignCriteria'])
-                    # print('  Added campaign criteria: %s' %
-                    #       data['addedCampaignCriteria'])
                 if 'removedCampaignCriteria' in data:
-                    # print('  Removed campaign criteria: %s' %
-                    #       data['removedCampaignCriteria'])
                     change_counter += len(data['removedCampaignCriteria'])
                 if 'changedAdGroups' in data:
                     change_counter += len(data['changedAdGroups'])
                     for ad_group_data in data['changedAdGroups']:
-                        # print('  Ad group with id "%s" has change status "%s".'
-                        #       % (ad_group_data['adGroupId'],
-                        #          ad_group_data['adGroupChangeStatus']))
                         if ad_group_data['adGroupChangeStatus'] != 'NEW':
                             if 'changedAds' in ad_group_data:
                                 change_counter += len(ad_group_data['changedAds'])
-                                # print('    Changed ads: %s' % ad_group_data['changedAds'])
                             if 'changedCriteria' in ad_group_data:
                                 change_counter += len(ad_group_data['changedCriteria'])
-                                # print('    Changed criteria: %s' %
-                                #       ad_group_data['changedCriteria'])
                             if 'removedCriteria' in ad_group_data:
                                 change_counter += len(ad_group_data['removedCriteria'])
-                                # print('    Removed criteria: %s' %
-                                #       ad_group_data['removedCriteria'])
     else:
         print('No changes were found.')
         change_counter = 0
 
-    # if 'lastChangeTimestamp' in account_changes_last:
-    #     print('Most recent changes: %s' % account_changes_last['lastChangeTimestamp'])
-    if account_changes_last['changedCampaigns']:
-        for data in account_changes_last['changedCampaigns']:
-            change_counter2 += len(account_changes_last['changedCampaigns'])
-            # print('Campaign with id "%s" has change status "%s".'
-            #       % (data['campaignId'], data['campaignChangeStatus']))
-            if (data['campaignChangeStatus'] != 'NEW' and
-                    data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
-                if 'addedCampaignCriteria' in data:
-                    change_counter2 += len(data['addedCampaignCriteria'])
-                    # print('  Added campaign criteria: %s' %
-                    #       data['addedCampaignCriteria'])
-                if 'removedCampaignCriteria' in data:
-                    # print('  Removed campaign criteria: %s' %
-                    #       data['removedCampaignCriteria'])
-                    change_counter2 += len(data['removedCampaignCriteria'])
-                if 'changedAdGroups' in data:
-                    change_counter2 += len(data['changedAdGroups'])
-                    for ad_group_data in data['changedAdGroups']:
-                        # print('  Ad group with id "%s" has change status "%s".'
-                        #       % (ad_group_data['adGroupId'],
-                        #          ad_group_data['adGroupChangeStatus']))
-                        if ad_group_data['adGroupChangeStatus'] != 'NEW':
-                            if 'changedAds' in ad_group_data:
-                                change_counter2 += len(ad_group_data['changedAds'])
-                                # print('    Changed ads: %s' % ad_group_data['changedAds'])
-                            if 'changedCriteria' in ad_group_data:
-                                change_counter2 += len(ad_group_data['changedCriteria'])
-                                # print('    Changed criteria: %s' %
-                                #       ad_group_data['changedCriteria'])
-                            if 'removedCriteria' in ad_group_data:
-                                change_counter2 += len(ad_group_data['removedCriteria'])
-                                # print('    Removed criteria: %s' %
-                                #       ad_group_data['removedCriteria'])
-
-    else:
-        print('No changes were found.')
-        change_counter2 = 0
-
-    print(change_counter, change_counter2)
     change_val = helper.get_change(change_counter, change_counter2)
     change_score = helper.get_change_score(change_val)
-    print(change_score)
     account.changed_data = changes_dict
     account.changed_score = change_score
     account.account_score = (account.trends_score + account.qs_score + account.dads_score + change_score[0]) / 4
     account.save()
+
+    last_change = account.changed_data['lastChangeTimestamp']
+    date_format = "%Y%m%d"
+    today = date.today().day
+    s = last_change.strip(' ')
+    s_dt = s[0:8]
+    last_change_day = datetime.strptime(s_dt, date_format).date()
+    last_change_dt = today - last_change_day.day
+
+    if last_change_dt >= 5:
+        mail_details = {
+            'account': account,
+            'lastChange': last_change_day
+        }
+
+        if account.assigned_am:
+            MAIL_ADS.append(account.assigned_am.email)
+
+        if account.assigned_to:
+            MAIL_ADS.append(account.assigned_to.email)
+
+        if account.assigned_cm2:
+            MAIL_ADS.append(account.assigned_cm2.email)
+
+        if account.assigned_cm3:
+            MAIL_ADS.append(account.assigned_cm3.email)
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
+
+        send_mail(
+            account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+            EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html)
+
 
 @celery_app.task(bind=True)
 def adwords_account_not_running(self, customer_id):
@@ -873,3 +874,45 @@ def adwords_account_not_running(self, customer_id):
     account.nr_data = nr_data
     account.nr_score = nr_score
     account.save()
+
+@celery_app.task(bind=True)
+def adwords_cron_no_changes(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+
+    if 'lastChangeTimestamp' in account.changed_data:
+        last_change = account.changed_data['lastChangeTimestamp']
+
+        date_format = "%Y%m%d"
+        today = date.today().day
+        s = last_change.strip(' ')
+        s_dt = s[0:8]
+        last_change_day = datetime.strptime(s_dt, date_format).date()
+        last_change_dt = today - last_change_day.day
+
+        if last_change_dt >= 14:
+            mail_details = {
+                'account': account,
+                'lastChange': last_change_day
+            }
+
+            if account.assigned_am:
+                MAIL_ADS.append(account.assigned_am.email)
+
+            if account.assigned_to:
+                MAIL_ADS.append(account.assigned_to.email)
+
+            if account.assigned_cm2:
+                MAIL_ADS.append(account.assigned_cm2.email)
+
+            if account.assigned_cm3:
+                MAIL_ADS.append(account.assigned_cm3.email)
+
+            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
+
+            send_mail(
+                account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+                EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
+            )
+    else:
+        print('Either there are too many changes done, either there is no change in this period.')

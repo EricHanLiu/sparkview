@@ -876,6 +876,10 @@ class AdwordsReporting(Reporting):
                     "field": "CampaignStatus",
                     "operator": "IN",
                     "values": ["ENABLED"],
+                },{
+                    "field": "ServingStatus",
+                    "operator": "IN",
+                    "values": ["SERVING"],
                 }]
             },
         }
