@@ -857,6 +857,7 @@ class AdwordsReporting(Reporting):
             "CostPerConversion",
             "AverageCpc",
             "SearchImpressionShare",
+            "ServingStatus",
         ]
 
         extra_fields = kwargs.get("extra_fields", None)
