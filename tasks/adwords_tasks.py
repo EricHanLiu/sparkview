@@ -343,6 +343,7 @@ def adwords_cron_campaign_stats(self, customer_id):
     )
 
     for campaign in campaign_this_month:
+        print(campaign)
         cost = helper.mcv(campaign['cost'])
         cmp, created = Campaign.objects.update_or_create(
             account=account,
@@ -350,6 +351,8 @@ def adwords_cron_campaign_stats(self, customer_id):
         )
         cmp.campaign_cost = cost
         cmp.campaign_name = campaign['campaign']
+        cmp.campaign_status = campaign['campaign_state']
+        cmp.campaign_serving_status = campaign['campaign_serving_status']
         cmp.save()
 
         cmps.append(cmp)

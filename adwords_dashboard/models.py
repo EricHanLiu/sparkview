@@ -260,6 +260,8 @@ class Campaign(models.Model):
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
+    campaign_status = models.CharField(max_length=255, default='None')
+    campaign_serving_status = models.CharField(max_length=255, default='None')
 
     @property
     def json(self):
@@ -269,6 +271,8 @@ class Campaign(models.Model):
             campaign_name=self.campaign_name,
             campaign_cost=self.campaign_cost,
             campaign_budget=self.campaign_budget,
+            campaign_status=self.campaign_status,
+            campaign_serving_status=self.campaign_serving_status
         )
 
 class Adgroup(models.Model):
