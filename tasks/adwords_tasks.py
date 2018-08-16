@@ -736,7 +736,7 @@ def adwords_account_change_history(self, customer_id):
 
         try:
             account_changes = service.get(selector)
-
+            print(len(account_changes))
             temp = serialize_object(account_changes)
             changes_dict = json.loads(json.dumps(temp))
 
@@ -760,11 +760,6 @@ def adwords_account_change_history(self, customer_id):
                                     if 'removedCriteria' in ad_group_data:
                                         change_counter += len(ad_group_data['removedCriteria'])
 
-
-        except GoogleAdsServerFault as e:
-            change_counter = 'Too many changes'
-
-        try:
             account_changes_last = service.get(selector2)
             if account_changes_last['changedCampaigns']:
                 for data in account_changes_last['changedCampaigns']:
@@ -785,47 +780,58 @@ def adwords_account_change_history(self, customer_id):
                                         change_counter2 += len(ad_group_data['changedCriteria'])
                                     if 'removedCriteria' in ad_group_data:
                                         change_counter2 += len(ad_group_data['removedCriteria'])
+
+            change_val = helper.get_change(change_counter, change_counter2)
+            change_score = helper.get_change_score(change_val)
+            account.changed_data = changes_dict
+            account.changed_score = change_score
+            account.account_score = (account.trends_score + account.qs_score + account.dads_score + change_score[0]) / 4
+            account.save()
+
+            last_change = account.changed_data['lastChangeTimestamp']
+            date_format = "%Y%m%d"
+            today = date.today().day
+            s = last_change.strip(' ')
+            s_dt = s[0:8]
+            last_change_day = datetime.strptime(s_dt, date_format).date()
+            last_change_dt = today - last_change_day.day
+
+            if last_change_dt >= 5:
+                mail_details = {
+                    'account': account,
+                    'lastChange': last_change_day
+                }
+
+                if account.assigned_am:
+                    MAIL_ADS.append(account.assigned_am.email)
+
+                if account.assigned_to:
+                    MAIL_ADS.append(account.assigned_to.email)
+
+                if account.assigned_cm2:
+                    MAIL_ADS.append(account.assigned_cm2.email)
+
+                if account.assigned_cm3:
+                    MAIL_ADS.append(account.assigned_cm3.email)
+
+                msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
+
+                send_mail(
+                    account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+                    EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html)
+
         except GoogleAdsServerFault as e:
-            change_counter2 = 15000
 
-        change_val = helper.get_change(change_counter, change_counter2)
-        change_score = helper.get_change_score(change_val)
-        account.changed_data = changes_dict
-        account.changed_score = change_score
-        account.account_score = (account.trends_score + account.qs_score + account.dads_score + change_score[0]) / 4
-        account.save()
+            if e.errors[0]['reason'] == 'TOO_MANY_CHANGES':
+                changes_dict = {
+                    'changedCampaigns': 'Too many changes.',
+                    'lastChangeTimestamp': 'TOO_MANY'
+                }
+                account.changed_data = changes_dict
+                account.changed_score = (0, 'Too many changes.')
+                account.account_score = (account.trends_score + account.qs_score + account.dads_score)/ 4
+                account.save()
 
-        last_change = account.changed_data['lastChangeTimestamp']
-        date_format = "%Y%m%d"
-        today = date.today().day
-        s = last_change.strip(' ')
-        s_dt = s[0:8]
-        last_change_day = datetime.strptime(s_dt, date_format).date()
-        last_change_dt = today - last_change_day.day
-
-        if last_change_dt >= 5:
-            mail_details = {
-                'account': account,
-                'lastChange': last_change_day
-            }
-
-            if account.assigned_am:
-                MAIL_ADS.append(account.assigned_am.email)
-
-            if account.assigned_to:
-                MAIL_ADS.append(account.assigned_to.email)
-
-            if account.assigned_cm2:
-                MAIL_ADS.append(account.assigned_cm2.email)
-
-            if account.assigned_cm3:
-                MAIL_ADS.append(account.assigned_cm3.email)
-
-            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
-
-            send_mail(
-                account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html)
     else:
         print('No active campaigns found.')
         account.changed_score = (0, 'No campaigns found for this account.')
@@ -882,43 +888,48 @@ def adwords_account_not_running(self, customer_id):
     account.save()
 
 @celery_app.task(bind=True)
-def adwords_cron_no_changes(self, customer_id):
+def adwords_cron_no_changes(self):
 
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+    accs = []
 
-    if 'lastChangeTimestamp' in account.changed_data:
-        last_change = account.changed_data['lastChangeTimestamp']
+    for account in accounts:
+        if 'lastChangeTimestamp' in account.changed_data and account.changed_data['lastChangeTimestamp'] == 'TOO_MANY':
+            print('No mail to send, to many changes were made on this account.')
+        elif 'lastChangeTimestamp' in account.changed_data:
+            last_change = account.changed_data['lastChangeTimestamp']
 
-        date_format = "%Y%m%d"
-        today = date.today().day
-        s = last_change.strip(' ')
-        s_dt = s[0:8]
-        last_change_day = datetime.strptime(s_dt, date_format).date()
-        last_change_dt = today - last_change_day.day
+            date_format = "%Y%m%d"
+            today = date.today().day
+            s = last_change.strip(' ')
+            s_dt = s[0:8]
+            last_change_day = datetime.strptime(s_dt, date_format).date()
+            last_change_dt = today - last_change_day.day
 
-        if last_change_dt >= 14:
-            mail_details = {
-                'account': account,
-                'lastChange': last_change_day
-            }
+            if last_change_dt >= 14:
+                if account.assigned_am:
+                    MAIL_ADS.append(account.assigned_am.email)
 
-            if account.assigned_am:
-                MAIL_ADS.append(account.assigned_am.email)
+                if account.assigned_to:
+                    MAIL_ADS.append(account.assigned_to.email)
 
-            if account.assigned_to:
-                MAIL_ADS.append(account.assigned_to.email)
+                if account.assigned_cm2:
+                    MAIL_ADS.append(account.assigned_cm2.email)
 
-            if account.assigned_cm2:
-                MAIL_ADS.append(account.assigned_cm2.email)
+                if account.assigned_cm3:
+                    MAIL_ADS.append(account.assigned_cm3.email)
 
-            if account.assigned_cm3:
-                MAIL_ADS.append(account.assigned_cm3.email)
+                accs.append(account)
 
-            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
+        elif len(account.changed_data) == 0:
+            accs.append(account)
 
-            send_mail(
-                account.dependent_account_name + ' - No changes for more than 15 days', msg_html,
-                EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
-            )
-    else:
-        print('Either there are too many changes done, either there is no change in this period.')
+    mail_details = {
+        'accounts': accs,
+    }
+
+    msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
+    send_mail(
+        'No changes for more than 15 days', msg_html,
+        EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
+    )
