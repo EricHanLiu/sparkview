@@ -13,11 +13,13 @@
     <h4 style="text-align: center; color: #444;">We've found an account without any changes for more than 5 days</h4>
     <table style="background: #f2f2f2; text-align: center; width: 100%;">
         <tr>
-            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Account Name</th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Customer Name</th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Customer ID</th>
             <th style="color: #fff; background: #0057e7; margin: 0.35em;">Last change</th>
         </tr>
         <tr>
             <td style="border: 1px solid #e2e2e2;">{{ account.dependent_account_name }}</td>
+            <td style="border: 1px solid #e2e2e2;">{{ account.dependent_account_id }}</td>
             <td style="border: 1px solid #e2e2e2;">{{ lastChange }}</td>
         </tr>
     </table>
