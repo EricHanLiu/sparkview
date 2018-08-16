@@ -892,5 +892,5 @@ def adwords_cron_no_changes(self):
     msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
     send_mail(
         'No changes for more than 15 days', msg_html,
-        EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
+        EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
     )
