@@ -208,7 +208,6 @@ def adwords_cron_ovu(self, customer_id):
     except IndexError:
         yesterday_spend = 0
         current_spend = 0
-        estimated_spend = 0
 
     estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
     account.estimated_spend = estimated_spend
@@ -287,7 +286,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
             ads_score = 0
 
         account.dads_score = ads_score
-        account.account_score = (account.trends_score + account.qs_score + ads_score + int(account.changed_score[0])) / 4
+        account.account_score = (account.trends_score + account.qs_score + ads_score + float(account.changed_score[0])) / 4
         account.save()
 
         if len(new_ads) > 0:
@@ -318,9 +317,9 @@ def adwords_cron_disapproved_alert(self, customer_id):
     except AdWordsReportBadRequestError as e:
 
         if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
-            account = DependentAccount.objects.get(dependent_account_id=customer_id)
-            account.blacklisted = True
-            account.save()
+            account.delete()
+            # account.blacklisted = True
+            # account.save()
             print('Account ' + account.account_name + ' unlinked from MCC')
 
 
@@ -343,7 +342,6 @@ def adwords_cron_campaign_stats(self, customer_id):
     )
 
     for campaign in campaign_this_month:
-        print(campaign)
         cost = helper.mcv(campaign['cost'])
         cmp, created = Campaign.objects.update_or_create(
             account=account,
@@ -705,7 +703,7 @@ def adwords_account_change_history(self, customer_id):
     maxDateL = today.replace(day=31) - relativedelta(months=1)
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    campaigns = Campaign.objects.filter(account=account)
+    campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
 
     campaign_ids = []
     for c in campaigns:
@@ -732,57 +730,17 @@ def adwords_account_change_history(self, customer_id):
         'campaignIds': campaign_ids
     }
 
-    change_counter = 0
-    change_counter2 = 0
-
     if len(campaign_ids) > 0:
 
         try:
             account_changes = service.get(selector)
-            print(len(account_changes))
+            account_changes_last = service.get(selector2)
+
             temp = serialize_object(account_changes)
             changes_dict = json.loads(json.dumps(temp))
 
-            if account_changes['changedCampaigns']:
-                for data in account_changes['changedCampaigns']:
-                    change_counter += len(account_changes['changedCampaigns'])
-                    if (data['campaignChangeStatus'] != 'NEW' and
-                            data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
-                        if 'addedCampaignCriteria' in data:
-                            change_counter += len(data['addedCampaignCriteria'])
-                        if 'removedCampaignCriteria' in data:
-                            change_counter += len(data['removedCampaignCriteria'])
-                        if 'changedAdGroups' in data:
-                            change_counter += len(data['changedAdGroups'])
-                            for ad_group_data in data['changedAdGroups']:
-                                if ad_group_data['adGroupChangeStatus'] != 'NEW':
-                                    if 'changedAds' in ad_group_data:
-                                        change_counter += len(ad_group_data['changedAds'])
-                                    if 'changedCriteria' in ad_group_data:
-                                        change_counter += len(ad_group_data['changedCriteria'])
-                                    if 'removedCriteria' in ad_group_data:
-                                        change_counter += len(ad_group_data['removedCriteria'])
-
-            account_changes_last = service.get(selector2)
-            if account_changes_last['changedCampaigns']:
-                for data in account_changes_last['changedCampaigns']:
-                    change_counter2 += len(account_changes_last['changedCampaigns'])
-                    if (data['campaignChangeStatus'] != 'NEW' and
-                            data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
-                        if 'addedCampaignCriteria' in data:
-                            change_counter2 += len(data['addedCampaignCriteria'])
-                        if 'removedCampaignCriteria' in data:
-                            change_counter2 += len(data['removedCampaignCriteria'])
-                        if 'changedAdGroups' in data:
-                            change_counter2 += len(data['changedAdGroups'])
-                            for ad_group_data in data['changedAdGroups']:
-                                if ad_group_data['adGroupChangeStatus'] != 'NEW':
-                                    if 'changedAds' in ad_group_data:
-                                        change_counter2 += len(ad_group_data['changedAds'])
-                                    if 'changedCriteria' in ad_group_data:
-                                        change_counter2 += len(ad_group_data['changedCriteria'])
-                                    if 'removedCriteria' in ad_group_data:
-                                        change_counter2 += len(ad_group_data['removedCriteria'])
+            change_counter = helper.get_change_no(account_changes)
+            change_counter2 = helper.get_change_no(account_changes_last)
 
             change_val = helper.get_change(change_counter, change_counter2)
             change_score = helper.get_change_score(change_val)
@@ -817,7 +775,7 @@ def adwords_account_change_history(self, customer_id):
                 if account.assigned_cm3:
                     MAIL_ADS.append(account.assigned_cm3.email)
 
-                msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
+                msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
 
                 send_mail(
                     account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
@@ -898,7 +856,7 @@ def adwords_cron_no_changes(self):
 
     for account in accounts:
         if 'lastChangeTimestamp' in account.changed_data and account.changed_data['lastChangeTimestamp'] == 'TOO_MANY':
-            print('No mail to send, to many changes were made on this account.')
+            print('No mail sent, too many changes were made on this account.')
         elif 'lastChangeTimestamp' in account.changed_data:
             last_change = account.changed_data['lastChangeTimestamp']
 
@@ -934,5 +892,5 @@ def adwords_cron_no_changes(self):
     msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
     send_mail(
         'No changes for more than 15 days', msg_html,
-        EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
+        EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
     )
