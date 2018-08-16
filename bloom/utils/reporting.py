@@ -19,7 +19,8 @@ from bingads.v11.reporting import (
 
 class Reporting:
 
-    def get_change(self, current, previous):
+    @staticmethod
+    def get_change(current, previous):
         if float(current) == float(previous):
             return 0.0
 
@@ -28,7 +29,8 @@ class Reporting:
         except ZeroDivisionError:
             return 0
 
-    def get_change_score(self, change):
+    @staticmethod
+    def get_change_score(change):
 
         score = 0
         message = ''
@@ -69,7 +71,8 @@ class Reporting:
 
         return (score, message)
 
-    def get_score(self, change, parameter):
+    @staticmethod
+    def get_score(change, parameter):
 
         score = 0
         message = ''
@@ -118,6 +121,32 @@ class Reporting:
             message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
             'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
         return (score, message)
+
+    @staticmethod
+    def get_change_no(account_changes):
+
+        change_counter = 0
+        if account_changes['changedCampaigns']:
+            for data in account_changes['changedCampaigns']:
+                change_counter += len(account_changes['changedCampaigns'])
+                if (data['campaignChangeStatus'] != 'NEW' and
+                        data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
+                    if 'addedCampaignCriteria' in data:
+                        change_counter += len(data['addedCampaignCriteria'])
+                    if 'removedCampaignCriteria' in data:
+                        change_counter += len(data['removedCampaignCriteria'])
+                    if 'changedAdGroups' in data:
+                        change_counter += len(data['changedAdGroups'])
+                        for ad_group_data in data['changedAdGroups']:
+                            if ad_group_data['adGroupChangeStatus'] != 'NEW':
+                                if 'changedAds' in ad_group_data:
+                                    change_counter += len(ad_group_data['changedAds'])
+                                if 'changedCriteria' in ad_group_data:
+                                    change_counter += len(ad_group_data['changedCriteria'])
+                                if 'removedCriteria' in ad_group_data:
+                                    change_counter += len(ad_group_data['removedCriteria'])
+
+        return change_counter
 
     def stringify_date(self, date, date_format='%Y%m%d'):
         if not isinstance(date, datetime):
