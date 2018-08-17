@@ -20,10 +20,10 @@
         </tr>
         {% for a in ads %}
             <tr>
-                <td style="border: 1px solid #e2e2e2;">{{ a.metadata.campaignname }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ a.metadata.adgroupname }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ a.metadata.ad.TitlePart1 }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ a.metadata.ad.EditorialStatus }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.0.campaignname }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.0.adgroupname }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.0.ad.TitlePart1 }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.0.ad.EditorialStatus }}</td>
             </tr>
         {% endfor %}
     </table>
