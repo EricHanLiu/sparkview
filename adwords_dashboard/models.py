@@ -119,8 +119,6 @@ class DependentAccount(models.Model):
             ds6=self.ds6,
             yesterday_spend=self.yesterday_spend,
             estimated_spend=self.estimated_spend,
-            quality_score=self.quality_score,
-            historical_qs=self.historical_qs,
             blacklisted=str(self.blacklisted),
             protected=str(self.protected),
             assigned=str(self.assigned),
