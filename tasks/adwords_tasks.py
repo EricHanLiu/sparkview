@@ -15,15 +15,6 @@ import calendar
 from operator import itemgetter
 from zeep.helpers import serialize_object
 
-MAIL_LIST = [
-    'xurxo@makeitbloom.com',
-    'jeff@makeitbloom.com',
-    'franck@makeitbloom.com',
-    'marina@makeitbloom.com',
-    'lexi@makeitbloom.com',
-    'octavian@hdigital.io',
-]
-
 def month_converter(month):
     months = [
         'January',
@@ -304,22 +295,22 @@ def adwords_cron_disapproved_alert(self, customer_id):
             }
 
             if account.assigned_am:
-                MAIL_LIST.append(account.assigned_am.email)
+                MAIL_ADS.append(account.assigned_am.email)
 
             if account.assigned_to:
-                MAIL_LIST.append(account.assigned_to.email)
+                MAIL_ADS.append(account.assigned_to.email)
 
             if account.assigned_cm2:
-                MAIL_LIST.append(account.assigned_cm2.email)
+                MAIL_ADS.append(account.assigned_cm2.email)
 
             if account.assigned_cm3:
-                MAIL_LIST.append(account.assigned_cm3.email)
-
+                MAIL_ADS.append(account.assigned_cm3.email)
+            mail_list = set(MAIL_ADS)
             msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
-            print(account.dependent_account_name + ' - ' + MAIL_LIST)
+            print(account.dependent_account_name + ' - ' + ' '.join(mail_list))
             # send_mail(
             #     'Disapproved ads alert', msg_html,
-            #     EMAIL_HOST_USER, MAIL_LIST, fail_silently=False, html_message=msg_html
+            #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
             # )
 
     except AdWordsReportBadRequestError as e:
@@ -746,10 +737,8 @@ def adwords_account_change_history(self, customer_id):
 
             temp = serialize_object(account_changes)
             changes_dict = json.loads(json.dumps(temp))
-            print(changes_dict)
             change_counter = helper.get_change_no(account_changes)
             change_counter2 = helper.get_change_no(account_changes_last)
-            print(change_counter, change_counter2)
             change_val = helper.get_change(change_counter, change_counter2)
             change_score = helper.get_change_score(change_val)
             account.changed_data = changes_dict
@@ -772,22 +761,24 @@ def adwords_account_change_history(self, customer_id):
                 }
 
                 if account.assigned_am:
-                    MAIL_LIST.append(account.assigned_am.email)
-
+                    MAIL_ADS.append(account.assigned_am.email)
+                    print('Found AM - ' + account.assigned_am.username)
                 if account.assigned_to:
-                    MAIL_LIST.append(account.assigned_to.email)
-
+                    MAIL_ADS.append(account.assigned_to.email)
+                    print('Found CM - ' + account.assigned_to.username)
                 if account.assigned_cm2:
-                    MAIL_LIST.append(account.assigned_cm2.email)
-
+                    MAIL_ADS.append(account.assigned_cm2.email)
+                    print('Found CM2 - ' + account.assigned_cm2.username)
                 if account.assigned_cm3:
-                    MAIL_LIST.append(account.assigned_cm3.email)
+                    MAIL_ADS.append(account.assigned_cm3.email)
+                    print('Found CM3 - ' + account.assigned_cm3.username)
 
+                mail_list = set(MAIL_ADS)
                 msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
 
                 send_mail(
                     account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                    EMAIL_HOST_USER, MAIL_LIST, fail_silently=False, html_message=msg_html)
+                    EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
 
         except GoogleAdsServerFault as e:
 
@@ -876,22 +867,26 @@ def adwords_cron_no_changes(self):
             last_change_dt = today - last_change_day.day
 
             if last_change_dt >= 14:
-                if account.assigned_am:
-                    MAIL_LIST.append(account.assigned_am.email)
-
-                if account.assigned_to:
-                    MAIL_LIST.append(account.assigned_to.email)
-
-                if account.assigned_cm2:
-                    MAIL_LIST.append(account.assigned_cm2.email)
-
-                if account.assigned_cm3:
-                    MAIL_LIST.append(account.assigned_cm3.email)
-
                 accs.append(account)
 
         elif len(account.changed_data) == 0:
             accs.append(account)
+
+    for account in accs:
+        if account.assigned_am:
+            MAIL_ADS.append(account.assigned_am.email)
+            print('Found AM - ' + account.assigned_am.username)
+        if account.assigned_to:
+            MAIL_ADS.append(account.assigned_to.email)
+            print('Found CM - ' + account.assigned_to.username)
+        if account.assigned_cm2:
+            MAIL_ADS.append(account.assigned_cm2.email)
+            print('Found CM2 - ' + account.assigned_cm2.username)
+        if account.assigned_cm3:
+            MAIL_ADS.append(account.assigned_cm3.email)
+            print('Found CM3 - ' + account.assigned_cm3.username)
+
+    mail_list = set(MAIL_ADS)
 
     mail_details = {
         'accounts': accs,
@@ -900,5 +895,5 @@ def adwords_cron_no_changes(self):
     msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history.html', mail_details)
     send_mail(
         'No changes for more than 15 days', msg_html,
-        EMAIL_HOST_USER, MAIL_LIST, fail_silently=False, html_message=msg_html
+        EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
     )
