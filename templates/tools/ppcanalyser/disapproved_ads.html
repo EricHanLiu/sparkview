@@ -139,44 +139,46 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <table class="table m-table m-table--head-separator-primary" id="qs_table">
-                                    <thead>
+
                                     {% if account.channel == 'adwords' %}
-                                    <tr>
-                                        <th>Campaign</th>
-                                        <th>Ad Group</th>
-                                        <th>Ad Headline</th>
-                                        <th>Alert reason</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for item in alerts %}
+                                        <thead>
                                         <tr>
-                                            <td>{{ item.campaignName }}</td>
-                                            <td>{{ item.ad_group_name }}</td>
-                                            <td>{{ item.ad_headline }}</td>
-                                            <td>{{ item.alert_reason }}</td>
+                                            <th>Campaign</th>
+                                            <th>Ad Group</th>
+                                            <th>Ad Headline</th>
+                                            <th>Alert reason</th>
                                         </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                {% elif account.channel == 'bing' %}
-                                    <tr>
-                                        <th>Campaign</th>
-                                        <th>Ad Group</th>
-                                        <th>Ad Headline</th>
-                                        <th>Alert reason</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for item in alerts %}s
+                                        </thead>
+                                        <tbody>
+                                        {% for item in alerts %}
+                                            <tr>
+                                                <td>{{ item.campaignName }}</td>
+                                                <td>{{ item.ad_group_name }}</td>
+                                                <td>{{ item.ad_headline }}</td>
+                                                <td>{{ item.alert_reason }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    {% elif account.channel == 'bing' %}
+                                        <thead>
                                         <tr>
-                                            <td>{{ item.metadata.campaignname }}</td>
-                                            <td>{{ item.metadata.adgroupname }}</td>
-                                            <td>{{ item.metadata.ad.TitlePart1 }}</td>
-                                            <td>{{ item.metadata.ad.EditorialStatus }}</td>
+                                            <th>Campaign</th>
+                                            <th>Ad Group</th>
+                                            <th>Ad Headline</th>
+                                            <th>Alert reason</th>
                                         </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                {% endif %}
+                                        </thead>
+                                        <tbody>
+                                        {% for item in alerts %}
+                                            <tr>
+                                                <td>{{ item.metadata.campaignname }}</td>
+                                                <td>{{ item.metadata.adgroupname }}</td>
+                                                <td>{{ item.metadata.ad.TitlePart1 }}</td>
+                                                <td>{{ item.metadata.ad.EditorialStatus }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    {% endif %}
                                 </table>
                             </div>
                         </div>

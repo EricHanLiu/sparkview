@@ -217,6 +217,9 @@ def bing_cron_ovu(self, customer_id):
 
 @celery_app.task(bind=True)
 def bing_cron_alerts(self, customer_id):
+
+    ads_score = 0
+    new_ads = []
     account = BingAccounts.objects.get(account_id=customer_id)
     report_service = BingReportingService()
     daterange = report_service.get_this_month_daterange()
@@ -227,34 +230,11 @@ def bing_cron_alerts(self, customer_id):
     )
     BingAlerts.objects.filter(account=account, alert_type="DISAPPROVED_AD").delete()
     for adgroup in adgs:
-        bing_cron_disapproved_ads(customer_id, adgroup)
+        ads = bing_cron_disapproved_ads(customer_id, adgroup)
+        if len(ads) > 0:
+            new_ads.append(ads)
 
-
-def bing_cron_disapproved_ads(account_id, adgroup):
-
-    ads_score = 0
-    new_ads = []
-
-    account = BingAccounts.objects.get(account_id=account_id)
-    service = BingService()
-    ads = service.get_ads_by_status(
-        account_id=account_id,
-        adgroup_id=adgroup['adgroupid'],
-        status="Disapproved"
-    )
-
-    for ad in ads:
-        adg = copy.deepcopy(adgroup)
-        ad_metadata = service.suds_object_to_dict(ad)
-        adg['ad'] = ad_metadata
-        BingAlerts.objects.create(
-            account=account,
-            alert_type="DISAPPROVED_AD",
-            metadata=adg
-        )
-        new_ads.append(ad)
-
-    ads_no = len(ads)
+    ads_no = len(new_ads)
 
     if ads_no == 0:
         ads_score = 100
@@ -305,9 +285,34 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
         send_mail(
             'Disapproved ads alert', msg_html,
-            EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html
+            EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html
         )
 
+
+def bing_cron_disapproved_ads(account_id, adgroup):
+
+    new_ads = []
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    service = BingService()
+    ads = service.get_ads_by_status(
+        account_id=account_id,
+        adgroup_id=adgroup['adgroupid'],
+        status="Disapproved"
+    )
+
+    for ad in ads:
+        adg = copy.deepcopy(adgroup)
+        ad_metadata = service.suds_object_to_dict(ad)
+        adg['ad'] = ad_metadata
+        BingAlerts.objects.create(
+            account=account,
+            alert_type="DISAPPROVED_AD",
+            metadata=adg
+        )
+        new_ads.append(adg)
+
+    return new_ads
 
 @celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id):
