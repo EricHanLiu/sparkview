@@ -107,7 +107,9 @@
                                                 {% else %}
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
-                                                data-channel="{{ account.channel }}">Extension Report</option>
+                                                data-channel="{{ account.channel }}">
+                                            Extension Report - {{ account.ext_score }}/100
+                                        </option>
                                         <option>Conversion Tracking</option>
                                         <option>NLC Attribution</option>
                                     </select>

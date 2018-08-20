@@ -33,9 +33,9 @@
 
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                <div id="orangecircle" data-percent="{{ account.trends_score|floatformat:2 }}"
+                                <div id="orangecircle" data-percent="{{ account.ext_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.trends_score|floatformat:2 }}</span>
+                                    <span>{{ account.ext_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -110,7 +110,8 @@
                                                 {% else %}
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
-                                                data-channel="{{ account.channel }}">Extension Report
+                                                data-channel="{{ account.channel }}">
+                                            Extension Report - {{ account.ext_score }}/100
                                         </option>
                                         <option>Conversion Tracking</option>
                                         <option>NLC Attribution</option>
@@ -154,30 +155,32 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for key, value in account.ext_data.items %}
-                                        <tr>
-                                            <td>
-                                                {% for c in campaigns %}
-                                                    {% if key|slugify == c.campaign_id %}
+                                    {% for c in campaigns %}
+                                        {% for key, value in account.ext_data.items %}
+                                            {% if key|slugify == c.campaign_id %}
+                                                <tr>
+                                                    <td>
                                                         {{ c.campaign_name }}
-                                                    {% endif %}
-                                                {% endfor %}
-                                                {{ key }}</td>
-                                            <td>
-                                                {% for item in value.already %}
-                                                    <span class="m-badge m-badge--success m-badge--wide">
+
+                                                    </td>
+
+                                                    <td>
+                                                        {% for item in value.already %}
+                                                            <span class="m-badge m-badge--success m-badge--wide">
                                                         {{ item }}
                                                     </span>
-                                                {% endfor %}
-                                            </td>
-                                            <td>
-                                                {% for item2 in value.missing %}
-                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                        {% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        {% for item2 in value.missing %}
+                                                            <span class="m-badge m-badge--danger m-badge--wide">
                                                         {{ item2 }}
                                                     </span>
-                                                {% endfor %}
-                                            </td>
-                                        </tr>
+                                                        {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
                                     {% endfor %}
                                     </tbody>
                                 </table>
