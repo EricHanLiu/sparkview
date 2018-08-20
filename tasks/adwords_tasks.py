@@ -322,7 +322,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
             #     'Disapproved ads alert', msg_html,
             #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
             # )
-            del mail_list[:]
+            mail_list.clear()
 
     except AdWordsReportBadRequestError as e:
 
@@ -798,6 +798,7 @@ def adwords_account_change_history(self, customer_id):
                 send_mail(
                     account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
                     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
+                mail_list.clear()
 
         except GoogleAdsServerFault as e:
 
@@ -925,3 +926,4 @@ def adwords_cron_no_changes(self):
         'No changes for more than 15 days', msg_html,
         EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
     )
+    mail_list.clear()
