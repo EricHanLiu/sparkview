@@ -5,7 +5,7 @@ from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
 from budget.models import FlightBudget, CampaignGrouping
-from bloom.settings import EMAIL_HOST_USER, MAIL_ADS, TEMPLATE_DIR
+from bloom.settings import EMAIL_HOST_USER, TEMPLATE_DIR
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from datetime import datetime
@@ -217,6 +217,14 @@ def bing_cron_ovu(self, customer_id):
 
 @celery_app.task(bind=True)
 def bing_cron_alerts(self, customer_id):
+    MAIL_ADS = [
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+        'octavian@hdigital.io',
+    ]
 
     ads_score = 0
     new_ads = []

@@ -7,7 +7,7 @@ from adwords_dashboard.models import DependentAccount, Performance, Alert, Campa
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
-from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
+from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 import itertools
@@ -218,6 +218,14 @@ def adwords_cron_ovu(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_cron_disapproved_alert(self, customer_id):
+    MAIL_ADS = [
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+        'octavian@hdigital.io',
+    ]
 
     ads_score = 0
     new_ads = []
@@ -296,15 +304,17 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
             if account.assigned_am:
                 MAIL_ADS.append(account.assigned_am.email)
-
+                print('Found AM - ' + account.assigned_am.username)
             if account.assigned_to:
                 MAIL_ADS.append(account.assigned_to.email)
-
+                print('Found CM - ' + account.assigned_to.username)
             if account.assigned_cm2:
                 MAIL_ADS.append(account.assigned_cm2.email)
-
+                print('Found CM2 - ' + account.assigned_cm2.username)
             if account.assigned_cm3:
                 MAIL_ADS.append(account.assigned_cm3.email)
+                print('Found CM3 - ' + account.assigned_cm3.username)
+
             mail_list = set(MAIL_ADS)
             msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
             print(account.dependent_account_name + ' - ' + ' '.join(mail_list))
@@ -691,6 +701,14 @@ def adwords_account_quality_score(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_account_change_history(self, customer_id):
+    MAIL_ADS = [
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+        'octavian@hdigital.io',
+    ]
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -850,6 +868,15 @@ def adwords_account_not_running(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_cron_no_changes(self):
+
+    MAIL_ADS = [
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+        'octavian@hdigital.io',
+    ]
 
     accounts = DependentAccount.objects.filter(blacklisted=False)
     accs = []
