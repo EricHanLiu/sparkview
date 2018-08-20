@@ -13,6 +13,7 @@ from dateutil.relativedelta import relativedelta
 import itertools
 import calendar
 from operator import itemgetter
+from itertools import groupby
 from zeep.helpers import serialize_object
 
 def month_converter(month):
@@ -932,9 +933,43 @@ def adwords_cron_no_changes(self):
 @celery_app.task(bind=True)
 def adwords_account_extensions(self, customer_id):
 
+    AVAILABLE_EXTENSIONS = [
+        'AFFILIATE_LOCATION',
+        'APP',
+        'CALL',
+        'CALLOUT',
+        'LOCATION',
+        'MESSAGE',
+        'PRICE',
+        'PROMOTION',
+        'SITELINKS',
+        'STRUCTURED_SNIPPETS',
+    ]
+
+    ext_data = {}
+    ext = {}
+    already = []
+
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
     extensions = helper.get_account_extensions(customer_id)
-    print(extensions)
+    for k, v in groupby(extensions, key=lambda x: x['campaignId']):
+        ext[k] = list(v)
+
+    for item, value in ext.items():
+        for ex in value:
+            already.append(ex['extensionType'])
+
+        missing = [x for x in AVAILABLE_EXTENSIONS if x not in already]
+
+        all = {
+            'already': list(set(already)),
+            'missing': missing
+        }
+
+        ext_data[item] = all
+
+    account.ext_data = ext_data
+    account.save()

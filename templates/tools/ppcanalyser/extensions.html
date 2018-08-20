@@ -45,23 +45,9 @@
                             <div class="col-md-5">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        This report gives you a quick overview of the trends in your account's CTR,
-                                        number of conversions and conversion rate. By looking at the CTR and CVR as well
-                                        the conversion, you have a clear picture of the entirety of the funnel from
-                                        click
-                                        to transaction, as well as the number of transactions that took place.
+                                        This report gives you a quick overview of available and missing extensions from
+                                        each active campaign on this account.
 
-                                    </div>
-                                    <div class="alert m-alert m-alert--default" role="alert">
-                                        <p>Trends score: (CVR+CONV+ROI+CPA+COST) / 5</p>
-
-                                        <div class="row">
-                                            <div class="col-md-2">CVR : {{ account.cvr_score.0 }}%</div>
-                                            <div class="col-md-2">Conv. : {{ account.conversions_score.0 }}%</div>
-                                            <div class="col-md-2">ROI : {{ account.roi_score.0 }}%</div>
-                                            <div class="col-md-2">CPA: {{ account.cpa_score.0 }}%</div>
-                                            <div class="col-md-3">Cost: {{ account.cost_score.0 }}%</div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -124,7 +110,8 @@
                                                 {% else %}
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
-                                                data-channel="{{ account.channel }}">Extension Report</option>
+                                                data-channel="{{ account.channel }}">Extension Report
+                                        </option>
                                         <option>Conversion Tracking</option>
                                         <option>NLC Attribution</option>
                                     </select>
@@ -133,176 +120,68 @@
                         </div>
                         <div class="m-separator"></div>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div id="myChart">
-                                    <canvas id="trendsChart"></canvas>
+                            <div class="col-md-12 text-center">
+                                <div class="form-group m-form__group">
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        alert-danger alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            You'll find, in the table below, the available and missing extensions for
+                                            each campaign in this account.
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <p>
-                                    {% if account.channel == 'adwords' %}
-                                        <a href="{% url 'tools:account_results_weekly' account.dependent_account_id account.channel %}"
-                                           class="text-center">Data segmented by week</a>
-                                    {% else %}
-                                        <a href="{% url 'tools:account_results_weekly' account.account_id account.channel %}"
-                                           class="text-center">Data segmented by week</a>
-                                    {% endif %}
-                                </p>
+                            <div class="col-md-2"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
                                 <table class="table m-table m-table--head-separator-primary" id="trends_table">
                                     <thead>
                                     <tr>
-                                        <th>Month</th>
-                                        {#<th>CTR</th>#}
-                                        <th>CVR</th>
-                                        <th>Conv.</th>
-                                        <th>ROI</th>
-                                        <th>CPA</th>
-                                        <th>Cost</th>
+                                        <th>Campaign</th>
+                                        <th>Available extensions</th>
+                                        <th>Missing extensions</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for key, value in trends.items %}
+                                    {% for key, value in account.ext_data.items %}
                                         <tr>
-                                            <td>{{ key }}</td>
-                                            {#<td>{{ value.ctr }}</td>#}
-                                            <td>{{ value.cvr }}</td>
-                                            <td>{{ value.conversions }}</td>
-                                            <td>{{ value.roi }}</td>
-                                            <td>{{ value.cpa|floatformat:2 }}</td>
-                                            <td>{{ value.cost }}</td>
+                                            <td>
+                                                {% for c in campaigns %}
+                                                    {% if key|slugify == c.campaign_id %}
+                                                        {{ c.campaign_name }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {{ key }}</td>
+                                            <td>
+                                                {% for item in value.already %}
+                                                    <span class="m-badge m-badge--success m-badge--wide">
+                                                        {{ item }}
+                                                    </span>
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% for item2 in value.missing %}
+                                                    <span class="m-badge m-badge--danger m-badge--wide">
+                                                        {{ item2 }}
+                                                    </span>
+                                                {% endfor %}
+                                            </td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-2"></div>
-
-                            <div class="col-md-8 text-center">
-                                <div class="form-group m-form__group">
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.cvr_score.0 > 50 %}
-                                        alert-success
-                                        {% elif account.cvr_score == 50 %}
-                                        alert-info
-                                        {% else %}
-                                        alert-danger
-                                        {% endif %}
-                                        alert-dismissible fade show"
-                                         role="alert">
-                                        <div class="m-alert__icon">
-                                            <i class="flaticon-exclamation-1"></i>
-                                            <span></span>
-                                        </div>
-                                        <div class="m-alert__text">
-                                            {{ account.cvr_score.1 }}
-                                        </div>
-                                        <div class="m-alert__close">
-                                            <button type="button" class="close" data-dismiss="alert"
-                                                    aria-label="Close">
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.conversions_score.0 > 50 %}
-                                        alert-success
-                                        {% elif account.conversions_score == 50 %}
-                                        alert-info
-                                        {% else %}
-                                        alert-danger
-                                        {% endif %}
-                                        alert-dismissible fade show"
-                                         role="alert">
-                                        <div class="m-alert__icon">
-                                            <i class="flaticon-exclamation-1"></i>
-                                            <span></span>
-                                        </div>
-                                        <div class="m-alert__text">
-                                            {{ account.conversions_score.1 }}
-                                        </div>
-                                        <div class="m-alert__close">
-                                            <button type="button" class="close" data-dismiss="alert"
-                                                    aria-label="Close">
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.roi_score.0 > 50 %}
-                                        alert-success
-                                        {% elif account.roi_score == 50 %}
-                                        alert-info
-                                        {% else %}
-                                        alert-danger
-                                        {% endif %}
-                                        alert-dismissible fade show"
-                                         role="alert">
-                                        <div class="m-alert__icon">
-                                            <i class="flaticon-exclamation-1"></i>
-                                            <span></span>
-                                        </div>
-                                        <div class="m-alert__text">
-                                            {{ account.roi_score.1 }}
-                                        </div>
-                                        <div class="m-alert__close">
-                                            <button type="button" class="close" data-dismiss="alert"
-                                                    aria-label="Close">
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.cpa_score.0 > 50 %}
-                                        alert-danger
-                                        {% elif account.cpa_score == 50.0 %}
-                                        alert-info
-                                        {% else %}
-                                        alert-success
-                                        {% endif %}
-                                        alert-dismissible fade show"
-                                         role="alert">
-                                        <div class="m-alert__icon">
-                                            <i class="flaticon-exclamation-1"></i>
-                                            <span></span>
-                                        </div>
-                                        <div class="m-alert__text">
-                                            {{ account.cpa_score.1 }}
-                                        </div>
-                                        <div class="m-alert__close">
-                                            <button type="button" class="close" data-dismiss="alert"
-                                                    aria-label="Close">
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
-                                        {% if account.cost_score.0 > 50 %}
-                                        alert-success
-                                        {% elif account.cost_score == 50 %}
-                                        alert-info
-                                        {% else %}
-                                        alert-danger
-                                        {% endif %}
-                                        alert-dismissible fade show"
-                                         role="alert">
-                                        <div class="m-alert__icon">
-                                            <i class="flaticon-exclamation-1"></i>
-                                            <span></span>
-                                        </div>
-                                        <div class="m-alert__text">
-                                            {{ account.cost_score.1 }}
-                                        </div>
-                                        <div class="m-alert__close">
-                                            <button type="button" class="close" data-dismiss="alert"
-                                                    aria-label="Close">
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2"></div>
                         </div>
                     </div>
                 </div>
