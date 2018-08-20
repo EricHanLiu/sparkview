@@ -1,6 +1,7 @@
 import json
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.db.models.query import QuerySet
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
@@ -294,8 +295,8 @@ def adwords_cron_disapproved_alert(self, customer_id):
             ads_score = 0
 
         account.dads_score = ads_score
-        account.account_score = (account.trends_score + account.qs_score + ads_score + float(account.changed_score[0])) / 4
         account.save()
+        calculate_account_score(account)
 
         if len(new_ads) > 0:
             mail_details = {
@@ -693,9 +694,8 @@ def adwords_account_quality_score(self, customer_id):
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse
-    account.account_score = (account.trends_score + qs_score + account.dads_score + int(account.changed_score[0])) / 4
-
     account.save()
+    calculate_account_score(account)
 
     del qs_data[:]
     del to_parse[:]
@@ -763,8 +763,9 @@ def adwords_account_change_history(self, customer_id):
             change_score = helper.get_change_score(change_val)
             account.changed_data = changes_dict
             account.changed_score = change_score
-            account.account_score = (account.trends_score + account.qs_score + account.dads_score + change_score[0]) / 4
             account.save()
+
+            calculate_account_score(account)
 
             last_change = account.changed_data['lastChangeTimestamp']
             date_format = "%Y%m%d"
@@ -810,13 +811,14 @@ def adwords_account_change_history(self, customer_id):
                 }
                 account.changed_data = changes_dict
                 account.changed_score = (0, 'Too many changes.')
-                account.account_score = (account.trends_score + account.qs_score + account.dads_score)/ 4
                 account.save()
+                calculate_account_score(account)
 
     else:
         print('No active campaigns found.')
         account.changed_score = (0, 'No campaigns found for this account.')
-        account.account_score = (account.trends_score + account.qs_score + account.dads_score) / 4
+        account.save()
+        calculate_account_score(account)
         account.save()
 
 
@@ -943,12 +945,13 @@ def adwords_account_extensions(self, customer_id):
         'PRICE',
         'PROMOTION',
         'SITELINKS',
-        'STRUCTURED_SNIPPETS',
+        'STRUCTURED_SNIPPET',
     ]
 
     ext_data = {}
     ext = {}
     already = []
+    cmp_score = 0
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
@@ -964,12 +967,34 @@ def adwords_account_extensions(self, customer_id):
 
         missing = [x for x in AVAILABLE_EXTENSIONS if x not in already]
 
+        difference = len(missing) - len(set(already))
         all = {
             'already': list(set(already)),
-            'missing': missing
+            'missing': missing,
+            'difference': difference
         }
 
         ext_data[item] = all
 
+        all_ext = len(AVAILABLE_EXTENSIONS)
+        missing_no = len(missing)
+
+        cmp_score += (missing_no * 100) / all_ext
+        ext_score = cmp_score/len(ext)
+
     account.ext_data = ext_data
+    account.ext_score = ext_score
     account.save()
+    print(type(account))
+    calculate_account_score(account)
+    print('OK')
+
+@celery_app.task(bind=True)
+def calculate_account_score(self, account):
+    if not isinstance(type(account), DependentAccount):
+
+        account.account_score = (account.trends_score + account.qs_score + account.changed_score[0]
+                                 + account.dads_score + account.nr_score + account.ext_score) / 6
+        account.save()
+    else:
+        raise TypeError('Object must be a QuerySet')
