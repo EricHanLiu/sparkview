@@ -173,14 +173,22 @@ def extensions(request, account_id, channel):
 
     if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
+        campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
+
+        context = {
+            'account': account,
+            'campaigns': campaigns
+        }
     elif channel == 'bing':
         account = BingAccounts.objects.get(account_id=account_id)
+        context = {
+            'account': account
+        }
     elif channel == 'facebook':
         account = FacebookAccount.objects.get(account_id=account_id)
-
-    context = {
-        'account': account
-    }
+        context = {
+            'account': account
+        }
 
     return render(request, 'tools/ppcanalyser/extensions.html', context)
 
