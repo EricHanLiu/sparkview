@@ -1213,6 +1213,49 @@ class AdwordsReportingService(AdwordsReporting):
             return []
         return result['entries']
 
+    def get_account_extensions(self, customer_id=None):
+
+        results = []
+        offset = 0
+        PAGE_SIZE = 500
+        MAX_START_INDEX = 100500
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        service = client.GetService(
+            "CampaignExtensionSettingService", version=self.api_version
+        )
+
+        fields = ["ExtensionType"]
+        selector = {
+            "fields": fields,
+            "paging": {"startIndex": str(offset), "numberResults": str(PAGE_SIZE)},
+        }
+
+        more_pages = True
+        while more_pages:
+            page = service.get(selector)
+            more_pages = offset < int(page["totalNumEntries"])
+
+            if "entries" in page and page["entries"]:
+
+                results.extend(page["entries"])
+                offset += PAGE_SIZE
+
+                if offset > MAX_START_INDEX:
+                    return results
+
+                selector["paging"]["startIndex"] = str(offset)
+
+            else:
+                return results
+
+            time.sleep(.5)
+
+        return results
+
 class FacebookReporting(Reporting):
     date_format = "%Y-%m-%d"
 

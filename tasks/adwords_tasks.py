@@ -927,3 +927,14 @@ def adwords_cron_no_changes(self):
         EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
     )
     mail_list.clear()
+
+
+@celery_app.task(bind=True)
+def adwords_account_extensions(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    extensions = helper.get_account_extensions(customer_id)
+    print(extensions)

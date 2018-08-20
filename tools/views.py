@@ -169,6 +169,22 @@ def not_running(request, account_id, channel):
     return render(request, 'tools/ppcanalyser/not_running.html', context)
 
 @login_required
+def extensions(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+    elif channel == 'facebook':
+        account = FacebookAccount.objects.get(account_id=account_id)
+
+    context = {
+        'account': account
+    }
+
+    return render(request, 'tools/ppcanalyser/extensions.html', context)
+
+@login_required
 def run_reports(request):
 
     data = request.POST
@@ -187,6 +203,8 @@ def run_reports(request):
             adwords_tasks.adwords_account_change_history.delay(account_id)
         elif report == 'notrunning':
             adwords_tasks.adwords_account_not_running.delay(account_id)
+        elif report == 'extensions':
+            adwords_tasks.adwords_account_extensions.delay(account_id)
     elif channel == 'bing':
         if report == 'results':
             bing_tasks.bing_result_trends.delay(account_id)

@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>Trends -
+                                <span>Extensions report -
                                     {% if account.channel == 'adwords' %}
                                         {{ account.dependent_account_name }}
                                     {% else %}
@@ -35,7 +35,7 @@
                             <div class="col-md-3 text-center">
                                 <div id="orangecircle" data-percent="{{ account.trends_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.trends_score }}</span>
+                                    <span>{{ account.trends_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -141,17 +141,17 @@
                             <div class="col-md-6">
                                 <p>
                                     {% if account.channel == 'adwords' %}
-                                        <a href="{% url 'tools:account_results' account.dependent_account_id account.channel %}"
-                                           class="text-center">Data segmented by month</a>
+                                        <a href="{% url 'tools:account_results_weekly' account.dependent_account_id account.channel %}"
+                                           class="text-center">Data segmented by week</a>
                                     {% else %}
-                                        <a href="{% url 'tools:account_results' account.account_id account.channel %}"
-                                           class="text-center">Data segmented by month</a>
+                                        <a href="{% url 'tools:account_results_weekly' account.account_id account.channel %}"
+                                           class="text-center">Data segmented by week</a>
                                     {% endif %}
                                 </p>
                                 <table class="table m-table m-table--head-separator-primary" id="trends_table">
                                     <thead>
                                     <tr>
-                                        <th>Week*</th>
+                                        <th>Month</th>
                                         {#<th>CTR</th>#}
                                         <th>CVR</th>
                                         <th>Conv.</th>
@@ -161,7 +161,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for key, value in weekly.items %}
+                                    {% for key, value in trends.items %}
                                         <tr>
                                             <td>{{ key }}</td>
                                             {#<td>{{ value.ctr }}</td>#}
@@ -174,10 +174,136 @@
                                     {% endfor %}
                                     </tbody>
                                 </table>
-                                *The date for the Monday of the week
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-2"></div>
 
+                            <div class="col-md-8 text-center">
+                                <div class="form-group m-form__group">
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.cvr_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.cvr_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.cvr_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.conversions_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.conversions_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.conversions_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.roi_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.roi_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.roi_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.cpa_score.0 > 50 %}
+                                        alert-danger
+                                        {% elif account.cpa_score == 50.0 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-success
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.cpa_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        {% if account.cost_score.0 > 50 %}
+                                        alert-success
+                                        {% elif account.cost_score == 50 %}
+                                        alert-info
+                                        {% else %}
+                                        alert-danger
+                                        {% endif %}
+                                        alert-dismissible fade show"
+                                         role="alert">
+                                        <div class="m-alert__icon">
+                                            <i class="flaticon-exclamation-1"></i>
+                                            <span></span>
+                                        </div>
+                                        <div class="m-alert__text">
+                                            {{ account.cost_score.1 }}
+                                        </div>
+                                        <div class="m-alert__close">
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -189,25 +315,22 @@
 
     <script type="text/javascript">
 
-        let weekly = {{ weekly|safe }};
-
         function gen_xy(data, parameter) {
 
             lst = [];
 
             for (key in data) {
-
                 if (data.hasOwnProperty(key)) {
 
                     if (parameter === 'conversion_rate' || parameter == 'cvr') {
 
                         lst.push({
-                            'x': new Date(key),
+                            'x': new Date('2018' + key),
                             'y': data[key][parameter].replace('%', '')
                         })
                     } else {
                         lst.push({
-                            'x': new Date(key),
+                            'x': new Date('2018' + key),
                             'y': data[key][parameter]
                         })
                     }
@@ -215,135 +338,11 @@
 
                 }
             }
-
             lst.sort(function (a, b) {
                 return new Date(b.x) - new Date(a.x);
             });
-            console.log(lst)
+
             return lst
-        }
-
-        let config = {
-            // The type of chart we want to create
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: "CPA",
-                    backgroundColor: 'rgba(236, 76, 51)',
-                    borderColor: 'rgb(236, 76, 51)',
-                    data: gen_xy(weekly, 'cpa'),
-                    fill: false,
-                    borderWidth: 0.90,
-                },
-                    {
-                        label: "Conversion Rate",
-                        backgroundColor: 'rgba(51, 204, 51)',
-                        borderColor: 'rgb(51, 204, 51)',
-                        data: gen_xy(weekly, 'cvr'),
-                        fill: false,
-                        borderWidth: 0.90,
-                    },
-                    {
-                        label: "Conversions",
-                        backgroundColor: 'rgba(0, 51, 204)',
-                        borderColor: 'rgb(0, 51, 204)',
-                        data: gen_xy(weekly, 'conversions'),
-                        fill: false,
-                        borderWidth: 0.90,
-                    },
-                    {
-                        label: "ROI",
-                        backgroundColor: 'rgba(212, 151, 224)',
-                        borderColor: 'rgb(212, 151, 224)',
-                        data: gen_xy(weekly, 'roi'),
-                        fill: false,
-                        borderWidth: 0.90,
-                    },
-                    {
-                        label: "Cost",
-                        backgroundColor: 'rgba(112, 51, 124)',
-                        borderColor: 'rgb(112, 51, 124)',
-                        data: gen_xy(weekly, 'cost'),
-                        fill: false,
-                        borderWidth: 0.90,
-                    }
-                ]
-            },
-
-            // Configuration options go here
-            options: {
-                responsive: true,
-                display: true,
-                title: {
-                    display: true,
-                    text: 'Trends',
-                    fontSize: 20,
-                    padding: 25,
-                    fontStyle: 'normal'
-                },
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: .5,
-
-                    }
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: true,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                elements: {
-                    point: {
-                        pointStyle: 'circle',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        radius: 2.2,
-                        hitRadius: 20,
-                        hoverBorderWidth: 1,
-                    },
-                    line: {
-                        tension: 0.4,
-                    }
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        type: 'time',
-                        time: {
-                            unit: 'week',
-                            tooltipFormat: 'MMM DD',
-                            displayFormats: {
-                                day: 'dd'
-                            }
-
-                        },
-                        gridLines: {
-                            display: false,
-                        },
-                    }],
-                    yAxes: [{
-                        display: true,
-                        type: 'linear',
-                        gridLines: {
-                            display: false,
-                        },
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            },
-
-        };
-
-        window.onload = function () {
-            var ctx = document.getElementById('trendsChart').getContext('2d');
-            window.myLine = new Chart(ctx, config);
         }
 
         function runReports(customer_id, channel) {
@@ -351,7 +350,7 @@
             let data = {
                 'account_id': customer_id,
                 'channel': channel,
-                'report': 'results'
+                'report': 'extensions'
             };
 
             $.ajax({
