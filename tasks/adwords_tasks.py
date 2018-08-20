@@ -985,9 +985,7 @@ def adwords_account_extensions(self, customer_id):
     account.ext_data = ext_data
     account.ext_score = ext_score
     account.save()
-    print(type(account))
     calculate_account_score(account)
-    print('OK')
 
 @celery_app.task(bind=True)
 def calculate_account_score(self, account):

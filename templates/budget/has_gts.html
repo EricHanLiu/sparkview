@@ -69,10 +69,36 @@
                                     <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
                                 </div>
                             </div>
+                            <div class="m-separator"></div>
                             <div class="row text-center">
-                                <div class="col-md-4"><b>AdWords spend</b>: {{ client_data.aw_spend }}</div>
-                                <div class="col-md-4"><b>Bing spend</b>: {{ client_data.bing_spend }}</div>
-                                <div class="col-md-4"><b>Facebook spend</b>: {{ client_data.fb_spend }}</div>
+                                <div class="col-md-12">
+                                    {% if client_data.aw_spend %}
+                                        <div class="progress m-progress--lg">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
+                                             aria-valuenow="{{ client_data.aw_spend|div:client_data.budget }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            A: {{ client_data.aw_spend|floatformat:2 }}
+                                        </div>
+                                    {% endif %}
+                                    {% if client_data.bing_spend %}
+                                        <div class="progress-bar bg-primary" role="progressbar"
+                                             style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
+                                             aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            B: {{ client_data.bing_spend|floatformat:2 }}
+                                        </div>
+                                    {% endif %}
+                                    {% if client_data.fb_spend %}
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
+                                             aria-valuenow="{{ client_data.fb_spend|div:client_data.budget }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            F: {{ client_data.fb_spend }}
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                </div>
                             </div>
                             </p>
 
