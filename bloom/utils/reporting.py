@@ -37,39 +37,39 @@ class Reporting:
 
         if change == 0 or change > 0:
             score = 100
-            message = 'The account has had more changes compared to previous month, please review the table below.'
+            message = 'The account has had more changes compared to previous month, please check the chart.'
         elif 0 > change > -9.99:
             score = 90
-            message = 'The account has had more than 5% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 5% less changes compared to previous month, please check the chart.'
         elif 10 > change > -19.99:
             score = 80
-            message = 'The account has had more than 10% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 10% less changes compared to previous month, please check the chart.'
         elif 20 > change > -29.99:
             score = 70
-            message = 'The account has had more than 30% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 30% less changes compared to previous month, please check the chart.'
         elif 30 > change > -39.99:
             score = 60
-            message = 'The account has had more than 40% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 40% less changes compared to previous month, please check the chart.'
         elif 40 > change > -49.99:
             score = 50
-            message = 'The account has had more than 50% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 50% less changes compared to previous month, please check the chart.'
         elif 50 > change > -59.99:
             score = 40
-            message = 'The account has had more than 50% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 50% less changes compared to previous month, please check the chart.'
         elif 60 > change > -69.99:
             score = 30
-            message = 'The account has had more than 60% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 60% less changes compared to previous month, please check the chart.'
         elif 70 > change > -79.99:
             score = 20
-            message = 'The account has had more than 70% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 70% less changes compared to previous month, please check the chart.'
         elif 80 > change > -89.99:
             score = 10
-            message = 'The account has had more than 80% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 80% less changes compared to previous month, please check the chart.'
         elif 90 > change > -99.99:
             score = 0
-            message = 'The account has had more than 90% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 90% less changes compared to previous month, please check the chart.'
 
-        return (score, message)
+        return score, message
 
     @staticmethod
     def get_score(change, parameter):

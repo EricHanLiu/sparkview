@@ -715,6 +715,10 @@ def adwords_account_change_history(self, customer_id):
     helper = AdwordsReportingService(client)
 
     today = datetime.today()
+
+    fminDateL = today.replace(day=1) - relativedelta(months=2)
+    fmaxDateL = today.replace(day=31) - relativedelta(months=2)
+
     minDate = today.replace(day=1)
     maxDate = today.replace(day=31)
 
@@ -749,78 +753,104 @@ def adwords_account_change_history(self, customer_id):
         'campaignIds': campaign_ids
     }
 
+    selector3 = {
+        'dateTimeRange': {
+            'min': fminDateL.strftime('%Y%m%d %H%M%S'),
+            'max': fmaxDateL.strftime('%Y%m%d %H%M%S')
+        },
+        'campaignIds': campaign_ids
+    }
+
     if len(campaign_ids) > 0:
 
         try:
             account_changes = service.get(selector)
-            account_changes_last = service.get(selector2)
-
             temp = serialize_object(account_changes)
             changes_dict = json.loads(json.dumps(temp))
             change_counter = helper.get_change_no(account_changes)
-            change_counter2 = helper.get_change_no(account_changes_last)
-            change_val = helper.get_change(change_counter, change_counter2)
-            change_score = helper.get_change_score(change_val)
-            account.changed_data = changes_dict
-            account.changed_score = change_score
-            account.save()
-
-            calculate_account_score(account)
-
-            last_change = account.changed_data['lastChangeTimestamp']
-            date_format = "%Y%m%d"
-            today = date.today().day
-            s = last_change.strip(' ')
-            s_dt = s[0:8]
-            last_change_day = datetime.strptime(s_dt, date_format).date()
-            last_change_dt = today - last_change_day.day
-
-            if last_change_dt >= 5:
-                mail_details = {
-                    'account': account,
-                    'lastChange': last_change_day
-                }
-
-                if account.assigned_am:
-                    MAIL_ADS.append(account.assigned_am.email)
-                    print('Found AM - ' + account.assigned_am.username)
-                if account.assigned_to:
-                    MAIL_ADS.append(account.assigned_to.email)
-                    print('Found CM - ' + account.assigned_to.username)
-                if account.assigned_cm2:
-                    MAIL_ADS.append(account.assigned_cm2.email)
-                    print('Found CM2 - ' + account.assigned_cm2.username)
-                if account.assigned_cm3:
-                    MAIL_ADS.append(account.assigned_cm3.email)
-                    print('Found CM3 - ' + account.assigned_cm3.username)
-
-                mail_list = set(MAIL_ADS)
-                msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
-
-                send_mail(
-                    account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                    EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
-                mail_list.clear()
 
         except GoogleAdsServerFault as e:
-
             if e.errors[0]['reason'] == 'TOO_MANY_CHANGES':
+                change_counter = 19999
                 changes_dict = {
                     'changedCampaigns': 'Too many changes.',
-                    'lastChangeTimestamp': 'TOO_MANY'
+                    'lastChangeTimestamp': 'NOT_FOUND'
                 }
-                account.changed_data = changes_dict
-                account.changed_score = (0, 'Too many changes.')
-                account.save()
-                calculate_account_score(account)
 
+        try:
+            account_changes_last = service.get(selector2)
+            change_counter2 = helper.get_change_no(account_changes_last)
+
+        except GoogleAdsServerFault as e:
+            if e.errors[0]['reason'] == 'TOO_MANY_CHANGES':
+                change_counter2 = 19999
+
+        try:
+            account_changes_first = service.get(selector3)
+            change_counter3 = helper.get_change_no(account_changes_first)
+
+        except GoogleAdsServerFault as e:
+            if e.errors[0]['reason'] == 'TOO_MANY_CHANGES':
+                change_counter3 = 19999
+
+
+        # Get last change timestamp for mail
+
+        change_val = helper.get_change(change_counter, change_counter2)
+        change_score = helper.get_change_score(change_val)
+
+        changed_data = {
+            'lastChangeTimestamp': changes_dict['lastChangeTimestamp'],
+            fminDateL.strftime('%Y-%m-%d'): change_counter3,
+            minDateL.strftime('%Y-%m-%d'): change_counter2,
+            minDate.strftime('%Y-%m-%d'): change_counter
+        }
+
+        account.changed_data = changed_data
+        account.changed_score = change_score
+        account.save()
+
+        calculate_account_score(account)
+
+        last_change = account.changed_data['lastChangeTimestamp']
+        date_format = "%Y%m%d"
+        today = date.today().day
+        s = last_change.strip(' ')
+        s_dt = s[0:8]
+        last_change_day = datetime.strptime(s_dt, date_format).date()
+        last_change_dt = today - last_change_day.day
+
+        if last_change_dt >= 5:
+            mail_details = {
+                'account': account,
+                'lastChange': last_change_day
+            }
+
+            if account.assigned_am:
+                MAIL_ADS.append(account.assigned_am.email)
+                print('Found AM - ' + account.assigned_am.username)
+            if account.assigned_to:
+                MAIL_ADS.append(account.assigned_to.email)
+                print('Found CM - ' + account.assigned_to.username)
+            if account.assigned_cm2:
+                MAIL_ADS.append(account.assigned_cm2.email)
+                print('Found CM2 - ' + account.assigned_cm2.username)
+            if account.assigned_cm3:
+                MAIL_ADS.append(account.assigned_cm3.email)
+                print('Found CM3 - ' + account.assigned_cm3.username)
+
+            mail_list = set(MAIL_ADS)
+            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
+
+            # send_mail(
+            #     account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+            #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
+            mail_list.clear()
     else:
         print('No active campaigns found.')
         account.changed_score = (0, 'No campaigns found for this account.')
         account.save()
         calculate_account_score(account)
-        account.save()
-
 
 @celery_app.task(bind=True)
 def adwords_account_not_running(self, customer_id):
