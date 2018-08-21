@@ -108,7 +108,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Extension Report - {{ account.ext_score }}/100
+                                            Extension Report - {{ account.ext_score|floatformat:2 }}/100
                                         </option>
                                         <option>Conversion Tracking</option>
                                         <option>NLC Attribution</option>
@@ -118,12 +118,7 @@
                         </div>
                         <div class="m-separator"></div>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div id="myChart">
-                                    <canvas id="trendsChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-md-6 text-center">
+                            <div class="col-md-12 text-center">
                                 <div class="form-group m-form__group">
                                     <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline
                                             alert alert-danger alert-dismissible fade show" role="alert">
@@ -142,61 +137,12 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <table class="table m-table m-table--head-separator-primary" id="qs_table">
-                                    <thead>
-                                    <tr>
-                                        <th>Campaign</th>
-                                        <th>Ad Group</th>
-                                        <th>Changed Keywords</th>
-                                        <th>Changed Ads</th>
-                                        <th>Removed keywords</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for item in account.changed_data.changedCampaigns %}
-                                        {% if item.campaignChangeStatus == 'FIELDS_CHANGED' %}
-                                            {% for ag in item.changedAdGroups %}
-                                                <tr>
-                                                    <td>
-                                                        {% for c in campaigns %}
-                                                            {% if item.campaignId|slugify == c.campaign_id %}
-                                                                {{ c.campaign_name }}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                    <td>
-                                                        {% for a in adgroups %}
-                                                            {% if ag.adGroupId|slugify == a.adgroup_id %}
-                                                                {{ a.adgroup_name }}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        - {{ ag.adGroupId }}
-                                                    </td>
-                                                    <td>
-                                                        {{ ag.changedCriteria }}
-                                                    </td>
-                                                    <td>
-                                                        {% if ag.changedAds|length == 0 %}
-                                                            0
-                                                        {% else %}
-                                                            {{ ag.changedAds }}
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>{% if ag.removedCriteria|length == 0 %}
-                                                        0
-                                                    {% else %}
-                                                        {{ ag.removedCriteria }}
-                                                    {% endif %}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
+                                <div id="myChart">
+                                    <canvas id="changesChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -209,7 +155,122 @@
 
 
     <script type="text/javascript">
+        let changes = {{ changes|safe }};
 
+        function gen_xy(data) {
+
+            lst = [];
+
+            for (key in data) {
+                if (data.hasOwnProperty(key)) {
+
+                    if (key === 'lastChangeTimestamp') {
+                        continue
+                    }
+
+                    lst.push({
+                        'x': new Date(key),
+                        'y': data[key]
+                    })
+                }
+            }
+            lst.sort(function (a, b) {
+                return new Date(b.x) - new Date(a.x);
+            });
+
+            return lst
+        }
+
+        let config = {
+            // The type of chart we want to create
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: "Changes",
+                    backgroundColor: 'rgba(236, 76, 51)',
+                    borderColor: 'rgb(236, 76, 51)',
+                    data: gen_xy(changes),
+                    fill: false,
+                    borderWidth: 0.90,
+                },
+                ]
+            },
+
+            // Configuration options go here
+            options: {
+                responsive: true,
+                display: true,
+                title: {
+                    display: true,
+                    text: 'Trends',
+                    fontSize: 20,
+                    padding: 25,
+                    fontStyle: 'normal'
+                },
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: .5,
+
+                    }
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: true,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                elements: {
+                    point: {
+                        pointStyle: 'circle',
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        radius: 2.2,
+                        hitRadius: 20,
+                        hoverBorderWidth: 1,
+                    },
+                    line: {
+                        tension: 0.4,
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'MMM',
+                            displayFormats: {
+                                month: 'MMM'
+                            }
+
+                        },
+                        gridLines: {
+                            display: false,
+                        },
+                    }],
+                    yAxes: [{
+                        display: true,
+                        type: 'linear',
+                        gridLines: {
+                            display: false,
+                        },
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            },
+
+        };
+
+        window.onload = function () {
+            let ctx = document.getElementById('changesChart').getContext('2d');
+            window.myLine = new Chart(ctx, config);
+        };
 
         function runReports(customer_id, channel) {
 

@@ -125,7 +125,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Extension Report - {{ account.ext_score }}/100
+                                            Extension Report - {{ account.ext_score|floatformat:2 }}/100
                                         </option>
                                         <option>Conversion Tracking</option>
                                         <option>NLC Attribution</option>
@@ -470,7 +470,7 @@
         window.onload = function () {
             var ctx = document.getElementById('trendsChart').getContext('2d');
             window.myLine = new Chart(ctx, config);
-        }
+        };
 
         function runReports(customer_id, channel) {
 

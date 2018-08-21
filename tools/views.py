@@ -135,7 +135,8 @@ def change_history(request, account_id, channel):
         context = {
             'account': account,
             'campaigns': campaigns,
-            'adgroups': adgroups
+            'adgroups': adgroups,
+            'changes': account.changed_data
         }
 
     elif channel == 'bing':
