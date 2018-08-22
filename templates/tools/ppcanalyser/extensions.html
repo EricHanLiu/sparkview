@@ -83,7 +83,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Change History Report - {{ account.changed_score.0|floatformat:2 }}
+                                            Change History Report - {{ account.changed_score.0|floatformat:2 }}/100
                                         </option>
                                         <option value="disapprovedads"
                                                 {% if account.channel == 'adwords' %}
@@ -101,7 +101,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Account Errors - {{ account.nr_score }}/100
+                                            Account Errors - {{ account.nr_score|floatformat:2 }}/100
                                         </option>
                                         <option>Tags Report</option>
                                         <option value="extensions"
@@ -111,7 +111,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Extension Report - {{ account.ext_score }}/100
+                                            Extension Report - {{ account.ext_score|floatformat:2 }}/100
                                         </option>
                                         <option>Conversion Tracking</option>
                                         <option>NLC Attribution</option>
@@ -197,36 +197,6 @@
 
     <script type="text/javascript">
 
-        function gen_xy(data, parameter) {
-
-            lst = [];
-
-            for (key in data) {
-                if (data.hasOwnProperty(key)) {
-
-                    if (parameter === 'conversion_rate' || parameter == 'cvr') {
-
-                        lst.push({
-                            'x': new Date('2018' + key),
-                            'y': data[key][parameter].replace('%', '')
-                        })
-                    } else {
-                        lst.push({
-                            'x': new Date('2018' + key),
-                            'y': data[key][parameter]
-                        })
-                    }
-
-
-                }
-            }
-            lst.sort(function (a, b) {
-                return new Date(b.x) - new Date(a.x);
-            });
-
-            return lst
-        }
-
         function runReports(customer_id, channel) {
 
             let data = {
@@ -241,7 +211,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for Trends report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Extensions report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);

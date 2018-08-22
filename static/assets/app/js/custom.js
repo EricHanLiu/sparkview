@@ -37,6 +37,15 @@ $(document).ready(function () {
         bPaginate: true,
         pageLength: 5,
         bInfo: true,
+        aoColumns: [
+            {
+                'bSearchable': false
+            },
+            {
+                'bSearchable': false
+            },
+            null,
+        ]
     });
 
     $('#accounts').DataTable({
