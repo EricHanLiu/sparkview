@@ -79,7 +79,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Change History Report - {{ account.changed_score.0|floatformat:2 }}
+                                            Change History Report - {{ account.changed_score.0|floatformat:2 }}/100
                                         </option>
                                         <option value="disapprovedads"
                                                 {% if account.channel == 'adwords' %}
@@ -215,7 +215,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for QS report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Disapproved ads report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);
