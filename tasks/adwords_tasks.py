@@ -1067,7 +1067,10 @@ def adwords_nlc_attr_model(self, customer_id):
     nlc_no = len(nlc_am)
     nlc_data_no = len(nlc_data)
 
-    score = (nlc_data_no * 100) / nlc_no
+    try:
+        score = (nlc_data_no * 100) / nlc_no
+    except ZeroDivisionError:
+        score = 100.0
 
     account.nlc_data = nlc_data
     account.nlc_score = score
