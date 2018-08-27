@@ -889,11 +889,25 @@ class AdwordsReporting(Reporting):
             "ServingStatus",
         ]
 
+        predicates = [{
+            "field": "CampaignStatus",
+            "operator": "IN",
+            "values": ["ENABLED"],
+        }, {
+            "field": "ServingStatus",
+            "operator": "IN",
+            "values": ["SERVING"],
+        }]
+
         extra_fields = kwargs.get("extra_fields", None)
 
         if extra_fields:
             fields.extend(extra_fields)
             fields = list(set(fields))
+
+        extra_predicates = kwargs.get('extra_predicates', None)
+        if extra_predicates:
+            predicates.append(extra_predicates)
 
         query = {
             "reportName": "CAMPAIGN_PERFORMANCE",
@@ -902,15 +916,7 @@ class AdwordsReporting(Reporting):
             "downloadFormat": "CSV",
             "selector": {
                 "fields": fields,
-                "predicates": [{
-                    "field": "CampaignStatus",
-                    "operator": "IN",
-                    "values": ["ENABLED"],
-                },{
-                    "field": "ServingStatus",
-                    "operator": "IN",
-                    "values": ["SERVING"],
-                }]
+                "predicates": predicates
             },
         }
 

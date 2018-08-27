@@ -9,6 +9,7 @@ from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, access_token
 from dateutil.relativedelta import relativedelta
 
+
 def facebook_init():
     return FacebookAdsApi.init(app_id, app_secret, access_token)
 
@@ -112,7 +113,6 @@ def facebook_cron_ovu(self, account_id):
 
     yesterday = helper.get_account_insights(account.account_id, params=yesterday_time, extra_fields=['spend'])
     last_7_days = helper.get_account_insights(account.account_id, params=last_7, extra_fields=['spend'])
-
 
     segmented_data = {
         i['date_stop']: i['spend'] for i in segmented
@@ -257,7 +257,6 @@ def facebook_cron_anomalies_campaigns(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_cron_alerts(self, account_id):
-
     fields = [
         'ad_name',
         'ad_id',
@@ -282,7 +281,7 @@ def facebook_cron_alerts(self, account_id):
         filtering=filtering,
     )
 
-    alert_type='DISAPPROVED_AD'
+    alert_type = 'DISAPPROVED_AD'
     FacebookAlert.objects.filter(account=account, alert_type=alert_type).delete()
 
     ads = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
@@ -300,13 +299,14 @@ def facebook_cron_alerts(self, account_id):
         )
         print('[INFO] Added alert to DB.')
 
+
 @celery_app.task(bind=True)
 def facebook_cron_campaign_stats(self, account_id):
-
     account = FacebookAccount.objects.get(account_id=account_id)
     groupings = CampaignGrouping.objects.filter(facebook=account)
 
     cmps = []
+    cmp_list = []
 
     helper = FacebookReportingService(facebook_init())
 
@@ -336,7 +336,6 @@ def facebook_cron_campaign_stats(self, account_id):
         campaign_id = cmp['campaign_id']
         campaign_cost = cmp['spend']
 
-
         cmp, created = FacebookCampaign.objects.get_or_create(
             account=account,
             campaign_id=campaign_id,
@@ -357,22 +356,42 @@ def facebook_cron_campaign_stats(self, account_id):
                 if gr.group_by == 'manual':
                     continue
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
+                    if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
                         gr.aw_campaigns.remove(c)
                         gr.save()
 
-                    elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                        gr.aw_campaigns.add(c)
+                    elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
+                        gr.fb_campaigns.add(c)
                         gr.save()
 
             gr.current_spend = 0
-            for cmp in gr.fb_campaigns.all():
-                gr.current_spend += cmp.campaign_cost
-                gr.save()
+
+            if gr.start_date:
+
+                for c in gr.fb_campaigns.all():
+                    cmp_list.append(c.campaign_id)
+
+                daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
+
+                this_period = helper.set_params(
+                    time_range=daterange,
+                    level='campaign',
+                    filtering=filtering,
+                )
+
+                campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
+                for cmp in campaigns_tp:
+                    if cmp['campaign_id'] in cmp_list:
+                        gr.current_spend += float(cmp['spend'])
+                        gr.save()
+            else:
+                for cmp in gr.fb_campaigns.all():
+                    gr.current_spend += cmp.campaign_cost
+                    gr.save()
+
 
 @celery_app.task(bind=True)
 def facebook_cron_flight_dates(self, customer_id):
-
     fields = [
         'spend',
     ]
