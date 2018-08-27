@@ -1,7 +1,6 @@
 import json
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.db.models.query import QuerySet
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
@@ -1002,6 +1001,7 @@ def adwords_account_extensions(self, customer_id):
     ext_data = {}
     ext = {}
     already = []
+
     cmp_score = 0
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -1009,6 +1009,7 @@ def adwords_account_extensions(self, customer_id):
     helper = AdwordsReportingService(client)
 
     extensions = helper.get_account_extensions(customer_id)
+
     for k, v in groupby(extensions, key=lambda x: x['campaignId']):
         ext[k] = list(v)
 
@@ -1031,20 +1032,57 @@ def adwords_account_extensions(self, customer_id):
         missing_no = len(missing)
 
         cmp_score += (missing_no * 100) / all_ext
-        ext_score = cmp_score / len(ext)
+
+    ext_score = cmp_score / len(ext)
 
     account.ext_data = ext_data
     account.ext_score = ext_score
     account.save()
     calculate_account_score(account)
 
+@celery_app.task(bind=True)
+def adwords_nlc_attr_model(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    score = 0.0
+
+    nlc_am = helper.get_attribution_models(account.dependent_account_id)
+    nlc_data = []
+
+    for item in nlc_am:
+        if item['attributionModelType'] != 'LAST_CLICK' and item['status'] == 'ENABLED':
+            nlc_item = {
+                'id': item['id'],
+                'name': item['name'],
+                'status': item['status'],
+                'category': item['category'],
+                'counting_type': item['countingType'],
+                'attribution_model_type': item['attributionModelType'],
+            }
+            nlc_data.append(nlc_item)
+
+    nlc_no = len(nlc_am)
+    nlc_data_no = len(nlc_data)
+
+    score = (nlc_data_no * 100) / nlc_no
+
+    account.nlc_data = nlc_data
+    account.nlc_score = score
+    account.save()
+    calculate_account_score(account)
 
 @celery_app.task(bind=True)
 def calculate_account_score(self, account):
-    if not isinstance(type(account), DependentAccount):
+
+    if isinstance(account, DependentAccount):
 
         account.account_score = (account.trends_score + account.qs_score + account.changed_score[0]
-                                 + account.dads_score + account.nr_score + account.ext_score) / 6
+                                 + account.dads_score + account.nr_score + account.ext_score + account.nlc_score) / 7
         account.save()
     else:
-        raise TypeError('Object must be a QuerySet')
+        raise TypeError('Object must be DependentAccount type.')
+
+

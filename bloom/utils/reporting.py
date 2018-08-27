@@ -1237,7 +1237,9 @@ class AdwordsReportingService(AdwordsReporting):
         fields = ["ExtensionType"]
         selector = {
             "fields": fields,
-            "paging": {"startIndex": str(offset), "numberResults": str(PAGE_SIZE)},
+            "paging": {
+                "startIndex": str(offset),
+                "numberResults": str(PAGE_SIZE)},
         }
 
         more_pages = True
@@ -1261,6 +1263,33 @@ class AdwordsReportingService(AdwordsReporting):
             time.sleep(.5)
 
         return results
+
+    def get_attribution_models(self, customer_id=None):
+
+        offset = 0
+        PAGE_SIZE = 500
+        MAX_START_INDEX = 100500
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        service = client.GetService('ConversionTrackerService', version=self.api_version)
+
+
+        fields = ['AttributionModelType']
+
+        selector = {
+            "fields": fields,
+            # "paging": {"startIndex": str(offset), "numberResults": str(PAGE_SIZE)},
+        }
+
+        result = service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
+
 
 class FacebookReporting(Reporting):
     date_format = "%Y-%m-%d"
