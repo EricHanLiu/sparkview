@@ -217,6 +217,7 @@ CRONJOBS = [
     ('25 13 * * *', 'bing_accounts_not_running.main', '> ' + BASE_DIR + '/logs/bing_not_running.log'),
     ('30 13 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
     ('35 13 * * *', 'cron_extensions.main', '> ' + BASE_DIR + '/logs/cron_extensions.log'),
+    ('40 13 * * *', 'cron_nlc_am.main', '> ' + BASE_DIR + '/logs/cron_nlc_am.log'),
 ]
 
 # Bing Stuff
