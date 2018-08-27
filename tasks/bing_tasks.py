@@ -14,7 +14,6 @@ import itertools
 from operator import itemgetter
 
 
-
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
     helper = BingReportingService()
@@ -223,7 +222,6 @@ def bing_cron_alerts(self, customer_id):
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
-        'octavian@hdigital.io',
     ]
 
     ads_score = 0
@@ -298,7 +296,6 @@ def bing_cron_alerts(self, customer_id):
 
 
 def bing_cron_disapproved_ads(account_id, adgroup):
-
     new_ads = []
 
     account = BingAccounts.objects.get(account_id=account_id)
@@ -322,6 +319,7 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
     return new_ads
 
+
 @celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id):
     account = BingAccounts.objects.get(account_id=account_id)
@@ -329,6 +327,7 @@ def bing_cron_campaign_stats(self, account_id):
     helper = BingReportingService()
 
     cmps = []
+    campaigns = []
 
     this_month = helper.get_this_month_daterange()
 
@@ -375,18 +374,38 @@ def bing_cron_campaign_stats(self, account_id):
                 if gr.group_by == 'manual':
                     continue
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
-                        gr.aw_campaigns.remove(c)
+                    if gr.group_by not in c.campaign_name and c in gr.bing_campaigns.all():
+                        gr.bing_campaigns.remove(c)
                         gr.save()
 
-                    elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                        gr.aw_campaigns.add(c)
+                    elif gr.group_by in c.campaign_name and c not in gr.bing_campaigns.all():
+                        gr.bing_campaigns.add(c)
                         gr.save()
 
             gr.current_spend = 0
-            for cmp in gr.bing_campaigns.all():
-                gr.current_spend += cmp.campaign_cost
-                gr.save()
+
+            if gr.start_date:
+                for c in gr.bing_campaigns.all():
+                    campaigns.append(c.campaign_id)
+
+                daterange = helper.create_daterange(gr.start_date, gr.end_date)
+
+                campaigns_this_period = helper.get_campaign_performance(
+                    account_id,
+                    dateRangeType="CUSTOM_DATE",
+                    report_name="campaign_stats_tm",
+                    extra_fields=fields,
+                    **daterange
+                )
+
+                for cmp in campaigns_this_period:
+                    if cmp['campaignid'] in campaigns:
+                        gr.current_spend += float(cmp['spend'])
+                        gr.save()
+            else:
+                for cmp in gr.bing_campaigns.all():
+                    gr.current_spend += cmp.campaign_cost
+                    gr.save()
 
 
 @celery_app.task(bind=True)
@@ -478,7 +497,6 @@ def bing_result_trends(self, customer_id):
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
 
-
     # ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
     # ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
@@ -513,7 +531,6 @@ def bing_result_trends(self, customer_id):
 
 @celery_app.task(bind=True)
 def bing_account_quality_score(self, customer_id):
-
     account = BingAccounts.objects.get(account_id=customer_id)
     helper = BingReportingService()
 
@@ -556,7 +573,7 @@ def bing_account_quality_score(self, customer_id):
             qs_final = total_qs / impressions
         final_[key] = round(qs_final, 2)
         print(key, today.month)
-        if key.split('-')[1] == '0'+ str(today.month):
+        if key.split('-')[1] == '0' + str(today.month):
             for i in range(len(value)):
                 if i < 1000:
                     if float(value[i]["qualityscore"]) < qs_final:
@@ -591,10 +608,8 @@ def bing_account_quality_score(self, customer_id):
     del to_parse[:]
 
 
-
 @celery_app.task(bind=True)
 def bing_accounts_not_running(self, account_id):
-
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
 

@@ -590,9 +590,6 @@ def campaign_groupings(request):
 
     elif request.method == 'POST':
 
-
-        data = request.POST
-        print(data)
         cmps = []
         campaigns = request.POST.getlist('campaigns')
         campaigns = set(campaigns)
@@ -676,24 +673,44 @@ def add_groupings(request):
         group_by = request.POST.get('cgr_group_by')
         budget = request.POST.get('group_budget')
         campaigns = request.POST.getlist('campaigns')
+        flight_date = request.POST.get('cgr_fdate')
 
         response = {}
-        print(request.POST)
+
         if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
 
-            new_group = CampaignGrouping.objects.create(
-                group_name=group_name,
-                group_by=group_by,
-                budget=budget,
-                adwords=account
-            )
+            if group_by == 'text':
+                group_by_text = request.POST.get('cgr_group_by_text')
 
-            if group_by == 'manual':
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    adwords=account
+                )
+
+            elif group_by == 'manual':
+
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by,
+                    budget=budget,
+                    adwords=account
+                )
+
                 for c in campaigns:
                     cmp = Campaign.objects.get(campaign_id=c)
                     new_group.aw_campaigns.add(cmp)
                     new_group.save()
+
+            if flight_date == 'yes':
+                start_date = request.POST.get('cgr_sdate')
+                end_date = request.POST.get('cgr_edate')
+
+                new_group.start_date = start_date
+                new_group.end_date = end_date
+                new_group.save()
 
             response['group_name'] = new_group.group_name
             adwords_tasks.adwords_cron_campaign_stats.delay(account.dependent_account_id)
@@ -701,18 +718,37 @@ def add_groupings(request):
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
 
-            new_group = CampaignGrouping.objects.create(
-                group_name=group_name,
-                group_by=group_by,
-                budget=budget,
-                bing=account
-            )
+            if group_by == 'text':
+                group_by_text = request.POST.get('cgr_group_by_text')
 
-            if group_by == 'manual':
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    bing=account
+                )
+
+            elif group_by == 'manual':
+
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by,
+                    budget=budget,
+                    bing=account
+                )
+
                 for c in campaigns:
                     cmp = BingCampaign.objects.get(campaign_id=c)
                     new_group.bing_campaigns.add(cmp)
                     new_group.save()
+
+            if flight_date == 'yes':
+                start_date = request.POST.get('cgr_sdate')
+                end_date = request.POST.get('cgr_edate')
+
+                new_group.start_date = start_date
+                new_group.end_date = end_date
+                new_group.save()
 
             response['group_name'] = new_group.group_name
             bing_tasks.bing_cron_campaign_stats.delay(account.account_id)
@@ -720,19 +756,37 @@ def add_groupings(request):
         elif channel == 'facebook':
 
             account = FacebookAccount.objects.get(account_id=acc_id)
+            if group_by == 'text':
+                group_by_text = request.POST.get('cgr_group_by_text')
 
-            new_group = CampaignGrouping.objects.create(
-                group_name=group_name,
-                group_by=group_by,
-                budget=budget,
-                facebook=account
-            )
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    facebook=account
+                )
 
-            if group_by == 'manual':
+            elif group_by == 'manual':
+
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by,
+                    budget=budget,
+                    facebook=account
+                )
+
                 for c in campaigns:
                     cmp = FacebookCampaign.objects.get(campaign_id=c)
                     new_group.fb_campaigns.add(cmp)
                     new_group.save()
+
+            if flight_date == 'yes':
+                start_date = request.POST.get('cgr_sdate')
+                end_date = request.POST.get('cgr_edate')
+
+                new_group.start_date = start_date
+                new_group.end_date = end_date
+                new_group.save()
 
             response['group_name'] = new_group.group_name
             facebook_tasks.facebook_cron_campaign_stats.delay(account.account_id)
@@ -752,15 +806,20 @@ def update_groupings(request):
         group_by_edit = data['cgr_group_by_edit']
         campaigns = request.POST.getlist('campaigns_edit')
         channel = data['cgr_channel']
+        start_date = data['cgr_sdate']
+        end_date = data['cgr_edate']
 
         grouping = CampaignGrouping.objects.get(id=gr_id)
         grouping.budget = float(budget)
         grouping.group_name = group_name
 
+        if start_date and end_date:
+            grouping.start_date = start_date
+            grouping.end_date = end_date
+
         if group_by == 'manual':
             for c in campaigns:
                 if channel == 'adwords':
-                    # for campaign in grouping.aw_campaigns.all():
                     if c not in grouping.aw_campaigns.all():
                         cmp = Campaign.objects.get(campaign_id=c)
                         grouping.aw_campaigns.add(cmp)
@@ -833,7 +892,7 @@ def get_campaigns(request):
 
     if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
-        campaigns = Campaign.objects.filter(account=account)
+        campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
         campaigns_json = json.loads(serializers.serialize("json", campaigns))
         response['campaigns'] = campaigns_json
 

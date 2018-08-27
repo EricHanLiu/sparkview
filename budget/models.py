@@ -79,6 +79,8 @@ class CampaignGrouping(models.Model):
     adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
     bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
     
 class Budget(models.Model):
     
