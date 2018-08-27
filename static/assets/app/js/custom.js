@@ -32,6 +32,13 @@ $(document).ready(function () {
         bInfo: false,
     });
 
+    $("#nlc_table").DataTable({
+        bFilter: true,
+        bPaginate: true,
+        pageLength: 5,
+        bInfo: false,
+    });
+
     $("#ext_table").DataTable({
         bFilter: true,
         bPaginate: true,

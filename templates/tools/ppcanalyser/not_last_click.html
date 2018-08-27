@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>Disapproved ads -
+                                <span>NLC Attribution model report -
                                     {% if account.channel == 'adwords' %}
                                         {{ account.dependent_account_name }}
                                     {% else %}
@@ -30,21 +30,22 @@
                                     '{{ account.channel }}')">
                             </i>
                         </div>
+
                         <div class="row">
-                            <div class="col-md-4">
-                                <div id="orangecircle" data-percent="{{ account.dads_score|floatformat:2 }}"
+                            <div class="col-md-3 text-center">
+                                <div id="orangecircle" data-percent="{{ account.nlc_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.dads_score }}</span>
+                                    <span>{{ account.nlc_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        This report shows the number of disapproved ads in this account.
+                                        This report gives you a quick overview of NLC attribution models set on this account.
                                     </div>
                                 </div>
                             </div>
@@ -68,7 +69,8 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            QS Report - {{ account.qs_score|floatformat:2 }}/100
+                                            QS Report -
+                                            {{ account.qs_score|floatformat:2 }}/100
                                         </option>
                                         <option>Wasted spend</option>
                                         <option>Account Activity</option>
@@ -97,7 +99,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Account Errors - {{ account.nr_score }}/100
+                                            Account Errors - {{ account.nr_score|floatformat:2 }}/100
                                         </option>
                                         <option>Tags Report</option>
                                         <option value="extensions"
@@ -125,22 +127,17 @@
                         </div>
                         <div class="m-separator"></div>
                         <div class="row">
-                            {#                            <div class="col-md-6">#}
-                            {#                                <div id="myChart">#}
-                            {#                                    <canvas id="trendsChart"></canvas>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
                             <div class="col-md-12 text-center">
                                 <div class="form-group m-form__group">
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline
-                                            alert alert-danger alert-dismissible fade show" role="alert">
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        alert-danger alert-dismissible fade show"
+                                         role="alert">
                                         <div class="m-alert__icon">
                                             <i class="flaticon-exclamation-1"></i>
                                             <span></span>
                                         </div>
                                         <div class="m-alert__text">
-                                            Please find the disapproved ads and the reason of disapproval in the table
-                                            below.
+                                            You'll find, in the table below, all attribution models that are not LAST_CLICK.
                                         </div>
                                         <div class="m-alert__close">
                                             <button type="button" class="close" data-dismiss="alert"
@@ -150,51 +147,31 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="col-md-2"></div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <table class="table m-table m-table--head-separator-primary" id="qs_table">
-
-                                    {% if account.channel == 'adwords' %}
-                                        <thead>
+                                <table class="table m-table m-table--head-separator-primary" id="nlc_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Category</th>
+                                        <th>Counting Type</th>
+                                        <th>Attribution model type</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in account.nlc_data %}
                                         <tr>
-                                            <th>Campaign</th>
-                                            <th>Ad Group</th>
-                                            <th>Ad Headline</th>
-                                            <th>Alert reason</th>
+                                            <td>{{ item.name }}</td>
+                                            <td>{{ item.status }}</td>
+                                            <td>{{ item.category }}</td>
+                                            <td>{{ item.counting_type }}</td>
+                                            <td>{{ item.attribution_model_type }}</td>
                                         </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for item in alerts %}
-                                            <tr>
-                                                <td>{{ item.campaignName }}</td>
-                                                <td>{{ item.ad_group_name }}</td>
-                                                <td>{{ item.ad_headline }}</td>
-                                                <td>{{ item.alert_reason }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    {% elif account.channel == 'bing' %}
-                                        <thead>
-                                        <tr>
-                                            <th>Campaign</th>
-                                            <th>Ad Group</th>
-                                            <th>Ad Headline</th>
-                                            <th>Alert reason</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for item in alerts %}
-                                            <tr>
-                                                <td>{{ item.metadata.campaignname }}</td>
-                                                <td>{{ item.metadata.adgroupname }}</td>
-                                                <td>{{ item.metadata.ad.TitlePart1 }}</td>
-                                                <td>{{ item.metadata.ad.EditorialStatus }}</td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    {% endif %}
+                                    {% endfor %}
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -214,7 +191,7 @@
             let data = {
                 'account_id': customer_id,
                 'channel': channel,
-                'report': 'disapprovedads'
+                'report': 'nlc'
             };
 
             $.ajax({
@@ -223,7 +200,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for Disapproved ads report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for NLC Attribution report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);

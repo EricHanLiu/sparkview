@@ -19,9 +19,6 @@ let spawnInput = function (iid, account_name) {
         '<option value="NOT_RELATED">Not related</option>' +
         '</select>' +
         '</div>' +
-        //'<div class="col-md-1">' +
-        //'<i class="fa fa-minus-circle" style="margin-left: 20px" onclick="removeInput(' + iid + ')"></i>' +
-        //'</div>' +
         '</div>');
 };
 
@@ -131,6 +128,29 @@ var Select2 = function () {
                     '<i class="fa fa-minus-circle" style="margin-left: 20px" onclick="removeInput(' + iid[0] + ')"></i>' +
                     '</div>' +
                     '</div>' +
+                    '<div class="m-checkbox-inline">\n' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox"> Cross-network' +
+                    '<span></span>' +
+                    '</label>' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox"> Search' +
+                    '<span></span>' +
+                    '</label>' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox"> Display' +
+                    '<span></span>' +
+                    '</label>' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox"> Youtube Search' +
+                    '<span></span>' +
+                    '</label>' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox"> Youtube Videos' +
+                    '<span></span>' +
+                    '</label>' +
+                    '</div>' +
+                    '<div class="m-separator"></div>' +
                     '</div>';
 
                 $('#budget-fields').append(budget_inputs);

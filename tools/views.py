@@ -53,7 +53,7 @@ def account_results(request, account_id, channel):
         'account': account,
         'trends': account.trends
     }
-    return render(request, 'tools/ppcanalyser/account_results.html', context)
+    return render(request, 'tools/ppcanalyser/trends.html', context)
 
 @login_required
 def account_results_weekly(request, account_id, channel):
@@ -70,7 +70,7 @@ def account_results_weekly(request, account_id, channel):
         'trends': account.trends,
         'weekly': account.weekly_data
     }
-    return render(request, 'tools/ppcanalyser/account_results_weekly.html', context)
+    return render(request, 'tools/ppcanalyser/trends_weekly.html', context)
 
 @login_required
 def account_overview(request, account_id, channel):
@@ -194,6 +194,17 @@ def extensions(request, account_id, channel):
     return render(request, 'tools/ppcanalyser/extensions.html', context)
 
 @login_required
+def nlc_attr(request, account_id, channel):
+
+    account = DependentAccount.objects.get(dependent_account_id=account_id)
+
+    context = {
+        'account': account
+    }
+
+    return render(request, 'tools/ppcanalyser/not_last_click.html', context)
+
+@login_required
 def run_reports(request):
 
     data = request.POST
@@ -214,6 +225,8 @@ def run_reports(request):
             adwords_tasks.adwords_account_not_running.delay(account_id)
         elif report == 'extensions':
             adwords_tasks.adwords_account_extensions.delay(account_id)
+        elif report == 'nlc':
+            adwords_tasks.adwords_nlc_attr_model.delay(account_id)
     elif channel == 'bing':
         if report == 'results':
             bing_tasks.bing_result_trends.delay(account_id)
