@@ -1100,7 +1100,7 @@ def adwords_account_wasted_spend(self, customder_id):
     for item in campaign_data:
         cost += helper.mcv(item['cost'])
         conversions += float(item['conversions'])
-
+    # TODO - Deal with ZeroDivisionError
     avg_cost = cost / cmp_no
     avg_conv = conversions / cmp_no
 
@@ -1137,7 +1137,7 @@ def calculate_account_score(self, account):
 
         account.account_score = (account.trends_score + account.qs_score + account.changed_score[0]
                              + account.dads_score + account.nr_score + account.ext_score + account.nlc_score
-                             + account.wspend_score / 8)
+                             + account.wspend_score) / 8
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')

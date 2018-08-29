@@ -700,7 +700,7 @@ def bing_account_wasted_spend(self, account_id):
         conversions += float(item['conversions'])
 
     cmp_no = len(report)
-
+    #TODO - Deal with ZeroDivisionError
     avg_cost = cost / cmp_no
     avg_conv = conversions / cmp_no
 
