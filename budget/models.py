@@ -26,6 +26,8 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
 
+    # Need to add many more fields to this
+
 class ClientCData(models.Model):
 
     client = models.ForeignKey(Client, blank=True, null=True)
@@ -79,9 +81,9 @@ class CampaignGrouping(models.Model):
     adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
     bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
-    
+
 class Budget(models.Model):
-    
+
     adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')

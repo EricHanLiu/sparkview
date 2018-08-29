@@ -6,7 +6,8 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
-from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
+# from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
+from googleads.errors import AdWordsReportBadRequestError
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
@@ -730,7 +731,7 @@ def adwords_account_change_history(self, customer_id):
         'campaignIds': campaign_ids
     }
 
-    if len(campaign_ids) > 0:
+    if len(campaign_ids) > 0 and False:
 
         try:
             account_changes = service.get(selector)

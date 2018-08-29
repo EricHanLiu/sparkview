@@ -329,6 +329,11 @@ $(document).ready(function () {
         $(e.currentTarget).find('input[name="target_spend"]').val(target_spend);
     });
 
+    // Modals for team page
+    $('#m_edit_team').on('show.bs.modal', function (e) {
+
+    });
+
     // Handles the switch between Global Target Spend and normal client budget
     let budget_cbox = $('#m_client_budget_cbox');
     let gts_cbox = $('#m_gts_client_cbox');
