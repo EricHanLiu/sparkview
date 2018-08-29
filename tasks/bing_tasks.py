@@ -700,34 +700,40 @@ def bing_account_wasted_spend(self, account_id):
         conversions += float(item['conversions'])
 
     cmp_no = len(report)
-    #TODO - Deal with ZeroDivisionError
-    avg_cost = cost / cmp_no
-    avg_conv = conversions / cmp_no
+    if cmp_no > 0:
+        avg_cost = cost / cmp_no
+        avg_conv = conversions / cmp_no
 
-    for item in report:
-        if float(item['spend']) > avg_cost and float(item['conversions']) < avg_conv:
-            ws_item = {
-                'campaign_name': item['campaignname'],
-                'campaign_id': item['campaignid'],
-                'conversions': item['conversions'],
-                'spend': item['spend'],
+        for item in report:
+            if float(item['spend']) > avg_cost and float(item['conversions']) < avg_conv:
+                ws_item = {
+                    'campaign_name': item['campaignname'],
+                    'campaign_id': item['campaignid'],
+                    'conversions': item['conversions'],
+                    'spend': item['spend'],
+                    'average_cost': avg_cost,
+                    'average_conversions': avg_conv
+                }
+                ws_data.append(ws_item)
+
+        if len(ws_data) == 0:
+            account.wspend_score = 100.0
+            account.wspend_data = [{
                 'average_cost': avg_cost,
                 'average_conversions': avg_conv
-            }
-            ws_data.append(ws_item)
+            }]
+        else:
+            account.wspend_score = (len(ws_data) * 100) / cmp_no
+            account.wspend_data = ws_data
 
-    if len(ws_data) == 0:
-        account.wspend_score = 100.0
-        account.wspend_data = [{
-            'average_cost': avg_cost,
-            'average_conversions': avg_conv
-        }]
+        account.save()
+        calculate_account_score(account)
     else:
-        account.wspend_score = (len(ws_data) * 100) / cmp_no
-        account.wspend_data = ws_data
+        account.wspend_score = 0.0
+        account.ws_data = []
 
-    account.save()
-    calculate_account_score(account)
+        account.save()
+        calculate_account_score(account)
 
 @celery_app.task(bind=True)
 def calculate_account_score(self, account):
