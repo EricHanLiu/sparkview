@@ -297,6 +297,13 @@ License: You must have a valid license purchased only from themeforest(the above
 									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
 									<ul class="m-menu__subnav">
 										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/users" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													Users
+												</span>
+											</a>
+										</li>
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
 											<a  href="/user_management/members" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Members
@@ -310,6 +317,13 @@ License: You must have a valid license purchased only from themeforest(the above
 												</span>
 											</a>
 										</li>
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/user_management/members/new" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													Add New Member
+												</span>
+											</a>
+										</li>
 									</ul>
 								</div>
 							</li>
@@ -320,7 +334,7 @@ License: You must have a valid license purchased only from themeforest(the above
 							<li class="m-menu__item"  data-redirect="true" aria-haspopup="true">
 								<a  href="/clients" class="m-menu__link ">
 									<span class="m-menu__link-text">
-										Client Area
+										Client Management
 									</span>
 								</a>
 							</li>
@@ -434,6 +448,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<!-- begin::Body -->
 					<div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body">
 						<!-- BEGIN: Left Aside -->
+						{% block leftAside %}
 						<button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn">
 							<i class="la la-close"></i>
 						</button>
@@ -489,6 +504,8 @@ License: You must have a valid license purchased only from themeforest(the above
 						<!-- END: Aside Menu -->
 					</div>
 					<!-- END: Left Aside -->
+					{% endblock %}
+
 					<div class="m-grid__item m-grid__item--fluid m-wrapper">
 						<!-- BEGIN: Subheader -->
 
