@@ -266,8 +266,8 @@ def bing_cron_alerts(self, customer_id):
         ads_score = 0
 
     account.dads_score = ads_score
-    account.account_score = (account.trends_score + account.qs_score + ads_score + account.nr_score) / 4
     account.save()
+    calculate_account_score(account)
 
     if new_ads:
         mail_details = {
@@ -527,6 +527,7 @@ def bing_result_trends(self, customer_id):
     account.trends_score = round(trends_score, 2)
     account.weekly_data = w_data
     account.save()
+    calculate_account_score(account)
 
 
 @celery_app.task(bind=True)
@@ -601,8 +602,8 @@ def bing_account_quality_score(self, customer_id):
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse
-    account.account_score = (account.trends_score + qs_score + account.nr_score + account.dads_score) / 4
     account.save()
+    calculate_account_score(account)
 
     del qs_data[:]
     del to_parse[:]
@@ -664,3 +665,77 @@ def bing_accounts_not_running(self, account_id):
     account.nr_data = cmps
     account.nr_score = nr_score
     account.save()
+
+
+@celery_app.task(bind=True)
+def bing_account_wasted_spend(self, account_id):
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    helper = BingReportingService()
+
+    cost = 0.0
+    conversions = 0.0
+
+    ws_data = []
+
+    this_month = helper.get_this_month_daterange()
+
+    fields = [
+        'CampaignName',
+        'CampaignId',
+        'Spend',
+        'Conversions'
+    ]
+
+    report = helper.get_campaign_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="campaign_stats_tm",
+        extra_fields=fields,
+        **this_month
+    )
+
+    for item in report:
+        cost += float(item['spend'])
+        conversions += float(item['conversions'])
+
+    cmp_no = len(report)
+
+    avg_cost = cost / cmp_no
+    avg_conv = conversions / cmp_no
+
+    for item in report:
+        if float(item['spend']) > avg_cost and float(item['conversions']) < avg_conv:
+            ws_item = {
+                'campaign_name': item['campaignname'],
+                'campaign_id': item['campaignid'],
+                'conversions': item['conversions'],
+                'spend': item['spend'],
+                'average_cost': avg_cost,
+                'average_conversions': avg_conv
+            }
+            ws_data.append(ws_item)
+
+    if len(ws_data) == 0:
+        account.wspend_score = 100.0
+        account.wspend_data = [{
+            'average_cost': avg_cost,
+            'average_conversions': avg_conv
+        }]
+    else:
+        account.wspend_score = (len(ws_data) * 100) / cmp_no
+        account.wspend_data = ws_data
+
+    account.save()
+    calculate_account_score(account)
+
+@celery_app.task(bind=True)
+def calculate_account_score(self, account):
+
+    if isinstance(account, BingAccounts):
+
+        account.account_score = (account.trends_score + account.qs_score + account.dads_score + account.nr_score
+                             + account.wspend_score / 5)
+        account.save()
+    else:
+        raise TypeError('Object must be DependentAccount type.')
