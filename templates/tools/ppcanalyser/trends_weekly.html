@@ -85,10 +85,17 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            QS Report -
-                                            {{ account.qs_score|floatformat:2 }}/100
+                                            QS Report - {{ account.qs_score|floatformat:2 }}/100
                                         </option>
-                                        <option>Wasted spend</option>
+                                        <option value="wspend"
+                                                {% if account.channel == 'adwords' %}
+                                                data-account_id="{{ account.dependent_account_id }}"
+                                                {% else %}
+                                                data-account_id="{{ account.account_id }}"
+                                                {% endif %}
+                                                data-channel="{{ account.channel }}">
+                                            Wasted spend - {{ account.wspend_score|floatformat:2 }}/100
+                                        </option>
                                         <option>Account Activity</option>
                                         <option value="changehistory"
                                                 {% if account.channel == 'adwords' %}

@@ -205,6 +205,24 @@ def nlc_attr(request, account_id, channel):
     return render(request, 'tools/ppcanalyser/not_last_click.html', context)
 
 @login_required
+def wasted_spend(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+
+        context = {
+            'account': account
+        }
+
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+        context = {
+            'account': account
+        }
+
+    return render(request, 'tools/ppcanalyser/wasted_spend.html', context)
+
+@login_required
 def run_reports(request):
 
     data = request.POST
@@ -227,6 +245,8 @@ def run_reports(request):
             adwords_tasks.adwords_account_extensions.delay(account_id)
         elif report == 'nlc':
             adwords_tasks.adwords_nlc_attr_model.delay(account_id)
+        elif report == 'wspend':
+            adwords_tasks.adwords_account_wasted_spend.delay(account_id)
     elif channel == 'bing':
         if report == 'results':
             bing_tasks.bing_result_trends.delay(account_id)
@@ -236,6 +256,8 @@ def run_reports(request):
             bing_tasks.bing_cron_alerts.delay(account_id)
         elif report == 'notrunning':
             bing_tasks.bing_accounts_not_running.delay(account_id)
+        elif report == 'wspend':
+            bing_tasks.bing_account_wasted_spend.delay(account_id)
 
     elif channel == 'facebook':
         pass

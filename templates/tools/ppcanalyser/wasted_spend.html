@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>NLC Attribution model report -
+                                <span>Wasted spend report -
                                     {% if account.channel == 'adwords' %}
                                         {{ account.dependent_account_name }}
                                     {% else %}
@@ -33,9 +33,9 @@
 
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                <div id="orangecircle" data-percent="{{ account.nlc_score|floatformat:2 }}"
+                                <div id="orangecircle" data-percent="{{ account.wspend_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.nlc_score|floatformat:2 }}</span>
+                                    <span>{{ account.wspend_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -45,8 +45,19 @@
                             <div class="col-md-5">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        This report gives you a quick overview of NLC attribution models set on this
-                                        account.
+                                        This report gives you a quick overview of all the
+                                        campaigns in this account that waste your budget.
+                                    </div>
+                                    <div class="alert m-alert m-alert--default" role="alert">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                Avg. spend: {{ account.wspend_data.0.average_cost|floatformat:2 }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                Avg.
+                                                conversions: {{ account.wspend_data.0.average_conversions|floatformat:2 }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -145,8 +156,7 @@
                                             <span></span>
                                         </div>
                                         <div class="m-alert__text">
-                                            You'll find, in the table below, all attribution models that are not
-                                            LAST_CLICK.
+                                            In the table below you'll find campaigns in this account that waste your budget.
                                         </div>
                                         <div class="m-alert__close">
                                             <button type="button" class="close" data-dismiss="alert"
@@ -163,21 +173,17 @@
                                 <table class="table m-table m-table--head-separator-primary" id="nlc_table">
                                     <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                        <th>Category</th>
-                                        <th>Counting Type</th>
-                                        <th>Attribution model type</th>
+                                        <th>Campaign Name</th>
+                                        <th>Spend</th>
+                                        <th>Conversions</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for item in account.nlc_data %}
+                                    {% for item in account.wspend_data %}
                                         <tr>
-                                            <td>{{ item.name }}</td>
-                                            <td>{{ item.status }}</td>
-                                            <td>{{ item.category }}</td>
-                                            <td>{{ item.counting_type }}</td>
-                                            <td>{{ item.attribution_model_type }}</td>
+                                            <td>{{ item.campaign_name }}</td>
+                                            <td>{{ item.spend }}</td>
+                                            <td>{{ item.conversions }}</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
@@ -200,7 +206,7 @@
             let data = {
                 'account_id': customer_id,
                 'channel': channel,
-                'report': 'nlc'
+                'report': 'wspend'
             };
 
             $.ajax({
@@ -209,7 +215,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for NLC Attribution report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Wasted spend report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);

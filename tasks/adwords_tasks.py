@@ -1078,12 +1078,66 @@ def adwords_nlc_attr_model(self, customer_id):
     calculate_account_score(account)
 
 @celery_app.task(bind=True)
+def adwords_account_wasted_spend(self, customder_id):
+
+    # same for kw wastage and display wastage
+    # above avg spend w/ below avg. conversions
+
+    account = DependentAccount.objects.get(dependent_account_id=customder_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    cost = 0.0
+    conversions = 0.0
+    ws_data = []
+
+    campaign_data = helper.get_campaign_performance(
+        customer_id=account.dependent_account_id
+    )
+
+    cmp_no = len(campaign_data)
+
+    for item in campaign_data:
+        cost += helper.mcv(item['cost'])
+        conversions += float(item['conversions'])
+
+    avg_cost = cost / cmp_no
+    avg_conv = conversions / cmp_no
+
+    for cmp in campaign_data:
+        if helper.mcv(cmp['cost']) > avg_cost and float(cmp['conversions']) < avg_conv:
+            ws_item = {
+                'campaign_name': cmp['campaign'],
+                'campaign_id': cmp['campaign_id'],
+                'conversions': cmp['conversions'],
+                'spend': helper.mcv(cmp['cost']),
+                'average_cost': avg_cost,
+                'average_conversions': avg_conv
+            }
+            ws_data.append(ws_item)
+
+    if len(ws_data) == 0:
+        account.wspend_score = 100.0
+        account.wspend_data = [{
+            'average_cost': avg_cost,
+            'average_conversions': avg_conv
+        }]
+    else:
+        account.wspend_score = (len(ws_data) * 100) / cmp_no
+        account.wspend_data = ws_data
+
+    account.save()
+    calculate_account_score()
+
+
+@celery_app.task(bind=True)
 def calculate_account_score(self, account):
 
     if isinstance(account, DependentAccount):
 
         account.account_score = (account.trends_score + account.qs_score + account.changed_score[0]
-                                 + account.dads_score + account.nr_score + account.ext_score + account.nlc_score) / 7
+                             + account.dads_score + account.nr_score + account.ext_score + account.nlc_score
+                             + account.wspend_score / 8)
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')
