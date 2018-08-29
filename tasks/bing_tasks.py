@@ -735,7 +735,7 @@ def calculate_account_score(self, account):
     if isinstance(account, BingAccounts):
 
         account.account_score = (account.trends_score + account.qs_score + account.dads_score + account.nr_score
-                             + account.wspend_score / 5)
+                             + account.wspend_score() / 5
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')
