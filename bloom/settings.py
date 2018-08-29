@@ -188,6 +188,8 @@ ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntf
 
 CRONJOBS = [
     ('55 4 1 * *', 'cron_last_month.main', '> ' + BASE_DIR + '/logs/last_month.log'),
+    ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
+    ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
@@ -218,6 +220,10 @@ CRONJOBS = [
     ('25 13 * * *', 'bing_qualityscore.main', '> ' + BASE_DIR + '/logs/bing_qualityscore_report.log'),
     ('25 13 * * *', 'bing_accounts_not_running.main', '> ' + BASE_DIR + '/logs/bing_not_running.log'),
     ('30 13 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
+    ('35 13 * * *', 'cron_extensions.main', '> ' + BASE_DIR + '/logs/cron_extensions.log'),
+    ('40 13 * * *', 'cron_nlc_am.main', '> ' + BASE_DIR + '/logs/cron_nlc_am.log'),
+    ('50 13 * * *', 'cron_wasted_spend.main', '> ' + BASE_DIR + '/logs/cron_wasted_spend.log'),
+    ('00 14 * * *', 'bing_wasted_spend.main', '> ' + BASE_DIR + '/logs/bing_wasted_spend.log'),
 ]
 
 # Bing Stuff

@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>Change History -
+                                <span>Extensions report -
                                     {% if account.channel == 'adwords' %}
                                         {{ account.dependent_account_name }}
                                     {% else %}
@@ -30,22 +30,24 @@
                                     '{{ account.channel }}')">
                             </i>
                         </div>
+
                         <div class="row">
-                            <div class="col-md-4">
-                                <div id="orangecircle" data-percent="{{ account.changed_score.0|floatformat:2 }}"
+                            <div class="col-md-3 text-center">
+                                <div id="orangecircle" data-percent="{{ account.ext_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.changed_score.0 }}</span>
+                                    <span>{{ account.ext_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        This report shows how many changes have been made at account, campaign and ad
-                                        group level.
+                                        This report gives you a quick overview of available and missing extensions from
+                                        each active campaign on this account.
+
                                     </div>
                                 </div>
                             </div>
@@ -106,7 +108,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Account Errors - {{ account.nr_score }}/100
+                                            Account Errors - {{ account.nr_score|floatformat:2 }}/100
                                         </option>
                                         <option>Tags Report</option>
                                         <option value="extensions"
@@ -136,14 +138,16 @@
                         <div class="row">
                             <div class="col-md-12 text-center">
                                 <div class="form-group m-form__group">
-                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline
-                                            alert alert-danger alert-dismissible fade show" role="alert">
+                                    <div class="m-alert m-alert--icon m-alert--icon-solid m-alert--outline alert
+                                        alert-danger alert-dismissible fade show"
+                                         role="alert">
                                         <div class="m-alert__icon">
                                             <i class="flaticon-exclamation-1"></i>
                                             <span></span>
                                         </div>
                                         <div class="m-alert__text">
-                                            {{ account.changed_score.1 }}
+                                            You'll find, in the table below, the available and missing extensions for
+                                            each campaign in this account.
                                         </div>
                                         <div class="m-alert__close">
                                             <button type="button" class="close" data-dismiss="alert"
@@ -153,12 +157,48 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-2"></div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <div id="myChart">
-                                    <canvas id="changesChart" width="400" height="400"></canvas>
-                                </div>
+                                <table class="table m-table m-table--head-separator-primary" id="ext_table">
+                                    <thead>
+                                    <tr>
+                                        <th>Campaign</th>
+                                        <th>Available extensions</th>
+                                        <th>Missing extensions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for c in campaigns %}
+                                        {% for key, value in account.ext_data.items %}
+                                            {% if key|slugify == c.campaign_id %}
+                                                <tr>
+                                                    <td>
+                                                        {{ c.campaign_name }}
+
+                                                    </td>
+
+                                                    <td>
+                                                        {% for item in value.already %}
+                                                            <span class="m-badge m-badge--success m-badge--wide">
+                                                        {{ item }}
+                                                    </span>
+                                                        {% endfor %}
+                                                    </td>
+                                                    <td>
+                                                        {% for item2 in value.missing %}
+                                                            <span class="m-badge m-badge--danger m-badge--wide">
+                                                        {{ item2 }}
+                                                    </span>
+                                                        {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -171,134 +211,13 @@
 
 
     <script type="text/javascript">
-        let changes = {{ changes|safe }};
-
-        function gen_xy(data) {
-
-            lst = [];
-
-            for (key in data) {
-                if (data.hasOwnProperty(key)) {
-
-                    if (key === 'lastChangeTimestamp') {
-                        continue;
-
-                    }
-
-                    lst.push({
-                        'x': new Date(key),
-                        'y': data[key]
-                    })
-                }
-            }
-
-            lst.sort(function (a, b) {
-                return new Date(b.x) - new Date(a.x);
-            });
-
-            return lst
-        }
-
-        let ch_dataset = gen_xy(changes);
-
-        let config = {
-            // The type of chart we want to create
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: "Changes",
-                    backgroundColor: 'rgba(236, 76, 51)',
-                    borderColor: 'rgb(236, 76, 51)',
-                    data: ch_dataset,
-                    fill: false,
-                    borderWidth: 0.90,
-                },
-                ]
-            },
-
-            // Configuration options go here
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                display: true,
-                title: {
-                    display: true,
-                    text: 'Changes number',
-                    fontSize: 20,
-                    padding: 25,
-                    fontStyle: 'normal'
-                },
-                legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                        usePointStyle: true,
-                        boxWidth: .5,
-
-                    }
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: true,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                elements: {
-                    point: {
-                        pointStyle: 'circle',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        radius: 2.2,
-                        hitRadius: 20,
-                        hoverBorderWidth: 1,
-                    },
-                    line: {
-                        tension: 0.4,
-                    }
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        type: 'time',
-                        time: {
-                            unit: 'month',
-                            tooltipFormat: 'MMM',
-                            displayFormats: {
-                                month: 'MMM'
-                            }
-
-                        },
-                        gridLines: {
-                            display: false,
-                        },
-                    }],
-                    yAxes: [{
-                        display: true,
-                        type: 'linear',
-                        gridLines: {
-                            display: true,
-                        },
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            },
-
-        };
-
-        window.onload = function () {
-            let ctx = document.getElementById('changesChart').getContext('2d');
-            window.myLine = new Chart(ctx, config);
-        };
 
         function runReports(customer_id, channel) {
 
             let data = {
                 'account_id': customer_id,
                 'channel': channel,
-                'report': 'changehistory'
+                'report': 'extensions'
             };
 
             $.ajax({
@@ -307,7 +226,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for Change History report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Extensions report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);

@@ -69,6 +69,42 @@
                                     <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
                                 </div>
                             </div>
+                            <div class="m-separator"></div>
+                            <div class="row text-center">
+                                <div class="col-md-12">
+                                    <div class="progress m-progress--lg">
+                                        {% if client_data.aw_spend %}
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.aw_spend|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A: {{ client_data.aw_spend|floatformat:2 }}
+                                            </div>
+                                        {% endif %}
+                                        {% if client_data.bing_spend %}
+                                            <div class="progress-bar bg-primary" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B: {{ client_data.bing_spend|floatformat:2 }}
+                                            </div>
+                                        {% endif %}
+                                        {% if client_data.fb_spend %}
+                                            <div class="progress-bar" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.fb_spend|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F: {{ client_data.fb_spend }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="black-marker"
+                                             style="width: {{ blackmarker }}%"
+                                             aria-valuenow="{{ blackmarker }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             </p>
 
                             <div class="progress m-progress--lg" style="position: relative;!important;">
@@ -190,12 +226,22 @@
                                                    data-channel="{{ a.channel }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
-                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"></i>
+                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
+                                                        {% if gr.start_date %}
+                                                   data-start_date="{{ gr.start_date }}"
+                                                   data-end_date="{{ gr.end_date }}"
+                                                        {% endif %}></i>
                                             </div>
                                             <div class="col-md-3">Group by: {{ gr.group_by }}</div>
                                             <div class="col-md-3">Spend: {{ gr.current_spend }}</div>
                                             <div class="col-md-3">Budget: {{ gr.budget }}</div>
                                         </div>
+                                        {% if gr.start_date %}
+                                            <div class="row">
+                                                <div class="col-md-6">Start: {{ gr.start_date }}</div>
+                                                <div class="col-md-6">End: {{ gr.end_date }}</div>
+                                            </div>
+                                        {% endif %}
                                         <div class="progress m-progress--lg">
                                             <div class="progress-bar
                                                         {{ gr.current_spend|percentage:gr.budget }}"
@@ -212,7 +258,11 @@
                                         <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in group</a>
                                         <div id="campaigns_{{ gr.id }}" style="display: none">
                                             {% for cmp in gr.aw_campaigns.all %}
-                                                <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                {% if gr.start_date %}
+                                                    <p>{{ cmp.campaign_name }}</p>
+                                                {% else %}
+                                                    <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                {% endif %}
                                             {% endfor %}
                                         </div>
                                     {% endif %}
@@ -326,12 +376,22 @@
                                                    data-channel="{{ b.channel }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
-                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"></i>
+                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
+                                                        {% if gr.start_date %}
+                                                   data-start_date="{{ gr.start_date }}"
+                                                   data-end_date="{{ gr.end_date }}"
+                                                        {% endif %}></i>
                                             </div>
                                             <div class="col-md-3">Group by: {{ gr.group_by }}</div>
                                             <div class="col-md-3">Spend: {{ gr.current_spend }}</div>
                                             <div class="col-md-3">Budget: {{ gr.budget }}</div>
                                         </div>
+                                        {% if gr.start_date %}
+                                            <div class="row">
+                                                <div class="col-md-6">Start: {{ gr.start_date }}</div>
+                                                <div class="col-md-6">End: {{ gr.end_date }}</div>
+                                            </div>
+                                        {% endif %}
                                         <div class="progress m-progress--lg">
                                             <div class="progress-bar
                                                         {{ gr.current_spend|percentage:gr.budget }}"
@@ -348,7 +408,11 @@
                                         <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in group</a>
                                         <div id="campaigns_{{ gr.id }}" style="display: none">
                                             {% for cmp in gr.bing_campaigns.all %}
-                                                <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                {% if gr.start_date %}
+                                                    <p>{{ cmp.campaign_name }}</p>
+                                                {% else %}
+                                                    <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                {% endif %}
                                             {% endfor %}
                                         </div>
                                     {% endif %}
@@ -461,12 +525,22 @@
                                                    data-channel="{{ f.channel }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
-                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"></i>
+                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
+                                                        {% if gr.start_date %}
+                                                   data-start_date="{{ gr.start_date }}"
+                                                   data-end_date="{{ gr.end_date }}"
+                                                        {% endif %}></i>
                                             </div>
                                             <div class="col-md-3">Group by: {{ gr.group_by }}</div>
                                             <div class="col-md-3">Spend: {{ gr.current_spend }}</div>
                                             <div class="col-md-3">Budget: {{ gr.budget }}</div>
                                         </div>
+                                        {% if gr.start_date %}
+                                            <div class="row">
+                                                <div class="col-md-6">Start: {{ gr.start_date }}</div>
+                                                <div class="col-md-6">End: {{ gr.end_date }}</div>
+                                            </div>
+                                        {% endif %}
                                         <div class="progress m-progress--lg">
                                             <div class="progress-bar
                                                         {{ gr.current_spend|percentage:gr.budget }}"
@@ -483,7 +557,11 @@
                                         <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in group</a>
                                         <div id="campaigns_{{ gr.id }}" style="display: none">
                                             {% for cmp in gr.fb_campaigns.all %}
-                                                <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                {% if gr.start_date %}
+                                                    <p>{{ cmp.campaign_name }}</p>
+                                                {% else %}
+                                                    <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                {% endif %}
                                             {% endfor %}
                                         </div>
                                     {% endif %}

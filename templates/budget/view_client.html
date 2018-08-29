@@ -325,9 +325,9 @@
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <input type="text" class="form-control group-name"
-                                           name="cgr_group_name" placeholder="Group name" required>
+                                           name="cgr_group_name" placeholder="Group name" required/>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                <div class="col-lg-5 col-md-5 col-sm-12">
                                     <div class="m-radio-inline">
                                         <label class="m-radio">
                                             <input type="radio" name="cgr_group_by" value="text" id="gr_text"> Text
@@ -338,11 +338,16 @@
                                             Manual
                                             <span></span>
                                         </label>
+                                        <label class="m-checkbox m-checkbox--check-bold">
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate"> Flight
+                                            date
+                                            <span></span>
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="number" class="form-control group_budget" name="group_budget"
-                                           min="0" placeholder="Group budget" required>
+                                           min="0" placeholder="Group budget" required/>
                                 </div>
                             </div>
                         </div>
@@ -352,13 +357,25 @@
                                 <option></option>
                             </select>
                         </div>
+                        <div class="form-group hidden" id="cgr_flight_date">
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control sdate"
+                                           name="cgr_sdate" id="m_datepicker_1" placeholder="Start date">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control edate"
+                                           name="cgr_edate" id="m_datepicker_2" placeholder="End date">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="form-error" class="form-control-feedback form-error has-danger"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="addCampaignGroup()">Submit
-                        </button>
+                        <input type="submit" class="btn btn-success btn-sm" onclick="addCampaignGroup()"/>
                     </div>
                     <div class="col-md-4"></div>
                 </div>
@@ -385,7 +402,7 @@
                                     <input type="text" class="form-control group-name"
                                            name="cgr_group_name" placeholder="Group name" required>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                <div class="col-lg-5 col-md-5 col-sm-12">
                                     <div class="m-radio-inline">
                                         <label class="m-radio">
                                             <input type="radio" name="cgr_group_by" value="text" id="gr_text_edit"> Text
@@ -396,9 +413,14 @@
                                             Manual
                                             <span></span>
                                         </label>
+                                        <label class="m-checkbox m-checkbox--check-bold">
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_edit"> Flight
+                                            date
+                                            <span></span>
+                                        </label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="group_budget">Budget:</label>
                                     <input type="number" class="form-control group_budget" name="group_budget"
                                            min="0" placeholder="Group budget" required>
@@ -411,6 +433,16 @@
                                 <input type="text" class="form-control" name="cgr_group_by_edit"
                                        id="cgr_group_by_edit">
                                 <div id="cmps_in_gr"></div>
+                            </div>
+                            <div class="form-group m-form__group row hidden" id="cgr_flightdate_edit">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control sdate_edit"
+                                           name="cgr_sdate" id="m_datepicker_3_edit" placeholder="Start date">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control edate_edit"
+                                           name="cgr_edate" id="m_datepicker_4_edit" placeholder="End date">
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -1000,34 +1032,100 @@
 
         function addCampaignGroup() {
             let modal = $("#m_add_campaign_group");
-            let data = $("#add_campaign_group").serializeArray();
-            console.log(data);
-            $.ajax({
-                url: '/budget/groupings/create/',
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                type: 'POST',
-                data: data,
-                success: function (data) {
-                    modal.modal('hide');
-                    toastr.success("Campaign group " + data['group_name'] + " added to the database.")
+            let form = $("#add_campaign_group");
+            let data = form.serializeArray();
+
+
+            validator = form.validate({
+                ignore: ":hidden",
+
+                rules: {
+                    cgr_group_name: {
+                        required: true,
+                    },
+                    group_budget: {
+                        required: true,
+                        digits: true,
+                        max: 10000000
+
+                    },
+                    cgr_group_by: {
+                        required: true
+                    },
+                    cgr_group_by_text: {
+                        required: true
+                    },
+                    cgr_sdate: {
+                        required: true,
+                    },
+                    cgr_edate: {
+                        required: true
+                    },
                 },
-                error: function (ajaxContext) {
-                    toastr.error(ajaxContext.statusText);
+
+                //== Validation messages
+                messages: {
+                    cgr_group_name: {
+                        required: 'Please input a group name.',
+                        minlength: jQuery.validator.format('At least {0} characters are required.')
+                    },
+                    group_budget: {
+                        required: 'Please input a budget for the group.',
+                        digits: 'Only digits are allowed in this field.',
+                        max: 'You\'re not allowed to enter numbers bigger than 10000000.'
+                    },
+                    cgr_group_by: {
+                        required: 'Please enter a string text or manually select campaigns.'
+                    },
+                    cgr_sdate: {
+                        required: 'Please select start date.',
+                    },
+                    cgr_edate: {
+                        required: 'Please select end date.',
+                    },
+                    campaigns: {
+                        required: 'Please select at least one campaign.'
+                    },
+                    cgr_group_by_text: {
+                        required: 'Please input a string for automatic grouping.'
+                    }
                 },
-                complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
+                errorElement: 'div',
+                errorLabelContainer: '.form-error',
+
+                //== Display error
+                invalidHandler: function (event, validator) {
+                    toastr.error("There are some errors in your submission. Please correct them.");
                 }
             });
+
+            if (form.valid()) {
+                $.ajax({
+                    url: '/budget/groupings/create/',
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    data: data,
+                    success: function (data) {
+                        modal.modal('hide');
+                        toastr.success("Campaign group " + data['group_name'] + " added to the database.")
+                    },
+                    error: function (ajaxContext) {
+                        toastr.error(ajaxContext.statusText);
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+                    }
+                });
+            }
         }
 
         function updateCampaignGroup() {
 
             var modal = $("#m_edit_campaign_group");
             let data = $("#edit_campaign_group").serializeArray();
-
-
+            console.log(data)
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},

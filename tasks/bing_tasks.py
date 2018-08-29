@@ -5,14 +5,13 @@ from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
 from budget.models import FlightBudget, CampaignGrouping
-from bloom.settings import EMAIL_HOST_USER, MAIL_ADS, TEMPLATE_DIR
+from bloom.settings import EMAIL_HOST_USER, TEMPLATE_DIR
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import itertools
 from operator import itemgetter
-
 
 
 @celery_app.task(bind=True)
@@ -217,6 +216,13 @@ def bing_cron_ovu(self, customer_id):
 
 @celery_app.task(bind=True)
 def bing_cron_alerts(self, customer_id):
+    MAIL_ADS = [
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+    ]
 
     ads_score = 0
     new_ads = []
@@ -260,8 +266,8 @@ def bing_cron_alerts(self, customer_id):
         ads_score = 0
 
     account.dads_score = ads_score
-    account.account_score = (account.trends_score + account.qs_score + ads_score + account.nr_score) / 4
     account.save()
+    calculate_account_score(account)
 
     if new_ads:
         mail_details = {
@@ -290,7 +296,6 @@ def bing_cron_alerts(self, customer_id):
 
 
 def bing_cron_disapproved_ads(account_id, adgroup):
-
     new_ads = []
 
     account = BingAccounts.objects.get(account_id=account_id)
@@ -314,6 +319,7 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
     return new_ads
 
+
 @celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id):
     account = BingAccounts.objects.get(account_id=account_id)
@@ -321,6 +327,7 @@ def bing_cron_campaign_stats(self, account_id):
     helper = BingReportingService()
 
     cmps = []
+    campaigns = []
 
     this_month = helper.get_this_month_daterange()
 
@@ -367,18 +374,38 @@ def bing_cron_campaign_stats(self, account_id):
                 if gr.group_by == 'manual':
                     continue
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
-                        gr.aw_campaigns.remove(c)
+                    if gr.group_by not in c.campaign_name and c in gr.bing_campaigns.all():
+                        gr.bing_campaigns.remove(c)
                         gr.save()
 
-                    elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                        gr.aw_campaigns.add(c)
+                    elif gr.group_by in c.campaign_name and c not in gr.bing_campaigns.all():
+                        gr.bing_campaigns.add(c)
                         gr.save()
 
             gr.current_spend = 0
-            for cmp in gr.bing_campaigns.all():
-                gr.current_spend += cmp.campaign_cost
-                gr.save()
+
+            if gr.start_date:
+                for c in gr.bing_campaigns.all():
+                    campaigns.append(c.campaign_id)
+
+                daterange = helper.create_daterange(gr.start_date, gr.end_date)
+
+                campaigns_this_period = helper.get_campaign_performance(
+                    account_id,
+                    dateRangeType="CUSTOM_DATE",
+                    report_name="campaign_stats_tm",
+                    extra_fields=fields,
+                    **daterange
+                )
+
+                for cmp in campaigns_this_period:
+                    if cmp['campaignid'] in campaigns:
+                        gr.current_spend += float(cmp['spend'])
+                        gr.save()
+            else:
+                for cmp in gr.bing_campaigns.all():
+                    gr.current_spend += cmp.campaign_cost
+                    gr.save()
 
 
 @celery_app.task(bind=True)
@@ -470,7 +497,6 @@ def bing_result_trends(self, customer_id):
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
 
-
     # ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
     # ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
@@ -501,11 +527,11 @@ def bing_result_trends(self, customer_id):
     account.trends_score = round(trends_score, 2)
     account.weekly_data = w_data
     account.save()
+    calculate_account_score(account)
 
 
 @celery_app.task(bind=True)
 def bing_account_quality_score(self, customer_id):
-
     account = BingAccounts.objects.get(account_id=customer_id)
     helper = BingReportingService()
 
@@ -548,7 +574,7 @@ def bing_account_quality_score(self, customer_id):
             qs_final = total_qs / impressions
         final_[key] = round(qs_final, 2)
         print(key, today.month)
-        if key.split('-')[1] == '0'+ str(today.month):
+        if key.split('-')[1] == '0' + str(today.month):
             for i in range(len(value)):
                 if i < 1000:
                     if float(value[i]["qualityscore"]) < qs_final:
@@ -576,17 +602,15 @@ def bing_account_quality_score(self, customer_id):
     account.qs_score = qs_score
     account.qscore_data = qs_data
     account.hist_qs = to_parse
-    account.account_score = (account.trends_score + qs_score + account.nr_score + account.dads_score) / 4
     account.save()
+    calculate_account_score(account)
 
     del qs_data[:]
     del to_parse[:]
 
 
-
 @celery_app.task(bind=True)
 def bing_accounts_not_running(self, account_id):
-
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
 
@@ -641,3 +665,83 @@ def bing_accounts_not_running(self, account_id):
     account.nr_data = cmps
     account.nr_score = nr_score
     account.save()
+
+
+@celery_app.task(bind=True)
+def bing_account_wasted_spend(self, account_id):
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    helper = BingReportingService()
+
+    cost = 0.0
+    conversions = 0.0
+
+    ws_data = []
+
+    this_month = helper.get_this_month_daterange()
+
+    fields = [
+        'CampaignName',
+        'CampaignId',
+        'Spend',
+        'Conversions'
+    ]
+
+    report = helper.get_campaign_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="campaign_stats_tm",
+        extra_fields=fields,
+        **this_month
+    )
+
+    for item in report:
+        cost += float(item['spend'])
+        conversions += float(item['conversions'])
+
+    cmp_no = len(report)
+    if cmp_no > 0:
+        avg_cost = cost / cmp_no
+        avg_conv = conversions / cmp_no
+
+        for item in report:
+            if float(item['spend']) > avg_cost and float(item['conversions']) < avg_conv:
+                ws_item = {
+                    'campaign_name': item['campaignname'],
+                    'campaign_id': item['campaignid'],
+                    'conversions': item['conversions'],
+                    'spend': item['spend'],
+                    'average_cost': avg_cost,
+                    'average_conversions': avg_conv
+                }
+                ws_data.append(ws_item)
+
+        if len(ws_data) == 0:
+            account.wspend_score = 100.0
+            account.wspend_data = [{
+                'average_cost': avg_cost,
+                'average_conversions': avg_conv
+            }]
+        else:
+            account.wspend_score = (len(ws_data) * 100) / cmp_no
+            account.wspend_data = ws_data
+
+        account.save()
+        calculate_account_score(account)
+    else:
+        account.wspend_score = 0.0
+        account.ws_data = []
+
+        account.save()
+        calculate_account_score(account)
+
+@celery_app.task(bind=True)
+def calculate_account_score(self, account):
+
+    if isinstance(account, BingAccounts):
+
+        account.account_score = (account.trends_score + account.qs_score + account.dads_score + account.nr_score
+                             + account.wspend_score) / 5
+        account.save()
+    else:
+        raise TypeError('Object must be DependentAccount type.')

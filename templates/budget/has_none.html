@@ -1,20 +1,20 @@
 <!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% block view_client_block %}
 
 
-{% csrf_token %}
-<div class="tab-content">
-    <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
-        <div class="m-accordion m-accordion--default" id="m_accordion_1"
-             role="tablist">
+    {% csrf_token %}
+    <div class="tab-content">
+        <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
+            <div class="m-accordion m-accordion--default" id="m_accordion_1"
+                 role="tablist">
 
-            <!--begin::Item-->
-            <div class="m-accordion__item">
-                <div class="m-accordion__item-head collapsed" role="tab"
-                     id="m_accordion_1_item_1_head" data-toggle="expand"
-                     href="#m_accordion_1_item_1_body">
+                <!--begin::Item-->
+                <div class="m-accordion__item">
+                    <div class="m-accordion__item-head collapsed" role="tab"
+                         id="m_accordion_1_item_1_head" data-toggle="expand"
+                         href="#m_accordion_1_item_1_body">
                                             <span class="m-accordion__item-icon"><i
                                                     class="fa fa-user-circle"></i></span>
-                    <span class="m-accordion__item-title">
+                        <span class="m-accordion__item-title">
                         {{ client_data.client_name }}
                         <span class="fa fa-pencil-square fa-4x"
                               data-toggle="modal"
@@ -23,50 +23,82 @@
                               data-cname="{{ client_data.client_name }}">
                         </span>
                     </span>
-                    <span class="m-accordion__item-mode" data-toggle="modal" data-target="#m_assign_accounts"></span>
-                </div>
+                        <span class="m-accordion__item-mode" data-toggle="modal"
+                              data-target="#m_assign_accounts"></span>
+                    </div>
 
-                <div class="m-accordion__item-body"
-                     id="m_accordion_1_item_1_body"
-                     role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
-                     data-parent="#m_accordion_1" style="">
-                    <div class="m-accordion__item-content">
-                        <p>
-                        </p>
-                        <div class="row text-center">
-                            <div class="col-md-3">
-                                <label class="m-checkbox m-checkbox--solid">
-                                    <input type="checkbox" {% if client_data.has_gts %} checked {% endif %} }}
-                                           id="m_gts_client_cbox" data-cid="{{ client_data.id }}">
-                                    <b>Global Target Spend</b>
-                                    <span></span>
-                                </label>
+                    <div class="m-accordion__item-body"
+                         id="m_accordion_1_item_1_body"
+                         role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
+                         data-parent="#m_accordion_1" style="">
+                        <div class="m-accordion__item-content">
+                            <p>
+                            </p>
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <label class="m-checkbox m-checkbox--solid">
+                                        <input type="checkbox" {% if client_data.has_gts %} checked {% endif %} }}
+                                               id="m_gts_client_cbox" data-cid="{{ client_data.id }}">
+                                        <b>Global Target Spend</b>
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="m-checkbox m-checkbox--solid">
+                                        <input type="checkbox" {% if client_data.has_budget %} checked {% endif %}
+                                               id="m_client_budget_cbox" data-cid="{{ client_data.id }}">
+                                        <b>Budget</b>
+                                        <span></span>
+                                    </label>
+                                    <span id="m_budget_value"></span>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
+                                    of {{ no_of_days }}
+                                    days
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
+                                </div>
                             </div>
-                            <div class="col-md-2">
-                                <label class="m-checkbox m-checkbox--solid">
-                                    <input type="checkbox" {% if client_data.has_budget %} checked {% endif %}
-                                           id="m_client_budget_cbox" data-cid="{{ client_data.id }}">
-                                    <b>Budget</b>
-                                    <span></span>
-                                </label>
-                                <span id="m_budget_value"></span>
+                            <div class="m-separator"></div>
+                            <div class="row text-center">
+                                <div class="col-md-12">
+                                    {% if client_data.aw_spend %}
+                                        <div class="progress m-progress--lg">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
+                                             aria-valuenow="{{ client_data.aw_spend|div:client_data.budget }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            A: {{ client_data.aw_spend|floatformat:2 }}
+                                        </div>
+                                    {% endif %}
+                                    {% if client_data.bing_spend %}
+                                        <div class="progress-bar bg-primary" role="progressbar"
+                                             style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
+                                             aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            B: {{ client_data.bing_spend|floatformat:2 }}
+                                        </div>
+                                    {% endif %}
+                                    {% if client_data.fb_spend %}
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
+                                             aria-valuenow="{{ client_data.fb_spend|div:client_data.budget }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            F: {{ client_data.fb_spend }}
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-2">
-                                <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
-                            </div>
-                            <div class="col-md-2">
-                                <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
-                                of {{ no_of_days }}
-                                days
-                            </div>
-                            <div class="col-md-3">
-                                <span class="m--font-boldest2">Remaining days</span>: {{ remaining }}
-                            </div>
-                        </div>
-                        </p>
-                        <div class="m-separator m-separator--metal"></div>
-                        <p>
-                        <h3>AdWords Accounts</h3>
+                            </p>
+                            <div class="m-separator m-separator--metal"></div>
+                            <p>
+                            <h3>AdWords Accounts</h3>
                             {% for a in client_data.adwords.all %}
                                 <div class="m-separator"></div>
                                 <span class="m-list-timeline__text">

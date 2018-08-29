@@ -37,39 +37,39 @@ class Reporting:
 
         if change == 0 or change > 0:
             score = 100
-            message = 'The account has had more changes compared to previous month, please review the table below.'
+            message = 'The account has had more changes compared to previous month, please check the chart.'
         elif 0 > change > -9.99:
             score = 90
-            message = 'The account has had more than 5% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 5% less changes compared to previous month, please check the chart.'
         elif 10 > change > -19.99:
             score = 80
-            message = 'The account has had more than 10% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 10% less changes compared to previous month, please check the chart.'
         elif 20 > change > -29.99:
             score = 70
-            message = 'The account has had more than 30% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 30% less changes compared to previous month, please check the chart.'
         elif 30 > change > -39.99:
             score = 60
-            message = 'The account has had more than 40% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 40% less changes compared to previous month, please check the chart.'
         elif 40 > change > -49.99:
             score = 50
-            message = 'The account has had more than 50% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 50% less changes compared to previous month, please check the chart.'
         elif 50 > change > -59.99:
             score = 40
-            message = 'The account has had more than 50% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 50% less changes compared to previous month, please check the chart.'
         elif 60 > change > -69.99:
             score = 30
-            message = 'The account has had more than 60% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 60% less changes compared to previous month, please check the chart.'
         elif 70 > change > -79.99:
             score = 20
-            message = 'The account has had more than 70% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 70% less changes compared to previous month, please check the chart.'
         elif 80 > change > -89.99:
             score = 10
-            message = 'The account has had more than 80% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 80% less changes compared to previous month, please check the chart.'
         elif 90 > change > -99.99:
             score = 0
-            message = 'The account has had more than 90% less changes compared to previous month, please review the table below.'
+            message = 'The account has had more than 90% less changes compared to previous month, please check the chart.'
 
-        return (score, message)
+        return score, message
 
     @staticmethod
     def get_score(change, parameter):
@@ -889,11 +889,25 @@ class AdwordsReporting(Reporting):
             "ServingStatus",
         ]
 
+        predicates = [{
+            "field": "CampaignStatus",
+            "operator": "IN",
+            "values": ["ENABLED"],
+        }, {
+            "field": "ServingStatus",
+            "operator": "IN",
+            "values": ["SERVING"],
+        }]
+
         extra_fields = kwargs.get("extra_fields", None)
 
         if extra_fields:
             fields.extend(extra_fields)
             fields = list(set(fields))
+
+        extra_predicates = kwargs.get('extra_predicates', None)
+        if extra_predicates:
+            predicates.append(extra_predicates)
 
         query = {
             "reportName": "CAMPAIGN_PERFORMANCE",
@@ -902,15 +916,7 @@ class AdwordsReporting(Reporting):
             "downloadFormat": "CSV",
             "selector": {
                 "fields": fields,
-                "predicates": [{
-                    "field": "CampaignStatus",
-                    "operator": "IN",
-                    "values": ["ENABLED"],
-                },{
-                    "field": "ServingStatus",
-                    "operator": "IN",
-                    "values": ["SERVING"],
-                }]
+                "predicates": predicates
             },
         }
 
@@ -1212,6 +1218,78 @@ class AdwordsReportingService(AdwordsReporting):
         if not result:
             return []
         return result['entries']
+
+    def get_account_extensions(self, customer_id=None):
+
+        results = []
+        offset = 0
+        PAGE_SIZE = 500
+        MAX_START_INDEX = 100500
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        service = client.GetService(
+            "CampaignExtensionSettingService", version=self.api_version
+        )
+
+        fields = ["ExtensionType"]
+        selector = {
+            "fields": fields,
+            "paging": {
+                "startIndex": str(offset),
+                "numberResults": str(PAGE_SIZE)},
+        }
+
+        more_pages = True
+        while more_pages:
+            page = service.get(selector)
+            more_pages = offset < int(page["totalNumEntries"])
+
+            if "entries" in page and page["entries"]:
+
+                results.extend(page["entries"])
+                offset += PAGE_SIZE
+
+                if offset > MAX_START_INDEX:
+                    return results
+
+                selector["paging"]["startIndex"] = str(offset)
+
+            else:
+                return results
+
+            time.sleep(.5)
+
+        return results
+
+    def get_attribution_models(self, customer_id=None):
+
+        offset = 0
+        PAGE_SIZE = 500
+        MAX_START_INDEX = 100500
+
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        service = client.GetService('ConversionTrackerService', version=self.api_version)
+
+
+        fields = ['AttributionModelType']
+
+        selector = {
+            "fields": fields,
+            # "paging": {"startIndex": str(offset), "numberResults": str(PAGE_SIZE)},
+        }
+
+        result = service.get(selector)
+
+        if not result:
+            return []
+        return result['entries']
+
 
 class FacebookReporting(Reporting):
     date_format = "%Y-%m-%d"

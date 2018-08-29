@@ -32,6 +32,29 @@ $(document).ready(function () {
         bInfo: false,
     });
 
+    $("#nlc_table").DataTable({
+        bFilter: true,
+        bPaginate: true,
+        pageLength: 5,
+        bInfo: false,
+    });
+
+    $("#ext_table").DataTable({
+        bFilter: true,
+        bPaginate: true,
+        pageLength: 5,
+        bInfo: true,
+        aoColumns: [
+            {
+                'bSearchable': false
+            },
+            {
+                'bSearchable': false
+            },
+            null,
+        ]
+    });
+
     $('#accounts').DataTable({
         'pagingType': 'full_numbers'
     });
@@ -43,23 +66,14 @@ $(document).ready(function () {
 
     $("#adwords_datatable").DataTable({
         'pagingType': "full_numbers"
-        // 'scrollY': '75%',
-        // 'sScrollX': '100%',
-        // 'sScrollXInner': '220%'
     });
 
     $("#campaign_groupings").DataTable({
         'pagingType': "full_numbers"
-        // 'scrollY': '75%',
-        // 'sScrollX': '100%',
-        // 'sScrollXInner': '220%'
     });
 
     $("#clients_last_month").DataTable({
         'pagingType': "full_numbers"
-        // 'scrollY': '75%',
-        // 'sScrollX': '100%',
-        // 'sScrollXInner': '220%'
     });
 
     let table = $("#clients_datatable").DataTable({
@@ -106,27 +120,6 @@ $(document).ready(function () {
             toastr.error('Please select at least one client to delete.');
 
         }
-    });
-
-    let dp1 = $("#m_datepicker_1");
-    let dp2 = $("#m_datepicker_2");
-    let dp3 = $("#m_datepicker_3");
-    let dp4 = $("#m_datepicker_4");
-
-    dp1.on('show.bs.modal', function (event) {
-        x.stopPropagation();
-    });
-
-    dp2.on('show.bs.modal', function (event) {
-        event.stopPropagation();
-    });
-
-    dp3.on('show.bs.modal', function (event) {
-        event.stopPropagation();
-    });
-
-    dp4.on('show.bs.modal', function (event) {
-        event.stopPropagation();
     });
 
     // Get data from page an send it to modal
@@ -203,6 +196,8 @@ $(document).ready(function () {
         let budget = $(e.relatedTarget).data('group_budget');
         let acc_id = $(e.relatedTarget).data('acc_id');
         let channel = $(e.relatedTarget).data('channel');
+        let start_date = $(e.relatedTarget).data('start_date');
+        let end_date = $(e.relatedTarget).data('end_date');
 
         $(e.currentTarget).find('input[name="group_budget"]').val(budget);
         $(e.currentTarget).find('input[name="cgr_group_name"]').val(group_name);
@@ -217,10 +212,23 @@ $(document).ready(function () {
         if (group_by === 'manual') {
 
             $("#gr_manual_edit").prop("checked", true);
+            $("#gr_text_edit").prop("disabled", true);
+            $("#cgr_fdate_edit").prop('disabled', true);
             $($('#campaigns_gr_edit').data('select2').$container).removeClass('hidden');
             $("#cgr_group_by_edit").addClass('hidden');
 
             $("#campaigns_gr_edit").val(null).trigger('change');
+
+            if (start_date) {
+                $("#cgr_fdate_edit").prop('checked', true);
+                $("#cgr_fdate_edit").prop('disabled', true);
+                $("#cgr_flightdate_edit").removeClass('hidden');
+
+                $("#m_datepicker_3_edit").datepicker("setDate", new Date(start_date));
+                $("#m_datepicker_4_edit").datepicker("setDate", new Date(end_date));
+            } else {
+                $("#cgr_fdate_edit").prop('disabled', true);
+            }
 
             $.ajax({
                 url: '/budget/groupings/get_campaigns/',
@@ -272,9 +280,19 @@ $(document).ready(function () {
 
         } else {
             $("#gr_text_edit").prop("checked", true);
+            $("#gr_manual_edit").prop("disabled", true);
             $(e.currentTarget).find('input[name="cgr_group_by_edit"]').val(group_by);
             $($('#campaigns_gr_edit').data('select2').$container).addClass('hidden');
             $("#cgr_group_by_edit").removeClass('hidden');
+
+            if (start_date) {
+                $("#cgr_fdate_edit").prop('checked', true);
+                $("#cgr_fdate_edit").prop('disabled', true);
+                $("#cgr_flightdate_edit").removeClass('hidden');
+
+                $("#m_datepicker_3_edit").datepicker("setDate", new Date(start_date));
+                $("#m_datepicker_4_edit").datepicker("setDate", new Date(end_date));
+            }
         }
 
 
@@ -293,8 +311,8 @@ $(document).ready(function () {
         let edate = $(e.relatedTarget).data('edate');
         let budget = $(e.relatedTarget).data('budget');
 
-        dp3.datepicker("setDate", new Date(sdate));
-        dp4.datepicker("setDate", new Date(edate));
+        $("#m_datepicker_3").datepicker("setDate", new Date(sdate));
+        $("#m_datepicker_4").datepicker("setDate", new Date(edate));
 
         $(".modal-body #fde_acc_name").html(acc_name);
         $(".modal-body #fde_budget_id").val(budget_id);
@@ -434,10 +452,10 @@ $(document).ready(function () {
     $("#gr_text").change(function () {
         $($('#campaigns_gr').data('select2').$container).addClass('hidden');
         $("#campaign_list").append('<input type="text" class="form-control group-by"\n' +
-            'name="cgr_group_by" id="cgr_group_by" placeholder="Group by.." required>');
+            'name="cgr_group_by_text" id="cgr_group_by_text" placeholder="Group by.." required>');
     });
     $("#gr_manual").change(function () {
-        $("#cgr_group_by").remove();
+        $("#cgr_group_by_text").remove();
         $($('#campaigns_gr').data('select2').$container).removeClass('hidden');
 
         data = {
@@ -454,7 +472,7 @@ $(document).ready(function () {
 
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
-                    var new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                    let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                     $("#campaigns_gr").append(new_option).trigger('change');
                 });
             },
@@ -465,6 +483,18 @@ $(document).ready(function () {
             }
 
         });
+    });
+
+    // $("#cgr_fdate").attr('value', 'no');
+    $("#cgr_fdate").change(function () {
+        if (this.checked) {
+            $(this).attr('value', 'yes');
+            $("#cgr_flight_date").removeClass('hidden');
+        } else {
+            $(this).attr('value', 'no');
+            $("#cgr_flight_date").addClass('hidden');
+        }
+
     });
 
     $(function () {
