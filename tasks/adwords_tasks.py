@@ -1127,7 +1127,7 @@ def adwords_account_wasted_spend(self, customder_id):
         account.wspend_data = ws_data
 
     account.save()
-    calculate_account_score()
+    calculate_account_score(account)
 
 
 @celery_app.task(bind=True)
