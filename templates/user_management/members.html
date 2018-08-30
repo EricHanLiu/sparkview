@@ -20,12 +20,101 @@
             </div>
         </div>
         <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="members_datatable">
+          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="members_datatable" style="width:100%;">
             <thead class="thead-inverse">
+              <tr>
+                <th colspan="4">
+                  Member
+                </th>
+                <th colspan="9">
+                  Buffer Time Allocation
+                </th>
+                <th colspan="15">
+                  Skills
+                </th>
+                <th colspan="2">
+                  Incidents
+                </th>
+              </tr>
               <tr>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Team</th>
+                <th>
+                  Role
+                </th>
+                <th>
+                  Buffer Total Percentage
+                </th>
+                <th>
+                  buffer_learning_percentage
+                </th>
+                <th>
+                  buffer_trainers_percentage
+                </th>
+                <th>
+                  buffer_sales_percentage
+                </th>
+                <th>
+                  buffer_planning_percentage
+                </th>
+                <th>
+                  buffer_internal_percentage
+                </th>
+                <th>
+                  buffer_seniority_percentage
+                </th>
+                <th>
+                  buffer_buffer_percentage
+                </th>
+                <th>
+                  buffer_hours_available
+                </th>
+                <th>
+                  skill_seo
+                </th>
+                <th>
+                  skill_cro
+                </th>
+                <th>
+                  skill_fb
+                </th>
+                <th>
+                  skill_adwords
+                </th>
+                <th>
+                  skill_bing
+                </th>
+                <th>
+                  skill_linkedin
+                </th>
+                <th>
+                  skill_pinterest
+                </th>
+                <th>
+                  skill_twitter
+                </th>
+                <th>
+                  skill_english
+                </th>
+                <th>
+                  skill_french
+                </th>
+                <th>
+                  skill_technical
+                </th>
+                <th>
+                  skill_confident
+                </th>
+                <th>
+                  skill_communication
+                </th>
+                <th>
+                  last_skill_check
+                </th>
+                <th>
+                  last_language_check
+                </th>
                 <th>Incident Count</th>
                 <th>Latest Incident</th>
               </tr>
@@ -43,10 +132,85 @@
                   {{ member.team.name }}
                 </td>
                 <td>
+                  {{ member.role }}
+                </td>
+                <td>
                   {{ member.incidents }}
                 </td>
                 <td>
                   {{ member.mostRecentIncident.date }}
+                </td>
+                <td>
+                  Buffer Total Percentage
+                </td>
+                <td>
+                  buffer_learning_percentage
+                </td>
+                <td>
+                  buffer_trainers_percentage
+                </td>
+                <td>
+                  buffer_sales_percentage
+                </td>
+                <td>
+                  buffer_planning_percentage
+                </td>
+                <td>
+                  buffer_internal_percentage
+                </td>
+                <td>
+                  buffer_seniority_percentage
+                </td>
+                <td>
+                  buffer_buffer_percentage
+                </td>
+                <td>
+                  buffer_hours_available
+                </td>
+                <td>
+                  skill_seo
+                </td>
+                <td>
+                  skill_cro
+                </td>
+                <td>
+                  skill_fb
+                </td>
+                <td>
+                  skill_adwords
+                </td>
+                <td>
+                  skill_bing
+                </td>
+                <td>
+                  skill_linkedin
+                </td>
+                <td>
+                  skill_pinterest
+                </td>
+                <td>
+                  skill_twitter
+                </td>
+                <td>
+                  skill_english
+                </td>
+                <td>
+                  skill_french
+                </td>
+                <td>
+                  skill_technical
+                </td>
+                <td>
+                  skill_confident
+                </td>
+                <td>
+                  skill_communication
+                </td>
+                <td>
+                  last_skill_check
+                </td>
+                <td>
+                  last_language_check
                 </td>
               </tr>
               {% endfor %}

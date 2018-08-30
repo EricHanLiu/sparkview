@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 
-from .models import Member, Incident, Team
+from .models import Member, Incident, Team, Role
 from .forms import NewMemberForm, NewTeamForm
 
 @login_required
@@ -23,10 +24,14 @@ def members(request):
 @login_required
 def new_member(request):
     if (request.method == 'GET'):
-        newMemberForm = NewMemberForm()
+        teams        = Team.objects.all()
+        roles        = Role.objects.all()
+        skillOptions = [0, 1, 2, 3]
 
         context = {
-            'form' : newMemberForm
+            'teams'        : teams,
+            'roles'        : roles,
+            'skillOptions' : skillOptions
         }
 
         return render(request, 'user_management/new_member.html', context)
@@ -50,21 +55,26 @@ def new_member(request):
             }
 
             return JsonResponse(response)
-        elif is_email_taken:
-            response = {
-                'error_message': 'Email ' + email + ' already exists.'
-            }
-
-            return JsonResponse(response)
+        # elif is_email_taken:
+        #     response = {
+        #         'error_message': 'Email ' + email + ' already exists.'
+        #     }
+        #
+        #     return JsonResponse(response)
         else:
-            user = User.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
+            #user = User.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
+            user = User(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
 
             if is_staff == 'on':
                 user.is_staff = True
-                user.save()
 
         # Now make the member
-        team = request.POST.get('team')
+        team_id = request.POST.get('team')
+        print("TEAM ID " + str(team_id))
+        team    = Team.objects.get(id=team_id)
+
+        role_id = request.POST.get('role')
+        role    = Role.objects.get(id=role_id)
 
         # Hours
         buffer_total_percentage     = request.POST.get('buffer_total_percentage')
@@ -96,6 +106,8 @@ def new_member(request):
         last_skill_check    = request.POST.get('last_skill_check')
         last_language_check = request.POST.get('last_language_checks')
 
+        user.save()
+
         member = Member.objects.create(
             user=user,
             team=team,
@@ -120,16 +132,12 @@ def new_member(request):
             skill_french=skill_french,
             skill_technical=skill_technical,
             skill_confident=skill_confident,
-            skill_communication=skill_communication,
-            last_skill_check=last_skill_check,
-            last_language_check=last_language_check
+            skill_communication=0, # TODO: Change
+            # last_skill_check=last_skill_check,
+            # last_language_check=last_language_check
         )
 
-        response = {
-            'username' : username
-        }
-
-        return JsonResponse(response)
+        return JsonResponse({'username' : username})
     else:
         return HttpResponse('You are at the wrong place')
 

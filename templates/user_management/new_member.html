@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          <form class="m-form" id="m_form_add_user">
+          <form class="m-form" method="post" id="m_form_add_user">
             {% csrf_token %}
             <div class="m-portlet__body">
               <h3>Basic Information</h3>
@@ -87,14 +87,24 @@
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="buffer_total_percentage">Team:</label>
-                    <input type="text" name="buffer_total_percentage" class="form-control m-input"
-                    placeholder="Please enter total percentage">
+                    <label for="team">Team:</label>
+                    <select class="form-control m-input"
+                            name="team"
+                            style="width: 100%;" required>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
                   </div>
                   <div class="col-md-6">
-                    <label for="buffer_learning_percentage">Role:</label>
-                    <input type="text" name="buffer_learning_percentage" class="form-control m-input"
-                    placeholder="Please enter learning percentage">
+                    <label for="role">Role:</label>
+                    <select class="form-control m-input"
+                            name="role"
+                            style="width: 100%;" required>
+                        {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.name }}</option>
+                        {% endfor %}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -127,24 +137,163 @@
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-3">
-                    <label for="buffer_planning_percentage">Total Percentage:</label>
+                    <label for="buffer_planning_percentage">Planning Percentage:</label>
                     <input type="text" name="buffer_planning_percentage" class="form-control m-input"
-                    placeholder="Please enter total percentage">
+                    placeholder="Please enter planning percentage">
                   </div>
                   <div class="col-md-3">
-                    <label for="buffer_internal_percentage">Learning Percentage:</label>
+                    <label for="buffer_internal_percentage">Internal Percentage:</label>
                     <input type="text" name="buffer_internal_percentage" class="form-control m-input"
-                    placeholder="Please enter learning percentage">
+                    placeholder="Please enter internal percentage">
                   </div>
                   <div class="col-md-3">
-                    <label for="buffer_seniority_percentage">Trainers Percentage:</label>
+                    <label for="buffer_seniority_percentage">Seniority Percentage:</label>
                     <input type="text" name="buffer_seniority_percentage" class="form-control m-input"
-                    placeholder="Please enter trainers percentage">
+                    placeholder="Please enter seniority percentage">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_buffer_percentage">Buffer Percentage:</label>
                     <input type="text" name="buffer_buffer_percentage" class="form-control m-input"
-                    placeholder="Please enter sales percentage">
+                    placeholder="Please enter buffer percentage">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label for="buffer_hours_available">Hours Available:</label>
+                    <input type="text" name="buffer_hours_available" class="form-control m-input"
+                    placeholder="Please enter hours available">
+                  </div>
+                </div>
+              </div>
+              <h3>Member Skills</h3>
+              <hr />
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-2">
+                    <label for="skill_seo">SEO Skill:</label>
+                    <select class="form-control m-input"
+                            name="skill_seo"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_cro">skill_cro:</label>
+                    <select class="form-control m-input"
+                            name="skill_cro"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_fb">skill_fb:</label>
+                    <select class="form-control m-input"
+                            name="skill_fb"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_adwords">skill_adwords:</label>
+                    <select class="form-control m-input"
+                            name="skill_adwords"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_bing">skill_bing:</label>
+                    <select class="form-control m-input"
+                            name="skill_bing"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_linkedin">skill_linkedin:</label>
+                    <select class="form-control m-input"
+                            name="skill_linkedin"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-2">
+                    <label for="skill_pinterest">skill_pinterest:</label>
+                    <select class="form-control m-input"
+                            name="skill_pinterest"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_twitter">skill_twitter:</label>
+                    <select class="form-control m-input"
+                            name="skill_twitter"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_english">skill_english:</label>
+                    <select class="form-control m-input"
+                            name="skill_english"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_french">skill_french:</label>
+                    <select class="form-control m-input"
+                            name="skill_french"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_technical">skill_technical:</label>
+                    <select class="form-control m-input"
+                            name="skill_technical"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="skill_confident">skill_confident:</label>
+                    <select class="form-control m-input"
+                            name="skill_confident"
+                            style="width: 100%;" required>
+                        {% for skillOption in skillOptions %}
+                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                        {% endfor %}
+                    </select>
                   </div>
                 </div>
               </div>

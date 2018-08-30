@@ -76,6 +76,10 @@ $(document).ready(function () {
         'pagingType': "full_numbers"
     });
 
+    $("#members_datatable").DataTable({
+        'scrollX' : true
+    });
+
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
             'targets': 0,

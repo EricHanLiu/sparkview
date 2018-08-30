@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Role at the company (example, Campaign Manager)
 class Role(models.Model):
-    name = models.CharField(max_length=25)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
@@ -33,7 +33,8 @@ class Incident(models.Model):
 # Needed to add many more fields to users (which are employees, also called members)
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    team = models.ForeignKey('Team', on_delete=models.CASCADE, default=None)
+    team = models.ForeignKey('Team', on_delete=models.SET_NULL, default=None, null=True)
+    role = models.ForeignKey('Role', on_delete=models.SET_NULL, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage     = models.FloatField(null=True, blank=True, default=None)

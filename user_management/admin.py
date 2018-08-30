@@ -12,3 +12,7 @@ class TeamAdmin(admin.ModelAdmin):
 @admin.register(Incident)
 class IncidentAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    pass
