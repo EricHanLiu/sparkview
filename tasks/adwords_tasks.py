@@ -138,7 +138,7 @@ def adwords_cron_anomalies(self, customer_id):
         cpc=acc_anomalies['avg._cpc'][0],
         cost_per_conversions=acc_anomalies['cost_/_conv.'][0],
         search_impr_share=acc_anomalies['search_impr._share'][0],
-        metadata=acc_metadata
+        metadata=json.dumps(acc_metadata)
     )
 
     Performance.objects.filter(account=account, performance_type='CAMPAIGN').delete()
@@ -164,7 +164,7 @@ def adwords_cron_anomalies(self, customer_id):
             cost_per_conversions=helper.mcv(cmp["cost_/_conv."][0]),
             cost=helper.mcv(cmp["cost"][0]),
             cpc=helper.mcv(cmp["avg._cpc"][0]),
-            metadata=metadata_cmp
+            metadata=json.dumps(metadata_cmp)
         )
 
 
@@ -230,8 +230,17 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
     ads_score = 0
     new_ads = []
+    cmp_ids = []
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    campaigns = Campaign.objects.filter(
+        account=account,
+        campaign_status='enabled',
+        campaign_serving_status='eligible',
+    )
+
+    for campaign in campaigns:
+        cmp_ids.append(campaign.campaign_id)
 
     alert_type = "DISAPPROVED_AD"
     helper = AdwordsReportingService(get_client())
@@ -239,7 +248,13 @@ def adwords_cron_disapproved_alert(self, customer_id):
         "field": "CombinedApprovalStatus",
         "operator": "EQUALS",
         "values": "DISAPPROVED"
-    }]
+    },
+        {
+            "field": "CampaignId",
+            "operator": "IN",
+            "values": cmp_ids
+        }
+    ]
     extra_fields = ["PolicySummary"]
     try:
         data = helper.get_ad_performance(
@@ -1104,7 +1119,7 @@ def adwords_account_wasted_spend(self, customder_id):
     for item in campaign_data:
         cost += helper.mcv(item['cost'])
         conversions += float(item['conversions'])
-    # TODO - Deal with ZeroDivisionError
+
     if cmp_no > 0:
         avg_cost = cost / cmp_no
         avg_conv = conversions / cmp_no
