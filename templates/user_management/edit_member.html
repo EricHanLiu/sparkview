@@ -14,70 +14,41 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                <span>Add New Member</span>
+                <span>Edit Member</span>
               </h2>
             </div>
           </div>
         </div>
         <div class="m-portlet__body">
-          <form class="m-form" method="post" id="m_form_add_user">
+          <form class="m-form" method="post" id="form_edit_user">
             {% csrf_token %}
             <div class="m-portlet__body">
-              <h3>Basic Information</h3>
+              <h3>Editing {{ member.user.username }}</h3>
               <hr />
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-12">
-                    <label for="input_username">Username:</label>
-                    <input type="text" name="username" class="form-control m-input"
-                    placeholder="Please enter a username">
-                    <span class="m-form__help">Required. 150 characters or fewer.</span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="input_first_name">Password:</label>
-                    <input type="password" name="password" id="password"
-                    class="form-control m-input"
-                    placeholder="********">
-                    <span class="m-form__help">
-                      <p>Your password must contain at least 8 characters and can't be entirely numeric.</p>
-                    </span>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="input_last_name">Password confirmation:</label>
-                    <input type="password" name="confirm_password" class="form-control m-input"
-                    placeholder="********">
-                    <span class="m-form__help">Enter the same password as before, for verification.</span>
-                  </div>
-                </div>
-              </div>
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
                     <label for="input_first_name">First Name:</label>
                     <input type="text" name="first_name" class="form-control m-input"
-                    placeholder="Please enter first name">
+                    placeholder="Please enter first name" value="{{ member.user.first_name }}">
                   </div>
                   <div class="col-md-6">
                     <label for="input_last_name">Last Name:</label>
                     <input type="text" name="last_name" class="form-control m-input"
-                    placeholder="Please enter last name">
+                    placeholder="Please enter last name" value="{{ member.user.last_name }}">
                   </div>
                 </div>
               </div>
               <div class="form-group m-form__group">
                 <label for="input_email">Email address:</label>
                 <input type="email" name="email" class="form-control m-input"
-                placeholder="example@domain.com">
+                placeholder="example@domain.com" value="{{ member.user.email }}">
               </div>
               <div class="m-form__group form-group">
                 <label for="">Permissions:</label>
                 <div class="m-checkbox-list">
                   <label class="m-checkbox">
-                    <input type="checkbox" name="is_staff"> Staff Member
+                    <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %}> Staff Member
                     <span></span>
                   </label>
                 </div>
@@ -92,7 +63,7 @@
                             name="team"
                             style="width: 100%;" required>
                         {% for team in teams %}
-                            <option value="{{ team.id }}">{{ team.name }}</option>
+                            <option value="{{ team.id }}" {% if member.team.id == team.id %} selected {% endif %}>{{ team.name }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -102,7 +73,7 @@
                             name="role"
                             style="width: 100%;" required>
                         {% for role in roles %}
-                            <option value="{{ role.id }}">{{ role.name }}</option>
+                            <option value="{{ role.id }}" {% if member.role.id == role.id %} selected {% endif %}>{{ role.name }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -115,22 +86,22 @@
                   <div class="col-md-3">
                     <label for="buffer_total_percentage">Total Percentage:</label>
                     <input type="text" name="buffer_total_percentage" class="form-control m-input"
-                    placeholder="Please enter total percentage">
+                    placeholder="Please enter total percentage" value="{{ member.buffer_total_percentage }}">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_learning_percentage">Learning Percentage:</label>
                     <input type="text" name="buffer_learning_percentage" class="form-control m-input"
-                    placeholder="Please enter learning percentage">
+                    placeholder="Please enter learning percentage" value="{{ member.buffer_learning_percentage }}">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_trainers_percentage">Trainers Percentage:</label>
                     <input type="text" name="buffer_trainers_percentage" class="form-control m-input"
-                    placeholder="Please enter trainers percentage">
+                    placeholder="Please enter trainers percentage" value="{{ member.buffer_trainers_percentage }}">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_sales_percentage">Sales Percentage:</label>
                     <input type="text" name="buffer_sales_percentage" class="form-control m-input"
-                    placeholder="Please enter sales percentage">
+                    placeholder="Please enter sales percentage" value="{{ member.buffer_sales_percentage }}">
                   </div>
                 </div>
               </div>
@@ -139,22 +110,22 @@
                   <div class="col-md-3">
                     <label for="buffer_planning_percentage">Planning Percentage:</label>
                     <input type="text" name="buffer_planning_percentage" class="form-control m-input"
-                    placeholder="Please enter planning percentage">
+                    placeholder="Please enter planning percentage" value="{{ member.buffer_planning_percentage }}">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_internal_percentage">Internal Percentage:</label>
                     <input type="text" name="buffer_internal_percentage" class="form-control m-input"
-                    placeholder="Please enter internal percentage">
+                    placeholder="Please enter internal percentage" value="{{ member.buffer_internal_percentage }}">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_seniority_percentage">Seniority Percentage:</label>
                     <input type="text" name="buffer_seniority_percentage" class="form-control m-input"
-                    placeholder="Please enter seniority percentage">
+                    placeholder="Please enter seniority percentage" value="{{ member.buffer_seniority_percentage }}">
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_buffer_percentage">Buffer Percentage:</label>
                     <input type="text" name="buffer_buffer_percentage" class="form-control m-input"
-                    placeholder="Please enter buffer percentage">
+                    placeholder="Please enter buffer percentage" value="{{ member.buffer_buffer_percentage }}">
                   </div>
                 </div>
               </div>
@@ -163,7 +134,7 @@
                   <div class="col-md-3">
                     <label for="buffer_hours_available">Hours Available:</label>
                     <input type="text" name="buffer_hours_available" class="form-control m-input"
-                    placeholder="Please enter hours available">
+                    placeholder="Please enter hours available" value="{{ member.buffer_hours_available }}">
                   </div>
                 </div>
               </div>
@@ -177,7 +148,7 @@
                             name="skill_seo"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_seo == skillOption %}selected{% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -187,7 +158,7 @@
                             name="skill_cro"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_cro == skillOption %}selected{% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -197,7 +168,7 @@
                             name="skill_fb"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_fb == skillOption %}selected{% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -207,7 +178,7 @@
                             name="skill_adwords"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_adwords == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -217,7 +188,7 @@
                             name="skill_bing"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_bing == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -227,7 +198,7 @@
                             name="skill_linkedin"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_linkedin == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -241,7 +212,7 @@
                             name="skill_pinterest"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_pinterest == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -251,7 +222,7 @@
                             name="skill_twitter"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_twitter == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -261,7 +232,7 @@
                             name="skill_english"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_english == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -271,7 +242,7 @@
                             name="skill_french"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_french == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -281,7 +252,7 @@
                             name="skill_technical"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_technical == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -291,7 +262,7 @@
                             name="skill_confident"
                             style="width: 100%;" required>
                         {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}">{{ skillOption }}</option>
+                            <option value="{{ skillOption }}" {% if member.skill_confident == skillOption %} selected {% endif %}>{{ skillOption }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -311,7 +282,7 @@
                   </div>
                 </div>
               </div>
-              <input type="submit" value="Submit">
+              <input type="submit" value="Update">
             </div>
           </form>
         </div>

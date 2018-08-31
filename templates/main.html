@@ -33,7 +33,6 @@ License: You must have a valid license purchased only from themeforest(the above
 	});
 	</script>
 
-
 	<!--end::Web font -->
 	<!--begin::Base Styles -->
 	<link href="{% static 'assets/vendors/base/vendors.bundle.css' %}" rel="stylesheet" type="text/css" />
@@ -45,6 +44,10 @@ License: You must have a valid license purchased only from themeforest(the above
 	<!--end::Base Styles -->
 	{#		<link rel="shortcut icon"#}
 	{#          href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>#}
+
+	{% block extraCss %}
+	{% endblock %}
+
 </head>
 <!-- end::Head -->
 <!-- end::Body -->
@@ -311,9 +314,9 @@ License: You must have a valid license purchased only from themeforest(the above
 											</a>
 										</li>
 										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/teams" class="m-menu__link ">
+											<a  href="/user_management/profile" class="m-menu__link ">
 												<span class="m-menu__link-text">
-													Teams
+													Profile
 												</span>
 											</a>
 										</li>
@@ -321,6 +324,14 @@ License: You must have a valid license purchased only from themeforest(the above
 											<a  href="/user_management/members/new" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Add New Member
+												</span>
+											</a>
+										</li>
+										<hr />
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/user_management/teams" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													Teams
 												</span>
 											</a>
 										</li>

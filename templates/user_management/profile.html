@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                        <span>Personal Details</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="input_first_name">First Name:</label>
+                <input type="text"class="form-control m-input" value="{{ member.user.first_name }}" disabled>
+              </div>
+              <div class="col-md-6">
+                <label for="input_last_name">Last Name:</label>
+                <input type="text" class="form-control m-input" value="{{ member.user.last_name }}" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <label for="input_email">Email address:</label>
+            <input type="email" class="form-control m-input" value="{{ member.user.email }}" disabled>
+          </div>
+          <div class="m-form__group form-group">
+            <label for="">Permissions:</label>
+            <div class="m-checkbox-list">
+              <label class="m-checkbox">
+                <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %} disabled> Staff Member
+                <span></span>
+              </label>
+            </div>
+          </div>
+          <h3>Team and Role</h3>
+          <hr />
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="team">Team:</label>
+                <input type="text" class="form-control m-input" value="{{ member.team.name }}" disabled>
+              </div>
+              <div class="col-md-6">
+                <label for="role">Role:</label>
+                <input type="text" class="form-control m-input" value="{{ member.role.name }}" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-8">
+      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                        <span>Hours and Skills</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+          <h3>Hours</h3>
+          <hr />
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_total_percentage">Total Percentage:</label>
+                <input type="text" class="form-control m-input"value="{{ member.buffer_total_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_learning_percentage">Learning Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_learning_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_trainers_percentage">Trainers Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_trainers_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_sales_percentage">Sales Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_sales_percentage }}%" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_planning_percentage">Planning Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_planning_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_internal_percentage">Internal Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_internal_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_seniority_percentage">Seniority Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_seniority_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_buffer_percentage">Buffer Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_buffer_percentage }}%" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_hours_available">Hours Available:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_hours_available }}%" disabled>
+              </div>
+            </div>
+          </div>
+          <br />
+          <h3>Member Skills</h3>
+          <hr />
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-2">
+                <label for="skill_seo">SEO:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_seo }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_cro">CRO:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_cro }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_fb">Facebook:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_fb }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_adwords">Google Ads:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_adwords }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_bing">Bing:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_bing }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_linkedin">LinkedIn:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_linkedin }}" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-2">
+                <label for="skill_pinterest">Pinterest:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_pinterest }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_twitter">Twitter:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_twitter }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_english">English:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_english }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_french">French:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_french }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_technical">Technical:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_technical }}" disabled />
+              </div>
+              <div class="col-md-2">
+                <label for="skill_confident">Confident:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_confident }}" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-2">
+                <label for="skill_communication">Communication:</label>
+                <input type="text" class="form-control m-input" value="{{ member.skill_communication }}" disabled />
+              </div>
+            </div>
+          </div>
+          <br />
+          <h3>Incidents</h3>
+          <hr />
+          {% if member.incidents == 0 %}
+            <p>You have no incidents!</p>
+          {% else %}
+            <table class='table table-striped m-table m-table--head-separator-bloom dataTable'>
+              <thead>
+                <tr>
+                  <th>
+                    Date
+                  </th>
+                  <th>
+                    Description
+                  </th>
+                  <th>
+                    Members
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for incident in incidents %}
+                <tr>
+                  <td>
+                    {{ incident.date }}
+                  </td>
+                  <td>
+                    {{ incident.description }}
+                  </td>
+                  <td>
+                    {% for offender in incident.members.all %}{{ offender }}<br/>{% endfor %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

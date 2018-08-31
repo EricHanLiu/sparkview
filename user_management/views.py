@@ -12,6 +12,20 @@ def index(request):
     return redirect('/user_management/members')
 
 @login_required
+def profile(request):
+    user      = request.user
+    member    = Member.objects.get(user=user)
+    # incidents = Incident.objects.get(user=user)
+    incidents = Incident.objects.filter(members=member)
+
+    context = {
+        'member'    : member,
+        'incidents' : incidents
+    }
+
+    return render(request, 'user_management/profile.html', context)
+
+@login_required
 def members(request):
     members = Member.objects.all()
 
@@ -70,7 +84,6 @@ def new_member(request):
 
         # Now make the member
         team_id = request.POST.get('team')
-        print("TEAM ID " + str(team_id))
         team    = Team.objects.get(id=team_id)
 
         role_id = request.POST.get('role')
@@ -132,7 +145,7 @@ def new_member(request):
             skill_french=skill_french,
             skill_technical=skill_technical,
             skill_confident=skill_confident,
-            skill_communication=0, # TODO: Change
+            skill_communication=skill_communication,
             # last_skill_check=last_skill_check,
             # last_language_check=last_language_check
         )
@@ -142,11 +155,65 @@ def new_member(request):
         return HttpResponse('You are at the wrong place')
 
 @login_required
-def edit_member(request):
+def edit_member(request, id):
     if (request.method == 'POST'):
-        pass
+
+        # Member to update
+        member = get_object_or_404(Member, id=id)
+
+        # User parameters
+        first_name      = request.POST.get('first_name')
+        last_name       = request.POST.get('last_name')
+        email           = request.POST.get('email')
+        is_staff        = request.POST.get('is_staff')
+
+        # Member parameters
+        # Now make the member
+        team_id = request.POST.get('team')
+        team    = Team.objects.get(id=team_id)
+
+        role_id = request.POST.get('role')
+        role    = Role.objects.get(id=role_id)
+
+        # Hours
+        buffer_total_percentage     = request.POST.get('buffer_total_percentage')
+        buffer_learning_percentage  = request.POST.get('buffer_learning_percentage')
+        buffer_trainers_percentage  = request.POST.get('buffer_trainers_percentage')
+        buffer_sales_percentage     = request.POST.get('buffer_sales_percentage')
+        buffer_planning_percentage  = request.POST.get('buffer_planning_percentage')
+        buffer_internal_percentage  = request.POST.get('buffer_internal_percentage')
+        buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
+        buffer_buffer_percentage    = request.POST.get('buffer_buffer_percentage')
+        buffer_hours_available      = request.POST.get('buffer_hours_available')
+
+        # Member skills
+        skill_seo           = request.POST.get('skill_seo')
+        skill_cro           = request.POST.get('skill_cro')
+        skill_fb            = request.POST.get('skill_fb')
+        skill_adwords       = request.POST.get('skill_adwords')
+        skill_bing          = request.POST.get('skill_bing')
+        skill_linkedin      = request.POST.get('skill_linkedin')
+        skill_pinterest     = request.POST.get('skill_pinterest')
+        skill_twitter       = request.POST.get('skill_twitter')
+        skill_english       = request.POST.get('skill_english')
+        skill_french        = request.POST.get('skill_french')
+        skill_technical     = request.POST.get('skill_technical')
+        skill_confident     = request.POST.get('skill_confident')
+        skill_communication = request.POST.get('skill_communication')
     else:
-        return HttpResponse('You are at the wrong place')
+        member = Member.objects.get(id=id)
+        teams  = Team.objects.all()
+        roles  = Role.objects.all()
+        skillOptions = [0, 1, 2, 3]
+
+        context = {
+            'member'       : member,
+            'teams'        : teams,
+            'roles'        : roles,
+            'skillOptions' : skillOptions
+        }
+
+        return render(request, 'user_management/edit_member.html', context)
 
 @login_required
 def teams(request):

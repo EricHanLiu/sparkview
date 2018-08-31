@@ -2,6 +2,23 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
+{% block extraCss %}
+<style>
+  #members_datatable {
+    width: 100%;
+  }
+  .long-header-row {
+    text-align: center;
+  }
+  th {
+    white-space: nowrap;
+  }
+  td {
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
 {% block leftAside %}
 {% endblock %}
 
@@ -20,19 +37,19 @@
             </div>
         </div>
         <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="members_datatable" style="width:100%;">
+          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="members_datatable">
             <thead class="thead-inverse">
-              <tr>
-                <th colspan="4">
+              <tr class="long-header-row">
+                <th colspan="4" style="background: #a5c7ff;">
                   Member
                 </th>
-                <th colspan="9">
+                <th colspan="9" style="background: #30c141;">
                   Buffer Time Allocation
                 </th>
-                <th colspan="15">
+                <th colspan="15" style="background: #fc9374;">
                   Skills
                 </th>
-                <th colspan="2">
+                <th colspan="2" style="background: #f268ff;">
                   Incidents
                 </th>
               </tr>
@@ -44,76 +61,76 @@
                   Role
                 </th>
                 <th>
-                  Buffer Total Percentage
+                  Total
                 </th>
                 <th>
-                  buffer_learning_percentage
+                  Learning
                 </th>
                 <th>
-                  buffer_trainers_percentage
+                  Trainers
                 </th>
                 <th>
-                  buffer_sales_percentage
+                  Sales
                 </th>
                 <th>
-                  buffer_planning_percentage
+                  Planning
                 </th>
                 <th>
-                  buffer_internal_percentage
+                  Internal
                 </th>
                 <th>
-                  buffer_seniority_percentage
+                  Seniority
                 </th>
                 <th>
-                  buffer_buffer_percentage
+                  Percentage
                 </th>
                 <th>
-                  buffer_hours_available
+                  Hours Available
                 </th>
                 <th>
-                  skill_seo
+                  SEO
                 </th>
                 <th>
-                  skill_cro
+                  CRO
                 </th>
                 <th>
-                  skill_fb
+                  FB
                 </th>
                 <th>
-                  skill_adwords
+                  Adwords
                 </th>
                 <th>
-                  skill_bing
+                  Bing
                 </th>
                 <th>
-                  skill_linkedin
+                  LinkedIn
                 </th>
                 <th>
-                  skill_pinterest
+                  Pinterest
                 </th>
                 <th>
-                  skill_twitter
+                  Twitter
                 </th>
                 <th>
-                  skill_english
+                  English
                 </th>
                 <th>
-                  skill_french
+                  French
                 </th>
                 <th>
-                  skill_technical
+                  Technical
                 </th>
                 <th>
-                  skill_confident
+                  Confident
                 </th>
                 <th>
-                  skill_communication
+                  Communication
                 </th>
                 <th>
-                  last_skill_check
+                  Last Check
                 </th>
                 <th>
-                  last_language_check
+                  Last Language Check
                 </th>
                 <th>Incident Count</th>
                 <th>Latest Incident</th>
@@ -135,82 +152,82 @@
                   {{ member.role }}
                 </td>
                 <td>
+                  {{ member.buffer_total_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_learning_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_trainers_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_sales_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_planning_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_internal_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_seniority_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_buffer_percentage }}
+                </td>
+                <td>
+                  {{ member.buffer_hours_available }}
+                </td>
+                <td>
+                  {{ member.skill_seo }}
+                </td>
+                <td>
+                  {{ member.skill_cro }}
+                </td>
+                <td>
+                  {{ member.skill_fb }}
+                </td>
+                <td>
+                  {{ member.skill_adwords }}
+                </td>
+                <td>
+                  {{ member.skill_bing }}
+                </td>
+                <td>
+                  {{ member.skill_linkedin }}
+                </td>
+                <td>
+                  {{ member.skill_pinterest }}
+                </td>
+                <td>
+                  {{ member.skill_twitter }}
+                </td>
+                <td>
+                  {{ member.skill_english }}
+                </td>
+                <td>
+                  {{ member.skill_french }}
+                </td>
+                <td>
+                  {{ member.skill_technical }}
+                </td>
+                <td>
+                  {{ member.skill_confident }}
+                </td>
+                <td>
+                  {{ member.skill_communication }}
+                </td>
+                <td>
+                  {{ member.last_skill_check }}
+                </td>
+                <td>
+                  {{ member.last_language_check }}
+                </td>
+                <td>
                   {{ member.incidents }}
                 </td>
                 <td>
                   {{ member.mostRecentIncident.date }}
-                </td>
-                <td>
-                  Buffer Total Percentage
-                </td>
-                <td>
-                  buffer_learning_percentage
-                </td>
-                <td>
-                  buffer_trainers_percentage
-                </td>
-                <td>
-                  buffer_sales_percentage
-                </td>
-                <td>
-                  buffer_planning_percentage
-                </td>
-                <td>
-                  buffer_internal_percentage
-                </td>
-                <td>
-                  buffer_seniority_percentage
-                </td>
-                <td>
-                  buffer_buffer_percentage
-                </td>
-                <td>
-                  buffer_hours_available
-                </td>
-                <td>
-                  skill_seo
-                </td>
-                <td>
-                  skill_cro
-                </td>
-                <td>
-                  skill_fb
-                </td>
-                <td>
-                  skill_adwords
-                </td>
-                <td>
-                  skill_bing
-                </td>
-                <td>
-                  skill_linkedin
-                </td>
-                <td>
-                  skill_pinterest
-                </td>
-                <td>
-                  skill_twitter
-                </td>
-                <td>
-                  skill_english
-                </td>
-                <td>
-                  skill_french
-                </td>
-                <td>
-                  skill_technical
-                </td>
-                <td>
-                  skill_confident
-                </td>
-                <td>
-                  skill_communication
-                </td>
-                <td>
-                  last_skill_check
-                </td>
-                <td>
-                  last_language_check
                 </td>
               </tr>
               {% endfor %}

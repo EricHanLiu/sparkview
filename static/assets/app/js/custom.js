@@ -77,7 +77,8 @@ $(document).ready(function () {
     });
 
     $("#members_datatable").DataTable({
-        'scrollX' : true
+        'scrollX' : true,
+        'ordering': false
     });
 
     let table = $("#clients_datatable").DataTable({
