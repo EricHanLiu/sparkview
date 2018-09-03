@@ -24,8 +24,8 @@
             <tr>
                 <td style="border: 1px solid #e2e2e2;">{{ a.account }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ a.channel|title }}</td>
-                <td style="border: 1px solid #e2e2e2; background: red">{{ a.budget }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ a.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.budget }}</td>
+                <td style="border: 1px solid #e2e2e2; background: red">{{ a.current_spend }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ a.projected }}</td>
             </tr>
         {% empty %}
@@ -43,7 +43,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td>No accounts to display.</td>
+                <td>No account will overspend. :)</td>
             </tr>
         {% endfor %}
     </table>
@@ -91,7 +91,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td>I couldn't find any account that is on pace.</td>
+                <td>I couldn't find any account on pace.</td>
             </tr>
         {% endfor %}
     </table>
