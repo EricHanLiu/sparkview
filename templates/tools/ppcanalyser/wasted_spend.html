@@ -176,6 +176,9 @@
                                         <th>Campaign Name</th>
                                         <th>Spend</th>
                                         <th>Conversions</th>
+                                        {% if account.channel == 'adwords' %}
+                                            <th>View-through Conversions</th>
+                                        {% endif %}
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -184,6 +187,9 @@
                                             <td>{{ item.campaign_name }}</td>
                                             <td>{{ item.spend }}</td>
                                             <td>{{ item.conversions }}</td>
+                                            {% if account.channel == 'adwords' %}
+                                                <td>{{ item.view_through_conv }}</td>
+                                            {% endif %}
                                         </tr>
                                     {% endfor %}
                                     </tbody>
