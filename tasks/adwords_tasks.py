@@ -739,6 +739,7 @@ def adwords_account_quality_score(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_account_change_history(self, customer_id):
+
     MAIL_ADS = [
         'xurxo@makeitbloom.com',
         'jeff@makeitbloom.com',
@@ -753,14 +754,14 @@ def adwords_account_change_history(self, customer_id):
 
     today = datetime.today()
 
-    fminDateL = today.replace(day=1) - relativedelta(months=2)
-    fmaxDateL = today.replace(day=31) - relativedelta(months=2)
+    fminDateL = (today - relativedelta(months=2)).replace(day=1)
+    fmaxDateL = fminDateL.replace(day=calendar.monthrange(fminDateL.year, fminDateL.month)[1])
 
     minDate = today.replace(day=1)
-    maxDate = today.replace(day=31)
+    maxDate = today.replace(day=calendar.monthrange(minDate.year, minDate.month)[1])
 
-    minDateL = today.replace(day=1) - relativedelta(months=1)
-    maxDateL = today.replace(day=31) - relativedelta(months=1)
+    minDateL = (today - relativedelta(months=1)).replace(day=1)
+    maxDateL = minDateL.replace(day=calendar.monthrange(minDateL.year, minDateL.month)[1])
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
@@ -1068,7 +1069,7 @@ def adwords_nlc_attr_model(self, customer_id):
     nlc_data = []
 
     for item in nlc_am:
-        if item['attributionModelType'] != 'LAST_CLICK' and item['status'] == 'ENABLED':
+        if item['attributionModelType'] == 'LAST_CLICK' and item['status'] == 'ENABLED':
             nlc_item = {
                 'id': item['id'],
                 'name': item['name'],
@@ -1105,7 +1106,9 @@ def adwords_account_wasted_spend(self, customder_id):
     cost = 0.0
     conversions = 0.0
     ws_data = []
-    extra_fields=['ViewThroughConversions']
+    extra_fields=[
+        'ViewThroughConversions'
+    ]
 
     daterange = helper.get_this_month_daterange()
 
