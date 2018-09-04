@@ -10,14 +10,14 @@
 
 <div class="portlet"
      style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">Accounts flagged to over on underspend:</h4>
+    <h4 style="text-align: center; color: #444;">Accounts flagged to over or underspend:</h4>
     <table style="background: #FFF; text-align: center; width: 100%;">
         <tr>
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Account Name</th>
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Platform</th>
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Current Total Spend</th>
-            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Project Spend EOM</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM</th>
 
         </tr>
         {% for a in over %}
@@ -43,7 +43,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td>No account will overspend. :)</td>
+                <td>No account will underspend. :)</td>
             </tr>
         {% endfor %}
     </table>
