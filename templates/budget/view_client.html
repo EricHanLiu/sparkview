@@ -384,6 +384,79 @@
     </div>
     <!--END:Modal add_campaign_group-->
 
+    <!--START:Modal add_campaign_group-->
+    <div class="modal fade" id="m_add_campaign_group_across" tabindex="-1" role="dialog" aria-labelledby="add_campaign_group">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="add_campaign_group">
+                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">
+                        <input type="hidden" name="cgr_channel" id="cgr_channel">
+                        <p>Add campaign group across platforms</p>
+                        <div class="form-group">
+
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control group-name"
+                                           name="cgr_group_name" placeholder="Group name" required/>
+                                </div>
+                                <div class="col-lg-5 col-md-5 col-sm-12">
+                                    <div class="m-radio-inline">
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text"> Text
+                                            <span></span>
+                                        </label>
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="manual" id="gr_manual">
+                                            Manual
+                                            <span></span>
+                                        </label>
+                                        <label class="m-checkbox m-checkbox--check-bold">
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate"> Flight
+                                            date
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control group_budget" name="group_budget"
+                                           min="0" placeholder="Group budget" required/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="campaign_list">
+                            <select class="form-control m-input--large" name="campaigns"
+                                    multiple="multiple" id="campaigns_gr" style="width: 100%;">
+                                <option></option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="cgr_flight_date">
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control sdate"
+                                           name="cgr_sdate" id="m_datepicker_1" placeholder="Start date">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control edate"
+                                           name="cgr_edate" id="m_datepicker_2" placeholder="End date">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="form-error" class="form-control-feedback form-error has-danger"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center">
+                        <input type="submit" class="btn btn-success btn-sm" onclick="addCampaignGroup()"/>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal add_campaign_group-->
+
     <!--START:Modal edit_campaign_group-->
     <div class="modal fade" id="m_edit_campaign_group" tabindex="-1" role="dialog"
          aria-labelledby="edit_campaign_group">
@@ -579,9 +652,9 @@
 
         function generateChart(data) {
 
-            var new_awb = gen_xy(data.aw_budget);
-            var new_aws = gen_xy(data.aw_spend);
-            var new_awp = gen_xy(data.aw_projected);
+            {#var new_awb = gen_xy(data.aw_budget);#}
+            {#var new_aws = gen_xy(data.aw_spend);#}
+            {#var new_awp = gen_xy(data.aw_projected);#}
 
             var new_bingb = gen_xy(data.bing_budget);
             var new_bings = gen_xy(data.bing_spend);

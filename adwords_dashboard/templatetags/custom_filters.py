@@ -1,7 +1,7 @@
 from django import template
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import calendar
+from calendar import monthrange
 
 register = template.Library()
 
@@ -102,15 +102,8 @@ def daily_spend(spend):
 def projected(spend, yspend):
 
     today = datetime.today() - relativedelta(days=1)
-    d_spend = spend / today.day
-    next_month = datetime(
-        year=today.year,
-        month=((today.month + 1) % 12),
-        day=1
-    )
-    lastday_month = next_month + relativedelta(days=-1)
-    black_marker = (today.day / lastday_month.day) * 100
-    remaining = lastday_month.day - today.day
+    lastday_month = monthrange(today.year, today.month)
+    remaining = lastday_month[1] - today.day
 
     # projected value
     rval = spend + (yspend * remaining)

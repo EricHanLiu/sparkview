@@ -1,8 +1,10 @@
 import os
 import django
+import collections
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 django.setup()
 from budget.models import Client, ClientCData
+from calendar import monthrange
 from datetime import datetime
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
@@ -17,14 +19,8 @@ def perdelta(start, end, delta):
 def projected(spend, yspend):
 
     today = datetime.today() - relativedelta(days=1)
-    d_spend = spend / today.day
-    next_month = datetime(
-        year=today.year,
-        month=((today.month + 1) % 12),
-        day=1
-    )
-    lastday_month = next_month + relativedelta(days=-1)
-    remaining = lastday_month.day - today.day
+    lastday_month = monthrange(today.year, today.month)
+    remaining = lastday_month[1] - today.day
 
     # projected value
     rval = spend + (yspend * remaining)
@@ -35,7 +31,9 @@ def main():
 
     today = date.today() - relativedelta(days=1)
     first_day = date(today.year, today.month, 1)
-    last_day = date(today.year, today.month, 1) + relativedelta(months=1, days=-1)
+    last_day = date(today.year, today.month, monthrange(today.year, today.month)[1])
+
+    remaining = last_day.day - today.day
 
     pdays = []
     bdays = []
@@ -92,8 +90,9 @@ def main():
                         aw_temp = aw_temp + float(int(v['cost']) / 1000000)
                     aw_spend[v['day']] = round(aw_temp, 2)
 
-                aw_projected_val = projected(client.aw_spend, a.yesterday_spend)
-                aw_projected_per_day = aw_projected_val / last_day.day
+                aw_projected_val = projected(a.current_spend, a.yesterday_spend)
+
+                aw_projected_per_day = (aw_projected_val - a.current_spend) / remaining
                 for index, val in enumerate(pdays):
                     aw_projected[val.strftime("%Y-%m-%d")] = round((aw_projected_per_day * index) + a.current_spend, 2)
 
@@ -118,8 +117,8 @@ def main():
                     b_temp = b_temp + float(v['spend'])
                     bing_spend[v['gregoriandate']] = round(b_temp, 2)
 
-                bing_projected_val = projected(client.bing_spend, b.yesterday_spend)
-                bing_projected_per_day = bing_projected_val / last_day.day
+                bing_projected_val = projected(b.current_spend, b.yesterday_spend)
+                bing_projected_per_day = (bing_projected_val - b.current_spend) / remaining
                 for index, val in enumerate(pdays):
                     bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend, 2)
 
@@ -146,8 +145,8 @@ def main():
                     fb_temp = fb_temp + float(v)
                     fb_spend[k] = round(fb_temp, 2)
 
-                fb_projected_val = projected(client.fb_spend, f.yesterday_spend)
-                fb_projected_per_day = fb_projected_val / last_day.day
+                fb_projected_val = projected(f.current_spend, f.yesterday_spend)
+                fb_projected_per_day = (fb_projected_val - f.current_spend) / remaining
                 for index, val in enumerate(pdays):
                     fb_projected[val.strftime("%Y-%m-%d")] = round((fb_projected_per_day * index) + f.current_spend, 2)
 
