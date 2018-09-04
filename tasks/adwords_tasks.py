@@ -956,17 +956,20 @@ def adwords_cron_no_changes(self):
         if 'lastChangeTimestamp' in account.changed_data and account.changed_data['lastChangeTimestamp'] == 'TOO_MANY':
             print('No mail sent, too many changes were made on this account.')
         elif 'lastChangeTimestamp' in account.changed_data:
+
             last_change = account.changed_data['lastChangeTimestamp']
+            if last_change == 'NOT_FOUND':
+                continue
+            else:
+                date_format = "%Y%m%d"
+                today = date.today().day
+                s = last_change.strip(' ')
+                s_dt = s[0:8]
+                last_change_day = datetime.strptime(s_dt, date_format).date()
+                last_change_dt = today - last_change_day.day
 
-            date_format = "%Y%m%d"
-            today = date.today().day
-            s = last_change.strip(' ')
-            s_dt = s[0:8]
-            last_change_day = datetime.strptime(s_dt, date_format).date()
-            last_change_dt = today - last_change_day.day
-
-            if last_change_dt >= 14:
-                accs.append(account)
+                if last_change_dt >= 14:
+                    accs.append(account)
 
         elif len(account.changed_data) == 0:
             accs.append(account)
