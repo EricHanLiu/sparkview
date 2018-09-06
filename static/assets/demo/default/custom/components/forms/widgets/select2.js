@@ -575,6 +575,29 @@ var Select2 = function () {
         $("#select_labels3").select2({
             placeholder: "Search labels..."
         });
+
+        $("#select_accounts_cgr").select2({
+           placeholder: "Select account..."
+        });
+
+        $("#select_accounts_cgr").on('select2:select', function (e) {
+
+            let select_campaigns = $("#campaigns_gr_across");
+
+            select_campaigns.empty().trigger('change');
+            $('#gr_manual_across').prop('checked', false);
+            $('#gr_text_across').prop('checked', false);
+            $('#cgr_fdate_across').prop('checked', false);
+            $(select_campaigns.data('select2').$container).addClass('hidden');
+            $("#cgr_group_by_text").remove();
+            $("#cgr_flight_date_across").addClass('hidden');
+
+            $('#m_add_campaign_group_across').find('input[name=cgr_channel]').val(
+                $("#select_accounts_cgr").find(':selected').data('channel')
+            );
+
+
+        });
     };
     return {
         init: function () {

@@ -9,6 +9,7 @@ from django.conf import settings
 import json
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks
+from datetime import datetime
 
 # Create your views here.
 @login_required
@@ -131,12 +132,21 @@ def change_history(request, account_id, channel):
         account = DependentAccount.objects.get(dependent_account_id=account_id)
         campaigns = Campaign.objects.filter(account=account)
         adgroups = Adgroup.objects.filter(account=account)
+        print(account.changed_data)
+        try:
+            last_change_val = account.changed_data['lastChangeTimestamp'].strip(' ')[0:8]
+            last_change = datetime.strptime(last_change_val, "%Y%m%d").date()
+        except KeyError:
+            last_change = 'Not found'
+        except ValueError:
+            last_change = 'Not found'
 
         context = {
             'account': account,
             'campaigns': campaigns,
             'adgroups': adgroups,
-            'changes': account.changed_data
+            'changes': account.changed_data,
+            'last_change': last_change
         }
 
     elif channel == 'bing':
