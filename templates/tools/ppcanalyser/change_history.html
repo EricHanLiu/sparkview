@@ -48,11 +48,8 @@
                                         group level.
                                     </div>
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        {% if last_change|get_type == 'datetime.date' %}
-                                            Last change: {{ last_change|date:"l, d F Y" }}
-                                        {% else %}
-                                            Last change: {{ last_change }}
-                                        {% endif %}
+                                        <p>Last change: {{ last_change|date_or_string }}</p>
+                                        Days since last change: {{ lc_diff }}
                                     </div>
                                 </div>
                             </div>

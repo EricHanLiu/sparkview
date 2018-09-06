@@ -1,5 +1,5 @@
 from django import template
-from datetime import datetime
+import datetime
 from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
@@ -14,8 +14,8 @@ def get_dict_value(data, key):
 
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
-    today = datetime.today() - relativedelta(days=1)
-    next_month = datetime(
+    today = datetime.datetime.today() - relativedelta(days=1)
+    next_month = datetime.datetime(
         year=today.year,
         month=((today.month + 1) % 12),
         day=1
@@ -47,6 +47,14 @@ def startswith(text, starts):
 @register.filter(name='get_type')
 def get_type(value):
     return type(value)
+
+@register.filter(name='date_or_string')
+def date_or_string(value):
+
+    if isinstance(value, str):
+        return value
+    else:
+        return value.strftime("%A, %d %B %Y")
 
 @register.filter(name='uni2float')
 def uni2float(value):
@@ -91,7 +99,7 @@ def percentage(spend, budget):
 @register.filter(name='daily_spend')
 def daily_spend(spend):
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.datetime.today() - relativedelta(days=1)
 
     value = spend / today.day
 
@@ -101,7 +109,7 @@ def daily_spend(spend):
 @register.filter(name='projected')
 def projected(spend, yspend):
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.datetime.today() - relativedelta(days=1)
     lastday_month = monthrange(today.year, today.month)
     remaining = lastday_month[1] - today.day
 

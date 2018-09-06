@@ -128,6 +128,8 @@ def disapproved_ads(request, account_id, channel):
 @login_required
 def change_history(request, account_id, channel):
 
+    today = datetime.today()
+
     if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
         campaigns = Campaign.objects.filter(account=account)
@@ -136,17 +138,21 @@ def change_history(request, account_id, channel):
         try:
             last_change_val = account.changed_data['lastChangeTimestamp'].strip(' ')[0:8]
             last_change = datetime.strptime(last_change_val, "%Y%m%d").date()
+            lc_diff = today.day - last_change.day
         except KeyError:
             last_change = 'Not found'
+            lc_diff = 'Not found'
         except ValueError:
             last_change = 'Not found'
+            lc_diff = 'Not found'
 
         context = {
             'account': account,
             'campaigns': campaigns,
             'adgroups': adgroups,
             'changes': account.changed_data,
-            'last_change': last_change
+            'last_change': last_change,
+            'lc_diff': lc_diff
         }
 
     elif channel == 'bing':
