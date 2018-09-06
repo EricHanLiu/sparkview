@@ -134,8 +134,8 @@
                             Campaign groups <span class="m-badge m-badge--metal m-badge--dot"></span>
                             <a href="" data-toggle="modal" data-target="#m_add_campaign_group_across"> Add</a>
 
-                            {% if gr.adwords == client_data.adwords or gr.bing == client_data.bing or gr.facebook == client_data.facebook %}
                                 {% for gr in groupings %}
+                                    {% if gr.adwords == client_data.adwords or gr.bing == client_data.bing or gr.facebook == client_data.facebook %}
                                     <div class="row">
                                         <div class="col-md-2">
                                             Channel:
@@ -226,10 +226,9 @@
                                         {% endif %}
                                     </div>
                                     <div class="m-separator"></div>
+                                    {% endif %}
                                 {% endfor %}
-                            {% else %}
-                                <p>No groups set for this client</p>
-                            {% endif %}
+
 
                             <div class="m-separator m-separator--metal"></div>
                             <p>
