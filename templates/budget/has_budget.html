@@ -112,7 +112,8 @@
                             <a href="" data-toggle="modal" data-target="#m_add_campaign_group_across"> Add</a>
 
                             {% for gr in groupings %}
-                                {% if gr.adwords in client_data.adwords.all or gr.bing in client_data.bing.all or gr.facebook in client_data.facebook.all %}
+                                {% with adwords=client_data.adwords.all bing=client_data.bing.all facebook=client_data.facebool.all %}
+                                {% if gr.adwords in adwords or gr.bing in bing or gr.facebook in facebook %}
                                     <div class="row">
                                         <div class="col-md-2">
                                             Channel:
@@ -204,6 +205,7 @@
                                     </div>
                                     <div class="m-separator"></div>
                                 {% endif %}
+                                {% endwith %}
                             {% endfor %}
 
                             <div class="m-separator m-separator--metal"></div>
