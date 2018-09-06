@@ -802,7 +802,7 @@ def update_groupings(request):
         gr_id = data['cgr_gr_id']
         budget = data['group_budget']
         group_name = data['cgr_group_name']
-        group_by = data['cgr_group_by']
+        group_by = request.POST.get('cgr_group_by', False)
         group_by_edit = data['cgr_group_by_edit']
         campaigns = request.POST.getlist('campaigns_edit')
         channel = data['cgr_channel']

@@ -47,6 +47,13 @@
                                         This report shows how many changes have been made at account, campaign and ad
                                         group level.
                                     </div>
+                                    <div class="alert m-alert m-alert--default" role="alert">
+                                        {% if last_change|get_type == 'datetime.date' %}
+                                            Last change: {{ last_change|date:"l, d F Y" }}
+                                        {% else %}
+                                            Last change: {{ last_change }}
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">

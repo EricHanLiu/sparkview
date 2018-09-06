@@ -385,16 +385,33 @@
     <!--END:Modal add_campaign_group-->
 
     <!--START:Modal add_campaign_group-->
-    <div class="modal fade" id="m_add_campaign_group_across" tabindex="-1" role="dialog" aria-labelledby="add_campaign_group">
+    <div class="modal fade" id="m_add_campaign_group_across" tabindex="-1" role="dialog"
+         aria-labelledby="add_campaign_group">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
-                    <form id="add_campaign_group">
-                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">
+                    <form id="add_campaign_group_across">
+{#                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">#}
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
-                        <p>Add campaign group across platforms</p>
+                        <p>Campaign groups</p>
                         <div class="form-group">
-
+                            <div class="form-group m_form__group row">
+                                <div class="col-md-12">
+                                    <select class="form-control m-input--large" name="cgr_acc_id"
+                                            id="select_accounts_cgr" style="width: 100%;">
+                                        <option></option>
+                                        {% for a in client_data.adwords.all %}
+                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">A - {{ a.dependent_account_name }}</option>
+                                        {% endfor %}
+                                        {% for b in client_data.bing.all %}
+                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B - {{ b.account_name }}</option>
+                                        {% endfor %}
+                                        {% for f in client_data.facebook.all %}
+                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F - {{ f.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <input type="text" class="form-control group-name"
@@ -403,16 +420,16 @@
                                 <div class="col-lg-5 col-md-5 col-sm-12">
                                     <div class="m-radio-inline">
                                         <label class="m-radio">
-                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text"> Text
+                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text_across"> Text
                                             <span></span>
                                         </label>
                                         <label class="m-radio">
-                                            <input type="radio" name="cgr_group_by" value="manual" id="gr_manual">
+                                            <input type="radio" name="cgr_group_by" value="manual" id="gr_manual_across">
                                             Manual
                                             <span></span>
                                         </label>
                                         <label class="m-checkbox m-checkbox--check-bold">
-                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate"> Flight
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_across"> Flight
                                             date
                                             <span></span>
                                         </label>
@@ -424,13 +441,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" id="campaign_list">
+                        <div class="form-group" id="campaign_list_across">
                             <select class="form-control m-input--large" name="campaigns"
-                                    multiple="multiple" id="campaigns_gr" style="width: 100%;">
+                                    multiple="multiple" id="campaigns_gr_across" style="width: 100%;">
                                 <option></option>
                             </select>
                         </div>
-                        <div class="form-group hidden" id="cgr_flight_date">
+                        <div class="form-group hidden" id="cgr_flight_date_across">
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-6 col-md-6 col-sm-12">
                                     <input type="text" class="form-control sdate"
@@ -466,9 +483,14 @@
                     <form id="edit_campaign_group">
                         <input type="hidden" name="cgr_gr_id" id="cgr_gr_id">
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
-                        <p>Edit campaign group for <span id="cgr_acc_name"></span></p>
+                        <p>Edit campaign group</p>
                         <div class="form-group">
-
+                            <div class="form-group m-form__group row">
+                                <div class="col-md-12">
+                                    <label for="cgr_acc_name">Account: </label>
+                                    <input type="text" name="cgr_acc_name" class="form-control" id="cgr_acc_name" disabled>
+                                </div>
+                            </div>
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <label for="cgr_group_name">Group name:</label>
@@ -487,8 +509,8 @@
                                             <span></span>
                                         </label>
                                         <label class="m-checkbox m-checkbox--check-bold">
-                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_edit"> Flight
-                                            date
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_edit">
+                                            Flight date
                                             <span></span>
                                         </label>
                                     </div>
@@ -1105,9 +1127,9 @@
 
         function addCampaignGroup() {
             let modal = $("#m_add_campaign_group");
-            let form = $("#add_campaign_group");
+            let form = $("#add_campaign_group_across");
             let data = form.serializeArray();
-
+            console.log(data);
 
             validator = form.validate({
                 ignore: ":hidden",

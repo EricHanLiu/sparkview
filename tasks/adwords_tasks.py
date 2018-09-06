@@ -244,108 +244,119 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
     alert_type = "DISAPPROVED_AD"
     helper = AdwordsReportingService(get_client())
-    predicates = [{
-        "field": "CombinedApprovalStatus",
-        "operator": "EQUALS",
-        "values": "DISAPPROVED"
-    },
-        {
-            "field": "CampaignId",
-            "operator": "IN",
-            "values": cmp_ids
-        }
-    ]
-    extra_fields = ["PolicySummary"]
-    try:
-        data = helper.get_ad_performance(
-            customer_id=customer_id,
-            extra_fields=extra_fields,
-            predicates=predicates
-        )
 
-        Alert.objects.filter(
-            dependent_account_id=customer_id, alert_type=alert_type
-        ).delete()
-
-        for ad in data:
-            alert_reason = json.loads(ad['ad_policies'])
-            Alert.objects.create(
-                dependent_account_id=customer_id,
-                alert_type=alert_type,
-                alert_reason=":".join(alert_reason),
-                ad_group_id=ad['ad_group_id'],
-                ad_group_name=ad['ad_group'],
-                ad_headline=ad['headline_1'],
-                campaignName=ad['campaign'],
-                campaign_id=ad['campaign_id'],
-            )
-
-            new_ads.append(ad)
-
-        # E-mail foreach ad
-        ads_no = len(data)
-
-        if ads_no == 0:
-            ads_score = 100
-        elif ads_no == 1:
-            ads_score = 90
-        elif ads_no == 2:
-            ads_score = 80
-        elif ads_no == 3:
-            ads_score = 70
-        elif ads_no == 4:
-            ads_score = 60
-        elif ads_no == 5:
-            ads_score = 50
-        elif ads_no == 6:
-            ads_score = 40
-        elif ads_no == 7:
-            ads_score = 30
-        elif ads_no == 8:
-            ads_score = 20
-        elif ads_no == 9:
-            ads_score = 10
-        elif ads_no >= 10:
-            ads_score = 0
-
-        account.dads_score = ads_score
-        account.save()
-        calculate_account_score(account)
-
-        if len(new_ads) > 0:
-            mail_details = {
-                'ads': new_ads,
-                'account': account
+    if len(cmp_ids) == 0:
+        print('No active campaigns found.')
+    else:
+        predicates = [
+            {
+            "field": "CombinedApprovalStatus",
+            "operator": "EQUALS",
+            "values": "DISAPPROVED"
+            },
+            {
+                "field": "CampaignId",
+                "operator": "IN",
+                "values": cmp_ids
             }
+        ]
 
-            if account.assigned_am:
-                MAIL_ADS.append(account.assigned_am.email)
-                print('Found AM - ' + account.assigned_am.username)
-            if account.assigned_to:
-                MAIL_ADS.append(account.assigned_to.email)
-                print('Found CM - ' + account.assigned_to.username)
-            if account.assigned_cm2:
-                MAIL_ADS.append(account.assigned_cm2.email)
-                print('Found CM2 - ' + account.assigned_cm2.username)
-            if account.assigned_cm3:
-                MAIL_ADS.append(account.assigned_cm3.email)
-                print('Found CM3 - ' + account.assigned_cm3.username)
+        extra_fields = ["PolicySummary"]
 
-            mail_list = set(MAIL_ADS)
-            msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
-            print(account.dependent_account_name + ' - ' + ' '.join(mail_list))
-            send_mail(
-                'Disapproved ads alert', msg_html,
-                EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
+        try:
+            data = helper.get_ad_performance(
+                customer_id=customer_id,
+                extra_fields=extra_fields,
+                predicates=predicates
             )
-            mail_list.clear()
 
-    except AdWordsReportBadRequestError as e:
+            Alert.objects.filter(
+                dependent_account_id=customer_id, alert_type=alert_type
+            ).delete()
 
-        if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
-            account.delete()
-            print('Account ' + account.dependent_account_name + ' unlinked from MCC')
+            for ad in data:
+                alert_reason = json.loads(ad['ad_policies'])
+                Alert.objects.create(
+                    dependent_account_id=customer_id,
+                    alert_type=alert_type,
+                    alert_reason=":".join(alert_reason),
+                    ad_group_id=ad['ad_group_id'],
+                    ad_group_name=ad['ad_group'],
+                    ad_headline=ad['headline_1'],
+                    campaignName=ad['campaign'],
+                    campaign_id=ad['campaign_id'],
+                )
 
+                new_ads.append(ad)
+
+            # E-mail foreach ad
+            ads_no = len(data)
+
+            if ads_no == 0:
+                ads_score = 100
+            elif ads_no == 1:
+                ads_score = 90
+            elif ads_no == 2:
+                ads_score = 80
+            elif ads_no == 3:
+                ads_score = 70
+            elif ads_no == 4:
+                ads_score = 60
+            elif ads_no == 5:
+                ads_score = 50
+            elif ads_no == 6:
+                ads_score = 40
+            elif ads_no == 7:
+                ads_score = 30
+            elif ads_no == 8:
+                ads_score = 20
+            elif ads_no == 9:
+                ads_score = 10
+            elif ads_no >= 10:
+                ads_score = 0
+
+            account.dads_score = ads_score
+            account.save()
+            calculate_account_score(account)
+
+            if len(new_ads) > 0:
+                mail_details = {
+                    'ads': new_ads,
+                    'account': account
+                }
+
+                if account.assigned_am:
+                    MAIL_ADS.append(account.assigned_am.email)
+                    print('Found AM - ' + account.assigned_am.username)
+                if account.assigned_to:
+                    MAIL_ADS.append(account.assigned_to.email)
+                    print('Found CM - ' + account.assigned_to.username)
+                if account.assigned_cm2:
+                    MAIL_ADS.append(account.assigned_cm2.email)
+                    print('Found CM2 - ' + account.assigned_cm2.username)
+                if account.assigned_cm3:
+                    MAIL_ADS.append(account.assigned_cm3.email)
+                    print('Found CM3 - ' + account.assigned_cm3.username)
+
+                mail_list = set(MAIL_ADS)
+                msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
+                print(account.dependent_account_name + ' - ' + ' '.join(mail_list))
+                # send_mail(
+                #     'Disapproved ads alert', msg_html,
+                #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
+                # )
+                mail_list.clear()
+
+        except AdWordsReportBadRequestError as e:
+
+            if e.type == 'AuthorizationError.USER_PERMISSION_DENIED':
+                account.delete()
+                print('Account ' + account.dependent_account_name + ' unlinked from MCC')
+
+            elif e.type == 'AuthorizationError.CUSTOMER_NOT_ACTIVE':
+                account.blacklisted = True
+                account.save()
+                print('Account ' + account.dependent_account_name + ' NOT ACTIVE - BLACKLISTED.')
 
 @celery_app.task(bind=True)
 def adwords_cron_campaign_stats(self, customer_id):
@@ -370,13 +381,19 @@ def adwords_cron_campaign_stats(self, customer_id):
         cost = helper.mcv(campaign['cost'])
         cmp, created = Campaign.objects.update_or_create(
             account=account,
-            campaign_id=campaign['campaign_id']
+            campaign_id=campaign['campaign_id'],
+            defaults={
+                'campaign_cost': cost,
+                'campaign_name': campaign['campaign'],
+                'campaign_status': campaign['campaign_state'],
+                'campaign_serving_status': campaign['campaign_serving_status']
+            }
         )
-        cmp.campaign_cost = cost
-        cmp.campaign_name = campaign['campaign']
-        cmp.campaign_status = campaign['campaign_state']
-        cmp.campaign_serving_status = campaign['campaign_serving_status']
-        cmp.save()
+        # cmp.campaign_cost = cost
+        # cmp.campaign_name = campaign['campaign']
+        # cmp.campaign_status = campaign['campaign_state']
+        # cmp.campaign_serving_status = campaign['campaign_serving_status']
+        # cmp.save()
 
         cmps.append(cmp)
         if created:
@@ -451,7 +468,11 @@ def adwords_cron_adgroup_stats(self, customer_id):
         ag, created = Adgroup.objects.update_or_create(
             account=account,
             campaign=campaign,
-            adgroup_id=adgroup['ad_group_id']
+            adgroup_id=adgroup['ad_group_id'],
+            defaults={
+                'campaign_cost': cost,
+                'adgroup_name': adgroup['ad_group']
+            }
         )
         ag.campaign_cost = cost
         ag.adgroup_name = adgroup['ad_group']
@@ -854,38 +875,46 @@ def adwords_account_change_history(self, customer_id):
         today = date.today().day
         s = last_change.strip(' ')
         s_dt = s[0:8]
-        last_change_day = datetime.strptime(s_dt, date_format).date()
-        last_change_dt = today - last_change_day.day
 
-        if last_change_dt >= 5:
-            mail_details = {
-                'account': account,
-                'lastChange': last_change_day
-            }
+        if last_change == 'NOT_FOUND':
+            print('Last change: ' + last_change)
+        else:
+            last_change_day = datetime.strptime(s_dt, date_format).date()
+            last_change_dt = today - last_change_day.day
 
-            if account.assigned_am:
-                MAIL_ADS.append(account.assigned_am.email)
-                print('Found AM - ' + account.assigned_am.username)
-            if account.assigned_to:
-                MAIL_ADS.append(account.assigned_to.email)
-                print('Found CM - ' + account.assigned_to.username)
-            if account.assigned_cm2:
-                MAIL_ADS.append(account.assigned_cm2.email)
-                print('Found CM2 - ' + account.assigned_cm2.username)
-            if account.assigned_cm3:
-                MAIL_ADS.append(account.assigned_cm3.email)
-                print('Found CM3 - ' + account.assigned_cm3.username)
+            if last_change_dt >= 5:
+                mail_details = {
+                    'account': account,
+                    'lastChange': last_change_day
+                }
 
-            mail_list = set(MAIL_ADS)
-            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
+                if account.assigned_am:
+                    MAIL_ADS.append(account.assigned_am.email)
+                    print('Found AM - ' + account.assigned_am.username)
+                if account.assigned_to:
+                    MAIL_ADS.append(account.assigned_to.email)
+                    print('Found CM - ' + account.assigned_to.username)
+                if account.assigned_cm2:
+                    MAIL_ADS.append(account.assigned_cm2.email)
+                    print('Found CM2 - ' + account.assigned_cm2.username)
+                if account.assigned_cm3:
+                    MAIL_ADS.append(account.assigned_cm3.email)
+                    print('Found CM3 - ' + account.assigned_cm3.username)
 
-            send_mail(
-                account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
-            mail_list.clear()
+                mail_list = set(MAIL_ADS)
+                msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
+
+                send_mail(
+                    account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+                    EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
+                mail_list.clear()
+
     else:
         print('No active campaigns found.')
         account.changed_score = (0, 'No campaigns found for this account.')
+        account.changed_data = {
+            'lastChangeTimestamp': 'NOT_FOUND'
+        }
         account.save()
         calculate_account_score(account)
 
