@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import JSONField
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
+from user_management.models import Member, Team
 
 # Create your models here.
 
@@ -26,7 +27,47 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
 
-    # Need to add many more fields to this
+    # The following attributes are for the client management implementation
+    team = models.ForeignKey(Team, blank=True, null=True, related_name='team')
+
+    # Campaign Managers
+    cm1 = models.ForeignKey(Member, blank=True, null=True, related_name='cm1')
+    cm2 = models.ForeignKey(Member, blank=True, null=True, related_name='cm2')
+    cm3 = models.ForeignKey(Member, blank=True, null=True, related_name='cm3')
+    cmb = models.ForeignKey(Member, blank=True, null=True, related_name='cmb')
+
+    # Account Managers
+    am1 = models.ForeignKey(Member, blank=True, null=True, related_name='am1')
+    am2 = models.ForeignKey(Member, blank=True, null=True, related_name='am2')
+    am3 = models.ForeignKey(Member, blank=True, null=True, related_name='am3')
+    amb = models.ForeignKey(Member, blank=True, null=True, related_name='amb')
+
+    # SEO
+    seo1 = models.ForeignKey(Member, blank=True, null=True, related_name='seo1')
+    seo2 = models.ForeignKey(Member, blank=True, null=True, related_name='seo2')
+    seo3 = models.ForeignKey(Member, blank=True, null=True, related_name='seo3')
+    seob = models.ForeignKey(Member, blank=True, null=True, related_name='seob')
+
+    # Strategists
+    strat1 = models.ForeignKey(Member, blank=True, null=True, related_name='strat1')
+    strat2 = models.ForeignKey(Member, blank=True, null=True, related_name='strat2')
+    strat3 = models.ForeignKey(Member, blank=True, null=True, related_name='strat3')
+    stratb = models.ForeignKey(Member, blank=True, null=True, related_name='stratb')
+
+    def __str__(self):
+        return self.client_name
+
+
+# Keep a changelog of changes to the client model
+# To complete later, not a priority
+class ClientChanges(models.Model):
+    client      = models.ForeignKey(Client, blank=True, null=True)
+    member      = models.ForeignKey(Member, blank=True, null=True)
+    changeField = models.CharField(max_length=255, default='None')
+    changedFrom = models.CharField(max_length=255, default='None')
+    changedTo   = models.CharField(max_length=255, default='None')
+    dateTime    = models.DateTimeField(default='None')
+
 
 class ClientCData(models.Model):
 

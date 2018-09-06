@@ -5,8 +5,9 @@ from budget.models import Client, ClientHist
 
 
 class ClientAdmin(admin.ModelAdmin):
-    fields = ('client_name', 'adwords', 'bing', 'budget', 'current_spend', 'aw_spend', 'bing_spend', 'aw_budget', 'bing_budget')
-    list_filter = ('id', 'client_name')
+    # fields = ('client_name', 'adwords', 'bing', 'budget', 'current_spend', 'aw_spend', 'bing_spend', 'aw_budget', 'bing_budget')
+    # list_filter = ('id', 'client_name')
+    pass
 
 class ClientHistAdmin(admin.ModelAdmin):
     fields = ('client_name', 'hist_adwords', 'hist_bing', 'hist_spend', 'hist_aw_spend', 'hist_bing_spend',

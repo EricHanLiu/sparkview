@@ -140,7 +140,7 @@
               {% for member in members %}
               <tr>
                 <td>
-                  {{ member.user.first_name }}
+                  <a href="members/{{ member.id }}/edit">{{ member.user.first_name }}</a>
                 </td>
                 <td>
                   {{ member.user.last_name }}

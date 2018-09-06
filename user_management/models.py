@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from user_management import models as user_management_models
+from budget import models as budget_models
+
+
 # Role at the company (example, Campaign Manager)
 class Role(models.Model):
     name = models.CharField(max_length=255)

@@ -2,6 +2,23 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
+{% block extraCss %}
+<style>
+  #my_clients_datatable {
+    width: 100%;
+  }
+  /* .long-header-row {
+    text-align: center;
+  } */
+  /* th {
+    white-space: nowrap;
+  }
+  td {
+    text-align: center;
+  } */
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="m-content">
   <div class="row">
@@ -18,26 +35,92 @@
         </div>
         <div class="m-portlet__body">
 
-          <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm" role="group" aria-label="">
+          <!-- <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm" role="group" aria-label="">
               <a type="button" class="btn btn-outline-info" href="/clients/">
                   My clients
               </a>
               <a type="button" class="btn btn-outline-info" href="/clients/team">
-                  {{ user.team.name }} clients
+                  {{ member.team.name }} clients
               </a>
           </div>
 
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="clients_datatable">
+          <hr /> -->
+
+          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="my_clients_datatable">
             <thead class="thead-inverse">
               <tr>
-                <th>Client Name</th>
+                <th>Name</th>
+                <th>CM1</th>
+                <th>CM2</th>
+                <th>CM3</th>
+                <th>CMB</th>
+                <th>AM1</th>
+                <th>AM2</th>
+                <th>AM3</th>
+                <th>AMB</th>
+                <th>SEO1</th>
+                <th>SEO2</th>
+                <th>SEO3</th>
+                <th>SEOB</th>
+                <th>STRAT1</th>
+                <th>STRAT2</th>
+                <th>STRAT3</th>
+                <th>STRATB</th>
               </tr>
             </thead>
             <tbody>
               {% for client in clients %}
               <tr>
                 <td>
-                  {{ client.client_name }}
+                  <a href="{{ client.id }}/edit">{{ client.client_name }}</a>
+                </td>
+                <td>
+                  {{ client.cm1.user.first_name }}
+                </td>
+                <td>
+                  {{ client.cm2.user.first_name }}
+                </td>
+                <td>
+                  {{ client.cm3.user.first_name }}
+                </td>
+                <td>
+                  {{ client.cmb.user.first_name }}
+                </td>
+                <td>
+                  {{ client.am1.user.first_name }}
+                </td>
+                <td>
+                  {{ client.am2.user.first_name }}
+                </td>
+                <td>
+                  {{ client.am3.user.first_name }}
+                </td>
+                <td>
+                  {{ client.amb.user.first_name }}
+                </td>
+                <td>
+                  {{ client.seo1.user.first_name }}
+                </td>
+                <td>
+                  {{ client.seo2.user.first_name }}
+                </td>
+                <td>
+                  {{ client.seo3.user.first_name }}
+                </td>
+                <td>
+                  {{ client.seob.user.first_name }}
+                </td>
+                <td>
+                  {{ client.strat1.user.first_name }}
+                </td>
+                <td>
+                  {{ client.strat2.user.first_name }}
+                </td>
+                <td>
+                  {{ client.strat3.user.first_name }}
+                </td>
+                <td>
+                  {{ client.stratb.user.first_name }}
                 </td>
               </tr>
               {% endfor %}

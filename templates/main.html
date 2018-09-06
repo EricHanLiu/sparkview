@@ -286,7 +286,6 @@ License: You must have a valid license purchased only from themeforest(the above
 							</li>
 
 							{# User management #}
-							{% if request.user.is_staff %}
 							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
 								<a  href="#" class="m-menu__link m-menu__toggle">
 									<span class="m-menu__item-here"></span>
@@ -300,6 +299,14 @@ License: You must have a valid license purchased only from themeforest(the above
 									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
 									<ul class="m-menu__subnav">
 										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/user_management/profile" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													Profile
+												</span>
+											</a>
+										</li>
+										{% if request.user.is_staff %}
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
 											<a  href="/users" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Users
@@ -310,13 +317,6 @@ License: You must have a valid license purchased only from themeforest(the above
 											<a  href="/user_management/members" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Members
-												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/profile" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													Profile
 												</span>
 											</a>
 										</li>
@@ -335,19 +335,57 @@ License: You must have a valid license purchased only from themeforest(the above
 												</span>
 											</a>
 										</li>
+										{% endif %}
 									</ul>
 								</div>
 							</li>
-							{% endif %}
 
 							{# Client area #}
 							{% if request.user.is_staff %}
-							<li class="m-menu__item"  data-redirect="true" aria-haspopup="true">
-								<a  href="/clients" class="m-menu__link ">
+							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
+								<a  href="#" class="m-menu__link m-menu__toggle">
+									<span class="m-menu__item-here"></span>
 									<span class="m-menu__link-text">
 										Client Management
 									</span>
+									<i class="m-menu__hor-arrow la la-angle-down"></i>
+									<i class="m-menu__ver-arrow la la-angle-right"></i>
 								</a>
+								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
+									<ul class="m-menu__subnav">
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/clients" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													My Clients
+												</span>
+											</a>
+										</li>
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/clients/team" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													My Team's Clients
+												</span>
+											</a>
+										</li>
+										{% if request.user.is_staff %}
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/clients/all" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													All Clients
+												</span>
+											</a>
+										</li>
+										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
+											<a  href="/clients/new" class="m-menu__link ">
+												<span class="m-menu__link-text">
+													Add New Client
+												</span>
+											</a>
+										</li>
+										{% endif %}
+									</ul>
+								</div>
 							</li>
 							{% endif %}
 

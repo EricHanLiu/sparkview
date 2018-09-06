@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse, JsonResponse
@@ -15,18 +15,25 @@ def index(request):
 def profile(request):
     user      = request.user
     member    = Member.objects.get(user=user)
-    # incidents = Incident.objects.get(user=user)
     incidents = Incident.objects.filter(members=member)
+
+    clients = {
+        'cm1' : member.cm1.all()
+    }
 
     context = {
         'member'    : member,
-        'incidents' : incidents
+        'incidents' : incidents,
+        'clients'   : clients
     }
 
     return render(request, 'user_management/profile.html', context)
 
 @login_required
 def members(request):
+    # Authenticate if staff or not
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
     members = Member.objects.all()
 
     context = {
@@ -37,6 +44,9 @@ def members(request):
 
 @login_required
 def new_member(request):
+    # Authenticate if staff or not
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
     if (request.method == 'GET'):
         teams        = Team.objects.all()
         roles        = Role.objects.all()
@@ -156,6 +166,10 @@ def new_member(request):
 
 @login_required
 def edit_member(request, id):
+    # Authenticate if staff or not
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
     if (request.method == 'POST'):
 
         # Member to update
@@ -166,6 +180,7 @@ def edit_member(request, id):
         last_name       = request.POST.get('last_name')
         email           = request.POST.get('email')
         is_staff        = request.POST.get('is_staff')
+        is_staff = False
 
         # Member parameters
         # Now make the member
@@ -200,6 +215,52 @@ def edit_member(request, id):
         skill_technical     = request.POST.get('skill_technical')
         skill_confident     = request.POST.get('skill_confident')
         skill_communication = request.POST.get('skill_communication')
+
+        # Set all of the member skills with the edited variables
+        # User parameters
+        member.user.first_name = first_name
+        member.user.last_name  = last_name
+        member.user.email      = email
+        member.user.is_staff   = is_staff
+
+        # Member parameters
+        member.team = team
+        member.role = role
+
+        # Hours
+        member.buffer_total_percentage     = buffer_total_percentage
+        member.buffer_learning_percentage  = buffer_learning_percentage
+        member.buffer_trainers_percentage  = buffer_trainers_percentage
+        member.buffer_sales_percentage     = buffer_sales_percentage
+        member.buffer_planning_percentage  = buffer_planning_percentage
+        member.buffer_internal_percentage  = buffer_internal_percentage
+        member.buffer_seniority_percentage = buffer_seniority_percentage
+        member.buffer_buffer_percentage    = buffer_buffer_percentage
+        member.buffer_hours_available      = buffer_hours_available
+
+        # Member skills
+        member.skill_seo           = skill_seo
+        member.skill_cro           = skill_cro
+        member.skill_fb            = skill_fb
+        member.skill_adwords       = skill_adwords
+        member.skill_bing          = skill_bing
+        member.skill_linkedin      = skill_linkedin
+        member.skill_pinterest     = skill_pinterest
+        member.skill_twitter       = skill_twitter
+        member.skill_english       = skill_english
+        member.skill_french        = skill_french
+        member.skill_technical     = skill_technical
+        member.skill_confident     = skill_confident
+        member.skill_communication = skill_communication
+
+        member.user.save()
+        member.save()
+
+        resp = {
+            'name' : member.user.first_name
+        }
+
+        return JsonResponse(resp)
     else:
         member = Member.objects.get(id=id)
         teams  = Team.objects.all()
