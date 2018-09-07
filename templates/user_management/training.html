@@ -4,7 +4,7 @@
 
 {% block extraCss %}
 <style>
-  #members_datatable {
+  #training_datatable {
     width: 100%;
   }
   .long-header-row {
@@ -31,20 +31,23 @@
             <div class="m-portlet__head-caption">
                 <div class="m-portlet__head-title">
                     <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>Members</span>
+                        <span>Members Training</span>
                     </h2>
                 </div>
             </div>
         </div>
         <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="members_datatable">
+          <table class='table table-striped m-table m-table--head-separator-bloom m-datatable__table dataTable' id="training_datatable">
             <thead class="thead-inverse">
               <tr class="long-header-row">
                 <th colspan="4" style="background: #2C8BCB; opacity: 0.85; color: #fff;">
                   Member
                 </th>
-                <th colspan="14" style="background: #30c141; opacity: 0.85; color: #fff;">
-                  Buffer Time Allocation
+                <th colspan="15" style="background: #ff7f30; opacity: 0.85; color: #fff;">
+                  Skills
+                </th>
+                <th colspan="2" style="background: #4bb786; opacity: 0.85; color: #fff;">
+                  Incidents
                 </th>
               </tr>
               <tr>
@@ -55,46 +58,55 @@
                   Role
                 </th>
                 <th>
-                  Total Monthly Work Time
+                  SEO
                 </th>
                 <th>
-                  Learning
+                  CRO
                 </th>
                 <th>
-                  Trainers
+                  Facebook
                 </th>
                 <th>
-                  Sales
+                  Adwords
                 </th>
                 <th>
-                  Planning
+                  Bing
                 </th>
                 <th>
-                  Internal
+                  LinkedIn
                 </th>
                 <th>
-                  Seniority
+                  Pinterest
                 </th>
                 <th>
-                  Total Buffer
+                  Twitter
                 </th>
                 <th>
-                  Hours Available
+                  English
                 </th>
                 <th>
-                  Hours Remaining
+                  French
                 </th>
                 <th>
-                  # of Active Accounts
+                  Technical
                 </th>
                 <th>
-                  # of Launch Accounts
+                  Confident
                 </th>
                 <th>
-                  Actual Hours
+                  Communication
                 </th>
                 <th>
-                  Hour Delta
+                  Last Skill Check
+                </th>
+                <th>
+                  Last Language Check
+                </th>
+                <th>
+                  # of Incidents
+                </th>
+                <th>
+                  Most Recent Incident
                 </th>
               </tr>
             </thead>
@@ -102,7 +114,7 @@
               {% for member in members %}
               <tr>
                 <td>
-                  <a href="members/{{ member.id }}">{{ member.user.first_name }}</a>
+                  <a href="{{ member.id }}">{{ member.user.first_name }}</a>
                 </td>
                 <td>
                   {{ member.user.last_name }}
@@ -116,46 +128,55 @@
                   {{ member.role }}
                 </td>
                 <td>
-                  {{ member.buffer_total_percentage }}
+                  {{ member.skill_seo }}
                 </td>
                 <td>
-                  {{ member.buffer_learning_percentage }}
+                  {{ member.skill_cro }}
                 </td>
                 <td>
-                  {{ member.buffer_trainers_percentage }}
+                  {{ member.skill_fb }}
                 </td>
                 <td>
-                  {{ member.buffer_sales_percentage }}
+                  {{ member.skill_adwords }}
                 </td>
                 <td>
-                  {{ member.buffer_planning_percentage }}
+                  {{ member.skill_bing }}
                 </td>
                 <td>
-                  {{ member.buffer_internal_percentage }}
+                  {{ member.skill_linkedin }}
                 </td>
                 <td>
-                  {{ member.buffer_seniority_percentage }}
+                  {{ member.skill_pinterest }}
                 </td>
                 <td>
-                  {{ member.buffer_buffer_percentage }}
+                  {{ member.skill_twitter }}
                 </td>
                 <td>
-                  {{ member.buffer_hours_available }}
+                  {{ member.skill_english }}
                 </td>
                 <td>
-                  5
+                  {{ member.skill_french }}
                 </td>
                 <td>
-                  16
+                  {{ member.skill_technical }}
                 </td>
                 <td>
-                  4
+                  {{ member.skill_confident }}
                 </td>
                 <td>
-                  2
+                  {{ member.skill_communication }}
                 </td>
                 <td>
-                  52
+                  {{ member.last_skill_check }}
+                </td>
+                <td>
+                  {{ member.last_language_check }}
+                </td>
+                <td>
+                  {{ member.incidents }}
+                </td>
+                <td>
+                  {{ member.mostRecentIncident.date }}
                 </td>
               </tr>
               {% endfor %}
@@ -167,11 +188,4 @@
   </div>
   <!--End::Main Portlet-->
 </div>
-<script type="text/javascript">
-
-  function toggleLabels(label_id){
-    $("#"+label_id).toggle();
-  }
-
-</script>
 {% endblock %}

@@ -5,6 +5,7 @@ from django.db.models import Q
 from budget.models import Client
 from user_management.models import Member
 
+
 @login_required
 def clients(request):
     member  = Member.objects.get(user=request.user)
@@ -56,3 +57,8 @@ def clients_edit(request, id):
     }
 
     return render(request, 'client_area/client_edit.html', context)
+
+
+@login_required
+def clients_single(request, id):
+    pass

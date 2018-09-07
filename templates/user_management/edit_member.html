@@ -48,7 +48,7 @@
                 <label for="">Permissions:</label>
                 <div class="m-checkbox-list">
                   <label class="m-checkbox">
-                    <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %}> Staff Member
+                    <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %}> Admin
                     <span></span>
                   </label>
                 </div>
@@ -61,9 +61,9 @@
                     <label for="team">Team:</label>
                     <select class="form-control m-input"
                             name="team"
-                            style="width: 100%;" required>
+                            style="width: 100%;" required multiple>
                         {% for team in teams %}
-                            <option value="{{ team.id }}" {% if member.team.id == team.id %} selected {% endif %}>{{ team.name }}</option>
+                            <option value="{{ team.id }}" {% if team in member.team.all %} selected {% endif %}>{{ team.name }}</option>
                         {% endfor %}
                     </select>
                   </div>

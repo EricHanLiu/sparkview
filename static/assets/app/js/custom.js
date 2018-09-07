@@ -86,6 +86,11 @@ $(document).ready(function () {
         'ordering': false
     });
 
+    $("#training_datatable").DataTable({
+      'scrollX' : true,
+      'ordering': false
+    });
+
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
             'targets': 0,

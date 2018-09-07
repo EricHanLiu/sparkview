@@ -3,13 +3,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
+from django.db.models.functions import Now
+from django.core import serializers
 
 from .models import Member, Incident, Team, Role
 from .forms import NewMemberForm, NewTeamForm
 
+
 @login_required
 def index(request):
     return redirect('/user_management/members')
+
 
 @login_required
 def profile(request):
@@ -29,18 +33,31 @@ def profile(request):
 
     return render(request, 'user_management/profile.html', context)
 
+
 @login_required
 def members(request):
     # Authenticate if staff or not
     if (not request.user.is_staff):
         return HttpResponse('You do not have permission to view this page')
-    members = Member.objects.all()
+    members = Member.objects.only('team',
+                                  'role',
+                                  'buffer_total_percentage',
+                                  'buffer_learning_percentage',
+                                  'buffer_trainers_percentage',
+                                  'buffer_sales_percentage',
+                                  'buffer_planning_percentage',
+                                  'buffer_internal_percentage',
+                                  'buffer_seniority_percentage',
+                                  'buffer_buffer_percentage',
+                                  'buffer_hours_available'
+                                  )
 
     context = {
         'members' : members,
     }
 
     return render(request, 'user_management/members.html', context)
+
 
 @login_required
 def new_member(request):
@@ -86,15 +103,16 @@ def new_member(request):
         #
         #     return JsonResponse(response)
         else:
-            #user = User.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
             user = User(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
 
             if is_staff == 'on':
                 user.is_staff = True
 
         # Now make the member
-        team_id = request.POST.get('team')
-        team    = Team.objects.get(id=team_id)
+        # A member can be on many teams
+        teams = []
+        for team_id in request.POST.getlist('team'):
+            teams.append(Team.objects.get(id=team_id))
 
         role_id = request.POST.get('role')
         role    = Role.objects.get(id=role_id)
@@ -133,7 +151,6 @@ def new_member(request):
 
         member = Member.objects.create(
             user=user,
-            team=team,
             buffer_total_percentage=buffer_total_percentage,
             buffer_learning_percentage=buffer_learning_percentage,
             buffer_trainers_percentage=buffer_trainers_percentage,
@@ -156,13 +173,18 @@ def new_member(request):
             skill_technical=skill_technical,
             skill_confident=skill_confident,
             skill_communication=skill_communication,
-            # last_skill_check=last_skill_check,
-            # last_language_check=last_language_check
+            last_skill_check=Now(),
+            last_language_check=Now()
         )
 
-        return JsonResponse({'username' : username})
+        # Set Teams
+        member.team.set(teams)
+        member.save()
+
+        return redirect('/user_management/members')
     else:
         return HttpResponse('You are at the wrong place')
+
 
 @login_required
 def edit_member(request, id):
@@ -179,13 +201,14 @@ def edit_member(request, id):
         first_name      = request.POST.get('first_name')
         last_name       = request.POST.get('last_name')
         email           = request.POST.get('email')
-        is_staff        = request.POST.get('is_staff')
-        is_staff = False
+        is_staff        = (request.POST.get('is_staff') == 'on')
 
         # Member parameters
         # Now make the member
-        team_id = request.POST.get('team')
-        team    = Team.objects.get(id=team_id)
+        # A member can be on many teams
+        teams = []
+        for team_id in request.POST.getlist('team'):
+            teams.append(Team.objects.get(id=team_id))
 
         role_id = request.POST.get('role')
         role    = Role.objects.get(id=role_id)
@@ -216,6 +239,28 @@ def edit_member(request, id):
         skill_confident     = request.POST.get('skill_confident')
         skill_communication = request.POST.get('skill_communication')
 
+
+        # Check if we are updating non-language skills
+        if (member.skill_seo           != skill_seo or
+            member.skill_cro           != skill_cro or
+            member.skill_fb            != skill_fb  or
+            member.skill_adwords       != skill_adwords or
+            member.skill_bing          != skill_bing or
+            member.skill_linkedin      != skill_linkedin or
+            member.skill_pinterest     != skill_pinterest or
+            member.skill_twitter       != skill_twitter or
+            member.skill_technical     != skill_technical or
+            member.skill_confident     != skill_confident or
+            member.skill_communication != skill_communication):
+
+            member.last_skill_check = Now()
+
+        # Check if we are updating language skills
+        if (member.skill_english != skill_english or
+            member.skill_french  != skill_french):
+
+            member.last_language_check = Now()
+
         # Set all of the member skills with the edited variables
         # User parameters
         member.user.first_name = first_name
@@ -224,7 +269,7 @@ def edit_member(request, id):
         member.user.is_staff   = is_staff
 
         # Member parameters
-        member.team = team
+        member.team.set(teams)
         member.role = role
 
         # Hours
@@ -256,11 +301,7 @@ def edit_member(request, id):
         member.user.save()
         member.save()
 
-        resp = {
-            'name' : member.user.first_name
-        }
-
-        return JsonResponse(resp)
+        return redirect('/user_management/members')
     else:
         member = Member.objects.get(id=id)
         teams  = Team.objects.all()
@@ -276,6 +317,7 @@ def edit_member(request, id):
 
         return render(request, 'user_management/edit_member.html', context)
 
+
 @login_required
 def teams(request):
     teams = Team.objects.all()
@@ -285,6 +327,7 @@ def teams(request):
     }
 
     return render(request, 'user_management/teams.html', context)
+
 
 @login_required
 def new_team(request):
@@ -300,9 +343,45 @@ def new_team(request):
     else:
         return HttpResponse('You are at the wrong place')
 
+
 @login_required
 def edit_team(request):
     if (request.method == 'POST'):
         pass
     else:
         return HttpResponse('You are at the wrong place')
+
+
+@login_required
+def members_single(request, id):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+
+    context = {
+        'member' : member
+    }
+
+    return render(request, 'user_management/profile.html', context)
+
+@login_required
+def training_members(request):
+    members = Member.objects.defer('team',
+                                   'role',
+                                   'buffer_total_percentage',
+                                   'buffer_learning_percentage',
+                                   'buffer_trainers_percentage',
+                                   'buffer_sales_percentage',
+                                   'buffer_planning_percentage',
+                                   'buffer_internal_percentage',
+                                   'buffer_seniority_percentage',
+                                   'buffer_buffer_percentage',
+                                   'buffer_hours_available'
+                                   )
+
+    context = {
+        'members' : members,
+    }
+
+    return render(request, 'user_management/training.html', context)

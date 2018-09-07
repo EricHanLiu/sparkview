@@ -66,7 +66,6 @@ class ClientChanges(models.Model):
     changeField = models.CharField(max_length=255, default='None')
     changedFrom = models.CharField(max_length=255, default='None')
     changedTo   = models.CharField(max_length=255, default='None')
-    dateTime    = models.DateTimeField(default='None')
 
 
 class ClientCData(models.Model):

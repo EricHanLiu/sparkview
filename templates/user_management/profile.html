@@ -20,6 +20,10 @@
             </div>
         </div>
         <div class="m-portlet__body">
+          {% if request.user.is_staff %}
+            <a href="{{ member.id }}/edit">Edit {{ member.user.first_name }} {{ member.user.last_name }}</a>
+          {% endif %}
+          <hr />
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
@@ -40,7 +44,7 @@
             <label for="">Permissions:</label>
             <div class="m-checkbox-list">
               <label class="m-checkbox">
-                <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %} disabled> Staff Member
+                <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %} disabled> Admin
                 <span></span>
               </label>
             </div>
@@ -51,7 +55,9 @@
             <div class="row">
               <div class="col-md-6">
                 <label for="team">Team:</label>
-                <input type="text" class="form-control m-input" value="{{ member.team.name }}" disabled>
+                {% for team in member.team.all %}
+                  <input type="text" class="form-control m-input" value="{{ team.name }}" disabled>
+                {% endfor %}
               </div>
               <div class="col-md-6">
                 <label for="role">Role:</label>
@@ -120,7 +126,7 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_hours_available">Hours Available:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_hours_available }}%" disabled>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_hours_available }}" disabled>
               </div>
             </div>
           </div>

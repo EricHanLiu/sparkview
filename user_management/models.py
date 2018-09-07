@@ -37,7 +37,7 @@ class Incident(models.Model):
 # Needed to add many more fields to users (which are employees, also called members)
 class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    team = models.ForeignKey('Team', on_delete=models.SET_NULL, default=None, null=True)
+    team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
@@ -67,8 +67,8 @@ class Member(models.Model):
     skill_communication = models.IntegerField(null=True, blank=True, default=None)
 
     # Last checks
-    last_skill_check    = models.DateTimeField(null=True, blank=True, default=None)
-    last_language_check = models.DateTimeField(null=True, blank=True, default=None)
+    last_skill_check    = models.DateTimeField(null=True, blank=True)
+    last_language_check = models.DateTimeField(null=True, blank=True)
 
     def countIncidents(self):
         return Incident.objects.filter(members = self).count()
