@@ -31,6 +31,10 @@ var Select2 = function () {
             placeholder: 'Search account...'
         });
 
+        $("#select_admin_report").select2({
+            placeholder: 'Select report...'
+        });
+
         $("#select_report").select2({
             placeholder: 'Select report...'
         });
@@ -46,6 +50,75 @@ var Select2 = function () {
             let account_id = $("#select_analyser").val();
             let channel = $("#select_analyser").find(":selected").data("channel");
             window.location.href = '/tools/ppcanalyser/account/overview/' + account_id + '/' + channel;
+        });
+
+        $("#select_admin_report").on('select2:select', function (e) {
+
+            var table = $("#m_admin_report");
+            var report = $(this).val();
+
+            $('#report_results').removeClass('hidden');
+
+            $.ajax({
+                url: "/tools/ppcanalyser/reports/get",
+                data: {
+                    'report': report
+                },
+                type: 'GET',
+
+                success: function (data) {
+                    if ($.fn.dataTable.isDataTable(table)) {
+                        table.DataTable().clear();
+                        table.DataTable().destroy();
+                        table.DataTable({
+                            pageLength: 25,
+                            order: [[1, "asc"]],
+                            data: data['data'],
+                            columns: [
+                                {
+                                    "title": "Account",
+                                    "data": 'account',
+                                },
+                                {
+                                    "title": data['column'],
+                                    "data": 'score',
+                                    // "render": function (data, type, row, meta) {
+                                    //     console.log(meta);
+                                    //     if (type === 'display') {
+                                    //         data = '<a href="'+ data +'">' + data + '</a>';
+                                    //     }
+                                    //
+                                    //     return data;
+                                    // }
+                                }
+                            ]
+                        });
+                    } else {
+                        table.DataTable({
+                            pageLength: 25,
+                            data: data['data'],
+                            order: [[1, "asc"]],
+                            columns: [
+                                {
+                                    "title": "Account",
+                                    "data": 'account',
+                                },
+                                {
+                                    "title": data['column'],
+                                    "data": 'score',
+                                    // "render": function (type) {
+                                    //     if (type === 'display') {
+                                    //         data = '<a href="'+ data['info']['url'] +'">' + data['info']['score'] + '</a>';
+                                    //     }
+                                    //
+                                    //     return data;
+                                    // }
+                                }
+                            ]
+                        });
+                    }
+                }
+            });
         });
 
         $("#m_select2_adwords").select2({
@@ -577,7 +650,7 @@ var Select2 = function () {
         });
 
         $("#select_accounts_cgr").select2({
-           placeholder: "Select account..."
+            placeholder: "Select account..."
         });
 
         $("#select_accounts_cgr").on('select2:select', function (e) {
