@@ -4,7 +4,9 @@ from tools import views
 urlpatterns = [
     url(r"^$", views.index_tools, name="index"),
     url(r"^ppcanalyser$", views.analyser, name="analyser"),
+    url(r"^ppcanalyser/reports/$", views.admin_reports, name="admin_reports"),
     url(r"^ppcanalyser/reports/run$", views.run_reports, name="report_run"),
+    url(r"^ppcanalyser/reports/get$", views.get_report, name="report_get"),
     url(r"^ppcanalyser/account/overview/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_overview, name="account_overview"),
     url(r"^ppcanalyser/account/trends/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_results, name="account_results"),
     url(r"^ppcanalyser/account/trends/weekly/(?P<account_id>\d+)/(?P<channel>\w+)", views.account_results_weekly, name="account_results_weekly"),

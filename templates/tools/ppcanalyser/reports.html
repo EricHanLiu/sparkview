@@ -1,0 +1,114 @@
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+    {% csrf_token %}
+
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>Reports - PPC Analyser</span>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <select class="form-control m-input" name="analyser"
+                                id="select_admin_report" style="width: 100%;">
+                            <option></option>
+                            <option value="trends"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                Trends report
+                            </option>
+                            <option value="qscore"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                QS Report
+                            </option>
+                            <option value="wspend"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                Wasted spend
+                            </option>
+                            <option>Account Activity</option>
+                            <option value="changehistory"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                Change History Report
+                            </option>
+                            <option value="disapprovedads"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                Disapproved ads report
+                            </option>
+                            <option value="notrunning"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                Account Errors
+                            </option>
+                            <option>Tags Report</option>
+                            <option value="extensions"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                Extension Report
+                            </option>
+                            <option>Conversion Tracking</option>
+                            <option value="nlc"
+                                    {% if account.channel == 'adwords' %}
+                                    data-account_id="{{ account.dependent_account_id }}"
+                                    {% else %}
+                                    data-account_id="{{ account.account_id }}"
+                                    {% endif %}
+                                    data-channel="{{ account.channel }}">
+                                NLC Attribution
+                            </option>
+                        </select>
+                            </div>
+                        </div>
+                        <div class="m-separator m-separator--metal"></div>
+                        <div class="row" class="hidden" id="report_results">
+                            <div class="col-md-12">
+                                <table id="m_admin_report" class="table m-table">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+
+{% endblock %}
