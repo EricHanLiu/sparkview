@@ -72,8 +72,7 @@ var Select2 = function () {
                         table.DataTable().destroy();
                         table.DataTable({
                             pageLength: 25,
-                            order: [[1, "asc"]],
-                            data: data['data'],
+                            data: data.table,
                             columns: [
                                 {
                                     "title": "Account",
@@ -81,23 +80,25 @@ var Select2 = function () {
                                 },
                                 {
                                     "title": data['column'],
-                                    "data": 'score',
-                                    // "render": function (data, type, row, meta) {
-                                    //     console.log(meta);
-                                    //     if (type === 'display') {
-                                    //         data = '<a href="'+ data +'">' + data + '</a>';
-                                    //     }
-                                    //
-                                    //     return data;
-                                    // }
+                                    "data": 'data_score',
+                                    "type": 'num',
+                                    "render": function (data, type, row, meta) {
+                                        if (type === 'display') {
+                                            data = '<a href="' + data.url + '">' + data.score + '</a>';
+                                        } else if (type === 'sort') {
+                                            data = data.score;
+                                        }
+                                        return data;
+                                    }
                                 }
-                            ]
+                            ],
+                            aaSorting: [[1, "asc"]]
                         });
                     } else {
+
                         table.DataTable({
                             pageLength: 25,
-                            data: data['data'],
-                            order: [[1, "asc"]],
+                            data: data.table,
                             columns: [
                                 {
                                     "title": "Account",
@@ -105,16 +106,19 @@ var Select2 = function () {
                                 },
                                 {
                                     "title": data['column'],
-                                    "data": 'score',
-                                    // "render": function (type) {
-                                    //     if (type === 'display') {
-                                    //         data = '<a href="'+ data['info']['url'] +'">' + data['info']['score'] + '</a>';
-                                    //     }
-                                    //
-                                    //     return data;
-                                    // }
+                                    "data": 'data_score',
+                                    "type": 'num',
+                                    "render": function (data, type, row, meta) {
+                                        if (type === 'display') {
+                                            data = '<a href="' + data.url + '">' + data.score + '</a>';
+                                        } else if (type === 'sort') {
+                                            data = data.score;
+                                        }
+                                        return data;
+                                    }
                                 }
-                            ]
+                            ],
+                            aaSorting: [[1, "asc"]],
                         });
                     }
                 }

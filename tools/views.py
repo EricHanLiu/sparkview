@@ -16,7 +16,7 @@ def generate_recommendations(account):
 
     if account.channel == 'adwords':
         scores = [
-            ('trends', account.trends_score, 'Change History'),
+            ('trends', account.trends_score, 'Trends'),
             ('qs', account.qs_score, 'Quality Score'),
             ('ws', account.wspend_score, 'Wasted Spend'),
             ('ch', account.changed_score[0], 'Change History'),
@@ -280,14 +280,7 @@ def wasted_spend(request, account_id, channel):
 
     return render(request, 'tools/ppcanalyser/wasted_spend.html', context)
 
-@login_required
-def get_report(request):
-
-
-    report = request.GET.get('report')
-
-    adwords = DependentAccount.objects.filter(blacklisted=False)
-    bing = BingAccounts.objects.filter(blacklisted=False)
+def generate_table_data(adwords, bing, report):
 
     data = []
 
@@ -296,26 +289,25 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.trends_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:account_results', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score': round(acc.trends_score, 2),
+                    'url': reverse('tools:account_results', args=(acc.dependent_account_id, acc.channel))
+                },
             }
             data.append(item)
 
         for bacc in bing:
             item = {
                 'account': 'B - ' + bacc.account_name,
-                'score': round(bacc.trends_score, 2),
-                'channel': bacc.channel,
-                'account_id': bacc.account_id,
-                'url': reverse('tools:account_results', args=(bacc.account_id, bacc.channel)),
-                'report': report
+                'data_score': {
+                    'score': round(bacc.trends_score, 2),
+                    'url': reverse('tools:account_results', args=(bacc.account_id, bacc.channel)),
+                },
             }
             data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Trends Report Score'
         }
 
@@ -324,27 +316,25 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.qs_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:account_qs', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score': round(acc.qs_score, 2),
+                    'url': reverse('tools:account_qs', args=(acc.dependent_account_id, acc.channel))
+                },
             }
             data.append(item)
 
         for bacc in bing:
             item = {
                 'account': 'B - ' + bacc.account_name,
-                'score': round(bacc.qs_score, 2),
-                'channel': bacc.channel,
-                'account_id': bacc.account_id,
-                'url': reverse('tools:account_qs', args=(bacc.account_id, bacc.channel)),
-                'report': report
-
+                'data_score': {
+                    'score': round(bacc.qs_score, 2),
+                    'url': reverse('tools:account_qs', args=(bacc.account_id, bacc.channel)),
+                },
             }
             data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Quality Score Report Score'
         }
 
@@ -353,26 +343,25 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.dads_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:disapproved_ads', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score': round(acc.dads_score, 2),
+                    'url': reverse('tools:disapproved_ads', args=(acc.dependent_account_id, acc.channel)),
+                },
             }
             data.append(item)
 
         for bacc in bing:
             item = {
                 'account': 'B - ' + bacc.account_name,
-                'score': round(bacc.dads_score, 2),
-                'channel': bacc.channel,
-                'account_id': bacc.account_id,
-                'url': reverse('tools:disapproved_ads', args=(bacc.account_id, bacc.channel)),
-                'report': report
+                'data_score': {
+                    'score': round(bacc.dads_score, 2),
+                    'url': reverse('tools:disapproved_ads', args=(bacc.account_id, bacc.channel)),
+                }
             }
             data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Disapproved Ads Report Score'
         }
 
@@ -381,10 +370,10 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score' :round(acc.changed_score[0], 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:change_history', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score' :round(acc.changed_score[0], 2),
+                    'url': reverse('tools:change_history', args=(acc.dependent_account_id, acc.channel))
+                },
             }
             data.append(item)
 
@@ -393,7 +382,7 @@ def get_report(request):
         #     data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Change History Report Score'
         }
 
@@ -402,26 +391,25 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.nr_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:not_running', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                   'score': round(acc.nr_score, 2),
+                    'url': reverse('tools:not_running', args=(acc.dependent_account_id, acc.channel))
+                },
             }
             data.append(item)
 
         for bacc in bing:
             item = {
                 'account': 'B - ' + bacc.account_name,
-                'score': round(bacc.nr_score, 2),
-                'channel': bacc.channel,
-                'account_id': bacc.account_id,
-                'url': reverse('tools:not_running', args=(bacc.account_id, bacc.channel)),
-                'report': report
+                'data_score': {
+                    'score': round(bacc.nr_score, 2),
+                    'url': reverse('tools:not_running', args=(bacc.account_id, bacc.channel)),
+                }
             }
             data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Account Errors Report Score'
         }
 
@@ -430,10 +418,10 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.ext_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:extensions', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score': round(acc.ext_score, 2),
+                    'url': reverse('tools:extensions', args=(acc.dependent_account_id, acc.channel)),
+                }
             }
             data.append(item)
 
@@ -442,7 +430,7 @@ def get_report(request):
         #     data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Extensions Report Score'
         }
 
@@ -451,10 +439,10 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.nlc_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:nlc_attr', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score': round(acc.nlc_score, 2),
+                    'url': reverse('tools:nlc_attr', args=(acc.dependent_account_id, acc.channel)),
+                }
             }
             data.append(item)
 
@@ -463,7 +451,7 @@ def get_report(request):
         #     data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'NLC Attribution Model Report Score'
         }
 
@@ -472,28 +460,40 @@ def get_report(request):
         for acc in adwords:
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
-                'score': round(acc.wspend_score, 2),
-                'account_id': acc.dependent_account_id,
-                'channel': acc.channel,
-                'url': reverse('tools:wspend', args=(acc.dependent_account_id, acc.channel)),
+                'data_score': {
+                    'score': round(acc.wspend_score, 2),
+                    'url': reverse('tools:wspend', args=(acc.dependent_account_id, acc.channel)),
+                }
             }
             data.append(item)
 
         for bacc in bing:
             item = {
                 'account': 'B - ' + bacc.account_name,
-                'score': round(bacc.wspend_score, 2),
-                'channel': bacc.channel,
-                'account_id': bacc.account_id,
-                'url': reverse('tools:wspend', args=(bacc.account_id, bacc.channel)),
-                'report': report
+                'data_score': {
+                    'score': round(bacc.wspend_score, 2),
+                    'url': reverse('tools:wspend', args=(bacc.account_id, bacc.channel)),
+                }
             }
             data.append(item)
 
         response = {
-            'data': data,
+            'table': data,
             'column': 'Wasted Spend Report Score'
         }
+
+
+    return response
+
+@login_required
+def get_report(request):
+
+    report = request.GET.get('report')
+
+    adwords = DependentAccount.objects.filter(blacklisted=False)
+    bing = BingAccounts.objects.filter(blacklisted=False)
+
+    response = generate_table_data(adwords, bing, report)
 
     return JsonResponse(response, safe=False)
 
