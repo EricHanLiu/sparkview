@@ -222,6 +222,8 @@ CRONJOBS = [
     ('40 13 * * *', 'cron_nlc_am.main', '> ' + BASE_DIR + '/logs/cron_nlc_am.log'),
     ('50 13 * * *', 'cron_wasted_spend.main', '> ' + BASE_DIR + '/logs/cron_wasted_spend.log'),
     ('00 14 * * *', 'bing_wasted_spend.main', '> ' + BASE_DIR + '/logs/bing_wasted_spend.log'),
+    ('10 14 * * *', 'cron_kw_wastage.main', '> ' + BASE_DIR + '/logs/cron_kw_wastage.log'),
+    ('10 14 * * *', 'bing_kw_wastage.main', '> ' + BASE_DIR + '/logs/bing_kw_wastage.log'),
 ]
 
 # Bing Stuff

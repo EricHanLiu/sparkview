@@ -96,6 +96,8 @@
                                                     {% url 'tools:wspend' account.dependent_account_id account.channel %}
                                                 {% elif rec.0 == 'dads' %}
                                                     {% url 'tools:disapproved_ads' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'keywordwastage' %}
+                                                    {% url 'tools:keyword_wastage' account.dependent_account_id account.channel %}
                                                 {% endif %}
                                             {% else %}
                                                 {% if rec.0 == 'ch' %}
@@ -114,6 +116,8 @@
                                                     {% url 'tools:wspend' account.account_id account.channel %}
                                                 {% elif rec.0 == 'dads' %}
                                                     {% url 'tools:disapproved_ads' account.account_id account.channel %}
+                                                {% elif rec.0 == 'keywordwastage' %}
+                                                    {% url 'tools:keyword_wastage' account.account_id account.channel %}
                                                 {% endif %}
                                             {% endif %}
                                                 ">
