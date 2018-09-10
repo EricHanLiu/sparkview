@@ -1122,12 +1122,12 @@ def adwords_nlc_attr_model(self, customer_id):
     calculate_account_score(account)
 
 @celery_app.task(bind=True)
-def adwords_account_wasted_spend(self, customder_id):
+def adwords_account_wasted_spend(self, customer_id):
 
     # same for kw wastage and display wastage
     # above avg spend w/ below avg. conversions
 
-    account = DependentAccount.objects.get(dependent_account_id=customder_id)
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
@@ -1192,13 +1192,76 @@ def adwords_account_wasted_spend(self, customder_id):
         calculate_account_score(account)
 
 @celery_app.task(bind=True)
+def adwords_account_keyword_wastage(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    cost = 0
+    conversions = 0
+    kw_data = []
+
+    daterange = helper.get_this_month_daterange()
+
+    data = helper.get_keyword_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        **daterange
+    )
+
+    kw_no = len(data)
+
+    for item in data:
+        cost += helper.mcv(item['cost'])
+        conversions += float(item['conversions'])
+
+    if kw_no > 0:
+        avg_cost = cost / kw_no
+        avg_conv = conversions / kw_no
+
+        for kw in data:
+            if helper.mcv(kw['cost']) > avg_cost and float(kw['conversions']) < avg_conv:
+                kw_data.append({
+                    'campaign': str(kw['campaign'].encode('utf-8')),
+                    'adgroup': kw['ad_group'],
+                    'keyword': kw['keyword'],
+                    'conversions': kw['conversions'],
+                    'spend': helper.mcv(kw['cost']),
+                    'average_cost': avg_cost,
+                    'average_conversions': avg_conv
+                })
+
+        if len(kw_data) == 0:
+
+            kw_data = [{
+                'average_cost': avg_cost,
+                'average_conversions': avg_conv
+            }]
+
+            account.kw_score = 100.0
+            account.kw_data = json.dumps(kw_data)
+        else:
+            account.kw_score = (len(kw_data) * 100) / kw_no
+            account.kw_data = kw_data
+
+        account.save()
+        calculate_account_score(account)
+    else:
+        account.kw_score = 0.0
+        account.kw_data = []
+
+        account.save()
+        calculate_account_score(account)
+
+@celery_app.task(bind=True)
 def calculate_account_score(self, account):
 
     if isinstance(account, DependentAccount):
 
         account.account_score = (account.trends_score + account.qs_score + account.changed_score[0]
                              + account.dads_score + account.nr_score + account.ext_score + account.nlc_score
-                             + account.wspend_score) / 8
+                             + account.wspend_score + account.kw_score) / 9
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')

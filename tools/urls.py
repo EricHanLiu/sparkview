@@ -17,6 +17,7 @@ urlpatterns = [
     url(r"^ppcanalyser/account/extensions/(?P<account_id>\d+)/(?P<channel>\w+)", views.extensions, name="extensions"),
     url(r"^ppcanalyser/account/nlc/(?P<account_id>\d+)/(?P<channel>\w+)", views.nlc_attr, name="nlc_attr"),
     url(r"^ppcanalyser/account/wspend/(?P<account_id>\d+)/(?P<channel>\w+)", views.wasted_spend, name="wspend"),
+    url(r"^ppcanalyser/account/keywordwastage/(?P<account_id>\d+)/(?P<channel>\w+)", views.kw_wastage, name="keyword_wastage"),
     url(r"^labels/create$", views.create_labels, name="create_labels"),
     url(r"^labels/deassign$", views.deassign_labels, name="deassign_labels"),
     url(r"^labels/assign$", views.assign_labels, name="assing_labels"),
