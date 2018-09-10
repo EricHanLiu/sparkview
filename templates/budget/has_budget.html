@@ -280,23 +280,25 @@
                                 {% for budget in budgets %}
                                     {% if budget.adwords == a %}
                                         <div class="row">
-                                            <div class="col-md-4">
-                                                {{ budget.network_type }}
+                                            <div class="col-md-8">
+                                                {% for network in budget.networks %}
+                                                    <span class="m-badge m-badge--bordered m-badge-bordered--danger m-badge--wide">{{ network }}</span>
+                                                {% endfor %}
 
                                                 <i class="fa fa-minus-circle" data-toggle="modal"
                                                    data-target="#m_delete_kpi" data-budgetid="{{ budget.id }}"
                                                    data-network="{{ budget.network_type }}"></i>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-2">
                                                 <span class="m-badge m-badge--metal m-badge--dot"></span>
                                                 Current spend: {{ budget.spend }}
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-2">
                                                 <span class="m-badge m-badge--metal m-badge--dot"></span>
                                                 Target Spend: {{ budget.budget }}
                                             </div>
                                         </div>
-                                        <div class="row">
+                                        <div class="row" style="margin-top: 10px">
                                             <div class="col-md-12">
                                                 <div class="progress m-progress--lg"
                                                      style="position: relative;!important;">

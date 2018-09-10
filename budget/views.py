@@ -166,54 +166,33 @@ def add_client(request):
             new_client.has_gts = True
             new_client.target_spend = gts_value
 
-        elif has_gts == '0':
-            new_client.has_budget = True
-
-        elif not has_gts:
+        elif has_gts == '0' or not has_gts:
             new_client.has_budget = True
 
         if adwords_accounts:
             for a in new_aw:
 
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                spend = request.POST.getlist('aw_budget_' + a)
-                networks = request.POST.getlist('network_type_' + a)
+                spend = request.POST.get('aw_budget_' + a)
+                networks = request.POST.getlist('networks')
 
-                for a, b in zip(spend, networks):
-                    if a:
-                        new_budget = Budget.objects.create(
-                            adwords=aw_acc,
-                            budget=float(a),
-                            network_type=b
-                        )
+                if 'All' in networks and len(networks) == 1:
+                    aw_acc.desired_spend = float(spend)
+                    budget += float(spend)
 
-                        if b == 'All':
-                            aw_acc.desired_spend = float(a)
-                            budget += float(a)
-                            new_budget.spend = aw_acc.current_spend
-                            aw_acc.save()
-                            new_budget.save()
-                        else:
-                            aw_acc.desired_spend += float(a)
-                            budget += float(a)
-                    else:
-                        a = 0
-                        new_budget = Budget.objects.create(
-                            adwords=aw_acc,
-                            budget=float(a),
-                            network_type=b
-                        )
+                else:
+                    new_budget = Budget.objects.create(
+                        adwords=aw_acc,
+                        budget=float(spend),
+                        networks=networks
+                    )
 
-                        if b == 'All':
-                            aw_acc.desired_spend = float(a)
-                            budget += float(a)
-                            new_budget.spend = aw_acc.current_spend
-                            aw_acc.save()
-                            new_budget.save()
-                        else:
-                            aw_acc.desired_spend += float(a)
-                            budget += float(a)
+                    new_budget.spend = aw_acc.current_spend
+                    aw_acc.desired_spend = float(spend)
+                    budget += float(spend)
+                    new_budget.save()
 
+                aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
@@ -1100,8 +1079,12 @@ def edit_client_name(request):
 def add_kpi(request):
 
     data = request.POST
+    networks = request.POST.getlist('network_type')
+    budget = request.POST.get('kpi_budget')
     account = DependentAccount.objects.get(dependent_account_id=data['acc_id'])
-    Budget.objects.create(adwords=account, network_type=data['network_type'], budget=data['network_budget'])
+    Budget.objects.create(adwords=account, networks=networks, budget=budget)
+
+    adwords_tasks.adwords_cron_budgets.delay(account.dependent_account_id)
 
     response = {
         'account': account.dependent_account_name

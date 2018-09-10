@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
@@ -88,4 +88,5 @@ class Budget(models.Model):
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')
     network_type = models.CharField(max_length=255, default='ALL')
+    networks = ArrayField(models.CharField(max_length=255), blank=True, null=True)
     spend = models.FloatField(default=0)

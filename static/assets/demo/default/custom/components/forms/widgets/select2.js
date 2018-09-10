@@ -183,51 +183,52 @@ var Select2 = function () {
 
                 let budget_inputs = '<div class="budget-container" id="budget_container_' + iid[0] + '">' +
                     '<div class="row no-gutters align-items-center">' +
-                    '<div class="col-md-6">' +
+                    '<div class="col-md-12">' +
                     '<input type="number" id="' + iid[0] + '" name="aw_budget_' + iid[0] + '" ' +
                     'class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + ' ">' +
+                    '<div style="right: 20px;position: absolute;top: 8px;">' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox" name="networks" value="All" checked>' +
+                    'All' +
+                    '<span></span>' +
+                    '</label>' +
+                    '</div>'+
                     '</div>' +
-                    '<div class="col-md-4">' +
-                    '<select class="form-control m-input" name="network_type_' + iid[0] + '" id="network_type_' + iid[0] + '" >' +
-                    '<option value="All">All</option>' +
-                    '<option value="Cross-network">Cross-network</option>' +
-                    '<option value="Search Network">Search</option>' +
-                    '<option value="Display Network">Display</option>' +
-                    '<option value="YouTube Search">Youtube Search</option>' +
-                    '<option value="YouTube Videos">Youtube Videos</option>' +
-                    '<option value="NOT_RELATED">Not related</option>' +
-                    '</select>' +
+                    // '<div class="col-md-1">' +
+                    // '<i class="fa fa-plus-circle" style="margin-left: 20px" onclick="spawnInput(' + iid[0] + ',  \'' + data.text + '\')"></i>' +
+                    // '</div>' +
+                    // '<div class="col-md-1">' +
+                    // '<i class="fa fa-minus-circle" style="margin-left: 20px" onclick="removeInput(' + iid[0] + ')"></i>' +
+                    // '</div>' +
                     '</div>' +
-                    '<div class="col-md-1">' +
-                    '<i class="fa fa-plus-circle" style="margin-left: 20px" onclick="spawnInput(' + iid[0] + ',  \'' + data.text + '\')"></i>' +
-                    '</div>' +
-                    '<div class="col-md-1">' +
-                    '<i class="fa fa-minus-circle" style="margin-left: 20px" onclick="removeInput(' + iid[0] + ')"></i>' +
-                    '</div>' +
+                    '<div class="m-divider">' +
+                    '<span></span>' +
+                    '<span>or</span>' +
+                    '<span></span>' +
                     '</div>' +
                     '<div class="m-checkbox-inline">\n' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Cross-network' +
+                    '<input type="checkbox" name="networks" value="Cross-network"> Cross-network' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Search' +
+                    '<input type="checkbox" name="networks" value="Search Network"> Search' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Display' +
+                    '<input type="checkbox" name="networks" value="Display Network"> Display' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Youtube Search' +
+                    '<input type="checkbox" name="networks" value="Youtube Search"> Youtube Search' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Youtube Videos' +
+                    '<input type="checkbox" name="networks" value="Youtube Videos"> Youtube Videos' +
                     '<span></span>' +
                     '</label>' +
                     '</div>' +
-                    '<div class="m-separator"></div>' +
+                    // '<div class="m-separator"></div>' +
                     '</div>';
 
                 $('#budget-fields').append(budget_inputs);
