@@ -23,7 +23,8 @@ def generate_recommendations(account):
             ('dads', account.dads_score, 'Disapproved Ads'),
             ('nr', account.nr_score, 'Account Errors'),
             ('ext', account.ext_score, 'Extensions'),
-            ('nlc', account.nlc_score, 'NLC Attribution')
+            ('nlc', account.nlc_score, 'NLC Attribution'),
+            ('keywordwastage', account.kw_score, 'Keyword Wastage')
         ]
     else:
         scores = [
@@ -33,6 +34,7 @@ def generate_recommendations(account):
             # ('ch', account.changed_score[0], 'Change History'),
             ('dads', account.dads_score, 'Disapproved Ads'),
             ('nr', account.nr_score, 'Account Errors'),
+            ('keywordwastage', account.kw_score, 'Keyword Wastage')
             # ('ext', account.ext_score, 'Extensions'),
             # ('nlc', account.nlc_score, 'NLC Attribution')
         ]
