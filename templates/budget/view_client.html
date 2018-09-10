@@ -152,19 +152,38 @@
                         <p>Add new KPI for <span id="akpi_acc_name"></span></p>
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <input class="form-control" name="network_budget" id="kpi_budget"
+                                <div class="col-md-12">
+                                    <input class="form-control" name="kpi_budget" id="kpi_budget"
                                            placeholder="Budget.." type="number">
                                 </div>
-                                <div class="col-md-6">
-                                    <select class="form-control m-input" name="network_type">
-                                        <option selected disabled>Network type</option>
-                                        <option>Search Network</option>
-                                        <option>Display Network</option>
-                                        <option>Youtube Search</option>
-                                        <option>Youtube Videos</option>
-                                        <option>Not related</option>
-                                    </select>
+                            </div>
+                            <div class="m-separator"></div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="m-form__group form-group">
+                                        <div class="m-checkbox-list">
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Cross-network"> Cross-network
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox" >
+                                                <input type="checkbox" name="network_type" value="Search Network"> Search
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Display Network"> Display
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Youtube Search"> Youtube Search
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Youtube Videos"> Youtube Videos
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -391,7 +410,7 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <form id="add_campaign_group_across">
-{#                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">#}
+                        {#                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">#}
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Campaign groups</p>
                         <div class="form-group">
@@ -401,13 +420,16 @@
                                             id="select_accounts_cgr" style="width: 100%;">
                                         <option></option>
                                         {% for a in client_data.adwords.all %}
-                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">A - {{ a.dependent_account_name }}</option>
+                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">
+                                                A - {{ a.dependent_account_name }}</option>
                                         {% endfor %}
                                         {% for b in client_data.bing.all %}
-                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B - {{ b.account_name }}</option>
+                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B
+                                                - {{ b.account_name }}</option>
                                         {% endfor %}
                                         {% for f in client_data.facebook.all %}
-                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F - {{ f.account_name }}</option>
+                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F
+                                                - {{ f.account_name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -420,16 +442,19 @@
                                 <div class="col-lg-5 col-md-5 col-sm-12">
                                     <div class="m-radio-inline">
                                         <label class="m-radio">
-                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text_across"> Text
+                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text_across">
+                                            Text
                                             <span></span>
                                         </label>
                                         <label class="m-radio">
-                                            <input type="radio" name="cgr_group_by" value="manual" id="gr_manual_across">
+                                            <input type="radio" name="cgr_group_by" value="manual"
+                                                   id="gr_manual_across">
                                             Manual
                                             <span></span>
                                         </label>
                                         <label class="m-checkbox m-checkbox--check-bold">
-                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_across"> Flight
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_across">
+                                            Flight
                                             date
                                             <span></span>
                                         </label>
@@ -488,7 +513,8 @@
                             <div class="form-group m-form__group row">
                                 <div class="col-md-12">
                                     <label for="cgr_acc_name">Account: </label>
-                                    <input type="text" name="cgr_acc_name" class="form-control" id="cgr_acc_name" disabled>
+                                    <input type="text" name="cgr_acc_name" class="form-control" id="cgr_acc_name"
+                                           disabled>
                                 </div>
                             </div>
                             <div class="form-group m-form__group row">
@@ -976,7 +1002,7 @@
                     name: 'acc_id', value: account_id
                 }
             );
-
+            console.log(data);
             $.ajax({
                 type: "POST",
                 url: "/budget/client/kpi/add",
@@ -985,7 +1011,7 @@
                 complete: function () {
                     setTimeout(function () {
                         location.reload();
-                    }, 2500);
+                    }, 1800);
                 },
                 success: function (data) {
                     modal.modal('hide');

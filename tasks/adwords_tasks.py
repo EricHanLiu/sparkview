@@ -516,18 +516,14 @@ def adwords_cron_budgets(self, customer_id):
     )
 
     for b in budgets:
-
         if b.adwords == account:
             b.spend = 0
             for d in data_this_month:
-
-                if b.network_type == 'All':
+                if 'All' in b.networks and len(b.networks) == 1:
                     b.spend += helper.mcv(d['cost'])
-
-                if d['network'] == b.network_type:
-                    b.spend = helper.mcv(d['cost'])
-
-                b.save()
+                if d['network'] in b.networks:
+                    b.spend += helper.mcv(d['cost'])
+            b.save()
         else:
             print('No budgets found on this account')
 
