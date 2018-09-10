@@ -75,6 +75,8 @@ class DependentAccount(models.Model):
     nlc_score = models.FloatField(default=0)
     wspend_data = JSONField(default=dict, null=True, blank=True)
     wspend_score = models.FloatField(default=0)
+    kw_data = JSONField(default=dict, null=True, blank=True)
+    kw_score = models.FloatField(default=0)
     account_score = models.FloatField(default=0)
     weekly_data = JSONField(default=dict, null=True, blank=True)
     hist_qs = JSONField(default=dict, blank=True, null=True)

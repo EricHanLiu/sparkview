@@ -1108,6 +1108,20 @@ class AdwordsReportingService(AdwordsReporting):
 
         return self.parse_report_csv(downloaded_report)
 
+    def get_keyword_performance(self, customer_id=None, **kwargs):
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_keyword_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
+
     def get_account_quality_score(self, customer_id=None, **kwargs):
 
         client = self.client
