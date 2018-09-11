@@ -70,7 +70,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Trends Report Score'
+            'column': 'Trends Report Score',
+            'report': report
         }
 
     elif report == 'qscore':
@@ -97,7 +98,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Quality Score Report Score'
+            'column': 'Quality Score Report Score',
+            'report': report
         }
 
     elif report == 'disapprovedads':
@@ -124,18 +126,32 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Disapproved Ads Report Score'
+            'column': 'Disapproved Ads Report Score',
+            'report': report
         }
 
     elif report == 'changehistory':
 
         for acc in adwords:
+            today = datetime.today()
+            lc_val = acc.changed_data['lastChangeTimestamp']
+
+            if lc_val != 'TOO_MANY_CHANGES' and lc_val != 'NO_ACTIVE_CAMPAIGNS':
+                last_change_val = lc_val.strip(' ')[0:8]
+                last_change = datetime.strptime(last_change_val, "%Y%m%d").date()
+                lc_diff = today.day - last_change.day
+            elif lc_val == 'TOO_MANY_CHANGES':
+                lc_diff = 99
+            elif lc_val == 'NO_ACTIVE_CAMPAIGNS':
+                lc_diff = '-'
+
             item = {
                 'account': 'A - ' + acc.dependent_account_name,
                 'data_score': {
                     'score' :round(acc.changed_score[0], 2),
                     'url': reverse('tools:change_history', args=(acc.dependent_account_id, acc.channel))
                 },
+                'last_change': lc_diff
             }
             data.append(item)
 
@@ -145,7 +161,9 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Change History Report Score'
+            'column': 'Change History Report Score',
+            'column2': 'Days since last change',
+            'report': report
         }
 
     elif report == 'notrunning':
@@ -172,7 +190,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Account Errors Report Score'
+            'column': 'Account Errors Report Score',
+            'report': report
         }
 
     elif report == 'extensions':
@@ -193,7 +212,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Extensions Report Score'
+            'column': 'Extensions Report Score',
+            'report': report
         }
 
     elif report == 'nlc':
@@ -214,7 +234,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'NLC Attribution Model Report Score'
+            'column': 'NLC Attribution Model Report Score',
+            'report': report
         }
 
     elif report == 'wspend':
@@ -241,7 +262,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Wasted Spend Report Score'
+            'column': 'Wasted Spend Report Score',
+            'report': report
         }
 
     elif report == 'keywordwastage':
@@ -268,7 +290,8 @@ def generate_table_data(adwords, bing, report):
 
         response = {
             'table': data,
-            'column': 'Keyword wastage Report Score'
+            'column': 'Keyword wastage Report Score',
+            'report': report
         }
 
     return response
@@ -534,6 +557,25 @@ def kw_wastage(request, account_id, channel):
     return render(request, 'tools/ppcanalyser/kw_wastage.html', context)
 
 @login_required
+def search_queries(request, account_id, channel):
+
+    if channel == 'adwords':
+        account = DependentAccount.objects.get(dependent_account_id=account_id)
+
+        context = {
+            'account': account
+        }
+
+    elif channel == 'bing':
+        account = BingAccounts.objects.get(account_id=account_id)
+
+        context = {
+            'account': account
+        }
+
+    return render(request, 'tools/ppcanalyser/search_queries.html', context)
+
+@login_required
 def get_report(request):
 
     report = request.GET.get('report')
@@ -572,6 +614,8 @@ def run_reports(request):
             adwords_tasks.adwords_account_wasted_spend.delay(account_id)
         elif report == 'keywordwastage':
             adwords_tasks.adwords_account_keyword_wastage.delay(account_id)
+        elif report == 'searchqueries':
+            adwords_tasks.adwords_account_search_queries.delay(account_id)
     elif channel == 'bing':
         if report == 'results':
             bing_tasks.bing_result_trends.delay(account_id)

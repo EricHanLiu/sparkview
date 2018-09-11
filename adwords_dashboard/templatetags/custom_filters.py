@@ -1,5 +1,6 @@
-from django import template
 import datetime
+import re
+from django import template
 from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
@@ -134,3 +135,10 @@ def calculate_ovu(estimated_spend, desired_spend):
         return int((estimated_spend / desired_spend) * 100)
     except ZeroDivisionError:
         return 0
+
+@register.filter
+def replace ( string, args ):
+    search  = args.split(args[0])[1]
+    replace = args.split(args[0])[2]
+
+    return re.sub( search, replace, string )

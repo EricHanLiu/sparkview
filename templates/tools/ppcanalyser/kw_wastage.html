@@ -149,6 +149,15 @@
                                                 data-channel="{{ account.channel }}">
                                             Keyword wastage - {{ account.kw_score|floatformat:2 }}/100
                                         </option>
+                                        <option value="searchqueries"
+                                                {% if account.channel == 'adwords' %}
+                                                data-account_id="{{ account.dependent_account_id }}"
+                                                {% else %}
+                                                data-account_id="{{ account.account_id }}"
+                                                {% endif %}
+                                                data-channel="{{ account.channel }}">
+                                            Search Queries - {{ account.sq_score|floatformat:2 }}/100
+                                        </option>
                                     </select>
                                 </div>
                             </div>
@@ -228,7 +237,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for Wasted spend report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Keyword wastage report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);
