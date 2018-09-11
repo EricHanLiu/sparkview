@@ -1035,6 +1035,60 @@ class AdwordsReporting(Reporting):
 
         return query
 
+
+    def get_sqr_performance_query(
+            self,
+            dateRangeType="LAST_14_DAYS",
+            enabled=True,
+            **kwargs
+    ):
+        fields = [
+            "AccountDescriptiveName",
+            "Impressions",
+            "KeywordTextMatchingQuery",
+            "CampaignName",
+            "AdGroupName",
+            "Cost",
+            "Conversions",
+            'Query'
+        ]
+
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if extra_fields:
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        query = {
+            "reportName": "SEARCH_QUERY_PERFORMANCE_REPORT",
+            "dateRangeType": dateRangeType,
+            "reportType": "SEARCH_QUERY_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {
+                "fields": fields
+            },
+        }
+
+        predicates = [
+            {
+                "field": "CampaignStatus",
+                "operator": "EQUALS",
+                "values": ["ENABLED"],
+            },
+            {"field": "AdGroupStatus", "operator": "EQUALS", "values": ["ENABLED"]},
+        ]
+
+        if enabled:
+            query["selector"]["predicates"] = predicates
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        return query
+
+
     def mcv(self, cost):
         cost = float(cost)
         if cost > 0:
@@ -1095,6 +1149,7 @@ class AdwordsReportingService(AdwordsReporting):
         return self.parse_report_csv(downloaded_report)
 
     def get_adgroup_performance(self, customer_id=None, **kwargs):
+
         client = self.client
         if customer_id is not None:
             client.client_customer_id = customer_id
@@ -1121,6 +1176,25 @@ class AdwordsReportingService(AdwordsReporting):
         )
 
         return self.parse_report_csv(downloaded_report)
+
+
+    def get_sqr_performance(self, customer_id=None, **kwargs):
+        client = self.client
+
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        AdwordsReporting.report_headers['include_zero_impressions'] = False
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_sqr_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
+
 
     def get_account_quality_score(self, customer_id=None, **kwargs):
 

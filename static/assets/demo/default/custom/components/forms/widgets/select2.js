@@ -55,9 +55,57 @@ var Select2 = function () {
         $("#select_admin_report").on('select2:select', function (e) {
 
             var table = $("#m_admin_report");
+            var table_wrapper = $('#report_results');
             var report = $(this).val();
-
             $('#report_results').removeClass('hidden');
+
+            var columns = function (data) {
+                let c = (data['report'] === 'changehistory') ? [{
+                    "title": "Account",
+                    "data": 'account',
+                },
+                    {
+                        "title": data['column'],
+                        "data": 'data_score',
+                        "type": 'num',
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                data = '<a href="' + data.url + '">' + data.score + '</a>';
+                            } else if (type === 'sort') {
+                                data = data.score;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        "title": data['column2'],
+                        "data": 'last_change',
+                        "type": 'num',
+                        "render": function(data, type, row, meta){
+                            return data;
+                        }
+                    }] : [
+                    {
+                        "title": "Account",
+                        "data": 'account',
+                    },
+                    {
+                        "title": data['column'],
+                        "data": 'data_score',
+                        "type": 'num',
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                data = '<a href="' + data.url + '">' + data.score + '</a>';
+                            } else if (type === 'sort') {
+                                data = data.score;
+                            }
+                            return data;
+                        }
+                    }
+                ];
+
+                return c
+            };
 
             $.ajax({
                 url: "/tools/ppcanalyser/reports/get",
@@ -67,57 +115,27 @@ var Select2 = function () {
                 type: 'GET',
 
                 success: function (data) {
-                    if ($.fn.dataTable.isDataTable(table)) {
+
+                    if ($.fn.DataTable.fnIsDataTable(table)) {
                         table.DataTable().clear();
                         table.DataTable().destroy();
-                        table.DataTable({
+                        table.remove();
+                        table_wrapper.append('<table id="m_admin_report"><tbody></tbody></table>');
+
+                        $("#m_admin_report").DataTable({
+                            bDestroy: true,
+                            bProcessing: false,
                             pageLength: 25,
-                            data: data.table,
-                            columns: [
-                                {
-                                    "title": "Account",
-                                    "data": 'account',
-                                },
-                                {
-                                    "title": data['column'],
-                                    "data": 'data_score',
-                                    "type": 'num',
-                                    "render": function (data, type, row, meta) {
-                                        if (type === 'display') {
-                                            data = '<a href="' + data.url + '">' + data.score + '</a>';
-                                        } else if (type === 'sort') {
-                                            data = data.score;
-                                        }
-                                        return data;
-                                    }
-                                }
-                            ],
+                            aaData: data.table,
+                            aoColumns: columns(data),
                             aaSorting: [[1, "asc"]]
                         });
                     } else {
-
                         table.DataTable({
+                            bDestroy: true,
                             pageLength: 25,
-                            data: data.table,
-                            columns: [
-                                {
-                                    "title": "Account",
-                                    "data": 'account',
-                                },
-                                {
-                                    "title": data['column'],
-                                    "data": 'data_score',
-                                    "type": 'num',
-                                    "render": function (data, type, row, meta) {
-                                        if (type === 'display') {
-                                            data = '<a href="' + data.url + '">' + data.score + '</a>';
-                                        } else if (type === 'sort') {
-                                            data = data.score;
-                                        }
-                                        return data;
-                                    }
-                                }
-                            ],
+                            aaData: data.table,
+                            aoColumns: columns(data),
                             aaSorting: [[1, "asc"]],
                         });
                     }
@@ -192,7 +210,7 @@ var Select2 = function () {
                     'All' +
                     '<span></span>' +
                     '</label>' +
-                    '</div>'+
+                    '</div>' +
                     '</div>' +
                     // '<div class="col-md-1">' +
                     // '<i class="fa fa-plus-circle" style="margin-left: 20px" onclick="spawnInput(' + iid[0] + ',  \'' + data.text + '\')"></i>' +

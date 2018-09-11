@@ -1,4 +1,10 @@
+from __future__ import unicode_literals
 import json
+import re
+import itertools
+import calendar
+import unicodedata
+from builtins import str as text
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from bloom import celery_app
@@ -10,12 +16,16 @@ from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
-import itertools
-import calendar
 from operator import itemgetter
 from itertools import groupby
 from zeep.helpers import serialize_object
 
+
+regex = '\'[aA-zZ_09_-].*\''
+
+def remove_accents(input_str):
+    nkfd_form = unicodedata.normalize('NFKD', text(input_str))
+    return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 def month_converter(month):
     months = [
@@ -725,10 +735,10 @@ def adwords_account_quality_score(self, customer_id):
                     if i < 1000:
                         qs_data.append(
                             {
-                                'keyword': str(value[i]['keyword'].encode('utf-8')),
+                                'keyword': remove_accents(value[i]['keyword']),
                                 'quality_score': value[i]['quality_score'],
-                                'campaign': str(value[i]['campaign'].encode('utf-8')),
-                                'adgroup': str(value[i]['ad_group'].encode('utf-8')),
+                                'campaign': remove_accents(value[i]['campaign']),
+                                'adgroup': remove_accents(value[i]['ad_group']),
                                 'cost': helper.mcv(value[i]['cost']),
                                 'conversions': value[i]['conversions'],
                                 'ad_relevance': value[i]['ad_relevance'],
@@ -829,7 +839,7 @@ def adwords_account_change_history(self, customer_id):
                 change_counter = 19999
                 changes_dict = {
                     'changedCampaigns': 'Too many changes.',
-                    'lastChangeTimestamp': 'NOT_FOUND'
+                    'lastChangeTimestamp': 'TOO_MANY_CHANGES'
                 }
 
         try:
@@ -859,7 +869,7 @@ def adwords_account_change_history(self, customer_id):
             minDateL.strftime('%Y-%m-%d'): change_counter2,
             minDate.strftime('%Y-%m-%d'): change_counter
         }
-
+        print('ACCOUNT: ' + account.dependent_account_name + ' - ' + changed_data['lastChangeTimestamp'])
         account.changed_data = changed_data
         account.changed_score = change_score
         account.save()
@@ -872,7 +882,7 @@ def adwords_account_change_history(self, customer_id):
         s = last_change.strip(' ')
         s_dt = s[0:8]
 
-        if last_change == 'NOT_FOUND':
+        if last_change == 'TOO_MANY_CHANGES':
             print('Last change: ' + last_change)
         else:
             last_change_day = datetime.strptime(s_dt, date_format).date()
@@ -909,7 +919,7 @@ def adwords_account_change_history(self, customer_id):
         print('No active campaigns found.')
         account.changed_score = (0, 'No campaigns found for this account.')
         account.changed_data = {
-            'lastChangeTimestamp': 'NOT_FOUND'
+            'lastChangeTimestamp': 'NO_ACTIVE_CAMPAIGNS'
         }
         account.save()
         calculate_account_score(account)
@@ -1160,7 +1170,7 @@ def adwords_account_wasted_spend(self, customer_id):
         for cmp in campaign_data:
             if helper.mcv(cmp['cost']) > avg_cost and float(cmp['conversions']) < avg_conv:
                 ws_data.append({
-                    'campaign_name': str(cmp['campaign'].encode('utf-8')),
+                    'campaign_name': remove_accents(cmp['campaign']),
                     'campaign_id': cmp['campaign_id'],
                     'conversions': cmp['conversions'],
                     'spend': helper.mcv(cmp['cost']),
@@ -1223,7 +1233,7 @@ def adwords_account_keyword_wastage(self, customer_id):
         for kw in data:
             if helper.mcv(kw['cost']) > avg_cost and float(kw['conversions']) < avg_conv:
                 kw_data.append({
-                    'campaign': str(kw['campaign'].encode('utf-8')),
+                    'campaign': remove_accents(kw['campaign']),
                     'adgroup': kw['ad_group'],
                     'keyword': kw['keyword'],
                     'conversions': kw['conversions'],
@@ -1253,6 +1263,46 @@ def adwords_account_keyword_wastage(self, customer_id):
 
         account.save()
         calculate_account_score(account)
+
+@celery_app.task(bind=True)
+def adwords_account_search_queries(self, customer_id):
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    sq_data = []
+
+    daterange = helper.get_this_month_daterange()
+
+    data = helper.get_sqr_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        **daterange
+    )
+
+    kw_data = helper.get_keyword_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        **daterange
+    )
+
+    for st in data:
+        for kw in kw_data:
+            if float(st['conversions']) > 0 and kw['keyword'] not in st['search_term']:
+                sq_item = {
+                    'campaign': remove_accents(st['campaign']),
+                    'adgroup': remove_accents(st['ad_group']),
+                    'keyword': remove_accents(st['keyword']),
+                    'conversions': st['conversions'],
+                    'cost': helper.mcv(st['cost']),
+                    'search_term': remove_accents(st['search_term']),
+                }
+                sq_data.append(sq_item)
+
+    sq_data = list({v['search_term']:v for v in sq_data}.values())
+    account.sq_data = sq_data
+    account.save()
 
 @celery_app.task(bind=True)
 def calculate_account_score(self, account):
