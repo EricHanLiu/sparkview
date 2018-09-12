@@ -125,12 +125,16 @@ class Reporting:
     @staticmethod
     def get_change_no(account_changes):
 
+        campaign_changes = 0
         change_counter = 0
+        if 'lastChangeTimestamp' in account_changes:
+            print('Most recent changes: %s' % account_changes['lastChangeTimestamp'])
         if account_changes['changedCampaigns']:
             for data in account_changes['changedCampaigns']:
                 change_counter += len(account_changes['changedCampaigns'])
                 if (data['campaignChangeStatus'] != 'NEW' and
                         data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
+                    campaign_changes += 1
                     if 'addedCampaignCriteria' in data:
                         change_counter += len(data['addedCampaignCriteria'])
                     if 'removedCampaignCriteria' in data:
@@ -145,7 +149,7 @@ class Reporting:
                                     change_counter += len(ad_group_data['changedCriteria'])
                                 if 'removedCriteria' in ad_group_data:
                                     change_counter += len(ad_group_data['removedCriteria'])
-
+        print(campaign_changes)
         return change_counter
 
     def stringify_date(self, date, date_format='%Y%m%d'):
@@ -214,8 +218,12 @@ class Reporting:
                     v1 = v[0]
                     v2 = v[1]
 
-                v1 = float(v1) if v1 != '' else 0.0
-                v2 = float(v2) if v1 != '' else 0.0
+                if k == 'cost':
+                    v1 = float(v1) / 1000000 if v1 != '' else 0.0
+                    v2 = float(v2) / 1000000 if v2 != '' else 0.0
+                else:
+                    v1 = float(v1) if v1 != '' else 0.0
+                    v2 = float(v2) if v2 != '' else 0.0
 
                 try:
                     difference[k] = ((v1 - v2) / v1) * 100
