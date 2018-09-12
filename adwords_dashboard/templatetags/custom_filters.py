@@ -10,8 +10,18 @@ register = template.Library()
 @register.filter("get_dict_value")
 def get_dict_value(data, key):
 
-    return data[key]
+    try:
+        return data[key]
+    except TypeError:
+        return [0,0,0]
 
+
+@register.filter("mcv")
+def mcv(value):
+    try:
+        return float(value) / 1000000
+    except ValueError:
+        return 0
 
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):

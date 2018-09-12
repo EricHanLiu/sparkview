@@ -64,6 +64,10 @@ def account_anomalies(account_id, helper, daterange1, daterange2):
         **daterange2
     )
 
+    # Returns dict of metrics the following:
+    # 1st parameter = difference between the compared values
+    # 2nd parameter = first metric value to compare
+    # 3rd parameter = previous period metric value to compare
     differences = helper.compare_dict(
         current_period_performance[0], previous_period_performance[0]
     )
@@ -129,11 +133,11 @@ def adwords_cron_anomalies(self, customer_id):
         previous_period_daterange,
     )
     acc_metadata = {
-        "daterange1_min": helper.stringify_date(current_period_daterange["minDate"]),
-        "daterange1_max": helper.stringify_date(current_period_daterange["maxDate"]),
-        "daterange2_min": helper.stringify_date(previous_period_daterange["minDate"]),
-        "daterange2_max": helper.stringify_date(previous_period_daterange["maxDate"]),
-        "vals": acc_anomalies
+        'daterange1_min': helper.stringify_date(current_period_daterange["minDate"]),
+        'daterange1_max': helper.stringify_date(current_period_daterange["maxDate"]),
+        'daterange2_min': helper.stringify_date(previous_period_daterange["minDate"]),
+        'daterange2_max': helper.stringify_date(previous_period_daterange["maxDate"]),
+        'vals': acc_anomalies
     }
 
     Performance.objects.filter(account=account, performance_type='ACCOUNT').delete()
@@ -798,6 +802,7 @@ def adwords_account_change_history(self, customer_id):
         campaign_ids.append(c.campaign_id)
 
     if customer_id is not None:
+        print('Customer ID: ' + customer_id)
         client.client_customer_id = customer_id
 
     service = client.GetService('CustomerSyncService', version=API_VERSION)
@@ -830,6 +835,8 @@ def adwords_account_change_history(self, customer_id):
 
         try:
             account_changes = service.get(selector)
+            print('Account ID: ' + account.dependent_account_id)
+            print(account_changes['changedFeeds'])
             temp = serialize_object(account_changes)
             changes_dict = json.loads(json.dumps(temp))
             change_counter = helper.get_change_no(account_changes)
@@ -869,7 +876,10 @@ def adwords_account_change_history(self, customer_id):
             minDateL.strftime('%Y-%m-%d'): change_counter2,
             minDate.strftime('%Y-%m-%d'): change_counter
         }
-        print('ACCOUNT: ' + account.dependent_account_name + ' - ' + changed_data['lastChangeTimestamp'])
+
+        print(changed_data)
+
+
         account.changed_data = changed_data
         account.changed_score = change_score
         account.save()

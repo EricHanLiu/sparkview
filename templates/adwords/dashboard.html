@@ -1,99 +1,102 @@
 <!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
 
 <div class="m-content">
-  <div class="row">
-    <div class="col-xl-12">
-      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
-        <div class="m-portlet__head">
-            <div class="m-portlet__head-caption">
-                <div class="m-portlet__head-title">
-                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>AdWords Data Monitoring</span>
-                    </h2>
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                <span>AdWords Data Monitoring</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="m-portlet__body">
+                    <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
+                           id="adwords_datatable">
+                        <thead class="thead-inverse">
+                        <tr>
+                            <th>Account</th>
+                            <th>U & O</th>
+                            <th>Impr. Share</th>
+                            <th>Impr.</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                            <th>Avg. CPC</th>
+                            <th>Cost</th>
+                            <th>Conversions</th>
+                            <th>Cost / conv.</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                                        {{ item.account.dependent_account_name }} </a>
+                                    - {{ item.account.dependent_account_id }} -
+                                    <a href="#"
+                                       onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>
+                                    <br/>
+                                    <div id="labels-{{ item.account.dependent_account_id }}" class="hidden">
+                                        {% for label in item.labels %}
+                                            <span class="m-badge {% if label.name == 'No label' %}m-badge--danger{% else %}m-badge--info{% endif %} m-badge--wide">
+                                                {{ label.name }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
+                                </td>
+                                <td>
+                                    {{ item.search_impr_share|uni2float|floatformat:2 }}%
+                                </td>
+                                <td>
+                                    {{ item.impressions|uni2float|floatformat:2 }}%
+                                </td>
+                                <td>
+                                    {{ item.clicks|uni2float|floatformat:2 }}%
+                                </td>
+                                <td>
+                                    {{ item.ctr|uni2float|floatformat:2 }}%
+                                </td>
+                                <td>
+                                    {{ item.cpc|uni2float|floatformat:2 }}%
+                                </td>
+                                <td>
+                                    {{ item.cost|uni2float|floatformat:2 }}%
+
+{#                                    {% with ccost=item.metadata.vals|get_dict_value:"cost" %}#}
+{#                                        {{ ccost.0|uni2float|floatformat:2 }}#}
+{#                                        {{ ccost.1|uni2float|floatformat:2 }}#}
+{#                                        <small>{{ ccost.2|uni2float|floatformat:2 }}</small>#}
+{#                                    {% endwith %}#}
+
+                                </td>
+                                <td>
+                                    {{ item.conversions|uni2float|floatformat:2 }}%
+                                </td>
+                                <td>
+                                    {{ item.cost_per_conversions|uni2float|floatformat:2 }}%
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="adwords_datatable">
-            <thead class="thead-inverse">
-              <tr>
-                <th>Account</th>
-                <th>U & O</th>
-                <th>Disapproved Ads</th>
-                <th>Impr. Share</th>
-                <th>Impr.</th>
-                <th>Clicks</th>
-                <th>CTR</th>
-                <th>Avg. CPC</th>
-                <th>Cost</th>
-                <th>Conversions</th>
-                <th>Cost / conv.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in items %}
-              <tr>
-                <td>
-                <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
-                {{ item.account.dependent_account_name }} </a> - {{ item.account.dependent_account_id }} -
-                <a href="#" onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>
-                <br />
-                <div id="labels-{{ item.account.dependent_account_id }}" class="hidden">
-                {% for label in item.labels %}
-
-                    <span class="m-badge {% if label.name == 'No label' %}m-badge--danger{% else %}m-badge--info{% endif %} m-badge--wide">
-                        {{ label.name }}
-                    </span>
-                {% endfor %}
-                </div>
-                </td>
-                <td>
-                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
-                </td>
-                <td>
-                    <a href="{% url 'adwords:alerts' item.account.dependent_account_id %}">
-                        {{ item.disapproved_ads }}
-                    </a>
-                </td>
-                <td>
-                    {{ item.search_impr_share|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.impressions|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.clicks|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.ctr|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.cpc|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.cost|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.conversions|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                      {{ item.cost_per_conversions|uni2float|floatformat:2 }}%
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
-  </div>
-  <!--End::Main Portlet-->
+    <!--End::Main Portlet-->
 </div>
 <script type="text/javascript">
 
-  function toggleLabels(label_id){
-    $("#"+label_id).toggle();
-  }
+    function toggleLabels(label_id) {
+        $("#" + label_id).toggle();
+    }
 
 </script>
 {% endblock %}
