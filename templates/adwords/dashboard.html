@@ -68,11 +68,11 @@
                                 </td>
                                 <td>
                                     {{ item.cost|uni2float|floatformat:2 }}%
-
+{##}
 {#                                    {% with ccost=item.metadata.vals|get_dict_value:"cost" %}#}
-{#                                        {{ ccost.0|uni2float|floatformat:2 }}#}
-{#                                        {{ ccost.1|uni2float|floatformat:2 }}#}
-{#                                        <small>{{ ccost.2|uni2float|floatformat:2 }}</small>#}
+{#                                        {{ ccost.0|floatformat:2 }}#}
+{#                                        {{ ccost.1|floatformat:2 }}#}
+{#                                        <small>{{ ccost.2|floatformat:2 }}</small>#}
 {#                                    {% endwith %}#}
 
                                 </td>
