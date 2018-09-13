@@ -277,7 +277,7 @@ def client_details(request, client_id):
         cmp_groupings = CampaignGrouping.objects.all()
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
-
+        print(chdata_json)
         context = {
             'client_data': client,
             'today': today.day,
@@ -288,7 +288,7 @@ def client_details(request, client_id):
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
             'budgets': budgets,
-            'chdata': chdata_json[0]['fields'],
+            'chdata': chdata_json[0]['fields'] if chdata_json else {},
             'fbudgets': fbudgets,
             'groupings': cmp_groupings
         }

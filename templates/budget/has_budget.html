@@ -54,7 +54,7 @@
                                     <span class="">{{ client_data.budget }}</span>
                                 </div>
                                 <div class="col-md-2">
-                                    <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend }}
+                                    <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend|floatformat:2 }}
                                 </div>
                                 <div class="col-md-2">
                                     <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
