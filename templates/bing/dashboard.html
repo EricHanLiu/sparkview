@@ -32,6 +32,8 @@
                             </thead>
                             <tbody>
                             {% for item in items %}
+
+{#                                {{ item.metadata.vals|get_type }}#}
                                 <tr>
                                     <td>
                                         <a href="{% url 'bing:campaign_anomalies' item.account.account_id %}">
@@ -43,6 +45,10 @@
                                     </td>
                                     <td>
                                         {{ item.impr_share|uni2float|floatformat:2 }}%
+{#                                        {% with imprshare=item.metadata.vals|get_dict_value:"impressionsharepercent" %}#}
+{#                                            {{ imprshare.1 }}#}
+{#                                            {{ imprshare.2 }}#}
+{#                                        {% endwith %}#}
                                     </td>
                                     <td>
                                         {{ item.impressions|uni2float|floatformat:2 }}%

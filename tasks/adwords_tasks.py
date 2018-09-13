@@ -152,7 +152,7 @@ def adwords_cron_anomalies(self, customer_id):
         cpc=acc_anomalies['avg._cpc'][0],
         cost_per_conversions=acc_anomalies['cost_/_conv.'][0],
         search_impr_share=acc_anomalies['search_impr._share'][0],
-        metadata=json.dumps(acc_metadata)
+        metadata=acc_metadata
     )
 
     Performance.objects.filter(account=account, performance_type='CAMPAIGN').delete()
