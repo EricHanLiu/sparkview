@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Role, Member, Team, Incident
+from .models import Role, Member, Team, Incident, Skill, SkillEntry
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
@@ -15,4 +15,12 @@ class IncidentAdmin(admin.ModelAdmin):
 
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Skill)
+class SkillAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(SkillEntry)
+class SkillEntryAdmin(admin.ModelAdmin):
     pass

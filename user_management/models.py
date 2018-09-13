@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from user_management import models as user_management_models
-from budget import models as budget_models
-
 
 # Role at the company (example, Campaign Manager)
 class Role(models.Model):
@@ -11,6 +8,7 @@ class Role(models.Model):
 
     def __str__(self):
         return self.name
+
 
 # Class to represent the different teams at Bloom
 class Team(models.Model):
@@ -24,6 +22,7 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
+
 # Incident
 class Incident(models.Model):
     members     = models.ManyToManyField('Member', default=None)
@@ -32,6 +31,47 @@ class Incident(models.Model):
 
     def __str__(self):
         return 'Incident ' + str(self.id)
+
+
+# Skillset for each Member
+class Skill(models.Model):
+    name   = models.CharField(max_length=255)
+
+    def getScore0(self):
+        return SkillEntry.objects.filter(skill=self, score=0)
+
+    def getScore1(self):
+        return SkillEntry.objects.filter(skill=self, score=1)
+
+    def getScore2(self):
+        return SkillEntry.objects.filter(skill=self, score=2)
+
+    def getScore3(self):
+        return SkillEntry.objects.filter(skill=self, score=3)
+
+    score0 = property(getScore0)
+    score1 = property(getScore1)
+    score2 = property(getScore2)
+    score3 = property(getScore3)
+
+    def __str__(self):
+        return self.name
+
+
+# Actually sets a score to the skill for a member
+class SkillEntry(models.Model):
+    skill      = models.ForeignKey('Skill', on_delete=models.CASCADE, default=None)
+    member     = models.ForeignKey('Member', on_delete=models.CASCADE, default=None)
+    score      = models.IntegerField(null=True, blank=True, default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('skill', 'member',)
+
+    def __str__(self):
+        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
+
 
 # Extension of user class via OneToOneField
 # Needed to add many more fields to users (which are employees, also called members)
@@ -61,10 +101,10 @@ class Member(models.Model):
     skill_pinterest     = models.IntegerField(null=True, blank=True, default=None)
     skill_twitter       = models.IntegerField(null=True, blank=True, default=None)
     skill_english       = models.IntegerField(null=True, blank=True, default=None)
+    skill_communication = models.IntegerField(null=True, blank=True, default=None)
     skill_french        = models.IntegerField(null=True, blank=True, default=None)
     skill_technical     = models.IntegerField(null=True, blank=True, default=None)
     skill_confident     = models.IntegerField(null=True, blank=True, default=None)
-    skill_communication = models.IntegerField(null=True, blank=True, default=None)
 
     # Last checks
     last_skill_check    = models.DateTimeField(null=True, blank=True)
@@ -76,8 +116,12 @@ class Member(models.Model):
     def getMostRecentIncident(self):
         return Incident.objects.filter(members = self).latest('date')
 
+    def getSkills(self):
+        return SkillEntry.objects.filter(member=self)
+
     incidents          = property(countIncidents)
     mostRecentIncident = property(getMostRecentIncident)
+    skills             = property(getSkills)
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name

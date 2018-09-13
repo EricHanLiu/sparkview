@@ -2,20 +2,28 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
+{% load template_filters %}
+
 {% block extraCss %}
 <style>
-  #training_datatable {
-    width: 100%;
-  }
-  .long-header-row {
-    text-align: center;
-  }
-  th {
-    white-space: nowrap;
-  }
-  td {
-    text-align: center;
-  }
+#training_datatable {
+  width: 100%;
+}
+.long-header-row {
+  text-align: center;
+}
+.main-table-header {
+  background: #f4f3f8;
+}
+th {
+  white-space: nowrap;
+}
+.m-table.m-table--head-separator-bloom thead th {
+  border: 0;
+}
+td {
+  text-align: center;
+}
 </style>
 {% endblock %}
 
@@ -28,74 +36,31 @@
     <div class="col-xl-12">
       <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
         <div class="m-portlet__head">
-            <div class="m-portlet__head-caption">
-                <div class="m-portlet__head-title">
-                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>Members Training</span>
-                    </h2>
-                </div>
-            </div>
+      		<div class="m-portlet__head-caption">
+      			<div class="m-portlet__head-title">
+      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+      					Member Training Datatable
+      				</h3>
+      			</div>
+      		</div>
         </div>
+        <hr />
         <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom m-datatable__table dataTable' id="training_datatable">
+          <table class='table m-table table-striped m-table--head-separator-bloom m-datatable__table dataTable' id="training_datatable">
             <thead class="thead-inverse">
-              <tr class="long-header-row">
-                <th colspan="4" style="background: #2C8BCB; opacity: 0.85; color: #fff;">
-                  Member
-                </th>
-                <th colspan="15" style="background: #ff7f30; opacity: 0.85; color: #fff;">
-                  Skills
-                </th>
-                <th colspan="2" style="background: #4bb786; opacity: 0.85; color: #fff;">
-                  Incidents
-                </th>
-              </tr>
-              <tr>
+              <tr class="main-table-header">
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Team</th>
                 <th>
                   Role
                 </th>
+                {# Just get the skills #}
+                {% for skillEntry in members.0.skills %}
                 <th>
-                  SEO
+                  {{ skillEntry.skill.name }}
                 </th>
-                <th>
-                  CRO
-                </th>
-                <th>
-                  Facebook
-                </th>
-                <th>
-                  Adwords
-                </th>
-                <th>
-                  Bing
-                </th>
-                <th>
-                  LinkedIn
-                </th>
-                <th>
-                  Pinterest
-                </th>
-                <th>
-                  Twitter
-                </th>
-                <th>
-                  English
-                </th>
-                <th>
-                  French
-                </th>
-                <th>
-                  Technical
-                </th>
-                <th>
-                  Confident
-                </th>
-                <th>
-                  Communication
-                </th>
+                {% endfor %}
                 <th>
                   Last Skill Check
                 </th>
@@ -121,51 +86,17 @@
                 </td>
                 <td>
                   {% for team in member.team.all %}
-                    {{ team.name }}{% if not forloop.last %}, {% endif %}
+                  {{ team.name }}{% if not forloop.last %}, {% endif %}
                   {% endfor %}
                 </td>
                 <td>
                   {{ member.role }}
                 </td>
+                {% for memberSkill in member.skills %}
                 <td>
-                  {{ member.skill_seo }}
+                  {{ memberSkill.score }}
                 </td>
-                <td>
-                  {{ member.skill_cro }}
-                </td>
-                <td>
-                  {{ member.skill_fb }}
-                </td>
-                <td>
-                  {{ member.skill_adwords }}
-                </td>
-                <td>
-                  {{ member.skill_bing }}
-                </td>
-                <td>
-                  {{ member.skill_linkedin }}
-                </td>
-                <td>
-                  {{ member.skill_pinterest }}
-                </td>
-                <td>
-                  {{ member.skill_twitter }}
-                </td>
-                <td>
-                  {{ member.skill_english }}
-                </td>
-                <td>
-                  {{ member.skill_french }}
-                </td>
-                <td>
-                  {{ member.skill_technical }}
-                </td>
-                <td>
-                  {{ member.skill_confident }}
-                </td>
-                <td>
-                  {{ member.skill_communication }}
-                </td>
+                {% endfor %}
                 <td>
                   {{ member.last_skill_check }}
                 </td>
@@ -186,6 +117,6 @@
       </div>
     </div>
   </div>
-  <!--End::Main Portlet-->
+<!--End::Main Portlet-->
 </div>
 {% endblock %}

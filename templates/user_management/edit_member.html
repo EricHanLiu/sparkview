@@ -140,148 +140,30 @@
               </div>
               <h3>Member Skills</h3>
               <hr />
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-2">
-                    <label for="skill_seo">SEO Skill:</label>
-                    <select class="form-control m-input"
-                            name="skill_seo"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_seo == skillOption %}selected{% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_cro">skill_cro:</label>
-                    <select class="form-control m-input"
-                            name="skill_cro"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_cro == skillOption %}selected{% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_fb">skill_fb:</label>
-                    <select class="form-control m-input"
-                            name="skill_fb"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_fb == skillOption %}selected{% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_adwords">skill_adwords:</label>
-                    <select class="form-control m-input"
-                            name="skill_adwords"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_adwords == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_bing">skill_bing:</label>
-                    <select class="form-control m-input"
-                            name="skill_bing"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_bing == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_linkedin">skill_linkedin:</label>
-                    <select class="form-control m-input"
-                            name="skill_linkedin"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_linkedin == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
+              {% for memberSkill in memberSkills %}
+                {% if forloop.first %}
+                <div class="form-group m-form__group">
+                  <div class="row">
+                {% else %}
+                {% cycle '' '' '' '' '' '<div class="form-group m-form__group"><div class="row">' %}
+                {% endif %}
+                <div class="col-md-2">
+                  <label for="skill_{{ memberSkill.skill.name }}">{{ memberSkill.skill.name }}:</label>
+                  <select class="form-control m-input"
+                          name="skill_{{ memberSkill.skill.name }}"
+                          style="width: 100%;" required>
+                      {% for skillOption in skillOptions %}
+                          <option value="{{ skillOption }}" {% if skillOption == memberSkill.score %}selected{% endif %}>{{ skillOption }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                {% if forloop.last %}
                   </div>
                 </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-2">
-                    <label for="skill_pinterest">skill_pinterest:</label>
-                    <select class="form-control m-input"
-                            name="skill_pinterest"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_pinterest == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_twitter">skill_twitter:</label>
-                    <select class="form-control m-input"
-                            name="skill_twitter"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_twitter == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_english">skill_english:</label>
-                    <select class="form-control m-input"
-                            name="skill_english"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_english == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_french">skill_french:</label>
-                    <select class="form-control m-input"
-                            name="skill_french"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_french == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_technical">skill_technical:</label>
-                    <select class="form-control m-input"
-                            name="skill_technical"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_technical == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-2">
-                    <label for="skill_confident">skill_confident:</label>
-                    <select class="form-control m-input"
-                            name="skill_confident"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_confident == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-2">
-                    <label for="skill_communication">skill_communication:</label>
-                    <select class="form-control m-input"
-                            name="skill_communication"
-                            style="width: 100%;" required>
-                        {% for skillOption in skillOptions %}
-                            <option value="{{ skillOption }}" {% if member.skill_communication == skillOption %} selected {% endif %}>{{ skillOption }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
+                {% else %}
+                {% cycle '' '' '' '' '' '</div></div>' %}
+                {% endif %}
+              {% endfor %}
               <input type="submit" value="Update">
             </div>
           </form>

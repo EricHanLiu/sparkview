@@ -131,73 +131,30 @@
             </div>
           </div>
           <br />
+          <!-- <h3>Member Skills</h3>
+          <hr />
+          {% for memberSkill in memberSkills %}
+            {% if forloop.first %}
+            <div class="form-group m-form__group">
+              <div class="row">
+            {% else %}
+            {% cycle '' '' '' '' '' '<div class="form-group m-form__group"><div class="row">' %}
+            {% endif %}
+            <div class="col-md-2">
+              <label for="skill_{{ memberSkill.skill.name }}">{{ memberSkill.skill.name }}:</label>
+              <input type="text" class="form-control m-input" value="{{ memberSkill.score }}" disabled />
+            </div>
+            {% if forloop.last %}
+              </div>
+            </div>
+            {% else %}
+            {% cycle '' '' '' '' '' '</div></div>' %}
+            {% endif %}
+          {% endfor %}
+          <br />  -->
           <h3>Member Skills</h3>
           <hr />
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-2">
-                <label for="skill_seo">SEO:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_seo }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_cro">CRO:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_cro }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_fb">Facebook:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_fb }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_adwords">Google Ads:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_adwords }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_bing">Bing:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_bing }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_linkedin">LinkedIn:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_linkedin }}" disabled />
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-2">
-                <label for="skill_pinterest">Pinterest:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_pinterest }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_twitter">Twitter:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_twitter }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_english">English:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_english }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_french">French:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_french }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_technical">Technical:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_technical }}" disabled />
-              </div>
-              <div class="col-md-2">
-                <label for="skill_confident">Confident:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_confident }}" disabled />
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-2">
-                <label for="skill_communication">Communication:</label>
-                <input type="text" class="form-control m-input" value="{{ member.skill_communication }}" disabled />
-              </div>
-            </div>
-          </div>
-          <br />
+          <canvas id="myChart" width="400" height="200"></canvas>
           <h3>Incidents</h3>
           <hr />
           {% if member.incidents == 0 %}
@@ -240,4 +197,46 @@
   </div>
   <!--End::Main Portlet-->
 </div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [{% for memberSkill in memberSkills %}"{{ memberSkill.skill.name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: '# of Votes',
+            data: [{% for memberSkill in memberSkills %}"{{ memberSkill.score }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+</script>
 {% endblock %}

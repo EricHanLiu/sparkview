@@ -6,9 +6,8 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from django.core import serializers
 
-from .models import Member, Incident, Team, Role
+from .models import Member, Incident, Team, Role, Skill, SkillEntry
 from .forms import NewMemberForm, NewTeamForm
-
 
 @login_required
 def index(request):
@@ -17,18 +16,15 @@ def index(request):
 
 @login_required
 def profile(request):
-    user      = request.user
-    member    = Member.objects.get(user=user)
-    incidents = Incident.objects.filter(members=member)
-
-    clients = {
-        'cm1' : member.cm1.all()
-    }
+    user         = request.user
+    member       = Member.objects.get(user=user)
+    incidents    = Incident.objects.filter(members=member)
+    memberSkills = SkillEntry.objects.filter(member=member)
 
     context = {
-        'member'    : member,
-        'incidents' : incidents,
-        'clients'   : clients
+        'member'       : member,
+        'incidents'    : incidents,
+        'memberSkills' : memberSkills
     }
 
     return render(request, 'user_management/profile.html', context)
@@ -67,11 +63,13 @@ def new_member(request):
     if (request.method == 'GET'):
         teams        = Team.objects.all()
         roles        = Role.objects.all()
+        skills       = Skill.objects.all()
         skillOptions = [0, 1, 2, 3]
 
         context = {
             'teams'        : teams,
             'roles'        : roles,
+            'skills'       : skills,
             'skillOptions' : skillOptions
         }
 
@@ -96,12 +94,12 @@ def new_member(request):
             }
 
             return JsonResponse(response)
-        # elif is_email_taken:
-        #     response = {
-        #         'error_message': 'Email ' + email + ' already exists.'
-        #     }
-        #
-        #     return JsonResponse(response)
+        elif is_email_taken:
+            response = {
+                'error_message': 'Email ' + email + ' already exists.'
+            }
+
+            return JsonResponse(response)
         else:
             user = User(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
 
@@ -129,19 +127,19 @@ def new_member(request):
         buffer_hours_available      = request.POST.get('buffer_hours_available')
 
         # Member skills
-        skill_seo           = request.POST.get('skill_seo')
-        skill_cro           = request.POST.get('skill_cro')
-        skill_fb            = request.POST.get('skill_fb')
-        skill_adwords       = request.POST.get('skill_adwords')
-        skill_bing          = request.POST.get('skill_bing')
-        skill_linkedin      = request.POST.get('skill_linkedin')
-        skill_pinterest     = request.POST.get('skill_pinterest')
-        skill_twitter       = request.POST.get('skill_twitter')
-        skill_english       = request.POST.get('skill_english')
-        skill_french        = request.POST.get('skill_french')
-        skill_technical     = request.POST.get('skill_technical')
-        skill_confident     = request.POST.get('skill_confident')
-        skill_communication = request.POST.get('skill_communication')
+        # skill_seo           = request.POST.get('skill_seo')
+        # skill_cro           = request.POST.get('skill_cro')
+        # skill_fb            = request.POST.get('skill_fb')
+        # skill_adwords       = request.POST.get('skill_adwords')
+        # skill_bing          = request.POST.get('skill_bing')
+        # skill_linkedin      = request.POST.get('skill_linkedin')
+        # skill_pinterest     = request.POST.get('skill_pinterest')
+        # skill_twitter       = request.POST.get('skill_twitter')
+        # skill_english       = request.POST.get('skill_english')
+        # skill_french        = request.POST.get('skill_french')
+        # skill_technical     = request.POST.get('skill_technical')
+        # skill_confident     = request.POST.get('skill_confident')
+        # skill_communication = request.POST.get('skill_communication')
 
         # Last checks
         last_skill_check    = request.POST.get('last_skill_check')
@@ -160,19 +158,19 @@ def new_member(request):
             buffer_seniority_percentage=buffer_seniority_percentage,
             buffer_buffer_percentage=buffer_buffer_percentage,
             buffer_hours_available=buffer_hours_available,
-            skill_seo=skill_seo,
-            skill_cro=skill_cro,
-            skill_fb=skill_fb,
-            skill_adwords=skill_adwords,
-            skill_bing=skill_bing,
-            skill_linkedin=skill_linkedin,
-            skill_pinterest=skill_pinterest,
-            skill_twitter=skill_twitter,
-            skill_english=skill_english,
-            skill_french=skill_french,
-            skill_technical=skill_technical,
-            skill_confident=skill_confident,
-            skill_communication=skill_communication,
+            # skill_seo=skill_seo,
+            # skill_cro=skill_cro,
+            # skill_fb=skill_fb,
+            # skill_adwords=skill_adwords,
+            # skill_bing=skill_bing,
+            # skill_linkedin=skill_linkedin,
+            # skill_pinterest=skill_pinterest,
+            # skill_twitter=skill_twitter,
+            # skill_english=skill_english,
+            # skill_french=skill_french,
+            # skill_technical=skill_technical,
+            # skill_confident=skill_confident,
+            # skill_communication=skill_communication,
             last_skill_check=Now(),
             last_language_check=Now()
         )
@@ -180,6 +178,16 @@ def new_member(request):
         # Set Teams
         member.team.set(teams)
         member.save()
+
+        # Set initial member skills
+        skills = Skill.objects.all()
+
+        for skill in skills:
+            skillValue = request.POST.get(skill.name)
+            if skillValue == None:
+                skillValue = 0
+
+            SkillEntry.objects.create(skill=skill, member=member, score=skillValue)
 
         return redirect('/user_management/members')
     else:
@@ -303,15 +311,17 @@ def edit_member(request, id):
 
         return redirect('/user_management/members')
     else:
-        member = Member.objects.get(id=id)
-        teams  = Team.objects.all()
-        roles  = Role.objects.all()
+        member       = Member.objects.get(id=id)
+        teams        = Team.objects.all()
+        roles        = Role.objects.all()
+        memberSkills = SkillEntry.objects.filter(member=member)
         skillOptions = [0, 1, 2, 3]
 
         context = {
             'member'       : member,
             'teams'        : teams,
             'roles'        : roles,
+            'memberSkills' : memberSkills,
             'skillOptions' : skillOptions
         }
 
@@ -331,6 +341,8 @@ def teams(request):
 
 @login_required
 def new_team(request):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
     if (request.method == 'POST'):
         # Information about the team
         teamname = request.POST.get('teamname')
@@ -358,30 +370,86 @@ def members_single(request, id):
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
+    memberSkills = SkillEntry.objects.filter(member=member)
 
     context = {
-        'member' : member
+        'member'       : member,
+        'memberSkills' : memberSkills
     }
 
     return render(request, 'user_management/profile.html', context)
 
+
 @login_required
 def training_members(request):
-    members = Member.objects.defer('team',
-                                   'role',
-                                   'buffer_total_percentage',
-                                   'buffer_learning_percentage',
-                                   'buffer_trainers_percentage',
-                                   'buffer_sales_percentage',
-                                   'buffer_planning_percentage',
-                                   'buffer_internal_percentage',
-                                   'buffer_seniority_percentage',
-                                   'buffer_buffer_percentage',
-                                   'buffer_hours_available'
-                                   )
+    members      = Member.objects.only('team', 'role')
+    memberSkills = SkillEntry.objects.all()
+
+    scoreBadges = ['danger', 'brand', 'info', 'success']
+
+    scoreDescs = ['None', 'Below Average', 'Average', 'Excellent']
 
     context = {
-        'members' : members,
+        'members'     : members,
+        'memberSkills': memberSkills,
+        'scoreBadges' : scoreBadges,
+        'scoreDescs'  : scoreDescs
     }
 
     return render(request, 'user_management/training.html', context)
+
+
+@login_required
+def training_members_json(request):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    members = list(Member.objects.values())
+    return JsonResponse(members, safe=False)
+
+
+@login_required
+def skills(request):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    skills = Skill.objects.all()
+
+    context = {
+        'skills' : skills
+    }
+
+    return render(request, 'user_management/skills.html', context)
+
+
+@login_required
+def skills_single(request, id):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    skill = Skill.objects.get(id=id)
+
+    context = {
+        'skill' : skill
+    }
+
+    return render(request, 'user_management/skills_single.html', context)
+
+
+@login_required
+def skills_new(request):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    if (request.method == 'POST'):
+        skill_name = request.POST.get('skillname')
+        newSkill = Skill.objects.create(name=skill_name)
+
+        # Assign a default value to every member
+        members = Member.objects.all()
+        for member in members:
+            SkillEntry.objects.create(skill=newSkill, member=member, score=0)
+
+        return redirect('/user_management/skills')
+    else:
+        return HttpResponse('Invalid request type')
