@@ -174,6 +174,14 @@ def add_client(request):
 
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
                 spend = request.POST.get('aw_budget_' + a)
+
+                # Checks if we have a budget to set
+                # If not set it to 0
+                if spend:
+                    continue
+                else:
+                    spend = 0.0
+
                 networks = request.POST.getlist('networks')
 
                 if 'All' in networks and len(networks) == 1:
