@@ -25,14 +25,15 @@
     <div class="col-xl-12">
       <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
         <div class="m-portlet__head">
-            <div class="m-portlet__head-caption">
-                <div class="m-portlet__head-title">
-                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>Clients</span>
-                    </h2>
-                </div>
-            </div>
+      		<div class="m-portlet__head-caption">
+      			<div class="m-portlet__head-title">
+      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+      					Clients
+      				</h3>
+      			</div>
+      		</div>
         </div>
+        <hr />
         <div class="m-portlet__body">
 
           <!-- <div class="m-btn-group m-btn-group--pill btn-group m-btn-group m-btn-group--pill btn-group-sm" role="group" aria-label="">
@@ -50,22 +51,6 @@
             <thead class="thead-inverse">
               <tr>
                 <th>Name</th>
-                <!-- <th>CM1</th>
-                <th>CM2</th>
-                <th>CM3</th>
-                <th>CMB</th>
-                <th>AM1</th>
-                <th>AM2</th>
-                <th>AM3</th>
-                <th>AMB</th>
-                <th>SEO1</th>
-                <th>SEO2</th>
-                <th>SEO3</th>
-                <th>SEOB</th>
-                <th>STRAT1</th>
-                <th>STRAT2</th>
-                <th>STRAT3</th>
-                <th>STRATB</th> -->
               </tr>
             </thead>
             <tbody>
@@ -74,54 +59,6 @@
                 <td>
                   <a href="{{ client.id }}/edit">{{ client.client_name }}</a>
                 </td>
-                <!-- <td>
-                  {{ client.cm1.user.first_name }}
-                </td>
-                <td>
-                  {{ client.cm2.user.first_name }}
-                </td>
-                <td>
-                  {{ client.cm3.user.first_name }}
-                </td>
-                <td>
-                  {{ client.cmb.user.first_name }}
-                </td>
-                <td>
-                  {{ client.am1.user.first_name }}
-                </td>
-                <td>
-                  {{ client.am2.user.first_name }}
-                </td>
-                <td>
-                  {{ client.am3.user.first_name }}
-                </td>
-                <td>
-                  {{ client.amb.user.first_name }}
-                </td>
-                <td>
-                  {{ client.seo1.user.first_name }}
-                </td>
-                <td>
-                  {{ client.seo2.user.first_name }}
-                </td>
-                <td>
-                  {{ client.seo3.user.first_name }}
-                </td>
-                <td>
-                  {{ client.seob.user.first_name }}
-                </td>
-                <td>
-                  {{ client.strat1.user.first_name }}
-                </td>
-                <td>
-                  {{ client.strat2.user.first_name }}
-                </td>
-                <td>
-                  {{ client.strat3.user.first_name }}
-                </td>
-                <td>
-                  {{ client.stratb.user.first_name }}
-                </td> -->
               </tr>
               {% endfor %}
             </tbody>
@@ -132,11 +69,4 @@
   </div>
   <!--End::Main Portlet-->
 </div>
-<script type="text/javascript">
-
-  function toggleLabels(label_id){
-    $("#"+label_id).toggle();
-  }
-
-</script>
 {% endblock %}

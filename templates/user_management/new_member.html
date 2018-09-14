@@ -13,9 +13,9 @@
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
-              <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                <span>Add New Member</span>
-              </h2>
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Add New Member
+              </h3>
             </div>
           </div>
         </div>
@@ -25,61 +25,85 @@
             <div class="m-portlet__body">
               <h3>Basic Information</h3>
               <hr />
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-12">
-                    <label for="input_username">Username:</label>
-                    <input type="text" name="username" class="form-control m-input"
-                    placeholder="Please enter a username">
-                    <span class="m-form__help">Required. 150 characters or fewer.</span>
+              <div id="existing_user_form">
+                <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_btn">Create New User</button>
+                <div class="form-group m-form__group">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="existing_user">User:</label>
+                      <select class="form-control m-input"
+                              name="existing_user"
+                              style="width: 100%;" required>
+                              <option value="0">
+                                None
+                              </option>
+                          {% for existingUser in existingUsers %}
+                              <option value="{{ existingUser.id }}">{{ existingUser.first_name }} {{ existingUser.last_name }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
                   </div>
                 </div>
+                <br />
               </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="input_first_name">Password:</label>
-                    <input type="password" name="password" id="password"
-                    class="form-control m-input"
-                    placeholder="********">
-                    <span class="m-form__help">
-                      <p>Your password must contain at least 8 characters and can't be entirely numeric.</p>
-                    </span>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="input_last_name">Password confirmation:</label>
-                    <input type="password" name="confirm_password" class="form-control m-input"
-                    placeholder="********">
-                    <span class="m-form__help">Enter the same password as before, for verification.</span>
+              <div id="new_user_form" style="display:none;">
+                <button type="button" name="button" class="btn btn-sm btn-outline-info" id="use_existing_btn">Use Existing User</button>
+                <div class="form-group m-form__group">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label for="input_username">Username:</label>
+                      <input type="text" name="username" class="form-control m-input"
+                      placeholder="Please enter a username">
+                      <span class="m-form__help">Required. 150 characters or fewer.</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="input_first_name">First Name:</label>
-                    <input type="text" name="first_name" class="form-control m-input"
-                    placeholder="Please enter first name">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="input_last_name">Last Name:</label>
-                    <input type="text" name="last_name" class="form-control m-input"
-                    placeholder="Please enter last name">
+                <div class="form-group m-form__group">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="input_first_name">Password:</label>
+                      <input type="password" name="password" id="password"
+                      class="form-control m-input"
+                      placeholder="********">
+                      <span class="m-form__help">
+                        <p>Your password must contain at least 8 characters and can't be entirely numeric.</p>
+                      </span>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="input_last_name">Password confirmation:</label>
+                      <input type="password" name="confirm_password" class="form-control m-input"
+                      placeholder="********">
+                      <span class="m-form__help">Enter the same password as before, for verification.</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="form-group m-form__group">
-                <label for="input_email">Email address:</label>
-                <input type="email" name="email" class="form-control m-input"
-                placeholder="example@domain.com">
-              </div>
-              <div class="m-form__group form-group">
-                <label for="">Permissions:</label>
-                <div class="m-checkbox-list">
-                  <label class="m-checkbox">
-                    <input type="checkbox" name="is_staff"> Admin
-                    <span></span>
-                  </label>
+                <div class="form-group m-form__group">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label for="input_first_name">First Name:</label>
+                      <input type="text" name="first_name" class="form-control m-input"
+                      placeholder="Please enter first name">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="input_last_name">Last Name:</label>
+                      <input type="text" name="last_name" class="form-control m-input"
+                      placeholder="Please enter last name">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group m-form__group">
+                  <label for="input_email">Email address:</label>
+                  <input type="email" name="email" class="form-control m-input"
+                  placeholder="example@domain.com">
+                </div>
+                <div class="m-form__group form-group">
+                  <label for="">Permissions:</label>
+                  <div class="m-checkbox-list">
+                    <label class="m-checkbox">
+                      <input type="checkbox" name="is_staff"> Admin
+                      <span></span>
+                    </label>
+                  </div>
                 </div>
               </div>
               <h3>Team and Role</h3>
@@ -115,22 +139,22 @@
                   <div class="col-md-3">
                     <label for="buffer_total_percentage">Total Percentage:</label>
                     <input type="text" name="buffer_total_percentage" class="form-control m-input"
-                    placeholder="Please enter total percentage">
+                    placeholder="Please enter total percentage" value="100" required>
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_learning_percentage">Learning Percentage:</label>
                     <input type="text" name="buffer_learning_percentage" class="form-control m-input"
-                    placeholder="Please enter learning percentage">
+                    placeholder="Please enter learning percentage" value="0" required>
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_trainers_percentage">Trainers Percentage:</label>
                     <input type="text" name="buffer_trainers_percentage" class="form-control m-input"
-                    placeholder="Please enter trainers percentage">
+                    placeholder="Please enter trainers percentage" value="0" required>
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_sales_percentage">Sales Percentage:</label>
                     <input type="text" name="buffer_sales_percentage" class="form-control m-input"
-                    placeholder="Please enter sales percentage">
+                    placeholder="Please enter sales percentage" value="0" required>
                   </div>
                 </div>
               </div>
@@ -139,22 +163,22 @@
                   <div class="col-md-3">
                     <label for="buffer_planning_percentage">Planning Percentage:</label>
                     <input type="text" name="buffer_planning_percentage" class="form-control m-input"
-                    placeholder="Please enter planning percentage">
+                    placeholder="Please enter planning percentage" value="0" required>
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_internal_percentage">Internal Percentage:</label>
                     <input type="text" name="buffer_internal_percentage" class="form-control m-input"
-                    placeholder="Please enter internal percentage">
+                    placeholder="Please enter internal percentage" value="0" required>
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_seniority_percentage">Seniority Percentage:</label>
                     <input type="text" name="buffer_seniority_percentage" class="form-control m-input"
-                    placeholder="Please enter seniority percentage">
+                    placeholder="Please enter seniority percentage" value="0" required>
                   </div>
                   <div class="col-md-3">
                     <label for="buffer_buffer_percentage">Buffer Percentage:</label>
                     <input type="text" name="buffer_buffer_percentage" class="form-control m-input"
-                    placeholder="Please enter buffer percentage">
+                    placeholder="Please enter buffer percentage" value="0" required>
                   </div>
                 </div>
               </div>
@@ -163,7 +187,7 @@
                   <div class="col-md-3">
                     <label for="buffer_hours_available">Hours Available:</label>
                     <input type="text" name="buffer_hours_available" class="form-control m-input"
-                    placeholder="Please enter hours available">
+                    placeholder="Please enter hours available" value="0" required>
                   </div>
                 </div>
               </div>
@@ -202,4 +226,25 @@
   </div>
   <!--End::Main Portlet-->
 </div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  $createNewBtn   = $('#create_new_btn');
+  $useExistingBtn = $('#use_existing_btn');
+  $existingForm   = $('#existing_user_form');
+  $newForm        = $('#new_user_form');
+
+  $createNewBtn.click(function () {
+    $existingForm.hide();
+    $newForm.show();
+  });
+
+  $useExistingBtn.click(function () {
+    $newForm.hide();
+    $existingForm.show();
+  });
+});
+</script>
 {% endblock %}

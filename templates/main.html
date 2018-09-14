@@ -41,6 +41,7 @@ License: You must have a valid license purchased only from themeforest(the above
 	<link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
 	<link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet" type="text/css"/>
 	<link href="{% static 'assets/demo/demo6/base/custom.css' %}" rel="stylesheet" type="text/css"/>
+	
 	<!--end::Base Styles -->
 	{#		<link rel="shortcut icon"#}
 	{#          href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>#}
@@ -51,7 +52,8 @@ License: You must have a valid license purchased only from themeforest(the above
 </head>
 <!-- end::Head -->
 <!-- end::Body -->
-<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin-light m-aside-left--fixed m-aside-left--offcanvas m-aside-left--minimize m-brand--minimize m-footer--push m-aside--offcanvas-default"  >
+<!-- <body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin-light m-aside-left--fixed m-aside-left--offcanvas m-aside-left--minimize m-brand--minimize m-footer--push m-aside--offcanvas-default"  > -->
+<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-brand--minimize m-footer--push m-aside--offcanvas-default"  >
 	<!-- begin:: Page -->
 	<div class="m-grid m-grid--hor m-grid--root m-page">
 		<!-- BEGIN: Header -->
@@ -112,11 +114,11 @@ License: You must have a valid license purchased only from themeforest(the above
 				</div>
 				<!-- END: Brand -->
 				<div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
-					<div class="m-header__title">
+					<!-- <div class="m-header__title">
 						<h3 class="m-header__title-text">
 							Applications
 						</h3>
-					</div>
+					</div> -->
 					<!-- BEGIN: Horizontal Menu -->
 					<button class="m-aside-header-menu-mobile-close  m-aside-header-menu-mobile-close--skin-light " id="m_aside_header_menu_mobile_close_btn">
 						<i class="la la-close"></i>
@@ -290,7 +292,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								<a  href="#" class="m-menu__link m-menu__toggle">
 									<span class="m-menu__item-here"></span>
 									<span class="m-menu__link-text">
-										User Management
+										Users
 									</span>
 									<i class="m-menu__hor-arrow la la-angle-down"></i>
 									<i class="m-menu__ver-arrow la la-angle-right"></i>
@@ -360,7 +362,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								<a  href="#" class="m-menu__link m-menu__toggle">
 									<span class="m-menu__item-here"></span>
 									<span class="m-menu__link-text">
-										Client Management
+										Clients
 									</span>
 									<i class="m-menu__hor-arrow la la-angle-down"></i>
 									<i class="m-menu__ver-arrow la la-angle-right"></i>
@@ -410,7 +412,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div id="m_header_topbar" class="m-topbar  m-stack m-stack--ver m-stack--general">
 						<div class="m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-right m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light" id="m_quicksearch" data-search-type="default">
 							<!--BEGIN: Search Form -->
-							<form class="m-header-search__form">
+							<!-- <form class="m-header-search__form">
 								<div class="m-header-search__wrapper">
 									<span class="m-header-search__icon-search" id="m_quicksearch_search">
 										<i class="fa fa-search"></i>
@@ -425,7 +427,7 @@ License: You must have a valid license purchased only from themeforest(the above
 										<i class="la la-remove"></i>
 									</span>
 								</div>
-							</form>
+							</form> -->
 							<!--END: Search Form -->
 							<!--BEGIN: Search Results -->
 							{#									<div class="m-dropdown__wrapper">#}
@@ -512,11 +514,10 @@ License: You must have a valid license purchased only from themeforest(the above
 					<div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body">
 						<!-- BEGIN: Left Aside -->
 						{% block leftAside %}
-						<button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn">
+						<!-- <button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn">
 							<i class="la la-close"></i>
 						</button>
 						<div id="m_aside_left" class="m-grid__item	m-aside-left  m-aside-left--skin-light ">
-							<!-- BEGIN: Aside Menu -->
 							<div
 							id="m_ver_menu"
 							class="m-aside-menu  m-aside-menu--skin-light m-aside-menu--submenu-skin-light "
@@ -564,9 +565,7 @@ License: You must have a valid license purchased only from themeforest(the above
 								{% endif %}
 							</ul>
 						</div>
-						<!-- END: Aside Menu -->
-					</div>
-					<!-- END: Left Aside -->
+					</div> -->
 					{% endblock %}
 
 					<div class="m-grid__item m-grid__item--fluid m-wrapper">

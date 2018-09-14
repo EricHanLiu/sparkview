@@ -78,22 +78,35 @@ $(document).ready(function () {
 
     $("#members_datatable").DataTable({
         'scrollX' : true,
-        'ordering': false
+        // 'ordering': false,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false
     });
 
-    $("#my_clients_datatable").DataTable({
-        // 'scrollX' : true,
-        'ordering': false
+    $("#skills_datatable").DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false
     });
 
     $("#training_datatable").DataTable({
-      'scrollX' : true,
-      'ordering': false,
+      //'scrollX' : true,
+      // 'ordering': false,
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
       "bInfo": false,
       "bAutoWidth": false
+    });
+
+    $("#my_clients_datatable").DataTable({
+        // 'scrollX' : true,
+        'ordering': false
     });
 
     let table = $("#clients_datatable").DataTable({
@@ -104,186 +117,6 @@ $(document).ready(function () {
         }],
         'order': [[1, 'asc']]
     });
-
-    /**
-     * Test mDataTable
-     *
-     */
-
-     dtt = [
-        {
-            "RecordID": 10,
-            "OrderID": "55154-5393",
-            "ShipCountry": "NG",
-            "ShipCity": "Sapele",
-            "ShipName": "Moen, Kertzmann and Mills",
-            "ShipAddress": "1 Nancy Junction",
-            "CompanyEmail": "epere9@sina.com.cn",
-            "CompanyAgent": "Ely Pere",
-            "CompanyName": "Jacobi, O'Conner and Kuhlman",
-            "Currency": "NGN",
-            "Notes": "adipiscing molestie hendrerit at vulputate vitae nisl aenean lectus pellentesque eget nunc donec quis orci eget orci vehicula",
-            "Department": "Shoes",
-            "Website": "whitehouse.gov",
-            "Latitude": 5.8750769,
-            "Longitude": 5.6931356,
-            "ShipDate": "1\/1\/2016",
-            "PaymentDate": "2017-06-20 10:42:35",
-            "TimeZone": "Africa\/Lagos",
-            "Status": 3,
-            "Type": 1,
-            "TotalPayment": "88,211.68 NGN"
-        },
-        {
-            "RecordID": 263,
-            "OrderID": "43406-0032",
-            "ShipCountry": "US",
-            "ShipCity": "Fort Pierce",
-            "ShipName": "Moore-Schaden",
-            "ShipAddress": "451 Fuller Junction",
-            "CompanyEmail": "tdefau7a@google.pl",
-            "CompanyAgent": "Tristan Defau",
-            "CompanyName": "Mayer and Sons",
-            "Currency": "USD",
-            "Notes": "mauris enim leo rhoncus sed vestibulum sit amet cursus id turpis integer aliquet massa id lobortis convallis tortor risus",
-            "Department": "Music",
-            "Website": "cornell.edu",
-            "Latitude": 27.3980151,
-            "Longitude": -80.3714326,
-            "ShipDate": "1\/1\/2017",
-            "PaymentDate": "2017-05-21 01:45:57",
-            "TimeZone": "America\/New_York",
-            "Status": 2,
-            "Type": 2,
-            "TotalPayment": "7,105.23 USD"
-        },
-        {
-            "RecordID": 77,
-            "OrderID": "68016-527",
-            "ShipCountry": "PH",
-            "ShipCity": "Batarasa",
-            "ShipName": "Gibson Inc",
-            "ShipAddress": "948 Roxbury Center",
-            "CompanyEmail": "smatitiaho24@dailymotion.com",
-            "CompanyAgent": "Skippy Matitiaho",
-            "CompanyName": "Monahan, Haley and Murphy",
-            "Currency": "PHP",
-            "Notes": "sit amet consectetuer adipiscing elit proin risus praesent lectus vestibulum quam sapien varius",
-            "Department": "Jewelery",
-            "Website": "printfriendly.com",
-            "Latitude": 8.5015747,
-            "Longitude": 117.3557854,
-            "ShipDate": "1\/12\/2017",
-            "PaymentDate": "2016-09-07 16:34:55",
-            "TimeZone": "Asia\/Manila",
-            "Status": 1,
-            "Type": 3,
-            "TotalPayment": "9,541.82 PHP"
-        },
-        {
-            "RecordID": 330,
-            "OrderID": "54868-5303",
-            "ShipCountry": "PH",
-            "ShipCity": "Sillon",
-            "ShipName": "Balistreri Group",
-            "ShipAddress": "8203 Truax Center",
-            "CompanyEmail": "kvickarman95@storify.com",
-            "CompanyAgent": "Kipp Vickarman",
-            "CompanyName": "Kerluke and Sons",
-            "Currency": "PHP",
-            "Notes": "lobortis ligula sit amet eleifend pede libero quis orci nullam molestie",
-            "Department": "Clothing",
-            "Website": "vkontakte.ru",
-            "Latitude": 11.186148,
-            "Longitude": 123.7487563,
-            "ShipDate": "1\/14\/2017",
-            "PaymentDate": "2017-05-16 18:29:45",
-            "TimeZone": "Asia\/Manila",
-            "Status": 6,
-            "Type": 1,
-            "TotalPayment": "8,300.97 PHP"
-        }];
-
-     var options = {
-         data: {
-             type: 'remote',
-             // source: {
-             //   url: '/user_management/members/training/json',
-             //   method: 'GET'
-             // },
-             // saveState: {
-             //     cookie: true,
-             //     webstorage: true
-             // },
-             //
-             // serverPaging: false,
-             // serverFiltering: false,
-             // serverSorting: false,
-             // autoColumns: false
-             source: {
-               read: {
-                url: '/user_management/members/training/json',
-                method: 'GET'
-              }
-            }
-          },
-
-         layout: {
-            theme: 'default',
-            class: 'm-datatable--brand',
-            scroll: false,
-            height: null,
-            footer: false,
-            header: true,
-
-            smoothScroll: {
-                scrollbarShown: true
-            },
-
-            spinner: {
-                overlayColor: '#000000',
-                opacity: 0,
-                type: 'loader',
-                state: 'brand',
-                message: true
-            },
-
-            icons: {
-                sort: {asc: 'la la-arrow-up', desc: 'la la-arrow-down'},
-                pagination: {
-                    next: 'la la-angle-right',
-                    prev: 'la la-angle-left',
-                    first: 'la la-angle-double-left',
-                    last: 'la la-angle-double-right',
-                    more: 'la la-ellipsis-h'
-                },
-                rowDetail: {expand: 'fa fa-caret-down', collapse: 'fa fa-caret-right'}
-            }
-        },
-
-         // columns definition
-         columns: [{
-             field: "id",
-             title: "Member ID",
-             sortable: 'asc',
-             filterable: false,
-             width: 150,
-             responsive: {visible: 'lg'}
-             // locked: {left: 'xl'},
-         }, {
-             field: "skill_seo",
-             title: "Skill SEO",
-             width: 150,
-             overflow: 'visible'
-         }, {
-             field: "skill_adwords",
-             title: "Skill AdWords",
-             width: 150,
-             overflow: 'visible'
-         }]
-     };
-
-    //var datatable = $('#m_datatable_training').mDatatable(options);
 
     // Delete one or multiple clients
     let form = $('#delete_clients');

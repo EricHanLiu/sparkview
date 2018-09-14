@@ -73,6 +73,16 @@ class SkillEntry(models.Model):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
 
+# Keeps track of all skill entries, not only current
+class SkillHistory(models.Model):
+    skill      = models.ForeignKey('Skill', on_delete=models.CASCADE, default=None)
+    member     = models.ForeignKey('Member', on_delete=models.CASCADE, default=None)
+    score      = models.IntegerField(null=True, blank=True, default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + self.created_at
+
 # Extension of user class via OneToOneField
 # Needed to add many more fields to users (which are employees, also called members)
 class Member(models.Model):
@@ -91,21 +101,6 @@ class Member(models.Model):
     buffer_buffer_percentage    = models.FloatField(null=True, blank=True, default=None)
     buffer_hours_available      = models.FloatField(null=True, blank=True, default=None)
 
-    # Member skills
-    skill_seo           = models.IntegerField(null=True, blank=True, default=None)
-    skill_cro           = models.IntegerField(null=True, blank=True, default=None)
-    skill_fb            = models.IntegerField(null=True, blank=True, default=None)
-    skill_adwords       = models.IntegerField(null=True, blank=True, default=None)
-    skill_bing          = models.IntegerField(null=True, blank=True, default=None)
-    skill_linkedin      = models.IntegerField(null=True, blank=True, default=None)
-    skill_pinterest     = models.IntegerField(null=True, blank=True, default=None)
-    skill_twitter       = models.IntegerField(null=True, blank=True, default=None)
-    skill_english       = models.IntegerField(null=True, blank=True, default=None)
-    skill_communication = models.IntegerField(null=True, blank=True, default=None)
-    skill_french        = models.IntegerField(null=True, blank=True, default=None)
-    skill_technical     = models.IntegerField(null=True, blank=True, default=None)
-    skill_confident     = models.IntegerField(null=True, blank=True, default=None)
-
     # Last checks
     last_skill_check    = models.DateTimeField(null=True, blank=True)
     last_language_check = models.DateTimeField(null=True, blank=True)
@@ -117,7 +112,7 @@ class Member(models.Model):
         return Incident.objects.filter(members = self).latest('date')
 
     def getSkills(self):
-        return SkillEntry.objects.filter(member=self)
+        return SkillEntry.objects.filter(member=self).order_by('skill')
 
     incidents          = property(countIncidents)
     mostRecentIncident = property(getMostRecentIncident)
