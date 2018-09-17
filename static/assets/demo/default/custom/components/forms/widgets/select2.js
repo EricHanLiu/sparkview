@@ -60,7 +60,7 @@ var Select2 = function () {
             $('#report_results').removeClass('hidden');
 
             var columns = function (data) {
-                let c = (data['report'] === 'changehistory') ? [{
+                let c = [{
                     "title": "Account",
                     "data": 'account',
                 },
@@ -76,33 +76,7 @@ var Select2 = function () {
                             }
                             return data;
                         }
-                    },
-                    {
-                        "title": data['column2'],
-                        "data": 'last_change',
-                        "type": 'num',
-                        "render": function(data, type, row, meta){
-                            return data;
-                        }
-                    }] : [
-                    {
-                        "title": "Account",
-                        "data": 'account',
-                    },
-                    {
-                        "title": data['column'],
-                        "data": 'data_score',
-                        "type": 'num',
-                        "render": function (data, type, row, meta) {
-                            if (type === 'display') {
-                                data = '<a href="' + data.url + '">' + data.score + '</a>';
-                            } else if (type === 'sort') {
-                                data = data.score;
-                            }
-                            return data;
-                        }
-                    }
-                ];
+                    }];
 
                 return c
             };

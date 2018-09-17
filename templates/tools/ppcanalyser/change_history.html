@@ -173,7 +173,12 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div id="myChart">
+                                    <canvas id="changesChartDaily" width="400" height="400"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
                                 <div id="myChart">
                                     <canvas id="changesChart" width="400" height="400"></canvas>
                                 </div>
@@ -189,7 +194,8 @@
 
 
     <script type="text/javascript">
-        let changes = {{ changes|safe }};
+        let changes = {{ changes.monthly|safe }};
+        let dailyChanges = {{ changes.daily|safe }};
 
         function gen_xy(data) {
 
@@ -197,11 +203,6 @@
 
             for (key in data) {
                 if (data.hasOwnProperty(key)) {
-
-                    if (key === 'lastChangeTimestamp') {
-                        continue;
-
-                    }
 
                     lst.push({
                         'x': new Date(key),
@@ -218,13 +219,14 @@
         }
 
         let ch_dataset = gen_xy(changes);
+        let daily_dataset = gen_xy(dailyChanges);
 
         let config = {
             // The type of chart we want to create
             type: 'scatter',
             data: {
                 datasets: [{
-                    label: "Changes",
+                    label: "Monthly Changes",
                     backgroundColor: 'rgba(236, 76, 51)',
                     borderColor: 'rgb(236, 76, 51)',
                     data: ch_dataset,
@@ -241,7 +243,6 @@
                 display: true,
                 title: {
                     display: true,
-                    text: 'Changes number',
                     fontSize: 20,
                     padding: 25,
                     fontStyle: 'normal'
@@ -306,9 +307,99 @@
 
         };
 
+
+        let config1 = {
+            // The type of chart we want to create
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: "Daily Changes",
+                    backgroundColor: 'rgba(236, 76, 51)',
+                    borderColor: 'rgb(236, 76, 51)',
+                    data: daily_dataset,
+                    fill: false,
+                    borderWidth: 0.90,
+                },
+                ]
+            },
+
+            // Configuration options go here
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                display: true,
+                title: {
+                    display: true,
+                    fontSize: 20,
+                    padding: 25,
+                    fontStyle: 'normal'
+                },
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: .5,
+
+                    }
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: true,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                elements: {
+                    point: {
+                        pointStyle: 'circle',
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        radius: 2.2,
+                        hitRadius: 20,
+                        hoverBorderWidth: 1,
+                    },
+                    line: {
+                        tension: 0.4,
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'MMM D',
+                            displayFormats: {
+                                day: 'MMM D'
+                            }
+
+                        },
+                        gridLines: {
+                            display: false,
+                        },
+                    }],
+                    yAxes: [{
+                        display: true,
+                        type: 'linear',
+                        gridLines: {
+                            display: true,
+                        },
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            },
+
+        };
+
         window.onload = function () {
             let ctx = document.getElementById('changesChart').getContext('2d');
             window.myLine = new Chart(ctx, config);
+
+            let ctx1 = document.getElementById('changesChartDaily').getContext('2d');
+            window.myLine = new Chart(ctx1, config1);
         };
 
         function runReports(customer_id, channel) {

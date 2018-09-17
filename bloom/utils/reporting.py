@@ -9,6 +9,7 @@ from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
+from datetime import date, timedelta
 from functools import partial
 from facebook_business.adobjects.adaccount import AdAccount
 from bing_dashboard.auth import BingAuth
@@ -18,6 +19,12 @@ from bingads.v11.reporting import (
 
 
 class Reporting:
+
+    def perdelta(self, start, end, delta):
+        curr = start
+        while curr <= end:
+            yield curr
+            curr += delta
 
     @staticmethod
     def get_change(current, previous):
@@ -125,31 +132,48 @@ class Reporting:
     @staticmethod
     def get_change_no(account_changes):
 
-        campaign_changes = 0
         change_counter = 0
-        if 'lastChangeTimestamp' in account_changes:
-            print('Most recent changes: %s' % account_changes['lastChangeTimestamp'])
+        cmp_counter = 0
+        cmp_criteria_counter = 0
+        ag_counter = 0
+        ag_bid_modifier_counter = 0
+        ads_counter = 0
+        kw_counter = 0
+
+
         if account_changes['changedCampaigns']:
             for data in account_changes['changedCampaigns']:
-                change_counter += len(account_changes['changedCampaigns'])
-                if (data['campaignChangeStatus'] != 'NEW' and
-                        data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
-                    campaign_changes += 1
-                    if 'addedCampaignCriteria' in data:
-                        change_counter += len(data['addedCampaignCriteria'])
-                    if 'removedCampaignCriteria' in data:
-                        change_counter += len(data['removedCampaignCriteria'])
-                    if 'changedAdGroups' in data:
-                        change_counter += len(data['changedAdGroups'])
-                        for ad_group_data in data['changedAdGroups']:
-                            if ad_group_data['adGroupChangeStatus'] != 'NEW':
-                                if 'changedAds' in ad_group_data:
-                                    change_counter += len(ad_group_data['changedAds'])
-                                if 'changedCriteria' in ad_group_data:
-                                    change_counter += len(ad_group_data['changedCriteria'])
-                                if 'removedCriteria' in ad_group_data:
-                                    change_counter += len(ad_group_data['removedCriteria'])
-        print(campaign_changes)
+                if data['campaignChangeStatus'] == 'NEW':
+                    cmp_counter += 1
+                if data['campaignChangeStatus'] != 'NEW' and data['campaignChangeStatus'] != 'FIELDS_UNCHANGED':
+                    cmp_counter += 1
+                if 'addedCampaignCriteria' in data and len(data['addedCampaignCriteria']) > 0:
+                    cmp_criteria_counter += len(data['addedCampaignCriteria'])
+
+                if 'removedCampaignCriteria' in data and len(data['removedCampaignCriteria']) > 0:
+                    cmp_criteria_counter += len(data['removedCampaignCriteria'])
+
+                if 'changedAdGroups' in data:
+                    for ad_group_data in data['changedAdGroups']:
+                        if ad_group_data['adGroupChangeStatus'] == 'FIELDS_CHANGED':
+                            ag_counter += 1
+                        if ad_group_data['adGroupChangeStatus'] == 'NEW':
+                            ag_counter += 1
+                        if ad_group_data['adGroupChangeStatus'] != 'NEW':
+                            if 'changedAds' in ad_group_data and len(ad_group_data['changedAds']) > 0:
+                                ads_counter += len(ad_group_data['changedAds'])
+                            if 'changedCriteria' in ad_group_data and len(ad_group_data['changedCriteria']) > 0:
+                                kw_counter += len(ad_group_data['changedCriteria'])
+                            if 'removedCriteria' in ad_group_data and len(ad_group_data['removedCriteria']) > 0:
+                                kw_counter += len(ad_group_data['removedCriteria'])
+                            if 'changedAdGroupBidModifierCriteria' in ad_group_data and len(ad_group_data['changedAdGroupBidModifierCriteria']) > 0:
+                                ag_bid_modifier_counter += len(ad_group_data['changedAdGroupBidModifierCriteria'])
+                            if 'removedAdGroupBidModifierCriteria' in ad_group_data and len(ad_group_data['removedAdGroupBidModifierCriteria']) > 0:
+                                ag_bid_modifier_counter += len(ad_group_data['removedAdGroupBidModifierCriteria'])
+
+            change_counter = change_counter + cmp_counter + ag_counter + ads_counter + kw_counter + cmp_criteria_counter + ag_bid_modifier_counter
+
+
         return change_counter
 
     def stringify_date(self, date, date_format='%Y%m%d'):
@@ -897,15 +921,16 @@ class AdwordsReporting(Reporting):
             "ServingStatus",
         ]
 
-        predicates = [{
-            "field": "CampaignStatus",
-            "operator": "IN",
-            "values": ["ENABLED"],
-        }, {
-            "field": "ServingStatus",
-            "operator": "IN",
-            "values": ["SERVING"],
-        }]
+        predicates = []
+        # predicates = [{
+        #     "field": "CampaignStatus",
+        #     "operator": "IN",
+        #     "values": ["ENABLED"],
+        # }, {
+        #     "field": "ServingStatus",
+        #     "operator": "IN",
+        #     "values": ["SERVING"],
+        # }]
 
         extra_fields = kwargs.get("extra_fields", None)
 
