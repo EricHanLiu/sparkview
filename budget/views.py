@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import subprocess
+import calendar
+import json
 from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -11,9 +14,6 @@ from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
-import subprocess
-import calendar
-import json
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -277,7 +277,7 @@ def client_details(request, client_id):
         cmp_groupings = CampaignGrouping.objects.all()
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
-        print(chdata_json)
+
         context = {
             'client_data': client,
             'today': today.day,

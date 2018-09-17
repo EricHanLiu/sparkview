@@ -4,7 +4,6 @@ import re
 import itertools
 import calendar
 import unicodedata
-from builtins import str as text
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from bloom import celery_app
@@ -25,7 +24,7 @@ from datetime import date, timedelta
 regex = '\'[aA-zZ_09_-].*\''
 
 def remove_accents(input_str):
-    nkfd_form = unicodedata.normalize('NFKD', text(input_str))
+    nkfd_form = unicodedata.normalize('NFKD', str(input_str))
     return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
 
 def month_converter(month):
