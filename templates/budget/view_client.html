@@ -163,23 +163,28 @@
                                     <div class="m-form__group form-group">
                                         <div class="m-checkbox-list">
                                             <label class="m-checkbox">
-                                                <input type="checkbox" name="network_type" value="Cross-network"> Cross-network
-                                                <span></span>
-                                            </label>
-                                            <label class="m-checkbox" >
-                                                <input type="checkbox" name="network_type" value="Search Network"> Search
+                                                <input type="checkbox" name="network_type" value="Cross-network">
+                                                Cross-network
                                                 <span></span>
                                             </label>
                                             <label class="m-checkbox">
-                                                <input type="checkbox" name="network_type" value="Display Network"> Display
+                                                <input type="checkbox" name="network_type" value="Search Network">
+                                                Search
                                                 <span></span>
                                             </label>
                                             <label class="m-checkbox">
-                                                <input type="checkbox" name="network_type" value="Youtube Search"> Youtube Search
+                                                <input type="checkbox" name="network_type" value="Display Network">
+                                                Display
                                                 <span></span>
                                             </label>
                                             <label class="m-checkbox">
-                                                <input type="checkbox" name="network_type" value="Youtube Videos"> Youtube Videos
+                                                <input type="checkbox" name="network_type" value="Youtube Search">
+                                                Youtube Search
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Youtube Videos">
+                                                Youtube Videos
                                                 <span></span>
                                             </label>
                                         </div>
@@ -678,15 +683,20 @@
 
     <script type="text/javascript">
 
+        function random_rgba() {
+            let o = Math.round, r = Math.random, s = 255;
+            return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ', 0.5)';
+        }
+
         function gen_xy(data) {
 
             lst = [];
 
-            for (key in data) {
-                if (data.hasOwnProperty(key)) {
+            for (key1 in data) {
+                if (data.hasOwnProperty(key1)) {
                     lst.push({
-                        'x': moment(key),
-                        'y': data[key]
+                        'x': moment(key1),
+                        'y': data[key1]
                     })
                 }
             }
@@ -697,9 +707,107 @@
             return lst
         }
 
+        let generate_chart_config = function (data) {
+
+            let datasets = [];
+
+            for (key in data) {
+                if (data.hasOwnProperty(key)) {
+                    for (key2 in data[key]) {
+                        if (data[key].hasOwnProperty(key2)) {
+                            var dataset = {
+                                ...key2.includes('Projected') && {
+                                    borderDash: [3, 3],
+                                    type: 'scatter',
+                                    beginAtZero: false,
+                                    fill: true,
+                                },
+                                label: key2,
+                                backgroundColor: random_rgba(),
+                                borderColor: random_rgba(),
+                                data: gen_xy(data[key][key2]),
+                                borderWidth: 2,
+                                fill: false
+                            };
+                            datasets.push(dataset)
+                        }
+                    }
+                }
+            }
+
+            var ctx = document.getElementById('spendChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'scatter',
+                data: {
+                    datasets: datasets
+                },
+
+                // Configuration options go here
+                options: {
+                    responsive: true,
+                    display: true,
+                    title: {
+                        display: true,
+                        text: '',
+                        fontSize: 20,
+                        padding: 25,
+                        fontStyle: 'normal'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 0.5,
+
+                        }
+                    },
+                    elements: {
+                        point: {
+                            pointStyle: 'circle',
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            radius: 1.6,
+                            hitRadius: 20,
+                            hoverBorderWidth: 1,
+                        },
+                        line: {
+                            tension: 0.4,
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'MMM DD',
+                                displayFormats: {
+                                    day: 'MMM DD'
+                                },
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        }],
+                        yAxes: [{
+                            display: true,
+                            type: 'linear',
+                            gridLines: {
+                                display: true,
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                },
+
+            });
+        };
 
         function generateChart(data) {
-
+            {#console.log(data)#}
             var new_bingb = gen_xy(data.bing_budget);
             var new_bings = gen_xy(data.bing_spend);
             var new_bingp = gen_xy(data.bing_projected);
@@ -731,9 +839,9 @@
                 backgroundColor: 'rgba(236, 76, 51, 0.15)',
                 borderColor: 'rgb(0, 0, 0)',
                 data: gen_xy(data.aw_projected),
-                borderDash: [2, 2],
                 fill: true,
                 borderWidth: 0.90,
+                borderDash: [2, 2],
                 type: 'scatter',
                 beginAtZero: false,
             };
@@ -1300,7 +1408,8 @@
 
         document.addEventListener("DOMContentLoaded", function (event) {
             let data = {{ chdata|safe }};
-            generateChart(data);
+            {#generateChart(data);#}
+            generate_chart_config(data);
         });
 
     </script>
