@@ -19,6 +19,7 @@ from dateutil.relativedelta import relativedelta
 from operator import itemgetter
 from itertools import groupby
 from zeep.helpers import serialize_object
+from datetime import date, timedelta
 
 
 regex = '\'[aA-zZ_09_-].*\''
@@ -393,21 +394,15 @@ def adwords_cron_campaign_stats(self, customer_id):
 
     for campaign in campaign_this_month:
         cost = helper.mcv(campaign['cost'])
-        cmp, created = Campaign.objects.update_or_create(
+        cmp, created = Campaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign['campaign_id'],
-            defaults={
-                'campaign_cost': cost,
-                'campaign_name': campaign['campaign'],
-                'campaign_status': campaign['campaign_state'],
-                'campaign_serving_status': campaign['campaign_serving_status']
-            }
+            campaign_id=campaign['campaign_id']
         )
-        # cmp.campaign_cost = cost
-        # cmp.campaign_name = campaign['campaign']
-        # cmp.campaign_status = campaign['campaign_state']
-        # cmp.campaign_serving_status = campaign['campaign_serving_status']
-        # cmp.save()
+        cmp.campaign_cost = cost
+        cmp.campaign_name = campaign['campaign']
+        cmp.campaign_status = campaign['campaign_state']
+        cmp.campaign_serving_status = campaign['campaign_serving_status']
+        cmp.save()
 
         cmps.append(cmp)
         if created:
@@ -783,7 +778,8 @@ def adwords_account_change_history(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
+    _5_days_ago = today - relativedelta(days=4)
 
     fminDateL = (today - relativedelta(months=2)).replace(day=1)
     fmaxDateL = fminDateL.replace(day=calendar.monthrange(fminDateL.year, fminDateL.month)[1])
@@ -795,19 +791,39 @@ def adwords_account_change_history(self, customer_id):
     maxDateL = minDateL.replace(day=calendar.monthrange(minDateL.year, minDateL.month)[1])
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
+    # campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
+    campaigns = Campaign.objects.filter(account=account)
 
+    dates = helper.perdelta(_5_days_ago, today, timedelta(days=1))
+    daily = {}
     campaign_ids = []
+
     for c in campaigns:
         campaign_ids.append(c.campaign_id)
 
     if customer_id is not None:
-        print('Customer ID: ' + customer_id)
         client.client_customer_id = customer_id
 
     service = client.GetService('CustomerSyncService', version=API_VERSION)
 
-    selector = {
+    for date in dates:
+
+        selector = {
+            'dateTimeRange': {
+                'min': (date - relativedelta(days=1)).strftime('%Y%m%d %H%M%S'),
+                'max': date.strftime('%Y%m%d %H%M%S')
+            },
+            'campaignIds': campaign_ids
+        }
+
+        day_changes = service.get(selector)
+        no_of_changes = helper.get_change_no(day_changes)
+        # if date.day == 12:
+        #     print(day_changes)
+        daily[date.strftime('%Y-%m-%d')] = no_of_changes
+
+
+    selector1 = {
         'dateTimeRange': {
             'min': minDate.strftime('%Y%m%d %H%M%S'),
             'max': maxDate.strftime('%Y%m%d %H%M%S')
@@ -834,9 +850,7 @@ def adwords_account_change_history(self, customer_id):
     if len(campaign_ids) > 0:
 
         try:
-            account_changes = service.get(selector)
-            print('Account ID: ' + account.dependent_account_id)
-            print(account_changes['changedFeeds'])
+            account_changes = service.get(selector1)
             temp = serialize_object(account_changes)
             changes_dict = json.loads(json.dumps(temp))
             change_counter = helper.get_change_no(account_changes)
@@ -846,7 +860,6 @@ def adwords_account_change_history(self, customer_id):
                 change_counter = 19999
                 changes_dict = {
                     'changedCampaigns': 'Too many changes.',
-                    'lastChangeTimestamp': 'TOO_MANY_CHANGES'
                 }
 
         try:
@@ -871,14 +884,13 @@ def adwords_account_change_history(self, customer_id):
         change_score = helper.get_change_score(change_val)
 
         changed_data = {
-            'lastChangeTimestamp': changes_dict['lastChangeTimestamp'],
-            fminDateL.strftime('%Y-%m-%d'): change_counter3,
-            minDateL.strftime('%Y-%m-%d'): change_counter2,
-            minDate.strftime('%Y-%m-%d'): change_counter
+            'monthly': {
+                fminDateL.strftime('%Y-%m-%d'): change_counter3,
+                minDateL.strftime('%Y-%m-%d'): change_counter2,
+                minDate.strftime('%Y-%m-%d'): change_counter
+            },
+            'daily': daily
         }
-
-        print(changed_data)
-
 
         account.changed_data = changed_data
         account.changed_score = change_score
@@ -886,44 +898,33 @@ def adwords_account_change_history(self, customer_id):
 
         calculate_account_score(account)
 
-        last_change = account.changed_data['lastChangeTimestamp']
-        date_format = "%Y%m%d"
-        today = date.today().day
-        s = last_change.strip(' ')
-        s_dt = s[0:8]
+        flag = all(value == 0 for value in daily.values())
 
-        if last_change == 'TOO_MANY_CHANGES':
-            print('Last change: ' + last_change)
-        else:
-            last_change_day = datetime.strptime(s_dt, date_format).date()
-            last_change_dt = today - last_change_day.day
+        if flag:
+            mail_details = {
+                'account': account,
+            }
 
-            if last_change_dt >= 5:
-                mail_details = {
-                    'account': account,
-                    'lastChange': last_change_day
-                }
+            if account.assigned_am:
+                MAIL_ADS.append(account.assigned_am.email)
+                print('Found AM - ' + account.assigned_am.username)
+            if account.assigned_to:
+                MAIL_ADS.append(account.assigned_to.email)
+                print('Found CM - ' + account.assigned_to.username)
+            if account.assigned_cm2:
+                MAIL_ADS.append(account.assigned_cm2.email)
+                print('Found CM2 - ' + account.assigned_cm2.username)
+            if account.assigned_cm3:
+                MAIL_ADS.append(account.assigned_cm3.email)
+                print('Found CM3 - ' + account.assigned_cm3.username)
 
-                if account.assigned_am:
-                    MAIL_ADS.append(account.assigned_am.email)
-                    print('Found AM - ' + account.assigned_am.username)
-                if account.assigned_to:
-                    MAIL_ADS.append(account.assigned_to.email)
-                    print('Found CM - ' + account.assigned_to.username)
-                if account.assigned_cm2:
-                    MAIL_ADS.append(account.assigned_cm2.email)
-                    print('Found CM2 - ' + account.assigned_cm2.username)
-                if account.assigned_cm3:
-                    MAIL_ADS.append(account.assigned_cm3.email)
-                    print('Found CM3 - ' + account.assigned_cm3.username)
+            mail_list = set(MAIL_ADS)
+            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
 
-                mail_list = set(MAIL_ADS)
-                msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
-
-                send_mail(
-                    account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                    EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
-                mail_list.clear()
+            # send_mail(
+            #     account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+            #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
+            mail_list.clear()
 
     else:
         print('No active campaigns found.')
