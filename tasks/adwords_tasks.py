@@ -920,9 +920,9 @@ def adwords_account_change_history(self, customer_id):
             mail_list = set(MAIL_ADS)
             msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
 
-            # send_mail(
-            #     account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-            #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
+            send_mail(
+                account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
+                EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
             mail_list.clear()
 
     else:
