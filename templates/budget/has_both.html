@@ -76,12 +76,12 @@
                                 <div class="col-md-12">
                                     <div class="progress m-progress--lg">
                                         {% if client_data.aw_spend %}
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                 style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"
-                                                 aria-valuenow="{{ client_data.aw_spend|div:client_data.target_spend }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                A: {{ client_data.aw_spend|floatformat:2 }}
-                                            </div>
+{#                                            <div class="progress-bar bg-success" role="progressbar"#}
+{#                                                 style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"#}
+{#                                                 aria-valuenow="{{ client_data.aw_spend|div:client_data.target_spend }}"#}
+{#                                                 aria-valuemin="0" aria-valuemax="100">#}
+{#                                                A: {{ client_data.aw_spend|floatformat:2 }}#}
+{#                                            </div>#}
                                             <div class="progress-bar bg-danger" role="progressbar"
                                                  style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"
                                                  aria-valuenow="{{ client_data.aw_projected|div:client_data.target_spend }}"
@@ -102,12 +102,12 @@
                                             </div>
                                         {% endif %}
                                         {% if client_data.bing_spend %}
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                 style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"
-                                                 aria-valuenow="{{ client_data.bing_spend|div:client_data.target_spend }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                B: {{ client_data.bing_spend|floatformat:2 }}
-                                            </div>
+{#                                            <div class="progress-bar bg-success" role="progressbar"#}
+{#                                                 style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"#}
+{#                                                 aria-valuenow="{{ client_data.bing_spend|div:client_data.target_spend }}"#}
+{#                                                 aria-valuemin="0" aria-valuemax="100">#}
+{#                                                B: {{ client_data.bing_spend|floatformat:2 }}#}
+{#                                            </div>#}
                                             <div class="progress-bar bg-danger" role="progressbar"
                                                  style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"
                                                  aria-valuenow="{{ client_data.bing_projected|div:client_data.target_spend }}"
@@ -128,12 +128,12 @@
                                             </div>
                                         {% endif %}
                                         {% if client_data.fb_spend %}
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                 style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"
-                                                 aria-valuenow="{{ client_data.fb_spend|div:client_data.target_spend }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                F: {{ client_data.fb_spend|floatformat:2 }}
-                                            </div>
+{#                                            <div class="progress-bar bg-success" role="progressbar"#}
+{#                                                 style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"#}
+{#                                                 aria-valuenow="{{ client_data.fb_spend|div:client_data.target_spend }}"#}
+{#                                                 aria-valuemin="0" aria-valuemax="100">#}
+{#                                                F: {{ client_data.fb_spend|floatformat:2 }}#}
+{#                                            </div>#}
                                             <div class="progress-bar bg-danger" role="progressbar"
                                                  style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"
                                                  aria-valuenow="{{ client_data.fb_projected|div:client_data.target_spend }}"
