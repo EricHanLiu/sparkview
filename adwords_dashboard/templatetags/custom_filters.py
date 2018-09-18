@@ -15,6 +15,12 @@ def get_dict_value(data, key):
     except TypeError:
         return [0,0,0]
 
+@register.filter("addf")
+def addf(value, arg):
+    """Adds the arg to the value."""
+    return float(value) + float(arg)
+addf.is_safe = False
+
 
 @register.filter("mcv")
 def mcv(value):
