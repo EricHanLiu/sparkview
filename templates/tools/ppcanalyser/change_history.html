@@ -220,6 +220,8 @@
 
         let ch_dataset = gen_xy(changes);
         let daily_dataset = gen_xy(dailyChanges);
+        console.log(ch_dataset);
+        console.log(daily_dataset);
 
         let config = {
             // The type of chart we want to create
@@ -232,8 +234,7 @@
                     data: ch_dataset,
                     fill: false,
                     borderWidth: 0.90,
-                },
-                ]
+                }]
             },
 
             // Configuration options go here
@@ -310,7 +311,7 @@
 
         let config1 = {
             // The type of chart we want to create
-            type: 'line',
+            type: 'scatter',
             data: {
                 datasets: [{
                     label: "Daily Changes",
@@ -319,8 +320,7 @@
                     data: daily_dataset,
                     fill: false,
                     borderWidth: 0.90,
-                },
-                ]
+                }]
             },
 
             // Configuration options go here
@@ -378,6 +378,9 @@
                         gridLines: {
                             display: false,
                         },
+                        ticks: {
+                            beginAtZero: true
+                        }
                     }],
                     yAxes: [{
                         display: true,

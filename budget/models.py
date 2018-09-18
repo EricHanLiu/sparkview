@@ -47,6 +47,7 @@ class ClientCData(models.Model):
     fb_budget = JSONField(default=dict)
     fb_projected = JSONField(default=dict)
     fb_spend = JSONField(default=dict)
+    global_target_spend = JSONField(default=dict)
 
 
 class ClientHist(models.Model):

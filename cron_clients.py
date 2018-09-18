@@ -56,7 +56,7 @@ def main():
 
     for client in clients:
 
-        aw_s_final, aw_p_final, aw_b_final = {}, {}, {}
+        aw_s_final, aw_p_final, aw_b_final, gts_final = {}, {}, {}, {}
         bing_b_final, bing_p_final, bing_s_final = {}, {}, {}
         fb_b_final, fb_p_final, fb_s_final = {}, {}, {}
 
@@ -90,7 +90,7 @@ def main():
 
             for a in adwords:
 
-                aw_budget, aw_spend, aw_projected = {}, {}, {}
+                aw_budget, aw_spend, aw_projected, gts_values = {}, {}, {}, {}
 
                 account_name = a.dependent_account_name
                 client.budget += a.desired_spend
@@ -115,14 +115,42 @@ def main():
                     aw_projected[val.strftime("%Y-%m-%d")] = round((aw_projected_per_day * index) + a.current_spend, 2)
                 aw_p_final['A - ' + remove_accents(a.dependent_account_name) + ' Projected'] = aw_projected
 
-                aw_budget_per_day = round(a.desired_spend / last_day.day, 2)
-                for index, val in enumerate(bdays, start=1):
-                    aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
-                aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+                # Budget only client
+                if client.has_budget and not client.has_gts:
+                    aw_budget_per_day = round(a.desired_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
+                    aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+                # GTS only client
+                elif client.has_gts and not client.has_budget:
+                    gts_per_day = round(client.target_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
+                    gts_final['Global Target Spend'] = gts_values
+                # Both options active
+                elif client.has_gts and client.has_budget:
+                    gts_per_day = round(client.target_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
+                    gts_final['Global Target Spend'] = gts_values
+                    if a.desired_spend > 0:
+                        aw_budget_per_day = round(a.desired_spend / last_day.day, 2)
+                        for index, val in enumerate(bdays, start=1):
+                            aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
+                        aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+
         else:
             aw_s_final = {}
             aw_b_final = {}
             aw_p_final = {}
+            gts_values = {}
+
+            if client.has_gts and not client.has_budget:
+                gts_per_day = round(client.target_spend / last_day.day, 2)
+                for index, val in enumerate(bdays, start=1):
+                    gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
+                gts_final['Global Target Spend'] = gts_values
+
 
         bing = client.bing.all()
         if len(bing) > 0:
@@ -149,10 +177,26 @@ def main():
                     bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend, 2)
                 bing_p_final['B - ' + remove_accents(b.account_name) + ' Projected'] = bing_projected
 
-                bing_budget_per_day = round(b.desired_spend / last_day.day, 2)
-                for index, val in enumerate(bdays, start=1):
-                    bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
-                bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+                # Budget only client
+                if client.has_budget and not client.has_gts:
+                    bing_budget_per_day = round(b.desired_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
+                    bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+                # GTS only client
+                elif client.has_gts and not client.has_budget:
+                    pass
+                # Both options active
+                elif client.has_gts and client.has_budget:
+
+                    if b.desired_spend > 0:
+                        bing_budget_per_day = round(b.desired_spend / last_day.day, 2)
+                        for index, val in enumerate(bdays, start=1):
+                            bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
+                        bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+                    else:
+                        pass
+
         else:
             bing_s_final = {}
             bing_p_final = {}
@@ -184,10 +228,24 @@ def main():
                     fb_projected[val.strftime("%Y-%m-%d")] = round((fb_projected_per_day * index) + f.current_spend, 2)
                 fb_p_final['F - ' + remove_accents(f.account_name) + ' Projected'] = fb_projected
 
-                fb_budget_per_day = round(f.desired_spend / last_day.day, 2)
-                for index, val in enumerate(bdays, start=1):
-                    fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
-                fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+                # Budget only client
+                if client.has_budget and not client.has_gts:
+                    fb_budget_per_day = round(f.desired_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
+                    fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+                # GTS only client
+                elif client.has_gts and not client.has_budget:
+                    pass
+                # Both options active
+                elif client.has_gts and client.has_budget:
+                    if f.desired_spend > 0:
+                        fb_budget_per_day = round(f.desired_spend / last_day.day, 2)
+                        for index, val in enumerate(bdays, start=1):
+                            fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
+                        fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+                    else:
+                        pass
 
         else:
             fb_s_final = {}
@@ -203,6 +261,7 @@ def main():
         new_client_cdata.fb_budget = fb_b_final
         new_client_cdata.fb_spend = fb_s_final
         new_client_cdata.fb_projected = fb_p_final
+        new_client_cdata.global_target_spend = gts_final
 
         new_client_cdata.save()
         client.save()
