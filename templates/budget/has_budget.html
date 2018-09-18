@@ -68,31 +68,17 @@
                             <div class="m-separator"></div>
                             <div class="row text-center">
                                 <div class="col-md-12">
-                                    {% if client_data.aw_spend %}
-                                        <b>AW Projected</b>: {{ client_data.aw_projected|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <b>AW DS</b>: {{ client_data.aw_current_ds|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <b>AW YS</b>: {{ client_data.aw_yesterday|floatformat:2 }}
-                                    {% endif %}
-                                    {% if client_data.bing_spend %}
-                                        <b>Bing Projected</b>: {{ client_data.aw_projected|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <b>Bing DS</b>: {{ client_data.aw_current_ds|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <b>Bing YS</b>: {{ client_data.aw_yesterday|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                    {% endif %}
-                                    {% if client_data.fb_spend %}
-                                        <b>FB Projected</b>: {{ client_data.fb_projected|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <b>FB DS</b>: {{ client_data.fb_current_ds|floatformat:2 }}
-                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <b>FB YS</b>: {{ client_data.fb_yesterday|floatformat:2 }}
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-12">
-                                    <small>*Pr: Projected | DS: Current Daily Spend | YS: Yesterday Spend</small>
+                                    <b>Current spend</b>:
+                                        {{ client_data.aw_spend|addf:client_data.bing_spend|addf:client_data.fb_spend }}
+                                            <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <b>Projected</b>:
+                                        {{ client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected }}
+                                            <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <b>Daily Spend</b>:
+                                        {{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds }}
+                                            <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <b>Yesterday Spend</b>:
+                                        {{ client_data.aw_yesterday|add:client_data.bing_yesterday|add:client_data.fb_yesterday|floatformat:2 }}
                                 </div>
                             </div>
 
