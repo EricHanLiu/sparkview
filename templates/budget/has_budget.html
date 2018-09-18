@@ -68,94 +68,34 @@
                             <div class="m-separator"></div>
                             <div class="row text-center">
                                 <div class="col-md-12">
-                                    <div class="progress m-progress--lg">
-                                        {% if client_data.aw_spend %}
-{#                                            <div class="progress-bar bg-success" role="progressbar"#}
-{#                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"#}
-{#                                                 aria-valuenow="{{ client_data.aw_spend|div:client_data.budget }}"#}
-{#                                                 aria-valuemin="0" aria-valuemax="100">#}
-{#                                                A: {{ client_data.aw_spend|floatformat:2 }}#}
-{#                                            </div>#}
-                                            <div class="progress-bar bg-danger" role="progressbar"
-                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.aw_projected|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                A Pr: {{ client_data.aw_projected|floatformat:2 }}
-                                            </div>
-                                            <div class="progress-bar bg-info" role="progressbar"
-                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.aw_current_ds|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                A DS: {{ client_data.aw_current_ds|floatformat:2 }}
-                                            </div>
-                                            <div class="progress-bar bg-primary" role="progressbar"
-                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.aw_yesterday|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                A YS: {{ client_data.aw_yesterday|floatformat:2 }}
-                                            </div>
-                                        {% endif %}
-                                        {% if client_data.bing_spend %}
-{#                                            <div class="progress-bar bg-success" role="progressbar"#}
-{#                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"#}
-{#                                                 aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"#}
-{#                                                 aria-valuemin="0" aria-valuemax="100">#}
-{#                                                B: {{ client_data.bing_spend|floatformat:2 }}#}
-{#                                            </div>#}
-                                            <div class="progress-bar bg-danger" role="progressbar"
-                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.bing_projected|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                B Pr: {{ client_data.bing_projected|floatformat:2 }}
-                                            </div>
-                                            <div class="progress-bar bg-info" role="progressbar"
-                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.bing_current_ds|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                B DS: {{ client_data.bing_current_ds|floatformat:2 }}
-                                            </div>
-                                            <div class="progress-bar bg-primary" role="progressbar"
-                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.bing_yesterday|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                B YS: {{ client_data.bing_yesterday|floatformat:2 }}
-                                            </div>
-                                        {% endif %}
-                                        {% if client_data.fb_spend %}
-{#                                            <div class="progress-bar bg-success" role="progressbar"#}
-{#                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"#}
-{#                                                 aria-valuenow="{{ client_data.fb_spend|div:client_data.budget }}"#}
-{#                                                 aria-valuemin="0" aria-valuemax="100">#}
-{#                                                F: {{ client_data.fb_spend|floatformat:2 }}#}
-{#                                            </div>#}
-                                            <div class="progress-bar bg-danger" role="progressbar"
-                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.fb_projected|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                F Pr: {{ client_data.fb_projected|floatformat:2 }}
-                                            </div>
-                                            <div class="progress-bar bg-info" role="progressbar"
-                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.fb_current_ds|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                F DS: {{ client_data.fb_current_ds|floatformat:2 }}
-                                            </div>
-                                            <div class="progress-bar bg-primary" role="progressbar"
-                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.fb_yesterday|div:client_data.budget }}"
-                                                 aria-valuemin="0" aria-valuemax="100">
-                                                F YS: {{ client_data.fb_yesterday|floatformat:2 }}
-                                            </div>
-                                        {% endif %}
-                                        <div class="black-marker"
-                                             style="width: {{ blackmarker }}%"
-                                             aria-valuenow="{{ blackmarker }}"
-                                             aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
+                                    {% if client_data.aw_spend %}
+                                        <b>AW Projected</b>: {{ client_data.aw_projected|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        <b>AW DS</b>: {{ client_data.aw_current_ds|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        <b>AW YS</b>: {{ client_data.aw_yesterday|floatformat:2 }}
+                                    {% endif %}
+                                    {% if client_data.bing_spend %}
+                                        <b>Bing Projected</b>: {{ client_data.aw_projected|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        <b>Bing DS</b>: {{ client_data.aw_current_ds|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        <b>Bing YS</b>: {{ client_data.aw_yesterday|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    {% endif %}
+                                    {% if client_data.fb_spend %}
+                                        <b>FB Projected</b>: {{ client_data.fb_projected|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        <b>FB DS</b>: {{ client_data.fb_current_ds|floatformat:2 }}
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        <b>FB YS</b>: {{ client_data.fb_yesterday|floatformat:2 }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-12">
+                                    <small>*Pr: Projected | DS: Current Daily Spend | YS: Yesterday Spend</small>
                                 </div>
                             </div>
-                            <small>*Pr: Projected | DS: Current Daily Spend | YS: Yesterday Spend</small>
+
                             </p>
                             <div class="m-separator m-separator--metal"></div>
                             <div id="myChart">
