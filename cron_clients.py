@@ -73,7 +73,16 @@ def main():
         client.aw_budget = 0
         client.bing_budget = 0
         client.fb_budget = 0
-        client.yesterday_spend = 0
+        client.aw_yesterday = 0
+        client.bing_yesterday = 0
+        client.fb_yesterday = 0
+        client.aw_current_ds = 0
+        client.bing_current_ds = 0
+        client.fb_current_ds = 0
+        client.aw_projected = 0
+        client.bing_projected = 0
+        client.fb_projected = 0
+
         client.save()
 
         adwords = client.adwords.all()
@@ -87,8 +96,9 @@ def main():
                 client.budget += a.desired_spend
                 client.current_spend += a.current_spend
                 client.aw_spend += a.current_spend
-                client.yesterday_spend += a.yesterday_spend
+                client.aw_yesterday += a.yesterday_spend
                 client.aw_budget += a.desired_spend
+                client.aw_current_ds += a.current_spend / (today.day - 1)
 
                 for k, v in sorted(a.segmented_spend.items()):
                     if v['cost'] == 0:
@@ -99,6 +109,7 @@ def main():
                 aw_s_final['A - ' + remove_accents(account_name) + ' Spend'] = aw_spend
 
                 aw_projected_val = projected(a.current_spend, a.yesterday_spend)
+                client.aw_projected += aw_projected_val
                 aw_projected_per_day = (aw_projected_val - a.current_spend) / remaining
                 for index, val in enumerate(pdays):
                     aw_projected[val.strftime("%Y-%m-%d")] = round((aw_projected_per_day * index) + a.current_spend, 2)
@@ -122,8 +133,9 @@ def main():
                 client.budget += b.desired_spend
                 client.current_spend += b.current_spend
                 client.bing_spend += b.current_spend
-                client.yesterday_spend += b.yesterday_spend
+                client.bing_yesterday += b.yesterday_spend
                 client.bing_budget += b.desired_spend
+                client.bing_current_ds += b.current_spend / (today.day - 1)
 
                 for k, v in sorted(b.segmented_spend.items()):
                     b_temp = b_temp + float(v['spend'])
@@ -131,6 +143,7 @@ def main():
                 bing_s_final['B - ' + remove_accents(b.account_name) + ' Spend'] = bing_spend
 
                 bing_projected_val = projected(b.current_spend, b.yesterday_spend)
+                client.bing_projected += bing_projected_val
                 bing_projected_per_day = (bing_projected_val - b.current_spend) / remaining
                 for index, val in enumerate(pdays):
                     bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend, 2)
@@ -155,8 +168,9 @@ def main():
                 client.budget += f.desired_spend
                 client.current_spend += f.current_spend
                 client.fb_spend += f.current_spend
-                client.yesterday_spend += f.yesterday_spend
+                client.fb_yesterday += f.yesterday_spend
                 client.fb_budget += f.desired_spend
+                client.fb_current_ds += a.current_spend / (today.day - 1)
 
                 for k, v in sorted(f.segmented_spend.items()):
                     fb_temp = fb_temp + float(v)
@@ -164,6 +178,7 @@ def main():
                 fb_s_final['F - ' + remove_accents(f.account_name) + ' Spend'] = fb_spend
 
                 fb_projected_val = projected(f.current_spend, f.yesterday_spend)
+                client.fb_projected += fb_projected_val
                 fb_projected_per_day = (fb_projected_val - f.current_spend) / remaining
                 for index, val in enumerate(pdays):
                     fb_projected[val.strftime("%Y-%m-%d")] = round((fb_projected_per_day * index) + f.current_spend, 2)

@@ -75,26 +75,80 @@
                                     <div class="progress m-progress--lg">
                                         {% if client_data.aw_spend %}
                                             <div class="progress-bar bg-success" role="progressbar"
-                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.aw_spend|div:client_data.budget }}"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.aw_spend|div:client_data.target_spend }}"
                                                  aria-valuemin="0" aria-valuemax="100">
                                                 A: {{ client_data.aw_spend|floatformat:2 }}
                                             </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.aw_projected|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A Pr: {{ client_data.aw_projected|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.aw_current_ds|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A DS: {{ client_data.aw_current_ds|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.aw_yesterday|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A YS: {{ client_data.aw_yesterday|floatformat:2 }}
+                                            </div>
                                         {% endif %}
                                         {% if client_data.bing_spend %}
-                                            <div class="progress-bar bg-primary" role="progressbar"
-                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.bing_spend|div:client_data.target_spend }}"
                                                  aria-valuemin="0" aria-valuemax="100">
                                                 B: {{ client_data.bing_spend|floatformat:2 }}
                                             </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.bing_projected|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B Pr: {{ client_data.bing_projected|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.bing_current_ds|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B DS: {{ client_data.bing_current_ds|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.bing_yesterday|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B YS: {{ client_data.bing_yesterday|floatformat:2 }}
+                                            </div>
                                         {% endif %}
                                         {% if client_data.fb_spend %}
-                                            <div class="progress-bar" role="progressbar"
-                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
-                                                 aria-valuenow="{{ client_data.fb_spend|div:client_data.budget }}"
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.fb_spend|div:client_data.target_spend }}"
                                                  aria-valuemin="0" aria-valuemax="100">
-                                                F: {{ client_data.fb_spend }}
+                                                F: {{ client_data.fb_spend|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.fb_projected|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F Pr: {{ client_data.fb_projected|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.fb_current_ds|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F DS: {{ client_data.fb_current_ds|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.target_spend }}%"
+                                                 aria-valuenow="{{ client_data.fb_yesterday|div:client_data.target_spend }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F YS: {{ client_data.fb_yesterday|floatformat:2 }}
                                             </div>
                                         {% endif %}
                                         <div class="black-marker"

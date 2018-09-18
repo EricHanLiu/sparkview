@@ -76,21 +76,75 @@
                                                  aria-valuemin="0" aria-valuemax="100">
                                                 A: {{ client_data.aw_spend|floatformat:2 }}
                                             </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.aw_projected|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A Pr: {{ client_data.aw_projected|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.aw_current_ds|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A DS: {{ client_data.aw_current_ds|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.aw_yesterday|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                A YS: {{ client_data.aw_yesterday|floatformat:2 }}
+                                            </div>
                                         {% endif %}
                                         {% if client_data.bing_spend %}
-                                            <div class="progress-bar bg-primary" role="progressbar"
+                                            <div class="progress-bar bg-success" role="progressbar"
                                                  style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
                                                  aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"
                                                  aria-valuemin="0" aria-valuemax="100">
                                                 B: {{ client_data.bing_spend|floatformat:2 }}
                                             </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.bing_projected|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B Pr: {{ client_data.bing_projected|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.bing_current_ds|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B DS: {{ client_data.bing_current_ds|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.bing_yesterday|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                B YS: {{ client_data.bing_yesterday|floatformat:2 }}
+                                            </div>
                                         {% endif %}
                                         {% if client_data.fb_spend %}
-                                            <div class="progress-bar" role="progressbar"
+                                            <div class="progress-bar bg-success" role="progressbar"
                                                  style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
                                                  aria-valuenow="{{ client_data.fb_spend|div:client_data.budget }}"
                                                  aria-valuemin="0" aria-valuemax="100">
-                                                F: {{ client_data.fb_spend }}
+                                                F: {{ client_data.fb_spend|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.fb_projected|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F Pr: {{ client_data.fb_projected|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.fb_current_ds|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F DS: {{ client_data.fb_current_ds|floatformat:2 }}
+                                            </div>
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ client_data.fb_spend|div:client_data.budget }}%"
+                                                 aria-valuenow="{{ client_data.fb_yesterday|div:client_data.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                F YS: {{ client_data.fb_yesterday|floatformat:2 }}
                                             </div>
                                         {% endif %}
                                         <div class="black-marker"
@@ -113,98 +167,98 @@
 
                             {% for gr in groupings %}
                                 {% with adwords=client_data.adwords.all bing=client_data.bing.all facebook=client_data.facebool.all %}
-                                {% if gr.adwords in adwords or gr.bing in bing or gr.facebook in facebook %}
-                                    <div class="row">
-                                        <div class="col-md-2">
-                                            Channel:
-                                            {% if gr.adwords %}
-                                                {{ gr.adwords.channel|title }}
-                                            {% elif gr.bing %}
-                                                {{ gr.bing.channel|title }}
-                                            {% elif gr.facebook %}
-                                                {{ gr.facebook.channel|title }}
+                                    {% if gr.adwords in adwords or gr.bing in bing or gr.facebook in facebook %}
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                Channel:
+                                                {% if gr.adwords %}
+                                                    {{ gr.adwords.channel|title }}
+                                                {% elif gr.bing %}
+                                                    {{ gr.bing.channel|title }}
+                                                {% elif gr.facebook %}
+                                                    {{ gr.facebook.channel|title }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-3">
+                                                Group name: {{ gr.group_name }}
+                                                <i class="fa fa-minus-circle" data-toggle="modal"
+                                                   data-target="#m_delete_campaign_group" data-grid="{{ gr.id }}"></i>
+                                                <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                                   data-target="#m_edit_campaign_group"
+                                                        {% if gr.adwords %}
+                                                   data-acc_name="{{ gr.adwords.dependent_account_name }}"
+                                                   data-acc_id="{{ gr.adwords.dependent_account_id }}"
+                                                   data-channel="{{ gr.adwords.channel }}"
+                                                        {% elif gr.bing %}
+                                                   data-acc_name="{{ gr.bing.account_name }}"
+                                                   data-acc_id="{{ gr.bing.account_id }}"
+                                                   data-channel="{{ gr.bing.channel }}"
+                                                        {% elif gr.facebook %}
+                                                   data-acc_name="{{ gr.facebook.account_name }}"
+                                                   data-acc_id="{{ gr.facebook.account_id }}"
+                                                   data-channel="{{ gr.facebook.channel }}"
+                                                        {% endif %}
+                                                   data-group_name="{{ gr.group_name }}"
+                                                   data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
+                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
+                                                        {% if gr.start_date %}
+                                                   data-start_date="{{ gr.start_date }}"
+                                                   data-end_date="{{ gr.end_date }}"
+                                                        {% endif %}></i>
+                                            </div>
+                                            <div class="col-md-3">Group by: {{ gr.group_by }}</div>
+                                            <div class="col-md-2">Spend: {{ gr.current_spend }}</div>
+                                            <div class="col-md-2">Budget: {{ gr.budget }}</div>
+                                        </div>
+                                        {% if gr.start_date %}
+                                            <div class="row">
+                                                <div class="col-md-6">Start: {{ gr.start_date }}</div>
+                                                <div class="col-md-6">End: {{ gr.end_date }}</div>
+                                            </div>
+                                        {% endif %}
+                                        <div class="progress m-progress--lg">
+                                            <div class="progress-bar
+                                                        {{ gr.current_spend|percentage:gr.budget }}"
+                                                 role="progressbar"
+                                                 style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
+                                                 aria-valuenow="{% widthratio gr.current_spend gr.budget 100 %}"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 data-toggle="m-tooltip" data-placement="top"
+                                                 title=""
+                                                 data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
+                                                {% widthratio gr.current_spend gr.budget 100 %}%
+                                            </div>
+                                        </div>
+                                        <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in group</a>
+                                        <div id="campaigns_{{ gr.id }}" style="display: none">
+                                            {% if gr.aw_campaigns.all %}
+                                                {% for cmp in gr.aw_campaigns.all %}
+                                                    {% if gr.start_date %}
+                                                        <p>{{ cmp.campaign_name }}</p>
+                                                    {% else %}
+                                                        <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% elif gr.bing_campaigns.all %}
+                                                {% for cmp in gr.bing_campaigns.all %}
+                                                    {% if gr.start_date %}
+                                                        <p>{{ cmp.campaign_name }}</p>
+                                                    {% else %}
+                                                        <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% elif gr.fb_campaigns.all %}
+                                                {% for cmp in gr.fb_campaigns.all %}
+                                                    {% if gr.start_date %}
+                                                        <p>{{ cmp.campaign_name }}</p>
+                                                    {% else %}
+                                                        <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                    {% endif %}
+                                                {% endfor %}
                                             {% endif %}
                                         </div>
-                                        <div class="col-md-3">
-                                            Group name: {{ gr.group_name }}
-                                            <i class="fa fa-minus-circle" data-toggle="modal"
-                                               data-target="#m_delete_campaign_group" data-grid="{{ gr.id }}"></i>
-                                            <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
-                                               data-target="#m_edit_campaign_group"
-                                                    {% if gr.adwords %}
-                                               data-acc_name="{{ gr.adwords.dependent_account_name }}"
-                                               data-acc_id="{{ gr.adwords.dependent_account_id }}"
-                                               data-channel="{{ gr.adwords.channel }}"
-                                                    {% elif gr.bing %}
-                                               data-acc_name="{{ gr.bing.account_name }}"
-                                               data-acc_id="{{ gr.bing.account_id }}"
-                                               data-channel="{{ gr.bing.channel }}"
-                                                    {% elif gr.facebook %}
-                                               data-acc_name="{{ gr.facebook.account_name }}"
-                                               data-acc_id="{{ gr.facebook.account_id }}"
-                                               data-channel="{{ gr.facebook.channel }}"
-                                                    {% endif %}
-                                               data-group_name="{{ gr.group_name }}"
-                                               data-group_by="{{ gr.group_by }}" data-group_budget="{{ gr.budget }}"
-                                               data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
-                                                    {% if gr.start_date %}
-                                               data-start_date="{{ gr.start_date }}"
-                                               data-end_date="{{ gr.end_date }}"
-                                                    {% endif %}></i>
-                                        </div>
-                                        <div class="col-md-3">Group by: {{ gr.group_by }}</div>
-                                        <div class="col-md-2">Spend: {{ gr.current_spend }}</div>
-                                        <div class="col-md-2">Budget: {{ gr.budget }}</div>
-                                    </div>
-                                    {% if gr.start_date %}
-                                        <div class="row">
-                                            <div class="col-md-6">Start: {{ gr.start_date }}</div>
-                                            <div class="col-md-6">End: {{ gr.end_date }}</div>
-                                        </div>
+                                        <div class="m-separator"></div>
                                     {% endif %}
-                                    <div class="progress m-progress--lg">
-                                        <div class="progress-bar
-                                                        {{ gr.current_spend|percentage:gr.budget }}"
-                                             role="progressbar"
-                                             style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
-                                             aria-valuenow="{% widthratio gr.current_spend gr.budget 100 %}"
-                                             aria-valuemin="0" aria-valuemax="100"
-                                             data-toggle="m-tooltip" data-placement="top"
-                                             title=""
-                                             data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
-                                            {% widthratio gr.current_spend gr.budget 100 %}%
-                                        </div>
-                                    </div>
-                                    <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in group</a>
-                                    <div id="campaigns_{{ gr.id }}" style="display: none">
-                                        {% if gr.aw_campaigns.all %}
-                                            {% for cmp in gr.aw_campaigns.all %}
-                                                {% if gr.start_date %}
-                                                    <p>{{ cmp.campaign_name }}</p>
-                                                {% else %}
-                                                    <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% elif gr.bing_campaigns.all %}
-                                            {% for cmp in gr.bing_campaigns.all %}
-                                                {% if gr.start_date %}
-                                                    <p>{{ cmp.campaign_name }}</p>
-                                                {% else %}
-                                                    <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% elif gr.fb_campaigns.all %}
-                                            {% for cmp in gr.fb_campaigns.all %}
-                                                {% if gr.start_date %}
-                                                    <p>{{ cmp.campaign_name }}</p>
-                                                {% else %}
-                                                    <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                    <div class="m-separator"></div>
-                                {% endif %}
                                 {% endwith %}
                             {% endfor %}
 
