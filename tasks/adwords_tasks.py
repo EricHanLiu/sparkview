@@ -374,10 +374,10 @@ def adwords_cron_disapproved_alert(self, customer_id):
                 mail_list = set(MAIL_ADS)
                 msg_html = render_to_string(TEMPLATE_DIR + '/mails/disapproved_ads.html', mail_details)
                 print(account.dependent_account_name + ' - ' + ' '.join(mail_list))
-                # send_mail(
-                #     'Disapproved ads alert', msg_html,
-                #     EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
-                # )
+                send_mail(
+                    'Disapproved ads alert', msg_html,
+                    EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html
+                )
                 mail_list.clear()
 
         except AdWordsReportBadRequestError as e:
