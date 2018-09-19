@@ -145,11 +145,11 @@
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
                                                     {% if ccpc.0 < 0 %}
-                                                        m-badge--danger
+                                                        m-badge--success
                                                     {% elif ccpc.0 == 0 %}
                                                         m-badge--metal
                                                     {% else %}
-                                                        m-badge--success
+                                                        m-badge--danger
                                                     {% endif %} m-badge--wide">
                                                 {{ ccpc.0|floatformat:2|cut:"-" }}%
                                                 </span>
@@ -166,11 +166,11 @@
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
                                                     {% if ccost.0 < 0 %}
-                                                        m-badge--danger
+                                                        m-badge--success
                                                     {% elif ccost.0 == 0 %}
                                                         m-badge--metal
                                                     {% else %}
-                                                        m-badge--success
+                                                        m-badge--danger
                                                     {% endif %} m-badge--wide">
                                                 {{ ccost.0|floatformat:2|cut:"-" }}%
                                                 </span>
@@ -208,11 +208,11 @@
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
                                                     {% if cpconv.0 < 0 %}
-                                                        m-badge--danger
+                                                        m-badge--success
                                                     {% elif cpconv.0 == 0 %}
                                                         m-badge--metal
                                                     {% else %}
-                                                        m-badge--success
+                                                        m-badge--danger
                                                     {% endif %} m-badge--wide">
                                                 {{ cpconv.0|floatformat:2|cut:"-" }}%
                                                 </span>
