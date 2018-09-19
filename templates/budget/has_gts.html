@@ -76,15 +76,20 @@
                                     <b>Total Current spend</b>:
                                     {{ client_data.aw_spend|addf:client_data.bing_spend|addf:client_data.fb_spend|floatformat:2 }}
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
                                     <b>Total Projected Spend EOM</b>:
                                     {{ client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected|floatformat:2 }}
 
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                    <b>Total Daily Spend</b>:
+                                    <b>Recommended Daily Spend</b>:
+                                    {{ client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds|floatformat:2 }}
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                    <b>Avg. Daily Spend</b>:
                                     {{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|floatformat:2 }}
                                 </div>
                                 <div class="col-md-3">

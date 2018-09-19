@@ -771,7 +771,6 @@ def adwords_account_change_history(self, customer_id):
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
-        'octavian@hdigital.io',
     ]
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
