@@ -916,8 +916,8 @@ def assign_labels(request):
             response['error'] = e.errors[0]['reason']
 
     response['labels'] = labels
-    response['acc_name'] = account.account_name,
-    response['acc_id'] = account.account_id
+    response['acc_name'] = account.dependent_account_name,
+    response['acc_id'] = account.dependent_account_id
 
     return JsonResponse(response)
 

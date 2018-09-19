@@ -1,102 +1,239 @@
 <!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
 
-<div class="m-content">
-    <div class="row">
-        <div class="col-xl-12">
-            <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
-                <div class="m-portlet__head">
-                    <div class="m-portlet__head-caption">
-                        <div class="m-portlet__head-title">
-                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>AdWords Data Monitoring</span>
-                            </h2>
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                    <span>AdWords Data Monitoring</span>
+                                </h2>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="m-portlet__body">
-                    <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
-                           id="adwords_datatable">
-                        <thead class="thead-inverse">
-                        <tr>
-                            <th>Account</th>
-                            <th>U & O</th>
-                            <th>Impr. Share</th>
-                            <th>Impr.</th>
-                            <th>Clicks</th>
-                            <th>CTR</th>
-                            <th>Avg. CPC</th>
-                            <th>Cost</th>
-                            <th>Conversions</th>
-                            <th>Cost / conv.</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in items %}
+                    <div class="m-portlet__body">
+                        <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
+                               id="adwords_datatable">
+                            <thead class="thead-inverse">
                             <tr>
-                                <td>
-                                    <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
-                                        {{ item.account.dependent_account_name }} </a>
-                                    - {{ item.account.dependent_account_id }} -
-                                    <a href="#"
-                                       onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>
-                                    <br/>
-                                    <div id="labels-{{ item.account.dependent_account_id }}" class="hidden">
-                                        {% for label in item.labels %}
-                                            <span class="m-badge {% if label.name == 'No label' %}m-badge--danger{% else %}m-badge--info{% endif %} m-badge--wide">
+                                <th>Account</th>
+                                <th>U & O</th>
+                                <th>Impr. Share</th>
+                                <th>Impr.</th>
+                                <th>Clicks</th>
+                                <th>CTR</th>
+                                <th>Avg. CPC</th>
+                                <th>Cost</th>
+                                <th>Conversions</th>
+                                <th>Cost / conv.</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
+                                            {{ item.account.dependent_account_name }} </a>
+                                        - {{ item.account.dependent_account_id }} -
+                                        <a href="#"
+                                           onclick="toggleLabels('labels-{{ item.account.dependent_account_id }}')">Labels</a>
+                                        <br/>
+                                        <div id="labels-{{ item.account.dependent_account_id }}" class="hidden">
+                                            {% for label in item.labels %}
+                                                <span class="m-badge {% if label.name == 'No label' %}m-badge--danger{% else %}m-badge--info{% endif %} m-badge--wide">
                                                 {{ label.name }}
                                             </span>
-                                        {% endfor %}
-                                    </div>
-                                </td>
-                                <td>
-                                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
-                                </td>
-                                <td>
-                                    {{ item.search_impr_share|uni2float|floatformat:2 }}%
-                                </td>
-                                <td>
-                                    {{ item.impressions|uni2float|floatformat:2 }}%
-                                </td>
-                                <td>
-                                    {{ item.clicks|uni2float|floatformat:2 }}%
-                                </td>
-                                <td>
-                                    {{ item.ctr|uni2float|floatformat:2 }}%
-                                </td>
-                                <td>
-                                    {{ item.cpc|uni2float|floatformat:2 }}%
-                                </td>
-                                <td>
-                                    {{ item.cost|uni2float|floatformat:2 }}%
-{##}
-{#                                    {% with ccost=item.metadata.vals|get_dict_value:"cost" %}#}
-{#                                        {{ ccost.0|floatformat:2 }}#}
-{#                                        {{ ccost.1|floatformat:2 }}#}
-{#                                        <small>{{ ccost.2|floatformat:2 }}</small>#}
-{#                                    {% endwith %}#}
-
-                                </td>
-                                <td>
-                                    {{ item.conversions|uni2float|floatformat:2 }}%
-                                </td>
-                                <td>
-                                    {{ item.cost_per_conversions|uni2float|floatformat:2 }}%
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
+                                    </td>
+                                    <td>
+                                        {% with sis=item.metadata.vals|get_dict_value:"search_impr._share" %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ sis.1 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ sis.2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if sis.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif sis.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ sis.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with impr=item.metadata.vals|get_dict_value:"impressions" %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ impr.1 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ impr.2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if impr.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif impr.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ impr.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with clicks=item.metadata.vals|get_dict_value:"clicks" %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ clicks.1 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ clicks.2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if clicks.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif clicks.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ clicks.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with ctr=item.metadata.vals|get_dict_value:"ctr" %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ ctr.1 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ ctr.2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if ctr.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif ctr.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ ctr.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with ccpc=item.metadata.vals|get_dict_value:"avg._cpc" account=item.account %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ account.currency }}{{ ccpc.1|mcv|floatformat:2 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ account.currency }}{{ ccpc.2|mcv|floatformat:2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if ccpc.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif ccpc.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ ccpc.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with ccost=item.metadata.vals|get_dict_value:"cost" account=item.account %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ account.currency }}{{ ccost.1|mcv|floatformat:2 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ account.currency }}{{ ccost.2|mcv|floatformat:2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if ccost.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif ccost.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ ccost.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with convs=item.metadata.vals|get_dict_value:"conversions" %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ convs.1 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ convs.2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if convs.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif ctr.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ convs.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with cpconv=item.metadata.vals|get_dict_value:"cost_/_conv." account=item.account %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ account.currency }}{{ cpconv.1|mcv|floatformat:2 }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>{{ account.currency }}{{ cpconv.2|mcv|floatformat:2 }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if cpconv.0 < 0 %}
+                                                        m-badge--danger
+                                                    {% elif cpconv.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--success
+                                                    {% endif %} m-badge--wide">
+                                                {{ cpconv.0|floatformat:2|cut:"-" }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
+        <!--End::Main Portlet-->
     </div>
-    <!--End::Main Portlet-->
-</div>
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    function toggleLabels(label_id) {
-        $("#" + label_id).toggle();
-    }
+        function toggleLabels(label_id) {
+            $("#" + label_id).toggle();
+        }
 
-</script>
+    </script>
 {% endblock %}
