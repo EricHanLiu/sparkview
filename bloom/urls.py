@@ -19,9 +19,17 @@ from . import registration_views as lviews
 from . import profile_views as profile
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 
 urlpatterns = [
     url(r"^$", lviews.index, name='index'),
+    url(r'^api/token/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url(r'^api/token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
+    url(r'^api/token/verify/$', TokenVerifyView.as_view(), name='token_verify'),
     url(r"^auth/login$", lviews.bloom_login, name='login'),
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^auth/", include('social_django.urls', namespace='social')),

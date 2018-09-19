@@ -75,6 +75,8 @@ Werkzeug = "==0.12.2"
 django-celery-results = "*"
 gunicorn = "*"
 aiohttp = "==1.3.5"
+djangorestframework-simplejwt = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 ipykernel = "==4.9.0"

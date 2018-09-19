@@ -23,6 +23,7 @@ services:
     build: 
       context: .
     working_dir: /bloom
+    entrypoint: "sh .deploy/migrate.sh celery"
     command: bash -c "python manage.py migrate && 
       celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8"
     volumes:
@@ -62,7 +63,8 @@ services:
       context: .
     working_dir: /bloom
     # command: bash -c "python manage.py migrate && gunicorn bloom.wsgi --config /bloom/.deploy/gunicorn_conf.py"
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    entrypoint: "sh .deploy/migrate.sh web"
+    # command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/bloom
     links:
