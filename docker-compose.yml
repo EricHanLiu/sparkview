@@ -1,0 +1,87 @@
+version: '3'
+networks:
+  app-net: 
+    driver: bridge
+  broker-net:
+volumes:
+  psql-data:  
+services:
+  broker:
+    hostname: rabbit1
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=bloom
+      - RABBITMQ_DEFAULT_PASS=bloombrokerpass
+      - RABBITMQ_DEFAULT_VHOST=celeryhost
+
+    networks:
+      - broker-net
+    ports:
+      - "5672:5672"
+  
+  worker:
+    build: 
+      context: .
+    working_dir: /bloom
+    command: bash -c "python manage.py migrate && 
+      celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8"
+    volumes:
+      - .:/bloom
+    links:
+      - broker
+      - psql
+    depends_on:
+      - broker
+      - psql
+    networks:
+      - broker-net
+      - app-net
+    environment:
+      - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
+
+
+  workerbeat:
+    build: 
+      context: . 
+    working_dir: /bloom
+    command: bash -c "celery beat -A bloom:celery_app --loglevel=info"
+    volumes:
+      - .:/bloom
+    links:
+      - broker
+      - psql
+    depends_on:
+      - broker
+      - psql
+    networks:
+      - broker-net
+      - app-net
+  
+  web:
+    build: 
+      context: .
+    working_dir: /bloom
+    # command: bash -c "python manage.py migrate && gunicorn bloom.wsgi --config /bloom/.deploy/gunicorn_conf.py"
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/bloom
+    links:
+      - worker
+      - broker
+      - psql
+    depends_on:
+      - worker
+      - broker
+      - psql
+    networks:
+      - broker-net
+      - app-net
+    ports:
+      - "8000:8000"
+  
+  psql:
+    image: 'postgres'
+    volumes:
+      - psql-data
+    networks:
+      - app-net

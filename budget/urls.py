@@ -1,6 +1,8 @@
 from django.conf.urls import url, include
 from budget import views
 
+app_name = "budget"
+
 urlpatterns = [
     url(r"^$", views.index_budget, name="adwords"),
     url(r"^bing/$", views.bing_budget, name="bing"),
