@@ -82,6 +82,9 @@ def main():
         client.aw_projected = 0
         client.bing_projected = 0
         client.fb_projected = 0
+        client.aw_rec_ds = 0
+        client.bing_rec_ds = 0
+        client.fb_rec_ds = 0
 
         client.save()
 
@@ -121,23 +124,47 @@ def main():
                     for index, val in enumerate(bdays, start=1):
                         aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
                     aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+
+                    if remaining > 0:
+                        client.aw_rec_ds += (a.desired_spend - a.current_spend) / remaining
+                    else:
+                        client.aw_rec_ds += a.desired_spend - a.current_spend
+
                 # GTS only client
                 elif client.has_gts and not client.has_budget:
                     gts_per_day = round(client.target_spend / last_day.day, 2)
                     for index, val in enumerate(bdays, start=1):
                         gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
                     gts_final['Global Target Spend'] = gts_values
+
+                    if remaining > 0:
+                        client.aw_rec_ds += (client.target_spend - a.current_spend) / remaining
+                    else:
+                        client.aw_rec_ds += client.target_spend - a.current_spend
+
                 # Both options active
                 elif client.has_gts and client.has_budget:
                     gts_per_day = round(client.target_spend / last_day.day, 2)
                     for index, val in enumerate(bdays, start=1):
                         gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
                     gts_final['Global Target Spend'] = gts_values
+
                     if a.desired_spend > 0:
                         aw_budget_per_day = round(a.desired_spend / last_day.day, 2)
                         for index, val in enumerate(bdays, start=1):
                             aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
                         aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+
+                        if remaining > 0:
+                            client.aw_rec_ds += (a.desired_spend - a.current_spend) / remaining
+                        else:
+                            client.aw_rec_ds += a.desired_spend - a.current_spend
+                    else:
+                        if remaining > 0:
+                            client.aw_rec_ds += (client.target_spend - a.current_spend) / remaining
+                        else:
+                            client.aw_rec_ds += client.target_spend - a.current_spend
+
 
         else:
             aw_s_final = {}
@@ -183,9 +210,18 @@ def main():
                     for index, val in enumerate(bdays, start=1):
                         bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
                     bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+
+                    if remaining > 0:
+                        client.bing_rec_ds += (b.desired_spend - b.current_spend) / remaining
+                    else:
+                        client.bing_rec_ds += b.desired_spend - b.current_spend
+
                 # GTS only client
                 elif client.has_gts and not client.has_budget:
-                    pass
+                    if remaining > 0:
+                        client.bing_rec_ds += (client.target_spend - b.current_spend) / remaining
+                    else:
+                        client.bing_rec_ds += client.target_spend - b.current_spend
                 # Both options active
                 elif client.has_gts and client.has_budget:
 
@@ -194,8 +230,16 @@ def main():
                         for index, val in enumerate(bdays, start=1):
                             bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
                         bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+
+                        if remaining > 0:
+                            client.bing_rec_ds += (b.desired_spend - b.current_spend) / remaining
+                        else:
+                            client.bing_rec_ds += b.desired_spend - b.current_spend
                     else:
-                        pass
+                        if remaining > 0:
+                            client.bing_rec_ds += (client.target_spend - b.current_spend) / remaining
+                        else:
+                            client.bing_rec_ds += client.target_spend - b.current_spend
 
         else:
             bing_s_final = {}
@@ -214,7 +258,7 @@ def main():
                 client.fb_spend += f.current_spend
                 client.fb_yesterday += f.yesterday_spend
                 client.fb_budget += f.desired_spend
-                client.fb_current_ds += a.current_spend / (today.day - 1)
+                client.fb_current_ds += f.current_spend / (today.day - 1)
 
                 for k, v in sorted(f.segmented_spend.items()):
                     fb_temp = fb_temp + float(v)
@@ -234,9 +278,18 @@ def main():
                     for index, val in enumerate(bdays, start=1):
                         fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
                     fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+
+                    if remaining > 0:
+                        client.fb_rec_ds += (f.desired_spend - f.current_spend) / remaining
+                    else:
+                        client.fb_rec_ds += f.desired_spend - f.current_spend
+
                 # GTS only client
                 elif client.has_gts and not client.has_budget:
-                    pass
+                    if remaining > 0:
+                        client.fb_rec_ds += (client.target_spend - f.current_spend) / remaining
+                    else:
+                        client.fb_rec_ds += client.target_spend - f.current_spend
                 # Both options active
                 elif client.has_gts and client.has_budget:
                     if f.desired_spend > 0:
@@ -244,8 +297,17 @@ def main():
                         for index, val in enumerate(bdays, start=1):
                             fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
                         fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+
+                        if remaining > 0:
+                            client.fb_rec_ds += (f.desired_spend - f.current_spend) / remaining
+                        else:
+                            client.fb_rec_ds += f.desired_spend - f.current_spend
+
                     else:
-                        pass
+                        if remaining > 0:
+                            client.fb_rec_ds += (client.target_spend - f.current_spend) / remaining
+                        else:
+                            client.fb_rec_ds += client.target_spend - f.current_spend
 
         else:
             fb_s_final = {}

@@ -1,7 +1,6 @@
 import calendar
 from bloom import celery_app
 from bloom.utils import FacebookReportingService
-from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
 from budget.models import FlightBudget, CampaignGrouping
