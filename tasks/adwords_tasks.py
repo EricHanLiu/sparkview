@@ -21,11 +21,10 @@ from zeep.helpers import serialize_object
 from datetime import date, timedelta
 
 
-regex = '\'[aA-zZ_09_-].*\''
-
 def remove_accents(input_str):
     nkfd_form = unicodedata.normalize('NFKD', str(input_str))
     return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
+
 
 def month_converter(month):
     months = [
@@ -53,15 +52,14 @@ def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
 
-def account_anomalies(account_id, helper, daterange1, daterange2):
+def account_anomalies(account_id, helper, daterange1):
     current_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
         extra_fields=["SearchImpressionShare"], **daterange1
     )
 
     previous_period_performance = helper.get_account_performance(
-        customer_id=account_id, dateRangeType="CUSTOM_DATE",
-        **daterange2
+        customer_id=account_id, dateRangeType="LAST_MONTH",
     )
 
     # Returns dict of metrics the following:
@@ -111,7 +109,7 @@ def adwords_cron_anomalies(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    current_period_daterange = helper.get_daterange(days=6)
+    current_period_daterange = helper.get_this_month_daterange()
     maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
     previous_period_daterange = helper.get_daterange(
         days=6, maxDate=maxDate
@@ -123,7 +121,6 @@ def adwords_cron_anomalies(self, customer_id):
         account.dependent_account_id,
         helper,
         current_period_daterange,
-        previous_period_daterange,
     )
 
     cmp_anomalies = campaign_anomalies(
@@ -192,15 +189,36 @@ def adwords_cron_ovu(self, customer_id):
     last_7 = helper.get_account_performance(
         customer_id=account.dependent_account_id,
         dateRangeType="LAST_7_DAYS",
-        extra_fields=["Date"]
+        extra_fields=[
+            "Date",
+            "AccountCurrencyCode"
+        ]
     )
 
     data_this_month = helper.get_account_performance(
         customer_id=account.dependent_account_id,
         dateRangeType="CUSTOM_DATE",
-        extra_fields=["Date"],
-        **this_month
+        extra_fields=[
+             "Date",
+             "AccountCurrencyCode"
+         ],
+         ** this_month
     )
+
+    curr_code = data_this_month[0]['currency']
+
+    if curr_code == 'CAD':
+        currency = 'CA$'
+    elif curr_code == 'USD':
+        currency = '$'
+    elif curr_code == 'AUD':
+        currency = 'A$'
+    elif curr_code == 'GBP':
+        currency = '£'
+    elif curr_code == 'EUR':
+        currency = '€'
+    else:
+        currency = curr_code
 
     segmented_data = {
         i['day']: i for i in data_this_month
@@ -228,6 +246,7 @@ def adwords_cron_ovu(self, customer_id):
     account.estimated_spend = estimated_spend
     account.yesterday_spend = yesterday_spend
     account.current_spend = current_spend
+    account.currency = currency
     account.segmented_spend = segmented_data
     account.save()
 
@@ -264,9 +283,9 @@ def adwords_cron_disapproved_alert(self, customer_id):
     else:
         predicates = [
             {
-            "field": "CombinedApprovalStatus",
-            "operator": "EQUALS",
-            "values": "DISAPPROVED"
+                "field": "CombinedApprovalStatus",
+                "operator": "EQUALS",
+                "values": "DISAPPROVED"
             },
             {
                 "field": "CampaignId",
@@ -371,6 +390,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
                 account.blacklisted = True
                 account.save()
                 print('Account ' + account.dependent_account_name + ' NOT ACTIVE - BLACKLISTED.')
+
 
 @celery_app.task(bind=True)
 def adwords_cron_campaign_stats(self, customer_id):
@@ -764,7 +784,6 @@ def adwords_account_quality_score(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_account_change_history(self, customer_id):
-
     MAIL_ADS = [
         'xurxo@makeitbloom.com',
         'jeff@makeitbloom.com',
@@ -805,7 +824,6 @@ def adwords_account_change_history(self, customer_id):
     service = client.GetService('CustomerSyncService', version=API_VERSION)
 
     for date in dates:
-
         selector = {
             'dateTimeRange': {
                 'min': (date - relativedelta(days=1)).strftime('%Y%m%d %H%M%S'),
@@ -819,7 +837,6 @@ def adwords_account_change_history(self, customer_id):
         # if date.day == 12:
         #     print(day_changes)
         daily[date.strftime('%Y-%m-%d')] = no_of_changes
-
 
     selector1 = {
         'dateTimeRange': {
@@ -1103,9 +1120,9 @@ def adwords_account_extensions(self, customer_id):
     account.save()
     calculate_account_score(account)
 
+
 @celery_app.task(bind=True)
 def adwords_nlc_attr_model(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -1140,9 +1157,9 @@ def adwords_nlc_attr_model(self, customer_id):
     account.save()
     calculate_account_score(account)
 
+
 @celery_app.task(bind=True)
 def adwords_account_wasted_spend(self, customer_id):
-
     # same for kw wastage and display wastage
     # above avg spend w/ below avg. conversions
 
@@ -1153,7 +1170,7 @@ def adwords_account_wasted_spend(self, customer_id):
     cost = 0.0
     conversions = 0.0
     ws_data = []
-    extra_fields=[
+    extra_fields = [
         'ViewThroughConversions'
     ]
 
@@ -1210,9 +1227,9 @@ def adwords_account_wasted_spend(self, customer_id):
         account.save()
         calculate_account_score(account)
 
+
 @celery_app.task(bind=True)
 def adwords_account_keyword_wastage(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -1273,9 +1290,9 @@ def adwords_account_keyword_wastage(self, customer_id):
         account.save()
         calculate_account_score(account)
 
+
 @celery_app.task(bind=True)
 def adwords_account_search_queries(self, customer_id):
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -1309,20 +1326,18 @@ def adwords_account_search_queries(self, customer_id):
                 }
                 sq_data.append(sq_item)
 
-    sq_data = list({v['search_term']:v for v in sq_data}.values())
+    sq_data = list({v['search_term']: v for v in sq_data}.values())
     account.sq_data = sq_data
     account.save()
 
+
 @celery_app.task(bind=True)
 def calculate_account_score(self, account):
-
     if isinstance(account, DependentAccount):
 
         account.account_score = (account.trends_score + account.qs_score + account.changed_score[0]
-                             + account.dads_score + account.nr_score + account.ext_score + account.nlc_score
-                             + account.wspend_score + account.kw_score) / 9
+                                 + account.dads_score + account.nr_score + account.ext_score + account.nlc_score
+                                 + account.wspend_score + account.kw_score) / 9
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')
-
-
