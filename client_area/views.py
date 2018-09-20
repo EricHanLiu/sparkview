@@ -12,9 +12,16 @@ from .forms import NewClientForm
 @login_required
 def accounts(request):
     member  = Member.objects.get(user=request.user)
+    accounts = Client.objects.filter(
+                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
+                  Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
+                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
+                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+              )
 
     context = {
-        'member'  : member
+        'member'   : member,
+        'accounts' : accounts
     }
 
     return render(request, 'client_area/accounts.html', context)
@@ -270,5 +277,9 @@ def account_assign_members(request):
     else:
         member = Member.objects.get(id=srtatb_id)
     account.stratb = member
+
+    account.save()
+
+    print(account.am1.user.first_name)
 
     return redirect('/clients/accounts/' + str(account.id))

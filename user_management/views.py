@@ -5,8 +5,10 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from django.core import serializers
+from django.db.models import Q
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry
+from budget.models import Client
 from .forms import NewMemberForm, NewTeamForm
 
 @login_required
@@ -21,10 +23,18 @@ def profile(request):
     incidents    = Incident.objects.filter(members=member)
     memberSkills = SkillEntry.objects.filter(member=member)
 
+    accounts = Client.objects.filter(
+                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
+                  Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
+                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
+                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+              )
+
     context = {
         'member'       : member,
         'incidents'    : incidents,
-        'memberSkills' : memberSkills
+        'memberSkills' : memberSkills,
+        'accounts'     : accounts
     }
 
     return render(request, 'user_management/profile.html', context)

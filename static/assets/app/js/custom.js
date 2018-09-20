@@ -78,7 +78,6 @@ $(document).ready(function () {
 
     $("#members_datatable").DataTable({
         'scrollX' : true,
-        // 'ordering': false,
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": true,
@@ -95,8 +94,6 @@ $(document).ready(function () {
     });
 
     $("#training_datatable").DataTable({
-      //'scrollX' : true,
-      // 'ordering': false,
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
@@ -105,8 +102,6 @@ $(document).ready(function () {
     });
 
     $("#all_clients_datatable").DataTable({
-      //'scrollX' : true,
-      // 'ordering': false,
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
@@ -115,8 +110,11 @@ $(document).ready(function () {
     });
 
     $("#my_clients_datatable").DataTable({
-        // 'scrollX' : true,
-        'ordering': false
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false
     });
 
     let table = $("#clients_datatable").DataTable({

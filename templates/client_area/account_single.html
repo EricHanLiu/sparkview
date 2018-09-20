@@ -143,28 +143,6 @@
                 </div>
               </div>
             </div>
-
-          </div>
-          <hr />
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_total_percentage">Total Percentage:</label>
-                <input type="text" class="form-control m-input"value="%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_learning_percentage">Learning Percentage:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_trainers_percentage">Trainers Percentage:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_sales_percentage">Sales Percentage:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -192,19 +170,19 @@
             <div class="row">
               <div class="col-md-3">
                 <label>AM:</label>
-                <input type="text" class="form-control m-input"value="{{ account.am1.first_name }} {{ account.am1.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.am1.user.first_name }} {{ account.am1.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label>AM2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.am2.first_name }} {{ account.am2.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.am2.user.first_name }} {{ account.am2.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label>AM3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.am3.first_name }} {{ account.am3.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.am3.user.first_name }} {{ account.am3.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label>AM Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.amb.first_name }} {{ account.amb.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.amb.user.first_name }} {{ account.amb.user.last_name }}" disabled>
               </div>
             </div>
           </div>
@@ -212,19 +190,19 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">CM:</label>
-                <input type="text" class="form-control m-input"value="%" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.cm1.user.first_name }} {{ account.cm1.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">CM2:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.cm2.user.first_name }} {{ account.cm2.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">CM3:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.cm3.user.first_name }} {{ account.cm3.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">CM Backup:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.cmb.user.first_name }} {{ account.cmb.user.last_name }}" disabled>
               </div>
             </div>
           </div>
@@ -232,19 +210,19 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">Strat:</label>
-                <input type="text" class="form-control m-input"value="%" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.seo1.user.first_name }} {{ account.seo1.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">Strat 2:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seo2.user.first_name }} {{ account.seo2.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">Strat 3:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seo3.user.first_name }} {{ account.seo3.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">Strat Backup:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seob.user.first_name }} {{ account.seob.user.last_name }}" disabled>
               </div>
             </div>
           </div>
@@ -252,19 +230,19 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">SEO:</label>
-                <input type="text" class="form-control m-input"value="%" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.strat1.user.first_name }} {{ account.strat1.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">SEO2:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.strat2.user.first_name }} {{ account.strat2.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">SEO3:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.strat3.user.first_name }} {{ account.strat3.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">SEO Backup:</label>
-                <input type="text" class="form-control m-input" value="%" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.stratb.user.first_name }} {{ account.stratb.user.last_name }}" disabled>
               </div>
             </div>
           </div>
@@ -298,11 +276,11 @@
                         <select class="form-control m-input"
                                 name="am1-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.am1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -311,11 +289,11 @@
                         <select class="form-control m-input"
                                 name="am2-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.am2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -324,11 +302,11 @@
                         <select class="form-control m-input"
                                 name="am3-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.am3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -337,11 +315,11 @@
                         <select class="form-control m-input"
                                 name="amb-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.amb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -354,11 +332,11 @@
                         <select class="form-control m-input"
                                 name="cm1-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.cm1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -367,11 +345,11 @@
                         <select class="form-control m-input"
                                 name="cm2-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.cm2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -380,11 +358,11 @@
                         <select class="form-control m-input"
                                 name="cm3-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.cm3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -393,11 +371,11 @@
                         <select class="form-control m-input"
                                 name="cmb-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.cmb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -410,11 +388,11 @@
                         <select class="form-control m-input"
                                 name="strat1-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.strat1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -423,11 +401,11 @@
                         <select class="form-control m-input"
                                 name="strat2-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.strat2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -436,11 +414,11 @@
                         <select class="form-control m-input"
                                 name="strat3-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.strat3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -449,11 +427,11 @@
                         <select class="form-control m-input"
                                 name="stratb-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.stratb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -466,11 +444,11 @@
                         <select class="form-control m-input"
                                 name="seo1-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.seo1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -479,11 +457,11 @@
                         <select class="form-control m-input"
                                 name="seo2-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.seo2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -492,11 +470,11 @@
                         <select class="form-control m-input"
                                 name="seo3-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.seo3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -505,11 +483,11 @@
                         <select class="form-control m-input"
                                 name="seob-assign"
                                 style="width: 100%;">
-                                <option value="0" selected>
+                                <option value="0">
                                   None
                                 </option>
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                <option value="{{ member.id }}" {% if member.id == account.seob.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
