@@ -5,258 +5,101 @@
     <title>Daily budget report!</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 </head>
-
-<style media="screen">
-    * {
-        font-family: 'Roboto', sans-serif;
-    }
-
-    h2 {
-        color: #1b2126;
-    }
-
-    .logo {
-        background: #1b2126;
-    }
-
-    .logo svg {
-        height: 100%
-    }
-
-    table {
-        background: #f2f2f2;
-        text-align: center;
-        width: 100%;
-
-    }
-
-    table thead th {
-        color: #fff;
-        background: #2c8bcb;
-        margin: 0.35em;
-    }
-
-    table tbody td {
-        border-right: 1px solid #e2e2e2;
-    }
-
-    .portlet {
-        padding: .1em;
-        /* border: 1px solid black; */
-        box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2);
-        margin-top: .5em;
-        margin-bottom: .5em;
-    }
-
-    .portlet h4 {
-        text-align: center; color: #444;
-    }
-
-</style>
 <body>
 <h2 style="color: #1b2126;">Hello, {{ user }}</h2>
 
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">The following AdWords accounts you manage will overspend:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
+<div class="portlet"
+     style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">Accounts flagged to over or underspend:</h4>
+    <table style="background: #FFF; text-align: center; width: 100%;">
         <tr>
-            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Account Name</th>
-            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Budget</th>
-            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Current Total Spend</th>
-            <th style="color: #fff; background: #0057e7; margin: 0.35em;">Project Spend EOM</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Account Name</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Platform</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Current Total Spend</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM</th>
 
         </tr>
-        {% for a in aw_over %}
+        {% for a in over %}
             <tr>
                 <td style="border: 1px solid #e2e2e2;">{{ a.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.channel|title }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ a.budget }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ a.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2; background: red">{{ a.current_spend }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ a.projected }}</td>
             </tr>
         {% empty %}
             <tr>
-                <td>No accounts to display.</td>
+                <td>No account will overspend. :)</td>
             </tr>
         {% endfor %}
-    </table>
-
-</div>
-
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">The following AdWords accounts will underspend: </h4>
-
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <thead>
-        <th style="color: #fff; background: #0057e7; margin: 0.35em;">Account Name</th>
-        <th style="color: #fff; background: #0057e7; margin: 0.35em;">Budget</th>
-        <th style="color: #fff; background: #0057e7; margin: 0.35em;">Current Total Spend</th>
-        <th style="color: #fff; background: #0057e7; margin: 0.35em;">Project Spend EOM</th>
-        </thead>
-        <tbody>
-        {% for b in aw_under %}
+        {% for b in under %}
             <tr>
                 <td style="border: 1px solid #e2e2e2;">{{ b.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ b.channel|title }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ b.budget }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ b.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2; background: orange">{{ b.current_spend }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ b.projected }}</td>
             </tr>
         {% empty %}
             <tr>
-                <td>No accounts to display.</td>
+                <td>No account will underspend. :)</td>
             </tr>
         {% endfor %}
-        </tbody>
     </table>
+
 </div>
 
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">AdWords accounts with no budget set:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <th style="color: #fff; background: #0057e7; margin: 0.35em;">Account Name</th>
-        {% for e in aw_nods %}
+<div class="portlet"
+     style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">Accounts with no budget:</h4>
+    <table style="background: #FFF; text-align: center; width: 100%;">
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Account Name</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Platform</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
+        {% for e in nods %}
             <tr>
-                <td>{{ e.account }}</td>
-
+                <td style="border: 1px solid #e2e2e2;">{{ e.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ e.channel|title }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ e.budget }}</td>
             </tr>
         {% empty %}
             <tr>
-                <td>No accounts to display.</td>
+                <td style="border: 1px solid #e2e2e2;">Looks like you're all set. :)</td>
             </tr>
         {% endfor %}
     </table>
 </div>
 
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">The following Bing accounts will overspend:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Account Name</th>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Budget</th>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Current Total Spend</th>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Projected Spend EOM</th>
-        {% for c in bing_over %}
-            <tr>
-                <td style="border: 1px solid #e2e2e2;">{{ c.account }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ c.budget }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ c.current_spend }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ c.projected }}</td>
-
-            </tr>
-        {% empty %}
-            <tr>
-                <td>No accounts to display.</td>
-            </tr>
-        {% endfor %}
-    </table>
-
-</div>
-
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">The following Bing accounts will underspend:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
+<div class="portlet"
+     style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">Accounts on pace:</h4>
+    <table style="background: #FFF; text-align: center; width: 100%;">
         <thead>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Account Name</th>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Budget</th>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Current Total Spend</th>
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Projected Spend EOM</th>
-        {% for d in bing_under %}
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Account Name</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Platform</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Current Total Spend</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM</th>
+        {% for d in on_pace %}
             <tr>
                 <td style="border: 1px solid #e2e2e2;">{{ d.account }}</td>
+                <td style="border: 1px solid #e2e2e2; background: green">{{ d.channel|title }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ d.budget }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ d.current_spend }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ d.projected }}</td>
             </tr>
         {% empty %}
             <tr>
-                <td>No accounts to display.</td>
+                <td>I couldn't find any account on pace.</td>
             </tr>
         {% endfor %}
     </table>
 
 </div>
-
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">Bing accounts with no budget set:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <th style="color: #fff; background: #0C8484; margin: 0.35em;">Account Name</th>
-        {% for f in bing_nods %}
-            <tr>
-                <td>{{ f.account }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td>No accounts to display.</td>
-            </tr>
-        {% endfor %}
-    </table>
-
+<div class="portlet"
+     style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">This is all what we have for you! Enjoy your day!</h4>
 </div>
-
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">The following Facebook accounts will overspend:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Account Name</th>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Budget</th>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Current Total Spend</th>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Projected Spend EOM</th>
-        {% for g in fb_over %}
-            <tr>
-                <td style="border: 1px solid #e2e2e2;">{{ g.account }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ g.budget }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ g.current_spend }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ g.projected }}</td>
-
-            </tr>
-        {% empty %}
-            <tr>
-                <td>No accounts to display.</td>
-            </tr>
-        {% endfor %}
-    </table>
-
-</div>
-
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">The following Facebook accounts will underspend:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <thead>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Account Name</th>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Budget</th>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Current Total Spend</th>
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Projected Spend EOM</th>
-        {% for j in fb_under %}
-            <tr>
-                <td style="border: 1px solid #e2e2e2;">{{ j.account }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ j.budget }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ j.current_spend }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ j.projected }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td>No accounts to display.</td>
-            </tr>
-        {% endfor %}
-    </table>
-
-</div>
-
-<div class="portlet" style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
-    <h4 style="text-align: center; color: #444;">Facebook accounts with no budget set:</h4>
-    <table style="background: #f2f2f2; text-align: center; width: 100%;">
-        <th style="color: #fff; background: #3B5998; margin: 0.35em;">Account Name</th>
-        {% for f in fb_nods %}
-            <tr>
-                <td>{{ f.account }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td>No accounts to display.</td>
-            </tr>
-        {% endfor %}
-    </table>
-
-</div>
-
-<b style="color:#1b2126">That's all for today!</b>
-
 </body>
 </html>

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import subprocess
+import calendar
+import json
 from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -11,9 +14,6 @@ from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
-import subprocess
-import calendar
-import json
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -166,54 +166,41 @@ def add_client(request):
             new_client.has_gts = True
             new_client.target_spend = gts_value
 
-        elif has_gts == '0':
-            new_client.has_budget = True
-
-        elif not has_gts:
+        elif has_gts == '0' or not has_gts:
             new_client.has_budget = True
 
         if adwords_accounts:
             for a in new_aw:
 
                 aw_acc = DependentAccount.objects.get(dependent_account_id=a)
-                spend = request.POST.getlist('aw_budget_' + a)
-                networks = request.POST.getlist('network_type_' + a)
+                spend = request.POST.get('aw_budget_' + a)
 
-                for a, b in zip(spend, networks):
-                    if a:
-                        new_budget = Budget.objects.create(
-                            adwords=aw_acc,
-                            budget=float(a),
-                            network_type=b
-                        )
+                # Checks if we have a budget to set
+                # If not set it to 0
+                if spend:
+                    continue
+                else:
+                    spend = 0.0
 
-                        if b == 'All':
-                            aw_acc.desired_spend = float(a)
-                            budget += float(a)
-                            new_budget.spend = aw_acc.current_spend
-                            aw_acc.save()
-                            new_budget.save()
-                        else:
-                            aw_acc.desired_spend += float(a)
-                            budget += float(a)
-                    else:
-                        a = 0
-                        new_budget = Budget.objects.create(
-                            adwords=aw_acc,
-                            budget=float(a),
-                            network_type=b
-                        )
+                networks = request.POST.getlist('networks')
 
-                        if b == 'All':
-                            aw_acc.desired_spend = float(a)
-                            budget += float(a)
-                            new_budget.spend = aw_acc.current_spend
-                            aw_acc.save()
-                            new_budget.save()
-                        else:
-                            aw_acc.desired_spend += float(a)
-                            budget += float(a)
+                if 'All' in networks and len(networks) == 1:
+                    aw_acc.desired_spend = float(spend)
+                    budget += float(spend)
 
+                else:
+                    new_budget = Budget.objects.create(
+                        adwords=aw_acc,
+                        budget=float(spend),
+                        networks=networks
+                    )
+
+                    new_budget.spend = aw_acc.current_spend
+                    aw_acc.desired_spend = float(spend)
+                    budget += float(spend)
+                    new_budget.save()
+
+                aw_acc.save()
                 aw.append(aw_acc)
 
         if bing_accounts:
@@ -301,7 +288,7 @@ def client_details(request, client_id):
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
             'budgets': budgets,
-            'chdata': chdata_json[0]['fields'],
+            'chdata': chdata_json[0]['fields'] if chdata_json else {},
             'fbudgets': fbudgets,
             'groupings': cmp_groupings
         }
@@ -802,7 +789,7 @@ def update_groupings(request):
         gr_id = data['cgr_gr_id']
         budget = data['group_budget']
         group_name = data['cgr_group_name']
-        group_by = data['cgr_group_by']
+        group_by = request.POST.get('cgr_group_by', False)
         group_by_edit = data['cgr_group_by_edit']
         campaigns = request.POST.getlist('campaigns_edit')
         channel = data['cgr_channel']
@@ -1100,8 +1087,12 @@ def edit_client_name(request):
 def add_kpi(request):
 
     data = request.POST
+    networks = request.POST.getlist('network_type')
+    budget = request.POST.get('kpi_budget')
     account = DependentAccount.objects.get(dependent_account_id=data['acc_id'])
-    Budget.objects.create(adwords=account, network_type=data['network_type'], budget=data['network_budget'])
+    Budget.objects.create(adwords=account, networks=networks, budget=budget)
+
+    adwords_tasks.adwords_cron_budgets.delay(account.dependent_account_id)
 
     response = {
         'account': account.dependent_account_name

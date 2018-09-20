@@ -9,6 +9,7 @@ from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
+from datetime import date, timedelta
 from functools import partial
 from facebook_business.adobjects.adaccount import AdAccount
 from bing_dashboard.auth import BingAuth
@@ -18,6 +19,12 @@ from bingads.v11.reporting import (
 
 
 class Reporting:
+
+    def perdelta(self, start, end, delta):
+        curr = start
+        while curr <= end:
+            yield curr
+            curr += delta
 
     @staticmethod
     def get_change(current, previous):
@@ -126,25 +133,46 @@ class Reporting:
     def get_change_no(account_changes):
 
         change_counter = 0
+        cmp_counter = 0
+        cmp_criteria_counter = 0
+        ag_counter = 0
+        ag_bid_modifier_counter = 0
+        ads_counter = 0
+        kw_counter = 0
+
+
         if account_changes['changedCampaigns']:
             for data in account_changes['changedCampaigns']:
-                change_counter += len(account_changes['changedCampaigns'])
-                if (data['campaignChangeStatus'] != 'NEW' and
-                        data['campaignChangeStatus'] != 'FIELDS_UNCHANGED'):
-                    if 'addedCampaignCriteria' in data:
-                        change_counter += len(data['addedCampaignCriteria'])
-                    if 'removedCampaignCriteria' in data:
-                        change_counter += len(data['removedCampaignCriteria'])
-                    if 'changedAdGroups' in data:
-                        change_counter += len(data['changedAdGroups'])
-                        for ad_group_data in data['changedAdGroups']:
-                            if ad_group_data['adGroupChangeStatus'] != 'NEW':
-                                if 'changedAds' in ad_group_data:
-                                    change_counter += len(ad_group_data['changedAds'])
-                                if 'changedCriteria' in ad_group_data:
-                                    change_counter += len(ad_group_data['changedCriteria'])
-                                if 'removedCriteria' in ad_group_data:
-                                    change_counter += len(ad_group_data['removedCriteria'])
+                if data['campaignChangeStatus'] == 'NEW':
+                    cmp_counter += 1
+                if data['campaignChangeStatus'] != 'NEW' and data['campaignChangeStatus'] != 'FIELDS_UNCHANGED':
+                    cmp_counter += 1
+                if 'addedCampaignCriteria' in data and len(data['addedCampaignCriteria']) > 0:
+                    cmp_criteria_counter += len(data['addedCampaignCriteria'])
+
+                if 'removedCampaignCriteria' in data and len(data['removedCampaignCriteria']) > 0:
+                    cmp_criteria_counter += len(data['removedCampaignCriteria'])
+
+                if 'changedAdGroups' in data:
+                    for ad_group_data in data['changedAdGroups']:
+                        if ad_group_data['adGroupChangeStatus'] == 'FIELDS_CHANGED':
+                            ag_counter += 1
+                        if ad_group_data['adGroupChangeStatus'] == 'NEW':
+                            ag_counter += 1
+                        if ad_group_data['adGroupChangeStatus'] != 'NEW':
+                            if 'changedAds' in ad_group_data and len(ad_group_data['changedAds']) > 0:
+                                ads_counter += len(ad_group_data['changedAds'])
+                            if 'changedCriteria' in ad_group_data and len(ad_group_data['changedCriteria']) > 0:
+                                kw_counter += len(ad_group_data['changedCriteria'])
+                            if 'removedCriteria' in ad_group_data and len(ad_group_data['removedCriteria']) > 0:
+                                kw_counter += len(ad_group_data['removedCriteria'])
+                            if 'changedAdGroupBidModifierCriteria' in ad_group_data and len(ad_group_data['changedAdGroupBidModifierCriteria']) > 0:
+                                ag_bid_modifier_counter += len(ad_group_data['changedAdGroupBidModifierCriteria'])
+                            if 'removedAdGroupBidModifierCriteria' in ad_group_data and len(ad_group_data['removedAdGroupBidModifierCriteria']) > 0:
+                                ag_bid_modifier_counter += len(ad_group_data['removedAdGroupBidModifierCriteria'])
+
+            change_counter = change_counter + cmp_counter + ag_counter + ads_counter + kw_counter + cmp_criteria_counter + ag_bid_modifier_counter
+
 
         return change_counter
 
@@ -214,8 +242,12 @@ class Reporting:
                     v1 = v[0]
                     v2 = v[1]
 
-                v1 = float(v1) if v1 != '' else 0.0
-                v2 = float(v2) if v1 != '' else 0.0
+                if k == 'cost':
+                    v1 = float(v1) / 1000000 if v1 != '' else 0.0
+                    v2 = float(v2) / 1000000 if v2 != '' else 0.0
+                else:
+                    v1 = float(v1) if v1 != '' else 0.0
+                    v2 = float(v2) if v2 != '' else 0.0
 
                 try:
                     difference[k] = ((v1 - v2) / v1) * 100
@@ -889,15 +921,16 @@ class AdwordsReporting(Reporting):
             "ServingStatus",
         ]
 
-        predicates = [{
-            "field": "CampaignStatus",
-            "operator": "IN",
-            "values": ["ENABLED"],
-        }, {
-            "field": "ServingStatus",
-            "operator": "IN",
-            "values": ["SERVING"],
-        }]
+        predicates = []
+        # predicates = [{
+        #     "field": "CampaignStatus",
+        #     "operator": "IN",
+        #     "values": ["ENABLED"],
+        # }, {
+        #     "field": "ServingStatus",
+        #     "operator": "IN",
+        #     "values": ["SERVING"],
+        # }]
 
         extra_fields = kwargs.get("extra_fields", None)
 
@@ -1035,6 +1068,60 @@ class AdwordsReporting(Reporting):
 
         return query
 
+
+    def get_sqr_performance_query(
+            self,
+            dateRangeType="LAST_14_DAYS",
+            enabled=True,
+            **kwargs
+    ):
+        fields = [
+            "AccountDescriptiveName",
+            "Impressions",
+            "KeywordTextMatchingQuery",
+            "CampaignName",
+            "AdGroupName",
+            "Cost",
+            "Conversions",
+            'Query'
+        ]
+
+        extra_fields = kwargs.get("extra_fields", None)
+
+        if extra_fields:
+            fields.extend(extra_fields)
+            fields = list(set(fields))
+
+        query = {
+            "reportName": "SEARCH_QUERY_PERFORMANCE_REPORT",
+            "dateRangeType": dateRangeType,
+            "reportType": "SEARCH_QUERY_PERFORMANCE_REPORT",
+            "downloadFormat": "CSV",
+            "selector": {
+                "fields": fields
+            },
+        }
+
+        predicates = [
+            {
+                "field": "CampaignStatus",
+                "operator": "EQUALS",
+                "values": ["ENABLED"],
+            },
+            {"field": "AdGroupStatus", "operator": "EQUALS", "values": ["ENABLED"]},
+        ]
+
+        if enabled:
+            query["selector"]["predicates"] = predicates
+
+        if dateRangeType == "CUSTOM_DATE":
+            query["selector"]["dateRange"] = self.get_custom_daterange(
+                minDate=kwargs.get("minDate"), maxDate=kwargs.get("maxDate")
+            )
+
+        return query
+
+
     def mcv(self, cost):
         cost = float(cost)
         if cost > 0:
@@ -1095,6 +1182,7 @@ class AdwordsReportingService(AdwordsReporting):
         return self.parse_report_csv(downloaded_report)
 
     def get_adgroup_performance(self, customer_id=None, **kwargs):
+
         client = self.client
         if customer_id is not None:
             client.client_customer_id = customer_id
@@ -1107,6 +1195,39 @@ class AdwordsReportingService(AdwordsReporting):
         )
 
         return self.parse_report_csv(downloaded_report)
+
+    def get_keyword_performance(self, customer_id=None, **kwargs):
+        client = self.client
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_keyword_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
+
+
+    def get_sqr_performance(self, customer_id=None, **kwargs):
+        client = self.client
+
+        if customer_id is not None:
+            client.client_customer_id = customer_id
+
+        AdwordsReporting.report_headers['include_zero_impressions'] = False
+
+        report_downloader = client.GetReportDownloader(version=self.api_version)
+        query = self.get_sqr_performance_query(**kwargs)
+
+        downloaded_report = report_downloader.DownloadReportAsString(
+            query, **self.report_headers
+        )
+
+        return self.parse_report_csv(downloaded_report)
+
 
     def get_account_quality_score(self, customer_id=None, **kwargs):
 

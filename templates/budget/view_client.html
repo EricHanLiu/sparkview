@@ -152,19 +152,43 @@
                         <p>Add new KPI for <span id="akpi_acc_name"></span></p>
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <input class="form-control" name="network_budget" id="kpi_budget"
+                                <div class="col-md-12">
+                                    <input class="form-control" name="kpi_budget" id="kpi_budget"
                                            placeholder="Budget.." type="number">
                                 </div>
-                                <div class="col-md-6">
-                                    <select class="form-control m-input" name="network_type">
-                                        <option selected disabled>Network type</option>
-                                        <option>Search Network</option>
-                                        <option>Display Network</option>
-                                        <option>Youtube Search</option>
-                                        <option>Youtube Videos</option>
-                                        <option>Not related</option>
-                                    </select>
+                            </div>
+                            <div class="m-separator"></div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="m-form__group form-group">
+                                        <div class="m-checkbox-list">
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Cross-network">
+                                                Cross-network
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Search Network">
+                                                Search
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Display Network">
+                                                Display
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Youtube Search">
+                                                Youtube Search
+                                                <span></span>
+                                            </label>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" name="network_type" value="Youtube Videos">
+                                                Youtube Videos
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -384,6 +408,102 @@
     </div>
     <!--END:Modal add_campaign_group-->
 
+    <!--START:Modal add_campaign_group-->
+    <div class="modal fade" id="m_add_campaign_group_across" tabindex="-1" role="dialog"
+         aria-labelledby="add_campaign_group">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="add_campaign_group_across">
+                        {#                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">#}
+                        <input type="hidden" name="cgr_channel" id="cgr_channel">
+                        <p>Campaign groups</p>
+                        <div class="form-group">
+                            <div class="form-group m_form__group row">
+                                <div class="col-md-12">
+                                    <select class="form-control m-input--large" name="cgr_acc_id"
+                                            id="select_accounts_cgr" style="width: 100%;">
+                                        <option></option>
+                                        {% for a in client_data.adwords.all %}
+                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">
+                                                A - {{ a.dependent_account_name }}</option>
+                                        {% endfor %}
+                                        {% for b in client_data.bing.all %}
+                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B
+                                                - {{ b.account_name }}</option>
+                                        {% endfor %}
+                                        {% for f in client_data.facebook.all %}
+                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F
+                                                - {{ f.account_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-4 col-md-4 col-sm-12">
+                                    <input type="text" class="form-control group-name"
+                                           name="cgr_group_name" placeholder="Group name" required/>
+                                </div>
+                                <div class="col-lg-5 col-md-5 col-sm-12">
+                                    <div class="m-radio-inline">
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="text" id="gr_text_across">
+                                            Text
+                                            <span></span>
+                                        </label>
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="manual"
+                                                   id="gr_manual_across">
+                                            Manual
+                                            <span></span>
+                                        </label>
+                                        <label class="m-checkbox m-checkbox--check-bold">
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_across">
+                                            Flight
+                                            date
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control group_budget" name="group_budget"
+                                           min="0" placeholder="Group budget" required/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="campaign_list_across">
+                            <select class="form-control m-input--large" name="campaigns"
+                                    multiple="multiple" id="campaigns_gr_across" style="width: 100%;">
+                                <option></option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="cgr_flight_date_across">
+                            <div class="form-group m-form__group row">
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control sdate"
+                                           name="cgr_sdate" id="m_datepicker_1" placeholder="Start date">
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <input type="text" class="form-control edate"
+                                           name="cgr_edate" id="m_datepicker_2" placeholder="End date">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="form-error" class="form-control-feedback form-error has-danger"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 text-center">
+                        <input type="submit" class="btn btn-success btn-sm" onclick="addCampaignGroup()"/>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal add_campaign_group-->
+
     <!--START:Modal edit_campaign_group-->
     <div class="modal fade" id="m_edit_campaign_group" tabindex="-1" role="dialog"
          aria-labelledby="edit_campaign_group">
@@ -393,9 +513,15 @@
                     <form id="edit_campaign_group">
                         <input type="hidden" name="cgr_gr_id" id="cgr_gr_id">
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
-                        <p>Edit campaign group for <span id="cgr_acc_name"></span></p>
+                        <p>Edit campaign group</p>
                         <div class="form-group">
-
+                            <div class="form-group m-form__group row">
+                                <div class="col-md-12">
+                                    <label for="cgr_acc_name">Account: </label>
+                                    <input type="text" name="cgr_acc_name" class="form-control" id="cgr_acc_name"
+                                           disabled>
+                                </div>
+                            </div>
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <label for="cgr_group_name">Group name:</label>
@@ -414,8 +540,8 @@
                                             <span></span>
                                         </label>
                                         <label class="m-checkbox m-checkbox--check-bold">
-                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_edit"> Flight
-                                            date
+                                            <input type="checkbox" value="no" name="cgr_fdate" id="cgr_fdate_edit">
+                                            Flight date
                                             <span></span>
                                         </label>
                                     </div>
@@ -557,15 +683,20 @@
 
     <script type="text/javascript">
 
+        function random_rgba() {
+            let o = Math.round, r = Math.random, s = 255;
+            return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ', 0.5)';
+        }
+
         function gen_xy(data) {
 
             lst = [];
 
-            for (key in data) {
-                if (data.hasOwnProperty(key)) {
+            for (key1 in data) {
+                if (data.hasOwnProperty(key1)) {
                     lst.push({
-                        'x': moment(key),
-                        'y': data[key]
+                        'x': moment(key1),
+                        'y': data[key1]
                     })
                 }
             }
@@ -576,110 +707,40 @@
             return lst
         }
 
+        let generate_chart_config = function (data) {
 
-        function generateChart(data) {
+            let datasets = [];
 
-            var new_awb = gen_xy(data.aw_budget);
-            var new_aws = gen_xy(data.aw_spend);
-            var new_awp = gen_xy(data.aw_projected);
-
-            var new_bingb = gen_xy(data.bing_budget);
-            var new_bings = gen_xy(data.bing_spend);
-            var new_bingp = gen_xy(data.bing_projected);
-
-            var new_fbb = gen_xy(data.fb_budget);
-            var new_fbs = gen_xy(data.fb_spend);
-            var new_fbp = gen_xy(data.fb_projected);
-
-            var s1 = {
-                label: "AdWords Spend",
-                backgroundColor: 'rgba(236, 76, 51, 0.15)',
-                borderColor: 'rgb(236, 76, 51)',
-                data: gen_xy(data.aw_spend),
-                fill: true,
-                borderWidth: 0.90,
-            };
-
-            var s2 = {
-                label: "AdWords Target Spend",
-                backgroundColor: 'rgb(255, 72, 51)',
-                borderColor: 'rgb(255, 72, 51)',
-                data: gen_xy(data.aw_budget),
-                fill: false,
-                borderWidth: 0.90,
-            };
-
-            var s3 = {
-                label: "AdWords Projected Spend",
-                backgroundColor: 'rgba(236, 76, 51, 0.15)',
-                borderColor: 'rgb(0, 0, 0)',
-                data: gen_xy(data.aw_projected),
-                borderDash: [2, 2],
-                fill: true,
-                borderWidth: 0.90,
-                type: 'scatter',
-                beginAtZero: false,
-            };
-
-            var s4 = {
-                label: "Bing Spend",
-                backgroundColor: 'rgb(12, 181, 74)',
-                borderColor: 'rgb(12, 181, 74)',
-                data: new_bings,
-                borderWidth: 0.90,
-                fill: false,
-            };
-            var s5 = {
-                label: "Bing Target Spend",
-                backgroundColor: 'rgb(0, 215, 116)',
-                borderColor: 'rgb(0, 215, 116)',
-                data: new_bingb,
-                fill: false,
-                borderWidth: 0.90,
-            };
-            var s6 = {
-                label: "Bing Projected Spend",
-                backgroundColor: 'rgba(0, 227, 149, 0.3)',
-                borderColor: 'rgb(0, 0, 0)',
-                data: new_bingp,
-                borderDash: [2, 2],
-                fill: true,
-                borderWidth: 0.90,
-            };
-            var s7 = {
-                label: "Facebook Spend",
-                backgroundColor: 'rgb(44, 139, 203)',
-                borderColor: 'rgb(44, 139, 203)',
-                data: new_fbs,
-                fill: false,
-                borderWidth: 0.90,
-            };
-            var s8 = {
-                label: "Facebook Target Spend",
-                backgroundColor: 'rgb(0, 160, 219)',
-                borderColor: 'rgb(0, 160, 219)',
-                data: new_fbb,
-                fill: false,
-                borderWidth: 0.90,
-            };
-            var s9 = {
-                label: "Facebook Projected Spend",
-                backgroundColor: 'rgba(93, 185, 229, 0.3)',
-                borderColor: 'rgb(0, 0, 0)',
-                data: new_fbp,
-                borderDash: [2, 2],
-                fill: true,
-                borderWidth: 0.90,
-            };
+            for (key in data) {
+                if (data.hasOwnProperty(key)) {
+                    for (key2 in data[key]) {
+                        if (data[key].hasOwnProperty(key2)) {
+                            var dataset = {
+                                ...key2.includes('Projected') && {
+                                    borderDash: [3, 3],
+                                    type: 'scatter',
+                                    beginAtZero: false,
+                                    fill: true,
+                                },
+                                label: key2,
+                                backgroundColor: random_rgba(),
+                                borderColor: random_rgba(),
+                                data: gen_xy(data[key][key2]),
+                                borderWidth: 2,
+                                fill: false
+                            };
+                            datasets.push(dataset)
+                        }
+                    }
+                }
+            }
 
             var ctx = document.getElementById('spendChart').getContext('2d');
             var chart = new Chart(ctx, {
                 // The type of chart we want to create
                 type: 'scatter',
                 data: {
-                    datasets: [
-                        s1, s2, s3, s4, s5, s6, s7, s8, s9
-                    ]
+                    datasets: datasets
                 },
 
                 // Configuration options go here
@@ -743,7 +804,7 @@
                 },
 
             });
-        }
+        };
 
         let csrftoken = '{{ csrf_token }}';
 
@@ -881,7 +942,7 @@
                     name: 'acc_id', value: account_id
                 }
             );
-
+            console.log(data);
             $.ajax({
                 type: "POST",
                 url: "/budget/client/kpi/add",
@@ -890,7 +951,7 @@
                 complete: function () {
                     setTimeout(function () {
                         location.reload();
-                    }, 2500);
+                    }, 1800);
                 },
                 success: function (data) {
                     modal.modal('hide');
@@ -1032,9 +1093,9 @@
 
         function addCampaignGroup() {
             let modal = $("#m_add_campaign_group");
-            let form = $("#add_campaign_group");
+            let form = $("#add_campaign_group_across");
             let data = form.serializeArray();
-
+            console.log(data);
 
             validator = form.validate({
                 ignore: ":hidden",
@@ -1183,7 +1244,7 @@
 
         document.addEventListener("DOMContentLoaded", function (event) {
             let data = {{ chdata|safe }};
-            generateChart(data);
+            generate_chart_config(data);
         });
 
     </script>

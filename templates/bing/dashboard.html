@@ -1,92 +1,84 @@
 <!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
 
-<div class="m-content">
-  <div class="row">
-    <div class="col-xl-12">
-      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
-        <div class="m-portlet__head">
-            <div class="m-portlet__head-caption">
-                <div class="m-portlet__head-title">
-                    <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>Bing Data Monitoring</span>
-                    </h2>
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                    <span>Bing Data Monitoring</span>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
+                               id="adwords_datatable">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th>Account</th>
+                                <th>U & O</th>
+                                <th>Impr. Share</th>
+                                <th>Impr.</th>
+                                <th>Clicks</th>
+                                <th>CTR</th>
+                                <th>Avg. CPC</th>
+                                <th>Cost</th>
+                                <th>Conversions</th>
+                                <th>Cost / conv.</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in items %}
+
+{#                                {{ item.metadata.vals|get_type }}#}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'bing:campaign_anomalies' item.account.account_id %}">
+                                            {{ item.account.account_name }}
+                                        </a> - {{ item.account.account_id }}
+                                    </td>
+                                    <td>
+                                        {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
+                                    </td>
+                                    <td>
+                                        {{ item.impr_share|uni2float|floatformat:2 }}%
+{#                                        {% with imprshare=item.metadata.vals|get_dict_value:"impressionsharepercent" %}#}
+{#                                            {{ imprshare.1 }}#}
+{#                                            {{ imprshare.2 }}#}
+{#                                        {% endwith %}#}
+                                    </td>
+                                    <td>
+                                        {{ item.impressions|uni2float|floatformat:2 }}%
+                                    </td>
+                                    <td>
+                                        {{ item.clicks|uni2float|floatformat:2 }}%
+                                    </td>
+                                    <td>
+                                        {{ item.ctr|uni2float|floatformat:2 }}%
+                                    </td>
+                                    <td>
+                                        {{ item.cpc|uni2float|floatformat:2 }}%
+                                    </td>
+                                    <td>
+                                        {{ item.cost|uni2float|floatformat:2 }}%
+                                    </td>
+                                    <td>
+                                        {{ item.conversions|uni2float|floatformat:2 }}%
+                                    </td>
+                                    <td>
+                                        {{ item.cost_conv|uni2float|floatformat:2 }}%
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="m-portlet__body">
-          <table class='table table-striped m-table m-table--head-separator-bloom dataTable' id="adwords_datatable">
-            <thead class="thead-inverse">
-              <tr>
-                <th>Account</th>
-                <th>U & O</th>
-{#                <th>Url Checker</th>#}
-                <th>Disapproved Ads</th>
-                <th>Impr. Share</th>
-                <th>Impr.</th>
-                <th>Clicks</th>
-                <th>CTR</th>
-                <th>Avg. CPC</th>
-                <th>Cost</th>
-                <th>Conversions</th>
-                <th>Cost / conv.</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in items %}
-              <tr>
-                <td>
-                    <a href="{% url 'bing:campaign_anomalies' item.account.account_id %}">
-                        {{ item.account.account_name }}
-                        </a> - {{ item.account.account_id }}
-                </td>
-                <td>
-                    {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
-                </td>
-                <td>
-                    <a href="{% url 'bing:alerts' item.account.account_id %}">
-                        {{ item.disapproved_ads }}
-                    </a>
-                </td>
-                <td>
-{#                    <span data-toggle="m-tooltip" data-original-title="{{ item.metadata.vals.impressionsharepercent }}">#}
-                        {{ item.impr_share|uni2float|floatformat:2 }}%
-{#                    </span>#}
-                </td>
-                <td>
-                    {{ item.impressions|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.clicks|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.ctr|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.cpc|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.cost|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                    {{ item.conversions|uni2float|floatformat:2 }}%
-                </td>
-                <td>
-                      {{ item.cost_conv|uni2float|floatformat:2 }}%
-                </td>
-              </tr>
-{#                  <p>#}
-{#                  <i style="font-size: 10px; color: grey;">#}
-{#                      *Statistics computed for {{ item.metadata.min_daterange2 }} - {{ item.metadata.max_daterange2 }} and#}
-{#                  {{ item.metadata.min_daterange1 }} - {{ item.metadata.max_daterange1 }}#}
-{#                  </i>#}
-{#                  </p>#}
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <!--End::Main Portlet-->
     </div>
-  </div>
-  <!--End::Main Portlet-->
-</div>
 {% endblock %}

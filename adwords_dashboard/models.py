@@ -75,6 +75,10 @@ class DependentAccount(models.Model):
     nlc_score = models.FloatField(default=0)
     wspend_data = JSONField(default=dict, null=True, blank=True)
     wspend_score = models.FloatField(default=0)
+    kw_data = JSONField(default=dict, null=True, blank=True)
+    kw_score = models.FloatField(default=0)
+    sq_data = JSONField(default=dict, null=True, blank=True)
+    sq_score = models.FloatField(default=0)
     account_score = models.FloatField(default=0)
     weekly_data = JSONField(default=dict, null=True, blank=True)
     hist_qs = JSONField(default=dict, blank=True, null=True)
@@ -87,6 +91,7 @@ class DependentAccount(models.Model):
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
+    currency = models.CharField(max_length=255, default='')
 
 
     @property

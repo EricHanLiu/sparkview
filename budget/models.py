@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
@@ -20,6 +20,18 @@ class Client(models.Model):
     facebook = models.ManyToManyField(fb.FacebookAccount, blank=True, related_name='facebook')
     current_spend = models.FloatField(default=0)
     yesterday_spend = models.FloatField(default=0)
+    aw_yesterday = models.FloatField(default=0)
+    bing_yesterday = models.FloatField(default=0)
+    fb_yesterday = models.FloatField(default=0)
+    aw_current_ds = models.FloatField(default=0)
+    bing_current_ds = models.FloatField(default=0)
+    fb_current_ds = models.FloatField(default=0)
+    aw_rec_ds = models.FloatField(default=0)
+    bing_rec_ds = models.FloatField(default=0)
+    fb_rec_ds = models.FloatField(default=0)
+    aw_projected = models.FloatField(default=0)
+    bing_projected = models.FloatField(default=0)
+    fb_projected = models.FloatField(default=0)
     aw_spend = models.FloatField(default=0)
     bing_spend = models.FloatField(default=0)
     fb_spend = models.FloatField(default=0)
@@ -92,6 +104,7 @@ class ClientCData(models.Model):
     fb_budget = JSONField(default=dict)
     fb_projected = JSONField(default=dict)
     fb_spend = JSONField(default=dict)
+    global_target_spend = JSONField(default=dict)
 
 
 class ClientHist(models.Model):
@@ -142,4 +155,5 @@ class Budget(models.Model):
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')
     network_type = models.CharField(max_length=255, default='ALL')
+    networks = ArrayField(models.CharField(max_length=255), blank=True, null=True)
     spend = models.FloatField(default=0)

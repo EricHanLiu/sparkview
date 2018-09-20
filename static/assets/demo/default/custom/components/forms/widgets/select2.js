@@ -31,6 +31,10 @@ var Select2 = function () {
             placeholder: 'Search account...'
         });
 
+        $("#select_admin_report").select2({
+            placeholder: 'Select report...'
+        });
+
         $("#select_report").select2({
             placeholder: 'Select report...'
         });
@@ -46,6 +50,71 @@ var Select2 = function () {
             let account_id = $("#select_analyser").val();
             let channel = $("#select_analyser").find(":selected").data("channel");
             window.location.href = '/tools/ppcanalyser/account/overview/' + account_id + '/' + channel;
+        });
+
+        $("#select_admin_report").on('select2:select', function (e) {
+
+            var table = $("#m_admin_report");
+            var table_wrapper = $('#report_results');
+            var report = $(this).val();
+            $('#report_results').removeClass('hidden');
+
+            var columns = function (data) {
+                let c = [{
+                    "title": "Account",
+                    "data": 'account',
+                },
+                    {
+                        "title": data['column'],
+                        "data": 'data_score',
+                        "type": 'num',
+                        "render": function (data, type, row, meta) {
+                            if (type === 'display') {
+                                data = '<a href="' + data.url + '">' + data.score + '</a>';
+                            } else if (type === 'sort') {
+                                data = data.score;
+                            }
+                            return data;
+                        }
+                    }];
+
+                return c
+            };
+
+            $.ajax({
+                url: "/tools/ppcanalyser/reports/get",
+                data: {
+                    'report': report
+                },
+                type: 'GET',
+
+                success: function (data) {
+
+                    if ($.fn.DataTable.fnIsDataTable(table)) {
+                        table.DataTable().clear();
+                        table.DataTable().destroy();
+                        table.remove();
+                        table_wrapper.append('<table id="m_admin_report"><tbody></tbody></table>');
+
+                        $("#m_admin_report").DataTable({
+                            bDestroy: true,
+                            bProcessing: false,
+                            pageLength: 25,
+                            aaData: data.table,
+                            aoColumns: columns(data),
+                            aaSorting: [[1, "asc"]]
+                        });
+                    } else {
+                        table.DataTable({
+                            bDestroy: true,
+                            pageLength: 25,
+                            aaData: data.table,
+                            aoColumns: columns(data),
+                            aaSorting: [[1, "asc"]],
+                        });
+                    }
+                }
+            });
         });
 
         $("#m_select2_adwords").select2({
@@ -106,51 +175,52 @@ var Select2 = function () {
 
                 let budget_inputs = '<div class="budget-container" id="budget_container_' + iid[0] + '">' +
                     '<div class="row no-gutters align-items-center">' +
-                    '<div class="col-md-6">' +
+                    '<div class="col-md-12">' +
                     '<input type="number" id="' + iid[0] + '" name="aw_budget_' + iid[0] + '" ' +
                     'class="form-control m-input m-input--air" placeholder="Budget for ' + data.text + ' ">' +
+                    '<div style="right: 20px;position: absolute;top: 8px;">' +
+                    '<label class="m-checkbox">' +
+                    '<input type="checkbox" name="networks" value="All" checked>' +
+                    'All' +
+                    '<span></span>' +
+                    '</label>' +
                     '</div>' +
-                    '<div class="col-md-4">' +
-                    '<select class="form-control m-input" name="network_type_' + iid[0] + '" id="network_type_' + iid[0] + '" >' +
-                    '<option value="All">All</option>' +
-                    '<option value="Cross-network">Cross-network</option>' +
-                    '<option value="Search Network">Search</option>' +
-                    '<option value="Display Network">Display</option>' +
-                    '<option value="YouTube Search">Youtube Search</option>' +
-                    '<option value="YouTube Videos">Youtube Videos</option>' +
-                    '<option value="NOT_RELATED">Not related</option>' +
-                    '</select>' +
                     '</div>' +
-                    '<div class="col-md-1">' +
-                    '<i class="fa fa-plus-circle" style="margin-left: 20px" onclick="spawnInput(' + iid[0] + ',  \'' + data.text + '\')"></i>' +
+                    // '<div class="col-md-1">' +
+                    // '<i class="fa fa-plus-circle" style="margin-left: 20px" onclick="spawnInput(' + iid[0] + ',  \'' + data.text + '\')"></i>' +
+                    // '</div>' +
+                    // '<div class="col-md-1">' +
+                    // '<i class="fa fa-minus-circle" style="margin-left: 20px" onclick="removeInput(' + iid[0] + ')"></i>' +
+                    // '</div>' +
                     '</div>' +
-                    '<div class="col-md-1">' +
-                    '<i class="fa fa-minus-circle" style="margin-left: 20px" onclick="removeInput(' + iid[0] + ')"></i>' +
-                    '</div>' +
+                    '<div class="m-divider">' +
+                    '<span></span>' +
+                    '<span>or</span>' +
+                    '<span></span>' +
                     '</div>' +
                     '<div class="m-checkbox-inline">\n' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Cross-network' +
+                    '<input type="checkbox" name="networks" value="Cross-network"> Cross-network' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Search' +
+                    '<input type="checkbox" name="networks" value="Search Network"> Search' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Display' +
+                    '<input type="checkbox" name="networks" value="Display Network"> Display' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Youtube Search' +
+                    '<input type="checkbox" name="networks" value="Youtube Search"> Youtube Search' +
                     '<span></span>' +
                     '</label>' +
                     '<label class="m-checkbox">' +
-                    '<input type="checkbox"> Youtube Videos' +
+                    '<input type="checkbox" name="networks" value="Youtube Videos"> Youtube Videos' +
                     '<span></span>' +
                     '</label>' +
                     '</div>' +
-                    '<div class="m-separator"></div>' +
+                    // '<div class="m-separator"></div>' +
                     '</div>';
 
                 $('#budget-fields').append(budget_inputs);
@@ -574,6 +644,29 @@ var Select2 = function () {
 
         $("#select_labels3").select2({
             placeholder: "Search labels..."
+        });
+
+        $("#select_accounts_cgr").select2({
+            placeholder: "Select account..."
+        });
+
+        $("#select_accounts_cgr").on('select2:select', function (e) {
+
+            let select_campaigns = $("#campaigns_gr_across");
+
+            select_campaigns.empty().trigger('change');
+            $('#gr_manual_across').prop('checked', false);
+            $('#gr_text_across').prop('checked', false);
+            $('#cgr_fdate_across').prop('checked', false);
+            $(select_campaigns.data('select2').$container).addClass('hidden');
+            $("#cgr_group_by_text").remove();
+            $("#cgr_flight_date_across").addClass('hidden');
+
+            $('#m_add_campaign_group_across').find('input[name=cgr_channel]').val(
+                $("#select_accounts_cgr").find(':selected').data('channel')
+            );
+
+
         });
     };
     return {

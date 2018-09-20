@@ -7,18 +7,46 @@
                 <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
-                            <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>Account overview -
-                                    {% if account.channel == 'adwords' %}
-                                        {{ account.dependent_account_name }}
-                                    {% else %}
-                                        {{ account.account_name }}
-                                    {% endif %}
-                                </span>
-                            </h2>
+                            <div class="m-portlet__head-title">
+                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
+                                    <span>Overview</span>
+                                </h2>
+                            </div>
                         </div>
                     </div>
                     <div class="m-portlet__body">
+                        <div class="row m-row--no-padding">
+                            <div class="col-md-4">
+                                <div class="m-widget24">
+                                    <div class="m-widget24__item">
+                                        <h3 class="m-portlet__head-text m-widget24__title">
+                                            Account overview -
+                                            {% if account.channel == 'adwords' %}
+                                                <a href="{% url 'tools:account_results' account.dependent_account_id account.channel %}">
+                                                    {{ account.dependent_account_name }}
+                                                </a>
+                                            {% else %}
+                                                <a href="{% url 'tools:account_results' account.account_id account.channel %}">
+                                                    {{ account.account_name }}
+                                                </a>
+                                            {% endif %}
+                                        </h3>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="m-widget24">
+                                    <div class="m-widget24__item">
+                                        <h4 class="m-portlet__head-text m-widget24__title">
+                                             Top 5 recommendations that need to be worked on
+                                        </h4>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
                         <div class="row m-row--no-padding m-row--col-separator-xl">
                             <div class="col-md-4">
                                 <div class="m-widget24">
@@ -27,48 +55,77 @@
                                             Your account score
                                         </h4><br>
                                         <span class="m-widget24__desc">Average of PPC Analyser reports.</span>
-                                        <span class="m-widget24__stats m--font-brand">
-                                        {% if account.channel == 'adwords' %}
-                                            <a href="{% url 'tools:account_results' account.dependent_account_id account.channel %}">
-                                        {% else %}
-                                            <a href="{% url 'tools:account_results' account.account_id account.channel %}">
-                                        {% endif %}
-				                                {{ account.account_score|floatformat:2 }}%
-                                            </a>
+                                        <span class="m-widget24__stats
+                                        {% if account.account_score < 75 %}
+                                            m--font-danger
+                                        {% elif account.account_score > 75 and account.account_score < 90 %}
+                                            m--font-warning
+                                        {% elif account.account_score > 90 %}
+                                            m--font-success
+                                        {% endif %}">
+                                            {{ account.account_score|floatformat:2 }}%
 				                        </span>
                                         <div class="m--space-10"></div>
-                                        <div class="progress m-progress--sm">
-                                            <div class="progress-bar m--bg-brand" role="progressbar"
-                                                 style="width: {{ account.account_score }}%;"
-                                                 aria-valuenow="{{ account.account_score }}" aria-valuemin="0"
-                                                 aria-valuemax="100"></div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <div class="m-widget24">
                                     <div class="m-widget24__item">
-                                        <h4 class="m-widget24__title">
+                                        <h4 class="m-widget24__desc">
                                             <span class="m--font-bolder">Improve your score by following recommendations in the section below</span>
                                         </h4><br>
                                         <div class="m--space-10"></div>
                                         <div class="container-fluid">
-                                            <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recommendation #1
-                                            </button>
-                                            <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recommendation #2
-                                            </button>
-                                            <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recommendation #3
-                                            </button>
-                                            <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recommendation #4
-                                            </button>
-                                            <button type="button" class="btn m-btn--pill    btn-outline-info">
-                                                Recommendation #5
-                                            </button>
+                                            {% for rec in recommendations %}
+                                                <a href="
+                                            {% if account.channel == 'adwords' %}
+                                                {% if rec.0 == 'ch' %}
+                                                    {% url 'tools:change_history' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'ext' %}
+                                                    {% url 'tools:extensions' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'trends' %}
+                                                    {% url 'tools:account_results' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'nr' %}
+                                                    {% url 'tools:not_running' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'nlc' %}
+                                                    {% url 'tools:nlc_attr' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'qs' %}
+                                                    {% url 'tools:account_qs' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'ws' %}
+                                                    {% url 'tools:wspend' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'dads' %}
+                                                    {% url 'tools:disapproved_ads' account.dependent_account_id account.channel %}
+                                                {% elif rec.0 == 'keywordwastage' %}
+                                                    {% url 'tools:keyword_wastage' account.dependent_account_id account.channel %}
+                                                {% endif %}
+                                            {% else %}
+                                                {% if rec.0 == 'ch' %}
+                                                    {% url 'tools:change_history' account.account_id account.channel %}
+                                                {% elif rec.0 == 'ext' %}
+                                                    {% url 'tools:extensions' account.account_id account.channel %}
+                                                {% elif rec.0 == 'trends' %}
+                                                    {% url 'tools:account_results' account.account_id account.channel %}
+                                                {% elif rec.0 == 'nr' %}
+                                                    {% url 'tools:not_running' account.account_id account.channel %}
+                                                {% elif rec.0 == 'nlc' %}
+                                                    {% url 'tools:nlc_attr' account.account_id account.channel %}
+                                                {% elif rec.0 == 'qs' %}
+                                                    {% url 'tools:account_qs' account.account_id account.channel %}
+                                                {% elif rec.0 == 'ws' %}
+                                                    {% url 'tools:wspend' account.account_id account.channel %}
+                                                {% elif rec.0 == 'dads' %}
+                                                    {% url 'tools:disapproved_ads' account.account_id account.channel %}
+                                                {% elif rec.0 == 'keywordwastage' %}
+                                                    {% url 'tools:keyword_wastage' account.account_id account.channel %}
+                                                {% endif %}
+                                            {% endif %}
+                                                ">
+                                                    <button type="button" class="btn m-btn--pill btn-outline-info btn-sm">
+                                                        {{ rec.2 }} - {{ rec.1|floatformat:2 }}%
+                                                    </button>
+                                                </a>
+                                            {% endfor %}
                                         </div>
                                     </div>
                                 </div>

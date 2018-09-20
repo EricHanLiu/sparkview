@@ -22,6 +22,7 @@ def bing_dashboard(request):
         item = {}
         item['account'] = account
         query = BingAnomalies.objects.filter(account=account.pk, performance_type='ACCOUNT')
+        item['metadata'] = query[0].metadata if query else {}
         item['clicks'] = query[0].clicks if query else 0
         item['impressions'] = query[0].impressions if query else 0
         item['ctr'] = query[0].ctr if query else 0

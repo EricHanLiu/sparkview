@@ -204,6 +204,7 @@ CRONJOBS = [
     ('00 12 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('00 12 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('00 12 * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
+    ('00 12 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
     ('15 12 * * *', 'cron_adgroups.main', '> ' + BASE_DIR + '/logs/adwords_adgroups.log'),
     ('20 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('30 12 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
@@ -219,11 +220,12 @@ CRONJOBS = [
     ('10 13 * * *', 'cron_accounts_not_running.main', '> ' + BASE_DIR + '/logs/cron_not_running.log'),
     ('25 13 * * *', 'bing_qualityscore.main', '> ' + BASE_DIR + '/logs/bing_qualityscore_report.log'),
     ('25 13 * * *', 'bing_accounts_not_running.main', '> ' + BASE_DIR + '/logs/bing_not_running.log'),
-    ('30 13 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
     ('35 13 * * *', 'cron_extensions.main', '> ' + BASE_DIR + '/logs/cron_extensions.log'),
     ('40 13 * * *', 'cron_nlc_am.main', '> ' + BASE_DIR + '/logs/cron_nlc_am.log'),
     ('50 13 * * *', 'cron_wasted_spend.main', '> ' + BASE_DIR + '/logs/cron_wasted_spend.log'),
     ('00 14 * * *', 'bing_wasted_spend.main', '> ' + BASE_DIR + '/logs/bing_wasted_spend.log'),
+    ('10 14 * * *', 'cron_kw_wastage.main', '> ' + BASE_DIR + '/logs/cron_kw_wastage.log'),
+    ('10 14 * * *', 'bing_kw_wastage.main', '> ' + BASE_DIR + '/logs/bing_kw_wastage.log'),
 ]
 
 # Bing Stuff
@@ -249,6 +251,7 @@ business_id = '10154654586810511'
 app_secret = '17bc991966f6895650068fe41bc87aa0'
 # access_token = "EAAISKeWdZCTEBABaA5WtXSNP3vOGxEAFx2MBjKWGV6nfpOVxcMoHtTuqeyGx47rkDXJWErA4SPI1ikCHIKLOmorHpqHkNKxuEuSudMtjPdiLGV6MZArB4HRJPhDlpHmq53qrqarZBPMyClGOkhOMBGZBYmQUQXGX6pEFlHaO2gZDZD"
 access_token = "EAAISKeWdZCTEBAGyyF5cheVZAGbr546TflaDJ4BhThFKigmetLZAW3SB0YHIGoZAoGGI0wZAYlPZBvV2hHUv6wtO8gD3is8eQGNIqKZAyBkVO5H8FnCTG6lRvV4TSLDpovlAgUrCYqA34I5zWBHrlOKALg8vo8dBqAZD"
+w_access_token = "EAAISKeWdZCTEBANbBD1ZA4igkrUYzdacd02E0IggsEfbrKvwvMZBlXvdZCPOgwEycpHTnrmsZCkFFNG7ehPDeo8Ez3PXQlMi6Kz3QWwhMFdqBMXKZCMZAvrAeOIExRdnw0tUNo4VVphEPhRhlD7epvYiwny80W6HlrZCccAXC3cDJduysrZBdmZBMU"
 # E-mail settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST='smtp.gmail.com'

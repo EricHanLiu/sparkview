@@ -130,6 +130,24 @@
                                                 data-channel="{{ account.channel }}">
                                             NLC Attribution - {{ account.nlc_score|floatformat:2 }}/100
                                         </option>
+                                        <option value="keywordwastage"
+                                                {% if account.channel == 'adwords' %}
+                                                data-account_id="{{ account.dependent_account_id }}"
+                                                {% else %}
+                                                data-account_id="{{ account.account_id }}"
+                                                {% endif %}
+                                                data-channel="{{ account.channel }}">
+                                            Keyword wastage - {{ account.kw_score|floatformat:2 }}/100
+                                        </option>
+                                        <option value="searchqueries"
+                                                {% if account.channel == 'adwords' %}
+                                                data-account_id="{{ account.dependent_account_id }}"
+                                                {% else %}
+                                                data-account_id="{{ account.account_id }}"
+                                                {% endif %}
+                                                data-channel="{{ account.channel }}">
+                                            Search Queries - {{ account.sq_score|floatformat:2 }}/100
+                                        </option>
                                     </select>
                                 </div>
                             </div>

@@ -8,7 +8,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                <span>NLC Attribution model report -
+                                <span>Keyword wastage report -
                                     {% if account.channel == 'adwords' %}
                                         {{ account.dependent_account_name }}
                                     {% else %}
@@ -33,9 +33,9 @@
 
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                <div id="orangecircle" data-percent="{{ account.nlc_score|floatformat:2 }}"
+                                <div id="orangecircle" data-percent="{{ account.kw_score|floatformat:2 }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.nlc_score|floatformat:2 }}</span>
+                                    <span>{{ account.kw_score|floatformat:2 }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -45,8 +45,19 @@
                             <div class="col-md-5">
                                 <div class="form-group m-form__group">
                                     <div class="alert m-alert m-alert--default" role="alert">
-                                        This report gives you a quick overview of NLC attribution models set on this
-                                        account.
+                                        This report gives you a quick overview of all the
+                                        keywords in this account that waste your budget.
+                                    </div>
+                                    <div class="alert m-alert m-alert--default" role="alert">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                Avg. spend: {{ account.kw_data.0.average_cost|floatformat:2 }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                Avg.
+                                                conversions: {{ account.kw_data.0.average_conversions|floatformat:2 }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -138,7 +149,7 @@
                                                 data-channel="{{ account.channel }}">
                                             Keyword wastage - {{ account.kw_score|floatformat:2 }}/100
                                         </option>
-                                        <option value="sqr"
+                                        <option value="searchqueries"
                                                 {% if account.channel == 'adwords' %}
                                                 data-account_id="{{ account.dependent_account_id }}"
                                                 {% else %}
@@ -163,7 +174,7 @@
                                             <span></span>
                                         </div>
                                         <div class="m-alert__text">
-                                            You'll find, in the table below, LAST_CLICK attribution models.
+                                            In the table below you'll find keywords that wasted your budget.
                                         </div>
                                         <div class="m-alert__close">
                                             <button type="button" class="close" data-dismiss="alert"
@@ -180,21 +191,21 @@
                                 <table class="table m-table m-table--head-separator-primary" id="nlc_table">
                                     <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                        <th>Category</th>
-                                        <th>Counting Type</th>
-                                        <th>Attribution model type</th>
+                                        <th>Campaign</th>
+                                        <th>Ad Group</th>
+                                        <th>Keyword</th>
+                                        <th>Conversions</th>
+                                        <th>Spend</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for item in account.nlc_data %}
+                                    {% for item in account.kw_data %}
                                         <tr>
-                                            <td>{{ item.name }}</td>
-                                            <td>{{ item.status }}</td>
-                                            <td>{{ item.category }}</td>
-                                            <td>{{ item.counting_type }}</td>
-                                            <td>{{ item.attribution_model_type }}</td>
+                                            <td>{{ item.campaign }}</td>
+                                            <td>{{ item.adgroup }}</td>
+                                            <td>{{ item.keyword }}</td>
+                                            <td>{{ item.conversions }}</td>
+                                            <td>{{ item.spend }}</td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
@@ -217,7 +228,7 @@
             let data = {
                 'account_id': customer_id,
                 'channel': channel,
-                'report': 'nlc'
+                'report': 'keywordwastage'
             };
 
             $.ajax({
@@ -226,7 +237,7 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
-                    toastr.success("Request for NLC Attribution report sent. Wait a few minutes and refresh the page for updated information.")
+                    toastr.success("Request for Keyword wastage report sent. Wait a few minutes and refresh the page for updated information.")
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText);

@@ -1,7 +1,8 @@
+import datetime
+import re
 from django import template
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import calendar
+from calendar import monthrange
 
 register = template.Library()
 
@@ -9,13 +10,29 @@ register = template.Library()
 @register.filter("get_dict_value")
 def get_dict_value(data, key):
 
-    return data[key]
+    try:
+        return data[key]
+    except TypeError:
+        return [0,0,0]
 
+@register.filter("addf")
+def addf(value, arg):
+    """Adds the arg to the value."""
+    return float(value) + float(arg)
+addf.is_safe = False
+
+
+@register.filter("mcv")
+def mcv(value):
+    try:
+        return float(value) / 1000000
+    except ValueError:
+        return 0
 
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
-    today = datetime.today() - relativedelta(days=1)
-    next_month = datetime(
+    today = datetime.datetime.today() - relativedelta(days=1)
+    next_month = datetime.datetime(
         year=today.year,
         month=((today.month + 1) % 12),
         day=1
@@ -47,6 +64,14 @@ def startswith(text, starts):
 @register.filter(name='get_type')
 def get_type(value):
     return type(value)
+
+@register.filter(name='date_or_string')
+def date_or_string(value):
+
+    if isinstance(value, str):
+        return value
+    else:
+        return value.strftime("%A, %d %B %Y")
 
 @register.filter(name='uni2float')
 def uni2float(value):
@@ -91,7 +116,7 @@ def percentage(spend, budget):
 @register.filter(name='daily_spend')
 def daily_spend(spend):
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.datetime.today() - relativedelta(days=1)
 
     value = spend / today.day
 
@@ -101,16 +126,9 @@ def daily_spend(spend):
 @register.filter(name='projected')
 def projected(spend, yspend):
 
-    today = datetime.today() - relativedelta(days=1)
-    d_spend = spend / today.day
-    next_month = datetime(
-        year=today.year,
-        month=((today.month + 1) % 12),
-        day=1
-    )
-    lastday_month = next_month + relativedelta(days=-1)
-    black_marker = (today.day / lastday_month.day) * 100
-    remaining = lastday_month.day - today.day
+    today = datetime.datetime.today() - relativedelta(days=1)
+    lastday_month = monthrange(today.year, today.month)
+    remaining = lastday_month[1] - today.day
 
     # projected value
     rval = spend + (yspend * remaining)
@@ -133,3 +151,10 @@ def calculate_ovu(estimated_spend, desired_spend):
         return int((estimated_spend / desired_spend) * 100)
     except ZeroDivisionError:
         return 0
+
+@register.filter
+def replace ( string, args ):
+    search  = args.split(args[0])[1]
+    replace = args.split(args[0])[2]
+
+    return re.sub( search, replace, string )

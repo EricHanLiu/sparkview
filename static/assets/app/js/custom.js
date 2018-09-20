@@ -244,6 +244,7 @@ $(document).ready(function () {
 
         $(e.currentTarget).find('input[name="group_budget"]').val(budget);
         $(e.currentTarget).find('input[name="cgr_group_name"]').val(group_name);
+        $(e.currentTarget).find('input[name="cgr_acc_name"]').val(acc_name);
         $(e.currentTarget).find('input[name="cgr_channel"]').val(channel);
 
         data = {
@@ -482,7 +483,7 @@ $(document).ready(function () {
         placeholder: "Search labels..."
     });
 
-    $("#campaigns_gr").select2({
+    $("#campaigns_gr_across").select2({
         placeholder: "Select campaigns..."
     });
 
@@ -490,20 +491,21 @@ $(document).ready(function () {
         placeholder: "Select campaigns..."
     });
 
-    // $($('#campaigns_gr').data('select2').$container).addClass('hidden');
+    $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
 
-    $("#gr_text").change(function () {
-        $($('#campaigns_gr').data('select2').$container).addClass('hidden');
-        $("#campaign_list").append('<input type="text" class="form-control group-by"\n' +
+    $("#gr_text_across").change(function () {
+        $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
+        $("#campaign_list_across").append('<input type="text" class="form-control group-by"\n' +
             'name="cgr_group_by_text" id="cgr_group_by_text" placeholder="Group by.." required>');
     });
-    $("#gr_manual").change(function () {
+
+    $("#gr_manual_across").change(function () {
         $("#cgr_group_by_text").remove();
-        $($('#campaigns_gr').data('select2').$container).removeClass('hidden');
+        $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
 
         data = {
-            'account_id': $("#cgr_acc_id").val(),
-            'channel': $("#cgr_channel").val()
+            'account_id': $("#select_accounts_cgr").val(),
+            'channel': $("#select_accounts_cgr").find(':selected').data('channel')
         };
 
         $.ajax({
@@ -516,7 +518,7 @@ $(document).ready(function () {
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
                     let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                    $("#campaigns_gr").append(new_option).trigger('change');
+                    $("#campaigns_gr_across").append(new_option).trigger('change');
                 });
             },
             error: function (ajaxContext) {
@@ -528,14 +530,13 @@ $(document).ready(function () {
         });
     });
 
-    // $("#cgr_fdate").attr('value', 'no');
-    $("#cgr_fdate").change(function () {
+    $("#cgr_fdate_across").change(function () {
         if (this.checked) {
             $(this).attr('value', 'yes');
-            $("#cgr_flight_date").removeClass('hidden');
+            $("#cgr_flight_date_across").removeClass('hidden');
         } else {
             $(this).attr('value', 'no');
-            $("#cgr_flight_date").addClass('hidden');
+            $("#cgr_flight_date_across").addClass('hidden');
         }
 
     });

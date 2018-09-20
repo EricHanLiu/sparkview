@@ -1,17 +1,16 @@
 import calendar
 from bloom import celery_app
 from bloom.utils import FacebookReportingService
-from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
 from budget.models import FlightBudget, CampaignGrouping
 from facebook_business.api import FacebookAdsApi
-from bloom.settings import app_id, app_secret, access_token
+from bloom.settings import app_id, app_secret, w_access_token
 from dateutil.relativedelta import relativedelta
 
 
 def facebook_init():
-    return FacebookAdsApi.init(app_id, app_secret, access_token)
+    return FacebookAdsApi.init(app_id, app_secret, w_access_token)
 
 
 def account_anomalies(account_id, helper, daterange1, daterange2):

@@ -736,12 +736,74 @@ def bing_account_wasted_spend(self, account_id):
         calculate_account_score(account)
 
 @celery_app.task(bind=True)
+def bing_account_keyword_wastage(self, account_id):
+
+    account = BingAccounts.objects.get(account_id=account_id)
+    helper = BingReportingService()
+
+    cost = 0.0
+    conversions = 0.0
+
+    kw_data = []
+
+    this_month = helper.get_this_month_daterange()
+
+    report = helper.get_keyword_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="keyword_stats_tm",
+        **this_month
+    )
+
+    for item in report:
+        cost += float(item['spend'])
+        conversions += float(item['conversions'])
+
+    kw_no = len(report)
+    if kw_no > 0:
+        avg_cost = cost / kw_no
+        avg_conv = conversions / kw_no
+
+        for item in report:
+            if float(item['spend']) > avg_cost and float(item['conversions']) < avg_conv:
+                ws_item = {
+                    'campaign': item['campaignname'],
+                    'adgroup': item['adgroupname'],
+                    'keyword': item['keyword'],
+                    'conversions': item['conversions'],
+                    'spend': item['spend'],
+                    'average_cost': avg_cost,
+                    'average_conversions': avg_conv
+                }
+                kw_data.append(ws_item)
+
+        if len(kw_data) == 0:
+            account.kw_score = 100.0
+            account.kw_data = [{
+                'average_cost': avg_cost,
+                'average_conversions': avg_conv
+            }]
+        else:
+            account.kw_score = (len(kw_data) * 100) / kw_no
+            account.kw_data = kw_data
+
+        account.save()
+        calculate_account_score(account)
+    else:
+        account.kw_score = 0.0
+        account.kw_data = []
+
+        account.save()
+        calculate_account_score(account)
+
+
+@celery_app.task(bind=True)
 def calculate_account_score(self, account):
 
     if isinstance(account, BingAccounts):
 
         account.account_score = (account.trends_score + account.qs_score + account.dads_score + account.nr_score
-                             + account.wspend_score) / 5
+                             + account.wspend_score + account.kw_score) / 6
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')
