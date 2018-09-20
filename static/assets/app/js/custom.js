@@ -68,6 +68,10 @@ $(document).ready(function () {
         'pagingType': "full_numbers"
     });
 
+    $("#adwords_anomalies_datatable").DataTable({
+        'pagingType': "full_numbers"
+    });
+
     $("#campaign_groupings").DataTable({
         'pagingType': "full_numbers"
     });

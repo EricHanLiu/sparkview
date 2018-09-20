@@ -11,8 +11,7 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
-# from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
-from googleads.errors import AdWordsReportBadRequestError
+from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
@@ -53,14 +52,16 @@ def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
 
-def account_anomalies(account_id, helper, daterange1):
+def account_anomalies(account_id, helper, daterange1, daterange2):
     current_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
-        extra_fields=["SearchImpressionShare"], **daterange1
+        extra_fields=["SearchImpressionShare"],
+        **daterange1
     )
 
     previous_period_performance = helper.get_account_performance(
-        customer_id=account_id, dateRangeType="LAST_MONTH",
+        customer_id=account_id, dateRangeType="CUSTOM_DATE",
+        **daterange2
     )
 
     # Returns dict of metrics the following:
@@ -110,10 +111,13 @@ def adwords_cron_anomalies(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
+    today = datetime.today()
+    last_month = today - relativedelta(months=1)
+
     current_period_daterange = helper.get_this_month_daterange()
-    maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
-    previous_period_daterange = helper.get_daterange(
-        days=6, maxDate=maxDate
+    previous_period_daterange = helper.create_daterange(
+        minDate=last_month.replace(day=1),
+        maxDate=last_month.replace(day=calendar.monthrange(today.year, last_month.month)[1])
     )
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -122,6 +126,7 @@ def adwords_cron_anomalies(self, customer_id):
         account.dependent_account_id,
         helper,
         current_period_daterange,
+        previous_period_daterange
     )
 
     cmp_anomalies = campaign_anomalies(
@@ -178,6 +183,32 @@ def adwords_cron_anomalies(self, customer_id):
             cpc=helper.mcv(cmp["avg._cpc"][0]),
             metadata=json.dumps(metadata_cmp)
         )
+
+
+@celery_app.task(bind=True)
+def adwords_account_anomalies(self, data):
+
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    current_period_daterange = helper.create_daterange(
+        minDate=datetime.strptime(data['smin'], '%Y-%m-%d'),
+        maxDate=datetime.strptime(data['smax'], '%Y-%m-%d')
+    )
+    previous_period_daterange = helper.create_daterange(
+        minDate=datetime.strptime(data['fmin'], '%Y-%m-%d'),
+        maxDate=datetime.strptime(data['fmax'], '%Y-%m-%d')
+    )
+
+    acc_anomalies = account_anomalies(
+        data['account_id'],
+        helper,
+        current_period_daterange,
+        previous_period_daterange
+    )
+
+    return json.dumps(acc_anomalies)
+
 
 
 @celery_app.task(bind=True)
@@ -620,6 +651,7 @@ def adwords_result_trends(self, customer_id):
 
     today = datetime.today()
     minDate = (today - relativedelta(months=2)).replace(day=1)
+    print(minDate)
     daterange = helper.create_daterange(minDate, today)
     weekly = helper.get_this_month_daterange()
     data = helper.get_account_performance(
