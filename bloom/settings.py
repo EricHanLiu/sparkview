@@ -23,7 +23,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'facebook_dashboard',
     'budget',
     'tools',
+    'client_area',
+    'user_management',
     'social_django',
     'django_crontab',
     'django_extensions',

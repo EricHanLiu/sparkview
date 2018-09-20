@@ -38,5 +38,9 @@ urlpatterns = [
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^budget/', include('budget.urls', namespace='budget')),
     url(r'^tools/', include('tools.urls', namespace='tools')),
+    url(r'^clients/', include('client_area.urls', namespace='client_area')),
+    url(r'^user_management/', include('user_management.urls', namespace='user_management')),
     url(r'^admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+admin.site.site_header = 'Bloom Admin'

@@ -76,6 +76,47 @@ $(document).ready(function () {
         'pagingType': "full_numbers"
     });
 
+    $("#members_datatable").DataTable({
+        'scrollX' : true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false
+    });
+
+    $("#skills_datatable").DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false
+    });
+
+    $("#training_datatable").DataTable({
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false
+    });
+
+    $("#all_clients_datatable").DataTable({
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false
+    });
+
+    $("#my_clients_datatable").DataTable({
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false
+    });
+
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
             'targets': 0,
@@ -346,6 +387,11 @@ $(document).ready(function () {
         $(".modal-body #cid").val(cid);
         $(".modal-body #channel").val(channel);
         $(e.currentTarget).find('input[name="target_spend"]').val(target_spend);
+    });
+
+    // Modals for team page
+    $('#m_edit_team').on('show.bs.modal', function (e) {
+
     });
 
     // Handles the switch between Global Target Spend and normal client budget

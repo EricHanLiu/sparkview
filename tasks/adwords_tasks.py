@@ -11,8 +11,9 @@ from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from budget.models import FlightBudget, Budget, CampaignGrouping
 from googleads.adwords import AdWordsClient
-from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
-from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
+# from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
+from googleads.errors import AdWordsReportBadRequestError
+from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from operator import itemgetter

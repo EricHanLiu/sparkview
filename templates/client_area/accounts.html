@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block extraCss %}
+<style>
+  #my_clients_datatable {
+    width: 100%;
+  }
+  th {
+    white-space: nowrap;
+  }
+  .m-table.m-table--head-separator-bloom thead th {
+    border: 0;
+  }
+  td {
+    text-align: center;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+      		<div class="m-portlet__head-caption">
+      			<div class="m-portlet__head-title">
+      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+      					My Accounts
+      				</h3>
+      			</div>
+      		</div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  Team
+                </th>
+                <th>
+                  Industry
+                </th>
+                <th>
+                  Language
+                </th>
+                <th>
+                  Client Type
+                </th>
+                <th>
+                  Tier
+                </th>
+                <th>
+                  Services
+                </th>
+                <th>
+                  Innactive/Reason Lost
+                </th>
+                <th>
+                  Status
+                </th>
+                <th>
+                  Grade
+                </th>
+                <th>
+                  Total Actual Hours
+                </th>
+                <th>
+                  Total Billed Hours
+                </th>
+                <th>
+                  Assignees
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in accounts %}
+              <tr>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  {% for team in account.team.all %}{{ team.name }}{% if not forloop.last %},{% endif %}{% endfor %}
+                </td>
+                <td>
+                  {{ account.industry.name }}
+                </td>
+                <td>
+                  {% for language in account.language.all %}{{ language.name }}{% if not forloop.last %},{% endif %}{% endfor %}
+                </td>
+                <td>
+                  {{ account.clientType.name }}
+                </td>
+                <td>
+                  {{ account.tier }}
+                </td>
+                <td>
+                  {% for service in account.services.all %}
+                    {{ service.name }}{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  Coming soon
+                </td>
+                <td>
+                  {{ account.status }}
+                </td>
+                <td>
+                  {{ account.grade }}
+                </td>
+                <td>
+                  <!-- Actual hours -->
+                  Coming Soon
+                </td>
+                <td>
+                  <!-- Billed hours -->
+                  Coming Soon
+                </td>
+                <td>
+                  <!-- Assignees -->
+                  Coming Soon
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Add New Account
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" id="m_form_add_client">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+              <h3>Basic Information</h3>
+              <hr />
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="client_name">Account Name:</label>
+                    <input type="text" name="client_name" class="form-control m-input"
+                    placeholder="Please enter the client name">
+                    <span class="m-form__help">Required. 150 characters or fewer.</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="budget">Budget:</label>
+                    <input type="text" name="budget"
+                    class="form-control m-input">
+                    <span class="m-form__help">
+                      <p>Enter the budget in USD.</p>
+                    </span>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="team">Team:</label>
+                    <select class="form-control m-input"
+                            name="team"
+                            style="width: 100%;" multiple>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="contact_name">Contact Name:</label>
+                    <input type="text" name="contact_name"
+                    class="form-control m-input">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="contact_email">Contact Email:</label>
+                    <input type="text" name="contact_email"
+                    class="form-control m-input">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="client_type">Client Type:</label>
+                    <select class="form-control m-input"
+                            name="client_type"
+                            style="width: 100%;">
+                        {% for client_type in client_types %}
+                            <option value="{{ client_type.id }}">{{ client_type.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="language">Language:</label>
+                    <select class="form-control m-input"
+                            name="language"
+                            style="width: 100%;" multiple>
+                        {% for language in languages %}
+                            <option value="{{ language.id }}">{{ language.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="tier">Tier:</label>
+                    <select class="form-control m-input"
+                            name="tier"
+                            style="width: 100%;">
+                        {% for tier in tiers %}
+                            <option value="{{ tier }}">{{ tier }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="soldby">Sold by:</label>
+                    <select class="form-control m-input"
+                            name="soldby"
+                            style="width: 100%;">
+                        {% for member in members %}
+                            <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="service">Services:</label>
+                    <select class="form-control m-input"
+                            name="service"
+                            style="width: 100%;" multiple>
+                        {% for service in services %}
+                            <option value="{{ service.id }}">{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="status">Status:</label>
+                    <select class="form-control m-input"
+                            name="status"
+                            style="width: 100%;">
+                            <option value="0">Status 0</option>
+                            <option value="1">Status 1</option>
+                            <option value="2">Status 2</option>
+                            <option value="3">Status 3</option>
+                            <option value="4">Status 4</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="client_grade">Client Grade:</label>
+                    <select class="form-control m-input"
+                            name="client_grade"
+                            style="width: 100%;">
+                            <option value="0">Grade 0</option>
+                            <option value="1">Grade 1</option>
+                            <option value="2">Grade 2</option>
+                            <option value="3">Grade 3</option>
+                            <option value="4">Grade 4</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="industry">Industry:</label>
+                  <select class="form-control m-input"
+                          name="industry"
+                          style="width: 100%;">
+                          {% for industry in industries %}
+                              <option value="{{ industry.id }}">{{ industry.name }}</option>
+                          {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <input type="submit" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

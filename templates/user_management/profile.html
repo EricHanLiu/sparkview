@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                {{ member.user.first_name }} {{ member.user.last_name }}
+              </h3>
+            </div>
+
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% if request.user.is_staff %}
+          <a href="/user_management/members/{{ member.id }}/edit">Edit {{ member.user.first_name }} {{ member.user.last_name }}</a>
+          {% endif %}
+          <div class="form-group m-form__group">
+            <label for="input_email">Email address:</label>
+            <input type="email" class="form-control m-input" value="{{ member.user.email }}" disabled>
+          </div>
+          <div class="m-form__group form-group">
+            <label for="">Permissions:</label>
+            <div class="m-checkbox-list">
+              <label class="m-checkbox">
+                <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %} disabled> Admin
+                <span></span>
+              </label>
+            </div>
+          </div>
+          <h3>Team and Role</h3>
+          <hr />
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="team">Team:</label>
+                {% for team in member.team.all %}
+                <input type="text" class="form-control m-input" value="{{ team.name }}" disabled>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="role">Role:</label>
+                <input type="text" class="form-control m-input" value="{{ member.role.name }}" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-8">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Hours
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="m-portlet ">
+            <div class="m-portlet__body  m-portlet__body--no-padding">
+              <div class="row m-row--no-padding m-row--col-separator-xl">
+                <div class="col-md-12 col-lg-6 col-xl-4">
+                  <!--begin::Total Profit-->
+                  <div class="m-widget24">
+                    <div class="m-widget24__item">
+                      <h4 class="m-widget24__title">
+                        Allocated Hours
+                      </h4><br>
+                      <span class="m-widget24__stats m--font-brand">
+                        23
+                      </span>
+                      <div class="m--space-10"></div>
+                      <div class="progress m-progress--sm">
+                        <div class="progress-bar m--bg-brand" role="progressbar" style="width: 78%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span class="m-widget24__change">
+                        Change
+                      </span>
+                      <span class="m-widget24__number">
+                        78%
+                      </span>
+                    </div>
+                  </div>
+                  <!--end::Total Profit-->
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-4">
+                  <!--begin::New Feedbacks-->
+                  <div class="m-widget24">
+                    <div class="m-widget24__item">
+                      <h4 class="m-widget24__title">
+                        Hours Available
+                      </h4><br>
+                      <span class="m-widget24__stats m--font-info">
+                        {{ member.buffer_hours_available }}
+                      </span>
+                      <div class="m--space-10"></div>
+                      <div class="progress m-progress--sm">
+                        <div class="progress-bar m--bg-info" role="progressbar" style="width: 84%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span class="m-widget24__change">
+                        Change
+                      </span>
+                      <span class="m-widget24__number">
+                        84%
+                      </span>
+                    </div>
+                  </div>
+                  <!--end::New Feedbacks-->
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-4">
+                  <!--begin::New Orders-->
+                  <div class="m-widget24">
+                    <div class="m-widget24__item">
+                      <h4 class="m-widget24__title">
+                        Actual Hours
+                      </h4><br>
+                      <span class="m-widget24__stats m--font-danger">
+                        70
+                      </span>
+                      <div class="m--space-10"></div>
+                      <div class="progress m-progress--sm">
+                        <div class="progress-bar m--bg-danger" role="progressbar" style="width: 69%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <span class="m-widget24__change">
+                        Change
+                      </span>
+                      <span class="m-widget24__number">
+                        69%
+                      </span>
+                    </div>
+                  </div>
+                  <!--end::New Orders-->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_total_percentage">Total Percentage:</label>
+                <input type="text" class="form-control m-input"value="{{ member.buffer_total_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_learning_percentage">Learning Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_learning_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_trainers_percentage">Trainers Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_trainers_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_sales_percentage">Sales Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_sales_percentage }}%" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_planning_percentage">Planning Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_planning_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_internal_percentage">Internal Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_internal_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_seniority_percentage">Seniority Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_seniority_percentage }}%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_buffer_percentage">Buffer Percentage:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_buffer_percentage }}%" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_hours_available">Hours Available:</label>
+                <input type="text" class="form-control m-input" value="{{ member.buffer_hours_available }}" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Accounts
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  Team
+                </th>
+                <th>
+                  Industry
+                </th>
+                <th>
+                  Language
+                </th>
+                <th>
+                  Client Type
+                </th>
+                <th>
+                  Tier
+                </th>
+                <th>
+                  Services
+                </th>
+                <th>
+                  Status
+                </th>
+                <th>
+                  Grade
+                </th>
+                <th>
+                  Total Actual Hours
+                </th>
+                <th>
+                  Total Billed Hours
+                </th>
+                <th>
+                  Assignees
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in accounts %}
+              <tr>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  {% for team in account.team.all %}{{ team.name }}{% if not forloop.last %},{% endif %}{% endfor %}
+                </td>
+                <td>
+                  {{ account.industry.name }}
+                </td>
+                <td>
+                  {% for language in account.language.all %}{{ language.name }}{% if not forloop.last %},{% endif %}{% endfor %}
+                </td>
+                <td>
+                  {{ account.clientType.name }}
+                </td>
+                <td>
+                  {{ account.tier }}
+                </td>
+                <td>
+                  {% for service in account.services.all %}
+                    {{ service.name }}{% if not forloop.last %},{% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  {{ account.status }}
+                </td>
+                <td>
+                  {{ account.grade }}
+                </td>
+                <td>
+                  <!-- Actual hours -->
+                  Coming Soon
+                </td>
+                <td>
+                  <!-- Billed hours -->
+                  Coming Soon
+                </td>
+                <td>
+                  <!-- Assignees -->
+                  Coming Soon
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Member Skills
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <canvas id="myChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Incidents
+              </h3>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div class="m-portlet__body">
+          {% if member.incidents == 0 %}
+          <p>You have no incidents!</p>
+          {% else %}
+          <table class='table table-striped m-table m-table--head-separator-bloom dataTable'>
+            <thead>
+              <tr>
+                <th>
+                  Date
+                </th>
+                <th>
+                  Description
+                </th>
+                <th>
+                  Members
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for incident in incidents %}
+              <tr>
+                <td>
+                  {{ incident.date }}
+                </td>
+                <td>
+                  {{ incident.description }}
+                </td>
+                <td>
+                  {% for offender in incident.members.all %}{{ offender }}<br/>{% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: [{% for memberSkill in memberSkills %}"{{ memberSkill.skill.name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      data: [{% for memberSkill in memberSkills %}"{{ memberSkill.score }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+      backgroundColor: [
+        {% for memberSkill in memberSkills %}
+        {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
+        {% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      borderColor: [
+        {% for memberSkill in memberSkills %}
+        {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
+        {% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero:true,
+          stepSize: 1
+        },
+        gridLines: {
+          display:false
+        }
+      }],
+      xAxes: [{
+        gridLines: {
+          display:false
+        }
+      }]
+    },
+    legend: {
+      display: false
+    }
+  }
+});
+</script>
+{% endblock %}
