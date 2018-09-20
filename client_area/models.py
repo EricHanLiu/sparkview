@@ -1,7 +1,13 @@
 from django.db import models
 
-from budget.models import Client
 from user_management.models import Member
+
+
+class ParentClient(models.Model):
+    """
+    This is really what should be considered a client. It can have many accounts under it.
+    """
+    pass
 
 
 class Service(models.Model):
@@ -11,17 +17,27 @@ class Service(models.Model):
         return self.name
 
 
-class MemberClientRelationshipType(models.Model):
-    name = models.CharField(max_length=255)
+class Industry(models.Model):
+    name = models.CharField(max_length=255, default='None')
 
     def __str__(self):
         return self.name
 
 
-class MemberClientRelationship(models.Model):
-    relationship = models.ForeignKey(MemberClientRelationshipType, on_delete=models.CASCADE, default=None)
-    client       = models.ForeignKey(Client, on_delete=models.CASCADE, default=None)
-    member       = models.ForeignKey(Member, on_delete=models.CASCADE, default=None)
+class Language(models.Model):
+    name = models.CharField(max_length=255, default='None')
 
-    class Meta:
-        unique_together = ('relationship', 'client')
+    def __str__(self):
+        return self.name
+
+
+class ClientType(models.Model):
+    name = models.CharField(max_length=255, default='None')
+
+    def __str__(self):
+        return self.name
+
+
+class ClientContact(models.Model):
+     name  = models.CharField(max_length=255, default='None')
+     email = models.EmailField(max_length=255, default='None')

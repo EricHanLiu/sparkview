@@ -2,10 +2,11 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.clients, name='clients'),
-    url(r'^team$', views.clients_team, name='clients_team'),
-    url(r'^all$', views.clients_all, name='clients_all'),
-    url(r'^new$', views.clients_new, name='clients_new'),
-    url(r'^(\d*)/edit$', views.clients_edit, name='clients_edit'),
-    url(r'^(\d*)$', views.clients_single, name='clients_single')
+    url(r'^$', views.accounts, name='accounts'),
+    url(r'^team$', views.accounts_team, name='accounts_team'),
+    url(r'^accounts/all$', views.accounts_all, name='accounts_all'),
+    url(r'^accounts/new$', views.account_new, name='account_new'),
+    url(r'^accounts/(\d*)/edit$', views.account_edit, name='account_edit'),
+    url(r'^accounts/(\d*)$', views.account_single, name='account_single'),
+    url(r'^accounts/assign_members$', views.account_assign_members, name='account_assign_members')
 ]

@@ -4,11 +4,15 @@ from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
-
+from client_area.models import Service, Industry, Language, ClientType, ClientContact
 # Create your models here.
 
 
 class Client(models.Model):
+    """
+    This should really be called 'Account' based on Bloom's business logic
+    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
+    """
 
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
@@ -28,9 +32,39 @@ class Client(models.Model):
     fb_budget = models.FloatField(default=0)
 
     # The following attributes are for the client management implementation
-    team = models.ManyToManyField(Team, blank=True, related_name='team')
+    team        = models.ManyToManyField(Team, blank=True, related_name='team')
+    industry    = models.ForeignKey(Industry, null=True, related_name='industry')
+    language    = models.ManyToManyField(Language, related_name='language')
+    contactInfo = models.ManyToManyField(ClientContact, related_name='client_contact')
+    clientType  = models.ForeignKey(ClientType, null=True, related_name='client_type')
+    tier        = models.IntegerField(default=1)
+    soldBy      = models.ForeignKey(Member, null=True, related_name='sold_by')
+    # maybe do services another way?
+    services    = models.ManyToManyField(Service, blank=True, related_name='services')
+    status      = models.IntegerField(default=0)
+    clientGrade = models.IntegerField(default=0)
+    actualHours = models.IntegerField(default=0)
 
+     # Member attributes (we'll see if there's a better way to do this)
+    cm1    = models.ForeignKey(Member, blank=True, null=True, related_name='cm1')
+    cm2    = models.ForeignKey(Member, blank=True, null=True, related_name='cm2')
+    cm3    = models.ForeignKey(Member, blank=True, null=True, related_name='cm3')
+    cmb    = models.ForeignKey(Member, blank=True, null=True, related_name='cmb')
 
+    am1    = models.ForeignKey(Member, blank=True, null=True, related_name='am1')
+    am2    = models.ForeignKey(Member, blank=True, null=True, related_name='am2')
+    am3    = models.ForeignKey(Member, blank=True, null=True, related_name='am3')
+    amb    = models.ForeignKey(Member, blank=True, null=True, related_name='amb')
+
+    seo1   = models.ForeignKey(Member, blank=True, null=True, related_name='seo1')
+    seo2   = models.ForeignKey(Member, blank=True, null=True, related_name='seo2')
+    seo3   = models.ForeignKey(Member, blank=True, null=True, related_name='seo3')
+    seob   = models.ForeignKey(Member, blank=True, null=True, related_name='seob')
+
+    strat1 = models.ForeignKey(Member, blank=True, null=True, related_name='strat1')
+    strat2 = models.ForeignKey(Member, blank=True, null=True, related_name='strat2')
+    strat3 = models.ForeignKey(Member, blank=True, null=True, related_name='strat3')
+    stratb = models.ForeignKey(Member, blank=True, null=True, related_name='stratb')
 
     def __str__(self):
         return self.client_name

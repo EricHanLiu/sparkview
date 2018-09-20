@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                {{ account.client_name }}
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% if request.user.is_staff %}
+          <a href="/clients/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
+          {% endif %}
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label>Contact Name:</label>
+                {% for clientContact in account.contactInfo.all %}
+                <input type="text" class="form-control m-input" value="{{ clientContact.name }}" disabled>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label>Contact Email:</label>
+                {% for clientContact in account.contactInfo.all %}
+                <input type="text" class="form-control m-input" value="{{ clientContact.email }}" disabled>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="team">Team:</label>
+                {% for team in account.team.all %}
+                <input type="text" class="form-control m-input" value="{{ team.name }}" disabled>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="role">Industry:</label>
+                <input type="text" class="form-control m-input" value="{{ account.industry.name }}" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-8">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                Budget Information
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="row m-row--no-padding m-row--col-separator-xl">
+            <div class="col-md-12 col-lg-12 col-xl-6">
+              <div class="m-widget1">
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Total Budget</h3>
+                      <span class="m-widget1__desc">Total monthy budget</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-brand">${{ account.budget }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Spend This Month</h3>
+                      <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-danger">$1,800</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Budget Remaining</h3>
+                      <span class="m-widget1__desc">Left to spend this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-success">$495</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12 col-lg-12 col-xl-6">
+              <div class="m-widget1">
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Client Status</h3>
+                      <span class="m-widget1__desc">Status of the client</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-accent">{{ account.status }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Client Type</h3>
+                      <span class="m-widget1__desc"></span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-info">{{ account.clientType.name }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Grade</h3>
+                      <span class="m-widget1__desc"></span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-warning">{{ account.clientGrade }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <hr />
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_total_percentage">Total Percentage:</label>
+                <input type="text" class="form-control m-input"value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_learning_percentage">Learning Percentage:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_trainers_percentage">Trainers Percentage:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_sales_percentage">Sales Percentage:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                Assigned Members
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% if request.user.is_staff %}
+          <div class="row">
+              <button type="button" class="btn btn-info m-btn add-client"
+                      data-toggle="modal"
+                      data-target="#m_assign_members"> Assign Members to {{ account.client_name }}
+              </button>
+          </div>
+          <hr />
+          {% endif %}
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label>AM:</label>
+                <input type="text" class="form-control m-input"value="{{ account.am1.first_name }} {{ account.am1.last_name }}" disabled>
+              </div>
+              <div class="col-md-3">
+                <label>AM2:</label>
+                <input type="text" class="form-control m-input" value="{{ account.am2.first_name }} {{ account.am2.last_name }}" disabled>
+              </div>
+              <div class="col-md-3">
+                <label>AM3:</label>
+                <input type="text" class="form-control m-input" value="{{ account.am3.first_name }} {{ account.am3.last_name }}" disabled>
+              </div>
+              <div class="col-md-3">
+                <label>AM Backup:</label>
+                <input type="text" class="form-control m-input" value="{{ account.amb.first_name }} {{ account.amb.last_name }}" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_total_percentage">CM:</label>
+                <input type="text" class="form-control m-input"value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_learning_percentage">CM2:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_trainers_percentage">CM3:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_sales_percentage">CM Backup:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_total_percentage">Strat:</label>
+                <input type="text" class="form-control m-input"value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_learning_percentage">Strat 2:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_trainers_percentage">Strat 3:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_sales_percentage">Strat Backup:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-3">
+                <label for="buffer_total_percentage">SEO:</label>
+                <input type="text" class="form-control m-input"value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_learning_percentage">SEO2:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_trainers_percentage">SEO3:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+              <div class="col-md-3">
+                <label for="buffer_sales_percentage">SEO Backup:</label>
+                <input type="text" class="form-control m-input" value="%" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::Main Portlet-->
+</div>
+
+<!-- Begin add skill modal -->
+<div class="modal fade" id="m_assign_members" tabindex="-1" role="dialog" aria-labelledby="m_assign_members">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Assign Members to {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/assign_members" id="m_form_assign_members">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>AM:</label>
+                        <select class="form-control m-input"
+                                name="am1-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>AM2:</label>
+                        <select class="form-control m-input"
+                                name="am2-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>AM3:</label>
+                        <select class="form-control m-input"
+                                name="am3-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>AM Backup:</label>
+                        <select class="form-control m-input"
+                                name="amb-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="buffer_total_percentage">CM:</label>
+                        <select class="form-control m-input"
+                                name="cm1-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="buffer_learning_percentage">CM2:</label>
+                        <select class="form-control m-input"
+                                name="cm2-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="buffer_trainers_percentage">CM3:</label>
+                        <select class="form-control m-input"
+                                name="cm3-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="buffer_sales_percentage">CM Backup:</label>
+                        <select class="form-control m-input"
+                                name="cmb-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>Strat:</label>
+                        <select class="form-control m-input"
+                                name="strat1-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Strat 2:</label>
+                        <select class="form-control m-input"
+                                name="strat2-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Strat 3:</label>
+                        <select class="form-control m-input"
+                                name="strat3-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Strat Backup:</label>
+                        <select class="form-control m-input"
+                                name="stratb-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>SEO:</label>
+                        <select class="form-control m-input"
+                                name="seo1-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>SEO2:</label>
+                        <select class="form-control m-input"
+                                name="seo2-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>SEO3:</label>
+                        <select class="form-control m-input"
+                                name="seo3-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>SEO Backup:</label>
+                        <select class="form-control m-input"
+                                name="seob-assign"
+                                style="width: 100%;">
+                                <option value="0" selected>
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Submit" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End add skill modal -->
+
+{% endblock %}

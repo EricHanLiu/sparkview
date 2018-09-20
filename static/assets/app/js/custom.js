@@ -104,6 +104,16 @@ $(document).ready(function () {
       "bAutoWidth": false
     });
 
+    $("#all_clients_datatable").DataTable({
+      //'scrollX' : true,
+      // 'ordering': false,
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false
+    });
+
     $("#my_clients_datatable").DataTable({
         // 'scrollX' : true,
         'ordering': false

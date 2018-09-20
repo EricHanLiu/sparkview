@@ -9,7 +9,7 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-4">
-      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
@@ -20,7 +20,6 @@
 
           </div>
         </div>
-        <hr />
         <div class="m-portlet__body">
           {% if request.user.is_staff %}
           <a href="/user_management/members/{{ member.id }}/edit">Edit {{ member.user.first_name }} {{ member.user.last_name }}</a>
@@ -58,7 +57,7 @@
       </div>
     </div>
     <div class="col-xl-8">
-      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
@@ -68,7 +67,6 @@
             </div>
           </div>
         </div>
-        <hr />
         <div class="m-portlet__body">
           <div class="m-portlet ">
             <div class="m-portlet__body  m-portlet__body--no-padding">
@@ -198,7 +196,7 @@
           </div>
         </div>
       </div>
-      <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
@@ -208,7 +206,6 @@
             </div>
           </div>
         </div>
-        <hr />
         <div class="m-portlet__body">
           <canvas id="myChart" width="400" height="200"></canvas>
         </div>
