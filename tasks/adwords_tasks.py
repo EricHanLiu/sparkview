@@ -52,14 +52,16 @@ def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
 
-def account_anomalies(account_id, helper, daterange1):
+def account_anomalies(account_id, helper, daterange1, daterange2):
     current_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
-        extra_fields=["SearchImpressionShare"], **daterange1
+        extra_fields=["SearchImpressionShare"],
+        **daterange1
     )
 
     previous_period_performance = helper.get_account_performance(
-        customer_id=account_id, dateRangeType="LAST_MONTH",
+        customer_id=account_id, dateRangeType="CUSTOM_DATE",
+        **daterange2
     )
 
     # Returns dict of metrics the following:
@@ -109,10 +111,13 @@ def adwords_cron_anomalies(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
+    today = datetime.today()
+    last_month = today - relativedelta(months=1)
+
     current_period_daterange = helper.get_this_month_daterange()
-    maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
-    previous_period_daterange = helper.get_daterange(
-        days=6, maxDate=maxDate
+    previous_period_daterange = helper.create_daterange(
+        minDate=last_month.replace(day=1),
+        maxDate=last_month.replace(day=calendar.monthrange(today.year, last_month.month)[1])
     )
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -121,6 +126,7 @@ def adwords_cron_anomalies(self, customer_id):
         account.dependent_account_id,
         helper,
         current_period_daterange,
+        previous_period_daterange
     )
 
     cmp_anomalies = campaign_anomalies(
@@ -177,6 +183,28 @@ def adwords_cron_anomalies(self, customer_id):
             cpc=helper.mcv(cmp["avg._cpc"][0]),
             metadata=json.dumps(metadata_cmp)
         )
+
+@celery_app.task(bind=True)
+def adwords_cron_account_anomalies(self, customer_id, dataset):
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    current_period_daterange = helper.create_daterange()
+    previous_period_daterange = helper.create_daterange()
+
+    account = DependentAccount.objects.get(dependent_account_id=customer_id)
+
+    acc_anomalies = account_anomalies(
+        account.dependent_account_id,
+        helper,
+        current_period_daterange,
+    )
+
+@celery_app.task(bind=True)
+def test_task(self):
+
+    return {"test":"SUCCESSFULL"}
+
 
 
 @celery_app.task(bind=True)
