@@ -105,13 +105,12 @@ WSGI_APPLICATION = 'bloom.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'psql',
+        'NAME': os.environ.get('PSQL_NAME', 'postgres'),
+        'USER': os.environ.get('PSQL_USER', 'postgres'),
+        'HOST': os.environ.get('PSQL_HOST', 'psql'),
         'PORT': 5432,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -332,10 +331,15 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
 
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     )
+
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
