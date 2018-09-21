@@ -98,12 +98,23 @@ $(document).ready(function () {
     });
 
     $("#training_datatable").DataTable({
+      "scrollX": true,
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
       "bInfo": false,
       "bAutoWidth": false
     });
+
+    $("#my_skills_datatable").DataTable({
+      "ordering": false,
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": false,
+      "bInfo": false,
+      "bAutoWidth": false
+    });
+
 
     $("#all_clients_datatable").DataTable({
       "bPaginate": false,
@@ -114,6 +125,14 @@ $(document).ready(function () {
     });
 
     $("#my_clients_datatable").DataTable({
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false
+    });
+
+    $("#team_clients_datatable").DataTable({
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,

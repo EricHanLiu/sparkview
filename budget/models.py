@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
+from django.db.models import Sum
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
-from client_area.models import Service, Industry, Language, ClientType, ClientContact
+from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord
+import datetime
 # Create your models here.
 
 
@@ -77,6 +79,17 @@ class Client(models.Model):
     strat2 = models.ForeignKey(Member, blank=True, null=True, related_name='strat2')
     strat3 = models.ForeignKey(Member, blank=True, null=True, related_name='strat3')
     stratb = models.ForeignKey(Member, blank=True, null=True, related_name='stratb')
+
+    def getHoursWorkedThisMonth(self):
+        now   = datetime.datetime.now()
+        month = now.month
+        year  = now.year
+        return AccountHourRecord.objects.filter(account=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+
+    hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
+
+    def getHoursRemainingThisMonth(self):
+        return self.hoursWorkedThisMonth
 
     def __str__(self):
         return self.client_name

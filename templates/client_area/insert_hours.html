@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Temporary Hour Insert Page
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" id="form_insert_hours">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label>Account:</label>
+                    <select class="form-control m-input"
+                            name="account_id"
+                            style="width: 100%;" required>
+                        {% for account in accounts %}
+                            <option value="{{ account.id }}">{{ account.client_name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label>Hours:</label>
+                    <input type="text" name="hours"
+                    class="form-control m-input">
+                  </div>
+                  <div class="col-md-3">
+                    <label>Month:</label>
+                    <select class="form-control m-input"
+                            name="month"
+                            style="width: 100%;" required>
+                        {% for monthNum, monthName in months %}
+                            <option value="{{ monthNum }}">{{ monthName }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="year">Year:</label>
+                    <select class="form-control m-input"
+                            name="year"
+                            style="width: 100%;" required>
+                        {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <input type="submit" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

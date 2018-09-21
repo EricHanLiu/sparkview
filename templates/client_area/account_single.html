@@ -55,6 +55,20 @@
           </div>
         </div>
       </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Hours This Month 
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+
+        </div>
+      </div>
     </div>
     <div class="col-xl-8">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -122,22 +136,22 @@
                 <div class="m-widget1__item">
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
-                      <h3 class="m-widget1__title">Client Type</h3>
+                      <h3 class="m-widget1__title">Hours Worked This Month</h3>
                       <span class="m-widget1__desc"></span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-info">{{ account.clientType.name }}</span>
+                      <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth }}</span>
                     </div>
                   </div>
                 </div>
                 <div class="m-widget1__item">
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
-                      <h3 class="m-widget1__title">Grade</h3>
+                      <h3 class="m-widget1__title">Hours Remaining This Month</h3>
                       <span class="m-widget1__desc"></span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-warning">{{ account.clientGrade }}</span>
+                      <span class="m-widget1__number m--font-warning">23.0</span>
                     </div>
                   </div>
                 </div>
@@ -210,19 +224,19 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">Strat:</label>
-                <input type="text" class="form-control m-input"value="{{ account.seo1.user.first_name }} {{ account.seo1.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.strat1.user.first_name }} {{ account.strat1.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">Strat 2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seo2.user.first_name }} {{ account.seo2.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.strat2.user.first_name }} {{ account.strat2.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">Strat 3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seo3.user.first_name }} {{ account.seo3.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.strat3.user.first_name }} {{ account.strat3.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">Strat Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seob.user.first_name }} {{ account.seob.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.stratb.user.first_name }} {{ account.stratb.user.last_name }}" disabled>
               </div>
             </div>
           </div>
@@ -230,19 +244,19 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">SEO:</label>
-                <input type="text" class="form-control m-input"value="{{ account.strat1.user.first_name }} {{ account.strat1.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.seo1.user.first_name }} {{ account.seo1.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">SEO2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.strat2.user.first_name }} {{ account.strat2.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seo2.user.first_name }} {{ account.seo2.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">SEO3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.strat3.user.first_name }} {{ account.strat3.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seo3.user.first_name }} {{ account.seo3.user.last_name }}" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">SEO Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.stratb.user.first_name }} {{ account.stratb.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seob.user.first_name }} {{ account.seob.user.last_name }}" disabled>
               </div>
             </div>
           </div>

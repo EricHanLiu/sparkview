@@ -114,9 +114,13 @@ class Member(models.Model):
     def getSkills(self):
         return SkillEntry.objects.filter(member=self).order_by('skill')
 
+    def onAllTeams(self):
+        return (self.team.all().count() == Team.objects.all().count())
+
     incidents          = property(countIncidents)
     mostRecentIncident = property(getMostRecentIncident)
     skills             = property(getSkills)
+    onAllTeams         = property(onAllTeams)
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
