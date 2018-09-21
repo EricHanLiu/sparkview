@@ -44,7 +44,6 @@ td {
       			</div>
       		</div>
         </div>
-        <hr />
         <div class="m-portlet__body">
           <div class="row">
               <button type="button" class="btn btn-info m-btn add-client"
@@ -69,12 +68,6 @@ td {
                         {{ skillEntry.skill.name }}
                       </th>
                       {% endfor %}
-                      <th>
-                        Last Skill Check
-                      </th>
-                      <th>
-                        Last Language Check
-                      </th>
                     </tr>
                   </thead>
 
@@ -97,12 +90,6 @@ td {
                         <span class="m-badge m-badge--{{ scoreBadges|get_item_from_list:memberSkill.score }}"></span>
                       </td>
                       {% endfor %}
-                      <td>
-                        {{ member.last_skill_check }}
-                      </td>
-                      <td>
-                        {{ member.last_language_check }}
-                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>

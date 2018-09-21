@@ -1,4 +1,5 @@
 from django.db import models
+import calendar
 
 from user_management.models import Member
 
@@ -41,3 +42,13 @@ class ClientType(models.Model):
 class ClientContact(models.Model):
      name  = models.CharField(max_length=255, default='None')
      email = models.EmailField(max_length=255, default='None')
+
+
+class AccountHourRecord(models.Model):
+    MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+
+    member  = models.ForeignKey(Member, blank=True, null=True, related_name='member')
+    account = models.ForeignKey('budget.Client', blank=True, null=True, related_name='client')
+    hours   = models.FloatField(default=0)
+    month   = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
+    year    = models.PositiveSmallIntegerField(blank=True, null=True)

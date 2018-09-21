@@ -30,11 +30,14 @@ def profile(request):
                   Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
               )
 
+    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+
     context = {
         'member'       : member,
         'incidents'    : incidents,
         'memberSkills' : memberSkills,
-        'accounts'     : accounts
+        'accounts'     : accounts,
+        'scoreBadges'  : scoreBadges
     }
 
     return render(request, 'user_management/profile.html', context)
@@ -171,6 +174,9 @@ def new_member(request):
             last_language_check=Now()
         )
 
+        # Set role
+        member.role = role
+
         # Set Teams
         member.team.set(teams)
         member.save()
@@ -179,7 +185,7 @@ def new_member(request):
         skills = Skill.objects.all()
 
         for skill in skills:
-            skillValue = request.POST.get(skill.name)
+            skillValue = request.POST.get('skill_' + skill.name)
             if skillValue == None:
                 skillValue = 0
 
@@ -328,9 +334,12 @@ def members_single(request, id):
     member = Member.objects.get(id=id)
     memberSkills = SkillEntry.objects.filter(member=member)
 
+    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+
     context = {
         'member'       : member,
-        'memberSkills' : memberSkills
+        'memberSkills' : memberSkills,
+        'scoreBadges'  : scoreBadges
     }
 
     return render(request, 'user_management/profile.html', context)

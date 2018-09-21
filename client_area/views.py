@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.db.models import Q
+import calendar
 
 from budget.models import Client
 from user_management.models import Member, Team
-from .models import ClientType, Industry, Language, Service, ClientContact
+from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord
 from .forms import NewClientForm
 
 
@@ -29,7 +30,18 @@ def accounts(request):
 
 @login_required
 def accounts_team(request):
-    pass
+    member   = Member.objects.get(user=request.user)
+    teams    = member.team
+
+    accounts = Client.objects.filter(team=teams.all())
+
+    context = {
+        'member'   : member,
+        'teams'    : teams,
+        'accounts' : accounts
+    }
+
+    return render(request, 'client_area/accounts_team.html', context)
 
 
 @login_required
@@ -118,7 +130,7 @@ def account_new(request):
             contacts = [contactInfo]
             client.contactInfo.set(contacts)
 
-            return redirect('/accounts/all')
+            return redirect('/clients/accounts/all')
         else:
             return HttpResponse('Invalid form entries')
     else:
@@ -283,3 +295,39 @@ def account_assign_members(request):
     print(account.am1.user.first_name)
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def add_hours_to_account(request):
+    if (request.method == 'GET'):
+        member   = Member.objects.get(user=request.user)
+        accounts = Client.objects.filter(
+                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
+                      Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
+                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
+                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+                  )
+
+        months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+        years  = [2018, 2019]
+
+        context = {
+            'member'   : member,
+            'accounts' : accounts,
+            'months'   : months,
+            'years'    : years
+        }
+
+        return render(request, 'client_area/insert_hours.html', context)
+
+    elif (request.method == 'POST'):
+        account_id = request.POST.get('account_id')
+        account    = Client.objects.get(id=account_id)
+        member     = Member.objects.get(user=request.user)
+        hours      = request.POST.get('hours')
+        month      = request.POST.get('month')
+        year       = request.POST.get('year')
+
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+
+        return redirect('/user_management/profile')
