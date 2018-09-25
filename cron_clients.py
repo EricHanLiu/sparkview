@@ -89,6 +89,8 @@ def main():
         client.save()
 
         adwords = client.adwords.all()
+        if adwords:
+            client.currency = client.adwords.all()[0].currency
         if len(adwords) > 0:
 
             for a in adwords:

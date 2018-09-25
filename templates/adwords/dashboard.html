@@ -1,4 +1,4 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% load humanize %} {% block content %}
 
     <div class="m-content">
         <div class="row">
@@ -49,14 +49,14 @@
                                         </div>
                                     </td>
                                     <td>
-                                        {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
+                                        {{ item.account.estimated_spend|get_ovu:item.account.desired_spend }}%
                                     </td>
                                     <td>
                                         {% with sis=item.metadata.vals|get_dict_value:"search_impr._share" %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ sis.1 }}</b></p>
+                                                {{ sis.1|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ sis.2 }}</small>
+                                                <small>{{ sis.2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -67,7 +67,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ sis.0|floatformat:2|cut:"-" }}%
+                                                {{ sis.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -75,9 +75,9 @@
                                     <td>
                                         {% with impr=item.metadata.vals|get_dict_value:"impressions" %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ impr.1 }}</b></p>
+                                                {{ impr.1|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ impr.2 }}</small>
+                                                <small>{{ impr.2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -88,7 +88,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ impr.0|floatformat:2|cut:"-" }}%
+                                                {{ impr.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -96,9 +96,9 @@
                                     <td>
                                         {% with clicks=item.metadata.vals|get_dict_value:"clicks" %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ clicks.1 }}</b></p>
+                                                {{ clicks.1|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ clicks.2 }}</small>
+                                                <small>{{ clicks.2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -109,7 +109,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ clicks.0|floatformat:2|cut:"-" }}%
+                                                {{ clicks.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -117,9 +117,9 @@
                                     <td>
                                         {% with ctr=item.metadata.vals|get_dict_value:"ctr" %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ ctr.1 }}</b></p>
+                                                {{ ctr.1|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ ctr.2 }}</small>
+                                                <small>{{ ctr.2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -130,7 +130,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ ctr.0|floatformat:2|cut:"-" }}%
+                                                {{ ctr.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -138,9 +138,9 @@
                                     <td>
                                         {% with ccpc=item.metadata.vals|get_dict_value:"avg._cpc" account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ ccpc.1|mcv|floatformat:2 }}</b></p>
+                                                {{ account.currency }}{{ ccpc.1|mcv|floatformat:2|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ account.currency }}{{ ccpc.2|mcv|floatformat:2 }}</small>
+                                                <small>{{ account.currency }}{{ ccpc.2|mcv|floatformat:2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -151,7 +151,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ ccpc.0|floatformat:2|cut:"-" }}%
+                                                {{ ccpc.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -159,9 +159,9 @@
                                     <td>
                                         {% with ccost=item.metadata.vals|get_dict_value:"cost" account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ ccost.1|mcv|floatformat:2 }}</b></p>
+                                                {{ account.currency }}{{ ccost.1|mcv|floatformat:2|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ account.currency }}{{ ccost.2|mcv|floatformat:2 }}</small>
+                                                <small>{{ account.currency }}{{ ccost.2|mcv|floatformat:2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -172,7 +172,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ ccost.0|floatformat:2|cut:"-" }}%
+                                                {{ ccost.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -180,20 +180,20 @@
                                     <td>
                                         {% with convs=item.metadata.vals|get_dict_value:"conversions" %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ convs.1 }}</b></p>
+                                                {{ convs.1|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ convs.2 }}</small>
+                                                <small>{{ convs.2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
                                                     {% if convs.0 < 0 %}
                                                         m-badge--danger
-                                                    {% elif ctr.0 == 0 %}
+                                                    {% elif convs.0 == 0 %}
                                                         m-badge--metal
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ convs.0|floatformat:2|cut:"-" }}%
+                                                {{ convs.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -201,9 +201,9 @@
                                     <td>
                                         {% with cpconv=item.metadata.vals|get_dict_value:"cost_/_conv." account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ cpconv.1|mcv|floatformat:2 }}</b></p>
+                                                {{ account.currency }}{{ cpconv.1|mcv|floatformat:2|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ account.currency }}{{ cpconv.2|mcv|floatformat:2 }}</small>
+                                                <small>{{ account.currency }}{{ cpconv.2|mcv|floatformat:2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -214,7 +214,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ cpconv.0|floatformat:2|cut:"-" }}%
+                                                {{ cpconv.0|floatformat:2|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}

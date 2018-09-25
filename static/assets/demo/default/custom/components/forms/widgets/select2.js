@@ -102,7 +102,10 @@ var Select2 = function () {
                             pageLength: 25,
                             aaData: data.table,
                             aoColumns: columns(data),
-                            aaSorting: [[1, "asc"]]
+                            aaSorting: [[1, "asc"]],
+                            language: {
+                                sSearch: '<i class="fa fa-search"></i>',
+                            }
                         });
                     } else {
                         table.DataTable({
@@ -111,6 +114,9 @@ var Select2 = function () {
                             aaData: data.table,
                             aoColumns: columns(data),
                             aaSorting: [[1, "asc"]],
+                            language: {
+                                sSearch: '<i class="fa fa-search"></i>',
+                            }
                         });
                     }
                 }

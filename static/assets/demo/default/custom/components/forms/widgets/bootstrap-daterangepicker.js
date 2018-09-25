@@ -178,7 +178,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -189,8 +189,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'impressions',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + data[1] + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + data[2] + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -201,7 +201,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -212,8 +212,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'clicks',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + data[1] + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + data[2] + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -224,7 +224,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -247,7 +247,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -258,8 +258,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'avg_cpc',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + (data[1] / 1000000).toFixed(3) + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + (data[2] / 1000000).toFixed(3) + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber((data[1] / 1000000), 3) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber((data[2] / 1000000), 3) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -281,8 +281,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'cost',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + (data[1] / 1000000).toFixed(2) + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + (data[2] / 1000000).toFixed(2) + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber((data[1] / 1000000), 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber((data[2] / 1000000), 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -293,7 +293,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -304,8 +304,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'conversions',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + data[1] + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + data[2] + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -316,7 +316,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -327,8 +327,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'cost__conv',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + (data[1] / 1000000) + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + (data[2] / 1000000) + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber((data[1] / 1000000), 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber((data[2] / 1000000), 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -339,7 +339,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -347,6 +347,9 @@ var BootstrapDaterangepicker = {
                                             }
                                         }
                                     ],
+                                    language: {
+                                        sSearch: '<i class="fa fa-search"></i>',
+                                    }
                                 });
                             } else {
                                 table_wrapper.append('<table class="table table-striped m-table" id="adwords_anomalies_datatable">' +
@@ -398,7 +401,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -409,8 +412,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'impressions',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + data[1] + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + data[2] + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -421,7 +424,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -432,8 +435,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'clicks',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + data[1] + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + data[2] + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -444,7 +447,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -467,7 +470,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -478,8 +481,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'avg_cpc',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + (data[1] / 1000000).toFixed(3) + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + (data[2] / 1000000).toFixed(3) + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber((data[1] / 1000000), 3) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber((data[2] / 1000000), 3) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -501,8 +504,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'cost',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + (data[1] / 1000000).toFixed(2) + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + (data[2] / 1000000).toFixed(2) + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber((data[1] / 1000000), 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber((data[2] / 1000000), 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -513,7 +516,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -524,8 +527,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'conversions',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + data[1] + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + data[2] + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -536,7 +539,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -547,8 +550,8 @@ var BootstrapDaterangepicker = {
                                             'data': 'cost__conv',
                                             "render": function (data, type, row, meta) {
                                                 if (type === 'display') {
-                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + (data[1] / 1000000) + '</b></p>' +
-                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + (data[2] / 1000000) + '</small>' +
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber((data[1] / 1000000), 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber((data[2] / 1000000), 2) + '</small>' +
                                                         '<p style="margin-bottom: 0!important;" class="text-center">';
 
                                                     if (data[0] > 0) {
@@ -559,7 +562,7 @@ var BootstrapDaterangepicker = {
                                                         var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
                                                     }
 
-                                                    rdata = rdata + badge + data[0].toFixed(2) + '%</span></p>';
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
                                                 }
@@ -567,6 +570,9 @@ var BootstrapDaterangepicker = {
                                             }
                                         }
                                     ],
+                                    language: {
+                                        sSearch: '<i class="fa fa-search"></i>',
+                                    }
                                 });
                                 // console.log('Finished');
                             }

@@ -1,4 +1,4 @@
-<!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% block view_client_block %}
+<!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% load humanize %} {% block view_client_block %}
 
 
     {% csrf_token %}
@@ -42,7 +42,7 @@
                                         <b>Global Target Spend</b>:
                                         <span></span>
                                     </label>
-                                    <span id="gts_{{ client_data.id }}">{{ client_data.target_spend }}</span>
+                                    <span id="gts_{{ client_data.id }}">{{ client_data.target_spend|intcomma }}</span>
                                     <span class="fa fa-pencil-square"
                                           data-clientid="{{ client_data.id }}"
                                           data-target_spend="{{ client_data.target_spend }}"
@@ -57,10 +57,10 @@
                                         <b>Budget</b>:
                                         <span></span>
                                     </label>
-                                    <span id="m_budget_value">{{ client_data.budget }}</span>
+                                    <span id="m_budget_value">{{ client_data.budget|intcomma }}</span>
                                 </div>
                                 <div class="col-md-2">
-                                    <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend|floatformat:2 }}
+                                    <span class="m--font-boldest2">Monthly Up-to-Date Spend</span>: {{ client_data.current_spend|floatformat:2|intcomma }}
                                 </div>
                                 <div class="col-md-2">
                                     <span class="m--font-boldest2">Cycle progress</span>: {{ today }}
@@ -76,28 +76,28 @@
                                 <div class="col-md-3">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
                                     <b>Total Current spend</b>:
-                                    {{ client_data.aw_spend|addf:client_data.bing_spend|addf:client_data.fb_spend|floatformat:2 }}
+                                    {{ client_data.aw_spend|addf:client_data.bing_spend|addf:client_data.fb_spend|floatformat:2|intcomma }}
                                 </div>
                                 <div class="col-md-2">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
                                     <b>Total Projected Spend EOM</b>:
-                                    {{ client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected|floatformat:2 }}
+                                    {{ client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected|floatformat:2|intcomma }}
 
                                 </div>
                                 <div class="col-md-2">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
                                     <b>Recommended Daily Spend</b>:
-                                    {{ client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds|floatformat:2 }}
+                                    {{ client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds|floatformat:2|intcomma }}
                                 </div>
                                 <div class="col-md-2">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
                                     <b>Avg. Daily Spend</b>:
-                                    {{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|floatformat:2 }}
+                                    {{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|floatformat:2|intcomma }}
                                 </div>
                                 <div class="col-md-3">
                                     <span class="m-badge m-badge--metal m-badge--dot"></span>
                                     <b>Total Yesterday Spend</b>:
-                                    {{ client_data.aw_yesterday|addf:client_data.bing_yesterday|addf:client_data.fb_yesterday|floatformat:2 }}
+                                    {{ client_data.aw_yesterday|addf:client_data.bing_yesterday|addf:client_data.fb_yesterday|floatformat:2|intcomma }}
                                 </div>
                             </div>
                             </p>
@@ -111,7 +111,7 @@
                                      data-toggle="m-tooltip" data-placement="top"
                                      title=""
                                      data-original-title="{{ client_data.current_spend }}/{{ client_data.target_spend }}">
-                                    {{ client_data.current_spend|div:client_data.target_spend }}%
+                                    {{ client_data.current_spend|div:client_data.target_spend|intcomma }}%
                                 </div>
                                 <div class="black-marker"
                                      style="width: {{ blackmarker }}%"
@@ -169,8 +169,8 @@
                                                         {% endif %}></i>
                                             </div>
                                             <div class="col-md-3">Group by: {{ gr.group_by }}</div>
-                                            <div class="col-md-2">Spend: {{ gr.current_spend }}</div>
-                                            <div class="col-md-2">Budget: {{ gr.budget }}</div>
+                                            <div class="col-md-2">Spend: {{ gr.current_spend|intcomma }}</div>
+                                            <div class="col-md-2">Budget: {{ gr.budget|intcomma }}</div>
                                         </div>
                                         {% if gr.start_date %}
                                             <div class="row">
@@ -198,7 +198,8 @@
                                                     {% if gr.start_date %}
                                                         <p>{{ cmp.campaign_name }}</p>
                                                     {% else %}
-                                                        <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                        <p>{{ cmp.campaign_name }}
+                                                            - {{ cmp.campaign_cost|intcomma }}</p>
                                                     {% endif %}
                                                 {% endfor %}
                                             {% elif gr.bing_campaigns.all %}
@@ -206,7 +207,8 @@
                                                     {% if gr.start_date %}
                                                         <p>{{ cmp.campaign_name }}</p>
                                                     {% else %}
-                                                        <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                        <p>{{ cmp.campaign_name }}
+                                                            - {{ cmp.campaign_cost|intcomma }}</p>
                                                     {% endif %}
                                                 {% endfor %}
                                             {% elif gr.fb_campaigns.all %}
@@ -214,7 +216,8 @@
                                                     {% if gr.start_date %}
                                                         <p>{{ cmp.campaign_name }}</p>
                                                     {% else %}
-                                                        <p>{{ cmp.campaign_name }} - {{ cmp.campaign_cost }}</p>
+                                                        <p>{{ cmp.campaign_name }}
+                                                            - {{ cmp.campaign_cost|intcomma }}</p>
                                                     {% endif %}
                                                 {% endfor %}
                                             {% endif %}
@@ -241,7 +244,7 @@
                                 <div class="row text-center">
                                     <div class="col-md-2">
                                         <b>Budget</b>:
-                                        <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend }}</span>
+                                        <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend|floatformat:2|intcomma }}</span>
                                         <span class="fa fa-pencil-square fa-4x"
                                               data-toggle="modal"
                                               data-target="#m_edit_budget"
@@ -251,22 +254,22 @@
                                     </div>
                                     <div class="col-md-2">
                                         <b>Current Total Spend</b>:
-                                        {{ a.current_spend|floatformat:2 }}
+                                        {{ a.current_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Target Daily Spend
-                                        </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|floatformat:2 }}
+                                        </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
-                                        <b>Yesterday's Spend</b>: {{ a.yesterday_spend|floatformat:2 }}
+                                        <b>Yesterday's Spend</b>: {{ a.yesterday_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Current Daily Spend</b>:
-                                        {{ a.current_spend|daily_spend|floatformat:2 }}
+                                        {{ a.current_spend|daily_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Projected Spend EOM</b>:
-                                        {{ a.current_spend|projected:a.yesterday_spend|floatformat:2 }}
+                                        {{ a.current_spend|projected:a.yesterday_spend|floatformat:2|intcomma }}
                                     </div>
                                 </div>
                                 </p>
@@ -280,7 +283,7 @@
                                          data-toggle="m-tooltip" data-placement="top"
                                          title=""
                                          data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
-                                        {{ a.current_spend|div:a.desired_spend }}%
+                                        {{ a.current_spend|div:a.desired_spend|intcomma }}%
                                     </div>
                                     <div class="black-marker"
                                          style="width: {{ blackmarker }}%"
@@ -310,11 +313,11 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                                Current spend: {{ budget.spend }}
+                                                Current spend: {{ budget.spend|intcomma }}
                                             </div>
                                             <div class="col-md-2">
                                                 <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                                Target Spend: {{ budget.budget }}
+                                                Target Spend: {{ budget.budget|intcomma }}
                                             </div>
                                         </div>
                                         <div class="row" style="margin-top: 10px">
@@ -329,7 +332,7 @@
                                                          data-toggle="m-tooltip" data-placement="top"
                                                          title=""
                                                          data-original-title="{{ budget.spend }}/{{ budget.budget }}">
-                                                        {{ budget.spend|div:budget.budget }}%
+                                                        {{ budget.spend|div:budget.budget|intcomma }}%
                                                     </div>
                                                     <div class="black-marker"
                                                          style="width: {{ blackmarker }}%"
@@ -355,7 +358,7 @@
                                         <p>
                                         <div class="row">
                                             <div class="col-md-3">
-                                                <b>Spend</b>: {{ fbudget.current_spend }}
+                                                <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
                                                 <i class="fa fa-minus-circle" data-toggle="modal"
                                                    data-target="#m_delete_flight_date"
                                                    data-fbudgetid="{{ fbudget.id }}"></i>
@@ -367,9 +370,10 @@
                                                    data-budget="{{ fbudget.budget }}"
                                                    data-budgetid="{{ fbudget.id }}"></i>
                                             </div>
-                                            <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget }}</div>
-                                            <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date }}</div>
-                                            <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date }}</div>
+                                            <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget|intcomma }}</div>
+                                            <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date|intcomma }}
+                                            </div>
+                                            <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date|intcomma }}</div>
                                         </div>
                                         <div class="progress m-progress--lg">
                                             <div class="progress-bar
@@ -419,7 +423,7 @@
                                             Budget
                                         </b>:
                                         <span id="budget-{{ b.account_id }}">
-                                                                        {{ b.desired_spend }}
+                                                                        {{ b.desired_spend|intcomma }}
                                                                     </span>
                                         <span class="fa fa-pencil-square fa-4x"
                                               data-toggle="modal"
@@ -429,23 +433,23 @@
                                               data-budget="{{ b.desired_spend }}"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <b>Current Total Spend</b>: {{ b.current_spend|floatformat:2 }}
+                                        <b>Current Total Spend</b>: {{ b.current_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Target Daily
-                                            Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|floatformat:2 }}
+                                            Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
 
-                                        <b>Yesterday's spend</b>: {{ b.yesterday_spend }}
+                                        <b>Yesterday's spend</b>: {{ b.yesterday_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Current Daily Spend</b>:
-                                        {{ b.current_spend|daily_spend|floatformat:2 }}
+                                        {{ b.current_spend|daily_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Projected Spend EOM</b>:
-                                        {{ b.current_spend|projected:b.yesterday_spend|floatformat:2 }}
+                                        {{ b.current_spend|projected:b.yesterday_spend|floatformat:2|intcomma }}
                                     </div>
                                 </div>
                                 </p>
@@ -458,7 +462,7 @@
                                          data-toggle="m-tooltip" data-placement="top"
                                          title=""
                                          data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
-                                        {{ b.current_spend|div:b.desired_spend }}%
+                                        {{ b.current_spend|div:b.desired_spend|intcomma }}%
                                     </div>
                                     <div class="black-marker"
                                          style="width: {{ blackmarker }}%"
@@ -480,7 +484,7 @@
                                         <p>
                                         <div class="row">
                                             <div class="col-md-3">
-                                                <b>Spend</b>: {{ fbudget.current_spend }}
+                                                <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
                                                 <i class="fa fa-minus-circle" data-toggle="modal"
                                                    data-target="#m_delete_flight_date"
                                                    data-fbudgetid="{{ fbudget.id }}"></i>
@@ -492,7 +496,7 @@
                                                    data-budget="{{ fbudget.budget }}"
                                                    data-budgetid="{{ fbudget.id }}"></i>
                                             </div>
-                                            <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget }}</div>
+                                            <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget|intcomma }}</div>
                                             <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date }}</div>
                                             <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date }}</div>
                                         </div>
@@ -541,7 +545,7 @@
                                             Budget
                                         </b>:
                                         <span id="budget-{{ f.account_id }}">
-                                        {{ f.desired_spend }}
+                                        {{ f.desired_spend|floatformat:2|intcomma }}
                                     </span>
                                         <span class="fa fa-pencil-square fa-4x"
                                               data-toggle="modal"
@@ -551,23 +555,23 @@
                                               data-budget="{{ f.desired_spend }}"></span>
                                     </div>
                                     <div class="col-md-2">
-                                        <b>Current Total Spend</b>: {{ f.current_spend|floatformat:2 }}
+                                        <b>Current Total Spend</b>: {{ f.current_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Target Daily
-                                            Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|floatformat:2 }}
+                                            Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
 
-                                        <b>Yesterday's spend</b>: {{ f.yesterday_spend }}
+                                        <b>Yesterday's spend</b>: {{ f.yesterday_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Current Daily Spend</b>:
-                                        {{ f.current_spend|daily_spend|floatformat:2 }}
+                                        {{ f.current_spend|daily_spend|floatformat:2|intcomma }}
                                     </div>
                                     <div class="col-md-2">
                                         <b>Projected Spend EOM</b>:
-                                        {{ f.current_spend|projected:f.yesterday_spend|floatformat:2 }}
+                                        {{ f.current_spend|projected:f.yesterday_spend|floatformat:2|intcomma }}
                                     </div>
                                 </div>
                                 </p>
@@ -602,7 +606,7 @@
                                         <p>
                                         <div class="row">
                                             <div class="col-md-3">
-                                                <b>Spend</b>: {{ fbudget.current_spend }}
+                                                <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
                                                 <i class="fa fa-minus-circle" data-toggle="modal"
                                                    data-target="#m_delete_flight_date"
                                                    data-fbudgetid="{{ fbudget.id }}"></i>
@@ -614,7 +618,7 @@
                                                    data-budget="{{ fbudget.budget }}"
                                                    data-budgetid="{{ fbudget.id }}"></i>
                                             </div>
-                                            <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget }}</div>
+                                            <div class="col-md-3"><b>Budget</b>: {{ fbudget.budget|floatformat:2|intcomma }}</div>
                                             <div class="col-md-3"><b>Start date</b>: {{ fbudget.start_date }}</div>
                                             <div class="col-md-3"><b>End date</b>: {{ fbudget.end_date }}</div>
                                         </div>

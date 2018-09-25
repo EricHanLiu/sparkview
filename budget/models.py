@@ -44,6 +44,7 @@ class Client(models.Model):
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
+    currency = models.CharField(max_length=255, default='')
 
     # The following attributes are for the client management implementation
     team        = models.ManyToManyField(Team, blank=True, related_name='team')
