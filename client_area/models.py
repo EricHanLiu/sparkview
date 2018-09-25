@@ -8,7 +8,21 @@ class ParentClient(models.Model):
     """
     This is really what should be considered a client. It can have many accounts under it.
     """
-    pass
+    name = models.CharField(max_length=255, default='No name')
+
+    def __str__(self):
+        return self.name
+
+
+# Keep a changelog of changes to the client model
+# To complete later, not a priority
+class ClientChanges(models.Model):
+    client      = models.ForeignKey('budget.Client', blank=True, null=True)
+    member      = models.ForeignKey(Member, blank=True, null=True)
+    changeField = models.CharField(max_length=255, default='None')
+    changedFrom = models.CharField(max_length=255, default='None')
+    changedTo   = models.CharField(max_length=255, default='None')
+    datetime    = models.DateTimeField(auto_now_add=True)
 
 
 class Service(models.Model):

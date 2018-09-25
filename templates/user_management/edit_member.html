@@ -153,7 +153,7 @@
                           name="skill_{{ memberSkill.skill.name }}"
                           style="width: 100%;" required>
                       {% for skillOption in skillOptions %}
-                          <option value="{{ skillOption }}" {% if skillOption == memberSkill.score %}selected{% endif %}>{{ skillOption }}</option>
+                          <option value="{{ skillOption }}" {% if skillOption == memberSkill.score %}selected{% endif %}>                        <span class="m-badge m-badge--{{ scoreBadges|get_item_from_list:memberSkill.score }}" data-toggle="m-tooltip" data-original-title="{{ memberSkill.updated_at }}"></span>{{ skillOption }}</option>
                       {% endfor %}
                   </select>
                 </div>

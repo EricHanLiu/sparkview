@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 
 # Role at the company (example, Campaign Manager)
@@ -101,10 +102,6 @@ class Member(models.Model):
     buffer_buffer_percentage    = models.FloatField(null=True, blank=True, default=None)
     buffer_hours_available      = models.FloatField(null=True, blank=True, default=None)
 
-    # Last checks
-    last_skill_check    = models.DateTimeField(null=True, blank=True)
-    last_language_check = models.DateTimeField(null=True, blank=True)
-
     def countIncidents(self):
         return Incident.objects.filter(members = self).count()
 
@@ -117,10 +114,11 @@ class Member(models.Model):
     def onAllTeams(self):
         return (self.team.all().count() == Team.objects.all().count())
 
-    incidents          = property(countIncidents)
-    mostRecentIncident = property(getMostRecentIncident)
-    skills             = property(getSkills)
-    onAllTeams         = property(onAllTeams)
+    incidents            = property(countIncidents)
+    mostRecentIncident   = property(getMostRecentIncident)
+    skills               = property(getSkills)
+    onAllTeams           = property(onAllTeams)
+
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name

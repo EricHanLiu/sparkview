@@ -21,7 +21,7 @@
         </div>
         <div class="m-portlet__body">
           {% if request.user.is_staff %}
-          <a href="/clients/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
+          <a href="/clients/accounts/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
           {% endif %}
           <div class="form-group m-form__group">
             <div class="row">
@@ -60,7 +60,7 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                Hours This Month 
+                Hours This Month
               </h3>
             </div>
           </div>

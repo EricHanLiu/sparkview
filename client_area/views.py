@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.db.models import Q
@@ -6,7 +6,7 @@ import calendar
 
 from budget.models import Client
 from user_management.models import Member, Team
-from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord
+from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, ClientChanges
 from .forms import NewClientForm
 
 
@@ -14,15 +14,18 @@ from .forms import NewClientForm
 def accounts(request):
     member  = Member.objects.get(user=request.user)
     accounts = Client.objects.filter(
-                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
-                  Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
-                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
-                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+                  Q(am1=member) | Q(am2=member) | Q(am3=member) |
+                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
               )
 
+    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
+
     context = {
-        'member'   : member,
-        'accounts' : accounts
+        'member'         : member,
+        'backupAccounts' : backupAccounts,
+        'accounts'       : accounts
     }
 
     return render(request, 'client_area/accounts.html', context)
@@ -51,8 +54,11 @@ def accounts_all(request):
 
     accounts = Client.objects.all()
 
+    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+
     context = {
-        'accounts' : accounts
+        'scoreBadges' : scoreBadges,
+        'accounts'    : accounts
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -86,7 +92,6 @@ def account_new(request):
     elif (request.method == 'POST'):
         formData = {
             'client_name'   : request.POST.get('client_name'),
-            'budget'        : request.POST.get('budget'),
             'team'          : request.POST.get('team'),
             'client_type'   : request.POST.get('client_type'),
             'industry'      : request.POST.get('industry'),
@@ -97,7 +102,6 @@ def account_new(request):
             'sold_by'       : request.POST.get('sold_by'),
             'services'      : request.POST.get('services'),
             'status'        : request.POST.get('status'),
-            'client_grade'  : request.POST.get('client_grade'),
         }
 
         form = NewClientForm(formData)
@@ -139,13 +143,98 @@ def account_new(request):
 
 @login_required
 def account_edit(request, id):
-    account = Client.objects.get(id=id)
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
 
-    context = {
-        'account' : account
-    }
+    if (request.method == 'GET'):
+        account      = Client.objects.get(id=id)
+        teams        = Team.objects.all()
+        client_types = ClientType.objects.all()
+        industries   = Industry.objects.all()
+        languages    = Language.objects.all()
+        members      = Member.objects.all()
+        services     = Service.objects.all()
+        statuses     = Client._meta.get_field('status').choices
+        tiers        = [1, 2, 3]
 
-    return render(request, 'client_area/account_edit.html', context)
+        context = {
+            'account'      : account,
+            'teams'        : teams,
+            'client_types' : client_types,
+            'industries'   : industries,
+            'languages'    : languages,
+            'members'      : members,
+            'statuses'     : statuses,
+            'services'     : services,
+            'tiers'        : tiers
+        }
+
+        return render(request, 'client_area/account_edit.html', context)
+    elif (request.method == 'POST'):
+        client = get_object_or_404(Client, id=id)
+
+        member = Member.objects.get(user=request.user)
+
+        formData = {
+            'client_name'   : request.POST.get('client_name'),
+            'team'          : request.POST.get('team'),
+            'client_type'   : request.POST.get('client_type'),
+            'industry'      : request.POST.get('industry'),
+            'language'      : request.POST.get('language'),
+            'contact_email' : request.POST.get('contact_email'),
+            'contact_name'  : request.POST.get('contact_name'),
+            'sold_by'       : request.POST.get('sold_by'),
+            'services'      : request.POST.get('services'),
+            'status'        : request.POST.get('status'),
+        }
+
+        form = NewClientForm(formData)
+
+        if form.is_valid():
+            cleanedInputs = form.clean()
+
+            # Make a contact object
+            contactInfo = ClientContact(name=cleanedInputs['contact_name'], email=cleanedInputs['contact_email'])
+
+            # Bad boilerplate
+            # Change this eventually
+            if (client.client_name != cleanedInputs['client_name']):
+                ClientChanges.objects.create(client=client, member=member, changeField='client_name', changedFrom=client.client_name, changedTo=cleanedInputs['client_name'])
+                client.client_name = cleanedInputs['client_name']
+
+            if (client.clientType != cleanedInputs['client_type']):
+                ClientChanges.objects.create(client=client, member=member, changeField='client_type', changedFrom=client.clientType, changedTo=cleanedInputs['client_type'])
+                client.clientType = cleanedInputs['client_type']
+
+            if (client.industry != cleanedInputs['industry']):
+                ClientChanges.objects.create(client=client, member=member, changeField='industry', changedFrom=client.industry, changedTo=cleanedInputs['industry'])
+                client.industry = cleanedInputs['industry']
+
+            if (client.soldBy != cleanedInputs['sold_by']):
+                ClientChanges.objects.create(client=client, member=member, changeField='industry', changedFrom=client.soldBy, changedTo=cleanedInputs['sold_by'])
+                client.soldBy = cleanedInputs['sold_by']
+
+            contactInfo.save()
+
+            # set teams
+            teams = [cleanedInputs['team']]
+            client.team.set(teams)
+
+            # set languages
+            languages = [cleanedInputs['language']]
+            client.language.set(languages)
+
+            # set contact info
+            contacts = [contactInfo]
+            client.contactInfo.set(contacts)
+
+            client.save()
+
+            return redirect('/clients/accounts/all')
+        else:
+            return HttpResponse('Invalid form entries')
+    else:
+        return HttpResponse('You are at the wrong place')
 
 
 @login_required

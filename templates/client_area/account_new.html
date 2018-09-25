@@ -38,12 +38,14 @@
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="budget">Budget:</label>
-                    <input type="text" name="budget"
-                    class="form-control m-input">
-                    <span class="m-form__help">
-                      <p>Enter the budget in USD.</p>
-                    </span>
+                    <label for="industry">Industry:</label>
+                    <select class="form-control m-input"
+                            name="industry"
+                            style="width: 100%;">
+                            {% for industry in industries %}
+                                <option value="{{ industry.id }}">{{ industry.name }}</option>
+                            {% endfor %}
+                    </select>
                   </div>
                   <div class="col-md-6">
                     <label for="team">Team:</label>
@@ -145,33 +147,7 @@
                   </div>
                 </div>
               </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="client_grade">Client Grade:</label>
-                    <select class="form-control m-input"
-                            name="client_grade"
-                            style="width: 100%;">
-                            <option value="0">Grade 0</option>
-                            <option value="1">Grade 1</option>
-                            <option value="2">Grade 2</option>
-                            <option value="3">Grade 3</option>
-                            <option value="4">Grade 4</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                  <label for="industry">Industry:</label>
-                  <select class="form-control m-input"
-                          name="industry"
-                          style="width: 100%;">
-                          {% for industry in industries %}
-                              <option value="{{ industry.id }}">{{ industry.name }}</option>
-                          {% endfor %}
-                  </select>
-                </div>
-              </div>
-            </div>
-            <input type="submit" value="Submit">
+              <input type="submit" value="Submit">
             </div>
           </form>
         </div>

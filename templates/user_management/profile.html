@@ -27,7 +27,6 @@
                 {{ member.user.first_name }} {{ member.user.last_name }}
               </h3>
             </div>
-
           </div>
         </div>
         <div class="m-portlet__body">
@@ -38,7 +37,7 @@
             <label for="input_email">Email address:</label>
             <input type="email" class="form-control m-input" value="{{ member.user.email }}" disabled>
           </div>
-          <div class="m-form__group form-group">
+          <!-- <div class="m-form__group form-group">
             <label for="">Permissions:</label>
             <div class="m-checkbox-list">
               <label class="m-checkbox">
@@ -46,7 +45,7 @@
                 <span></span>
               </label>
             </div>
-          </div>
+          </div> -->
           <h3>Team and Role</h3>
           <hr />
           <div class="form-group m-form__group">
@@ -63,6 +62,49 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Hours This Month
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Account
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in hoursThisMonth %}
+                <tr>
+                  <td>
+                    {{ hourRow.account.client_name }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours }}
+                  </td>
+                  <td>
+                    {{ hourRow.get_month_display }}, {{ hourRow.year }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -156,45 +198,8 @@
               </div>
             </div>
           </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_total_percentage">Total Percentage:</label>
-                <input type="text" class="form-control m-input"value="{{ member.buffer_total_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_learning_percentage">Learning Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_learning_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_trainers_percentage">Trainers Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_trainers_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_sales_percentage">Sales Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_sales_percentage }}%" disabled>
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_planning_percentage">Planning Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_planning_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_internal_percentage">Internal Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_internal_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_seniority_percentage">Seniority Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_seniority_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_hours_available">Hours Available:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_hours_available }}" disabled>
-              </div>
-            </div>
+          <div class="row">
+            <canvas id="pieChart" style="width:400px; height:200px;"></canvas>
           </div>
         </div>
       </div>
@@ -233,6 +238,68 @@
             </thead>
             <tbody>
               {% for account in accounts %}
+              <tr>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  2
+                </td>
+                <td>
+                  <!-- Actual hours -->
+                  {{ account.hoursWorkedThisMonth }}
+                </td>
+                <td>
+                  <!-- Billed hours -->
+                  Coming Soon
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Backup Accounts
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_backup_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  My Actual Hours
+                </th>
+                <th>
+                  My Allocated Hours
+                </th>
+                <th>
+                  Total Actual Hours
+                </th>
+                <th>
+                  Total Allocated Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in backupAccounts %}
               <tr>
                 <td>
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
@@ -350,49 +417,80 @@
 
 {% block extraJs %}
 <script>
-var ctx = document.getElementById("myChart").getContext('2d');
-var myChart = new Chart(ctx, {
-  type: 'bar',
+var ctx = document.getElementById("pieChart").getContext('2d');
+var pieChart = new Chart(ctx, {
+  type: 'pie',
   data: {
-    labels: [{% for memberSkill in memberSkills %}"{{ memberSkill.skill.name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
     datasets: [{
-      data: [{% for memberSkill in memberSkills %}"{{ memberSkill.score }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-      backgroundColor: [
-        {% for memberSkill in memberSkills %}
-        {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-        {% if not forloop.last %},{% endif %}
-        {% endfor %}
-      ],
-      borderColor: [
-        {% for memberSkill in memberSkills %}
-        {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-        {% if not forloop.last %},{% endif %}
-        {% endfor %}
-      ],
-      borderWidth: 1
-    }]
+        data: [{{ member.buffer_learning_percentage }},
+               {{ member.buffer_trainers_percentage }},
+               {{ member.buffer_sales_percentage }},
+               {{ member.buffer_planning_percentage }},
+               {{ member.buffer_internal_percentage }},
+               {{ member.buffer_seniority_percentage }}],
+        backgroundColor: [
+          {% for memberSkill in memberSkills %}
+          {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
+          {% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]
+    }],
+    // These labels appear in the legend and in the tooltips when hovering different arcs
+    labels: [
+        'Learning %',
+        'Training %',
+        'Sales %',
+        'Planning %',
+        'Internal %',
+        'Seniority %'
+    ]
   },
   options: {
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero:true,
-          stepSize: 1
-        },
-        gridLines: {
-          display:false
-        }
-      }],
-      xAxes: [{
-        gridLines: {
-          display:false
-        }
-      }]
-    },
-    legend: {
-      display: false
-    }
+    maintainAspectRatio: false
   }
 });
+// var myChart = new Chart(ctx, {
+//   type: 'bar',
+//   data: {
+//     labels: [{% for memberSkill in memberSkills %}"{{ memberSkill.skill.name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+//     datasets: [{
+//       data: [{% for memberSkill in memberSkills %}"{{ memberSkill.score }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+//       backgroundColor: [
+//         {% for memberSkill in memberSkills %}
+//         {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
+//         {% if not forloop.last %},{% endif %}
+//         {% endfor %}
+//       ],
+//       borderColor: [
+//         {% for memberSkill in memberSkills %}
+//         {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
+//         {% if not forloop.last %},{% endif %}
+//         {% endfor %}
+//       ],
+//       borderWidth: 1
+//     }]
+//   },
+//   options: {
+//     scales: {
+//       yAxes: [{
+//         ticks: {
+//           beginAtZero:true,
+//           stepSize: 1
+//         },
+//         gridLines: {
+//           display:false
+//         }
+//       }],
+//       xAxes: [{
+//         gridLines: {
+//           display:false
+//         }
+//       }]
+//     },
+//     legend: {
+//       display: false
+//     }
+//   }
+// });
 </script>
 {% endblock %}

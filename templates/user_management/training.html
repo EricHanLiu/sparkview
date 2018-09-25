@@ -87,7 +87,7 @@ td {
                       </td>
                       {% for memberSkill in member.skills %}
                       <td>
-                        <span class="m-badge m-badge--{{ scoreBadges|get_item_from_list:memberSkill.score }}"></span>
+                        <span class="m-badge m-badge--{{ scoreBadges|get_item_from_list:memberSkill.score }}" data-toggle="m-tooltip" data-original-title="{{ memberSkill.updated_at }}"></span>
                       </td>
                       {% endfor %}
                     </tr>

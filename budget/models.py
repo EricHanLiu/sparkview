@@ -15,6 +15,11 @@ class Client(models.Model):
     This should really be called 'Account' based on Bloom's business logic
     It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
     """
+    STATUS_CHOICES = [('0', 'Onboarding'),
+                      ('1', 'Soft Launch'),
+                      ('2', 'Active'),
+                      ('3', 'Inactive'),
+                      ('4', 'Lost')]
 
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
@@ -55,7 +60,7 @@ class Client(models.Model):
     soldBy      = models.ForeignKey(Member, null=True, related_name='sold_by')
     # maybe do services another way?
     services    = models.ManyToManyField(Service, blank=True, related_name='services')
-    status      = models.IntegerField(default=0)
+    status      = models.CharField(max_length=9, choices=STATUS_CHOICES, default='0')
     clientGrade = models.IntegerField(default=0)
     actualHours = models.IntegerField(default=0)
 
@@ -93,16 +98,6 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
-
-
-# Keep a changelog of changes to the client model
-# To complete later, not a priority
-class ClientChanges(models.Model):
-    client      = models.ForeignKey(Client, blank=True, null=True)
-    member      = models.ForeignKey(Member, blank=True, null=True)
-    changeField = models.CharField(max_length=255, default='None')
-    changedFrom = models.CharField(max_length=255, default='None')
-    changedTo   = models.CharField(max_length=255, default='None')
 
 
 class ClientCData(models.Model):

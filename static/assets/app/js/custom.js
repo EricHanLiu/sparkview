@@ -124,7 +124,7 @@ $(document).ready(function () {
       "bAutoWidth": false
     });
 
-    $("#my_clients_datatable").DataTable({
+    $("#my_clients_datatable, #my_backup_clients_datatable").DataTable({
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
