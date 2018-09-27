@@ -246,18 +246,16 @@
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  1
+                  {{ accountHours|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  2
+                  {{ accountAllocation|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  <!-- Actual hours -->
                   {{ account.hoursWorkedThisMonth }}
                 </td>
                 <td>
-                  <!-- Billed hours -->
-                  Coming Soon
+                  {{ account.allHours }}
                 </td>
               </tr>
               {% endfor %}
@@ -308,18 +306,16 @@
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  1
+                  {{ backupHours|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  2
+                  {{ backupAccountAllocation|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  <!-- Actual hours -->
                   {{ account.hoursWorkedThisMonth }}
                 </td>
                 <td>
-                  <!-- Billed hours -->
-                  Coming Soon
+                  {{ account.allHours }}
                 </td>
               </tr>
               {% endfor %}

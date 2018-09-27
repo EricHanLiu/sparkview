@@ -2,8 +2,6 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
-{% load template_filters %}
-
 {% block leftAside %}
 {% endblock %}
 
@@ -25,8 +23,6 @@
           <form class="m-form" method="post" id="m_form_add_client">
             {% csrf_token %}
             <div class="m-portlet__body">
-              <h3>Basic Information</h3>
-              <hr />
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-12">

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
@@ -39,16 +40,34 @@ def profile(request):
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
 
+    accountHours = {}
+    accountAllocation = {}
+    for account in accounts:
+        hours  = account.getHoursWorkedThisMonthMember(member)
+        accountHours[account.id] = hours
+        accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
+
+    backupAccountHours = {}
+    backupAccountAllocation = {}
+    for account in backupAccounts:
+        hours  = account.getHoursWorkedThisMonthMember(member)
+        backupAccountAllocation[account.id] = 0
+        backupAccountHours[account.id] = hours
+
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
     context = {
-        'member'         : member,
-        'hoursThisMonth' : memberHoursThisMonth,
-        'incidents'      : incidents,
-        'memberSkills'   : memberSkills,
-        'accounts'       : accounts,
-        'backupAccounts' : backupAccounts,
-        'scoreBadges'    : scoreBadges
+        'member'                  : member,
+        'hoursThisMonth'          : memberHoursThisMonth,
+        'accountHours'            : accountHours,
+        'backupHours'             : backupAccountHours,
+        'accountAllocation'       : accountAllocation,
+        'backupAccountAllocation' : backupAccountAllocation,
+        'incidents'               : incidents,
+        'memberSkills'            : memberSkills,
+        'accounts'                : accounts,
+        'backupAccounts'          : backupAccounts,
+        'scoreBadges'             : scoreBadges
     }
 
     return render(request, 'user_management/profile.html', context)

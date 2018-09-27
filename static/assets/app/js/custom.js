@@ -106,7 +106,7 @@ $(document).ready(function () {
       "bAutoWidth": false
     });
 
-    $("#my_skills_datatable").DataTable({
+    $("#my_skills_datatable, #account_change_datatable").DataTable({
       "ordering": false,
       "bPaginate": false,
       "bLengthChange": false,

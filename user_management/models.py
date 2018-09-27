@@ -3,9 +3,18 @@ from django.contrib.auth.models import User
 import datetime
 
 
+class RoleGroup(models.Model):
+    name = models.CharField(max_length=255)
+    desc = models.CharField(max_length=900)
+
+    def __str__(self):
+        return self.name
+
+
 # Role at the company (example, Campaign Manager)
 class Role(models.Model):
-    name = models.CharField(max_length=255)
+    name  = models.CharField(max_length=255)
+    group = models.ForeignKey(RoleGroup, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -122,3 +131,14 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
+
+
+class Notification(models.Model):
+    """
+    These are notifications that a user will see in the top right hand corner of the interface
+    """
+    member   = models.ForeignKey(Member, default=None, null=True)
+    message  = models.CharField(max_length=999)
+    link     = models.URLField(max_length=499)
+    read     = models.BooleanField(default=False)
+    datetime = models.DateTimeField(auto_now_add=True)

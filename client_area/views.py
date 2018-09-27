@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.db.models import Q
-import calendar
+import calendar, datetime
 
 from budget.models import Client
 from user_management.models import Member, Team
-from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, ClientChanges
+from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient
 from .forms import NewClientForm
 
 
@@ -38,8 +38,11 @@ def accounts_team(request):
 
     accounts = Client.objects.filter(team=teams.all())
 
+    statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
+
     context = {
         'member'   : member,
+        'statusBadges' : statusBadges,
         'teams'    : teams,
         'accounts' : accounts
     }
@@ -54,11 +57,11 @@ def accounts_all(request):
 
     accounts = Client.objects.all()
 
-    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+    statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
 
     context = {
-        'scoreBadges' : scoreBadges,
-        'accounts'    : accounts
+        'statusBadges' : statusBadges,
+        'accounts'     : accounts
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -72,6 +75,7 @@ def account_new(request):
     if (request.method == 'GET'):
         teams        = Team.objects.all()
         client_types = ClientType.objects.all()
+        clients      = ParentClient.objects.all()
         industries   = Industry.objects.all()
         languages    = Language.objects.all()
         members      = Member.objects.all()
@@ -81,6 +85,7 @@ def account_new(request):
         context = {
             'teams'        : teams,
             'client_types' : client_types,
+            'clients'      : clients,
             'industries'   : industries,
             'languages'    : languages,
             'members'      : members,
@@ -90,8 +95,9 @@ def account_new(request):
 
         return render(request, 'client_area/account_new.html', context)
     elif (request.method == 'POST'):
+
         formData = {
-            'client_name'   : request.POST.get('client_name'),
+            'account_name'   : request.POST.get('account_name'),
             'team'          : request.POST.get('team'),
             'client_type'   : request.POST.get('client_type'),
             'industry'      : request.POST.get('industry'),
@@ -112,7 +118,13 @@ def account_new(request):
             # Make a contact object
             contactInfo = ClientContact(name=cleanedInputs['contact_name'], email=cleanedInputs['contact_email'])
 
-            client = Client.objects.create(
+            # Get existing client
+            if (not int(request.POST.get('existing_client')) == 0):
+                client = ParentClient.objects.get(id=request.POST.get('existing_client'))
+            else:
+                client = ParentClient.objects.create(name=request.POST.get('client_name'))
+
+            account = Client.objects.create(
                         client_name=cleanedInputs['client_name'],
                         budget=cleanedInputs['budget'],
                         clientType=cleanedInputs['client_type'],
@@ -122,17 +134,22 @@ def account_new(request):
 
             contactInfo.save()
 
+            # set parent client
+            account.client = client
+
             # set teams
             teams = [cleanedInputs['team']]
-            client.team.set(teams)
+            account.team.set(teams)
 
             # set languages
             languages = [cleanedInputs['language']]
-            client.language.set(languages)
+            account.language.set(languages)
 
             # set contact info
             contacts = [contactInfo]
-            client.contactInfo.set(contacts)
+            account.contactInfo.set(contacts)
+
+            account.save()
 
             return redirect('/clients/accounts/all')
         else:
@@ -171,7 +188,7 @@ def account_edit(request, id):
 
         return render(request, 'client_area/account_edit.html', context)
     elif (request.method == 'POST'):
-        client = get_object_or_404(Client, id=id)
+        account = get_object_or_404(Client, id=id)
 
         member = Member.objects.get(user=request.user)
 
@@ -198,37 +215,41 @@ def account_edit(request, id):
 
             # Bad boilerplate
             # Change this eventually
-            if (client.client_name != cleanedInputs['client_name']):
-                ClientChanges.objects.create(client=client, member=member, changeField='client_name', changedFrom=client.client_name, changedTo=cleanedInputs['client_name'])
-                client.client_name = cleanedInputs['client_name']
+            if (account.client_name != cleanedInputs['client_name']):
+                AccountChanges.objects.create(account=account, member=member, changeField='client_name', changedFrom=account.client_name, changedTo=cleanedInputs['client_name'])
+                account.client_name = cleanedInputs['client_name']
 
-            if (client.clientType != cleanedInputs['client_type']):
-                ClientChanges.objects.create(client=client, member=member, changeField='client_type', changedFrom=client.clientType, changedTo=cleanedInputs['client_type'])
-                client.clientType = cleanedInputs['client_type']
+            if (account.clientType != cleanedInputs['client_type']):
+                AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType, changedTo=cleanedInputs['client_type'])
+                account.clientType = cleanedInputs['client_type']
 
-            if (client.industry != cleanedInputs['industry']):
-                ClientChanges.objects.create(client=client, member=member, changeField='industry', changedFrom=client.industry, changedTo=cleanedInputs['industry'])
-                client.industry = cleanedInputs['industry']
+            if (account.industry != cleanedInputs['industry']):
+                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry, changedTo=cleanedInputs['industry'])
+                account.industry = cleanedInputs['industry']
 
-            if (client.soldBy != cleanedInputs['sold_by']):
-                ClientChanges.objects.create(client=client, member=member, changeField='industry', changedFrom=client.soldBy, changedTo=cleanedInputs['sold_by'])
-                client.soldBy = cleanedInputs['sold_by']
+            if (account.soldBy != cleanedInputs['sold_by']):
+                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.soldBy, changedTo=cleanedInputs['sold_by'])
+                account.soldBy = cleanedInputs['sold_by']
+
+            if (account.status != cleanedInputs['status']):
+                AccountChanges.objects.create(account=account, member=member, changeField='status', changedFrom=account.status, changedTo=cleanedInputs['status'])
+                account.status = cleanedInputs['status']
 
             contactInfo.save()
 
             # set teams
             teams = [cleanedInputs['team']]
-            client.team.set(teams)
+            account.team.set(teams)
 
             # set languages
             languages = [cleanedInputs['language']]
-            client.language.set(languages)
+            account.language.set(languages)
 
             # set contact info
             contacts = [contactInfo]
-            client.contactInfo.set(contacts)
+            account.contactInfo.set(contacts)
 
-            client.save()
+            account.save()
 
             return redirect('/clients/accounts/all')
         else:
@@ -244,10 +265,22 @@ def account_single(request, id):
 
     account = Client.objects.get(id=id)
     members = Member.objects.all()
+    changes = AccountChanges.objects.filter(account=account)
+
+    # Get hours this month for this account
+    now   = datetime.datetime.now()
+    month = now.month
+    year  = now.year
+    accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year)
+
+    statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
 
     context = {
-        'account' : account,
-        'members' : members
+        'account'               : account,
+        'members'               : members,
+        'changes'               : changes,
+        'accountHoursThisMonth' : accountHoursThisMonth,
+        'statusBadges'          : statusBadges
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -420,3 +453,64 @@ def add_hours_to_account(request):
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
 
         return redirect('/user_management/profile')
+
+
+@login_required
+def account_allocate_percentages(request):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    account_id = request.POST.get('account_id')
+    account    = Client.objects.get(id=account_id)
+
+    # There may be a better way to handle this form
+    # This is boilerplate
+    # CMs
+    cm1percent = request.POST.get('cm1-percent')
+    if (cm1percent == None or cm1percent == ''):
+        cm1percent = 0
+    account.cm1percent = cm1percent
+
+    cm2percent = request.POST.get('cm2-percent')
+    if (cm2percent == None or cm2percent == ''):
+        cm2percent = 0
+    account.cm2percent = cm2percent
+
+    cm3percent = request.POST.get('cm3-percent')
+    if (cm3percent == None or cm3percent == ''):
+        cm3percent = 0
+    account.cm3percent = cm3percent
+
+    am1percent = request.POST.get('am1-percent')
+    if (am1percent == None or am1percent == ''):
+        am1percent = 0
+    account.am1percent = am1percent
+
+    am2percent = request.POST.get('am2-percent')
+    if (am2percent == None or am2percent == ''):
+        am2percent = 0
+    account.am2percent = am2percent
+
+    am3percent = request.POST.get('am3-percent')
+    if (am3percent == None or am3percent == ''):
+        am3percent = 0
+    account.am3percent = am3percent
+
+    strat1percent = request.POST.get('strat1-percent')
+    if (strat1percent == None or strat1percent == ''):
+        strat1percent = 0
+    account.strat1percent = strat1percent
+
+    strat2percent = request.POST.get('strat2-percent')
+    if (strat2percent == None or strat2percent == ''):
+        strat2percent = 0
+    account.strat2percent = strat2percent
+
+    strat3percent = request.POST.get('strat3-percent')
+    if (strat3percent == None or strat3percent == ''):
+        strat3percent = 0
+    account.strat3percent = strat3percent
+
+    account.save()
+
+    return redirect('/clients/accounts/' + str(account.id))

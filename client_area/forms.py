@@ -5,7 +5,7 @@ from user_management.models import Member, Team
 
 # Only used for validation, form will be created manually
 class NewClientForm(forms.Form):
-    client_name   = forms.CharField(label='Client name', max_length=100, required=False)
+    account_name  = forms.CharField(label='Account name', max_length=100, required=False)
     budget        = forms.IntegerField(label='Budget', required=False)
     team          = forms.ModelChoiceField(queryset=Team.objects.all(), required=False)
     client_type   = forms.ModelChoiceField(queryset=ClientType.objects.all(), required=False)

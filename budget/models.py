@@ -5,7 +5,7 @@ from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
-from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord
+from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, ParentClient, ManagementFeesStructure
 import datetime
 # Create your models here.
 
@@ -15,11 +15,11 @@ class Client(models.Model):
     This should really be called 'Account' based on Bloom's business logic
     It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
     """
-    STATUS_CHOICES = [('0', 'Onboarding'),
-                      ('1', 'Soft Launch'),
-                      ('2', 'Active'),
-                      ('3', 'Inactive'),
-                      ('4', 'Lost')]
+    STATUS_CHOICES = [(0, 'Onboarding'),
+                      (1, 'Soft Launch'),
+                      (2, 'Active'),
+                      (3, 'Inactive'),
+                      (4, 'Lost')]
 
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
@@ -50,21 +50,34 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
 
-    # The following attributes are for the client management implementation
-    team        = models.ManyToManyField(Team, blank=True, related_name='team')
-    industry    = models.ForeignKey(Industry, null=True, related_name='industry')
-    language    = models.ManyToManyField(Language, related_name='language')
-    contactInfo = models.ManyToManyField(ClientContact, related_name='client_contact')
-    clientType  = models.ForeignKey(ClientType, null=True, related_name='client_type')
-    tier        = models.IntegerField(default=1)
-    soldBy      = models.ForeignKey(Member, null=True, related_name='sold_by')
-    # maybe do services another way?
-    services    = models.ManyToManyField(Service, blank=True, related_name='services')
-    status      = models.CharField(max_length=9, choices=STATUS_CHOICES, default='0')
-    clientGrade = models.IntegerField(default=0)
-    actualHours = models.IntegerField(default=0)
+    # Parent Client (aka Client, this model should be Account)
+    parentClient = models.ForeignKey(ParentClient, null=True, blank=True)
 
-     # Member attributes (we'll see if there's a better way to do this)
+    # Management Fee Structure lets you calculate the actual fee of that client
+    managementFee = models.ForeignKey(ManagementFeesStructure, null=True)
+
+    # The following attributes are for the client management implementation
+    team           = models.ManyToManyField(Team, blank=True, related_name='team')
+    industry       = models.ForeignKey(Industry, null=True, related_name='industry')
+    language       = models.ManyToManyField(Language, related_name='language')
+    contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact')
+    url            = models.URLField(max_length=300, null=True, blank=True)
+    clientType     = models.ForeignKey(ClientType, null=True, related_name='client_type')
+    tier           = models.IntegerField(default=1)
+    soldBy         = models.ForeignKey(Member, null=True, related_name='sold_by')
+    # maybe do services another way?
+    services       = models.ManyToManyField(Service, blank=True, related_name='services')
+    has_seo        = models.BooleanField(default=False)
+    seo_hours      = models.FloatField(default=0)
+    seo_hourly_fee = models.FloatField(default=125)
+    has_cro        = models.BooleanField(default=False)
+    cro_hours      = models.FloatField(default=0)
+    cro_hourly_fee = models.FloatField(default=125)
+    status         = models.IntegerField(default=0, choices=STATUS_CHOICES)
+    clientGrade    = models.IntegerField(default=0)
+    actualHours    = models.IntegerField(default=0)
+
+    # Member attributes (we'll see if there's a better way to do this)
     cm1    = models.ForeignKey(Member, blank=True, null=True, related_name='cm1')
     cm2    = models.ForeignKey(Member, blank=True, null=True, related_name='cm2')
     cm3    = models.ForeignKey(Member, blank=True, null=True, related_name='cm3')
@@ -85,16 +98,148 @@ class Client(models.Model):
     strat3 = models.ForeignKey(Member, blank=True, null=True, related_name='strat3')
     stratb = models.ForeignKey(Member, blank=True, null=True, related_name='stratb')
 
+    # Allocation % of total hours
+    cm1percent = models.FloatField(default=75.0)
+    cm2percent = models.FloatField(default=0)
+    cm3percent = models.FloatField(default=0)
+
+    am1percent = models.FloatField(default=25.0)
+    am2percent = models.FloatField(default=0)
+    am3percent = models.FloatField(default=0)
+
+    seo1percent = models.FloatField(default=0)
+    seo2percent = models.FloatField(default=0)
+    seo3percent = models.FloatField(default=0)
+
+    strat1percent = models.FloatField(default=0)
+    strat2percent = models.FloatField(default=0)
+    strat3percent = models.FloatField(default=0)
+
+    def getRemainingBudget(self):
+        return self.budget - self.current_spend
+
     def getHoursWorkedThisMonth(self):
         now   = datetime.datetime.now()
         month = now.month
         year  = now.year
-        return AccountHourRecord.objects.filter(account=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
-
-    hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
+        hours = AccountHourRecord.objects.filter(account=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        return hours if hours != None else 0
 
     def getHoursRemainingThisMonth(self):
-        return self.hoursWorkedThisMonth
+        # Cache this because its calls DB stuff
+        if not hasattr(self, '_hoursRemainingMonth'):
+            self._hoursRemainingMonth = self.getAllocatedHours() - self.getHoursWorkedThisMonth()
+        return self._hoursRemainingMonth
+
+    def getHoursWorkedThisMonthMember(self, member):
+        now   = datetime.datetime.now()
+        month = now.month
+        year  = now.year
+        hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        return hours if hours != None else 0
+
+    def getAllocationThisMonthMember(self, member):
+        percentage = 0.0
+        # Boilerplate incoming
+        if (self.cm1 == member):
+            percentage += self.cm1percent
+        if (self.cm2 == member):
+            percentage += self.cm2percent
+        if (self.cm3 == member):
+            percentage += self.cm3percent
+        if (self.am1 == member):
+            percentage += self.am1percent
+        if (self.am2 == member):
+            percentage += self.am2percent
+        if (self.am3 == member):
+            percentage += self.am3percent
+        if (self.seo1 == member):
+            percentage += self.seo1percent
+        if (self.seo2 == member):
+            percentage += self.seo2percent
+        if (self.seo3 == member):
+            percentage += self.seo3percent
+        if (self.strat1 == member):
+            percentage += self.strat1percent
+        if (self.strat2 == member):
+            percentage += self.strat2percent
+        if (self.strat3 == member):
+            percentage += self.strat3percent
+
+        return round(self.getPpcAllocatedHours() * percentage / 100.0, 2)
+
+
+    def getSeoFee(self):
+        """
+        Get's the SEO fee
+        """
+        fee = 0.0
+        if (self.has_seo):
+            fee += self.seo_hours * self.seo_hourly_fee
+        return fee
+
+    def getCroFee(self):
+        """
+        Get's the CRO fee
+        """
+        fee = 0.0
+        if (self.has_cro):
+            fee += self.cro_hours * self.cro_hourly_fee
+        return fee
+
+    def getPpcFee(self):
+        """
+        Loops through every interval in the management fee structure and sums up the fee depending on the budget
+        """
+        if not hasattr(self, '_ppcFee'):
+            tmpBudget = self.budget
+            fee = 0.0
+            for feeInterval in self.managementFee.feeStructure.all():
+                if (tmpBudget <= 0):
+                    break
+                maxSpendAtThisLevel = feeInterval.upperBound - feeInterval.lowerBound
+                if (tmpBudget > maxSpendAtThisLevel):
+                    if (feeInterval.feeStyle == 0): # add % to fee
+                        fee += maxSpendAtThisLevel * feeInterval.fee / 100.0
+                    else:
+                        fee += feeInterval.fee
+                    tmpBudget -= maxSpendAtThisLevel
+                else:
+                    if (feeInterval.feeStyle == 0): # add % to fee
+                        fee += tmpBudget * feeInterval.fee / 100.0
+                    else:
+                        fee += feeInterval.fee
+                    tmpBudget -= tmpBudget
+            if (self.status == 0):
+                fee += self.managementFee.initialFee
+            self._ppcFee = fee
+        return self._ppcFee
+
+    def getFee(self):
+        return self.getPpcFee() + self.getCroFee() + self.getSeoFee()
+
+    def getPpcAllocatedHours(self):
+        return round(self.getPpcFee() / 125.0, 2)
+
+    def getAllocatedHours(self):
+        hours = self.getPpcAllocatedHours()
+        if (self.has_seo):
+            hours += self.seo_hours
+        if (self.has_cro):
+            hours += self.cro_hours
+        return hours
+
+    remainingBudget = property(getRemainingBudget)
+
+    hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
+    hoursRemainingMonth  = property(getHoursRemainingThisMonth)
+
+    seoFee   = property(getSeoFee)
+    croFee   = property(getCroFee)
+    ppcFee   = property(getPpcFee)
+    totalFee = property(getFee)
+    ppcHours = property(getPpcAllocatedHours)
+    allHours = property(getAllocatedHours)
 
     def __str__(self):
         return self.client_name
