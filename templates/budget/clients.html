@@ -25,6 +25,15 @@
                                         id="clients_delete_btn"> Delete client(s)
                                 </button>
                         </div>
+                        <div class="m--space-30"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <i class="la la-star-o"></i> - Client has Budget feature. <i class="la la-star"></i>
+                                -
+                                Client has GTS feature.
+                                <i class="la la-star-o"></i><i class="la la-star"></i> - Client has both features.
+                            </div>
+                        </div>
                         <div class="m-separator m-separator--dashed"></div>
                         <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
                                id="clients_datatable">
@@ -78,17 +87,22 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="row">
-                                            <div class="col-md-4"><b>Current</b>: {{ client.currency }}{{ client.current_spend|intcomma }}
+                                            <div class="col-md-4"><b>Current</b>:
+                                                {{ client.currency }}{{ client.current_spend|intcomma }}
                                             </div>
                                             {% if client.has_budget and client.has_gts %}
-                                                <div class="col-md-2"><b>Budget</b>: {{ client.currency }}{{ client.budget|intcomma }}</div>
-                                                <div class="col-md-2"><b>GTS</b>: {{ client.currency }}{{ client.target_spend|intcomma }}
+                                                <div class="col-md-2"><b>Budget</b>:
+                                                    {{ client.currency }}{{ client.budget|intcomma }}</div>
+                                                <div class="col-md-2"><b>GTS</b>:
+                                                    {{ client.currency }}{{ client.target_spend|intcomma }}
                                                 </div>
                                             {% elif client.has_gts and not client.has_budget %}
-                                                <div class="col-md-4"><b>GTS</b>: {{ client.currency }}{{ client.target_spend|intcomma }}
+                                                <div class="col-md-4"><b>GTS</b>:
+                                                    {{ client.currency }}{{ client.target_spend|intcomma }}
                                                 </div>
                                             {% elif client.has_budget %}
-                                                <div class="col-md-4"><b>Budget</b>: {{ client.currency }}{{ client.budget|intcomma }}</div>
+                                                <div class="col-md-4"><b>Budget</b>:
+                                                    {{ client.currency }}{{ client.budget|intcomma }}</div>
                                             {% endif %}
                                             <div class="col-md-4">
                                                 <b>Projected</b>:
@@ -137,11 +151,17 @@
                                     </td>
                                     <td class="text-center">
                                         {% if client.has_budget and client.has_gts %}
-                                            {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            <span class="{{ client.current_spend|cgap:client.target_spend }}">
+                                                {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            </span>
                                         {% elif client.has_gts and not client.has_budget %}
-                                            {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            <span class="{{ client.current_spend|cgap:client.target_spend }}">
+                                                {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            </span>
                                         {% elif client.has_budget %}
-                                            {{ client.currency }}{{ client.budget|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            <span class="{{ client.current_spend|cgap:client.budget }}">
+                                                {{ client.currency }}{{ client.budget|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            </span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -152,14 +172,6 @@
                             </tbody>
                         </table>
                         </form>
-                        <p></p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <i class="la la-star-o"></i> - Client has Budget feature. <i class="la la-star"></i> -
-                                Client has GTS feature.
-                                <i class="la la-star-o"></i><i class="la la-star"></i> - Client has both features.
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,5 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% load humanize %} {% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% load humanize %}
+{% block content %}
 
     <div class="m-content">
         <div class="row">
@@ -20,7 +21,7 @@
                             <tr>
                                 <th>Account</th>
                                 <th>U & O</th>
-                                <th>Impr. Share</th>
+                                <th>Search Impr. Share</th>
                                 <th>Impr.</th>
                                 <th>Clicks</th>
                                 <th>CTR</th>
@@ -28,10 +29,13 @@
                                 <th>Cost</th>
                                 <th>Conversions</th>
                                 <th>Cost / conv.</th>
+                                <th>Total Conversion Value</th>
+{#                                <th>ROAS</th>#}
                             </tr>
                             </thead>
                             <tbody>
                             {% for item in items %}
+
                                 <tr>
                                     <td>
                                         <a href="{% url 'adwords:campaign_anomalies' item.account.dependent_account_id %}">
@@ -52,7 +56,7 @@
                                         {{ item.account.estimated_spend|get_ovu:item.account.desired_spend }}%
                                     </td>
                                     <td>
-                                        {% with sis=item.metadata.vals|get_dict_value:"search_impr._share" %}
+                                        {% with sis=item.metadata.vals.search_impr_share %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
                                                 {{ sis.1|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
@@ -136,11 +140,12 @@
                                         {% endwith %}
                                     </td>
                                     <td>
-                                        {% with ccpc=item.metadata.vals|get_dict_value:"avg._cpc" account=item.account %}
+                                        {% with ccpc=item.metadata.vals.avg_cpc account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
                                                 {{ account.currency }}{{ ccpc.1|mcv|floatformat:2|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ account.currency }}{{ ccpc.2|mcv|floatformat:2|intcomma }}</small>
+                                                <small>
+                                                    {{ account.currency }}{{ ccpc.2|mcv|floatformat:2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -161,7 +166,8 @@
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
                                                 {{ account.currency }}{{ ccost.1|mcv|floatformat:2|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ account.currency }}{{ ccost.2|mcv|floatformat:2|intcomma }}</small>
+                                                <small>
+                                                    {{ account.currency }}{{ ccost.2|mcv|floatformat:2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -199,11 +205,12 @@
                                         {% endwith %}
                                     </td>
                                     <td>
-                                        {% with cpconv=item.metadata.vals|get_dict_value:"cost_/_conv." account=item.account %}
+                                        {% with cpconv=item.metadata.vals.cost__conv account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
                                                 {{ account.currency }}{{ cpconv.1|mcv|floatformat:2|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
-                                                <small>{{ account.currency }}{{ cpconv.2|mcv|floatformat:2|intcomma }}</small>
+                                                <small>
+                                                    {{ account.currency }}{{ cpconv.2|mcv|floatformat:2|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -219,6 +226,32 @@
                                             </p>
                                         {% endwith %}
                                     </td>
+                                    <td>
+                                        {% with tcval=item.metadata.vals.all_conv_value account=item.account %}
+                                            <p style="margin-bottom: 0!important;" class="text-center"><b>
+                                                {{ account.currency }}{{ tcval.1|floatformat:2|intcomma }}</b></p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <small>
+                                                    {{ account.currency }}{{ tcval.2|floatformat:2|intcomma }}</small>
+                                            </p>
+                                            <p style="margin-bottom: 0!important;" class="text-center">
+                                                <span class="m-badge
+                                                    {% if tcval.0 < 0 %}
+                                                        m-badge--success
+                                                    {% elif tcval.0 == 0 %}
+                                                        m-badge--metal
+                                                    {% else %}
+                                                        m-badge--danger
+                                                    {% endif %} m-badge--wide">
+                                                {{ tcval.0|floatformat:2|cut:"-"|intcomma }}%
+                                                </span>
+                                            </p>
+                                        {% endwith %}
+                                    </td>
+{#                                    <td>#}
+{#                                        {% with tcv=item.metadata.vals.all_conv_value cst=item.metadata.vals.cost account=item.account %}#}
+{#                                        {% endwith %}#}
+{#                                    </td>#}
                                 </tr>
                             {% endfor %}
                             </tbody>

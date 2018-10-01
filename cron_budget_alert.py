@@ -5,8 +5,10 @@ import logging
 import calendar
 import datetime
 import time
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
+
 django.setup()
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -27,10 +29,10 @@ current_day = now.day - 1
 days = calendar.monthrange(now.year, now.month)[1]
 remaining = days - current_day
 
+
 # 99% - budget protection script
 
 def check_spend(accounts, user):
-
     under = []
     over = []
     nods = []
@@ -62,7 +64,7 @@ def check_spend(accounts, user):
                     'channel': account.channel
                 }
                 nods.append(details)
-        else:
+        elif account.desired_spend <= 10000:
             if percentage < 90:
                 if account.channel == 'adwords':
 
@@ -127,6 +129,71 @@ def check_spend(accounts, user):
                         'projected': round(projected, 2)
                     }
                     on_pace.append(details)
+        elif account.desired_spend > 10000:
+            if percentage < 95:
+                if account.channel == 'adwords':
+
+                    details = {
+                        'account': account.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': account.desired_spend,
+                        'current_spend': account.current_spend,
+                        'channel': account.channel,
+                        'projected': round(projected, 2)
+                    }
+                    under.append(details)
+                else:
+                    details = {
+                        'account': account.account_name,
+                        'estimated': percentage,
+                        'budget': account.desired_spend,
+                        'current_spend': account.current_spend,
+                        'channel': account.channel,
+                        'projected': round(projected, 2)
+                    }
+                    under.append(details)
+            elif percentage > 99:
+                if account.channel == 'adwords':
+                    details = {
+                        'account': account.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': account.desired_spend,
+                        'current_spend': account.current_spend,
+                        'channel': account.channel,
+                        'projected': round(projected, 2)
+                    }
+                    over.append(details)
+                else:
+                    details = {
+                        'account': account.account_name,
+                        'estimated': percentage,
+                        'budget': account.desired_spend,
+                        'current_spend': account.current_spend,
+                        'channel': account.channel,
+                        'projected': round(projected, 2)
+                    }
+                    over.append(details)
+            elif 95 > percentage < 99:
+                if account.channel == 'adwords':
+                    details = {
+                        'account': account.dependent_account_name,
+                        'estimated': percentage,
+                        'budget': account.desired_spend,
+                        'current_spend': account.current_spend,
+                        'channel': account.channel,
+                        'projected': round(projected, 2)
+                    }
+                    on_pace.append(details)
+                else:
+                    details = {
+                        'account': account.account_name,
+                        'estimated': percentage,
+                        'budget': account.desired_spend,
+                        'current_spend': account.current_spend,
+                        'channel': account.channel,
+                        'projected': round(projected, 2)
+                    }
+                    on_pace.append(details)
 
     mail_details = {
         'under': under,
@@ -138,55 +205,51 @@ def check_spend(accounts, user):
 
     return mail_details
 
-def get_campaigns(client):
 
-    offset = 0
-    PAGE_SIZE = 500
+# def get_campaigns(client):
+#     offset = 0
+#     PAGE_SIZE = 500
+#
+#     client.SetClientCustomerId('7637584053')
+#
+#     campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
+#
+#     campaign_selector = {'fields': ['Id', 'Status', 'Name'],
+#                          'predicates': [
+#                              {
+#                                  'field': 'Status',
+#                                  'operator': 'EQUALS',
+#                                  'values': 'ENABLED'
+#                              }],
+#                          'paging': {
+#                              'startIndex': str(offset),
+#                              'numberResults': str(PAGE_SIZE)
+#                          }}
+#     more_pages = True
+#
+#     while more_pages:
+#
+#         page = campaign_service.get(campaign_selector)
+#         time.sleep(0.5)
+#
+#         if 'entries' in page and page['entries']:
+#             aw_campaigns.extend(page['entries'])
+#             offset += PAGE_SIZE
+#             campaign_selector['paging']['startIndex'] = str(offset)
+#
+#         more_pages = offset < int(page['totalNumEntries'])
+#
+#     return aw_campaigns
 
-    client.SetClientCustomerId('7637584053')
-
-    campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
-
-    campaign_selector = {'fields': ['Id', 'Status','Name'],
-                         'predicates': [
-                             {
-                                 'field': 'Status',
-                                 'operator': 'EQUALS',
-                                 'values': 'ENABLED'
-                             }],
-                         'paging': {
-                             'startIndex': str(offset),
-                             'numberResults': str(PAGE_SIZE)
-                         }}
-    more_pages = True
-
-    while more_pages:
-
-        page = campaign_service.get(campaign_selector)
-        time.sleep(0.5)
-
-        if 'entries' in page and page['entries']:
-
-            aw_campaigns.extend(page['entries'])
-            offset += PAGE_SIZE
-            campaign_selector['paging']['startIndex'] = str(offset)
-
-        more_pages = offset < int(page['totalNumEntries'])
-
-    return aw_campaigns
 
 def budget_breakfast():
-
     users = User.objects.all()
 
     for user in users:
-
         aw_accounts = DependentAccount.objects.filter(assigned_to=user)
         aw_cm2 = DependentAccount.objects.filter(assigned_cm2=user)
         aw_cm3 = DependentAccount.objects.filter(assigned_cm3=user)
         aw_am = DependentAccount.objects.filter(assigned_am=user)
-
-
 
         bing_accounts = BingAccounts.objects.filter(assigned_to=user)
         bing_cm2 = BingAccounts.objects.filter(assigned_cm2=user)
@@ -224,114 +287,89 @@ def budget_breakfast():
         )
         print('Mail sent!')
 
-def budget_protection(client):
 
-    percentage = 0
+# def budget_protection(client):
+#
+#     users = User.objects.all()
+#
+#     for user in users:
+#
+#         aw_accounts = user.profile.adwords.all()
+#
+#         for a in aw_accounts:
+#
+#             spend = a.current_spend
+#             daily_spend = spend / current_day
+#             projected = (daily_spend * remaining) + spend
+#             protected = a.protected
+#
+#             try:
+#                 percentage = (projected * 100) / a.desired_spend
+#             except ZeroDivisionError:
+#                 continue
+#
+#             if percentage >= 99:
+#
+#                 if protected:
+#
+#                     # pausing all campaigns from the adwords account
+#
+#                     client.SetClientCustomerId(a.dependent_account_id)
+#
+#                     campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
+#
+#                     offset = 0
+#
+#                     selector = {
+#                         'fields': ['Id', 'Name', 'Status'],
+#                         'paging': {
+#                             'startIndex': str(offset),
+#                             'numberResults': str(PAGE_SIZE)
+#                         },
+#                         'predicates': [
+#                             {
+#                                 'field': 'Status',
+#                                 'operator': 'EQUALS',
+#                                 'values': 'ENABLED'
+#                             }],
+#                     }
+#
+#                     more_pages = True
+#
+#                     while more_pages:
+#
+#                         page = campaign_service.get(selector)
+#
+#                         if 'entries' in page and page['entries']:
+#                             aw_campaigns.extend(page['entries'])
+#                             offset += self.PAGE_SIZE
+#                             selector['paging']['startIndex'] = str(offset)
+#
+#                         more_pages = offset < int(page['totalNumEntries'])
+#
+#                     # Loop thorugh campaign list and pause them
+#                     for cmp in aw_campaigns:
+#                         campaign_id = cmp['Campaign ID']
+#
+#                         # Create operations.
+#                         operations = [{
+#                             'operator': 'SET',
+#                             'operand': {
+#                                 'id': campaign_id,
+#                                 'status': 'PAUSED'
+#                             }
+#                         }]
+#
+#                         # Pause campaign if percentage > 99
+#                         result = campaign_service.mutate(operations)
+#                         print(result)
 
-    users = User.objects.all()
-
-    for user in users:
-
-        aw_accounts = user.profile.adwords.all()
-        bing_accounts = user.profile.bing.all()
-
-        for a in aw_accounts:
-
-
-            spend = a.current_spend
-            daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
-            protected = a.protected
-
-            try:
-                percentage = (projected * 100) / a.desired_spend
-            except ZeroDivisionError:
-                continue
-
-            if percentage >= 99:
-
-                if protected:
-
-                    # pausing all campaigns from the adwords account
-
-                    client.SetClientCustomerId(a.dependent_account_id)
-
-                    campaign_service = client.GetService('CampaignService', version=settings.API_VERSION)
-
-                    offset = 0
-
-                    selector = {
-                        'fields': ['Id', 'Name', 'Status'],
-                        'paging': {
-                            'startIndex': str(offset),
-                            'numberResults': str(PAGE_SIZE)
-                        },
-                        'predicates': [
-                            {
-                                'field': 'Status',
-                                'operator': 'EQUALS',
-                                'values': 'ENABLED'
-                        }],
-                    }
-
-                    more_pages = True
-
-                    while more_pages:
-
-                        page = campaign_service.get(selector)
-
-                        if 'entries' in page and page['entries']:
-                            aw_campaigns.extend(page['entries'])
-                            offset += self.PAGE_SIZE
-                            selector['paging']['startIndex'] = str(offset)
-
-                        more_pages = offset < int(page['totalNumEntries'])
-
-                    # Loop thorugh campaign list and pause them
-                    for cmp in aw_campaigns:
-                        campaign_id = cmp['Campaign ID']
-
-                        # Create operations.
-                        operations = [{
-                            'operator': 'SET',
-                            'operand': {
-                                'id': campaign_id,
-                                'status': 'PAUSED'
-                            }
-                        }]
-
-                        # Pause campaign if percentage > 99
-                        result = campaign_service.mutate(operations)
-                        print(result)
-
-        for b in bing_accounts:
-
-            spend = b.current_spend
-            daily_spend = spend / current_day
-            projected = (daily_spend * remaining) + spend
-            protected = b.protected
-
-            try:
-                percentage = (projected * 100) / b.desired_spend
-            except ZeroDivisionError:
-                continue
-
-            if percentage >= 99:
-
-                if protected:
-
-                    # pausing all campaigns from bing account
-                    pass
 
 def main():
-
-    # client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
-    # print(get_campaigns(client))
     budget_breakfast()
 
 
 if __name__ == '__main__':
-
     main()
     print('\n')
     print("--- %s seconds ---" % (time.time() - start_time))

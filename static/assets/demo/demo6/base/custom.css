@@ -263,15 +263,39 @@ m-table--head-separator-bloom {
     border-color: #000;
 }
 
-
 .dataTables_length {
     float: right !important;
 }
 
 table.dataTable tbody td {
-  vertical-align: middle;
+    vertical-align: middle;
 }
 
 .bloom-progress {
     height: 50px !important;
+}
+
+.m-widget25 .m-widget25--progress {
+    margin: 30px auto 70px !important;
+    /*border: 1px solid rgba(0, 0, 0, 0.4);*/
+    box-shadow: 1px 1px;
+}
+
+.bbox {
+    min-height: 150px;
+    background: #f1f1f1;
+    margin-top: 20px;
+    padding-right: 10px;
+    box-shadow: 0 0 30px #F1f1f1;
+}
+
+.bbox-row {
+    min-height: 150px;
+    background: #f1f1f1;
+    box-shadow: 0 0 10px #F1f1f1;
+}
+
+.bbox .inner-text {
+    vertical-align: middle;
+    padding-top: 10px
 }

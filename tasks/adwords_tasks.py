@@ -55,7 +55,6 @@ def get_client():
 def account_anomalies(account_id, helper, daterange1, daterange2):
     current_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
-        extra_fields=["SearchImpressionShare"],
         **daterange1
     )
 
@@ -143,6 +142,8 @@ def adwords_cron_anomalies(self, customer_id):
         'vals': acc_anomalies
     }
 
+    print(acc_metadata)
+
     Performance.objects.filter(account=account, performance_type='ACCOUNT').delete()
 
     Performance.objects.create(
@@ -152,9 +153,9 @@ def adwords_cron_anomalies(self, customer_id):
         impressions=acc_anomalies['impressions'][0],
         ctr=acc_anomalies['ctr'][0],
         conversions=acc_anomalies['conversions'][0],
-        cpc=acc_anomalies['avg._cpc'][0],
-        cost_per_conversions=acc_anomalies['cost_/_conv.'][0],
-        search_impr_share=acc_anomalies['search_impr._share'][0],
+        cpc=acc_anomalies['avg_cpc'][0],
+        cost_per_conversions=acc_anomalies['cost__conv'][0],
+        search_impr_share=acc_anomalies['search_impr_share'][0],
         metadata=acc_metadata
     )
 
@@ -176,11 +177,11 @@ def adwords_cron_anomalies(self, customer_id):
             clicks=cmp["clicks"][0],
             impressions=cmp["impressions"][0],
             ctr=cmp["ctr"][0],
-            search_impr_share=cmp["search_impr._share"][0],
+            search_impr_share=cmp["search_impr_share"][0],
             conversions=cmp["conversions"][0],
-            cost_per_conversions=helper.mcv(cmp["cost_/_conv."][0]),
+            cost_per_conversions=helper.mcv(cmp["cost__conv"][0]),
             cost=helper.mcv(cmp["cost"][0]),
-            cpc=helper.mcv(cmp["avg._cpc"][0]),
+            cpc=helper.mcv(cmp["avg_cpc"][0]),
             metadata=json.dumps(metadata_cmp)
         )
 
@@ -949,30 +950,9 @@ def adwords_account_change_history(self, customer_id):
         flag = all(value == 0 for value in daily.values())
 
         if flag:
-            mail_details = {
-                'account': account,
-            }
 
-            if account.assigned_am:
-                MAIL_ADS.append(account.assigned_am.email)
-                print('Found AM - ' + account.assigned_am.username)
-            if account.assigned_to:
-                MAIL_ADS.append(account.assigned_to.email)
-                print('Found CM - ' + account.assigned_to.username)
-            if account.assigned_cm2:
-                MAIL_ADS.append(account.assigned_cm2.email)
-                print('Found CM2 - ' + account.assigned_cm2.username)
-            if account.assigned_cm3:
-                MAIL_ADS.append(account.assigned_cm3.email)
-                print('Found CM3 - ' + account.assigned_cm3.username)
-
-            mail_list = set(MAIL_ADS)
-            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
-
-            send_mail(
-                account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
-            mail_list.clear()
+            account.ch_flag = True
+            account.save()
 
     else:
         print('No active campaigns found.')

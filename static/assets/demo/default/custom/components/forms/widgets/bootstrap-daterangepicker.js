@@ -62,7 +62,7 @@ var BootstrapDaterangepicker = {
                     Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
                     "Last 7 Days": [moment().subtract(6, "days"), moment()],
                     "Last 30 Days": [moment().subtract(29, "days"), moment()],
-                    "This Month": [moment().startOf("month"), moment().endOf("month")],
+                    "This Month": [moment().startOf("month"), moment().subtract(1, "days")],
                     "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
                 }
             }, function (a, t, n) {
@@ -79,7 +79,7 @@ var BootstrapDaterangepicker = {
                         Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
                         "Last 7 Days": [moment().subtract(6, "days"), moment()],
                         "Last 30 Days": [moment().subtract(29, "days"), moment()],
-                        "This Month": [moment().startOf("month"), moment().endOf("month")],
+                        "This Month": [moment().startOf("month"), moment().subtract(1, "days")],
                         "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
                     }
                 }, function (a, t, n) {
@@ -109,8 +109,8 @@ var BootstrapDaterangepicker = {
                     mApp.block("#m-content-block", {
                         overlayColor: "#000000",
                         type: "loader",
-                        state: "primary",
-                        size: "lg"
+                        state: "success",
+                        size: "lg",
                     });
 
 
@@ -131,14 +131,15 @@ var BootstrapDaterangepicker = {
                                 table_wrapper.append('<table class="table table-striped m-table" id="adwords_anomalies_datatable">' +
                                     '<thead>' +
                                     '<tr>' +
-                                    '<th>Impr. Share</th>' +
-                                    '<th>Impressions</th>' +
-                                    '<th>Clicks</th>' +
-                                    '<th>CTR</th>' +
-                                    '<th>Avg. CPC</th>' +
-                                    '<th>Cost</th>' +
-                                    '<th>Conversions</th>' +
-                                    '<th>Cost / Conv.</th>' +
+                                    '<th class="text-center">Search Impr. Share</th>' +
+                                    '<th class="text-center">Impressions</th>' +
+                                    '<th class="text-center">Clicks</th>' +
+                                    '<th class="text-center">CTR</th>' +
+                                    '<th class="text-center">Avg. CPC</th>' +
+                                    '<th class="text-center">Cost</th>' +
+                                    '<th class="text-center">Conversions</th>' +
+                                    '<th class="text-center">Cost / Conv.</th>' +
+                                    '<th class="text-center">Total Conv. Value</th>' +
                                     '</tr>' +
                                     '</thead>' +
                                     '<tbody></tbody>' +
@@ -159,6 +160,8 @@ var BootstrapDaterangepicker = {
                                 $("#adwords_anomalies_datatable").DataTable({
                                     bDestroy: true,
                                     bProcessing: false,
+                                    bSortable: false,
+                                    ordering: false,
                                     pageLength: 25,
                                     data: arr,
                                     columns: [
@@ -345,6 +348,58 @@ var BootstrapDaterangepicker = {
                                                 }
                                                 return rdata;
                                             }
+                                        },
+                                        {
+                                            'data': 'all_conv_value',
+                                            "render": function (data, type, row, meta) {
+                                                if (type === 'display') {
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center">';
+
+                                                    if (data[0] > 0) {
+                                                        var badge = '<span class="m-badge m-badge--success m-badge--wide">'
+                                                    } else if (data[0] === 0) {
+                                                        var badge = '<span class="m-badge m-badge--metal m-badge--wide">'
+                                                    } else {
+                                                        var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
+                                                    }
+
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
+                                                } else if (type === 'sort') {
+                                                    rdata = data[1];
+                                                }
+                                                return rdata;
+                                            }
+                                        },
+                                        {
+                                            'data': {acv: 'all_conv_value', cost: 'cost'},
+                                            'render': function (data, type, row, meta) {
+                                                let roas = data.all_conv_value[1] / (data.cost[1]/1000000);
+                                                let prev_roas = data.all_conv_value[2] / (data.cost[2]/1000000);
+
+                                                let diff = ((roas - prev_roas) / roas) * 100;
+                                                if (type === 'display') {
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' +
+                                                        Humanize.formatNumber(roas, 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' +
+                                                        Humanize.formatNumber(prev_roas, 2) + '</small>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center">';
+
+                                                    if (data[0] > 0) {
+                                                        var badge = '<span class="m-badge m-badge--success m-badge--wide">'
+                                                    } else if (data[0] === 0) {
+                                                        var badge = '<span class="m-badge m-badge--metal m-badge--wide">'
+                                                    } else {
+                                                        var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
+                                                    }
+
+                                                    rdata = rdata + badge + Humanize.formatNumber(diff, 2) + '%</span></p>';
+                                                } else if (type === 'sort') {
+                                                    rdata = roas;
+                                                }
+                                                return rdata;
+                                            }
                                         }
                                     ],
                                     language: {
@@ -355,14 +410,16 @@ var BootstrapDaterangepicker = {
                                 table_wrapper.append('<table class="table table-striped m-table" id="adwords_anomalies_datatable">' +
                                     '<thead>' +
                                     '<tr>' +
-                                    '<th>Impr. Share</th>' +
-                                    '<th>Impressions</th>' +
-                                    '<th>Clicks</th>' +
-                                    '<th>CTR</th>' +
-                                    '<th>Avg. CPC</th>' +
-                                    '<th>Cost</th>' +
-                                    '<th>Conversions</th>' +
-                                    '<th>Cost / Conv.</th>' +
+                                    '<th class="text-center">Search Impr. Share</th>' +
+                                    '<th class="text-center">Impressions</th>' +
+                                    '<th class="text-center">Clicks</th>' +
+                                    '<th class="text-center">CTR</th>' +
+                                    '<th class="text-center">Avg. CPC</th>' +
+                                    '<th class="text-center">Cost</th>' +
+                                    '<th class="text-center">Conversions</th>' +
+                                    '<th class="text-center">Cost / Conv.</th>' +
+                                    '<th class="text-center">Total Conv. Value</th>' +
+                                    '<th class="text-center">ROAS</th>' +
                                     '</tr>' +
                                     '</thead>' +
                                     '<tbody></tbody>' +
@@ -382,6 +439,7 @@ var BootstrapDaterangepicker = {
                                 $("#adwords_anomalies_datatable").DataTable({
                                     bDestroy: true,
                                     bProcessing: false,
+                                    ordering: false,
                                     pageLength: 25,
                                     data: arr,
                                     columns: [
@@ -565,6 +623,58 @@ var BootstrapDaterangepicker = {
                                                     rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
                                                 } else if (type === 'sort') {
                                                     rdata = data[1];
+                                                }
+                                                return rdata;
+                                            }
+                                        },
+                                        {
+                                            'data': 'all_conv_value',
+                                            "render": function (data, type, row, meta) {
+                                                if (type === 'display') {
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' + Humanize.formatNumber(data[1], 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' + Humanize.formatNumber(data[2], 2) + '</small>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center">';
+
+                                                    if (data[0] > 0) {
+                                                        var badge = '<span class="m-badge m-badge--success m-badge--wide">'
+                                                    } else if (data[0] === 0) {
+                                                        var badge = '<span class="m-badge m-badge--metal m-badge--wide">'
+                                                    } else {
+                                                        var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
+                                                    }
+
+                                                    rdata = rdata + badge + Humanize.formatNumber(data[0], 2) + '%</span></p>';
+                                                } else if (type === 'sort') {
+                                                    rdata = data[1];
+                                                }
+                                                return rdata;
+                                            }
+                                        },
+                                        {
+                                            'data': {acv: 'all_conv_value', cost: 'cost'},
+                                            'render': function (data, type, row, meta) {
+                                                let roas = data.all_conv_value[1] / (data.cost[1]/1000000);
+                                                let prev_roas = data.all_conv_value[2] / (data.cost[2]/1000000);
+
+                                                let diff = ((roas - prev_roas) / roas) * 100;
+                                                if (type === 'display') {
+                                                    rdata = '<p style="margin-bottom: 0!important;" class="text-center"><b>' +
+                                                        Humanize.formatNumber(roas, 2) + '</b></p>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center"><small>' +
+                                                        Humanize.formatNumber(prev_roas, 2) + '</small>' +
+                                                        '<p style="margin-bottom: 0!important;" class="text-center">';
+
+                                                    if (data[0] > 0) {
+                                                        var badge = '<span class="m-badge m-badge--success m-badge--wide">'
+                                                    } else if (data[0] === 0) {
+                                                        var badge = '<span class="m-badge m-badge--metal m-badge--wide">'
+                                                    } else {
+                                                        var badge = '<span class="m-badge m-badge--danger m-badge--wide">'
+                                                    }
+
+                                                    rdata = rdata + badge + Humanize.formatNumber(diff, 2) + '%</span></p>';
+                                                } else if (type === 'sort') {
+                                                    rdata = roas;
                                                 }
                                                 return rdata;
                                             }
