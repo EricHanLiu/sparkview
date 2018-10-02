@@ -1,4 +1,5 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% load humanize %}
+{% block content %}
 
     <div class="m-content">
         <div class="row">
@@ -6,6 +7,7 @@
                 <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
+
                             <div class="m-portlet__head-title">
                                 <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
                                     <span>Client Details</span>
@@ -14,45 +16,20 @@
                         </div>
                     </div>
                     <div class="m-portlet__body">
-                        <div class="m-portlet m-portlet--tabs m-portlet--bloom m-portlet--head-solid-bg m-portlet--head-sm">
-                            <div class="m-portlet__head">
-                                <div class="m-portlet__head-caption">
-                                    <div class="m-portlet__head-title">
-                                        <h3 class="m-portlet__head-text">
-                                            <a href="{% url 'budget:add_client' %}">
-                                            <span>
-                                                <i class="la la-angle-left"></i> Go Back
-                                            </span>
-                                            </a>
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="m-portlet__head-tools">
-                                    <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right"
-                                        role="tablist">
-                                        <li class="nav-item m-tabs__item">
-                                            <a class="nav-link m-tabs__link active show" data-toggle="tab"
-                                               href="#m_tabs_7_1" role="tab" aria-selected="true">
-                                                Info
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="m-portlet__body">
-                                {# If client has global target spend and budget set display this view #}
-                                {% if client_data.has_gts and client_data.has_budget %}
-                                    {% include 'budget/has_both.html' %}
-                                    {# If client has global target spend set display this view#}
-                                {% elif client_data.has_gts %}
-                                    {% include 'budget/has_gts.html' %}
-                                    {# If client has budget set display this view #}
-                                {% elif client_data.has_budget %}
-                                    {% include 'budget/has_budget.html' %}
-                                {% else %}
-                                    {% include 'budget/has_none.html' %}
-                                {% endif %}
-                            </div>
+
+                        <div class="m-portlet__body">
+                            {# If client has global target spend and budget set display this view #}
+                            {% if client_data.has_gts and client_data.has_budget %}
+                                {% include 'budget/has_both.html' %}
+                                {# If client has global target spend set display this view#}
+                            {% elif client_data.has_gts %}
+                                {% include 'budget/has_gts.html' %}
+                                {# If client has budget set display this view #}
+                            {% elif client_data.has_budget %}
+                                {% include 'budget/has_budget.html' %}
+                            {% else %}
+                                {% include 'budget/has_none.html' %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -707,6 +684,141 @@
             return lst
         }
 
+        // Chart functions
+        function addData(chart, label, data) {
+            chart.data.labels.push(label);
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            });
+            chart.update();
+        }
+
+        function removeData(chart) {
+            chart.data.labels.pop();
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.pop();
+            });
+            chart.update();
+        }
+
+        function generate_chart_data(data) {
+
+            let options = [];
+            let datasets = [];
+
+            $('#chart-options input:checked').each(function () {
+                options.push($(this).attr('name'))
+            });
+
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    for (key2 in data[key]) {
+                        if (data[key].hasOwnProperty(key2)) {
+                            if (options.includes(key2)) {
+                                var dataset = {
+                                    ...key2.includes('Projected') && {
+                                        borderDash: [3, 3],
+                                        type: 'scatter',
+                                        beginAtZero: false,
+                                        fill: true,
+                                    },
+                                    label: key2,
+                                    backgroundColor: random_rgba(),
+                                    borderColor: random_rgba(),
+                                    data: gen_xy(data[key][key2]),
+                                    borderWidth: 2,
+                                    fill: false
+                                };
+                                datasets.push(dataset)
+                            }
+                        }
+                    }
+                }
+            }
+            return datasets
+        }
+
+        function gen_chart(data) {
+
+            let datasets = generate_chart_data(data);
+
+            var ctx = document.getElementById('spendChart').getContext('2d');
+
+            if (window.chart !== undefined) {
+                window.chart.destroy();
+            }
+
+            window.chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'scatter',
+                data: {
+                    datasets: datasets
+                },
+
+                // Configuration options go here
+                options: {
+                    responsive: true,
+                    display: true,
+                    title: {
+                        display: true,
+                        text: '',
+                        fontSize: 20,
+                        padding: 25,
+                        fontStyle: 'normal'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 0.5,
+
+                        }
+                    },
+                    elements: {
+                        point: {
+                            pointStyle: 'circle',
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            radius: 1.6,
+                            hitRadius: 20,
+                            hoverBorderWidth: 1,
+                        },
+                        line: {
+                            tension: 0.4,
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'MMM DD',
+                                displayFormats: {
+                                    day: 'MMM DD'
+                                },
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        }],
+                        yAxes: [{
+                            display: true,
+                            type: 'linear',
+                            gridLines: {
+                                display: true,
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                },
+
+            });
+        }
+
+
         let generate_chart_config = function (data) {
 
             let datasets = [];
@@ -1242,10 +1354,10 @@
         }
 
 
-        document.addEventListener("DOMContentLoaded", function (event) {
-            let data = {{ chdata|safe }};
-            generate_chart_config(data);
-        });
+        //document.addEventListener("DOMContentLoaded", function (event) {
+        //    let data = chdata|safe;
+        //    generate_chart_config(data);
+        //});
 
     </script>
 {% endblock content %}

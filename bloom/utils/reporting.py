@@ -219,6 +219,7 @@ class Reporting:
             'costperconversion',
             'impressionsharepercent',
             'spend',
+            'all_conv._value',
         ]
 
         if not len(intersect_keys) == len(d1_keys):
@@ -242,12 +243,8 @@ class Reporting:
                     v1 = v[0]
                     v2 = v[1]
 
-                if k == 'cost':
-                    v1 = float(v1) / 1000000 if v1 != '' else 0.0
-                    v2 = float(v2) / 1000000 if v2 != '' else 0.0
-                else:
-                    v1 = float(v1) if v1 != '' else 0.0
-                    v2 = float(v2) if v2 != '' else 0.0
+                v1 = float(v1) if v1 != '' else 0.0
+                v2 = float(v2) if v2 != '' else 0.0
 
                 try:
                     difference[k] = ((v1 - v2) / v1) * 100
@@ -258,7 +255,7 @@ class Reporting:
 
             difference[k] = dict1[k]
 
-        summary = {k: [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
+        summary = {k.replace('.', '').replace('/',''): [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
 
         return summary
 
@@ -878,6 +875,7 @@ class AdwordsReporting(Reporting):
             "CostPerConversion",
             "AverageCpc",
             "SearchImpressionShare",
+            "AllConversionValue"
         ]
 
         extra_fields = kwargs.get("extra_fields", None)

@@ -49,6 +49,7 @@ class Client(models.Model):
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
+    currency = models.CharField(max_length=255, default='')
 
     # Parent Client (aka Client, this model should be Account)
     parentClient = models.ForeignKey(ParentClient, null=True, blank=True)

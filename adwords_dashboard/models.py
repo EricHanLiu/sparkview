@@ -92,6 +92,7 @@ class DependentAccount(models.Model):
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
     currency = models.CharField(max_length=255, default='')
+    ch_flag = models.BooleanField(default=False)
 
 
     @property

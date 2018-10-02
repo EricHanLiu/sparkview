@@ -7,6 +7,24 @@ from calendar import monthrange
 register = template.Library()
 
 
+@register.filter(name='cgap')
+def cgap(value, arg):
+    try:
+        result = (value / arg) * 100
+    except ZeroDivisionError:
+        result = 0
+
+    if 90 < result < 100:
+        return 'm--font-success'
+
+    elif 0 < result <= 90:
+        return 'm--font-warning'
+    elif result == 0:
+        return 'm--font'
+    else:
+        return 'm--font-danger'
+
+
 @register.filter("get_dict_value")
 def get_dict_value(data, key):
 
@@ -15,11 +33,22 @@ def get_dict_value(data, key):
     except TypeError:
         return [0,0,0]
 
+@register.filter
+def slugify_(string):
+    string = re.sub('\s+', '_', string)
+    string = re.sub('[^\w.-]', '', string)
+    return string.strip('_.- ').lower()
+
 @register.filter("addf")
 def addf(value, arg):
     """Adds the arg to the value."""
     return float(value) + float(arg)
 addf.is_safe = False
+
+
+@register.filter("diff")
+def diff(first, second):
+    return ((first - second) / first) * 100
 
 
 @register.filter("mcv")
@@ -52,6 +81,14 @@ def div(value, div):
     try:
         return round((value / div) * 100, 2)
     except ZeroDivisionError:
+        return 0
+
+@register.filter
+def divide(value, arg):
+    print(type(value))
+    try:
+        return float(value) / float(arg)
+    except (ValueError, ZeroDivisionError):
         return 0
 
 @register.filter('startswith')

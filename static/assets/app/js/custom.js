@@ -23,6 +23,9 @@ $(document).ready(function () {
         bFilter: false,
         bPaginate: false,
         bInfo: false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#qs_table").DataTable({
@@ -30,6 +33,9 @@ $(document).ready(function () {
         bPaginate: true,
         pageLength: 5,
         bInfo: false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#nlc_table").DataTable({
@@ -37,6 +43,9 @@ $(document).ready(function () {
         bPaginate: true,
         pageLength: 5,
         bInfo: false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#ext_table").DataTable({
@@ -52,28 +61,46 @@ $(document).ready(function () {
                 'bSearchable': false
             },
             null,
-        ]
+        ],
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $('#accounts').DataTable({
-        'pagingType': 'full_numbers'
+        'pagingType': 'full_numbers',
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#labels").DataTable({
         'pagingType': 'full_numbers',
-        'pageLength': 5
+        'pageLength': 5,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#adwords_datatable").DataTable({
-        'pagingType': "full_numbers"
+        'pagingType': "full_numbers",
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#adwords_anomalies_datatable").DataTable({
-        'pagingType': "full_numbers"
+        'pagingType': "full_numbers",
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#campaign_groupings").DataTable({
-        'pagingType': "full_numbers"
+        'pagingType': "full_numbers",
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#clients_last_month").DataTable({
@@ -81,12 +108,15 @@ $(document).ready(function () {
     });
 
     $("#members_datatable").DataTable({
-        'scrollX' : true,
+        'scrollX': true,
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": true,
         "bInfo": false,
-        "bAutoWidth": false
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#skills_datatable").DataTable({
@@ -94,16 +124,23 @@ $(document).ready(function () {
         "bLengthChange": false,
         "bFilter": true,
         "bInfo": false,
-        "bAutoWidth": false
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#training_datatable").DataTable({
-      "scrollX": true,
-      "bPaginate": false,
-      "bLengthChange": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bAutoWidth": false
+        "scrollX": true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+
     });
 
     $("#my_skills_datatable, #account_change_datatable").DataTable({
@@ -112,24 +149,33 @@ $(document).ready(function () {
       "bLengthChange": false,
       "bFilter": false,
       "bInfo": false,
-      "bAutoWidth": false
+      "bAutoWidth": false,
+      'language': {
+          'sSearch': '<i class="fa fa-search"></i>',
+      }
     });
 
 
     $("#all_clients_datatable").DataTable({
-      "bPaginate": false,
-      "bLengthChange": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bAutoWidth": false
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#my_clients_datatable").DataTable({
-      "bPaginate": false,
-      "bLengthChange": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bAutoWidth": false
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#team_clients_datatable, #client_hours_datatable").DataTable({
@@ -137,7 +183,10 @@ $(document).ready(function () {
       "bLengthChange": false,
       "bFilter": true,
       "bInfo": false,
-      "bAutoWidth": false
+      "bAutoWidth": false,
+      'language': {
+          'sSearch': '<i class="fa fa-search"></i>',
+      }
     });
 
     var options = {
@@ -159,7 +208,10 @@ $(document).ready(function () {
             'searchable': false,
             'orderable': false
         }],
-        'order': [[1, 'asc']]
+        'order': [[1, 'asc']],
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     // Delete one or multiple clients

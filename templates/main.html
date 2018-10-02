@@ -33,386 +33,399 @@ License: You must have a valid license purchased only from themeforest(the above
         });
     </script>
 
-	<!--end::Web font -->
-	<!--begin::Base Styles -->
-	<link href="{% static 'assets/vendors/base/vendors.bundle.css' %}" rel="stylesheet" type="text/css" />
-	{#        <link href="{% static 'assets/demo/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>#}
-	<link href="{% static 'assets/demo/demo6/base/style.bundle.css' %}" rel="stylesheet" type="text/css" />
-	<link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
-	<link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet" type="text/css"/>
-	<link href="{% static 'assets/demo/demo6/base/custom.css' %}" rel="stylesheet" type="text/css"/>
+    <!--end::Web font -->
+    <!--begin::Base Styles -->
+    <link href="{% static 'assets/vendors/base/vendors.bundle.css' %}" rel="stylesheet" type="text/css"/>
+    {#        <link href="{% static 'assets/demo/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>#}
+    <link href="{% static 'assets/demo/demo6/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'assets/demo/demo6/base/custom.css' %}" rel="stylesheet" type="text/css"/>
 
-	<!--end::Base Styles -->
-	{#		<link rel="shortcut icon"#}
-	{#          href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>#}
+    <!--end::Base Styles -->
+    {#		<link rel="shortcut icon"#}
+    {#          href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>#}
 
-	{% block extraCss %}
-	{% endblock %}
+    {% block extraCss %}
+    {% endblock %}
 
 </head>
 <!-- end::Head -->
 <!-- end::Body -->
 <!-- <body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin-light m-aside-left--fixed m-aside-left--offcanvas m-aside-left--minimize m-brand--minimize m-footer--push m-aside--offcanvas-default"  > -->
-<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-brand--minimize m-footer--push m-aside--offcanvas-default"  >
-	<!-- begin:: Page -->
-	<div class="m-grid m-grid--hor m-grid--root m-page">
-		<!-- BEGIN: Header -->
-		<header class="m-grid__item    m-header "  data-minimize-offset="200" data-minimize-mobile-offset="200" >
-			<div class="m-container m-container--fluid m-container--full-height">
-				<div class="m-stack m-stack--ver m-stack--desktop">
-					<!-- BEGIN: Brand -->
-					<div class="m-stack__item m-brand  m-brand--skin-light ">
-						<div class="m-stack m-stack--ver m-stack--general">
-							<div class="m-stack__item m-stack__item--middle m-brand__logo">
-								<a href="{% url 'index' %}" class="m-brand__logo-wrapper">
-									<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 80 80">
-										<metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-											<x:xmpmeta xmlns:x="adobe:ns:meta/"
-											x:xmptk="Adobe XMP Core 5.6-c138 79.159824, 2016/09/14-01:09:01        ">
-											<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-											<rdf:Description rdf:about=""/>
-										</rdf:RDF>
-									</x:xmpmeta>
-									<?xpacket end="w"?></metadata>
-									<defs>
-										<style>
-										.cls-1 {
-											fill: #1b2126;
-										}
+<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-brand--minimize m-footer--push m-aside--offcanvas-default">
+<!-- begin:: Page -->
+<div class="m-grid m-grid--hor m-grid--root m-page">
+    <!-- BEGIN: Header -->
+    <header class="m-grid__item    m-header " data-minimize-offset="200" data-minimize-mobile-offset="200">
+        <div class="m-container m-container--fluid m-container--full-height">
+            <div class="m-stack m-stack--ver m-stack--desktop">
+                <!-- BEGIN: Brand -->
+                <div class="m-stack__item m-brand  m-brand--skin-light ">
+                    <div class="m-stack m-stack--ver m-stack--general">
+                        <div class="m-stack__item m-stack__item--middle m-brand__logo">
+                            <a href="{% url 'index' %}" class="m-brand__logo-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 80 80">
+                                    <metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+                                        <x:xmpmeta xmlns:x="adobe:ns:meta/"
+                                                   x:xmptk="Adobe XMP Core 5.6-c138 79.159824, 2016/09/14-01:09:01        ">
+                                            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                                                <rdf:Description rdf:about=""/>
+                                            </rdf:RDF>
+                                        </x:xmpmeta>
+                                        <?xpacket end="w"?></metadata>
+                                    <defs>
+                                        <style>
+                                            .cls-1 {
+                                                fill: #1b2126;
+                                            }
 
-										.cls-2 {
-											fill: #fff;
-											fill-rule: evenodd;
-										}
-										</style>
-									</defs>
-									<rect class="cls-1" width="80" height="80"/>
-									<path id="Bloom_logo_copy_2" data-name="Bloom logo copy 2" class="cls-2"
-									d="M1116.3,2916h-16.28v48.85h16.28a8.1,8.1,0,0,0,8.04-8.16v-10.67c0-3.81-2.11-5.33-4.99-5.71,2.88-.38,4.99-1.91,4.99-5.71v-10.44A8.105,8.105,0,0,0,1116.3,2916Zm-0.08,38.66a2,2,0,0,1-1.98,2.01h-6.17v-12.75h6.17a2,2,0,0,1,1.98,2.01v8.73Zm0-19.97a2,2,0,0,1-1.98,2.01h-6.17v-12.4h6.17a2,2,0,0,1,1.98,2.01v8.38Zm16.63,26.48a1.687,1.687,0,0,0,.35-1.03,1.584,1.584,0,0,0-.47-1.16,1.554,1.554,0,0,0-1.16-.48h-1.61v4.55h0.7v-1.26h0.76l1.02,1.26h0.91l-1.13-1.39A1.8,1.8,0,0,0,1132.85,2961.17Zm-2.19-.09v-1.87h0.91a0.9,0.9,0,0,1,.66.27,0.954,0.954,0,0,1,0,1.33,0.9,0.9,0,0,1-.66.27h-0.91Zm4.53-1.81a4.166,4.166,0,0,0-.87-1.31,3.946,3.946,0,0,0-1.29-.88,3.836,3.836,0,0,0-1.57-.32,3.9,3.9,0,0,0-1.59.32,3.946,3.946,0,0,0-1.29.88,4.083,4.083,0,0,0-1.18,2.93,4.074,4.074,0,0,0,.31,1.6,4.237,4.237,0,0,0,.87,1.3,3.946,3.946,0,0,0,1.29.88,3.9,3.9,0,0,0,1.59.32,3.836,3.836,0,0,0,1.57-.32,3.946,3.946,0,0,0,1.29-.88,4.237,4.237,0,0,0,.87-1.3,4.074,4.074,0,0,0,.31-1.6A4.138,4.138,0,0,0,1135.19,2959.27Zm-0.78,2.87a3.258,3.258,0,0,1-.69,1.04,3.146,3.146,0,0,1-1.02.7,3.054,3.054,0,0,1-1.24.25,3.13,3.13,0,0,1-2.28-.95,3.268,3.268,0,0,1-.94-2.29,3.357,3.357,0,0,1,.25-1.28,3.258,3.258,0,0,1,.69-1.04,3.13,3.13,0,0,1,2.28-.95,3.054,3.054,0,0,1,1.24.25,3.146,3.146,0,0,1,1.02.7,3.258,3.258,0,0,1,.69,1.04,3.357,3.357,0,0,1,.25,1.28A3.28,3.28,0,0,1,1134.41,2962.14Z"
-									transform="translate(-1072 -2900)"/>
-								</svg>
-							</a>
-						</div>
-						<div class="m-stack__item m-stack__item--middle m-brand__tools">
-							<!-- BEGIN: Responsive Aside Left Menu Toggler -->
-							<a href="javascript:;" id="m_aside_left_offcanvas_toggle" class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-tablet-and-mobile-inline-block">
-								<span></span>
-							</a>
-							<!-- END -->
-							<!-- BEGIN: Responsive Header Menu Toggler -->
-							<a id="m_aside_header_menu_mobile_toggle" href="javascript:;" class="m-brand__icon m-brand__toggler m--visible-tablet-and-mobile-inline-block">
-								<span></span>
-							</a>
-							<!-- END -->
-							<!-- BEGIN: Topbar Toggler -->
-							<a id="m_aside_header_topbar_mobile_toggle" href="javascript:;" class="m-brand__icon m--visible-tablet-and-mobile-inline-block">
-								<i class="flaticon-more"></i>
-							</a>
-							<!-- BEGIN: Topbar Toggler -->
-						</div>
-					</div>
-				</div>
-				<!-- END: Brand -->
-				<div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
-					<!-- <div class="m-header__title">
-						<h3 class="m-header__title-text">
-							Applications
-						</h3>
-					</div> -->
-					<!-- BEGIN: Horizontal Menu -->
-					<button class="m-aside-header-menu-mobile-close  m-aside-header-menu-mobile-close--skin-light " id="m_aside_header_menu_mobile_close_btn">
-						<i class="la la-close"></i>
-					</button>
-					<div id="m_header_menu" class="m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light "  >
-						<ul class="m-menu__nav  m-menu__nav--submenu-arrow ">
-							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
-								<a  href="#" class="m-menu__link m-menu__toggle">
-									<span class="m-menu__item-here"></span>
-									<span class="m-menu__link-text">
+                                            .cls-2 {
+                                                fill: #fff;
+                                                fill-rule: evenodd;
+                                            }
+                                        </style>
+                                    </defs>
+                                    <rect class="cls-1" width="80" height="80"/>
+                                    <path id="Bloom_logo_copy_2" data-name="Bloom logo copy 2" class="cls-2"
+                                          d="M1116.3,2916h-16.28v48.85h16.28a8.1,8.1,0,0,0,8.04-8.16v-10.67c0-3.81-2.11-5.33-4.99-5.71,2.88-.38,4.99-1.91,4.99-5.71v-10.44A8.105,8.105,0,0,0,1116.3,2916Zm-0.08,38.66a2,2,0,0,1-1.98,2.01h-6.17v-12.75h6.17a2,2,0,0,1,1.98,2.01v8.73Zm0-19.97a2,2,0,0,1-1.98,2.01h-6.17v-12.4h6.17a2,2,0,0,1,1.98,2.01v8.38Zm16.63,26.48a1.687,1.687,0,0,0,.35-1.03,1.584,1.584,0,0,0-.47-1.16,1.554,1.554,0,0,0-1.16-.48h-1.61v4.55h0.7v-1.26h0.76l1.02,1.26h0.91l-1.13-1.39A1.8,1.8,0,0,0,1132.85,2961.17Zm-2.19-.09v-1.87h0.91a0.9,0.9,0,0,1,.66.27,0.954,0.954,0,0,1,0,1.33,0.9,0.9,0,0,1-.66.27h-0.91Zm4.53-1.81a4.166,4.166,0,0,0-.87-1.31,3.946,3.946,0,0,0-1.29-.88,3.836,3.836,0,0,0-1.57-.32,3.9,3.9,0,0,0-1.59.32,3.946,3.946,0,0,0-1.29.88,4.083,4.083,0,0,0-1.18,2.93,4.074,4.074,0,0,0,.31,1.6,4.237,4.237,0,0,0,.87,1.3,3.946,3.946,0,0,0,1.29.88,3.9,3.9,0,0,0,1.59.32,3.836,3.836,0,0,0,1.57-.32,3.946,3.946,0,0,0,1.29-.88,4.237,4.237,0,0,0,.87-1.3,4.074,4.074,0,0,0,.31-1.6A4.138,4.138,0,0,0,1135.19,2959.27Zm-0.78,2.87a3.258,3.258,0,0,1-.69,1.04,3.146,3.146,0,0,1-1.02.7,3.054,3.054,0,0,1-1.24.25,3.13,3.13,0,0,1-2.28-.95,3.268,3.268,0,0,1-.94-2.29,3.357,3.357,0,0,1,.25-1.28,3.258,3.258,0,0,1,.69-1.04,3.13,3.13,0,0,1,2.28-.95,3.054,3.054,0,0,1,1.24.25,3.146,3.146,0,0,1,1.02.7,3.258,3.258,0,0,1,.69,1.04,3.357,3.357,0,0,1,.25,1.28A3.28,3.28,0,0,1,1134.41,2962.14Z"
+                                          transform="translate(-1072 -2900)"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="m-stack__item m-stack__item--middle m-brand__tools">
+                            <!-- BEGIN: Responsive Aside Left Menu Toggler -->
+                            <a href="javascript:;" id="m_aside_left_offcanvas_toggle"
+                               class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-tablet-and-mobile-inline-block">
+                                <span></span>
+                            </a>
+                            <!-- END -->
+                            <!-- BEGIN: Responsive Header Menu Toggler -->
+                            <a id="m_aside_header_menu_mobile_toggle" href="javascript:;"
+                               class="m-brand__icon m-brand__toggler m--visible-tablet-and-mobile-inline-block">
+                                <span></span>
+                            </a>
+                            <!-- END -->
+                            <!-- BEGIN: Topbar Toggler -->
+                            <a id="m_aside_header_topbar_mobile_toggle" href="javascript:;"
+                               class="m-brand__icon m--visible-tablet-and-mobile-inline-block">
+                                <i class="flaticon-more"></i>
+                            </a>
+                            <!-- BEGIN: Topbar Toggler -->
+                        </div>
+                    </div>
+                </div>
+                <!-- END: Brand -->
+                <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
+                    <!-- <div class="m-header__title">
+                        <h3 class="m-header__title-text">
+                            Applications
+                        </h3>
+                    </div> -->
+                    <!-- BEGIN: Horizontal Menu -->
+                    <button class="m-aside-header-menu-mobile-close  m-aside-header-menu-mobile-close--skin-light "
+                            id="m_aside_header_menu_mobile_close_btn">
+                        <i class="la la-close"></i>
+                    </button>
+                    <div id="m_header_menu"
+                         class="m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light ">
+                        <ul class="m-menu__nav  m-menu__nav--submenu-arrow ">
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
 										Performance
 									</span>
-									<i class="m-menu__hor-arrow la la-angle-down"></i>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
-								</a>
-								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item "  aria-haspopup="true">
-											<a  href="{% url 'adwords:home' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
-												<span class="m-menu__link-title">
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " aria-haspopup="true">
+                                            <a href="{% url 'adwords:home' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
+                                                <span class="m-menu__link-title">
 													<span class="m-menu__link-wrap">
 														<span class="m-menu__link-text">
 															AdWords
 														</span>
 													</span>
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'bing:home' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'bing:home' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
+                                                <span class="m-menu__link-text">
 													Bing Ads
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'facebook:home' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'facebook:home' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
+                                                <span class="m-menu__link-text">
 													Facebook
 												</span>
-											</a>
-										</li>
+                                            </a>
+                                        </li>
 
-									</ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
-								<a  href="#" class="m-menu__link m-menu__toggle">
-									<span class="m-menu__item-here"></span>
-									<span class="m-menu__link-text">
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
 										Budgets
 									</span>
-									<i class="m-menu__hor-arrow la la-angle-down"></i>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
-								</a>
-								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'budget:add_client' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-ello"></i>
-												<span class="m-menu__link-text">
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'budget:add_client' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-ello"></i>
+                                                <span class="m-menu__link-text">
 													All platforms
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'budget:adwords' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'budget:adwords' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
+                                                <span class="m-menu__link-text">
 													AdWords
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'budget:bing' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'budget:bing' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
+                                                <span class="m-menu__link-text">
 													Bing Ads
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'budget:facebook' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'budget:facebook' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
+                                                <span class="m-menu__link-text">
 													Facebook
 												</span>
-											</a>
-										</li>
-									</ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
-								<a  href="#" class="m-menu__link m-menu__toggle">
-									<span class="m-menu__item-here"></span>
-									<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
 										Accounts
 									</span>
-									<i class="m-menu__hor-arrow la la-angle-down"></i>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
-								</a>
-								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'accounts:adwords' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
-												<span class="m-menu__link-text">
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:adwords' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
+                                                <span class="m-menu__link-text">
 													AdWords
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'accounts:bing' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:bing' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
+                                                <span class="m-menu__link-text">
 													Bing Ads
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'accounts:facebook' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:facebook' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
+                                                <span class="m-menu__link-text">
 													Facebook
 												</span>
-											</a>
-										</li>
-									</ul>
-								</div>
-							</li>
-							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
-								<a  href="#" class="m-menu__link m-menu__toggle">
-									<span class="m-menu__item-here"></span>
-									<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
 										Tools
 									</span>
-									<i class="m-menu__hor-arrow la la-angle-down"></i>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
-								</a>
-								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'tools:index' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
-												<span class="m-menu__link-text">
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'tools:index' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
+                                                <span class="m-menu__link-text">
 													Labels
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="{% url 'tools:analyser' %}" class="m-menu__link ">
-												<i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
-												<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'tools:analyser' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
+                                                <span class="m-menu__link-text">
 													PPC Analyzer
 												</span>
-											</a>
-										</li>
-										{% if request.user.is_staff %}
-										<li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-												<a href="{% url 'tools:admin_reports' %}" class="m-menu__link ">
-														<i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
-														<span class="m-menu__link-text">
+                                            </a>
+                                        </li>
+                                        {% if request.user.is_staff %}
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="{% url 'tools:admin_reports' %}" class="m-menu__link ">
+                                                    <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
+                                                    <span class="m-menu__link-text">
 																				Admin reports
 																		</span>
-												</a>
-										</li>
-										{% endif %}
-									</ul>
-								</div>
-							</li>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
 
-							{# User management #}
-							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
-								<a  href="#" class="m-menu__link m-menu__toggle">
-									<span class="m-menu__item-here"></span>
-									<span class="m-menu__link-text">
+                            {# User management #}
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
 										Users
 									</span>
-									<i class="m-menu__hor-arrow la la-angle-down"></i>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
-								</a>
-								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/profile" class="m-menu__link ">
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="/user_management/profile" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Profile
 												</span>
-											</a>
-										</li>
-										{% if request.user.is_staff %}
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/users" class="m-menu__link ">
+                                            </a>
+                                        </li>
+                                        {% if request.user.is_staff %}
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/users" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Users
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/members" class="m-menu__link ">
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/members" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Members
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/members/training" class="m-menu__link ">
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/members/training" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Member Training
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/members/new" class="m-menu__link ">
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/members/new" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Add New Member
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/skills" class="m-menu__link ">
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/skills" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Skills
 												</span>
-											</a>
-										</li>
-										<hr />
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/user_management/teams" class="m-menu__link ">
+                                                </a>
+                                            </li>
+                                            <hr/>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/teams" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Teams
 												</span>
-											</a>
-										</li>
-										{% endif %}
-									</ul>
-								</div>
-							</li>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
 
-							{# Client area #}
-							<li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"  data-menu-submenu-toggle="click" aria-haspopup="true">
-								<a  href="#" class="m-menu__link m-menu__toggle">
-									<span class="m-menu__item-here"></span>
-									<span class="m-menu__link-text">
+                            {# Client area #}
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
 										Clients
 									</span>
-									<i class="m-menu__hor-arrow la la-angle-down"></i>
-									<i class="m-menu__ver-arrow la la-angle-right"></i>
-								</a>
-								<div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-									<span class="m-menu__arrow m-menu__arrow--adjust"></span>
-									<ul class="m-menu__subnav">
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/clients" class="m-menu__link ">
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="/clients" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													My Accounts
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/clients/accounts/team" class="m-menu__link ">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="/clients/accounts/team" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													My Team's Accounts
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/clients/accounts/report_hours" class="m-menu__link ">
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="/clients/accounts/report_hours" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Report Hours
 												</span>
-											</a>
-										</li>
-										{% if request.user.is_staff %}
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/clients/accounts/all" class="m-menu__link ">
+                                            </a>
+                                        </li>
+                                        {% if request.user.is_staff %}
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/clients/accounts/all" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													All Accounts
 												</span>
-											</a>
-										</li>
-										<li class="m-menu__item "  data-redirect="true" aria-haspopup="true">
-											<a  href="/clients/accounts/new" class="m-menu__link ">
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/clients/accounts/new" class="m-menu__link ">
 												<span class="m-menu__link-text">
 													Add New Account
 												</span>
+<<<<<<< HEAD
 											</a>
 										</li>
 										{% endif %}
@@ -587,75 +600,132 @@ License: You must have a valid license purchased only from themeforest(the above
                         </li>
 												<li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light" data-dropdown-toggle="click">
 													<a href="#" class="m-nav__link m-dropdown__toggle">
+=======
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- END: Horizontal Menu -->
+                    <!-- BEGIN: Topbar -->
+                    <div id="m_header_topbar" class="m-topbar  m-stack m-stack--ver m-stack--general">
+                        <div class="m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-right m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light"
+                             id="m_quicksearch" data-search-type="default">
+                            <!--BEGIN: Search Form -->
+                            <form class="m-header-search__form">
+                                <div class="m-header-search__wrapper">
+                                    <span class="m-header-search__icon-search" id="m_quicksearch_search">
+                                        <i class="fa fa-search"></i>
+                                    </span>
+                                    <span class="m-header-search__input-wrapper">
+                                        <input autocomplete="off" type="text" name="q" class="m-header-search__input" value="" placeholder="Search..." id="m_quicksearch_input">
+                                    </span>
+                                    <span class="m-header-search__icon-close" id="m_quicksearch_close">
+                                        <i class="la la-remove"></i>
+                                    </span>
+                                    <span class="m-header-search__icon-cancel" id="m_quicksearch_cancel">
+                                        <i class="la la-remove"></i>
+                                    </span>
+                                </div>
+                            </form>
+                            <!--END: Search Form -->
+                            <!--BEGIN: Search Results -->
+                            <div class="m-dropdown__wrapper">
+                                <div class="m-dropdown__arrow m-dropdown__arrow--center"></div>
+                                <div class="m-dropdown__inner">
+                                    <div class="m-dropdown__body">
+                                        <div class="m-dropdown__scrollable m-scrollable" data-max-height="300"
+                                             data-mobile-max-height="200">
+                                            <div class="m-dropdown__content m-list-search m-list-search--skin-light"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--BEGIN: END Results -->
+                        </div>
+                        <div class="m-stack__item m-topbar__nav-wrapper">
+                            <ul class="m-topbar__nav m-nav m-nav--inline">
+                                <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
+                                    data-dropdown-toggle="click">
+                                    <a href="#" class="m-nav__link m-dropdown__toggle">
+>>>>>>> 91a2b48d52199e7a6dd0b3eb7af1f808380f5d87
 														<span class="m-topbar__userpic m--hide">
-															<img src="{% static 'assets/app/media/img/users/user4.jpg' %}" class="m--img-rounded m--marginless m--img-centered" alt=""/>
+															<img src="{% static 'assets/app/media/img/users/user4.jpg' %}"
+                                                                 class="m--img-rounded m--marginless m--img-centered"
+                                                                 alt=""/>
 														</span>
-														<span class="m-nav__link-icon m-topbar__usericon">
+                                        <span class="m-nav__link-icon m-topbar__usericon">
 															<span class="m-nav__link-icon-wrapper">
 																<i class="fa fa-user"></i>
 															</span>
 														</span>
-														<span class="m-topbar__username m--hide">
+                                        <span class="m-topbar__username m--hide">
 															{{ request.user.username }}
 														</span>
-													</a>
-													<div class="m-dropdown__wrapper">
-														<span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
-														<div class="m-dropdown__inner">
-															<div class="m-dropdown__header m--align-center">
-																<div class="m-card-user m-card-user--skin-light">
-																	<div class="m-card-user__pic">
-																		<img src="{% static 'assets/app/media/img/client-logos/logo3.png' %}" class="m--img-rounded m--marginless" alt=""/>
-																	</div>
-																	<div class="m-card-user__details">
+                                    </a>
+                                    <div class="m-dropdown__wrapper">
+                                        <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
+                                        <div class="m-dropdown__inner">
+                                            <div class="m-dropdown__header m--align-center">
+                                                <div class="m-card-user m-card-user--skin-light">
+                                                    <div class="m-card-user__pic">
+                                                        <img src="{% static 'assets/app/media/img/client-logos/logo3.png' %}"
+                                                             class="m--img-rounded m--marginless" alt=""/>
+                                                    </div>
+                                                    <div class="m-card-user__details">
 																		<span class="m-card-user__name m--font-weight-500">
 																			<a href="{% url 'profile' %}">
 																				{{ request.user.get_full_name }}
 																			</a>
 																		</span>
-																		<a href="" class="m-card-user__email m--font-weight-300 m-link">
-																			{{ request.user.email }}
-																		</a>
-																	</div>
-																</div>
-															</div>
-															<div class="m-dropdown__body">
-																<div class="m-dropdown__content">
-																	<ul class="m-nav m-nav--skin-light">
-																		<li class="m-nav__item">
-																			<div class="row">
-																				<div class="col-md-4">
-																					<a href="{% url 'logout' %}" class="btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">
-																						Logout
-																					</a>
-																				</div>
-																				<div class="col-md-4">
-																					<a href="{% url 'change_password' %}" class="btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">
-																						Change password
-																					</a>
-																				</div>
-																			</div>
-																		</li>
-																	</ul>
-																</div>
-															</div>
-														</div>
-													</div>
-												</li>
-											</ul>
-										</div>
-									</div>
-									<!-- END: Topbar -->
-								</div>
-							</div>
-						</div>
-					</header>
-					<!-- END: Header -->
-					<!-- begin::Body -->
-					<div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body">
-						<!-- BEGIN: Left Aside -->
-						{% block leftAside %}
-						<!-- <button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn">
+                                                        <a href="" class="m-card-user__email m--font-weight-300 m-link">
+                                                            {{ request.user.email }}
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="m-dropdown__body">
+                                                <div class="m-dropdown__content">
+                                                    <ul class="m-nav m-nav--skin-light">
+                                                        <li class="m-nav__item">
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <a href="{% url 'logout' %}"
+                                                                       class="btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">
+                                                                        Logout
+                                                                    </a>
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <a href="{% url 'change_password' %}"
+                                                                       class="btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder">
+                                                                        Change password
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- END: Topbar -->
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- END: Header -->
+    <!-- begin::Body -->
+    <div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body">
+        <!-- BEGIN: Left Aside -->
+        {% block leftAside %}
+            <!-- <button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn">
 							<i class="la la-close"></i>
 						</button>
 						<div id="m_aside_left" class="m-grid__item	m-aside-left  m-aside-left--skin-light ">
@@ -707,30 +777,31 @@ License: You must have a valid license purchased only from themeforest(the above
 							</ul>
 						</div>
 					</div> -->
-					{% endblock %}
+        {% endblock %}
 
-					<div class="m-grid__item m-grid__item--fluid m-wrapper">
-						<!-- BEGIN: Subheader -->
+        <div class="m-grid__item m-grid__item--fluid m-wrapper">
+            <!-- BEGIN: Subheader -->
 
-						<!-- END: Subheader -->
-						{#					<div class="m-content">#}
-							{% block content %}
-							{% endblock %}
-							{#					</div>#}
-						</div>
-					</div>
-					<!-- end:: Body -->
-					<!-- begin::Footer -->
-					<footer class="m-grid__item		m-footer ">
-						<div class="m-container m-container--fluid m-container--full-height m-page__container">
-							<div class="m-stack m-stack--flex-tablet-and-mobile m-stack--ver m-stack--desktop">
-								<div class="m-stack__item m-stack__item--left m-stack__item--middle m-stack__item--last">
+            <!-- END: Subheader -->
+            {#					<div class="m-content">#}
+            {% block content %}
+            {% endblock %}
+            {#					</div>#}
+        </div>
+    </div>
+    <!-- end:: Body -->
+    <!-- begin::Footer -->
+    <footer class="m-grid__item		m-footer ">
+        <div class="m-container m-container--fluid m-container--full-height m-page__container">
+            <div class="m-stack m-stack--flex-tablet-and-mobile m-stack--ver m-stack--desktop">
+                <div class="m-stack__item m-stack__item--left m-stack__item--middle m-stack__item--last">
 									<span class="m-footer__copyright">
 										2018 &copy; Bloom Platform by
 										<a href="http://hdigital.io" class="m-link">
 											HyperDigital
 										</a>
 									</span>
+<<<<<<< HEAD
 								</div>
 							</div>
 						</div>
@@ -769,3 +840,50 @@ License: You must have a valid license purchased only from themeforest(the above
 			</body>
 			<!-- end::Body -->
 			</html>
+=======
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- end::Footer -->
+</div>
+<!-- begin::Scroll Top -->
+<div class="m-scroll-top m-scroll-top--skin-top" data-toggle="m-scroll-top" data-scroll-offset="500"
+     data-scroll-speed="300">
+    <i class="la la-arrow-up"></i>
+</div>
+<!-- end::Scroll Top -->
+<!--begin::Base Scripts -->
+<script src="{% static 'assets/vendors/base/vendors.bundle.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/demo/demo6/base/scripts.bundle.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/forms/wizard/wizard.js' %}"
+        type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/forms/widgets/select2.js' %}"
+        type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/percircle/js/percircle.js' %}"
+        type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/crud/forms/widgets/bootstrap-switch.js' %}"
+        type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/forms/widgets/bootstrap-datepicker.js' %}"
+        type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/forms/widgets/bootstrap-daterangepicker.js' %}"
+        type="text/javascript"></script>
+{#<script src="{% static 'assets/demo/default/custom/components/portlets/tools.js' %}"#}
+{#        type="text/javascript"></script>#}
+<script src="{% static 'assets/app/js/datatables/datatables.min.js' %}"
+        type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"
+        type="text/javascript"></script>
+<!--end::Base Scripts -->
+<!--begin::Page Snippets -->
+<script src="{% static 'assets/app/js/moment.js' %}"></script>
+<script src="{% static 'assets/app/js/humanize.min.js' %}"></script>
+<script src="{% static 'assets/app/js/Chart.min.js' %}"></script>
+<script src="{% static 'assets/app/js/custom.js' %}"></script>
+<!--end::Page Snippets -->
+{% block extraJs %}
+{% endblock %}
+</body>
+<!-- end::Body -->
+</html>
+>>>>>>> 91a2b48d52199e7a6dd0b3eb7af1f808380f5d87
