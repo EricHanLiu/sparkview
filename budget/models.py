@@ -128,7 +128,7 @@ class Client(models.Model):
     def getHoursRemainingThisMonth(self):
         # Cache this because its calls DB stuff
         if not hasattr(self, '_hoursRemainingMonth'):
-            self._hoursRemainingMonth = self.getAllocatedHours() - self.getHoursWorkedThisMonth()
+            self._hoursRemainingMonth = round(self.getAllocatedHours() - self.getHoursWorkedThisMonth(), 2)
         return self._hoursRemainingMonth
 
     def getHoursWorkedThisMonthMember(self, member):
@@ -194,7 +194,7 @@ class Client(models.Model):
         if not hasattr(self, '_ppcFee'):
             tmpBudget = self.budget
             fee = 0.0
-            for feeInterval in self.managementFee.feeStructure.all():
+            for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
                 if (tmpBudget <= 0):
                     break
                 maxSpendAtThisLevel = feeInterval.upperBound - feeInterval.lowerBound
@@ -212,7 +212,7 @@ class Client(models.Model):
                     tmpBudget -= tmpBudget
             if (self.status == 0):
                 fee += self.managementFee.initialFee
-            self._ppcFee = fee
+            self._ppcFee = round(fee, 2)
         return self._ppcFee
 
     def getFee(self):

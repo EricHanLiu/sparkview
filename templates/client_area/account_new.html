@@ -9,6 +9,8 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-12">
+      <form class="m-form" method="post" id="m_form_add_client">
+      {% csrf_token %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -20,8 +22,6 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          <form class="m-form" method="post" id="m_form_add_client">
-            {% csrf_token %}
             <div class="m-portlet__body">
               <div id="existing_client_form">
                 <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_btn">Create New Client</button>
@@ -142,6 +142,21 @@
                   </div>
                 </div>
               </div>
+            </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                PPC Services
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m-portlet__body">
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
@@ -156,13 +171,143 @@
                   </div>
                 </div>
               </div>
-              <input type="submit" value="Submit">
             </div>
-          </form>
         </div>
       </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Service Agreement
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m-portlet__body">
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label for="service">Setup fee:</label>
+                    <input class="form-control m-input" name="setup-fee" />
+                  </div>
+                  <div class="col-md-4">
+                    <label>Fee type:</label>
+                    <select class="form-control m-input"
+                            name="fee-type1"
+                            style="width: 100%;">
+                            <option value="0">%</option>
+                            <option value="1">$</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label>Fee:</label>
+                    <input class="form-control m-input" name="fee1" />
+                  </div>
+                </div>
+              </div>
+              <!-- <hr />
+              <div class="form-group m-form__group" id="management_fee_form">
+                <input style="display:none;" value="1" id="rowNumInput" />
+                <div class="row">
+                  <div class="col-md-3">
+                    <label>Low Budget Bound ($):</label>
+                    <input class="form-control m-input" name="low-bound1" />
+                  </div>
+                  <div class="col-md-3">
+                    <label>High Budget Bound ($):</label>
+                    <input class="form-control m-input" name="high-bound1" />
+                  </div>
+                  <div class="col-md-3">
+                    <label>Fee type:</label>
+                    <select class="form-control m-input"
+                            name="fee-type1"
+                            style="width: 100%;">
+                            <option value="0">%</option>
+                            <option value="1">$</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label>Fee:</label>
+                    <input class="form-control m-input" name="fee1" />
+                  </div>
+                  <div class="col-md-1">
+                    <label>Add Level</label>
+                    <button type="button" name="button" class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level</button>
+                  </div>
+                </div>
+              </div> -->
+              <input type="submit" value="Submit">
+            </div>
+        </div>
+      </div>
+    </form>
     </div>
   </div>
   <!--End::Main Portlet-->
 </div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  $createNewBtn   = $('#create_new_btn');
+  $useExistingBtn = $('#use_existing_btn');
+  $existingForm   = $('#existing_client_form');
+  $newForm        = $('#new_client_form');
+
+  $createNewBtn.click(function () {
+    $existingForm.hide();
+    $newForm.show();
+  });
+
+  $useExistingBtn.click(function () {
+    $newForm.hide();
+    $existingForm.show();
+  });
+
+  $addFeeBtn = $('.add-fee-level-btn');
+  $feeForm   = $('#management_fee_form');
+  $rowNum    = $('#rowNumInput');
+
+  var feeRows = 1;
+  var feeRowHtml = `
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label>Low Budget Bound ($):</label>
+                      <input class="form-control m-input" name="low-bound1" />
+                    </div>
+                    <div class="col-md-3">
+                      <label>High Budget Bound ($):</label>
+                      <input class="form-control m-input" name="high-bound1" />
+                    </div>
+                    <div class="col-md-2">
+                      <label>Fee type:</label>
+                      <select class="form-control m-input"
+                              name="fee-type1"
+                              style="width: 100%;">
+                              <option value="0">%</option>
+                              <option value="1">$</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label>Fee:</label>
+                      <input class="form-control m-input" name="fee1" />
+                    </div>
+                  </div>
+                  `;
+
+  $addFeeBtn.click(function () {
+    feeRows++;
+    $rowNum.val(feeRows);
+    feeRowHtml = feeRowHtml.replace('low-bound' + (feeRows - 1), 'low-bound' + feeRows)
+                           .replace('high-bound' + (feeRows - 1), 'high-bound' + feeRows)
+                           .replace('fee-type' + (feeRows - 1), 'fee-type' + feeRows)
+                           .replace('fee' + (feeRows - 1), 'fee' + feeRows);
+    $feeForm.append(feeRowHtml);
+  });
+
+});
+</script>
 {% endblock %}

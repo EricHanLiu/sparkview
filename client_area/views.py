@@ -1,24 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.db.models import Sum
 from django.db.models import Q
 import calendar, datetime
 
 from budget.models import Client
 from user_management.models import Member, Team
-from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient
+from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
 from .forms import NewClientForm
 
 
 @login_required
 def accounts(request):
     member  = Member.objects.get(user=request.user)
-    accounts = Client.objects.filter(
-                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
-                  Q(am1=member) | Q(am2=member) | Q(am3=member) |
-                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-              )
+    accounts = member.accounts
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
 
@@ -149,6 +145,13 @@ def account_new(request):
             contacts = [contactInfo]
             account.contactInfo.set(contacts)
 
+            # Make management fee structure
+            # This is temporary
+            feeType = request.POST.get('fee-type1')
+            fee     = request.POST.get('fee')
+
+            feeInterval = ManagementFeeInterval.create(feeStyle=feeTyle, fee=fee, lowerBound=0, upperBound=99999999)
+
             account.save()
 
             return redirect('/clients/accounts/all')
@@ -193,14 +196,14 @@ def account_edit(request, id):
         member = Member.objects.get(user=request.user)
 
         formData = {
-            'client_name'   : request.POST.get('client_name'),
+            'account_name'  : request.POST.get('account_name'),
             'team'          : request.POST.get('team'),
             'client_type'   : request.POST.get('client_type'),
             'industry'      : request.POST.get('industry'),
             'language'      : request.POST.get('language'),
             'contact_email' : request.POST.get('contact_email'),
             'contact_name'  : request.POST.get('contact_name'),
-            'sold_by'       : request.POST.get('sold_by'),
+            'sold_by'       : request.POST.get('soldby'),
             'services'      : request.POST.get('services'),
             'status'        : request.POST.get('status'),
         }
@@ -215,20 +218,20 @@ def account_edit(request, id):
 
             # Bad boilerplate
             # Change this eventually
-            if (account.client_name != cleanedInputs['client_name']):
-                AccountChanges.objects.create(account=account, member=member, changeField='client_name', changedFrom=account.client_name, changedTo=cleanedInputs['client_name'])
-                account.client_name = cleanedInputs['client_name']
+            if (account.client_name != cleanedInputs['account_name']):
+                AccountChanges.objects.create(account=account, member=member, changeField='account_name', changedFrom=account.client_name, changedTo=cleanedInputs['account_name'])
+                account.client_name = cleanedInputs['account_name']
 
             if (account.clientType != cleanedInputs['client_type']):
-                AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType, changedTo=cleanedInputs['client_type'])
+                AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType.name, changedTo=cleanedInputs['client_type'])
                 account.clientType = cleanedInputs['client_type']
 
             if (account.industry != cleanedInputs['industry']):
-                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry, changedTo=cleanedInputs['industry'])
+                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry.name, changedTo=cleanedInputs['industry'])
                 account.industry = cleanedInputs['industry']
 
             if (account.soldBy != cleanedInputs['sold_by']):
-                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.soldBy, changedTo=cleanedInputs['sold_by'])
+                AccountChanges.objects.create(account=account, member=member, changeField='sold_by', changedFrom=account.soldBy.user.first_name + ' ' + account.soldBy.user.last_name, changedTo=cleanedInputs['sold_by'])
                 account.soldBy = cleanedInputs['sold_by']
 
             if (account.status != cleanedInputs['status']):
@@ -273,11 +276,16 @@ def account_single(request, id):
     year  = now.year
     accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year)
 
+    accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year).values('member', 'month', 'year').annotate(Sum('hours'))
+
+    print(accountsHoursThisMonthByMember)
+
     statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
 
     context = {
         'account'               : account,
         'members'               : members,
+        'accountHoursMember'    : accountsHoursThisMonthByMember,
         'changes'               : changes,
         'accountHoursThisMonth' : accountHoursThisMonth,
         'statusBadges'          : statusBadges

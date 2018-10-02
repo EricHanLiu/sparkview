@@ -46,8 +46,6 @@
               </label>
             </div>
           </div> -->
-          <h3>Team and Role</h3>
-          <hr />
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
@@ -130,18 +128,11 @@
                       <h4 class="m-widget24__title">
                         Allocated Hours
                       </h4><br>
-                      <span class="m-widget24__stats m--font-brand">
-                        23
+                      <span class="m-widget24__desc">
+                          Hours to work this month
                       </span>
-                      <div class="m--space-10"></div>
-                      <div class="progress m-progress--sm">
-                        <div class="progress-bar m--bg-brand" role="progressbar" style="width: 78%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <span class="m-widget24__change">
-                        Change
-                      </span>
-                      <span class="m-widget24__number">
-                        78%
+                      <span class="m-widget24__stats m--font-brand" style="margin-bottom:2.86rem;">
+                        {{ member.allocatedHoursMonth }}
                       </span>
                     </div>
                   </div>
@@ -154,18 +145,11 @@
                       <h4 class="m-widget24__title">
                         Hours Available
                       </h4><br>
-                      <span class="m-widget24__stats m--font-info">
-                        {{ member.buffer_hours_available }}
+                      <span class="m-widget24__desc">
+                          Hours available to be allocated
                       </span>
-                      <div class="m--space-10"></div>
-                      <div class="progress m-progress--sm">
-                        <div class="progress-bar m--bg-info" role="progressbar" style="width: 84%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <span class="m-widget24__change">
-                        Change
-                      </span>
-                      <span class="m-widget24__number">
-                        84%
+                      <span class="m-widget24__stats m--font-info" style="margin-bottom:2.86rem;">
+                        {{ member.hours_available }}
                       </span>
                     </div>
                   </div>
@@ -178,28 +162,30 @@
                       <h4 class="m-widget24__title">
                         Actual Hours
                       </h4><br>
-                      <span class="m-widget24__stats m--font-danger">
-                        70
+                      <span class="m-widget24__desc">
+                          Hours worked this month
                       </span>
-                      <div class="m--space-10"></div>
-                      <div class="progress m-progress--sm">
-                        <div class="progress-bar m--bg-danger" role="progressbar" style="width: 69%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <span class="m-widget24__change">
-                        Change
-                      </span>
-                      <span class="m-widget24__number">
-                        69%
+                      <span class="m-widget24__stats m--font-danger" style="margin-bottom:2.86rem;">
+                        {{ member.actualHoursThisMonth }}
                       </span>
                     </div>
                   </div>
                   <!--end::New Orders-->
                 </div>
               </div>
+              <br />
+              <hr />
+              <div class="row m-row--no-padding m-row--col-separator-xl" style="margin-top:0.5rem;">
+                <div class="progress m-progress--lg" style="width:100%;">
+                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_learning_percentage }}%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_trainers_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: {{ member.buffer_sales_percentage }}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_planning_percentage }}%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_internal_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ member.allocatedHoursMonth }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <canvas id="pieChart" style="width:400px; height:200px;"></canvas>
           </div>
         </div>
       </div>
@@ -409,84 +395,4 @@
 
   <!--End::Main Portlet-->
 </div>
-{% endblock %}
-
-{% block extraJs %}
-<script>
-var ctx = document.getElementById("pieChart").getContext('2d');
-var pieChart = new Chart(ctx, {
-  type: 'pie',
-  data: {
-    datasets: [{
-        data: [{{ member.buffer_learning_percentage }},
-               {{ member.buffer_trainers_percentage }},
-               {{ member.buffer_sales_percentage }},
-               {{ member.buffer_planning_percentage }},
-               {{ member.buffer_internal_percentage }},
-               {{ member.buffer_seniority_percentage }}],
-        backgroundColor: [
-          {% for memberSkill in memberSkills %}
-          {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-          {% if not forloop.last %},{% endif %}
-          {% endfor %}
-        ]
-    }],
-    // These labels appear in the legend and in the tooltips when hovering different arcs
-    labels: [
-        'Learning %',
-        'Training %',
-        'Sales %',
-        'Planning %',
-        'Internal %',
-        'Seniority %'
-    ]
-  },
-  options: {
-    maintainAspectRatio: false
-  }
-});
-// var myChart = new Chart(ctx, {
-//   type: 'bar',
-//   data: {
-//     labels: [{% for memberSkill in memberSkills %}"{{ memberSkill.skill.name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-//     datasets: [{
-//       data: [{% for memberSkill in memberSkills %}"{{ memberSkill.score }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-//       backgroundColor: [
-//         {% for memberSkill in memberSkills %}
-//         {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-//         {% if not forloop.last %},{% endif %}
-//         {% endfor %}
-//       ],
-//       borderColor: [
-//         {% for memberSkill in memberSkills %}
-//         {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-//         {% if not forloop.last %},{% endif %}
-//         {% endfor %}
-//       ],
-//       borderWidth: 1
-//     }]
-//   },
-//   options: {
-//     scales: {
-//       yAxes: [{
-//         ticks: {
-//           beginAtZero:true,
-//           stepSize: 1
-//         },
-//         gridLines: {
-//           display:false
-//         }
-//       }],
-//       xAxes: [{
-//         gridLines: {
-//           display:false
-//         }
-//       }]
-//     },
-//     legend: {
-//       display: false
-//     }
-//   }
-// });
-</script>
 {% endblock %}

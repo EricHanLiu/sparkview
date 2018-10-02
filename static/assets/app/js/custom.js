@@ -124,7 +124,7 @@ $(document).ready(function () {
       "bAutoWidth": false
     });
 
-    $("#my_clients_datatable, #my_backup_clients_datatable").DataTable({
+    $("#my_clients_datatable").DataTable({
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
@@ -132,13 +132,26 @@ $(document).ready(function () {
       "bAutoWidth": false
     });
 
-    $("#team_clients_datatable").DataTable({
+    $("#team_clients_datatable, #client_hours_datatable").DataTable({
       "bPaginate": false,
       "bLengthChange": false,
       "bFilter": true,
       "bInfo": false,
       "bAutoWidth": false
     });
+
+    var options = {
+        toggle: 'click',
+        hoverTimeout: 300,
+        skin: 'light',
+        height: 'auto',
+        maxHeight: false,
+        minHeight: false,
+        persistent: false,
+        mobileOverlay: true
+    };
+
+    // var dropdown1 = new $.fn.mDropdown('m_topbar_notification_icon', options);
 
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
