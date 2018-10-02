@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.db.models import Q
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
