@@ -103,7 +103,10 @@ def main():
                 client.aw_spend += a.current_spend
                 client.aw_yesterday += a.yesterday_spend
                 client.aw_budget += a.desired_spend
-                client.aw_current_ds += a.current_spend / (today.day - 1)
+                if today.day >= 2:
+                    client.aw_current_ds += a.current_spend / (today.day - 1)
+                else:
+                    client.aw_current_ds += a.current_spend / today.day
 
                 for k, v in sorted(a.segmented_spend.items()):
                     if v['cost'] == 0:
@@ -192,7 +195,10 @@ def main():
                 client.bing_spend += b.current_spend
                 client.bing_yesterday += b.yesterday_spend
                 client.bing_budget += b.desired_spend
-                client.bing_current_ds += b.current_spend / (today.day - 1)
+                if today.day >= 2:
+                    client.bing_current_ds += b.current_spend / (today.day - 1)
+                else:
+                    client.bing_current_ds += b.current_spend / today.day
 
                 for k, v in sorted(b.segmented_spend.items()):
                     b_temp = b_temp + float(v['spend'])
@@ -260,7 +266,10 @@ def main():
                 client.fb_spend += f.current_spend
                 client.fb_yesterday += f.yesterday_spend
                 client.fb_budget += f.desired_spend
-                client.fb_current_ds += f.current_spend / (today.day - 1)
+                if today.day >= 2:
+                    client.fb_current_ds += f.current_spend / (today.day - 1)
+                else:
+                    client.fb_current_ds += f.current_spend / today.day
 
                 for k, v in sorted(f.segmented_spend.items()):
                     fb_temp = fb_temp + float(v)
