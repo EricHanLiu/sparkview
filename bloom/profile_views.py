@@ -5,12 +5,16 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.hashers import make_password
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.urls import reverse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
+from django.core import serializers
 from adwords_dashboard.models import DependentAccount, Profile
 from bing_dashboard.models import BingAccounts
 from facebook_dashboard.models import FacebookAccount
+from budget.models import Client
 from social_django.models import UserSocialAuth
 import json
 
@@ -431,3 +435,33 @@ def delete_user(request):
     user.delete()
 
     return JsonResponse(response)
+
+@login_required
+def search(request):
+
+    res = []
+    query = request.GET.get('query')
+
+    clients = Client.objects.filter(
+        Q(client_name__icontains=query)
+    )
+
+    users = User.objects.filter(
+        Q(username__icontains=query)
+    )
+
+
+    for r in clients:
+        item = {
+            'name': r.client_name,
+            'url': reverse('budget:client_details', args=(r.id,)),
+        }
+        res.append(item)
+
+    for u in users:
+        item = {
+            'username': u.username
+        }
+        res.append(item)
+    print(res)
+    return JsonResponse(res, safe=False)

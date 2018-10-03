@@ -86,6 +86,7 @@ $(document).ready(function () {
         'pagingType': "full_numbers",
         'language': {
             'sSearch': '<i class="fa fa-search"></i>',
+            'searchPlaceholder': 'Search accounts...'
         }
     });
 
@@ -211,6 +212,7 @@ $(document).ready(function () {
         'order': [[1, 'asc']],
         'language': {
             'sSearch': '<i class="fa fa-search"></i>',
+            'searchPlaceholder': 'Search clients and budgets...'
         }
     });
 

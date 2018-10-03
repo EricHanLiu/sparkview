@@ -26,6 +26,7 @@ urlpatterns = [
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^auth/", include('social_django.urls', namespace='social')),
     url(r"^accounts/profile$", profile.view_profile, name='profile'),
+    url(r"^search/", profile.search, name='search'),
     url(r"^users$", profile.user_list, name='user_list'),
     url(r"^users/add$", profile.create_user, name='create_user'),
     url(r"^users/delete$", profile.delete_user, name='delete_user'),

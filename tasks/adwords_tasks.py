@@ -972,14 +972,29 @@ def adwords_account_not_running(self, customer_id):
 
     nr_data = []
 
+    # predicates = [{
+    #         "field": "CampaignStatus",
+    #         "operator": "IN",
+    #         "values": ["ENABLED"],
+    #     }, {
+    #         "field": "ServingStatus",
+    #         "operator": "IN",
+    #         "values": ["SERVING"],
+    #     }]
+
     campaign_yesterday = helper.get_campaign_performance(
         customer_id=account.dependent_account_id,
         dateRangeType="YESTERDAY",
+        # extra_predicates=predicates
     )
 
     for item in campaign_yesterday:
         if item['impressions'] == '0':
-            nr_data.append(item)
+            nr_data.append({
+                'campaign': remove_accents(item['campaign']),
+                'impressions': item['impressions'],
+                'cost': int(item['cost'])/1000000
+            })
 
     nr_no = len(nr_data)
     nr_score = 0
@@ -1087,6 +1102,7 @@ def adwords_account_extensions(self, customer_id):
         'MESSAGE',
         'PRICE',
         'PROMOTION',
+        # 'SITELINK',
         'SITELINKS',
         'STRUCTURED_SNIPPET',
     ]
@@ -1125,8 +1141,10 @@ def adwords_account_extensions(self, customer_id):
         missing_no = len(missing)
 
         cmp_score += (missing_no * 100) / all_ext
-
-    ext_score = cmp_score / len(ext)
+    if ext:
+        ext_score = cmp_score / len(ext)
+    else:
+        ext_score = 0.0
 
     account.ext_data = ext_data
     account.ext_score = ext_score
