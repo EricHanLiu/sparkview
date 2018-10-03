@@ -588,7 +588,27 @@ License: You must have a valid license purchased only from themeforest(the above
 <script src="{% static 'assets/app/js/Chart.min.js' %}"></script>
 <script type="text/javascript">
     // Instantiate the Bloodhound suggestion engine
-    var results = new Bloodhound({
+    var clients = new Bloodhound({
+
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('cname'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            wildcard: '%QUERY',
+            url: '/search?query=%QUERY',
+            transform: function (response) {
+                // Map the remote source JSON array to a JavaScript object array
+                return $.map(response, function (elem) {
+                    return {
+                        cname: elem.name,
+                        url: elem.url,
+                        username: elem.username
+                    };
+                });
+            }
+        }
+    });
+
+    var users = new Bloodhound({
 
         datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -599,8 +619,7 @@ License: You must have a valid license purchased only from themeforest(the above
                 // Map the remote source JSON array to a JavaScript object array
                 return $.map(response, function (elem) {
                     return {
-                        cname: elem.name,
-                        url: elem.url
+                        username: elem.username,
                     };
                 });
             }
@@ -608,19 +627,48 @@ License: You must have a valid license purchased only from themeforest(the above
     });
 
     // Instantiate the Typeahead UI
-    $('input.typeahead').typeahead(null, {
-        source: results,
-        display: 'cname',
-        hint: !0,
-        highlight: !0,
-        minLength: 1,
-        limit: Infinity,
-        templates: {
-            suggestion: function (data) {
-                return "<a href=" + data.url + ">" + data.cname + "</a>"
-            }
-        }
-    });
+    $('input.typeahead').typeahead({
+            hint: !0,
+            highlight: !0,
+            limit: 10,
+            minLength: 2,
+        },
+        {
+            name: 'clients',
+            display: 'cname',
+            source: clients,
+            templates:
+                {
+                    header: '<h6 class="search-heading">Clients</h5>',
+                    suggestion: function (data) {
+                        if ("cname" in data) {
+                            return "<a href=" + data.url + ">" + data.cname + "</a>";
+                        } else {
+                            return "<div></div>"
+                        }
+                    },
+
+
+                }
+        },
+        {
+            name: 'users',
+            display: 'username',
+            source: users,
+            templates:
+                {
+                    header: '<h6 class="search-heading">Users</h5>',
+                    suggestion: function (data) {
+                        console.log(data)
+                        if ("username" in data) {
+                            return "<div>" + data.username + "</div>";
+                        } else {
+                            return "<div></div>"
+                        }
+                    },
+                }
+        });
+
 </script>
 
 <script src="{% static 'assets/app/js/custom.js' %}"></script>

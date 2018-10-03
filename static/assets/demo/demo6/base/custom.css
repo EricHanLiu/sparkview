@@ -261,6 +261,7 @@ m-table--head-separator-bloom {
     outline: 0;
     border-width: 0 0 1px;
     border-color: #000;
+    width: 300px;
 }
 
 .dataTables_length {
@@ -407,4 +408,20 @@ span.twitter-typeahead {
 .input-group.input-group-lg span.twitter-typeahead .tt-menu,
 .input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
     top: 46px !important;
+}
+
+.search-heading {
+    padding-left: 4%;
+    margin-top: 3px;
+    position: relative;
+}
+
+.search-heading:after {
+    position: absolute;
+    content: '';
+    border-bottom: 1px solid #D3D3D3;
+    width: 92%;
+    bottom: -5px;
+    left: 4%;
+
 }

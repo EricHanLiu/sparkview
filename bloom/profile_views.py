@@ -442,18 +442,26 @@ def search(request):
     res = []
     query = request.GET.get('query')
 
-    results = Client.objects.filter(
+    clients = Client.objects.filter(
         Q(client_name__icontains=query)
     )
 
-    final = json.loads(serializers.serialize("json", results))
+    users = User.objects.filter(
+        Q(username__icontains=query)
+    )
 
-    response = final
 
-    for r in results:
+    for r in clients:
         item = {
             'name': r.client_name,
             'url': reverse('budget:client_details', args=(r.id,)),
         }
         res.append(item)
+
+    for u in users:
+        item = {
+            'username': u.username
+        }
+        res.append(item)
+    print(res)
     return JsonResponse(res, safe=False)
