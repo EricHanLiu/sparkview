@@ -1,7 +1,7 @@
 <!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% load humanize %} {% block view_client_block %}
 
 
-    {% csrf_token %}
+
 
     <div class="m-accordion__item">
         <div class="m-accordion__item-head collapsed" role="tab"
@@ -20,32 +20,6 @@
                 <span class="float-right" style="font-size: 15px">{{ remaining }} remaining days</span>
             </h3>
             <div class="m--space-30"></div>
-            <div class="m-form__group form-group row no-gutters">
-                <label class="col-1 col-form-label">GTS</label>
-                <div class="col-1">
-                    <span class="m-switch m-switch--outline m-switch--success">
-                        <label>
-                        <input type="checkbox"
-                               {% if client_data.has_gts %}checked{% endif %}
-                               id="m_gts_client_cbox"
-                               data-cid="{{ client_data.id }}">
-                        <span></span>
-                        </label>
-                    </span>
-                </div>
-                <label class="col-1 col-form-label">Budget</label>
-                <div class="col-1">
-                    <span class="m-switch m-switch--outline m-switch--success">
-                        <label>
-                            <input type="checkbox" {% if client_data.has_budget %}
-                                   checked {% endif %}
-                                   id="m_client_budget_cbox"
-                                   data-cid="{{ client_data.id }}">
-                            <span></span>
-                        </label>
-                    </span>
-                </div>
-            </div>
         </div>
 
         <div class="m-accordion__item-body"
@@ -857,7 +831,7 @@
                              id="m_accordion_4_item_6_head" data-toggle="collapse"
                              href="#m_accordion_4_item_6_body" aria-expanded="    false">
                             <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Global Target Spend</span>
+                            <span class="m-accordion__item-title">Other Budgets</span>
 
                             <span class="m-accordion__item-mode"></span>
                         </div>
@@ -866,7 +840,23 @@
                              role="tabpanel" aria-labelledby="m_accordion_4_item_6_head"
                              data-parent="#m_accordion_4">
                             <div class="m-accordion__item-content">
-
+                              <form method="post" action="/budget/clients/edit_other_budget">
+                                {% csrf_token %}
+                                <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;" />
+                                <div class="form-group m-form__group">
+                                  <div class="row">
+                                    <div class="col-md-6">
+                                      <label for="client_name">Global Budget:</label>
+                                      <input type="text" name="global_budget" class="form-control m-input" value="{{ client_data.global_budget }}" />
+                                    </div>
+                                    <div class="col-md-6">
+                                      <label for="client_name">Other Budget:</label>
+                                      <input type="text" name="other_budget" class="form-control m-input" value="{{ client_data.other_budget }}" />
+                                    </div>
+                                  </div>
+                                  <input type="submit" value="Submit" />
+                                </div>
+                              </form>
                             </div>
                         </div>
                     </div>

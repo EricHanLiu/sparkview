@@ -1111,3 +1111,18 @@ def delete_kpi(request):
     budget.delete()
 
     return JsonResponse(response)
+
+@login_required
+def edit_other_budget(request):
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    account_id = int(request.POST.get('account_id'))
+    account = Client.objects.get(id=account_id)
+
+    account.global_budget = request.POST.get('global_budget')
+    account.other_budget = request.POST.get('other_budget')
+
+    account.save()
+
+    return redirect('/budget/client/' + str(account.id))

@@ -151,14 +151,18 @@ class Member(models.Model):
         return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
 
     def get_accounts(self):
-        Client = apps.get_model('budget', 'Client')
-        accounts = Client.objects.filter(
-                      Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
-                      Q(am1=self) | Q(am2=self) | Q(am3=self) |
-                      Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
-                      Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
+        if not hasattr(self, '_accounts'):
+            Client = apps.get_model('budget', 'Client')
+            self._accounts = Client.objects.filter(
+                          Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
+                          Q(am1=self) | Q(am2=self) | Q(am3=self) |
+                          Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
+                          Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
                   )
-        return accounts
+        return self._accounts
+
+    def get_accounts_count(self):
+        return self.get_accounts().count()
 
     incidents            = property(countIncidents)
     mostRecentIncident   = property(getMostRecentIncident)
@@ -169,6 +173,7 @@ class Member(models.Model):
     buffer_percentage    = property(buffer_percentage)
     hours_available      = property(hours_available)
     accounts             = property(get_accounts)
+    account_count = property(get_accounts_count)
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name

@@ -16,10 +16,12 @@ class Client(models.Model):
     It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
     """
     STATUS_CHOICES = [(0, 'Onboarding'),
-                      (1, 'Soft Launch'),
-                      (2, 'Active'),
-                      (3, 'Inactive'),
-                      (4, 'Lost')]
+                      (1, 'Active'),
+                      (2, 'Inactive'),
+                      (3, 'Lost')]
+
+    PAYMENT_SCHEDULE_CHOICES = [(0, 'MRR'),
+                                (1, 'One Time')]
 
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
@@ -49,6 +51,8 @@ class Client(models.Model):
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
+    global_budget = models.FloatField(default=0)
+    other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='')
 
     # Parent Client (aka Client, this model should be Account)
@@ -56,6 +60,16 @@ class Client(models.Model):
 
     # Management Fee Structure lets you calculate the actual fee of that client
     managementFee = models.ForeignKey(ManagementFeesStructure, null=True)
+
+    # MRR or one time
+    payment_schedule = models.IntegerField(default=0, choices=PAYMENT_SCHEDULE_CHOICES)
+
+    # override ppc hours
+    allocated_ppc_override = models.FloatField(default=None, null=True)
+    # % buffer
+    allocated_ppc_buffer   = models.FloatField(default=0.0)
+    # management fee override
+    management_fee_override = models.FloatField(default=None, null=True)
 
     # The following attributes are for the client management implementation
     team           = models.ManyToManyField(Team, blank=True, related_name='team')
@@ -116,6 +130,9 @@ class Client(models.Model):
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
 
+    def getNewBudget(self):
+        return self.aw_budget + self.fb_budget + self.bing_budget + self.global_budget + self.other_budget
+
     def getRemainingBudget(self):
         return self.budget - self.current_spend
 
@@ -167,7 +184,7 @@ class Client(models.Model):
         if (self.strat3 == member):
             percentage += self.strat3percent
 
-        return round(self.getPpcAllocatedHours() * percentage / 100.0, 2)
+        return round(self.getAllocatedHours() * percentage / 100.0, 2)
 
 
     def getSeoFee(self):
@@ -195,24 +212,25 @@ class Client(models.Model):
         if not hasattr(self, '_ppcFee'):
             tmpBudget = self.budget
             fee = 0.0
-            for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
-                if (tmpBudget <= 0):
-                    break
-                maxSpendAtThisLevel = feeInterval.upperBound - feeInterval.lowerBound
-                if (tmpBudget > maxSpendAtThisLevel):
-                    if (feeInterval.feeStyle == 0): # add % to fee
-                        fee += maxSpendAtThisLevel * feeInterval.fee / 100.0
+            if (self.managementFee != None):
+                for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
+                    if (tmpBudget <= 0):
+                        break
+                    maxSpendAtThisLevel = feeInterval.upperBound - feeInterval.lowerBound
+                    if (tmpBudget > maxSpendAtThisLevel):
+                        if (feeInterval.feeStyle == 0): # add % to fee
+                            fee += maxSpendAtThisLevel * feeInterval.fee / 100.0
+                        else:
+                            fee += feeInterval.fee
+                        tmpBudget -= maxSpendAtThisLevel
                     else:
-                        fee += feeInterval.fee
-                    tmpBudget -= maxSpendAtThisLevel
-                else:
-                    if (feeInterval.feeStyle == 0): # add % to fee
-                        fee += tmpBudget * feeInterval.fee / 100.0
-                    else:
-                        fee += feeInterval.fee
-                    tmpBudget -= tmpBudget
-            if (self.status == 0):
-                fee += self.managementFee.initialFee
+                        if (feeInterval.feeStyle == 0): # add % to fee
+                            fee += tmpBudget * feeInterval.fee / 100.0
+                        else:
+                            fee += feeInterval.fee
+                        tmpBudget -= tmpBudget
+                if (self.status == 0):
+                    fee += self.managementFee.initialFee
             self._ppcFee = round(fee, 2)
         return self._ppcFee
 
@@ -220,7 +238,11 @@ class Client(models.Model):
         return self.getPpcFee() + self.getCroFee() + self.getSeoFee()
 
     def getPpcAllocatedHours(self):
-        return round(self.getPpcFee() / 125.0, 2)
+        if (self.allocated_ppc_override != None):
+            unrounded = self.allocated_ppc_override
+        else:
+            unrounded = (self.getPpcFee() / 125.0)  * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+        return round(unrounded, 2)
 
     def getAllocatedHours(self):
         hours = self.getPpcAllocatedHours()
@@ -229,6 +251,8 @@ class Client(models.Model):
         if (self.has_cro):
             hours += self.cro_hours
         return hours
+
+    newBudget = property(getNewBudget)
 
     remainingBudget = property(getRemainingBudget)
 

@@ -81,9 +81,7 @@ def members(request):
                                   'buffer_sales_percentage',
                                   'buffer_planning_percentage',
                                   'buffer_internal_percentage',
-                                  'buffer_seniority_percentage',
-                                  'buffer_buffer_percentage',
-                                  'buffer_hours_available'
+                                  'buffer_seniority_percentage'
                                   )
 
     context = {

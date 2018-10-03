@@ -80,7 +80,7 @@
               {% for account in accounts %}
               <tr>
                 <td>
-                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                  {{ account.parentClient.name }}
                 </td>
                 <td>
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>

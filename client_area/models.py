@@ -89,3 +89,6 @@ class ManagementFeesStructure(models.Model):
     initialFee   = models.FloatField(default=0)
     feeStructure = models.ManyToManyField(ManagementFeeInterval, blank=True)
     created_at   = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.created_at)

@@ -34,7 +34,7 @@ def accounts_team(request):
 
     accounts = Client.objects.filter(team=teams.all())
 
-    statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
+    statusBadges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'member'   : member,
@@ -53,7 +53,7 @@ def accounts_all(request):
 
     accounts = Client.objects.all()
 
-    statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
+    statusBadges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'statusBadges' : statusBadges,
@@ -121,8 +121,7 @@ def account_new(request):
                 client = ParentClient.objects.create(name=request.POST.get('client_name'))
 
             account = Client.objects.create(
-                        client_name=cleanedInputs['client_name'],
-                        budget=cleanedInputs['budget'],
+                        client_name=cleanedInputs['account_name'],
                         clientType=cleanedInputs['client_type'],
                         industry=cleanedInputs['industry'],
                         soldBy=cleanedInputs['sold_by']
@@ -131,15 +130,19 @@ def account_new(request):
             contactInfo.save()
 
             # set parent client
-            account.client = client
+            account.parentClient = client
 
             # set teams
-            teams = [cleanedInputs['team']]
-            account.team.set(teams)
+            # teams = [cleanedInputs['team']]
+            # account.team.set(teams)
 
             # set languages
             languages = [cleanedInputs['language']]
             account.language.set(languages)
+
+            # set PPC services
+            services = [cleanedInputs['services']]
+            account.services.set(services)
 
             # set contact info
             contacts = [contactInfo]
@@ -148,9 +151,28 @@ def account_new(request):
             # Make management fee structure
             # This is temporary
             feeType = request.POST.get('fee-type1')
-            fee     = request.POST.get('fee')
+            fee     = request.POST.get('fee1')
+            initFee = request.POST.get('setup-fee')
 
-            feeInterval = ManagementFeeInterval.create(feeStyle=feeTyle, fee=fee, lowerBound=0, upperBound=99999999)
+            feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=0, upperBound=99999999)
+            feeInterval.save()
+            feeStructure = ManagementFeesStructure.objects.create(initialFee=initFee)
+            feeStructure.feeStructure.set([feeInterval])
+
+            feeStructure.save()
+
+            account.managementFee = feeStructure
+
+            # Check if we sold SEO and/or CRO
+            if (request.POST.get('seo_check')):
+                account.has_seo = True
+                account.seo_hours = request.POST.get('seo_hours')
+            if (request.POST.get('cro_check')):
+                account.has_cro = True
+                account.cro_hours = request.POST.get('cro_hours')
+
+            account.has_gts = True
+            account.has_budget = True
 
             account.save()
 
@@ -280,7 +302,7 @@ def account_single(request, id):
 
     print(accountsHoursThisMonthByMember)
 
-    statusBadges = ['secondary', 'info', 'success', 'warning', 'danger']
+    statusBadges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'account'               : account,

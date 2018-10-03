@@ -159,10 +159,19 @@
             <div class="m-portlet__body">
               <div class="form-group m-form__group">
                 <div class="row">
+                  <label class="col-1 col-form-label">PPC</label>
+                  <div class="col-1">
+                    <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                      <label>
+                        <input checked="checked" name="" type="checkbox">
+                        <span></span>
+                      </label>
+                    </span>
+                  </div>
                   <div class="col-md-6">
                     <label for="service">Services:</label>
                     <select class="form-control m-input"
-                            name="service"
+                            name="services"
                             style="width: 100%;" multiple>
                         {% for service in services %}
                             <option value="{{ service.id }}">{{ service.name }}</option>
@@ -238,8 +247,53 @@
                   </div>
                 </div>
               </div> -->
-              <input type="submit" value="Submit">
             </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                SEO and CRO Services
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="m-portlet__body">
+            <div class="m-form__group form-group row">
+              <label class="col-1 col-form-label">SEO</label>
+              <div class="col-1">
+                <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                  <label>
+                    <input name="seo_check" id="seo_check" type="checkbox">
+                    <span></span>
+                  </label>
+                </span>
+              </div>
+              <label class="col-1 col-form-label">SEO Hours</label>
+              <div class="col-md-3">
+                <input type="text" name="seo_hours" id="seo_hours"
+                class="form-control m-input" disabled>
+              </div>
+              <label class="col-1 col-form-label">CRO</label>
+              <div class="col-1">
+                <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                  <label>
+                    <input name="cro_check" id="cro_check" type="checkbox">
+                    <span></span>
+                  </label>
+                </span>
+              </div>
+              <label class="col-1 col-form-label">CRO Hours</label>
+              <div class="col-md-3">
+                <input type="text" name="cro_hours" id="cro_hours"
+                class="form-control m-input" disabled>
+              </div>
+            </div>
+            <input type="submit" value="Submit">
+          </div>
         </div>
       </div>
     </form>
@@ -306,6 +360,30 @@ $(document).ready(function () {
                            .replace('fee-type' + (feeRows - 1), 'fee-type' + feeRows)
                            .replace('fee' + (feeRows - 1), 'fee' + feeRows);
     $feeForm.append(feeRowHtml);
+  });
+
+  // SEO and CRO toggles
+  $seoCheck = $('#seo_check');
+  $croCheck = $('#cro_check');
+  $seoHours  = $('#seo_hours');
+  $croHours  = $('#cro_hours');
+
+  $seoCheck.change(function () {
+    if ($(this).is(':checked')) {
+      $seoHours.prop('disabled', false);
+    } else {
+      $seoHours.val('');
+      $seoHours.prop('disabled', true);
+    }
+  });
+
+  $croCheck.change(function () {
+    if ($(this).is(':checked')) {
+      $croHours.prop('disabled', false);
+    } else {
+      $croHours.val('');
+      $croHours.prop('disabled', true);
+    }
   });
 
 });
