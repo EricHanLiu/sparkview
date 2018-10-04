@@ -46,7 +46,7 @@
                             name="month"
                             style="width: 100%;" required>
                         {% for monthNum, monthName in months %}
-                            <option value="{{ monthNum }}">{{ monthName }}</option>
+                            <option value="{{ monthNum }}" {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
                         {% endfor %}
                     </select>
                   </div>

@@ -173,12 +173,6 @@ def new_member(request):
         buffer_planning_percentage  = request.POST.get('buffer_planning_percentage') #if request.POST.get('buffer_planning_percentage') not None else 0
         buffer_internal_percentage  = request.POST.get('buffer_internal_percentage') #if request.POST.get('buffer_internal_percentage') not None else 0
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')# if request.POST.get('buffer_seniority_percentage') not None else 0
-        buffer_buffer_percentage    = request.POST.get('buffer_buffer_percentage') #if request.POST.get('buffer_buffer_percentage') not None else 0
-        buffer_hours_available      = request.POST.get('buffer_hours_available')# if request.POST.get('buffer_hours_available') not None else 0
-
-        # Last checks
-        last_skill_check    = request.POST.get('last_skill_check')
-        last_language_check = request.POST.get('last_language_checks')
 
         user.save()
 
@@ -190,11 +184,7 @@ def new_member(request):
             buffer_sales_percentage=buffer_sales_percentage,
             buffer_planning_percentage=buffer_planning_percentage,
             buffer_internal_percentage=buffer_internal_percentage,
-            buffer_seniority_percentage=buffer_seniority_percentage,
-            buffer_buffer_percentage=buffer_buffer_percentage,
-            buffer_hours_available=buffer_hours_available,
-            last_skill_check=Now(),
-            last_language_check=Now()
+            buffer_seniority_percentage=buffer_seniority_percentage
         )
 
         # Set role
@@ -254,8 +244,6 @@ def edit_member(request, id):
         buffer_planning_percentage  = request.POST.get('buffer_planning_percentage')
         buffer_internal_percentage  = request.POST.get('buffer_internal_percentage')
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
-        buffer_buffer_percentage    = request.POST.get('buffer_buffer_percentage')
-        buffer_hours_available      = request.POST.get('buffer_hours_available')
 
         # Update skills
         skills = Skill.objects.all()
@@ -288,8 +276,6 @@ def edit_member(request, id):
         member.buffer_planning_percentage  = buffer_planning_percentage
         member.buffer_internal_percentage  = buffer_internal_percentage
         member.buffer_seniority_percentage = buffer_seniority_percentage
-        member.buffer_buffer_percentage    = buffer_buffer_percentage
-        member.buffer_hours_available      = buffer_hours_available
 
         member.user.save()
         member.save()
@@ -355,6 +341,7 @@ def members_single(request, id):
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
+    incidents    = Incident.objects.filter(members=member)
     memberSkills = SkillEntry.objects.filter(member=member)
 
     now   = datetime.datetime.now()
@@ -371,15 +358,34 @@ def members_single(request, id):
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
 
+    accountHours = {}
+    accountAllocation = {}
+    for account in accounts:
+        hours  = account.getHoursWorkedThisMonthMember(member)
+        accountHours[account.id] = hours
+        accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
+
+    backupAccountHours = {}
+    backupAccountAllocation = {}
+    for account in backupAccounts:
+        hours  = account.getHoursWorkedThisMonthMember(member)
+        backupAccountAllocation[account.id] = 0
+        backupAccountHours[account.id] = hours
+
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
     context = {
         'hoursThisMonth' : memberHoursThisMonth,
+        'accountHours'            : accountHours,
+        'backupHours'             : backupAccountHours,
+        'accountAllocation'       : accountAllocation,
+        'backupAccountAllocation' : backupAccountAllocation,
         'member'         : member,
         'memberSkills'   : memberSkills,
         'accounts'       : accounts,
         'backupAccounts' : backupAccounts,
-        'scoreBadges'    : scoreBadges
+        'scoreBadges'    : scoreBadges,
+        'incidents'               : incidents
     }
 
     return render(request, 'user_management/profile.html', context)

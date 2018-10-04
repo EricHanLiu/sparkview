@@ -1121,7 +1121,7 @@ def edit_other_budget(request):
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
 
-    account.global_budget = request.POST.get('global_budget')
+    account.global_budget = request.POST.get('flex_budget')
     account.other_budget = request.POST.get('other_budget')
 
     account.save()

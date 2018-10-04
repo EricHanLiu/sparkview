@@ -53,31 +53,31 @@ class Client(models.Model):
     fb_budget = models.FloatField(default=0)
     global_budget = models.FloatField(default=0)
     other_budget = models.FloatField(default=0)
-    currency = models.CharField(max_length=255, default='')
+    currency = models.CharField(max_length=255, default='', blank=True)
 
     # Parent Client (aka Client, this model should be Account)
     parentClient = models.ForeignKey(ParentClient, null=True, blank=True)
 
     # Management Fee Structure lets you calculate the actual fee of that client
-    managementFee = models.ForeignKey(ManagementFeesStructure, null=True)
+    managementFee = models.ForeignKey(ManagementFeesStructure, null=True, blank=True)
 
     # MRR or one time
     payment_schedule = models.IntegerField(default=0, choices=PAYMENT_SCHEDULE_CHOICES)
 
     # override ppc hours
-    allocated_ppc_override = models.FloatField(default=None, null=True)
+    allocated_ppc_override = models.FloatField(default=None, null=True, blank=True)
     # % buffer
     allocated_ppc_buffer   = models.FloatField(default=0.0)
     # management fee override
-    management_fee_override = models.FloatField(default=None, null=True)
+    management_fee_override = models.FloatField(default=None, null=True, blank=True)
 
     # The following attributes are for the client management implementation
     team           = models.ManyToManyField(Team, blank=True, related_name='team')
-    industry       = models.ForeignKey(Industry, null=True, related_name='industry')
+    industry       = models.ForeignKey(Industry, null=True, related_name='industry', blank=True)
     language       = models.ManyToManyField(Language, related_name='language')
-    contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact')
+    contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url            = models.URLField(max_length=300, null=True, blank=True)
-    clientType     = models.ForeignKey(ClientType, null=True, related_name='client_type')
+    clientType     = models.ForeignKey(ClientType, null=True, related_name='client_type', blank=True)
     tier           = models.IntegerField(default=1)
     soldBy         = models.ForeignKey(Member, null=True, related_name='sold_by')
     # maybe do services another way?
@@ -235,7 +235,11 @@ class Client(models.Model):
         return self._ppcFee
 
     def getFee(self):
-        return self.getPpcFee() + self.getCroFee() + self.getSeoFee()
+        if (self.management_fee_override != None):
+            fee = self.management_fee_override
+        else:
+            fee = self.getPpcFee() + self.getCroFee() + self.getSeoFee()
+        return fee
 
     def getPpcAllocatedHours(self):
         if (self.allocated_ppc_override != None):

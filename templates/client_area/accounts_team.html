@@ -29,12 +29,13 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-12">
+      {% for team in teams.all %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
       		<div class="m-portlet__head-caption">
       			<div class="m-portlet__head-title">
       				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					{% for team in teams.all %}{{ team.name }}'s{% if not forloop.last %} and {% endif %}{% endfor %} Accounts
+      					{{ team.name }}'s Accounts
       				</h3>
       			</div>
       		</div>
@@ -77,10 +78,11 @@
               </tr>
             </thead>
             <tbody>
-              {% for account in accounts %}
+
+              {% for account in accounts|get_item_from_list:team.id %}
               <tr>
                 <td>
-                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                  {{ account.parentClient.name }}
                 </td>
                 <td>
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
@@ -119,6 +121,7 @@
           </table>
         </div>
       </div>
+      {% endfor %}
     </div>
   </div>
   <!--End::Main Portlet-->

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Edit {{ account.client_name }}
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" id="m_form_add_client">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="client_name">Account Name:</label>
+                    <input type="text" name="account_name" class="form-control m-input"
+                    placeholder="Please enter the client name" value="{{ account.client_name }}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="client_name">SEO Hours:</label>
+                    <input type="text" name="seo_hours" class="form-control m-input"
+                    placeholder="Leave it as 0 to turn off SEO" value="{{ account.seo_hours }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="client_name">CRO Hours:</label>
+                    <input type="text" name="cro_hours" class="form-control m-input"
+                    placeholder="Leave it at 0 to turn off CRO" value="{{ account.cro_hours }}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="client_name">Management Fee:</label>
+                    <input type="text" name="fee_override" class="form-control m-input"
+                    placeholder="Management fee for this client" value="{{ account.management_fee_override }}">
+                  </div>
+                  {% if request.user.is_staff %}
+                  <div class="col-md-6">
+                    <label for="client_name">Allocated PPC Hours OVERRIDE:</label>
+                    <input type="text" name="hours_override" class="form-control m-input"
+                    placeholder="WARNING: This will override the management hours calculation" value="{{ account.allocated_ppc_override }}">
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <input type="submit" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}
