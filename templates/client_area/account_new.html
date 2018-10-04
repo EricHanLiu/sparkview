@@ -9,6 +9,8 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-12">
+      <form class="m-form" method="post" id="m_form_add_client">
+      {% csrf_token %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -20,38 +22,69 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          <form class="m-form" method="post" id="m_form_add_client">
-            {% csrf_token %}
             <div class="m-portlet__body">
-              <h3>Basic Information</h3>
-              <hr />
+              <div id="existing_client_form">
+                <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_btn">Create New Client</button>
+                <div class="form-group m-form__group">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label for="existing_user">Client:</label>
+                      <select class="form-control m-input"
+                              name="existing_client"
+                              style="width: 100%;" required>
+                              <option value="0">
+                                None
+                              </option>
+                          {% for client in clients %}
+                              <option value="{{ client.id }}">{{ client.name }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <br />
+              </div>
+              <div id="new_client_form" style="display:none;">
+                <button type="button" name="button" class="btn btn-sm btn-outline-info" id="use_existing_btn">Use Existing Client</button>
+                <div class="form-group m-form__group">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label for="client_name">Client Name:</label>
+                      <input type="text" name="client_name" class="form-control m-input"
+                      placeholder="Please enter the client name">
+                    </div>
+                  </div>
+                </div>
+                <br />
+              </div>
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-12">
                     <label for="client_name">Account Name:</label>
-                    <input type="text" name="client_name" class="form-control m-input"
+                    <input type="text" name="account_name" class="form-control m-input"
                     placeholder="Please enter the client name">
-                    <span class="m-form__help">Required. 150 characters or fewer.</span>
                   </div>
                 </div>
               </div>
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="budget">Budget:</label>
-                    <input type="text" name="budget"
-                    class="form-control m-input">
-                    <span class="m-form__help">
-                      <p>Enter the budget in USD.</p>
-                    </span>
+                    <label for="industry">Industry:</label>
+                    <select class="form-control m-input"
+                            name="industry"
+                            style="width: 100%;">
+                            {% for industry in industries %}
+                                <option value="{{ industry.id }}">{{ industry.name }}</option>
+                            {% endfor %}
+                    </select>
                   </div>
                   <div class="col-md-6">
-                    <label for="team">Team:</label>
+                    <label for="client_type">Client Type:</label>
                     <select class="form-control m-input"
-                            name="team"
-                            style="width: 100%;" multiple>
-                        {% for team in teams %}
-                            <option value="{{ team.id }}">{{ team.name }}</option>
+                            name="client_type"
+                            style="width: 100%;">
+                        {% for client_type in client_types %}
+                            <option value="{{ client_type.id }}">{{ client_type.name }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -74,12 +107,26 @@
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="client_type">Client Type:</label>
+                    <label for="contact_name">Contact Phone Number:</label>
+                    <input type="text" name="contact_phone_number"
+                    class="form-control m-input">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="contact_email">Account URL:</label>
+                    <input type="text" name="account_url"
+                    class="form-control m-input">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="soldby">Sold by:</label>
                     <select class="form-control m-input"
-                            name="client_type"
+                            name="soldby"
                             style="width: 100%;">
-                        {% for client_type in client_types %}
-                            <option value="{{ client_type.id }}">{{ client_type.name }}</option>
+                        {% for member in members %}
+                            <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -95,89 +142,250 @@
                   </div>
                 </div>
               </div>
+            </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                PPC Services
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m-portlet__body">
               <div class="form-group m-form__group">
                 <div class="row">
-                  <div class="col-md-6">
-                    <label for="tier">Tier:</label>
-                    <select class="form-control m-input"
-                            name="tier"
-                            style="width: 100%;">
-                        {% for tier in tiers %}
-                            <option value="{{ tier }}">{{ tier }}</option>
-                        {% endfor %}
-                    </select>
+                  <label class="col-1 col-form-label">PPC</label>
+                  <div class="col-1">
+                    <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                      <label>
+                        <input checked="checked" name="" type="checkbox">
+                        <span></span>
+                      </label>
+                    </span>
                   </div>
-                  <div class="col-md-6">
-                    <label for="soldby">Sold by:</label>
-                    <select class="form-control m-input"
-                            name="soldby"
-                            style="width: 100%;">
-                        {% for member in members %}
-                            <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
                   <div class="col-md-6">
                     <label for="service">Services:</label>
                     <select class="form-control m-input"
-                            name="service"
+                            name="services"
                             style="width: 100%;" multiple>
                         {% for service in services %}
                             <option value="{{ service.id }}">{{ service.name }}</option>
                         {% endfor %}
                     </select>
                   </div>
-                  <div class="col-md-6">
-                    <label for="status">Status:</label>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Service Agreement
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m-portlet__body">
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label for="service">Setup fee:</label>
+                    <input class="form-control m-input" name="setup-fee" />
+                  </div>
+                  <div class="col-md-4">
+                    <label>Fee type:</label>
                     <select class="form-control m-input"
-                            name="status"
+                            name="fee-type1"
                             style="width: 100%;">
-                            <option value="0">Status 0</option>
-                            <option value="1">Status 1</option>
-                            <option value="2">Status 2</option>
-                            <option value="3">Status 3</option>
-                            <option value="4">Status 4</option>
+                            <option value="0">%</option>
+                            <option value="1">$</option>
                     </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label>Fee:</label>
+                    <input class="form-control m-input" name="fee1" />
                   </div>
                 </div>
               </div>
-              <div class="form-group m-form__group">
+              <!-- <hr />
+              <div class="form-group m-form__group" id="management_fee_form">
+                <input style="display:none;" value="1" id="rowNumInput" />
                 <div class="row">
-                  <div class="col-md-6">
-                    <label for="client_grade">Client Grade:</label>
+                  <div class="col-md-3">
+                    <label>Low Budget Bound ($):</label>
+                    <input class="form-control m-input" name="low-bound1" />
+                  </div>
+                  <div class="col-md-3">
+                    <label>High Budget Bound ($):</label>
+                    <input class="form-control m-input" name="high-bound1" />
+                  </div>
+                  <div class="col-md-3">
+                    <label>Fee type:</label>
                     <select class="form-control m-input"
-                            name="client_grade"
+                            name="fee-type1"
                             style="width: 100%;">
-                            <option value="0">Grade 0</option>
-                            <option value="1">Grade 1</option>
-                            <option value="2">Grade 2</option>
-                            <option value="3">Grade 3</option>
-                            <option value="4">Grade 4</option>
+                            <option value="0">%</option>
+                            <option value="1">$</option>
                     </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label>Fee:</label>
+                    <input class="form-control m-input" name="fee1" />
+                  </div>
+                  <div class="col-md-1">
+                    <label>Add Level</label>
+                    <button type="button" name="button" class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level</button>
+                  </div>
                 </div>
-                <div class="col-md-6">
-                  <label for="industry">Industry:</label>
-                  <select class="form-control m-input"
-                          name="industry"
-                          style="width: 100%;">
-                          {% for industry in industries %}
-                              <option value="{{ industry.id }}">{{ industry.name }}</option>
-                          {% endfor %}
-                  </select>
-                </div>
+              </div> -->
+            </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                SEO and CRO Services
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="m-portlet__body">
+            <div class="m-form__group form-group row">
+              <label class="col-1 col-form-label">SEO</label>
+              <div class="col-1">
+                <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                  <label>
+                    <input name="seo_check" id="seo_check" type="checkbox">
+                    <span></span>
+                  </label>
+                </span>
+              </div>
+              <label class="col-1 col-form-label">SEO Hours</label>
+              <div class="col-md-3">
+                <input type="text" name="seo_hours" id="seo_hours"
+                class="form-control m-input" disabled>
+              </div>
+              <label class="col-1 col-form-label">CRO</label>
+              <div class="col-1">
+                <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                  <label>
+                    <input name="cro_check" id="cro_check" type="checkbox">
+                    <span></span>
+                  </label>
+                </span>
+              </div>
+              <label class="col-1 col-form-label">CRO Hours</label>
+              <div class="col-md-3">
+                <input type="text" name="cro_hours" id="cro_hours"
+                class="form-control m-input" disabled>
               </div>
             </div>
             <input type="submit" value="Submit">
-            </div>
-          </form>
+          </div>
         </div>
       </div>
+    </form>
     </div>
   </div>
   <!--End::Main Portlet-->
 </div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  $createNewBtn   = $('#create_new_btn');
+  $useExistingBtn = $('#use_existing_btn');
+  $existingForm   = $('#existing_client_form');
+  $newForm        = $('#new_client_form');
+
+  $createNewBtn.click(function () {
+    $existingForm.hide();
+    $newForm.show();
+  });
+
+  $useExistingBtn.click(function () {
+    $newForm.hide();
+    $existingForm.show();
+  });
+
+  $addFeeBtn = $('.add-fee-level-btn');
+  $feeForm   = $('#management_fee_form');
+  $rowNum    = $('#rowNumInput');
+
+  var feeRows = 1;
+  var feeRowHtml = `
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label>Low Budget Bound ($):</label>
+                      <input class="form-control m-input" name="low-bound1" />
+                    </div>
+                    <div class="col-md-3">
+                      <label>High Budget Bound ($):</label>
+                      <input class="form-control m-input" name="high-bound1" />
+                    </div>
+                    <div class="col-md-2">
+                      <label>Fee type:</label>
+                      <select class="form-control m-input"
+                              name="fee-type1"
+                              style="width: 100%;">
+                              <option value="0">%</option>
+                              <option value="1">$</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label>Fee:</label>
+                      <input class="form-control m-input" name="fee1" />
+                    </div>
+                  </div>
+                  `;
+
+  $addFeeBtn.click(function () {
+    feeRows++;
+    $rowNum.val(feeRows);
+    feeRowHtml = feeRowHtml.replace('low-bound' + (feeRows - 1), 'low-bound' + feeRows)
+                           .replace('high-bound' + (feeRows - 1), 'high-bound' + feeRows)
+                           .replace('fee-type' + (feeRows - 1), 'fee-type' + feeRows)
+                           .replace('fee' + (feeRows - 1), 'fee' + feeRows);
+    $feeForm.append(feeRowHtml);
+  });
+
+  // SEO and CRO toggles
+  $seoCheck = $('#seo_check');
+  $croCheck = $('#cro_check');
+  $seoHours  = $('#seo_hours');
+  $croHours  = $('#cro_hours');
+
+  $seoCheck.change(function () {
+    if ($(this).is(':checked')) {
+      $seoHours.prop('disabled', false);
+    } else {
+      $seoHours.val('');
+      $seoHours.prop('disabled', true);
+    }
+  });
+
+  $croCheck.change(function () {
+    if ($(this).is(':checked')) {
+      $croHours.prop('disabled', false);
+    } else {
+      $croHours.val('');
+      $croHours.prop('disabled', true);
+    }
+  });
+
+});
+</script>
 {% endblock %}

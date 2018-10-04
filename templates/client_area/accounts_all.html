@@ -2,6 +2,8 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
+{% load template_filters %}
+
 {% block extraCss %}
 <style>
   #all_clients_datatable {
@@ -61,25 +63,16 @@
                   Tier
                 </th>
                 <th>
-                  Services
-                </th>
-                <th>
-                  Innactive/Reason Lost
-                </th>
-                <th>
                   Status
                 </th>
                 <th>
-                  Grade
+                  Management Fees
                 </th>
                 <th>
                   Total Actual Hours
                 </th>
                 <th>
-                  Total Billed Hours
-                </th>
-                <th>
-                  Assignees
+                  Total Allocated Hours
                 </th>
               </tr>
             </thead>
@@ -87,7 +80,7 @@
               {% for account in accounts %}
               <tr>
                 <td>
-                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                  {{ account.parentClient.name }}
                 </td>
                 <td>
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
@@ -108,30 +101,17 @@
                   {{ account.tier }}
                 </td>
                 <td>
-                  {% for service in account.services.all %}
-                    {{ service.name }}{% if not forloop.last %},{% endif %}
-                  {% endfor %}
+                  <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
                 </td>
                 <td>
-                  Coming soon
-                </td>
-                <td>
-                  {{ account.status }}
-                </td>
-                <td>
-                  {{ account.grade }}
+                  {{ account.totalFee }}
                 </td>
                 <td>
                   <!-- Actual hours -->
                   {{ account.hoursWorkedThisMonth }}
                 </td>
                 <td>
-                  <!-- Billed hours -->
-                  Coming Soon
-                </td>
-                <td>
-                  <!-- Assignees -->
-                  Coming Soon
+                  {{ account.allHours }}
                 </td>
               </tr>
               {% endfor %}

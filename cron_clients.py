@@ -86,6 +86,10 @@ def main():
         client.bing_rec_ds = 0
         client.fb_rec_ds = 0
 
+        # Maybe this will work?
+        client.budget += client.global_budget
+        client.budget += client.other_budget
+
         client.save()
 
         adwords = client.adwords.all()

@@ -8,13 +8,14 @@ urlpatterns = [
     url(r"^clients/$", views.add_client, name="add_client"),
     url(r"^clients/last_month$", views.last_month, name="last_month"),
     url(r"^client/(?P<client_id>\d+)", views.client_details, name="client_details"),
+    url(r'^clients/edit_other_budget$', views.edit_other_budget, name="edit_other_budget"),
     url(r"^client/sixmonths/(?P<client_id>\d+)/", views.sixm_budget, name="six_months"),
     url(r"^client/hist/(?P<client_id>\d+)", views.hist_client_details, name="hist_client_details"),
     url(r"^client/accounts/add", views.assign_client_accounts),
     url(r"^client/editname", views.edit_client_name),
     url(r"^client/kpi/add", views.add_kpi),
     url(r"^client/kpi/delete", views.delete_kpi),
-    url(r"^clients/delete/$", views.delete_clients, name="client_details"),
+    url(r"^clients/delete/$", views.delete_clients, name="deliete_clients"),
     url(r"^clientbudget/update/$", views.update_budget, name="client_budget_update"),
     url(r"^groupings/create/$", views.add_groupings, name="campaign_groupings_create"),
     url(r"^groupings/read/$", views.campaign_groupings, name="campaign_groupings_read"),
@@ -28,4 +29,3 @@ urlpatterns = [
     url(r"^gtsorbudget/$", views.gts_or_budget, name='gts_or_budget'),
 
 ]
-

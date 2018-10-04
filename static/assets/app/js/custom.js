@@ -144,16 +144,16 @@ $(document).ready(function () {
 
     });
 
-    $("#my_skills_datatable").DataTable({
-        "ordering": false,
-        "bPaginate": false,
-        "bLengthChange": false,
-        "bFilter": false,
-        "bInfo": false,
-        "bAutoWidth": false,
-        'language': {
-            'sSearch': '<i class="fa fa-search"></i>',
-        }
+    $("#my_skills_datatable, #account_change_datatable").DataTable({
+      "ordering": false,
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": false,
+      "bInfo": false,
+      "bAutoWidth": false,
+      'language': {
+          'sSearch': '<i class="fa fa-search"></i>',
+      }
     });
 
 
@@ -179,16 +179,29 @@ $(document).ready(function () {
         }
     });
 
-    $("#team_clients_datatable").DataTable({
-        "bPaginate": false,
-        "bLengthChange": false,
-        "bFilter": true,
-        "bInfo": false,
-        "bAutoWidth": false,
-        'language': {
-            'sSearch': '<i class="fa fa-search"></i>',
-        }
+    $("#team_clients_datatable, #client_hours_datatable").DataTable({
+      "bPaginate": false,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bInfo": false,
+      "bAutoWidth": false,
+      'language': {
+          'sSearch': '<i class="fa fa-search"></i>',
+      }
     });
+
+    var options = {
+        toggle: 'click',
+        hoverTimeout: 300,
+        skin: 'light',
+        height: 'auto',
+        maxHeight: false,
+        minHeight: false,
+        persistent: false,
+        mobileOverlay: true
+    };
+
+    // var dropdown1 = new $.fn.mDropdown('m_topbar_notification_icon', options);
 
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{

@@ -2,6 +2,8 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
+{% load template_filters %}
+
 {% block leftAside %}
 {% endblock %}
 
@@ -21,7 +23,7 @@
         </div>
         <div class="m-portlet__body">
           {% if request.user.is_staff %}
-          <a href="/clients/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
+          <a href="/clients/accounts/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
           {% endif %}
           <div class="form-group m-form__group">
             <div class="row">
@@ -60,13 +62,97 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                Hours This Month 
+                Hours This Month
               </h3>
             </div>
           </div>
         </div>
         <div class="m-portlet__body">
-
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="single_client_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Member
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in accountHoursMember %}
+                <tr>
+                  <td>
+                    {{ hourRow.member }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours__sum }}
+                  </td>
+                  <td>
+                    {{ hourRow.month }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                {{ account.client_name }} Account History
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Member
+                </th>
+                <th>
+                  Field Changed
+                </th>
+                <th>
+                  Changed From
+                </th>
+                <th>
+                  Changed To
+                </th>
+                <th>
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for change in changes.all %}
+              <tr>
+                <td>
+                  {{ change.member.user.first_name }} {{ change.member.user.last_name }}
+                </td>
+                <td>
+                  {{ change.changeField }}
+                </td>
+                <td>
+                  {{ change.changedFrom }}
+                </td>
+                <td>
+                  {{ change.changedTo }}
+                </td>
+                <td>
+                  {{ change.datetime }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -103,7 +189,7 @@
                       <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-danger">$1,800</span>
+                      <span class="m-widget1__number m--font-danger">${{ account.current_spend }}</span>
                     </div>
                   </div>
                 </div>
@@ -114,7 +200,7 @@
                       <span class="m-widget1__desc">Left to spend this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-success">$495</span>
+                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget }}</span>
                     </div>
                   </div>
                 </div>
@@ -122,14 +208,27 @@
             </div>
             <div class="col-md-12 col-lg-12 col-xl-6">
               <div class="m-widget1">
-                <div class="m-widget1__item">
+                <!-- <div class="m-widget1__item">
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Client Status</h3>
                       <span class="m-widget1__desc">Status of the client</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-accent">{{ account.status }}</span>
+                      <span class="m-widget1__number m--font-accent">
+                        <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }} m-badge--wide" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}">{{ account.get_status_display }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div> -->
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Allocated Hours This Month</h3>
+                      <span class="m-widget1__desc">PPC</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-info">{{ account.allHours }}</span>
                     </div>
                   </div>
                 </div>
@@ -137,7 +236,7 @@
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Hours Worked This Month</h3>
-                      <span class="m-widget1__desc"></span>
+                      <span class="m-widget1__desc">PPC</span>
                     </div>
                     <div class="col m--align-right">
                       <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth }}</span>
@@ -148,10 +247,10 @@
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Hours Remaining This Month</h3>
-                      <span class="m-widget1__desc"></span>
+                      <span class="m-widget1__desc">PPC</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-warning">23.0</span>
+                      <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth }}</span>
                     </div>
                   </div>
                 </div>
@@ -173,9 +272,14 @@
         <div class="m-portlet__body">
           {% if request.user.is_staff %}
           <div class="row">
-              <button type="button" class="btn btn-info m-btn add-client"
+              <button type="button" class="btn btn-info m-btn"
                       data-toggle="modal"
                       data-target="#m_assign_members"> Assign Members to {{ account.client_name }}
+              </button>
+              &nbsp;&nbsp;
+              <button type="button" class="btn btn-info m-btn"
+                      data-toggle="modal"
+                      data-target="#m_position_allocation"> Assign Percentages to Positions
               </button>
           </div>
           <hr />
@@ -184,15 +288,15 @@
             <div class="row">
               <div class="col-md-3">
                 <label>AM:</label>
-                <input type="text" class="form-control m-input"value="{{ account.am1.user.first_name }} {{ account.am1.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.am1.user.first_name }} {{ account.am1.user.last_name }} ({{ account.am1percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label>AM2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.am2.user.first_name }} {{ account.am2.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.am2.user.first_name }} {{ account.am2.user.last_name }} ({{ account.am2percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label>AM3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.am3.user.first_name }} {{ account.am3.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.am3.user.first_name }} {{ account.am3.user.last_name }} ({{ account.am3percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label>AM Backup:</label>
@@ -204,15 +308,15 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">CM:</label>
-                <input type="text" class="form-control m-input"value="{{ account.cm1.user.first_name }} {{ account.cm1.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.cm1.user.first_name }} {{ account.cm1.user.last_name }} ({{ account.cm1percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">CM2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.cm2.user.first_name }} {{ account.cm2.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.cm2.user.first_name }} {{ account.cm2.user.last_name }} ({{ account.cm2percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">CM3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.cm3.user.first_name }} {{ account.cm3.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.cm3.user.first_name }} {{ account.cm3.user.last_name }} ({{ account.cm3percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">CM Backup:</label>
@@ -224,15 +328,15 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">Strat:</label>
-                <input type="text" class="form-control m-input"value="{{ account.strat1.user.first_name }} {{ account.strat1.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.strat1.user.first_name }} {{ account.strat1.user.last_name }} ({{ account.strat1percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">Strat 2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.strat2.user.first_name }} {{ account.strat2.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.strat2.user.first_name }} {{ account.strat2.user.last_name }} ({{ account.strat2percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">Strat 3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.strat3.user.first_name }} {{ account.strat3.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.strat3.user.first_name }} {{ account.strat3.user.last_name }} ({{ account.strat3percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">Strat Backup:</label>
@@ -244,15 +348,15 @@
             <div class="row">
               <div class="col-md-3">
                 <label for="buffer_total_percentage">SEO:</label>
-                <input type="text" class="form-control m-input"value="{{ account.seo1.user.first_name }} {{ account.seo1.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input"value="{{ account.seo1.user.first_name }} {{ account.seo1.user.last_name }} ({{ account.seo1percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_learning_percentage">SEO2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seo2.user.first_name }} {{ account.seo2.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seo2.user.first_name }} {{ account.seo2.user.last_name }} ({{ account.seo2percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_trainers_percentage">SEO3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seo3.user.first_name }} {{ account.seo3.user.last_name }}" disabled>
+                <input type="text" class="form-control m-input" value="{{ account.seo3.user.first_name }} {{ account.seo3.user.last_name }} ({{ account.seo3percent }}%)" disabled>
               </div>
               <div class="col-md-3">
                 <label for="buffer_sales_percentage">SEO Backup:</label>
@@ -268,7 +372,7 @@
 <!--End::Main Portlet-->
 </div>
 
-<!-- Begin add skill modal -->
+<!-- Begin assign members modal -->
 <div class="modal fade" id="m_assign_members" tabindex="-1" role="dialog" aria-labelledby="m_assign_members">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -517,6 +621,97 @@
         </div>
     </div>
 </div>
-<!-- End add skill modal -->
+<!-- End member assignment modal -->
+
+<!-- Allocation per position modal -->
+<div class="modal fade" id="m_position_allocation" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Percentages per position for {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/allocate_percentages" id="m_form_allocate_percentages">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>AM:</label>
+                        <input type="text" name="am1-percent" class="form-control m-input" value="{{ account.am1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>AM2:</label>
+                        <input type="text" name="am2-percent" class="form-control m-input" value="{{ account.am2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>AM3:</label>
+                        <input type="text" name="am3-percent" class="form-control m-input" value="{{ account.am3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>CM:</label>
+                        <input type="text" name="cm1-percent" class="form-control m-input" value="{{ account.cm1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>CM2:</label>
+                        <input type="text" name="cm2-percent" class="form-control m-input" value="{{ account.cm2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>CM3:</label>
+                        <input type="text" name="cm3-percent" class="form-control m-input" value="{{ account.cm3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Strat:</label>
+                        <input type="text" name="strat1-percent" class="form-control m-input" value="{{ account.strat1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Strat 2:</label>
+                        <input type="text" name="strat2-percent" class="form-control m-input" value="{{ account.strat2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Strat 3:</label>
+                        <input type="text" name="strat3-percent" class="form-control m-input" value="{{ account.strat3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>SEO:</label>
+                        <input type="text" name="seo1-percent" class="form-control m-input" value="{{ account.seo1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>SEO 2:</label>
+                        <input type="text" name="seo2-percent" class="form-control m-input" value="{{ account.seo2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>SEO 3:</label>
+                        <input type="text" name="seo3-percent" class="form-control m-input" value="{{ account.seo3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Submit" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End assign percentages modal -->
 
 {% endblock %}

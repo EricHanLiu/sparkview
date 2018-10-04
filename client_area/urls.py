@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^accounts/(\d*)/edit$', views.account_edit, name='account_edit'),
     url(r'^accounts/(\d*)$', views.account_single, name='account_single'),
     url(r'^accounts/assign_members$', views.account_assign_members, name='account_assign_members'),
+    url(r'^accounts/allocate_percentages$', views.account_allocate_percentages, name='account_allocate_percentages'),
     url(r'^accounts/report_hours$', views.add_hours_to_account, name='add_hours_to_account')
 ]

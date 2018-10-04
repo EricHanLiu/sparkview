@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from django.core import serializers
 from django.db.models import Q
+import datetime
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry
 from budget.models import Client
+from client_area.models import AccountHourRecord
 from .forms import NewMemberForm, NewTeamForm
 
 @login_required
@@ -23,21 +26,43 @@ def profile(request):
     incidents    = Incident.objects.filter(members=member)
     memberSkills = SkillEntry.objects.filter(member=member)
 
-    accounts = Client.objects.filter(
-                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
-                  Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
-                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
-                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
-              )
+    now   = datetime.datetime.now()
+    month = now.month
+    year  = now.year
+    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year)
+
+    accounts = member.accounts
+
+    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
+
+    accountHours = {}
+    accountAllocation = {}
+    for account in accounts:
+        hours  = account.getHoursWorkedThisMonthMember(member)
+        accountHours[account.id] = hours
+        accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
+
+    backupAccountHours = {}
+    backupAccountAllocation = {}
+    for account in backupAccounts:
+        hours  = account.getHoursWorkedThisMonthMember(member)
+        backupAccountAllocation[account.id] = 0
+        backupAccountHours[account.id] = hours
 
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
     context = {
-        'member'       : member,
-        'incidents'    : incidents,
-        'memberSkills' : memberSkills,
-        'accounts'     : accounts,
-        'scoreBadges'  : scoreBadges
+        'member'                  : member,
+        'hoursThisMonth'          : memberHoursThisMonth,
+        'accountHours'            : accountHours,
+        'backupHours'             : backupAccountHours,
+        'accountAllocation'       : accountAllocation,
+        'backupAccountAllocation' : backupAccountAllocation,
+        'incidents'               : incidents,
+        'memberSkills'            : memberSkills,
+        'accounts'                : accounts,
+        'backupAccounts'          : backupAccounts,
+        'scoreBadges'             : scoreBadges
     }
 
     return render(request, 'user_management/profile.html', context)
@@ -56,9 +81,7 @@ def members(request):
                                   'buffer_sales_percentage',
                                   'buffer_planning_percentage',
                                   'buffer_internal_percentage',
-                                  'buffer_seniority_percentage',
-                                  'buffer_buffer_percentage',
-                                  'buffer_hours_available'
+                                  'buffer_seniority_percentage'
                                   )
 
     context = {
@@ -77,7 +100,7 @@ def new_member(request):
         teams         = Team.objects.all()
         roles         = Role.objects.all()
         skills        = Skill.objects.all()
-        existingUsers = User.objects.all()
+        existingUsers = User.objects.filter(member__isnull=True)
         skillOptions  = [0, 1, 2, 3]
 
         context = {
@@ -334,12 +357,29 @@ def members_single(request, id):
     member = Member.objects.get(id=id)
     memberSkills = SkillEntry.objects.filter(member=member)
 
+    now   = datetime.datetime.now()
+    month = now.month
+    year  = now.year
+    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year)
+
+    accounts = Client.objects.filter(
+                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+                  Q(am1=member) | Q(am2=member) | Q(am3=member) |
+                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+              )
+
+    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
+
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
     context = {
-        'member'       : member,
-        'memberSkills' : memberSkills,
-        'scoreBadges'  : scoreBadges
+        'hoursThisMonth' : memberHoursThisMonth,
+        'member'         : member,
+        'memberSkills'   : memberSkills,
+        'accounts'       : accounts,
+        'backupAccounts' : backupAccounts,
+        'scoreBadges'    : scoreBadges
     }
 
     return render(request, 'user_management/profile.html', context)

@@ -480,11 +480,11 @@ License: You must have a valid license purchased only from themeforest(the above
                                                              class="m--img-rounded m--marginless" alt=""/>
                                                     </div>
                                                     <div class="m-card-user__details">
-                                                        <span class="m-card-user__name m--font-weight-500">
-                                                            <a href="{% url 'profile' %}">
-                                                                {{ request.user.get_full_name }}
-                                                            </a>
-                                                        </span>
+																		<span class="m-card-user__name m--font-weight-500">
+																			<a href="/user_management/profile">
+																				{{ request.user.get_full_name }}
+																			</a>
+																		</span>
                                                         <a href="" class="m-card-user__email m--font-weight-300 m-link">
                                                             {{ request.user.email }}
                                                         </a>

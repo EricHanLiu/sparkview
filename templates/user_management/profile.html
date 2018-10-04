@@ -27,7 +27,6 @@
                 {{ member.user.first_name }} {{ member.user.last_name }}
               </h3>
             </div>
-
           </div>
         </div>
         <div class="m-portlet__body">
@@ -38,7 +37,7 @@
             <label for="input_email">Email address:</label>
             <input type="email" class="form-control m-input" value="{{ member.user.email }}" disabled>
           </div>
-          <div class="m-form__group form-group">
+          <!-- <div class="m-form__group form-group">
             <label for="">Permissions:</label>
             <div class="m-checkbox-list">
               <label class="m-checkbox">
@@ -46,9 +45,7 @@
                 <span></span>
               </label>
             </div>
-          </div>
-          <h3>Team and Role</h3>
-          <hr />
+          </div> -->
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
@@ -63,6 +60,49 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Hours This Month
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Account
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in hoursThisMonth %}
+                <tr>
+                  <td>
+                    {{ hourRow.account.client_name }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours }}
+                  </td>
+                  <td>
+                    {{ hourRow.get_month_display }}, {{ hourRow.year }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -88,18 +128,11 @@
                       <h4 class="m-widget24__title">
                         Allocated Hours
                       </h4><br>
-                      <span class="m-widget24__stats m--font-brand">
-                        23
+                      <span class="m-widget24__desc">
+                          Hours to work this month
                       </span>
-                      <div class="m--space-10"></div>
-                      <div class="progress m-progress--sm">
-                        <div class="progress-bar m--bg-brand" role="progressbar" style="width: 78%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <span class="m-widget24__change">
-                        Change
-                      </span>
-                      <span class="m-widget24__number">
-                        78%
+                      <span class="m-widget24__stats m--font-brand" style="margin-bottom:2.86rem;">
+                        {{ member.allocatedHoursMonth }}
                       </span>
                     </div>
                   </div>
@@ -112,18 +145,11 @@
                       <h4 class="m-widget24__title">
                         Hours Available
                       </h4><br>
-                      <span class="m-widget24__stats m--font-info">
-                        {{ member.buffer_hours_available }}
+                      <span class="m-widget24__desc">
+                          Hours available to be allocated
                       </span>
-                      <div class="m--space-10"></div>
-                      <div class="progress m-progress--sm">
-                        <div class="progress-bar m--bg-info" role="progressbar" style="width: 84%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <span class="m-widget24__change">
-                        Change
-                      </span>
-                      <span class="m-widget24__number">
-                        84%
+                      <span class="m-widget24__stats m--font-info" style="margin-bottom:2.86rem;">
+                        {{ member.hours_available }}
                       </span>
                     </div>
                   </div>
@@ -136,63 +162,28 @@
                       <h4 class="m-widget24__title">
                         Actual Hours
                       </h4><br>
-                      <span class="m-widget24__stats m--font-danger">
-                        70
+                      <span class="m-widget24__desc">
+                          Hours worked this month
                       </span>
-                      <div class="m--space-10"></div>
-                      <div class="progress m-progress--sm">
-                        <div class="progress-bar m--bg-danger" role="progressbar" style="width: 69%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                      <span class="m-widget24__change">
-                        Change
-                      </span>
-                      <span class="m-widget24__number">
-                        69%
+                      <span class="m-widget24__stats m--font-danger" style="margin-bottom:2.86rem;">
+                        {{ member.actualHoursThisMonth }}
                       </span>
                     </div>
                   </div>
                   <!--end::New Orders-->
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_total_percentage">Total Percentage:</label>
-                <input type="text" class="form-control m-input"value="{{ member.buffer_total_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_learning_percentage">Learning Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_learning_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_trainers_percentage">Trainers Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_trainers_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_sales_percentage">Sales Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_sales_percentage }}%" disabled>
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_planning_percentage">Planning Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_planning_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_internal_percentage">Internal Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_internal_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_seniority_percentage">Seniority Percentage:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_seniority_percentage }}%" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_hours_available">Hours Available:</label>
-                <input type="text" class="form-control m-input" value="{{ member.buffer_hours_available }}" disabled>
+              <br />
+              <hr />
+              <div class="row m-row--no-padding m-row--col-separator-xl" style="margin-top:0.5rem;">
+                <div class="progress m-progress--lg" style="width:100%;">
+                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_learning_percentage }}%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_trainers_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: {{ member.buffer_sales_percentage }}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_planning_percentage }}%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_internal_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ member.allocatedHoursMonth }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -241,18 +232,76 @@
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  1
+                  {{ accountHours|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  2
+                  {{ accountAllocation|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  <!-- Actual hours -->
                   {{ account.hoursWorkedThisMonth }}
                 </td>
                 <td>
-                  <!-- Billed hours -->
-                  Coming Soon
+                  {{ account.allHours }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Backup Accounts
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_backup_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  My Actual Hours
+                </th>
+                <th>
+                  My Allocated Hours
+                </th>
+                <th>
+                  Total Actual Hours
+                </th>
+                <th>
+                  Total Allocated Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in backupAccounts %}
+              <tr>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  {{ backupHours|get_item_from_list:account.id }}
+                </td>
+                <td>
+                  {{ backupAccountAllocation|get_item_from_list:account.id }}
+                </td>
+                <td>
+                  {{ account.hoursWorkedThisMonth }}
+                </td>
+                <td>
+                  {{ account.allHours }}
                 </td>
               </tr>
               {% endfor %}
@@ -346,53 +395,4 @@
 
   <!--End::Main Portlet-->
 </div>
-{% endblock %}
-
-{% block extraJs %}
-<script>
-var ctx = document.getElementById("myChart").getContext('2d');
-var myChart = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: [{% for memberSkill in memberSkills %}"{{ memberSkill.skill.name }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-      data: [{% for memberSkill in memberSkills %}"{{ memberSkill.score }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-      backgroundColor: [
-        {% for memberSkill in memberSkills %}
-        {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-        {% if not forloop.last %},{% endif %}
-        {% endfor %}
-      ],
-      borderColor: [
-        {% for memberSkill in memberSkills %}
-        {% cycle "'rgba(255, 99, 132, 0.2)'" "'rgba(54, 162, 235, 0.2)'" "'rgba(255, 206, 86, 1)'" "'rgba(75, 192, 192, 1)'" "'rgba(153, 102, 255, 1)'" "'rgba(255, 159, 64, 1)'" %}
-        {% if not forloop.last %},{% endif %}
-        {% endfor %}
-      ],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero:true,
-          stepSize: 1
-        },
-        gridLines: {
-          display:false
-        }
-      }],
-      xAxes: [{
-        gridLines: {
-          display:false
-        }
-      }]
-    },
-    legend: {
-      display: false
-    }
-  }
-});
-</script>
 {% endblock %}
