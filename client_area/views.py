@@ -231,11 +231,11 @@ def account_edit_temp(request, id):
             account.has_cro = False
             account.cro_hours = 0.0
 
-        if (fee_override != 'None' and float(fee_override) != 0.0):
+        if (fee_override != 'None'):
             account.management_fee_override = float(fee_override)
 
         if (request.user.is_staff):
-            if (hours_override != 'None' and float(hours_override) != 0.0):
+            if (hours_override != 'None'):
                 account.allocated_ppc_override = float(hours_override)
 
         account.save()
