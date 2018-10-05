@@ -157,6 +157,21 @@ class Member(models.Model):
         account = apps.get_model('budget', 'Client').objects.get(id=account_id)
         return (account in self.accounts or account in self.backup_accounts)
 
+    def teams_have_accounts(self, account_id):
+        """
+        Returns True if this member's teams deals with this account in any way, False otherwise (checks account team assignments)
+        """
+        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        a_teams = account.team.all()
+        m_teams = self.team.all()
+
+        resp = False
+        for team in a_teams:
+            if team in m_teams:
+                resp = True
+                break
+        return resp
+
     def get_accounts(self):
         if not hasattr(self, '_accounts'):
             Client = apps.get_model('budget', 'Client')

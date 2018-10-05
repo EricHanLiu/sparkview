@@ -13,6 +13,7 @@ from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
+from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
 from datetime import datetime
@@ -1115,7 +1116,8 @@ def delete_kpi(request):
 
 @login_required
 def edit_other_budget(request):
-    if (not request.user.is_staff):
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(int(request.POST.get('account_id')))):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))

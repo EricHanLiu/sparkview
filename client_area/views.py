@@ -192,7 +192,7 @@ def account_new(request):
 @login_required
 def account_edit_temp(request, id):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(id)):
+    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
         return HttpResponse('You do not have permission to view this page')
 
     if (request.method == 'GET'):
@@ -346,7 +346,7 @@ def account_edit(request, id):
 @login_required
 def account_single(request, id):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(id)):
+    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
         return HttpResponse('You do not have permission to view this page')
 
     account = Client.objects.get(id=id)
@@ -360,8 +360,6 @@ def account_single(request, id):
     accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year)
 
     accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year).values('member', 'month', 'year').annotate(Sum('hours'))
-
-    print(accountsHoursThisMonthByMember)
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -380,7 +378,7 @@ def account_single(request, id):
 @login_required
 def account_assign_members(request):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(id)):
+    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = request.POST.get('account_id')
@@ -560,7 +558,7 @@ def account_allocate_percentages(request):
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account    = Client.objects.get(id=account_id)
-    if (not request.user.is_staff and not member.has_account(id)):
+    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
         return HttpResponse('You do not have permission to view this page')
 
     # There may be a better way to handle this form

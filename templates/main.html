@@ -434,6 +434,31 @@ License: You must have a valid license purchased only from themeforest(the above
                                     </ul>
                                 </div>
                             </li>
+                            {% if request.user.is_staff %}
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                            data-menu-submenu-toggle="click" aria-haspopup="true">
+                            <a href="#" class="m-menu__link m-menu__toggle">
+                              <span class="m-menu__item-here"></span>
+                              <span class="m-menu__link-text">
+                                Reports
+                              </span>
+                              <i class="m-menu__hor-arrow la la-angle-down"></i>
+                              <i class="m-menu__ver-arrow la la-angle-right"></i>
+                            </a>
+                            <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                              <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                              <ul class="m-menu__subnav">
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/agency_overview" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Agency Overview
+                                    </span>
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </li>
+                          {% endif %}
                         </ul>
                     </div>
                     <!-- END: Horizontal Menu -->
