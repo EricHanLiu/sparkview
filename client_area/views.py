@@ -18,9 +18,13 @@ def accounts(request):
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
 
+    statusBadges = ['info', 'success', 'warning', 'danger']
+
+
     context = {
         'member'         : member,
         'backupAccounts' : backupAccounts,
+        'statusBadges' : statusBadges,
         'accounts'       : accounts
     }
 
@@ -32,7 +36,9 @@ def accounts_team(request):
     member   = Member.objects.get(user=request.user)
     teams    = member.team
 
-    accounts = Client.objects.filter(team=teams.all())
+    accounts = {}
+    for team in teams.all():
+        accounts[team.id] = Client.objects.filter(team=team)
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -184,6 +190,60 @@ def account_new(request):
 
 
 @login_required
+def account_edit_temp(request, id):
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    if (request.method == 'GET'):
+        account = Client.objects.get(id=id)
+
+        context = {
+            'account' : account
+        }
+
+        return render(request, 'client_area/account_edit_temp.html', context)
+    elif (request.method == 'POST'):
+        account = get_object_or_404(Client, id=id)
+
+        account_name = request.POST.get('account_name')
+        seo_hours = request.POST.get('seo_hours')
+        cro_hours = request.POST.get('cro_hours')
+
+        fee_override = request.POST.get('fee_override')
+        hours_override = request.POST.get('hours_override')
+
+        if (account.client_name != account_name):
+            # Audit log There
+            account.client_name = account_name
+
+        if (seo_hours != '' and float(seo_hours) != 0.0):
+            account.has_seo = True
+            account.seo_hours = seo_hours
+        else:
+            account.has_seo = False
+            account.seo_hours = 0.0
+
+        if (cro_hours != '' and float(cro_hours) != 0.0):
+            account.has_cro = True
+            account.cro_hours = cro_hours
+        else:
+            account.has_cro = False
+            account.cro_hours = 0.0
+
+        if (fee_override != 'None' and float(fee_override) != 0.0):
+            account.management_fee_override = float(fee_override)
+
+        if (request.user.is_staff):
+            if (hours_override != 'None' and float(hours_override) != 0.0):
+                account.allocated_ppc_override = float(hours_override)
+
+        account.save()
+
+        return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
 def account_edit(request, id):
     if (not request.user.is_staff):
         return HttpResponse('You do not have permission to view this page')
@@ -276,7 +336,7 @@ def account_edit(request, id):
 
             account.save()
 
-            return redirect('/clients/accounts/all')
+            return redirect('/clients/accounts/' + str(account.id))
         else:
             return HttpResponse('Invalid form entries')
     else:
@@ -285,7 +345,8 @@ def account_edit(request, id):
 
 @login_required
 def account_single(request, id):
-    if (not request.user.is_staff):
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(id)):
         return HttpResponse('You do not have permission to view this page')
 
     account = Client.objects.get(id=id)
@@ -318,7 +379,8 @@ def account_single(request, id):
 
 @login_required
 def account_assign_members(request):
-    if (not request.user.is_staff):
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(id)):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = request.POST.get('account_id')
@@ -451,6 +513,7 @@ def account_assign_members(request):
 
 @login_required
 def add_hours_to_account(request):
+
     if (request.method == 'GET'):
         member   = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
@@ -463,10 +526,14 @@ def add_hours_to_account(request):
         months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
         years  = [2018, 2019]
 
+        now = datetime.datetime.now()
+        monthnow = now.month
+
         context = {
             'member'   : member,
             'accounts' : accounts,
             'months'   : months,
+            'monthnow' : monthnow,
             'years'    : years
         }
 
@@ -475,6 +542,9 @@ def add_hours_to_account(request):
     elif (request.method == 'POST'):
         account_id = request.POST.get('account_id')
         account    = Client.objects.get(id=account_id)
+        member = Member.objects.get(user=request.user)
+        if (not request.user.is_staff and not member.has_account(id)):
+            return HttpResponse('You do not have permission to add hours to this account')
         member     = Member.objects.get(user=request.user)
         hours      = request.POST.get('hours')
         month      = request.POST.get('month')
@@ -487,11 +557,11 @@ def add_hours_to_account(request):
 
 @login_required
 def account_allocate_percentages(request):
-    if (not request.user.is_staff):
-        return HttpResponse('You do not have permission to view this page')
-
+    member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account    = Client.objects.get(id=account_id)
+    if (not request.user.is_staff and not member.has_account(id)):
+        return HttpResponse('You do not have permission to view this page')
 
     # There may be a better way to handle this form
     # This is boilerplate
@@ -525,6 +595,21 @@ def account_allocate_percentages(request):
     if (am3percent == None or am3percent == ''):
         am3percent = 0
     account.am3percent = am3percent
+
+    seo1percent = request.POST.get('seo1-percent')
+    if (seo1percent == None or seo1percent == ''):
+        seo1percent = 0
+    account.seo1percent = seo1percent
+
+    seo2percent = request.POST.get('seo2-percent')
+    if (seo2percent == None or seo2percent == ''):
+        seo2percent = 0
+    account.seo2percent = seo2percent
+
+    seo3percent = request.POST.get('seo3-percent')
+    if (seo3percent == None or seo3percent == ''):
+        seo3percent = 0
+    account.seo3percent = seo3percent
 
     strat1percent = request.POST.get('strat1-percent')
     if (strat1percent == None or strat1percent == ''):

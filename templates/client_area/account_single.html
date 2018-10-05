@@ -22,9 +22,9 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          {% if request.user.is_staff %}
+          {# if request.user.is_staff #}
           <a href="/clients/accounts/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
-          {% endif %}
+          {# endif #}
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
@@ -52,6 +52,28 @@
               <div class="col-md-6">
                 <label for="role">Industry:</label>
                 <input type="text" class="form-control m-input" value="{{ account.industry.name }}" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="team">Services:</label>
+                {% if account.aw_budget != 0.0 %}
+                <input type="text" class="form-control m-input" value="Adwords" disabled>
+                {% endif %}
+                {% if account.bing_budget != 0.0 %}
+                <input type="text" class="form-control m-input" value="Bing" disabled>
+                {% endif %}
+                {% if account.fb_budget != 0.0 %}
+                <input type="text" class="form-control m-input" value="Facebook" disabled>
+                {% endif %}
+                {% if account.has_seo %}
+                <input type="text" class="form-control m-input" value="SEO" disabled>
+                {% endif %}
+                {% if account.has_cro %}
+                <input type="text" class="form-control m-input" value="CRO" disabled>
+                {% endif %}
               </div>
             </div>
           </div>
@@ -225,7 +247,7 @@
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Allocated Hours This Month</h3>
-                      <span class="m-widget1__desc">PPC</span>
+                      <span class="m-widget1__desc">Total hours allocated to this account this month</span>
                     </div>
                     <div class="col m--align-right">
                       <span class="m-widget1__number m--font-info">{{ account.allHours }}</span>
@@ -236,7 +258,7 @@
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Hours Worked This Month</h3>
-                      <span class="m-widget1__desc">PPC</span>
+                      <span class="m-widget1__desc">All hours worked this month</span>
                     </div>
                     <div class="col m--align-right">
                       <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth }}</span>
@@ -247,7 +269,7 @@
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Hours Remaining This Month</h3>
-                      <span class="m-widget1__desc">PPC</span>
+                      <span class="m-widget1__desc">All hours remaining this month</span>
                     </div>
                     <div class="col m--align-right">
                       <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth }}</span>
@@ -270,7 +292,7 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          {% if request.user.is_staff %}
+          {# if request.user.is_staff #}
           <div class="row">
               <button type="button" class="btn btn-info m-btn"
                       data-toggle="modal"
@@ -283,7 +305,7 @@
               </button>
           </div>
           <hr />
-          {% endif %}
+          {# endif #}
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-3">

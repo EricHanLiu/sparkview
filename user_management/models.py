@@ -150,6 +150,13 @@ class Member(models.Model):
     def hours_available(self):
         return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
 
+    def has_account(self, account_id):
+        """
+        Returns True if this member deals with this account in any way, False otherwise (checks account member assignments)
+        """
+        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        return (account in self.accounts or account in self.backup_accounts)
+
     def get_accounts(self):
         if not hasattr(self, '_accounts'):
             Client = apps.get_model('budget', 'Client')
@@ -160,6 +167,12 @@ class Member(models.Model):
                           Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
                   )
         return self._accounts
+
+    def get_backup_accounts(self):
+        if not hasattr(self, '_backupaccounts'):
+            Client = apps.get_model('budget', 'Client')
+            self._backupaccounts = Client.objects.filter(Q(cmb=self) | Q(amb=self) | Q(seob=self) | Q(stratb=self))
+        return self._backupaccounts
 
     def get_accounts_count(self):
         return self.get_accounts().count()
@@ -173,6 +186,7 @@ class Member(models.Model):
     buffer_percentage    = property(buffer_percentage)
     hours_available      = property(hours_available)
     accounts             = property(get_accounts)
+    backup_accounts      = property(get_backup_accounts)
     account_count = property(get_accounts_count)
 
     def __str__(self):

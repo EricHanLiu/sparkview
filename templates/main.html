@@ -221,10 +221,37 @@ License: You must have a valid license purchased only from themeforest(the above
 												</span>
                                             </a>
                                         </li>
+                                        {% if request.user.is_staff %}
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:adwords' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
+                                                <span class="m-menu__link-text">
+													Activate - Adwords
+												</span>
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:bing' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
+                                                <span class="m-menu__link-text">
+													Activate - Bing Ads
+												</span>
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:facebook' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
+                                                <span class="m-menu__link-text">
+													Activate - Facebook
+												</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                             </li>
-                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+
+                            <!-- <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
                                 data-menu-submenu-toggle="click" aria-haspopup="true">
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
@@ -263,7 +290,7 @@ License: You must have a valid license purchased only from themeforest(the above
                                         </li>
                                     </ul>
                                 </div>
-                            </li>
+                            </li> -->
                             <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
                                 data-menu-submenu-toggle="click" aria-haspopup="true">
                                 <a href="#" class="m-menu__link m-menu__toggle">
@@ -329,13 +356,6 @@ License: You must have a valid license purchased only from themeforest(the above
                                             </a>
                                         </li>
                                         {% if request.user.is_staff %}
-                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                                <a href="/users" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													Users
-												</span>
-                                                </a>
-                                            </li>
                                             <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                                 <a href="/user_management/members" class="m-menu__link ">
 												<span class="m-menu__link-text">
