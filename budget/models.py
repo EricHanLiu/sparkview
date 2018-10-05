@@ -212,7 +212,9 @@ class Client(models.Model):
         if not hasattr(self, '_ppcFee'):
             tmpBudget = self.budget
             fee = 0.0
-            if (self.managementFee != None):
+            if (self.management_fee_override != None and self.management_fee_override != 0.0):
+                fee = self.management_fee_override
+            elif (self.managementFee != None):
                 for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
                     if (tmpBudget <= 0):
                         break
@@ -242,7 +244,7 @@ class Client(models.Model):
         return fee
 
     def getPpcAllocatedHours(self):
-        if (self.allocated_ppc_override != None):
+        if (self.allocated_ppc_override != None and self.allocated_ppc_override != 0.0):
             unrounded = self.allocated_ppc_override
         else:
             unrounded = (self.getPpcFee() / 125.0)  * ((100.0 - self.allocated_ppc_buffer) / 100.0)
