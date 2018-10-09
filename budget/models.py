@@ -51,7 +51,7 @@ class Client(models.Model):
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
-    global_budget = models.FloatField(default=0)
+    flex_budget = models.FloatField(default=0)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
@@ -244,7 +244,7 @@ class Client(models.Model):
         return fee
 
     def getPpcAllocatedHours(self):
-        if (self.allocated_ppc_override != None and self.allocated_ppc_override != 0.0):
+        if (self.allocated_ppc_override != None and self.allocated_ppc_override != 00.):
             unrounded = self.allocated_ppc_override
         else:
             unrounded = (self.getPpcFee() / 125.0)  * ((100.0 - self.allocated_ppc_buffer) / 100.0)
@@ -257,6 +257,24 @@ class Client(models.Model):
         if (self.has_cro):
             hours += self.cro_hours
         return hours
+
+    def getCurrentBudget(self):
+        return self.aw_budget + self.bing_budget + self.fb_budget
+
+    def getCurrentFullBudget(self):
+        return self.getCurrentBudget() + self.other_budget
+
+    def getFlexSpendThisMonth(self):
+        flex_spend = 0.0
+        if (self.aw_spend > self.aw_budget):
+            flex_spend += (self.aw_spend - self.aw_budget)
+        if (self.fb_spend > self.fb_budget):
+            flex_spend += (self.fb_spend - self.fb_budget)
+        if (self.bing_spend > self.bing_budget):
+            flex_spend += (self.bing_spend - self.bing_budget)
+
+        return flex_spend
+
 
     newBudget = property(getNewBudget)
 
@@ -271,6 +289,11 @@ class Client(models.Model):
     totalFee = property(getFee)
     ppcHours = property(getPpcAllocatedHours)
     allHours = property(getAllocatedHours)
+
+    current_budget = property(getCurrentBudget)
+    current_full_budget = property(getCurrentFullBudget)
+
+    flex_spend = property(getFlexSpendThisMonth)
 
     def __str__(self):
         return self.client_name

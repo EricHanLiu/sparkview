@@ -831,7 +831,7 @@
                              id="m_accordion_4_item_6_head" data-toggle="collapse"
                              href="#m_accordion_4_item_6_body" aria-expanded="    false">
                             <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Other Budgets</span>
+                            <span class="m-accordion__item-title">Flex Budget</span>
 
                             <span class="m-accordion__item-mode"></span>
                         </div>
@@ -840,15 +840,92 @@
                              role="tabpanel" aria-labelledby="m_accordion_4_item_6_head"
                              data-parent="#m_accordion_4">
                             <div class="m-accordion__item-content">
-                              <form method="post" action="/budget/clients/edit_other_budget">
+                              <span class="m-list-timeline__text">
+                                  <h6>
+
+                                  </h6>
+                              </span>
+                              <div class="row text-center">
+                                  <div class="col-md-2">
+                                      <b>Budget</b>:
+                                      <span id="budget-flex-{{ client_data.id }}"></span>
+                                      {{ client_data.flex_budget|floatformat:2|intcomma }}
+                                  </div>
+                                  <div class="col-md-2">
+                                      <b>Current Total Spend</b>:
+                                      {{ client_data.flex_spend|floatformat:2|intcomma }}
+                                  </div>
+                                  <!-- <div class="col-md-2">
+                                      <b>Target Daily Spend
+                                      </b>:
+                                  </div>
+                                  <div class="col-md-2">
+                                      <b>Yesterday's
+                                          Spend</b>:
+                                  </div>
+                                  <div class="col-md-2">
+                                      <b>Current Daily Spend</b>:
+                                  </div>
+                                  <div class="col-md-2">
+                                      <b>Projected Spend EOM</b>:
+
+                                  </div> -->
+                              </div>
+                              </p>
+                              <div class="progress m-progress--lg"
+                                   style="position: relative;!important;">
+                                  <div class="progress-bar {{ client_data.flex_spend|percentage:client_data.flex_budget }}"
+                                       role="progressbar"
+                                       style="width: {{ client_data.flex_spend|div:client_data.flex_budget }}%;"
+                                       aria-valuenow="{{ client_data.flex_spend|div:client_data.flex_budget }}"
+                                       aria-valuemin="0" aria-valuemax="100"
+                                       data-toggle="m-tooltip" data-placement="top"
+                                       title=""
+                                       data-original-title="{{ client_data.flex_spend }}/{{ client_data.flex_budget }}">
+                                  </div>
+                                  <div class="black-marker"
+                                       style="width: {{ blackmarker }}%"
+                                       aria-valuenow="{{ blackmarker }}"
+                                       aria-valuemin="0" aria-valuemax="100">
+                                  </div>
+                              </div>
+                              <hr />
+                              <form method="post" action="/budget/clients/edit_flex_budget">
                                 {% csrf_token %}
                                 <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;" />
                                 <div class="form-group m-form__group">
                                   <div class="row">
                                     <div class="col-md-6">
                                       <label for="client_name">Flex Budget:</label>
-                                      <input type="text" name="flex_budget" class="form-control m-input" value="{{ client_data.global_budget }}" />
+                                      <input type="text" name="flex_budget" class="form-control m-input" value="{{ client_data.flex_budget }}" />
                                     </div>
+                                  </div>
+                                  <input type="submit" value="Submit" />
+                                </div>
+                              </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Item-->
+                    <div class="m-accordion__item">
+                        <div class="m-accordion__item-head collapsed" role="tab"
+                             id="m_accordion_4_item_7_head" data-toggle="collapse"
+                             href="#m_accordion_4_item_7_body" aria-expanded="    false">
+                            <span class="m-accordion__item-icon"></span>
+                            <span class="m-accordion__item-title">Other Budgets</span>
+
+                            <span class="m-accordion__item-mode"></span>
+                        </div>
+
+                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_7_body"
+                             role="tabpanel" aria-labelledby="m_accordion_4_item_7_head"
+                             data-parent="#m_accordion_4">
+                            <div class="m-accordion__item-content">
+                              <form method="post" action="/budget/clients/edit_other_budget">
+                                {% csrf_token %}
+                                <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;" />
+                                <div class="form-group m-form__group">
+                                  <div class="row">
                                     <div class="col-md-6">
                                       <label for="client_name">Other Budget:</label>
                                       <input type="text" name="other_budget" class="form-control m-input" value="{{ client_data.other_budget }}" />
@@ -860,7 +937,6 @@
                             </div>
                         </div>
                     </div>
-                    <!--end::Item-->
                 </div>
 
 {% endblock view_client_block %}

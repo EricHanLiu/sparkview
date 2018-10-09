@@ -2,6 +2,7 @@
 {% extends 'main.html' %}
 {% load staticfiles %}
 
+{% load humanize %}
 {% load template_filters %}
 
 {% block leftAside %}
@@ -68,7 +69,7 @@
                   <span class="m-widget1__desc">Sum of all fees this month</span>
                 </div>
                 <div class="col m--align-right">
-                  <span class="m-widget1__number m--font-accent">{{ total_fee }}</span>
+                  <span class="m-widget1__number m--font-accent">${{ total_fee|intcomma }}</span>
                 </div>
               </div>
             </div>
