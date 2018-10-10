@@ -141,7 +141,7 @@ class Member(models.Model):
             for account in accounts:
                 hours += account.getAllocationThisMonthMember(self)
             return hours
-            self._allocatedHoursMonth = hours
+            self._allocatedHoursMonth = round(hours, 2)
         return self._allocatedHoursMonth
 
     def buffer_percentage(self):

@@ -259,7 +259,15 @@ class Client(models.Model):
         return hours
 
     def getCurrentBudget(self):
-        return self.aw_budget + self.bing_budget + self.fb_budget
+        budget = 0.0
+        for aa in self.adwords.all():
+            budget += aa.desired_spend
+        for ba in self.bing.all():
+            budget += ba.desired_spend
+        for fa in self.facebook.all():
+            budget += fa.desired_spend
+            
+        return budget
 
     def getCurrentFullBudget(self):
         return self.getCurrentBudget() + self.other_budget

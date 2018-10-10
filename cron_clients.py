@@ -87,8 +87,7 @@ def main():
         client.fb_rec_ds = 0
 
         # Maybe this will work?
-        client.budget += client.global_budget
-        client.budget += client.other_budget
+        client.budget += client.flex_budget
 
         client.save()
 

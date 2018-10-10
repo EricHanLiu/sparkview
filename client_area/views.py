@@ -378,10 +378,10 @@ def account_single(request, id):
 @login_required
 def account_assign_members(request):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
+    account_id = request.POST.get('account_id')
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
 
-    account_id = request.POST.get('account_id')
     account    = Client.objects.get(id=account_id)
 
     # There may be a better way to handle this form
@@ -504,8 +504,6 @@ def account_assign_members(request):
 
     account.save()
 
-    print(account.am1.user.first_name)
-
     return redirect('/clients/accounts/' + str(account.id))
 
 
@@ -541,7 +539,7 @@ def add_hours_to_account(request):
         account_id = request.POST.get('account_id')
         account    = Client.objects.get(id=account_id)
         member = Member.objects.get(user=request.user)
-        if (not request.user.is_staff and not member.has_account(id)):
+        if (not request.user.is_staff and not member.has_account(account_id)):
             return HttpResponse('You do not have permission to add hours to this account')
         member     = Member.objects.get(user=request.user)
         hours      = request.POST.get('hours')
@@ -558,7 +556,7 @@ def account_allocate_percentages(request):
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account    = Client.objects.get(id=account_id)
-    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
 
     # There may be a better way to handle this form
