@@ -267,6 +267,8 @@ class Client(models.Model):
         for fa in self.facebook.all():
             budget += fa.desired_spend
 
+        budget += self.flex_budget
+
         return budget
 
     def getCurrentFullBudget(self):
