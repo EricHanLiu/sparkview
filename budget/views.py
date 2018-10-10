@@ -871,12 +871,15 @@ def get_campaigns(request):
         acc_ids = " ".join(account_ids.split()).split(", ")
     except AttributeError:
         acc_ids = []
-
+    print(acc_ids)
     # Get accounts from DB
     if len(acc_ids) > 0:
         for a in acc_ids:
             try:
-                account = DependentAccount.objects.get(dependent_account_id=a)
+                if len(acc_ids) == 1:
+                    account = DependentAccount.objects.get(dependent_account_id=a.replace(',', ''))
+                else:
+                    account = DependentAccount.objects.get(dependent_account_id=a)
             except ObjectDoesNotExist:
                 pass
 
@@ -903,12 +906,12 @@ def get_campaigns(request):
             try:
                 bing_campaigns = BingCampaign.objects.filter(account=acc)
             except ValueError:
-                pass
+                bing_campaigns = []
 
             try:
                 fb_campaigns = FacebookCampaign.objects.filter(account=acc)
             except ValueError:
-                pass
+                fb_campaigns = []
 
         ns_cmps = list(chain(
             aw_campaigns,
