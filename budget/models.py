@@ -244,7 +244,7 @@ class Client(models.Model):
         return fee
 
     def getPpcAllocatedHours(self):
-        if (self.allocated_ppc_override != None and self.allocated_ppc_override != 00.):
+        if (self.allocated_ppc_override != None and self.allocated_ppc_override != 0.0):
             unrounded = self.allocated_ppc_override
         else:
             unrounded = (self.getPpcFee() / 125.0)  * ((100.0 - self.allocated_ppc_buffer) / 100.0)
@@ -266,7 +266,7 @@ class Client(models.Model):
             budget += ba.desired_spend
         for fa in self.facebook.all():
             budget += fa.desired_spend
-            
+
         return budget
 
     def getCurrentFullBudget(self):
