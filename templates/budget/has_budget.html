@@ -241,58 +241,50 @@
                                 <p>
                                     <button type="button" data-toggle="modal"
                                             data-target="#m_add_campaign_group_across"
+                                            data-acc_id="{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}
+                                                         {% for b in client_data.bing.all %}{{ b.account_id }},{% endfor %}
+                                                         {% for f in client_data.facebook.all %}{{ f.account_id }}
+                                                         {% if not forloop.last %},{% endif %}{% endfor %}"
+                                            data-client_id="{{ client_data.id }}"
                                             class="btn m-btn--pill m-btn--air btn-outline-success btn-sm m-btn m-btn--custom">
                                         Add
                                     </button>
                                 </p>
-
                                 {% for gr in groupings %}
                                     {% with adwords=client_data.adwords.all bing=client_data.bing.all facebook=client_data.facebool.all %}
-                                        {% if gr.adwords in adwords or gr.bing in bing or gr.facebook in facebook %}
-                                            <div class="row">
-                                                <div class="col-md-2">
-                                                    Channel:
-                                                    {% if gr.adwords %}
-                                                        {{ gr.adwords.channel|title }}
-                                                    {% elif gr.bing %}
-                                                        {{ gr.bing.channel|title }}
-                                                    {% elif gr.facebook %}
-                                                        {{ gr.facebook.channel|title }}
-                                                    {% endif %}
-                                                </div>
-                                                <div class="col-md-3">
-                                                    Group name: {{ gr.group_name }}
-                                                    <i class="fa fa-minus-circle" data-toggle="modal"
-                                                       data-target="#m_delete_campaign_group"
-                                                       data-grid="{{ gr.id }}"></i>
-                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
-                                                       data-target="#m_edit_campaign_group"
-                                                            {% if gr.adwords %}
-                                                       data-acc_name="{{ gr.adwords.dependent_account_name }}"
-                                                       data-acc_id="{{ gr.adwords.dependent_account_id }}"
-                                                       data-channel="{{ gr.adwords.channel }}"
-                                                            {% elif gr.bing %}
-                                                       data-acc_name="{{ gr.bing.account_name }}"
-                                                       data-acc_id="{{ gr.bing.account_id }}"
-                                                       data-channel="{{ gr.bing.channel }}"
-                                                            {% elif gr.facebook %}
-                                                       data-acc_name="{{ gr.facebook.account_name }}"
-                                                       data-acc_id="{{ gr.facebook.account_id }}"
-                                                       data-channel="{{ gr.facebook.channel }}"
-                                                            {% endif %}
-                                                       data-group_name="{{ gr.group_name }}"
-                                                       data-group_by="{{ gr.group_by }}"
-                                                       data-group_budget="{{ gr.budget }}"
-                                                       data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
-                                                            {% if gr.start_date %}
-                                                       data-start_date="{{ gr.start_date }}"
-                                                       data-end_date="{{ gr.end_date }}"
-                                                            {% endif %}></i>
-                                                </div>
-                                                <div class="col-md-3">Group by: {{ gr.group_by }}</div>
-                                                <div class="col-md-2">
-                                                    Spend: {{ gr.current_spend|intcomma }}</div>
-                                                <div class="col-md-2">Budget: {{ gr.budget|intcomma }}</div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                Group name: {{ gr.group_name }}
+                                                <i class="fa fa-minus-circle" data-toggle="modal"
+                                                   data-target="#m_delete_campaign_group"
+                                                   data-grid="{{ gr.id }}"></i>
+                                                <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                                   data-target="#m_edit_campaign_group"
+                                                   data-c_id="{{ client_data.id }}"
+                                                   data-group_name="{{ gr.group_name }}"
+                                                   data-group_by="{{ gr.group_by }}"
+                                                   data-acc_ids="
+                                                        {% for a in client_data.adwords.all %}
+                                                            {{ a.dependent_account_id }},
+                                                        {% endfor %}
+                                                        {% for b in client_data.bing.all %}
+                                                            {{ b.account_id }},
+                                                        {% endfor %}
+                                                        {% for f in client_data.facebook.all %}
+                                                            {{ f.account_id }}
+                                                        {% endfor %}
+                                                        "
+                                                   data-group_budget="{{ gr.budget }}"
+                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
+                                                        {% if gr.start_date %}
+                                                   data-start_date="{{ gr.start_date }}"
+                                                   data-end_date="{{ gr.end_date }}"
+                                                        {% endif %}></i>
+                                            </div>
+                                            <div class="col-md-3">Group by: {{ gr.group_by }}</div>
+                                            <div class="col-md-3">
+                                                Spend: {{ gr.current_spend|intcomma }}</div>
+                                            <div class="col-md-3">Budget: {{ gr.budget|intcomma }}</div>
                                             </div>
                                             {% if gr.start_date %}
                                                 <div class="row">
@@ -319,27 +311,29 @@
                                                 {% if gr.aw_campaigns.all %}
                                                     {% for cmp in gr.aw_campaigns.all %}
                                                         {% if gr.start_date %}
-                                                            <p>{{ cmp.campaign_name }}</p>
+                                                            <p>A - {{ cmp.campaign_name }}</p>
                                                         {% else %}
-                                                            <p>{{ cmp.campaign_name }}
+                                                            <p>A - {{ cmp.campaign_name }}
                                                                 - {{ cmp.campaign_cost|intcomma }}</p>
                                                         {% endif %}
                                                     {% endfor %}
-                                                {% elif gr.bing_campaigns.all %}
+                                                {% endif %}
+                                                {% if gr.bing_campaigns.all %}
                                                     {% for cmp in gr.bing_campaigns.all %}
                                                         {% if gr.start_date %}
-                                                            <p>{{ cmp.campaign_name }}</p>
+                                                            <p>B - {{ cmp.campaign_name }}</p>
                                                         {% else %}
-                                                            <p>{{ cmp.campaign_name }}
+                                                            <p>B - {{ cmp.campaign_name }}
                                                                 - {{ cmp.campaign_cost|intcomma }}</p>
                                                         {% endif %}
                                                     {% endfor %}
-                                                {% elif gr.fb_campaigns.all %}
+                                                {% endif %}
+                                                {% if gr.fb_campaigns.all %}
                                                     {% for cmp in gr.fb_campaigns.all %}
                                                         {% if gr.start_date %}
-                                                            <p>{{ cmp.campaign_name }}</p>
+                                                            <p>F - {{ cmp.campaign_name }}</p>
                                                         {% else %}
-                                                            <p>{{ cmp.campaign_name }}
+                                                            <p>F - {{ cmp.campaign_name }}
                                                                 - {{ cmp.campaign_cost|intcomma }}</p>
                                                         {% endif %}
                                                     {% endfor %}
@@ -347,7 +341,7 @@
                                             </div>
                                             {% if not forloop.last %}
                                                 <div class="m-separator"></div>{% endif %}
-                                        {% endif %}
+{#                                        {% endif %}#}
                                     {% endwith %}
                                 {% endfor %}
                             </div>

@@ -56,6 +56,7 @@ def main():
 
     for client in clients:
 
+        # S - Spend, P - Projected, B - Budget
         aw_s_final, aw_p_final, aw_b_final, gts_final = {}, {}, {}, {}
         bing_b_final, bing_p_final, bing_s_final = {}, {}, {}
         fb_b_final, fb_p_final, fb_s_final = {}, {}, {}

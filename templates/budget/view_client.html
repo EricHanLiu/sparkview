@@ -381,30 +381,31 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <form id="add_campaign_group_across">
-                        {#                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">#}
+                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_ids">
+                        <input type="hidden" name="cgr_client_id" id="cgr_client_id">
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Campaign groups</p>
                         <div class="form-group">
-                            <div class="form-group m_form__group row">
-                                <div class="col-md-12">
-                                    <select class="form-control m-input--large" name="cgr_acc_id"
-                                            id="select_accounts_cgr" style="width: 100%;">
-                                        <option></option>
-                                        {% for a in client_data.adwords.all %}
-                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">
-                                                A - {{ a.dependent_account_name }}</option>
-                                        {% endfor %}
-                                        {% for b in client_data.bing.all %}
-                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B
-                                                - {{ b.account_name }}</option>
-                                        {% endfor %}
-                                        {% for f in client_data.facebook.all %}
-                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F
-                                                - {{ f.account_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
+{#                            <div class="form-group m_form__group row">#}
+{#                                <div class="col-md-12">#}
+{#                                    <select class="form-control m-input--large" name="cgr_acc_id"#}
+{#                                            id="select_accounts_cgr" style="width: 100%;">#}
+{#                                        <option></option>#}
+{#                                        {% for a in client_data.adwords.all %}#}
+{#                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">#}
+{#                                                A - {{ a.dependent_account_name }}</option>#}
+{#                                        {% endfor %}#}
+{#                                        {% for b in client_data.bing.all %}#}
+{#                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B#}
+{#                                                - {{ b.account_name }}</option>#}
+{#                                        {% endfor %}#}
+{#                                        {% for f in client_data.facebook.all %}#}
+{#                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F#}
+{#                                                - {{ f.account_name }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </div>#}
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <input type="text" class="form-control group-name"
@@ -481,13 +482,6 @@
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Edit campaign group</p>
                         <div class="form-group">
-                            <div class="form-group m-form__group row">
-                                <div class="col-md-12">
-                                    <label for="cgr_acc_name">Account: </label>
-                                    <input type="text" name="cgr_acc_name" class="form-control" id="cgr_acc_name"
-                                           disabled>
-                                </div>
-                            </div>
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <label for="cgr_group_name">Group name:</label>
@@ -1275,9 +1269,9 @@
                         toastr.error(ajaxContext.statusText);
                     },
                     complete: function () {
-                        setTimeout(function () {
-                            location.reload();
-                        }, 1200);
+                        //setTimeout(function () {
+                        //    location.reload();
+                        //}, 1200);
                     }
                 });
             }
@@ -1287,7 +1281,7 @@
 
             var modal = $("#m_edit_campaign_group");
             let data = $("#edit_campaign_group").serializeArray();
-            console.log(data)
+
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},

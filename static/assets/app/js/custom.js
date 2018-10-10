@@ -145,15 +145,15 @@ $(document).ready(function () {
     });
 
     $("#my_skills_datatable, #account_change_datatable").DataTable({
-      "ordering": false,
-      "bPaginate": false,
-      "bLengthChange": false,
-      "bFilter": false,
-      "bInfo": false,
-      "bAutoWidth": false,
-      'language': {
-          'sSearch': '<i class="fa fa-search"></i>',
-      }
+        "ordering": false,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
 
@@ -180,14 +180,14 @@ $(document).ready(function () {
     });
 
     $("#team_clients_datatable, #client_hours_datatable").DataTable({
-      "bPaginate": false,
-      "bLengthChange": false,
-      "bFilter": true,
-      "bInfo": false,
-      "bAutoWidth": false,
-      'language': {
-          'sSearch': '<i class="fa fa-search"></i>',
-      }
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     var options = {
@@ -318,9 +318,21 @@ $(document).ready(function () {
         $(".modal-body #cgr_channel").val(channel);
     });
 
+    $("#m_add_campaign_group_across").on('show.bs.modal', function (e) {
+
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let client_id = $(e.relatedTarget).data('client_id');
+        let channel = $(e.relatedTarget).data('channel');
+        $(".modal-body #cgr_acc_ids").val(acc_id);
+        $(".modal-body #cgr_client_id").val(client_id);
+        $(".modal-body #cgr_channel").val(channel);
+    });
+
     $("#m_edit_campaign_group").on('show.bs.modal', function (e) {
 
         let gr_id = $(e.relatedTarget).data('grid');
+        let c_id = $(e.relatedTarget).data('c_id');
+        let acc_ids = $(e.relatedTarget).data('acc_ids');
         let acc_name = $(e.relatedTarget).data('acc_name');
         let group_name = $(e.relatedTarget).data('group_name');
         let group_by = $(e.relatedTarget).data('group_by');
@@ -337,8 +349,9 @@ $(document).ready(function () {
 
         data = {
             'account_id': acc_id,
+            'account_ids': acc_ids,
             'gr_id': gr_id,
-            'channel': channel
+            'c_id': c_id
         };
 
         if (group_by === 'manual') {
@@ -372,33 +385,37 @@ $(document).ready(function () {
                     let cmps_in_gr = data['group'];
 
                     campaigns.forEach(item => {
-                        if (cmps_in_gr[0]['fields']['aw_campaigns'].length > 0) {
+
+                        if (item.model === 'adwords_dashboard.campaign') {
                             if (cmps_in_gr[0]['fields']['aw_campaigns'].includes(item['pk'])) {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             } else {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
-                        } else if (data['group'][0]['fields']['bing_campaigns'].length > 0) {
+                        }
+
+
+                        if (item.model === 'bing_dashboard.bingcampaign') {
                             if (cmps_in_gr[0]['fields']['bing_campaigns'].includes(item['pk'])) {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             } else {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
-                        } else if (data['group'][0]['fields']['fb_campaigns'].length > 0) {
+                        }
+
+
+                        if (item.model === 'facebook_dashboard.facebookcampaign') {
                             if (cmps_in_gr[0]['fields']['fb_campaigns'].includes(item['pk'])) {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             } else {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
-                        } else {
-                            let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                            $("#campaigns_gr_edit").append(new_option).trigger('change');
                         }
                     });
                 },
@@ -592,7 +609,7 @@ $(document).ready(function () {
         $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
 
         data = {
-            'account_id': $("#select_accounts_cgr").val(),
+            'account_ids': $("#cgr_acc_ids").val(),
             'channel': $("#select_accounts_cgr").find(':selected').data('channel')
         };
 
@@ -605,8 +622,16 @@ $(document).ready(function () {
 
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
-                    let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                    $("#campaigns_gr_across").append(new_option).trigger('change');
+                    if (item['model'] === 'adwords_dashboard.campaign') {
+                        var new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $("#campaigns_gr_across").append(new_option).trigger('change');
+                    } else if (item['model'] === 'bing_dashboard.bingcampaign') {
+                        var new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $("#campaigns_gr_across").append(new_option).trigger('change');
+                    } else if (item['model'] === 'facebook_dashboard.facebookcampaign') {
+                        var new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $("#campaigns_gr_across").append(new_option).trigger('change');
+                    }
                 });
             },
             error: function (ajaxContext) {

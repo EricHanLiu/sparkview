@@ -3,7 +3,7 @@ from bloom import celery_app
 from bloom.utils import FacebookReportingService
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
-from budget.models import FlightBudget, CampaignGrouping
+from budget.models import FlightBudget, CampaignGrouping, Client
 from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, w_access_token
 from dateutil.relativedelta import relativedelta
@@ -300,9 +300,10 @@ def facebook_cron_alerts(self, account_id):
 
 
 @celery_app.task(bind=True)
-def facebook_cron_campaign_stats(self, account_id):
+def facebook_cron_campaign_stats(self, account_id, client_id):
     account = FacebookAccount.objects.get(account_id=account_id)
-    groupings = CampaignGrouping.objects.filter(facebook=account)
+    client = Client.objects.get(id=client_id)
+    groupings = CampaignGrouping.objects.filter(client=client)
 
     cmps = []
     cmp_list = []
@@ -363,6 +364,8 @@ def facebook_cron_campaign_stats(self, account_id):
                         gr.fb_campaigns.add(c)
                         gr.save()
 
+            temp_spend = gr.current_spend
+
             gr.current_spend = 0
 
             if gr.start_date:
@@ -382,11 +385,15 @@ def facebook_cron_campaign_stats(self, account_id):
                 for cmp in campaigns_tp:
                     if cmp['campaign_id'] in cmp_list:
                         gr.current_spend += float(cmp['spend'])
-                        gr.save()
+                        # gr.save()
+                gr.current_spend += temp_spend
+                gr.save()
             else:
                 for cmp in gr.fb_campaigns.all():
                     gr.current_spend += cmp.campaign_cost
-                    gr.save()
+                    # gr.save()
+                gr.current_spend += temp_spend
+                gr.save()
 
 
 @celery_app.task(bind=True)

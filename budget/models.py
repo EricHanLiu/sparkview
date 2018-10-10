@@ -320,6 +320,7 @@ class FlightBudget(models.Model):
 
 class CampaignGrouping(models.Model):
 
+    client = models.ForeignKey(Client, blank=True, null=True)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')

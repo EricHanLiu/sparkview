@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import json
-import re
 import itertools
 import calendar
 import unicodedata
@@ -9,11 +8,11 @@ from django.template.loader import render_to_string
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
-from budget.models import FlightBudget, Budget, CampaignGrouping
+from budget.models import FlightBudget, Budget, CampaignGrouping, Client
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
-from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, MAIL_ADS, API_VERSION
-from datetime import datetime, date
+from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from operator import itemgetter
 from itertools import groupby
@@ -424,9 +423,10 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
 
 @celery_app.task(bind=True)
-def adwords_cron_campaign_stats(self, customer_id):
+def adwords_cron_campaign_stats(self, customer_id, client_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    groupings = CampaignGrouping.objects.filter(adwords=account)
+    client = Client.objects.get(id=client_id)
+    groupings = CampaignGrouping.objects.filter(client=client)
 
     cmps = []
     campaigns = []

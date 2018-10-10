@@ -3,12 +3,13 @@ from __future__ import unicode_literals
 import subprocess
 import calendar
 import json
+import time
 from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.db.models import Q
+from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
@@ -18,6 +19,7 @@ from tasks import adwords_tasks, bing_tasks, facebook_tasks
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from itertools import chain
 
 
 # Create your views here.
@@ -275,7 +277,7 @@ def client_details(request, client_id):
         client = Client.objects.get(id=client_id)
         budgets = Budget.objects.all()
         fbudgets = FlightBudget.objects.all()
-        cmp_groupings = CampaignGrouping.objects.all()
+        cmp_groupings = CampaignGrouping.objects.filter(client=client)
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
 
@@ -657,127 +659,91 @@ def add_groupings(request):
 
         channel = request.POST.get('cgr_channel')
         acc_id = request.POST.get('cgr_acc_id')
+        c_id = request.POST.get('cgr_client_id')
         group_name = request.POST.get('cgr_group_name')
         group_by = request.POST.get('cgr_group_by')
         budget = request.POST.get('group_budget')
         campaigns = request.POST.getlist('campaigns')
         flight_date = request.POST.get('cgr_fdate')
 
+        acc_ids = " ".join(acc_id.split()).split(", ")
         response = {}
+        client = Client.objects.get(id=c_id)
+        # We assume there is only one account per channel added to a client - this needs to be reworked
+        try:
+            adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
+        except ObjectDoesNotExist:
+            pass
 
-        if channel == 'adwords':
-            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+        try:
+            bing = BingAccounts.objects.get(account_id=acc_ids[1])
+        except ObjectDoesNotExist:
+            pass
 
-            if group_by == 'text':
-                group_by_text = request.POST.get('cgr_group_by_text')
+        try:
+            facebook = FacebookAccount.objects.get(account_id=acc_ids[2])
+        except ObjectDoesNotExist:
+            pass
 
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by_text,
-                    budget=budget,
-                    adwords=account
-                )
+        if group_by == 'text':
+            group_by_text = request.POST.get('cgr_group_by_text')
 
-            elif group_by == 'manual':
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by_text,
+                budget=budget,
+                client=client
+            )
 
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by,
-                    budget=budget,
-                    adwords=account
-                )
+        elif group_by == 'manual':
 
-                for c in campaigns:
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by,
+                budget=budget,
+                client=client
+            )
+
+            for c in campaigns:
+                try:
                     cmp = Campaign.objects.get(campaign_id=c)
                     new_group.aw_campaigns.add(cmp)
                     new_group.save()
+                except ObjectDoesNotExist:
+                    pass
 
-            if flight_date == 'yes':
-                start_date = request.POST.get('cgr_sdate')
-                end_date = request.POST.get('cgr_edate')
-
-                new_group.start_date = start_date
-                new_group.end_date = end_date
-                new_group.save()
-
-            response['group_name'] = new_group.group_name
-            adwords_tasks.adwords_cron_campaign_stats.delay(account.dependent_account_id)
-
-        elif channel == 'bing':
-            account = BingAccounts.objects.get(account_id=acc_id)
-
-            if group_by == 'text':
-                group_by_text = request.POST.get('cgr_group_by_text')
-
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by_text,
-                    budget=budget,
-                    bing=account
-                )
-
-            elif group_by == 'manual':
-
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by,
-                    budget=budget,
-                    bing=account
-                )
-
-                for c in campaigns:
+                try:
                     cmp = BingCampaign.objects.get(campaign_id=c)
                     new_group.bing_campaigns.add(cmp)
                     new_group.save()
+                except ObjectDoesNotExist:
+                    pass
 
-            if flight_date == 'yes':
-                start_date = request.POST.get('cgr_sdate')
-                end_date = request.POST.get('cgr_edate')
-
-                new_group.start_date = start_date
-                new_group.end_date = end_date
-                new_group.save()
-
-            response['group_name'] = new_group.group_name
-            bing_tasks.bing_cron_campaign_stats.delay(account.account_id)
-
-        elif channel == 'facebook':
-
-            account = FacebookAccount.objects.get(account_id=acc_id)
-            if group_by == 'text':
-                group_by_text = request.POST.get('cgr_group_by_text')
-
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by_text,
-                    budget=budget,
-                    facebook=account
-                )
-
-            elif group_by == 'manual':
-
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by,
-                    budget=budget,
-                    facebook=account
-                )
-
-                for c in campaigns:
+                try:
                     cmp = FacebookCampaign.objects.get(campaign_id=c)
                     new_group.fb_campaigns.add(cmp)
                     new_group.save()
+                except ObjectDoesNotExist:
+                    pass
 
-            if flight_date == 'yes':
-                start_date = request.POST.get('cgr_sdate')
-                end_date = request.POST.get('cgr_edate')
 
-                new_group.start_date = start_date
-                new_group.end_date = end_date
-                new_group.save()
+        if flight_date == 'yes':
+            start_date = request.POST.get('cgr_sdate')
+            end_date = request.POST.get('cgr_edate')
 
-            response['group_name'] = new_group.group_name
-            facebook_tasks.facebook_cron_campaign_stats.delay(account.account_id)
+            new_group.start_date = start_date
+            new_group.end_date = end_date
+            new_group.save()
+
+        response['group_name'] = new_group.group_name
+        if adwords:
+            adwords_tasks.adwords_cron_campaign_stats.delay(adwords.dependent_account_id)
+        if bing:
+            time.sleep(5)
+            bing_tasks.bing_cron_campaign_stats.delay(bing.account_id)
+        if facebook:
+            time.sleep(10)
+            facebook_tasks.facebook_cron_campaign_stats.delay(facebook.account_id)
 
         return JsonResponse(response)
 
@@ -807,18 +773,23 @@ def update_groupings(request):
 
         if group_by == 'manual':
             for c in campaigns:
-                if channel == 'adwords':
+                try:
                     if c not in grouping.aw_campaigns.all():
+
                         cmp = Campaign.objects.get(campaign_id=c)
                         grouping.aw_campaigns.add(cmp)
                         grouping.save()
-                    for campaign in grouping.aw_campaigns.all():
-                        if campaign.campaign_id not in campaigns:
-                            cmp = Campaign.objects.get(campaign_id=c)
-                            grouping.aw_campaigns.remove(cmp)
-                            grouping.save()
 
-                elif channel == 'bing':
+                        for campaign in grouping.aw_campaigns.all():
+                            if campaign.campaign_id not in campaigns:
+                                cmp = Campaign.objects.get(campaign_id=c)
+                                grouping.aw_campaigns.remove(cmp)
+                                grouping.save()
+
+                except ObjectDoesNotExist:
+                    pass
+
+                try:
                     if c not in grouping.bing_campaigns.all():
                         cmp = BingCampaign.objects.get(campaign_id=c)
                         grouping.bing_campaigns.add(cmp)
@@ -828,8 +799,10 @@ def update_groupings(request):
                             cmp = BingCampaign.objects.get(campaign_id=c)
                             grouping.bing_campaigns.remove(cmp)
                             grouping.save()
+                except ObjectDoesNotExist:
+                    pass
 
-                elif channel == 'facebook':
+                try:
                     if c not in grouping.fb_campaigns.all():
                         cmp = FacebookCampaign.objects.get(campaign_id=c)
                         grouping.fb_campaigns.add(cmp)
@@ -839,16 +812,23 @@ def update_groupings(request):
                             cmp = Campaign.objects.get(campaign_id=c)
                             grouping.fb_campaigns.remove(cmp)
                             grouping.save()
+                except ObjectDoesNotExist:
+                    pass
         else:
             grouping.group_by = group_by_edit
         grouping.save()
 
-        if channel == 'adwords':
-            adwords_tasks.adwords_cron_campaign_stats.delay(grouping.adwords.dependent_account_id)
-        elif channel == 'bing':
-            bing_tasks.bing_cron_campaign_stats.delay(grouping.bing.account_id)
-        elif channel == 'facebook':
-            facebook_tasks.facebook_cron_campaign_stats.delay(grouping.facebook.account_id)
+        if grouping.client.adwords:
+            for a in grouping.client.adwords.all():
+                adwords_tasks.adwords_cron_campaign_stats.delay(a.dependent_account_id, grouping.client.id)
+        if grouping.client.bing:
+            time.sleep(5)
+            for b in grouping.client.bing.all():
+                bing_tasks.bing_cron_campaign_stats.delay(b.account_id, grouping.client.id)
+        if grouping.client.facebook:
+            time.sleep(10)
+            for f in grouping.client.facebook.all():
+                facebook_tasks.facebook_cron_campaign_stats.delay(f.account_id)
 
         context = {}
 
@@ -874,10 +854,69 @@ def delete_groupings(request):
 def get_campaigns(request):
 
     account_id = request.POST.get('account_id')
+    account_ids = request.POST.get('account_ids')
     gr_id = request.POST.get('gr_id')
     channel = request.POST.get('channel')
+    accs = []
     response = {}
 
+    try:
+        acc_ids = " ".join(account_ids.split()).split(", ")
+    except AttributeError:
+        acc_ids = []
+
+    # Get accounts from DB
+    if len(acc_ids) > 0:
+        for a in acc_ids:
+            try:
+                account = DependentAccount.objects.get(dependent_account_id=a)
+            except ObjectDoesNotExist:
+                pass
+
+            try:
+                account = BingAccounts.objects.get(account_id=a)
+            except ObjectDoesNotExist:
+                pass
+
+            try:
+                account = FacebookAccount.objects.get(account_id=a)
+            except ObjectDoesNotExist:
+                pass
+            # Add each account found to accs[]
+            accs.append(account)
+
+
+        # Loop through account list and get campaigns
+        for acc in accs:
+            try:
+                aw_campaigns = Campaign.objects.filter(account=acc, campaign_status='enabled', campaign_serving_status='eligible')
+            except ValueError:
+                pass
+
+            try:
+                bing_campaigns = BingCampaign.objects.filter(account=acc)
+            except ValueError:
+                pass
+
+            try:
+                fb_campaigns = FacebookCampaign.objects.filter(account=acc)
+            except ValueError:
+                pass
+
+        ns_cmps = list(chain(
+            aw_campaigns,
+            bing_campaigns,
+            fb_campaigns
+        ))
+
+        response['campaigns'] = json.loads(serializers.serialize("json", ns_cmps))
+
+    if gr_id:
+        gr = CampaignGrouping.objects.filter(id=gr_id)
+        gr_json = json.loads(serializers.serialize("json", gr))
+        response['group'] = gr_json
+
+    # The following piece of code will not be used anymore, i think
     if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
         campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
