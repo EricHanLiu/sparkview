@@ -1269,9 +1269,9 @@
                         toastr.error(ajaxContext.statusText);
                     },
                     complete: function () {
-                        //setTimeout(function () {
-                        //    location.reload();
-                        //}, 1200);
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
                     }
                 });
             }
@@ -1288,9 +1288,9 @@
                 url: '/budget/groupings/update/',
                 data: data,
                 complete: function () {
-                    //setTimeout(function () {
-                    //    location.reload();
-                    //}, 1200);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
                 },
                 success: function () {
                     modal.modal('hide');

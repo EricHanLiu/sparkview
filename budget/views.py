@@ -668,23 +668,29 @@ def add_groupings(request):
         flight_date = request.POST.get('cgr_fdate')
 
         acc_ids = " ".join(acc_id.split()).split(", ")
+
         response = {}
+
         client = Client.objects.get(id=c_id)
         # We assume there is only one account per channel added to a client - this needs to be reworked
         try:
-            adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
-        except ObjectDoesNotExist:
-            pass
+            if len(acc_ids) == 1:
+                adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0].replace(',', ''))
+            else:
+                adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
+
+        except (IndexError, ObjectDoesNotExist):
+            adwords = []
 
         try:
             bing = BingAccounts.objects.get(account_id=acc_ids[1])
-        except ObjectDoesNotExist:
-            pass
+        except (IndexError, ObjectDoesNotExist):
+            bing = []
 
         try:
             facebook = FacebookAccount.objects.get(account_id=acc_ids[2])
-        except ObjectDoesNotExist:
-            pass
+        except (IndexError, ObjectDoesNotExist):
+            facebook = []
 
         if group_by == 'text':
             group_by_text = request.POST.get('cgr_group_by_text')
@@ -737,14 +743,14 @@ def add_groupings(request):
             new_group.save()
 
         response['group_name'] = new_group.group_name
-        if adwords:
-            adwords_tasks.adwords_cron_campaign_stats.delay(adwords.dependent_account_id)
-        if bing:
+        if not isinstance(adwords, list):
+            adwords_tasks.adwords_cron_campaign_stats.delay(adwords.dependent_account_id, client.id)
+        if not isinstance(bing, list):
             time.sleep(5)
-            bing_tasks.bing_cron_campaign_stats.delay(bing.account_id)
-        if facebook:
+            bing_tasks.bing_cron_campaign_stats.delay(bing.account_id, client.id)
+        if not isinstance(facebook, list):
             time.sleep(10)
-            facebook_tasks.facebook_cron_campaign_stats.delay(facebook.account_id)
+            facebook_tasks.facebook_cron_campaign_stats.delay(facebook.account_id, client.id)
 
         return JsonResponse(response)
 
