@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load humanize %}
+{% load template_filters %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+            Agency Overview
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row m-row--no-padding m-row--col-separator-xl">
+        <div class="col-md-12 col-lg-12 col-xl-4">
+          <div class="m-widget1">
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Active Accounts</h3>
+                  <span class="m-widget1__desc">Total number of active accounts</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-brand">{{ total_active_accounts }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Active SEO Accounts</h3>
+                  <span class="m-widget1__desc">Total number of active SEO accounts</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-danger">{{ total_active_seo }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Active CRO Accounts</h3>
+                  <span class="m-widget1__desc">Total number of active CRO accounts</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-success">{{ total_active_cro }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 col-lg-12 col-xl-4">
+
+          <div class="m-widget1">
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Total Management Fee</h3>
+                  <span class="m-widget1__desc">Sum of all fees this month</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-accent">${{ total_fee|intcomma }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Total Allocated Hours</h3>
+                  <span class="m-widget1__desc">Sum of all agency hours</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-info">{{ total_allocated_hours }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Total Hours Worked</h3>
+                  <span class="m-widget1__desc">Sum of hours this month</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-warning">{{ total_hours_worked }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 col-lg-12 col-xl-4">
+
+          <div class="m-widget1">
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Orders</h3>
+                  <span class="m-widget1__desc">Awerage Weekly Orders</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-success">+15%</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Transactions</h3>
+                  <span class="m-widget1__desc">Daily Transaction Increase</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-danger">+80%</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-widget1__item">
+              <div class="row m-row--no-padding align-items-center">
+                <div class="col">
+                  <h3 class="m-widget1__title">Revenue</h3>
+                  <span class="m-widget1__desc">Overall Revenue Increase</span>
+                </div>
+                <div class="col m--align-right">
+                  <span class="m-widget1__number m--font-primary">+60%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

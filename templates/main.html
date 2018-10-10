@@ -22,6 +22,18 @@ License: You must have a valid license purchased only from themeforest(the above
     <meta name="description" content="Latest updates and statistic charts">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% if request.META.HTTP_HOST != "127.0.0.1:8000" %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-127221597-1');
+    </script>
+    {% endif %}
+
     <!--begin::Web font -->
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
     <script>
@@ -114,8 +126,63 @@ License: You must have a valid license purchased only from themeforest(the above
                                 </h5>
                                 <!-- <h6>v0.0.1-alpha</h6> -->
                             </li>
+
+                              {# Client area #}
+                              <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                              data-menu-submenu-toggle="click" aria-haspopup="true"  style="padding-left:1.5rem;">
+                              <a href="#" class="m-menu__link m-menu__toggle">
+                                <span class="m-menu__item-here"></span>
+                                <span class="m-menu__link-text">
+                                  Clients
+                                </span>
+                                <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                <i class="m-menu__ver-arrow la la-angle-right"></i>
+                              </a>
+                              <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                <ul class="m-menu__subnav">
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        My Accounts
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/team" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        My Team's Accounts
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/report_hours" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        Report Hours
+                                      </span>
+                                    </a>
+                                  </li>
+                                  {% if request.user.is_staff %}
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/all" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        All Accounts
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/new" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        Add New Account
+                                      </span>
+                                    </a>
+                                  </li>
+                                  {% endif %}
+                                </ul>
+                              </div>
+                            </li>
                             <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
-                                data-menu-submenu-toggle="click" aria-haspopup="true" style="padding-left:1.5rem;">
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
                                     <span class="m-menu__link-text">
@@ -380,60 +447,31 @@ License: You must have a valid license purchased only from themeforest(the above
                                 </div>
                             </li>
 
-                            {# Client area #}
+                            {% if request.user.is_staff %}
                             <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
-                                data-menu-submenu-toggle="click" aria-haspopup="true">
-                                <a href="#" class="m-menu__link m-menu__toggle">
-                                    <span class="m-menu__item-here"></span>
+                            data-menu-submenu-toggle="click" aria-haspopup="true">
+                            <a href="#" class="m-menu__link m-menu__toggle">
+                              <span class="m-menu__item-here"></span>
+                              <span class="m-menu__link-text">
+                                Reports
+                              </span>
+                              <i class="m-menu__hor-arrow la la-angle-down"></i>
+                              <i class="m-menu__ver-arrow la la-angle-right"></i>
+                            </a>
+                            <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                              <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                              <ul class="m-menu__subnav">
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/agency_overview" class="m-menu__link ">
                                     <span class="m-menu__link-text">
-										Clients
-									</span>
-                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
-                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
-                                </a>
-                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
-                                    <ul class="m-menu__subnav">
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="/clients" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													My Accounts
-												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="/clients/accounts/team" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													My Team's Accounts
-												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="/clients/accounts/report_hours" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													Report Hours
-												</span>
-                                            </a>
-                                        </li>
-                                        {% if request.user.is_staff %}
-                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                                <a href="/clients/accounts/all" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													All Accounts
-												</span>
-                                                </a>
-                                            </li>
-                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                                <a href="/clients/accounts/new" class="m-menu__link ">
-												<span class="m-menu__link-text">
-													Add New Account
-												</span>
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </li>
+                                      Agency Overview
+                                    </span>
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </li>
+                          {% endif %}
                         </ul>
                     </div>
                     <!-- END: Horizontal Menu -->

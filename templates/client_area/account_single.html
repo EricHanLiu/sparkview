@@ -200,7 +200,7 @@
                       <span class="m-widget1__desc">Total monthy budget</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-brand">${{ account.budget }}</span>
+                      <span class="m-widget1__number m--font-brand">${{ account.budget|floatformat:2 }}</span>
                     </div>
                   </div>
                 </div>
@@ -211,7 +211,7 @@
                       <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-danger">${{ account.current_spend }}</span>
+                      <span class="m-widget1__number m--font-danger">${{ account.current_spend|floatformat:2 }}</span>
                     </div>
                   </div>
                 </div>
@@ -222,7 +222,7 @@
                       <span class="m-widget1__desc">Left to spend this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget }}</span>
+                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget|floatformat:2 }}</span>
                     </div>
                   </div>
                 </div>
@@ -247,10 +247,10 @@
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
                       <h3 class="m-widget1__title">Allocated Hours This Month</h3>
-                      <span class="m-widget1__desc">Total hours allocated to this account this month</span>
+                      <span class="m-widget1__desc">All hours allocated this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-info">{{ account.allHours }}</span>
+                      <span class="m-widget1__number m--font-info">{{ account.allHours|floatformat }}</span>
                     </div>
                   </div>
                 </div>
@@ -261,7 +261,7 @@
                       <span class="m-widget1__desc">All hours worked this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth }}</span>
+                      <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth|floatformat }}</span>
                     </div>
                   </div>
                 </div>
@@ -272,7 +272,7 @@
                       <span class="m-widget1__desc">All hours remaining this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth }}</span>
+                      <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth|floatformat }}</span>
                     </div>
                   </div>
                 </div>

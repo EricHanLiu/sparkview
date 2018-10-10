@@ -9,7 +9,7 @@ import json
 
 def index(request):
     if request.user.is_authenticated:
-        return redirect('/dashboards/adwords/')
+        return redirect('/user_management/profile')
 
     return render(request, "login/login.html")
 

@@ -14,6 +14,7 @@ from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
+from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
 from datetime import datetime
@@ -1152,15 +1153,32 @@ def delete_kpi(request):
 
     return JsonResponse(response)
 
+
 @login_required
-def edit_other_budget(request):
-    if (not request.user.is_staff):
+def edit_flex_budget(request):
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id')))):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
 
-    account.global_budget = request.POST.get('flex_budget')
+    account.flex_budget = request.POST.get('flex_budget')
+
+    account.save()
+
+    return redirect('/budget/client/' + str(account.id))
+
+
+@login_required
+def edit_other_budget(request):
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id')))):
+        return HttpResponse('You do not have permission to view this page')
+
+    account_id = int(request.POST.get('account_id'))
+    account = Client.objects.get(id=account_id)
+
     account.other_budget = request.POST.get('other_budget')
 
     account.save()

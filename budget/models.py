@@ -51,7 +51,7 @@ class Client(models.Model):
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
-    global_budget = models.FloatField(default=0)
+    flex_budget = models.FloatField(default=0)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
@@ -258,6 +258,34 @@ class Client(models.Model):
             hours += self.cro_hours
         return hours
 
+    def getCurrentBudget(self):
+        budget = 0.0
+        for aa in self.adwords.all():
+            budget += aa.desired_spend
+        for ba in self.bing.all():
+            budget += ba.desired_spend
+        for fa in self.facebook.all():
+            budget += fa.desired_spend
+
+        budget += self.flex_budget
+
+        return budget
+
+    def getCurrentFullBudget(self):
+        return self.getCurrentBudget() + self.other_budget
+
+    def getFlexSpendThisMonth(self):
+        flex_spend = 0.0
+        if (self.aw_spend > self.aw_budget):
+            flex_spend += (self.aw_spend - self.aw_budget)
+        if (self.fb_spend > self.fb_budget):
+            flex_spend += (self.fb_spend - self.fb_budget)
+        if (self.bing_spend > self.bing_budget):
+            flex_spend += (self.bing_spend - self.bing_budget)
+
+        return flex_spend
+
+
     newBudget = property(getNewBudget)
 
     remainingBudget = property(getRemainingBudget)
@@ -271,6 +299,11 @@ class Client(models.Model):
     totalFee = property(getFee)
     ppcHours = property(getPpcAllocatedHours)
     allHours = property(getAllocatedHours)
+
+    current_budget = property(getCurrentBudget)
+    current_full_budget = property(getCurrentFullBudget)
+
+    flex_spend = property(getFlexSpendThisMonth)
 
     def __str__(self):
         return self.client_name
