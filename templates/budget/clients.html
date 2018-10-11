@@ -152,7 +152,7 @@
                                     <td class="text-center">
                                         {% if client.has_budget and client.has_gts %}
                                             <span class="{{ client.current_spend|cgap:client.budget }}">
-                                                {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
+                                                {{ client.currency }}{{ client.budget|subtract:client.current_spend|floatformat:2|intcomma }}
                                             </span>
                                         {% elif client.has_gts and not client.has_budget %}
                                             <span class="{{ client.current_spend|cgap:client.budget }}">
