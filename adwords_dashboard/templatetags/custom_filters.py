@@ -15,14 +15,14 @@ def cgap(value, arg):
         result = 0
 
     if 90 < result < 100:
-        return 'm--font-success'
+        return 'm-font m--font-success'
 
     elif 0 < result <= 90:
-        return 'm--font-warning'
+        return 'm-font m--font-warning'
     elif result == 0:
-        return 'm--font'
+        return 'm-font'
     else:
-        return 'm--font-danger'
+        return 'm-font m--font-danger'
 
 
 @register.filter("get_dict_value")

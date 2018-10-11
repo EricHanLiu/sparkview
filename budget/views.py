@@ -667,17 +667,17 @@ def add_groupings(request):
         campaigns = request.POST.getlist('campaigns')
         flight_date = request.POST.get('cgr_fdate')
 
-        acc_ids = " ".join(acc_id.split()).split(", ")
+        acc_ids = " ".join(acc_id.split()).split(",")
 
         response = {}
 
         client = Client.objects.get(id=c_id)
         # We assume there is only one account per channel added to a client - this needs to be reworked
         try:
-            if len(acc_ids) == 1:
-                adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0].replace(',', ''))
-            else:
-                adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
+            # if len(acc_ids) == 1:
+            #     adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0].replace(',', ''))
+            # else:
+            adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
 
         except (IndexError, ObjectDoesNotExist):
             adwords = []
@@ -920,7 +920,6 @@ def get_campaigns(request):
             except ValueError:
                 fb_campaigns = []
 
-        print(len(ns_cmps))
         response['campaigns'] = json.loads(serializers.serialize("json", ns_cmps))
 
     if gr_id:
