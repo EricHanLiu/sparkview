@@ -241,10 +241,7 @@
                                 <p>
                                     <button type="button" data-toggle="modal"
                                             data-target="#m_add_campaign_group_across"
-                                            data-acc_id="{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}
-                                                         {% for b in client_data.bing.all %}{{ b.account_id }},{% endfor %}
-                                                         {% for f in client_data.facebook.all %}{{ f.account_id }}
-                                                         {% if not forloop.last %},{% endif %}{% endfor %}"
+                                            data-acc_id="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                             data-client_id="{{ client_data.id }}"
                                             class="btn m-btn--pill m-btn--air btn-outline-success btn-sm m-btn m-btn--custom">
                                         Add

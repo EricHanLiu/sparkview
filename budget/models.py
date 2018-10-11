@@ -28,7 +28,7 @@ class Client(models.Model):
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
     facebook = models.ManyToManyField(fb.FacebookAccount, blank=True, related_name='facebook')
     current_spend = models.FloatField(default=0)
-    yesterday_spend = models.FloatField(default=0)
+    # yesterday_spend = models.FloatField(default=0)
     aw_yesterday = models.FloatField(default=0)
     bing_yesterday = models.FloatField(default=0)
     fb_yesterday = models.FloatField(default=0)
@@ -132,6 +132,9 @@ class Client(models.Model):
 
     def getNewBudget(self):
         return self.aw_budget + self.fb_budget + self.bing_budget + self.global_budget + self.other_budget
+
+    def getYesterdaySpend(self):
+        return self.aw_yesterday + self.bing_yesterday + self.fb_yesterday
 
     def getRemainingBudget(self):
         return self.budget - self.current_spend
@@ -287,6 +290,8 @@ class Client(models.Model):
 
 
     newBudget = property(getNewBudget)
+
+    yesterday_spend = property(getYesterdaySpend)
 
     remainingBudget = property(getRemainingBudget)
 

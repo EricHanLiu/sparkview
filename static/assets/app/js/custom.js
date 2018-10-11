@@ -383,7 +383,8 @@ $(document).ready(function () {
                 success: function (data) {
                     let campaigns = data['campaigns'];
                     let cmps_in_gr = data['group'];
-
+                    console.log(cmps_in_gr);
+                    console.log(campaigns)
                     campaigns.forEach(item => {
 
                         if (item.model === 'adwords_dashboard.campaign') {
@@ -396,7 +397,6 @@ $(document).ready(function () {
                             }
                         }
 
-
                         if (item.model === 'bing_dashboard.bingcampaign') {
                             if (cmps_in_gr[0]['fields']['bing_campaigns'].includes(item['pk'])) {
                                 let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
@@ -406,7 +406,6 @@ $(document).ready(function () {
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
                         }
-
 
                         if (item.model === 'facebook_dashboard.facebookcampaign') {
                             if (cmps_in_gr[0]['fields']['fb_campaigns'].includes(item['pk'])) {
@@ -619,16 +618,18 @@ $(document).ready(function () {
             type: 'POST',
             data: data,
             success: function (data) {
-
+                console.log(data)
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
                     if (item['model'] === 'adwords_dashboard.campaign') {
                         var new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                         $("#campaigns_gr_across").append(new_option).trigger('change');
-                    } else if (item['model'] === 'bing_dashboard.bingcampaign') {
+                    }
+                    if (item['model'] === 'bing_dashboard.bingcampaign') {
                         var new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                         $("#campaigns_gr_across").append(new_option).trigger('change');
-                    } else if (item['model'] === 'facebook_dashboard.facebookcampaign') {
+                    }
+                    if (item['model'] === 'facebook_dashboard.facebookcampaign') {
                         var new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                         $("#campaigns_gr_across").append(new_option).trigger('change');
                     }
