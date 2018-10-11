@@ -673,10 +673,8 @@ def add_groupings(request):
 
         client = Client.objects.get(id=c_id)
         # We assume there is only one account per channel added to a client - this needs to be reworked
+        # TODO: Get all the accounts and loop through them
         try:
-            # if len(acc_ids) == 1:
-            #     adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0].replace(',', ''))
-            # else:
             adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
 
         except (IndexError, ObjectDoesNotExist):
