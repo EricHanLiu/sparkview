@@ -26,14 +26,14 @@
                                 </button>
                         </div>
                         <div class="m--space-30"></div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-6">
                                 <i class="la la-star-o"></i> - Client has Budget feature. <i class="la la-star"></i>
                                 -
                                 Client has GTS feature.
                                 <i class="la la-star-o"></i><i class="la la-star"></i> - Client has both features.
                             </div>
-                        </div>
+                        </div> -->
                         <div class="m-separator m-separator--dashed"></div>
                         <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
                                id="clients_datatable">
@@ -76,14 +76,6 @@
                                         <a href="{% url 'budget:client_details' client.id %}">
                                             {{ client.client_name }}
                                         </a>
-                                        {% if client.has_gts and client.has_budget %}
-                                            <i class="la la-star-o"></i>
-                                            <i class="la la-star"></i>
-                                        {% elif client.has_budget %}
-                                            <i class="la la-star-o"></i>
-                                        {% elif client.has_gts %}
-                                            <i class="la la-star"></i>
-                                        {% endif %}
                                     </td>
                                     <td class="text-center">
                                         <div class="row">
