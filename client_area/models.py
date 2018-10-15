@@ -64,9 +64,12 @@ class AccountHourRecord(models.Model):
 
     member  = models.ForeignKey(Member, blank=True, null=True, related_name='member')
     account = models.ForeignKey('budget.Client', blank=True, null=True, related_name='client')
-    hours   = models.FloatField(default=0)
-    month   = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
-    year    = models.PositiveSmallIntegerField(blank=True, null=True)
+    hours = models.FloatField(default=0)
+    month = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
+    year = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return self.member.user.full_name + ' ' + str(hours) + ' hours on ' + account.client_name + ' added ' + month + '/' + str(year)
 
 
 class ManagementFeeInterval(models.Model):
@@ -86,9 +89,10 @@ class ManagementFeeInterval(models.Model):
 
 
 class ManagementFeesStructure(models.Model):
+    name = models.CharField(max_length=255, default='No Name Fee Structure')
     initialFee   = models.FloatField(default=0)
     feeStructure = models.ManyToManyField(ManagementFeeInterval, blank=True)
     created_at   = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.created_at)
+        return self.name

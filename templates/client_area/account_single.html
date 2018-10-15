@@ -177,6 +177,43 @@
           </table>
         </div>
       </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Management Fee Structure
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Monthly Media Spend
+                </th>
+                <th>
+                  Monthly Fee
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for interval in account.managementFee.feeStructure.all %}
+              <tr>
+                <td>
+                  ${{ interval.lowerBound }} - ${{ interval.upperBound }}
+                </td>
+                <td>
+                  {% if interval.feeStyle == 1 %}${% endif %}{{ interval.fee }}{% if interval.feeStyle == 0 %}%{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <div class="col-xl-8">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">

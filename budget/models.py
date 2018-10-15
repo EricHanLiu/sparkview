@@ -6,7 +6,7 @@ from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, ParentClient, ManagementFeesStructure
-import datetime
+import datetime, calendar
 # Create your models here.
 
 
@@ -22,6 +22,9 @@ class Client(models.Model):
 
     PAYMENT_SCHEDULE_CHOICES = [(0, 'MRR'),
                                 (1, 'One Time')]
+
+    PROJECTION_CHOIES = [(0, 'Yesterday'),
+                         (1, 'Monthly Average')]
 
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
@@ -92,6 +95,8 @@ class Client(models.Model):
     clientGrade    = models.IntegerField(default=0)
     actualHours    = models.IntegerField(default=0)
 
+    projection_method = models.IntegerField(default=0, choices=PROJECTION_CHOIES)
+
     # Member attributes (we'll see if there's a better way to do this)
     cm1    = models.ForeignKey(Member, blank=True, null=True, related_name='cm1')
     cm2    = models.ForeignKey(Member, blank=True, null=True, related_name='cm2')
@@ -129,12 +134,6 @@ class Client(models.Model):
     strat1percent = models.FloatField(default=0)
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
-
-    def getNewBudget(self):
-        return self.aw_budget + self.fb_budget + self.bing_budget + self.global_budget + self.other_budget
-
-    def getYesterdaySpend(self):
-        return self.aw_yesterday + self.bing_yesterday + self.fb_yesterday
 
     def getRemainingBudget(self):
         return self.budget - self.current_spend
@@ -210,32 +209,21 @@ class Client(models.Model):
 
     def getPpcFee(self):
         """
-        Loops through every interval in the management fee structure and sums up the fee depending on the budget
+        Loops through every interval in the management fee structure, determines
         """
         if not hasattr(self, '_ppcFee'):
-            tmpBudget = self.budget
             fee = 0.0
             if (self.management_fee_override != None and self.management_fee_override != 0.0):
                 fee = self.management_fee_override
             elif (self.managementFee != None):
                 for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
-                    if (tmpBudget <= 0):
-                        break
-                    maxSpendAtThisLevel = feeInterval.upperBound - feeInterval.lowerBound
-                    if (tmpBudget > maxSpendAtThisLevel):
-                        if (feeInterval.feeStyle == 0): # add % to fee
-                            fee += maxSpendAtThisLevel * feeInterval.fee / 100.0
-                        else:
-                            fee += feeInterval.fee
-                        tmpBudget -= maxSpendAtThisLevel
-                    else:
-                        if (feeInterval.feeStyle == 0): # add % to fee
-                            fee += tmpBudget * feeInterval.fee / 100.0
-                        else:
-                            fee += feeInterval.fee
-                        tmpBudget -= tmpBudget
-                if (self.status == 0):
-                    fee += self.managementFee.initialFee
+                    if (self.current_budget >= feeInterval.lowerBound and self.current_budget < feeInterval.upperBound):
+                        if (feeInterval.feeStyle == 0): # %
+                            fee = self.current_budget * (feeInterval.fee / 100.0)
+                            break
+                        elif (feeInterval.feeStyle == 1):
+                            fee = feeInterval.fee
+                            break
             self._ppcFee = round(fee, 2)
         return self._ppcFee
 
@@ -262,17 +250,19 @@ class Client(models.Model):
         return hours
 
     def getCurrentBudget(self):
-        budget = 0.0
-        for aa in self.adwords.all():
-            budget += aa.desired_spend
-        for ba in self.bing.all():
-            budget += ba.desired_spend
-        for fa in self.facebook.all():
-            budget += fa.desired_spend
+        if not hasattr(self, '_current_budget'):
+            budget = 0.0
+            for aa in self.adwords.all():
+                budget += aa.desired_spend
+            for ba in self.bing.all():
+                budget += ba.desired_spend
+            for fa in self.facebook.all():
+                budget += fa.desired_spend
 
-        budget += self.flex_budget
+            budget += self.flex_budget
+            self._current_budget = budget
 
-        return budget
+        return self._current_budget
 
     def getCurrentFullBudget(self):
         return self.getCurrentBudget() + self.other_budget
@@ -288,10 +278,20 @@ class Client(models.Model):
 
         return flex_spend
 
+    @property
+    def hybrid_projection(self):
+        projection = self.current_spend
+        now = datetime.datetime.today()
+        month = now.month
+        day_of_month = now.day
+        f, days_in_month = calendar.monthrange(month)
+        days_remaining = days_in_month - day_of_month
+        if (self.projection_method == 0): # Project based on yesterday
+            projection += (self.yesterday_spend * days_remaining)
+        elif (self.projection_method == 1):
+            projection += ((self.current_spend / day_of_month) * days_remaining)
 
-    newBudget = property(getNewBudget)
-
-    yesterday_spend = property(getYesterdaySpend)
+        return projection
 
     remainingBudget = property(getRemainingBudget)
 

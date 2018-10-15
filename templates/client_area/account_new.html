@@ -145,7 +145,7 @@
             </div>
         </div>
       </div>
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+      <!-- <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
@@ -182,7 +182,7 @@
               </div>
             </div>
         </div>
-      </div>
+      </div> -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -194,60 +194,71 @@
           </div>
         </div>
         <div class="m-portlet__body">
-            <div class="m-portlet__body">
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-4">
-                    <label for="service">Setup fee:</label>
-                    <input class="form-control m-input" name="setup-fee" />
-                  </div>
-                  <div class="col-md-4">
-                    <label>Fee type:</label>
-                    <select class="form-control m-input"
-                            name="fee-type1"
-                            style="width: 100%;">
-                            <option value="0">%</option>
-                            <option value="1">$</option>
-                    </select>
-                  </div>
-                  <div class="col-md-4">
-                    <label>Fee:</label>
-                    <input class="form-control m-input" name="fee1" />
-                  </div>
+          <input type="text" value="1" id="fee_structure_type" name="fee_structure_type" style="display:none;" />
+          <div id="create_new_structure">
+            <button type="button" name="button" class="btn btn-sm btn-outline-info" id="use_existing_structure_btn">Use existing fee structure</button>
+            <div class="form-group m-form__group" id="management_fee_form">
+              <input style="display:none;" value="1" id="rowNumInput" name="rowNumInput" />
+              <div class="row">
+                <div class="col-md-6">
+                  <label>Name:</label>
+                  <input class="form-control m-input" name="fee_structure_name" />
+                </div>
+                <div class="col-md-6">
+                  <label>Setup Fee:</label>
+                  <input class="form-control m-input" name="setup_fee" />
                 </div>
               </div>
-              <!-- <hr />
-              <div class="form-group m-form__group" id="management_fee_form">
-                <input style="display:none;" value="1" id="rowNumInput" />
-                <div class="row">
-                  <div class="col-md-3">
-                    <label>Low Budget Bound ($):</label>
-                    <input class="form-control m-input" name="low-bound1" />
-                  </div>
-                  <div class="col-md-3">
-                    <label>High Budget Bound ($):</label>
-                    <input class="form-control m-input" name="high-bound1" />
-                  </div>
-                  <div class="col-md-3">
-                    <label>Fee type:</label>
-                    <select class="form-control m-input"
-                            name="fee-type1"
-                            style="width: 100%;">
-                            <option value="0">%</option>
-                            <option value="1">$</option>
-                    </select>
-                  </div>
-                  <div class="col-md-3">
-                    <label>Fee:</label>
-                    <input class="form-control m-input" name="fee1" />
-                  </div>
-                  <div class="col-md-1">
-                    <label>Add Level</label>
-                    <button type="button" name="button" class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level</button>
-                  </div>
+              <hr />
+              <div class="row">
+                <div class="col-md-3">
+                  <label>Low Budget Bound ($):</label>
+                  <input class="form-control m-input" name="low-bound1" />
                 </div>
-              </div> -->
+                <div class="col-md-3">
+                  <label>High Budget Bound ($):</label>
+                  <input class="form-control m-input" name="high-bound1" />
+                </div>
+                <div class="col-md-2">
+                  <label>Fee type:</label>
+                  <select class="form-control m-input"
+                          name="fee-type1"
+                          style="width: 100%;">
+                          <option value="0">%</option>
+                          <option value="1">$</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label>Fee:</label>
+                  <input class="form-control m-input" name="fee1" />
+                </div>
+                <div class="col-md-1">
+                  <label>Add Level</label>
+                  <button type="button" name="button" class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level</button>
+                </div>
+              </div>
             </div>
+          </div>
+          <div id="use_existing_structure" style="display:none;">
+            <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_structure_btn">Create new fee structure</button>
+            <div class="form-group m-form__group" id="management_fee_select">
+              <div class="row">
+                <div class="col-md-12">
+                  <label for="existing_structure">Management Fee Structure:</label>
+                  <select class="form-control m-input"
+                          name="existing_structure"
+                          style="width: 100%;" required>
+                          <option value="0">
+                            None
+                          </option>
+                      {% for fee_structure in fee_structures %}
+                          <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -306,10 +317,10 @@
 {% block extraJs %}
 <script>
 $(document).ready(function () {
-  $createNewBtn   = $('#create_new_btn');
-  $useExistingBtn = $('#use_existing_btn');
-  $existingForm   = $('#existing_client_form');
-  $newForm        = $('#new_client_form');
+  var $createNewBtn   = $('#create_new_btn');
+  var $useExistingBtn = $('#use_existing_btn');
+  var $existingForm   = $('#existing_client_form');
+  var $newForm        = $('#new_client_form');
 
   $createNewBtn.click(function () {
     $existingForm.hide();
@@ -321,9 +332,30 @@ $(document).ready(function () {
     $existingForm.show();
   });
 
-  $addFeeBtn = $('.add-fee-level-btn');
-  $feeForm   = $('#management_fee_form');
-  $rowNum    = $('#rowNumInput');
+  /**
+   * Management fees
+   */
+  var $createNewFeeBtn   = $('#create_new_structure_btn');
+  var $useExistingFeeBtn = $('#use_existing_structure_btn');
+  var $createNewFeeDiv   = $('#create_new_structure');
+  var $useExistingFeeDiv = $('#use_existing_structure');
+  var $feeStructureType  = $('#fee_structure_type');
+
+  $createNewFeeBtn.click(function () {
+    $feeStructureType.val('1');
+    $useExistingFeeDiv.hide();
+    $createNewFeeDiv.show();
+  });
+
+  $useExistingFeeBtn.click(function () {
+    $feeStructureType.val('2');
+    $createNewFeeDiv.hide();
+    $useExistingFeeDiv.show();
+  });
+
+  var $addFeeBtn = $('.add-fee-level-btn');
+  var $feeForm   = $('#management_fee_form');
+  var $rowNum    = $('#rowNumInput');
 
   var feeRows = 1;
   var feeRowHtml = `
@@ -355,11 +387,11 @@ $(document).ready(function () {
   $addFeeBtn.click(function () {
     feeRows++;
     $rowNum.val(feeRows);
-    feeRowHtml = feeRowHtml.replace('low-bound' + (feeRows - 1), 'low-bound' + feeRows)
-                           .replace('high-bound' + (feeRows - 1), 'high-bound' + feeRows)
-                           .replace('fee-type' + (feeRows - 1), 'fee-type' + feeRows)
-                           .replace('fee' + (feeRows - 1), 'fee' + feeRows);
-    $feeForm.append(feeRowHtml);
+    var feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+                           .replace('high-bound1', 'high-bound' + feeRows)
+                           .replace('fee-type1', 'fee-type' + feeRows)
+                           .replace('fee1', 'fee' + feeRows);
+    $feeForm.append(feeRowHtmlTmp);
   });
 
   // SEO and CRO toggles

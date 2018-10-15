@@ -82,6 +82,7 @@ def account_new(request):
         languages    = Language.objects.all()
         members      = Member.objects.all()
         services     = Service.objects.all()
+        fee_structures = ManagementFeesStructure.objects.all()
         tiers        = [1, 2, 3]
 
         context = {
@@ -92,7 +93,8 @@ def account_new(request):
             'languages'    : languages,
             'members'      : members,
             'services'     : services,
-            'tiers'        : tiers
+            'tiers'        : tiers,
+            'fee_structures' : fee_structures
         }
 
         return render(request, 'client_area/account_new.html', context)
@@ -108,7 +110,6 @@ def account_new(request):
             'contact_name'  : request.POST.get('contact_name'),
             'tier'          : request.POST.get('tier'),
             'sold_by'       : request.POST.get('sold_by'),
-            'services'      : request.POST.get('services'),
             'status'        : request.POST.get('status'),
         }
 
@@ -147,27 +148,54 @@ def account_new(request):
             account.language.set(languages)
 
             # set PPC services
-            services = [cleanedInputs['services']]
-            account.services.set(services)
+            # services = [cleanedInputs['services']]
+            # account.services.set(services)
 
             # set contact info
             contacts = [contactInfo]
             account.contactInfo.set(contacts)
 
             # Make management fee structure
+            fee_create_or_existing = request.POST.get('fee_structure_type')
+            if (fee_create_or_existing == '1'):
+                # Create new management fee
+                number_of_tiers = request.POST.get('rowNumInput')
+                fee_structure_name = request.POST.get('fee_structure_name')
+                init_fee = request.POST.get('setup_fee')
+                management_fee_structure = ManagementFeesStructure()
+                management_fee_structure.name = fee_structure_name
+                management_fee_structure.initFee = init_fee
+                management_fee_structure.save()
+                for i in range(1, int(number_of_tiers) + 1):
+                    feeType = request.POST.get('fee-type' + str(i))
+                    fee = request.POST.get('fee' + str(i))
+                    lowerBound = request.POST.get('low-bound' + str(i))
+                    highBound = request.POST.get('high-bound' + str(i))
+                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=lowerBound, upperBound=highBound)
+                    management_fee_structure.feeStructure.add(feeInterval)
+                management_fee_structure.save()
+                account.managementFee = management_fee_structure
+            elif (fee_create_or_existing == '2'):
+                # Use existing
+                existing_fee_id = request.POST.get('existing_structure')
+                management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
+                account.managementFee = management_fee_structure
+            else:
+                pass
+
             # This is temporary
-            feeType = request.POST.get('fee-type1')
-            fee     = request.POST.get('fee1')
-            initFee = request.POST.get('setup-fee')
-
-            feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=0, upperBound=99999999)
-            feeInterval.save()
-            feeStructure = ManagementFeesStructure.objects.create(initialFee=initFee)
-            feeStructure.feeStructure.set([feeInterval])
-
-            feeStructure.save()
-
-            account.managementFee = feeStructure
+            # feeType = request.POST.get('fee-type1')
+            # fee     = request.POST.get('fee1')
+            # initFee = request.POST.get('setup-fee')
+            #
+            # feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=0, upperBound=99999999)
+            # feeInterval.save()
+            # feeStructure = ManagementFeesStructure.objects.create(initialFee=initFee)
+            # feeStructure.feeStructure.set([feeInterval])
+            #
+            # feeStructure.save()
+            #
+            # account.managementFee = feeStructure
 
             # Check if we sold SEO and/or CRO
             if (request.POST.get('seo_check')):
@@ -197,9 +225,11 @@ def account_edit_temp(request, id):
 
     if (request.method == 'GET'):
         account = Client.objects.get(id=id)
+        management_fee_structures = ManagementFeesStructure.objects.all()
 
         context = {
-            'account' : account
+            'account' : account,
+            'management_fee_structures': management_fee_structures
         }
 
         return render(request, 'client_area/account_edit_temp.html', context)
@@ -209,6 +239,9 @@ def account_edit_temp(request, id):
         account_name = request.POST.get('account_name')
         seo_hours = request.POST.get('seo_hours')
         cro_hours = request.POST.get('cro_hours')
+
+        status = request.POST.get('status')
+        account.status = status
 
         fee_override = request.POST.get('fee_override')
         hours_override = request.POST.get('hours_override')
@@ -237,6 +270,35 @@ def account_edit_temp(request, id):
         if (request.user.is_staff):
             if (hours_override != 'None'):
                 account.allocated_ppc_override = float(hours_override)
+
+        # Make management fee structure
+        if (request.user.is_staff and 'mf_check' in request.POST):
+            fee_create_or_existing = request.POST.get('fee_structure_type')
+            if (fee_create_or_existing == '1'):
+                # Create new management fee
+                number_of_tiers = request.POST.get('rowNumInput')
+                fee_structure_name = request.POST.get('fee_structure_name')
+                init_fee = request.POST.get('setup_fee')
+                management_fee_structure = ManagementFeesStructure()
+                management_fee_structure.name = fee_structure_name
+                management_fee_structure.initFee = init_fee
+                management_fee_structure.save()
+                for i in range(1, int(number_of_tiers) + 1):
+                    feeType = request.POST.get('fee-type' + str(i))
+                    fee = request.POST.get('fee' + str(i))
+                    lowerBound = request.POST.get('low-bound' + str(i))
+                    highBound = request.POST.get('high-bound' + str(i))
+                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=lowerBound, upperBound=highBound)
+                    management_fee_structure.feeStructure.add(feeInterval)
+                management_fee_structure.save()
+                account.managementFee = management_fee_structure
+            elif (fee_create_or_existing == '2'):
+                # Use existing
+                existing_fee_id = request.POST.get('existing_structure')
+                management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
+                account.managementFee = management_fee_structure
+            else:
+                pass
 
         account.save()
 
