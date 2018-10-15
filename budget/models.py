@@ -231,7 +231,7 @@ class Client(models.Model):
         return self._ppcFee
 
     def getFee(self):
-        if (self.management_fee_override != None):
+        if (self.management_fee_override != None and self.management_fee_override != 0.0):
             fee = self.management_fee_override
         else:
             fee = self.getPpcFee() + self.getCroFee() + self.getSeoFee()
