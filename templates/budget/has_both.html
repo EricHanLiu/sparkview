@@ -20,32 +20,6 @@
                 <span class="float-right" style="font-size: 15px">{{ remaining }} remaining days</span>
             </h3>
             <div class="m--space-30"></div>
-        <div class="m-form__group form-group row no-gutters">
-                <label class="col-1 col-form-label">GTS</label>
-                <div class="col-1">
-                    <span class="m-switch m-switch--outline m-switch--success">
-                        <label>
-                        <input type="checkbox"
-                               {% if client_data.has_gts %}checked{% endif %}
-                               id="m_gts_client_cbox"
-                               data-cid="{{ client_data.id }}">
-                        <span></span>
-                        </label>
-                    </span>
-                </div>
-                <label class="col-1 col-form-label">Budget</label>
-                <div class="col-1">
-                    <span class="m-switch m-switch--outline m-switch--success">
-                        <label>
-                            <input type="checkbox" {% if client_data.has_budget %}
-                                   checked {% endif %}
-                                   id="m_client_budget_cbox"
-                                   data-cid="{{ client_data.id }}">
-                            <span></span>
-                        </label>
-                    </span>
-                </div>
-            </div>
         </div>
 
         <div class="m-accordion__item-body"

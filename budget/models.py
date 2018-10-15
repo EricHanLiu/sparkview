@@ -293,8 +293,6 @@ class Client(models.Model):
 
         return projection
 
-    yesterday_spend = property(getYesterdaySpend)
-
     remainingBudget = property(getRemainingBudget)
 
     hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
