@@ -34,7 +34,7 @@
                                 Budget
                             </h5>
                             <h1 class="text-center inner-text text-info">
-                                {{ client_data.currency }}{{ client_data.budget|floatformat:0|intcomma }}
+                                {{ client_data.currency }}{{ client_data.current_budget|floatformat:0|intcomma }}
                             </h1>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                                 Spend
                             </h5>
                             <h1 class="text-center
-                                {% if client_data.current_spend > client_data.budget %}
+                                {% if client_data.current_spend > client_data.current_budget %}
                                     m--font-danger
                                 {% else %}
                                     m--font-success
