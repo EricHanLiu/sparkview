@@ -167,9 +167,9 @@ def main():
                             client.aw_rec_ds += a.desired_spend - a.current_spend
                     else:
                         if remaining > 0:
-                            client.aw_rec_ds += (client.target_spend - a.current_spend) / remaining
+                            client.aw_rec_ds += (a.desired_spend - a.current_spend) / remaining
                         else:
-                            client.aw_rec_ds += client.target_spend - a.current_spend
+                            client.aw_rec_ds += a.desired_spend - a.current_spend
 
 
         else:

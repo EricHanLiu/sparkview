@@ -194,3 +194,16 @@ def replace ( string, args ):
     replace = args.split(args[0])[2]
 
     return re.sub( search, replace, string )
+
+
+@register.filter(name='pcolor')
+def projected_color(projected, budget):
+
+    proc = (projected * 100) / budget
+    print(proc)
+    if proc < 90:
+        return 'm--font-warning'
+    elif proc > 100:
+        return 'm--font-danger'
+    elif 90 > proc <= 100:
+        return 'm--font-success'
