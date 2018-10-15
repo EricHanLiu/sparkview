@@ -219,6 +219,9 @@ def account_new(request):
 
 @login_required
 def account_edit_temp(request, id):
+    """
+    Temporary account edit page. Would not be surprised if this ends up being a permanent page as we add more stuff to it
+    """
     member = Member.objects.get(user=request.user)
     if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
         return HttpResponse('You do not have permission to view this page')
