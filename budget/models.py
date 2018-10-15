@@ -138,6 +138,9 @@ class Client(models.Model):
     def getRemainingBudget(self):
         return self.budget - self.current_spend
 
+    def getYesterdaySpend(self):
+        return self.aw_yesterday + self.bing_yesterday + self.fb_yesterday
+
     def getHoursWorkedThisMonth(self):
         now   = datetime.datetime.now()
         month = now.month
@@ -294,6 +297,8 @@ class Client(models.Model):
         return projection
 
     remainingBudget = property(getRemainingBudget)
+
+    yesterday_spend = property(getYesterdaySpend)
 
     hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
     hoursRemainingMonth  = property(getHoursRemainingThisMonth)
