@@ -133,17 +133,6 @@ def generate_table_data(adwords, bing, report):
     elif report == 'changehistory':
 
         for acc in adwords:
-            today = datetime.today()
-            # lc_val = acc.changed_data['lastChangeTimestamp']
-            #
-            # if lc_val != 'TOO_MANY_CHANGES' and lc_val != 'NO_ACTIVE_CAMPAIGNS':
-            #     last_change_val = lc_val.strip(' ')[0:8]
-            #     last_change = datetime.strptime(last_change_val, "%Y%m%d").date()
-            #     lc_diff = today.day - last_change.day
-            # elif lc_val == 'TOO_MANY_CHANGES':
-            #     lc_diff = '-'
-            # elif lc_val == 'NO_ACTIVE_CAMPAIGNS':
-            #     lc_diff = 0
 
             item = {
                 'account': 'A - ' + acc.dependent_account_name,

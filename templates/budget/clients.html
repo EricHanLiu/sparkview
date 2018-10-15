@@ -105,13 +105,13 @@
                                              style="position: relative!important;">
                                             {% if client.has_gts and client.has_budget %}
                                                 <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.target_spend }} bloom-progress"
+                                                     class="progress-bar {{ client.current_spend|percentage:client.budget }} bloom-progress"
                                                      role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.target_spend 100 %}%;"
+                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%;"
                                                      aria-valuemin="0" aria-valuemax="100"
                                                      data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
-                                                    {% widthratio client.current_spend client.target_spend 100 %}%
+                                                     data-original-title="{{ client.current_spend }}/{{ client.budget }}">
+                                                    {% widthratio client.current_spend client.budget 100 %}%
                                                 </div>
                                             {% elif client.has_gts %}
                                                 <div id="{{ client.id }}_progressbar"
@@ -143,11 +143,11 @@
                                     </td>
                                     <td class="text-center">
                                         {% if client.has_budget and client.has_gts %}
-                                            <span class="{{ client.current_spend|cgap:client.target_spend }}">
-                                                {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
+                                            <span class="{{ client.current_spend|cgap:client.budget }}">
+                                                {{ client.currency }}{{ client.budget|subtract:client.current_spend|floatformat:2|intcomma }}
                                             </span>
                                         {% elif client.has_gts and not client.has_budget %}
-                                            <span class="{{ client.current_spend|cgap:client.target_spend }}">
+                                            <span class="{{ client.current_spend|cgap:client.budget }}">
                                                 {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
                                             </span>
                                         {% elif client.has_budget %}

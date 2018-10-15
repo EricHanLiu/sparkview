@@ -19,7 +19,7 @@ def main():
         'lexi@makeitbloom.com',
     ]
 
-    accounts = DependentAccount.objects.filter(ch_flag=True)
+    accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
 
     for account in accounts:
         if account.ch_flag:

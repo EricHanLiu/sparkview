@@ -4,7 +4,7 @@ from bloom import celery_app
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
-from budget.models import FlightBudget, CampaignGrouping
+from budget.models import FlightBudget, CampaignGrouping, Client
 from bloom.settings import EMAIL_HOST_USER, TEMPLATE_DIR
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -321,9 +321,10 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
 
 @celery_app.task(bind=True)
-def bing_cron_campaign_stats(self, account_id):
+def bing_cron_campaign_stats(self, account_id, client_id):
     account = BingAccounts.objects.get(account_id=account_id)
-    groupings = CampaignGrouping.objects.filter(bing=account)
+    client = Client.objects.get(id=client_id)
+    groupings = CampaignGrouping.objects.filter(client=client)
     helper = BingReportingService()
 
     cmps = []
@@ -382,6 +383,8 @@ def bing_cron_campaign_stats(self, account_id):
                         gr.bing_campaigns.add(c)
                         gr.save()
 
+            temp_spend = gr.current_spend
+
             gr.current_spend = 0
 
             if gr.start_date:
@@ -401,11 +404,15 @@ def bing_cron_campaign_stats(self, account_id):
                 for cmp in campaigns_this_period:
                     if cmp['campaignid'] in campaigns:
                         gr.current_spend += float(cmp['spend'])
-                        gr.save()
+                        # gr.save()
+                gr.current_spend += temp_spend
+                gr.save()
             else:
                 for cmp in gr.bing_campaigns.all():
                     gr.current_spend += cmp.campaign_cost
-                    gr.save()
+                    # gr.save()
+                gr.current_spend += temp_spend
+                gr.save()
 
 
 @celery_app.task(bind=True)

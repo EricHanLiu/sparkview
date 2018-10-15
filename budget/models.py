@@ -31,7 +31,7 @@ class Client(models.Model):
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
     facebook = models.ManyToManyField(fb.FacebookAccount, blank=True, related_name='facebook')
     current_spend = models.FloatField(default=0)
-    yesterday_spend = models.FloatField(default=0)
+    # yesterday_spend = models.FloatField(default=0)
     aw_yesterday = models.FloatField(default=0)
     bing_yesterday = models.FloatField(default=0)
     fb_yesterday = models.FloatField(default=0)
@@ -293,6 +293,8 @@ class Client(models.Model):
 
         return projection
 
+    yesterday_spend = property(getYesterdaySpend)
+
     remainingBudget = property(getRemainingBudget)
 
     hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
@@ -358,6 +360,7 @@ class FlightBudget(models.Model):
 
 class CampaignGrouping(models.Model):
 
+    client = models.ForeignKey(Client, blank=True, null=True)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
