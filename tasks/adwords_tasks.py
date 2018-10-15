@@ -310,6 +310,8 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
     if len(cmp_ids) == 0:
         print('No active campaigns found.')
+        account.blacklisted = True
+        account.save()
     else:
         predicates = [
             {
@@ -423,10 +425,8 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
 
 @celery_app.task(bind=True)
-def adwords_cron_campaign_stats(self, customer_id, client_id):
+def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    client = Client.objects.get(id=client_id)
-    groupings = CampaignGrouping.objects.filter(client=client)
 
     cmps = []
     campaigns = []
@@ -460,49 +460,53 @@ def adwords_cron_campaign_stats(self, customer_id, client_id):
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
 
-    if groupings:
-        for gr in groupings:
-            for c in cmps:
-                if gr.group_by == 'manual':
-                    continue
+    if client_id is not None:
+        cl_acc = Client.objects.get(id=client_id)
+        groupings = CampaignGrouping.objects.filter(client=cl_acc)
+
+        if groupings:
+            for gr in groupings:
+                for c in cmps:
+                    if gr.group_by == 'manual':
+                        continue
+                    else:
+                        if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
+                            gr.aw_campaigns.remove(c)
+                            gr.save()
+
+                        elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
+                            gr.aw_campaigns.add(c)
+                            gr.save()
+
+                gr.current_spend = 0
+
+                if gr.start_date:
+
+                    for c in gr.aw_campaigns.all():
+                        campaigns.append(c.campaign_id)
+
+                    predicate = {
+                        "field": "CampaignId",
+                        "operator": "IN",
+                        "values": campaigns,
+                    }
+
+                    daterange = helper.create_daterange(gr.start_date, gr.end_date)
+
+                    campaign_this_period = helper.get_campaign_performance(
+                        customer_id=account.dependent_account_id,
+                        dateRangeType="CUSTOM_DATE",
+                        extra_predicates=predicate,
+                        **daterange
+                    )
+
+                    for cmp in campaign_this_period:
+                        gr.current_spend += helper.mcv(cmp['cost'])
+                        gr.save()
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
-                        gr.aw_campaigns.remove(c)
+                    for cmp in gr.aw_campaigns.all():
+                        gr.current_spend += cmp.campaign_cost
                         gr.save()
-
-                    elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                        gr.aw_campaigns.add(c)
-                        gr.save()
-
-            gr.current_spend = 0
-
-            if gr.start_date:
-
-                for c in gr.aw_campaigns.all():
-                    campaigns.append(c.campaign_id)
-
-                predicate = {
-                    "field": "CampaignId",
-                    "operator": "IN",
-                    "values": campaigns,
-                }
-
-                daterange = helper.create_daterange(gr.start_date, gr.end_date)
-
-                campaign_this_period = helper.get_campaign_performance(
-                    customer_id=account.dependent_account_id,
-                    dateRangeType="CUSTOM_DATE",
-                    extra_predicates=predicate,
-                    **daterange
-                )
-
-                for cmp in campaign_this_period:
-                    gr.current_spend += helper.mcv(cmp['cost'])
-                    gr.save()
-            else:
-                for cmp in gr.aw_campaigns.all():
-                    gr.current_spend += cmp.campaign_cost
-                    gr.save()
 
 
 @celery_app.task(bind=True)
@@ -859,15 +863,6 @@ def adwords_account_change_history(self, customer_id):
     today = datetime.today() - relativedelta(days=1)
     _5_days_ago = today - relativedelta(days=4)
 
-    fminDateL = (today - relativedelta(months=2)).replace(day=1)
-    fmaxDateL = fminDateL.replace(day=calendar.monthrange(fminDateL.year, fminDateL.month)[1])
-
-    minDate = today.replace(day=1)
-    maxDate = today.replace(day=calendar.monthrange(minDate.year, minDate.month)[1])
-
-    minDateL = (today - relativedelta(months=1)).replace(day=1)
-    maxDateL = minDateL.replace(day=calendar.monthrange(minDateL.year, minDateL.month)[1])
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     campaigns = Campaign.objects.filter(account=account)
 
@@ -883,6 +878,7 @@ def adwords_account_change_history(self, customer_id):
 
     service = client.GetService('CustomerSyncService', version=API_VERSION)
 
+    # Last 5 days changes number
     for date in dates:
         selector = {
             'dateTimeRange': {
@@ -953,6 +949,7 @@ def adwords_account_change_history(self, customer_id):
         change_val = helper.get_change(change_counter, change_counter2)
         change_score = helper.get_change_score(change_val)
 
+        # Last three months of changes
         changed_data = {
             'monthly': {
                 (today - relativedelta(months=2)).replace(day=1).strftime('%Y-%m-%d'): change_counter3,
@@ -970,9 +967,13 @@ def adwords_account_change_history(self, customer_id):
 
         flag = all(value == 0 for value in daily.values())
 
+        # We set a boolean to find the accounts to be added to the e-mail
         if flag:
-
             account.ch_flag = True
+            account.save()
+            print('MAIL')
+        else:
+            account.ch_flag = False
             account.save()
 
     else:
@@ -981,6 +982,7 @@ def adwords_account_change_history(self, customer_id):
         account.changed_data = {
             'lastChangeTimestamp': 'NO_ACTIVE_CAMPAIGNS'
         }
+        account.ch_flag = False
         account.save()
         calculate_account_score(account)
 

@@ -114,7 +114,13 @@
                             Recommended Daily Spend
                         </h5>
                         <h1 class="text-center inner-text">
-                            {{ client_data.currency }}{{ client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds|floatformat:2|intcomma }}
+                            {% with rds=client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds %}
+                                {% if rds < 0 %}
+                                    {{ client_data.currency }}0
+                                {% else %}
+                                    {{ client_data.currency }}{{ rds|floatformat:2|intcomma }}
+                                {% endif %}
+                            {% endwith %}
                         </h1>
                     </div>
                     <div class="col-md-4">
@@ -127,24 +133,6 @@
                     </div>
                 </div>
                 <div class="m--space-30"></div>
-                {#                <div class="progress m-progress--lg bloom-progress" style="position: relative;!important;">#}
-                {#                    <div class="progress-bar {{ client_data.current_spend|percentage:client_data.target_spend }} bloom-progress"#}
-                {#                         role="progressbar"#}
-                {#                         style="width: {{ client_data.current_spend|div:client_data.target_spend }}%"#}
-                {#                         aria-valuenow="{{ client_data.current_spend|div:client_data.target_spend }}"#}
-                {#                         aria-valuemin="0" aria-valuemax="100"#}
-                {#                         data-toggle="m-tooltip" data-placement="top"#}
-                {#                         title=""#}
-                {#                         data-original-title="{{ client_data.current_spend }}/{{ client_data.target_spend }}">#}
-                {#                        {{ client_data.current_spend|div:client_data.target_spend|intcomma }}%#}
-                {#                    </div>#}
-                {#                    <div class="black-marker"#}
-                {#                         style="width: {{ blackmarker }}%"#}
-                {#                         aria-valuenow="{{ blackmarker }}"#}
-                {#                         aria-valuemin="0" aria-valuemax="100">#}
-                {#                    </div>#}
-                {#                </div>#}
-                {#                <div class="m--space-30"></div>#}
                 <div class="m-accordion m-accordion--bordered m-accordion--solid" id="m_accordion_4"
                      role="tablist">
 
@@ -339,7 +327,6 @@
                                             </div>
                                             {% if not forloop.last %}
                                                 <div class="m-separator"></div>{% endif %}
-{#                                        {% endif %}#}
                                     {% endwith %}
                                 {% endfor %}
                             </div>

@@ -668,27 +668,29 @@ def add_groupings(request):
         flight_date = request.POST.get('cgr_fdate')
 
         acc_ids = " ".join(acc_id.split()).split(",")
-
+        accounts = []
         response = {}
 
         client = Client.objects.get(id=c_id)
-        # We assume there is only one account per channel added to a client - this needs to be reworked
-        # TODO: Get all the accounts and loop through them
-        try:
-            adwords = DependentAccount.objects.get(dependent_account_id=acc_ids[0])
+        for acc in acc_ids:
+            # TODO: Get all the accounts and loop through them
+            try:
+                adwords = DependentAccount.objects.get(dependent_account_id=acc)
+                accounts.append(adwords)
+            except ObjectDoesNotExist:
+                pass
 
-        except (IndexError, ObjectDoesNotExist):
-            adwords = []
+            try:
+                bing = BingAccounts.objects.get(account_id=acc)
+                accounts.append(bing)
+            except ObjectDoesNotExist:
+                pass
 
-        try:
-            bing = BingAccounts.objects.get(account_id=acc_ids[1])
-        except (IndexError, ObjectDoesNotExist):
-            bing = []
-
-        try:
-            facebook = FacebookAccount.objects.get(account_id=acc_ids[2])
-        except (IndexError, ObjectDoesNotExist):
-            facebook = []
+            try:
+                facebook = FacebookAccount.objects.get(account_id=acc)
+                accounts.append(facebook)
+            except ObjectDoesNotExist:
+                pass
 
         if group_by == 'text':
             group_by_text = request.POST.get('cgr_group_by_text')
@@ -741,14 +743,21 @@ def add_groupings(request):
             new_group.save()
 
         response['group_name'] = new_group.group_name
-        if not isinstance(adwords, list):
-            adwords_tasks.adwords_cron_campaign_stats.delay(adwords.dependent_account_id, client.id)
-        if not isinstance(bing, list):
-            time.sleep(1)
-            bing_tasks.bing_cron_campaign_stats.delay(bing.account_id, client.id)
-        if not isinstance(facebook, list):
-            time.sleep(2)
-            facebook_tasks.facebook_cron_campaign_stats.delay(facebook.account_id, client.id)
+        for acc in accounts:
+            try:
+                adwords_tasks.adwords_cron_campaign_stats.delay(acc.dependent_account_id, client.id)
+            except AttributeError:
+                pass
+            try:
+                time.sleep(1)
+                bing_tasks.bing_cron_campaign_stats.delay(acc.account_id, client.id)
+            except AttributeError:
+                pass
+            try:
+                time.sleep(2)
+                facebook_tasks.facebook_cron_campaign_stats.delay(acc.account_id, client.id)
+            except AttributeError:
+                pass
 
         return JsonResponse(response)
 

@@ -85,7 +85,6 @@ def div(value, div):
 
 @register.filter
 def divide(value, arg):
-    print(type(value))
     try:
         return float(value) / float(arg)
     except (ValueError, ZeroDivisionError):
