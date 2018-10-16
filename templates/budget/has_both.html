@@ -60,7 +60,7 @@
                                 Projected
                             </h5>
                             {% with cprojected=client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected %}
-                                <h1 class="text-center {{ cprojected|pcolor:client_data.budget }} inner-text">
+                                <h1 class="text-center {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
                                     {{ client_data.currency }}{{ cprojected|floatformat:0|intcomma }}
                                 </h1>
                             {% endwith %}
