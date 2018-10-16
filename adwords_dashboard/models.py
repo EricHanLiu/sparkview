@@ -35,8 +35,11 @@ class ManagerAccount(models.Model):
 
 class DependentAccount(models.Model):
 
-    #REVIEW
     manager_account = models.CharField(max_length=255, default='None')
+    # TODO:
+    # The fields above should be called account_id, account_name and ovu
+    # Refactoring isn't worth
+    # Maybe create another table named AdwordsAccount and populate it with current information
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
     dependent_OVU = models.IntegerField(default=0)
