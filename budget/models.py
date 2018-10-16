@@ -297,6 +297,8 @@ class Client(models.Model):
 
         return projection
 
+    # Recommended daily spend for clients with flex budget
+    # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py
     def rec_ds(self):
 
         today = datetime.date.today() - relativedelta(days=1)
@@ -314,6 +316,7 @@ class Client(models.Model):
     remainingBudget = property(getRemainingBudget)
 
     yesterday_spend = property(getYesterdaySpend)
+    # recommended daily spend
     rec_ds          = property(rec_ds)
 
     hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
