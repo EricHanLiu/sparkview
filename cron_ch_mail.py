@@ -17,6 +17,7 @@ def main():
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
+        'octavian@hdigital.io'
     ]
 
     accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
