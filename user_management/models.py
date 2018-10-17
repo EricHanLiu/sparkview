@@ -144,6 +144,12 @@ class Member(models.Model):
             self._allocatedHoursMonth = round(hours, 2)
         return self._allocatedHoursMonth
 
+    @property
+    def allocated_hours_percentage(self):
+        if not hasattr(self, '_allocated_hours_percentage'):
+            self._allocated_hours_percentage = self.allocated_hours_month() / (140.0 * self.buffer_total_percentage / 100.0)
+        return self._allocated_hours_percentage
+
     def buffer_percentage(self):
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage
 

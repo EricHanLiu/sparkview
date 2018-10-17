@@ -285,9 +285,8 @@ class Client(models.Model):
     def hybrid_projection(self):
         projection = self.current_spend
         now = datetime.datetime.today()
-        month = now.month
         day_of_month = now.day
-        f, days_in_month = calendar.monthrange(month)
+        f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
         if (self.projection_method == 0): # Project based on yesterday
             projection += (self.yesterday_spend * days_remaining)

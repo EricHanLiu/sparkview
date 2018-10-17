@@ -426,6 +426,9 @@ def account_single(request, id):
 
     accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year).values('member', 'month', 'year').annotate(Sum('hours'))
 
+    for row in accountsHoursThisMonthByMember:
+        row['member'] = members.get(id=row['member'])
+
     statusBadges = ['info', 'success', 'warning', 'danger']
 
     context = {
@@ -613,7 +616,7 @@ def add_hours_to_account(request):
 
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
 
-        return redirect('/user_management/profile')
+        return redirect('/clients/accounts/report_hours')
 
 
 @login_required

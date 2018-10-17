@@ -701,15 +701,15 @@
                     <div class="row">
                       <div class="col-md-4">
                         <label>AM:</label>
-                        <input type="text" name="am1-percent" class="form-control m-input" value="{{ account.am1percent }}" />
+                        <input type="text" name="am1-percent" id="am1-percent" class="form-control m-input" value="{{ account.am1percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>AM2:</label>
-                        <input type="text" name="am2-percent" class="form-control m-input" value="{{ account.am2percent }}" />
+                        <input type="text" name="am2-percent" id="am2-percent" class="form-control m-input" value="{{ account.am2percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>AM3:</label>
-                        <input type="text" name="am3-percent" class="form-control m-input" value="{{ account.am3percent }}" />
+                        <input type="text" name="am3-percent" id="am3-percent" class="form-control m-input" value="{{ account.am3percent }}" />
                       </div>
                     </div>
                   </div>
@@ -717,15 +717,15 @@
                     <div class="row">
                       <div class="col-md-4">
                         <label>CM:</label>
-                        <input type="text" name="cm1-percent" class="form-control m-input" value="{{ account.cm1percent }}" />
+                        <input type="text" name="cm1-percent" id="cm1-percent" class="form-control m-input" value="{{ account.cm1percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>CM2:</label>
-                        <input type="text" name="cm2-percent" class="form-control m-input" value="{{ account.cm2percent }}" />
+                        <input type="text" name="cm2-percent" id="cm2-percent" class="form-control m-input" value="{{ account.cm2percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>CM3:</label>
-                        <input type="text" name="cm3-percent" class="form-control m-input" value="{{ account.cm3percent }}" />
+                        <input type="text" name="cm3-percent" id="cm3-percent" class="form-control m-input" value="{{ account.cm3percent }}" />
                       </div>
                     </div>
                   </div>
@@ -733,15 +733,15 @@
                     <div class="row">
                       <div class="col-md-4">
                         <label>Strat:</label>
-                        <input type="text" name="strat1-percent" class="form-control m-input" value="{{ account.strat1percent }}" />
+                        <input type="text" name="strat1-percent" id="strat1-percent" class="form-control m-input" value="{{ account.strat1percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>Strat 2:</label>
-                        <input type="text" name="strat2-percent" class="form-control m-input" value="{{ account.strat2percent }}" />
+                        <input type="text" name="strat2-percent" id="strat2-percent" class="form-control m-input" value="{{ account.strat2percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>Strat 3:</label>
-                        <input type="text" name="strat3-percent" class="form-control m-input" value="{{ account.strat3percent }}" />
+                        <input type="text" name="strat3-percent" id="strat3-percent" class="form-control m-input" value="{{ account.strat3percent }}" />
                       </div>
                     </div>
                   </div>
@@ -749,22 +749,22 @@
                     <div class="row">
                       <div class="col-md-4">
                         <label>SEO:</label>
-                        <input type="text" name="seo1-percent" class="form-control m-input" value="{{ account.seo1percent }}" />
+                        <input type="text" name="seo1-percent" id="seo1-percent" class="form-control m-input" value="{{ account.seo1percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>SEO 2:</label>
-                        <input type="text" name="seo2-percent" class="form-control m-input" value="{{ account.seo2percent }}" />
+                        <input type="text" name="seo2-percent" id="seo2-percent" class="form-control m-input" value="{{ account.seo2percent }}" />
                       </div>
                       <div class="col-md-4">
                         <label>SEO 3:</label>
-                        <input type="text" name="seo3-percent" class="form-control m-input" value="{{ account.seo3percent }}" />
+                        <input type="text" name="seo3-percent" id="seo3-percent" class="form-control m-input" value="{{ account.seo3percent }}" />
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div class="modal-footer">
-                  <button type="button" class="btn btn-success" style="margin-right:auto;">Distribute hours proportionately</button>
+                  <button type="button" class="btn btn-success" id="distribute_hours_btn" style="margin-right:auto;">Distribute hours proportionately</button>
                   <input type="submit" value="Submit" class="btn btn-brand">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               </div>
@@ -778,5 +778,82 @@
 
 {% block extraJs %}
 <script>
+$(document).ready(function () {
+  var $distrubteHoursBtn = $('#distribute_hours_btn');
+
+  var distributeHours = function () {
+    var hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
+    var seoHours = {{ account.seo_hours|escapejs }};
+    var hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
+    var croHours = {{ account.cro_hours|escapejs }};
+    var totalHours = {{ account.allHours|escapejs }};
+    var ppcHours = {{ account.ppcHours|escapejs }}
+
+    // Cms
+    var cms = [];
+    {% if account.cm1 != None %}cms.push(1);{% endif %}
+    {% if account.cm2 != None %}cms.push(2);{% endif %}
+    {% if account.cm3 != None %}cms.push(3);{% endif %}
+    // Ams
+    var ams = [];
+    {% if account.am1 != None %}ams.push(1);{% endif %}
+    {% if account.am2 != None %}ams.push(2);{% endif %}
+    {% if account.am3 != None %}ams.push(3);{% endif %}
+    // strats
+    var strats = [];
+    {% if account.strat1 != None %}strats.push(1);{% endif %}
+    {% if account.strat2 != None %}strats.push(2);{% endif %}
+    {% if account.strat3 != None %}strats.push(3);{% endif %}
+    // seos
+    var seos = [];
+    {% if account.seo1 != None %}seos.push(1);{% endif %}
+    {% if account.seo2 != None %}seos.push(2);{% endif %}
+    {% if account.seo3 != None %}seos.push(3);{% endif %}
+
+    /**
+     * Calculate hour percentages
+     */
+    var cmPortion = 0.75;
+    var amPortion = 0.25;
+    var seoPortion = 0.0;
+
+    if (hasSeo || hasCro) {
+      var seoTotalPortion = ((seoHours + croHours) / totalHours);
+      seoPortion = seoTotalPortion * 0.9;
+      var remainingPortion = 1.0 - seoTotalPortion;
+      cmPortion = remainingPortion * 0.75;
+      amPortion = (remainingPortion * 0.25) + (seoPortion * 0.1);
+    }
+
+    var eachCm = (100.0 * cmPortion / cms.length);
+    var eachAm = (100.0 * amPortion / ams.length);
+    var eachSeo = (100.0 * seoPortion / seos.length);
+
+    /**
+     * First set all to 0
+     */
+     for (var i = 1; i <= 3; i++) {
+       document.getElementById('cm' + i + '-percent').value = '0.0';
+       document.getElementById('am' + i + '-percent').value = '0.0';
+       document.getElementById('strat' + i + '-percent').value = '0.0';
+       document.getElementById('seo' + i + '-percent').value = '0.0';
+     }
+
+    cms.forEach(function (i) {
+      var el = document.getElementById('cm' + i + '-percent').value = eachCm;
+    });
+
+    ams.forEach(function (i) {
+      var el = document.getElementById('am' + i + '-percent').value = eachAm;
+    });
+
+    seos.forEach(function (i) {
+      var el = document.getElementById('seo' + i + '-percent').value = eachSeo;
+    });
+
+  };
+
+  $distrubteHoursBtn.click(distributeHours);
+});
 </script>
 {% endblock %}
