@@ -793,6 +793,7 @@ def update_groupings(request):
                         cmp = BingCampaign.objects.get(campaign_id=c)
                         grouping.bing_campaigns.add(cmp)
                         grouping.save()
+
                     for campaign in grouping.bing_campaigns.all():
                         if campaign.campaign_id not in campaigns:
                             cmp = BingCampaign.objects.get(campaign_id=c)
@@ -806,9 +807,10 @@ def update_groupings(request):
                         cmp = FacebookCampaign.objects.get(campaign_id=c)
                         grouping.fb_campaigns.add(cmp)
                         grouping.save()
+
                     for campaign in grouping.fb_campaigns.all():
                         if campaign.campaign_id not in campaigns:
-                            cmp = Campaign.objects.get(campaign_id=c)
+                            cmp = FacebookCampaign.objects.get(campaign_id=c)
                             grouping.fb_campaigns.remove(cmp)
                             grouping.save()
                 except ObjectDoesNotExist:

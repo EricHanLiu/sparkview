@@ -346,6 +346,7 @@ def facebook_cron_campaign_stats(self, account_id, client_id):
             print('Added to DB - [' + cmp.campaign_name + '].')
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
+
     if client_id is not None:
         client = Client.objects.get(id=client_id)
         groupings = CampaignGrouping.objects.filter(client=client)
