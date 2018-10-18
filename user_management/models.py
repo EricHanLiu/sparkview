@@ -114,6 +114,26 @@ class Member(models.Model):
     # buffer_buffer_percentage    = models.FloatField(null=True, blank=True, default=None)
     # buffer_hours_available      = models.FloatField(null=True, blank=True, default=None)
 
+    @property
+    def learning_hours(self):
+        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_learning_percentage / 100.0), 2)
+
+    @property
+    def training_hours(self):
+        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_trainers_percentage / 100.0), 2)
+
+    @property
+    def sales_hours(self):
+        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_sales_percentage / 100.0), 2)
+
+    @property
+    def planning_hours(self):
+        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_planning_percentage / 100.0), 2)
+
+    @property
+    def internal_hours(self):
+        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_internal_percentage / 100.0), 2)
+
     def countIncidents(self):
         return Incident.objects.filter(members = self).count()
 
@@ -143,6 +163,20 @@ class Member(models.Model):
             return hours
             self._allocatedHoursMonth = round(hours, 2)
         return self._allocatedHoursMonth
+
+
+    def actual_hours_month_by_account(self, account_id):
+        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        now   = datetime.datetime.now()
+        memberHoursThisMonth = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year, account=account).aggregate(Sum('hours'))['hours__sum']
+        return memberHoursThisMonth if memberHoursThisMonth != None else 0
+
+
+    @property
+    def allocated_hours_percentage(self):
+        if not hasattr(self, '_allocated_hours_percentage'):
+            self._allocated_hours_percentage = 100.0 * (self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
+        return self._allocated_hours_percentage
 
     def buffer_percentage(self):
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage

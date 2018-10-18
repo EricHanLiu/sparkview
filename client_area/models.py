@@ -67,9 +67,11 @@ class AccountHourRecord(models.Model):
     hours = models.FloatField(default=0)
     month = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
     year = models.PositiveSmallIntegerField(blank=True, null=True)
+    is_unpaid = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.member.user.full_name + ' ' + str(hours) + ' hours on ' + account.client_name + ' added ' + month + '/' + str(year)
+        return self.member.user.first_name + ' ' + str(self.hours) + ' hours on ' + self.account.client_name + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
 
 
 class ManagementFeeInterval(models.Model):
