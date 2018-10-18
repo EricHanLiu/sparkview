@@ -321,7 +321,7 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
 
 @celery_app.task(bind=True)
-def bing_cron_campaign_stats(self, account_id, client_id):
+def bing_cron_campaign_stats(self, account_id, client_id=None):
 
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()

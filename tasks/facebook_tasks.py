@@ -300,7 +300,7 @@ def facebook_cron_alerts(self, account_id):
 
 
 @celery_app.task(bind=True)
-def facebook_cron_campaign_stats(self, account_id, client_id):
+def facebook_cron_campaign_stats(self, account_id, client_id=None):
     account = FacebookAccount.objects.get(account_id=account_id)
 
     cmps = []
