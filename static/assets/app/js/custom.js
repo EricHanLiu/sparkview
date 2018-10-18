@@ -383,8 +383,7 @@ $(document).ready(function () {
                 success: function (data) {
                     let campaigns = data['campaigns'];
                     let cmps_in_gr = data['group'];
-                    console.log(cmps_in_gr);
-                    console.log(campaigns)
+
                     campaigns.forEach(item => {
 
                         if (item.model === 'adwords_dashboard.campaign') {
@@ -618,7 +617,6 @@ $(document).ready(function () {
             type: 'POST',
             data: data,
             success: function (data) {
-                console.log(data)
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
                     if (item['model'] === 'adwords_dashboard.campaign') {

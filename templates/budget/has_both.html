@@ -51,7 +51,7 @@
                                     m--font-success
                                 {% endif %}
                                 inner-text">
-                                {{ client_data.currency }}{{ client_data.current_spend|floatformat:0|intcomma }}
+                                {{ client_data.currency }}{{ client_data.current_spend|floatformat:2|intcomma }}
                             </h1>
                         </div>
                     </div>
@@ -109,13 +109,17 @@
                             Recommended Daily Spend
                         </h5>
                         <h1 class="text-center inner-text">
-                            {% with rds=client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds %}
-                                {% if rds < 0 %}
-                                    {{ client_data.currency }}0
-                                {% else %}
-                                    {{ client_data.currency }}{{ rds|floatformat:2|intcomma }}
-                                {% endif %}
-                            {% endwith %}
+                            {% if client_data.flex_budget > 0 %}
+                                {{ client_data.currency }}{{ client_data.rec_ds|floatformat:2|intcomma }}
+                            {% else %}
+                                {% with rds=client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds %}
+                                    {% if rds < 0 %}
+                                        {{ client_data.currency }}0
+                                    {% else %}
+                                        {{ client_data.currency }}{{ rds|floatformat:2|intcomma }}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
                         </h1>
                     </div>
                     <div class="col-md-4">
@@ -224,7 +228,7 @@
                                 <p>
                                     <button type="button" data-toggle="modal"
                                             data-target="#m_add_campaign_group_across"
-                                            data-acc_id="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
+                                            data-acc_id="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                             data-client_id="{{ client_data.id }}"
                                             class="btn m-btn--pill m-btn--air btn-outline-success btn-sm m-btn m-btn--custom">
                                         Add
@@ -244,17 +248,7 @@
                                                    data-c_id="{{ client_data.id }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}"
-                                                   data-acc_ids="
-                                                        {% for a in client_data.adwords.all %}
-                                                            {{ a.dependent_account_id }},
-                                                        {% endfor %}
-                                                        {% for b in client_data.bing.all %}
-                                                            {{ b.account_id }},
-                                                        {% endfor %}
-                                                        {% for f in client_data.facebook.all %}
-                                                            {{ f.account_id }}
-                                                        {% endfor %}
-                                                        "
+                                                   data-acc_ids="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                                    data-group_budget="{{ gr.budget }}"
                                                    data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
                                                         {% if gr.start_date %}

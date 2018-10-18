@@ -198,12 +198,16 @@ def replace ( string, args ):
 
 @register.filter(name='pcolor')
 def projected_color(projected, budget):
+    try:
+        proc = (projected * 100) / budget
+    except ZeroDivisionError:
+        proc = 0
 
-    proc = (projected * 100) / budget
-    print(proc)
-    if proc < 90:
+    if proc == 0:
+        return 'm--font'
+    elif proc < 90:
         return 'm--font-warning'
     elif proc > 100:
         return 'm--font-danger'
-    elif 90 > proc <= 100:
+    elif 90 < proc <= 100:
         return 'm--font-success'

@@ -1,3 +1,4 @@
+import datetime, calendar
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db.models import Sum
@@ -6,7 +7,7 @@ from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, ParentClient, ManagementFeesStructure
-import datetime, calendar
+from dateutil.relativedelta import relativedelta
 # Create your models here.
 
 
@@ -377,9 +378,27 @@ class Client(models.Model):
 
         return projection
 
+    # Recommended daily spend for clients with flex budget
+    # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py
+    def rec_ds(self):
+
+        today = datetime.date.today() - relativedelta(days=1)
+        last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+
+        remaining = last_day.day - today.day
+
+        rec_ds = 0
+
+        if self.flex_budget > 0:
+            rec_ds = (self.flex_budget - self.flex_spend) / remaining
+
+        return rec_ds
+
     remainingBudget = property(getRemainingBudget)
 
     yesterday_spend = property(getYesterdaySpend)
+    # recommended daily spend
+    rec_ds          = property(rec_ds)
 
     hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
     hoursRemainingMonth  = property(getHoursRemainingThisMonth)

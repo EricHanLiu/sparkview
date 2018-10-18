@@ -17,6 +17,7 @@ def main():
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
+        'octavian@hdigital.io'
     ]
 
     accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
@@ -47,7 +48,7 @@ def main():
 
     send_mail(
         'No changes for more than 5 days', msg_html,
-        EMAIL_HOST_USER, ['octavian@hdigital.io'], fail_silently=False, html_message=msg_html)
+        EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html)
     mail_list.clear()
 
 if __name__ == '__main__':
