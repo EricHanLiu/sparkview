@@ -1355,3 +1355,26 @@
 
     </script>
 {% endblock content %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  $projectionToggle = $('#proj_check');
+  $projectAverage = $('#projectionAverage');
+  $projectYesterday = $('#projectionYesterday');
+  $projectDesc = $('#projectionDesc');
+
+  $projectionToggle.change(function () {
+    if ($(this).is(':checked')) {
+      $projectAverage.hide();
+      $projectYesterday.show();
+      $projectDesc.html('Projecting with yesterday spend');
+    } else {
+      $projectYesterday.hide();
+      $projectAverage.show();
+      $projectDesc.html('Projecting with average spend');
+    }
+  });
+});
+</script>
+{% endblock %}

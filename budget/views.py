@@ -282,6 +282,8 @@ def client_details(request, client_id):
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
 
+        statusBadges = ['info', 'success', 'warning', 'danger']
+
         context = {
             'client_data': client,
             'today': today.day,
@@ -294,6 +296,7 @@ def client_details(request, client_id):
             'budgets': budgets,
             'chdata': chdata_json[0]['fields'] if chdata_json else {},
             'fbudgets': fbudgets,
+            'statusBadges': statusBadges,
             'groupings': cmp_groupings
         }
 

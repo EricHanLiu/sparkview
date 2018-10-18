@@ -23,9 +23,6 @@ class Client(models.Model):
     PAYMENT_SCHEDULE_CHOICES = [(0, 'MRR'),
                                 (1, 'One Time')]
 
-    PROJECTION_CHOIES = [(0, 'Yesterday'),
-                         (1, 'Monthly Average')]
-
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
@@ -95,8 +92,6 @@ class Client(models.Model):
     clientGrade    = models.IntegerField(default=0)
     actualHours    = models.IntegerField(default=0)
 
-    projection_method = models.IntegerField(default=0, choices=PROJECTION_CHOIES)
-
     # Member attributes (we'll see if there's a better way to do this)
     cm1    = models.ForeignKey(Member, blank=True, null=True, related_name='cm1')
     cm2    = models.ForeignKey(Member, blank=True, null=True, related_name='cm2')
@@ -136,7 +131,7 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     def getRemainingBudget(self):
-        return self.budget - self.current_spend
+        return self.current_budget - self.current_spend
 
     def getYesterdaySpend(self):
         return self.aw_yesterday + self.bing_yesterday + self.fb_yesterday
@@ -282,15 +277,102 @@ class Client(models.Model):
         return flex_spend
 
     @property
-    def hybrid_projection(self):
+    def assigned_members(self):
+        """
+        Get's members assigned to the account in a dictionary with role as key and member as value
+        """
+        members = {}
+
+        if (self.cm1 != None):
+            members['CM'] = {}
+            members['CM']['member'] = self.cm1
+            members['CM']['allocated_percenage'] = self.cm1percent
+        if (self.cm2 != None):
+            members['CM2'] = {}
+            members['CM2']['member'] = self.cm2
+            members['CM2']['allocated_percenage'] = self.cm2percent
+        if (self.cm3 != None):
+            members['CM3'] = {}
+            members['CM3']['member'] = self.cm3
+            members['CM3']['allocated_percenage'] = self.cm3percent
+        if (self.cmb != None):
+            members['CM Backup'] = {}
+            members['CM Backup']['member'] = self.cmb
+            members['CM Backup']['allocated_percenage'] = self.cmbpercent
+
+        if (self.am1 != None):
+            members['AM'] = {}
+            members['AM']['member'] = self.am1
+            members['AM']['allocated_percenage'] = self.am1percent
+        if (self.am2 != None):
+            members['AM2'] = {}
+            members['AM2']['member'] = self.am2
+            members['AM2']['allocated_percenage'] = self.am2percent
+        if (self.am3 != None):
+            members['AM3'] = {}
+            members['AM3']['member'] = self.am3
+            members['AM3']['allocated_percenage'] = self.am3percent
+        if (self.amb != None):
+            members['AM Backup'] = {}
+            members['AM Backup']['member'] = self.amb
+            members['AM Backup']['allocated_percenage'] = self.ambpercent
+
+        if (self.seo1 != None):
+            members['SEO'] = {}
+            members['SEO']['member'] = self.seo1
+            members['SEO']['allocated_percenage'] = self.seo1percent
+        if (self.seo2 != None):
+            members['SEO 2'] = {}
+            members['SEO 2']['member'] = self.seo2
+            members['SEO 2']['allocated_percenage'] = self.seo2percent
+        if (self.seo3 != None):
+            members['SEO 3'] = {}
+            members['SEO 3']['member'] = self.seo3
+            members['SEO 3']['allocated_percenage'] = self.seo3percent
+        if (self.seob != None):
+            members['SEO Backup'] = {}
+            members['SEO Backup']['member'] = self.seob
+            members['SEO Backup']['allocated_percenage'] = self.seobpercent
+
+        if (self.strat1 != None):
+            members['Strat'] = {}
+            members['Strat']['member'] = self.strat1
+            members['Strat']['allocated_percenage'] = self.strat1percent
+        if (self.strat2 != None):
+            members['Strat 2'] = {}
+            members['Strat 2']['member'] = self.strat2
+            members['Strat 2']['allocated_percenage'] = self.strat2percent
+        if (self.strat3 != None):
+            members['Strat 3'] = {}
+            members['Strat 3']['member'] = self.strat3
+            members['Strat 3']['allocated_percenage'] = self.strat3percent
+        if (self.stratb != None):
+            members['Strat Backup'] = {}
+            members['Strat Backup']['member'] = self.stratb
+            members['Strat Backup']['allocated_percenage'] = self.stratbpercent
+
+        return members
+
+
+    @property
+    def project_average(self):
+        return self.hybrid_projection(1)
+
+
+    @property
+    def project_yesterday(self):
+        return self.hybrid_projection(0)
+
+
+    def hybrid_projection(self, method):
         projection = self.current_spend
         now = datetime.datetime.today()
         day_of_month = now.day
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
-        if (self.projection_method == 0): # Project based on yesterday
+        if (method == 0): # Project based on yesterday
             projection += (self.yesterday_spend * days_remaining)
-        elif (self.projection_method == 1):
+        elif (method == 1):
             projection += ((self.current_spend / day_of_month) * days_remaining)
 
         return projection

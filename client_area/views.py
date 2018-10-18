@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 from django.db.models import Q
 import calendar, datetime
@@ -693,3 +693,29 @@ def account_allocate_percentages(request):
     account.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def get_management_fee_details(request, id):
+    """
+    Returns a json format of a management fee structure. Used to render them dynamically
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    fee_structure = get_object_or_404(ManagementFeesStructure, id=id)
+
+    fsj = {}
+    fsj['initial_fee'] = fee_structure.initialFee
+    fsj['fee_intervals'] = {}
+
+    count = 0
+    for fee_interval in fee_structure.feeStructure.all():
+        fsj['fee_intervals'][count] = {}
+        fsj['fee_intervals'][count]['style'] = fee_interval.feeStyle
+        fsj['fee_intervals'][count]['lowerBound'] = fee_interval.lowerBound
+        fsj['fee_intervals'][count]['upperBound'] = fee_interval.upperBound
+        fsj['fee_intervals'][count]['fee'] = fee_interval.fee
+        count += 1
+
+    return JsonResponse(fsj)

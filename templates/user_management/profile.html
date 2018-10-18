@@ -183,12 +183,12 @@
               <hr />
               <div class="row m-row--no-padding m-row--col-separator-xl" style="margin-top:0.5rem;">
                 <div class="progress m-progress--lg" style="width:100%;">
-                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_learning_percentage }}%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_trainers_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                  <div class="progress-bar bg-danger" role="progressbar" style="width: {{ member.buffer_sales_percentage }}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_planning_percentage }}%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_internal_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ member.allocated_hours_percentage }}%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_learning_percentage }}%" data-toggle="m-tooltip" data-original-title="Learning Buffer: {{ member.learning_hours }} hours" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: {{ member.buffer_trainers_percentage }}%" data-toggle="m-tooltip" data-original-title="Trainer Buffer: {{ member.training_hours }} hours" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: {{ member.buffer_sales_percentage }}%" data-toggle="m-tooltip" data-original-title="Sales Buffer: {{ member.sales_hours }} hours" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-info" role="progressbar" style="width: {{ member.buffer_planning_percentage }}%" data-toggle="m-tooltip" data-original-title="Planning Buffer: {{ member.planning_hours }} hours" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_internal_percentage }}%" data-toggle="m-tooltip" data-original-title="Internal Buffer: {{ member.internal_hours }} hours" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ member.allocated_hours_percentage }}%" data-toggle="m-tooltip" data-original-title="Allocated Hours: {{ member.allocatedHoursMonth }} hours" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
               </div>
             </div>

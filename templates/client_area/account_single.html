@@ -7,16 +7,73 @@
 {% block leftAside %}
 {% endblock %}
 
+{% block extraCss %}
+<style>
+.m-card-profile {
+  display:inline-block;
+  float:left;
+  width: 200px;
+  padding: 5px 15px;
+  margin: 0;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="m-content">
   <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                {{ account.client_name }} Team
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="row">
+            <div class="col-xl-10">
+              {% for role, assigned_member in account.assigned_members.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <span class="m-card-profile__name">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.id }}">{% endif %}{{ assigned_member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</span>
+                    <span class="m-card-profile__email m-link">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }} / {{ account|get_allocation_this_month_member:assigned_member.member }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="col-xl-2">
+                <button type="button" class="btn btn-info m-btn" style="width: 100%;"
+                        data-toggle="modal"
+                        data-target="#m_assign_members"> Assign Members to {{ account.client_name }}
+                </button>
+                <br /><br />
+                <button type="button" class="btn btn-info m-btn" style="width: 100%;"
+                        data-toggle="modal"
+                        data-target="#m_position_allocation"> Assign Percentages to Positions
+                </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="col-xl-4">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                {{ account.client_name }}
+                Details
               </h3>
             </div>
           </div>
@@ -188,6 +245,9 @@
           </div>
         </div>
         <div class="m-portlet__body">
+          {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
+          <p>Manual Override: ${{ account.management_fee_override }}</p>
+          {% else %}
           <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
             <thead class="thead-inverse">
               <tr class="main-table-header">
@@ -212,6 +272,7 @@
               {% endfor %}
             </tbody>
           </table>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -313,113 +374,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text">
-                Assigned Members
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div class="m-portlet__body">
-          {# if request.user.is_staff #}
-          <div class="row">
-              <button type="button" class="btn btn-info m-btn"
-                      data-toggle="modal"
-                      data-target="#m_assign_members"> Assign Members to {{ account.client_name }}
-              </button>
-              &nbsp;&nbsp;
-              <button type="button" class="btn btn-info m-btn"
-                      data-toggle="modal"
-                      data-target="#m_position_allocation"> Assign Percentages to Positions
-              </button>
-          </div>
-          <hr />
-          {# endif #}
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label>AM:</label>
-                <input type="text" class="form-control m-input"value="{{ account.am1.user.first_name }} {{ account.am1.user.last_name }} ({{ account.am1percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label>AM2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.am2.user.first_name }} {{ account.am2.user.last_name }} ({{ account.am2percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label>AM3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.am3.user.first_name }} {{ account.am3.user.last_name }} ({{ account.am3percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label>AM Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.amb.user.first_name }} {{ account.amb.user.last_name }}" disabled>
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_total_percentage">CM:</label>
-                <input type="text" class="form-control m-input"value="{{ account.cm1.user.first_name }} {{ account.cm1.user.last_name }} ({{ account.cm1percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_learning_percentage">CM2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.cm2.user.first_name }} {{ account.cm2.user.last_name }} ({{ account.cm2percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_trainers_percentage">CM3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.cm3.user.first_name }} {{ account.cm3.user.last_name }} ({{ account.cm3percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_sales_percentage">CM Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.cmb.user.first_name }} {{ account.cmb.user.last_name }}" disabled>
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_total_percentage">Strat:</label>
-                <input type="text" class="form-control m-input"value="{{ account.strat1.user.first_name }} {{ account.strat1.user.last_name }} ({{ account.strat1percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_learning_percentage">Strat 2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.strat2.user.first_name }} {{ account.strat2.user.last_name }} ({{ account.strat2percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_trainers_percentage">Strat 3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.strat3.user.first_name }} {{ account.strat3.user.last_name }} ({{ account.strat3percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_sales_percentage">Strat Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.stratb.user.first_name }} {{ account.stratb.user.last_name }}" disabled>
-              </div>
-            </div>
-          </div>
-          <div class="form-group m-form__group">
-            <div class="row">
-              <div class="col-md-3">
-                <label for="buffer_total_percentage">SEO:</label>
-                <input type="text" class="form-control m-input"value="{{ account.seo1.user.first_name }} {{ account.seo1.user.last_name }} ({{ account.seo1percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_learning_percentage">SEO2:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seo2.user.first_name }} {{ account.seo2.user.last_name }} ({{ account.seo2percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_trainers_percentage">SEO3:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seo3.user.first_name }} {{ account.seo3.user.last_name }} ({{ account.seo3percent }}%)" disabled>
-              </div>
-              <div class="col-md-3">
-                <label for="buffer_sales_percentage">SEO Backup:</label>
-                <input type="text" class="form-control m-input" value="{{ account.seob.user.first_name }} {{ account.seob.user.last_name }}" disabled>
               </div>
             </div>
           </div>
@@ -825,9 +779,9 @@ $(document).ready(function () {
       amPortion = (remainingPortion * 0.25) + (seoPortion * 0.1);
     }
 
-    var eachCm = (100.0 * cmPortion / cms.length);
-    var eachAm = (100.0 * amPortion / ams.length);
-    var eachSeo = (100.0 * seoPortion / seos.length);
+    var eachCm = (100.0 * cmPortion / cms.length).toFixed(2);
+    var eachAm = (100.0 * amPortion / ams.length).toFixed(2);
+    var eachSeo = (100.0 * seoPortion / seos.length).toFixed(2);
 
     /**
      * First set all to 0
