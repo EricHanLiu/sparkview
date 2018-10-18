@@ -84,13 +84,14 @@
                               <h1 class="text-center {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
                                   {{ client_data.currency }}{{ client_data.project_yesterday|floatformat:0|intcomma }}
                               </h1>
-                              {% endwith %}
+
                             </div>
                             <div id="projectionAverage" style="display:none;">
                               <h1 class="text-center {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
                                   {{ client_data.currency }}{{ client_data.project_average|floatformat:0|intcomma }}
                               </h1>
                             </div>
+                            {% endwith %}
                         </div>
                     </div>
                 </div>
