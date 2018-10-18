@@ -618,7 +618,6 @@ $(document).ready(function () {
             type: 'POST',
             data: data,
             success: function (data) {
-                console.log(data)
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
                     if (item['model'] === 'adwords_dashboard.campaign') {

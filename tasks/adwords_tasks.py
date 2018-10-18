@@ -429,7 +429,6 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     cmps = []
-    campaigns = []
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -481,6 +480,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                 gr.current_spend = 0
 
                 if gr.start_date:
+                    campaigns = []
 
                     for c in gr.aw_campaigns.all():
                         campaigns.append(c.campaign_id)
@@ -492,7 +492,6 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                     }
 
                     daterange = helper.create_daterange(gr.start_date, gr.end_date)
-
                     campaign_this_period = helper.get_campaign_performance(
                         customer_id=account.dependent_account_id,
                         dateRangeType="CUSTOM_DATE",

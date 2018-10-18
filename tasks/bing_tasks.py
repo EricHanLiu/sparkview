@@ -322,13 +322,11 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
 @celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id, client_id):
+
     account = BingAccounts.objects.get(account_id=account_id)
-    client = Client.objects.get(id=client_id)
-    groupings = CampaignGrouping.objects.filter(client=client)
     helper = BingReportingService()
 
     cmps = []
-    campaigns = []
 
     this_month = helper.get_this_month_daterange()
 
@@ -369,50 +367,58 @@ def bing_cron_campaign_stats(self, account_id, client_id):
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
 
-    if groupings:
-        for gr in groupings:
-            for c in cmps:
-                if gr.group_by == 'manual':
-                    continue
+    if client_id is not None:
+
+        client = Client.objects.get(id=client_id)
+        groupings = CampaignGrouping.objects.filter(client=client)
+
+        if groupings:
+            for gr in groupings:
+                for c in cmps:
+                    if gr.group_by == 'manual':
+                        continue
+                    else:
+                        if gr.group_by not in c.campaign_name and c in gr.bing_campaigns.all():
+                            gr.bing_campaigns.remove(c)
+                            gr.save()
+
+                        elif gr.group_by in c.campaign_name and c not in gr.bing_campaigns.all():
+                            gr.bing_campaigns.add(c)
+                            gr.save()
+
+                temp_spend = gr.current_spend
+
+                gr.current_spend = 0
+
+                if gr.start_date:
+
+                    campaigns = []
+
+                    for c in gr.bing_campaigns.all():
+                        campaigns.append(c.campaign_id)
+
+                    daterange = helper.create_daterange(gr.start_date, gr.end_date)
+
+                    campaigns_this_period = helper.get_campaign_performance(
+                        account_id,
+                        dateRangeType="CUSTOM_DATE",
+                        report_name="campaign_stats_tm",
+                        extra_fields=fields,
+                        **daterange
+                    )
+
+                    for cmp in campaigns_this_period:
+                        if cmp['campaignid'] in campaigns:
+                            gr.current_spend += float(cmp['spend'])
+                            # gr.save()
+                    gr.current_spend += temp_spend
+                    gr.save()
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.bing_campaigns.all():
-                        gr.bing_campaigns.remove(c)
-                        gr.save()
-
-                    elif gr.group_by in c.campaign_name and c not in gr.bing_campaigns.all():
-                        gr.bing_campaigns.add(c)
-                        gr.save()
-
-            temp_spend = gr.current_spend
-
-            gr.current_spend = 0
-
-            if gr.start_date:
-                for c in gr.bing_campaigns.all():
-                    campaigns.append(c.campaign_id)
-
-                daterange = helper.create_daterange(gr.start_date, gr.end_date)
-
-                campaigns_this_period = helper.get_campaign_performance(
-                    account_id,
-                    dateRangeType="CUSTOM_DATE",
-                    report_name="campaign_stats_tm",
-                    extra_fields=fields,
-                    **daterange
-                )
-
-                for cmp in campaigns_this_period:
-                    if cmp['campaignid'] in campaigns:
-                        gr.current_spend += float(cmp['spend'])
+                    for cmp in gr.bing_campaigns.all():
+                        gr.current_spend += cmp.campaign_cost
                         # gr.save()
-                gr.current_spend += temp_spend
-                gr.save()
-            else:
-                for cmp in gr.bing_campaigns.all():
-                    gr.current_spend += cmp.campaign_cost
-                    # gr.save()
-                gr.current_spend += temp_spend
-                gr.save()
+                    gr.current_spend += temp_spend
+                    gr.save()
 
 
 @celery_app.task(bind=True)

@@ -302,11 +302,8 @@ def facebook_cron_alerts(self, account_id):
 @celery_app.task(bind=True)
 def facebook_cron_campaign_stats(self, account_id, client_id):
     account = FacebookAccount.objects.get(account_id=account_id)
-    client = Client.objects.get(id=client_id)
-    groupings = CampaignGrouping.objects.filter(client=client)
 
     cmps = []
-    cmp_list = []
 
     helper = FacebookReportingService(facebook_init())
 
@@ -349,51 +346,54 @@ def facebook_cron_campaign_stats(self, account_id, client_id):
             print('Added to DB - [' + cmp.campaign_name + '].')
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
+    if client_id is not None:
+        client = Client.objects.get(id=client_id)
+        groupings = CampaignGrouping.objects.filter(client=client)
 
-    if groupings:
-        for gr in groupings:
-            for c in cmps:
-                if gr.group_by == 'manual':
-                    continue
+        if groupings:
+            for gr in groupings:
+                for c in cmps:
+                    if gr.group_by == 'manual':
+                        continue
+                    else:
+                        if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
+                            gr.aw_campaigns.remove(c)
+                            gr.save()
+
+                        elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
+                            gr.fb_campaigns.add(c)
+                            gr.save()
+
+                temp_spend = gr.current_spend
+
+                gr.current_spend = 0
+
+                if gr.start_date:
+                    cmp_list = []
+                    for c in gr.fb_campaigns.all():
+                        cmp_list.append(c.campaign_id)
+
+                    daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
+
+                    this_period = helper.set_params(
+                        time_range=daterange,
+                        level='campaign',
+                        filtering=filtering,
+                    )
+
+                    campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
+                    for cmp in campaigns_tp:
+                        if cmp['campaign_id'] in cmp_list:
+                            gr.current_spend += float(cmp['spend'])
+                            # gr.save()
+                    gr.current_spend += temp_spend
+                    gr.save()
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
-                        gr.aw_campaigns.remove(c)
-                        gr.save()
-
-                    elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
-                        gr.fb_campaigns.add(c)
-                        gr.save()
-
-            temp_spend = gr.current_spend
-
-            gr.current_spend = 0
-
-            if gr.start_date:
-
-                for c in gr.fb_campaigns.all():
-                    cmp_list.append(c.campaign_id)
-
-                daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
-
-                this_period = helper.set_params(
-                    time_range=daterange,
-                    level='campaign',
-                    filtering=filtering,
-                )
-
-                campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
-                for cmp in campaigns_tp:
-                    if cmp['campaign_id'] in cmp_list:
-                        gr.current_spend += float(cmp['spend'])
+                    for cmp in gr.fb_campaigns.all():
+                        gr.current_spend += cmp.campaign_cost
                         # gr.save()
-                gr.current_spend += temp_spend
-                gr.save()
-            else:
-                for cmp in gr.fb_campaigns.all():
-                    gr.current_spend += cmp.campaign_cost
-                    # gr.save()
-                gr.current_spend += temp_spend
-                gr.save()
+                    gr.current_spend += temp_spend
+                    gr.save()
 
 
 @celery_app.task(bind=True)
