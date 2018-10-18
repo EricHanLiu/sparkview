@@ -827,7 +827,7 @@ def update_groupings(request):
         if grouping.client.facebook:
             time.sleep(0.5)
             for f in grouping.client.facebook.all():
-                facebook_tasks.facebook_cron_campaign_stats.delay(f.account_id)
+                facebook_tasks.facebook_cron_campaign_stats.delay(f.account_id, grouping.client.id)
 
         context = {}
 
