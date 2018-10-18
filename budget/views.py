@@ -856,8 +856,8 @@ def get_campaigns(request):
     account_ids = request.POST.get('account_ids')
     gr_id = request.POST.get('gr_id')
     channel = request.POST.get('channel')
-    accs = []
-    ns_cmps = []
+
+    campaigns = []
     response = {}
 
     try:
@@ -874,81 +874,32 @@ def get_campaigns(request):
         for a in acc_ids:
             try:
                 account = DependentAccount.objects.get(dependent_account_id=a)
-            except ObjectDoesNotExist:
+                aw_campaigns = Campaign.objects.filter(account=account, campaign_status='enabled',
+                                                       campaign_serving_status='eligible')
+                campaigns.extend(aw_campaigns)
+            except (ValueError, ObjectDoesNotExist):
                 pass
 
             try:
                 account = BingAccounts.objects.get(account_id=a)
-                print('Found ' + account.account_name)
+                bing_campaigns = BingCampaign.objects.filter(account=account)
+                campaigns.extend(bing_campaigns)
             except ObjectDoesNotExist:
                 pass
 
             try:
                 account = FacebookAccount.objects.get(account_id=a)
-            except ObjectDoesNotExist:
-                pass
-            # Add each account found to accs[]
-            accs.append(account)
-
-        # Loop through account list and get campaigns
-        for acc in accs:
-            try:
-                aw_campaigns = Campaign.objects.filter(account=acc, campaign_status='enabled', campaign_serving_status='eligible')
-                ns_cmps.extend(aw_campaigns)
-            except ValueError:
+                fb_campaigns = FacebookCampaign.objects.filter(account=account)
+                campaigns.extend(fb_campaigns)
+            except (ValueError, ObjectDoesNotExist):
                 pass
 
-            try:
-                bing_campaigns = BingCampaign.objects.filter(account=acc)
-                ns_cmps.extend(bing_campaigns)
-            except ValueError:
-                pass
-
-            try:
-                fb_campaigns = FacebookCampaign.objects.filter(account=acc)
-                ns_cmps.extend(fb_campaigns)
-            except ValueError:
-                pass
-        response['campaigns'] = json.loads(serializers.serialize("json", ns_cmps))
+        response['campaigns'] = json.loads(serializers.serialize("json", campaigns))
 
     if gr_id:
         gr = CampaignGrouping.objects.filter(id=gr_id)
         gr_json = json.loads(serializers.serialize("json", gr))
         response['group'] = gr_json
-
-    # The following piece of code will not be used anymore, i think
-    if channel == 'adwords':
-        account = DependentAccount.objects.get(dependent_account_id=account_id)
-        campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
-        campaigns_json = json.loads(serializers.serialize("json", campaigns))
-        response['campaigns'] = campaigns_json
-
-        if gr_id:
-            gr = CampaignGrouping.objects.filter(id=gr_id)
-            gr_json = json.loads(serializers.serialize("json", gr))
-            response['group'] = gr_json
-
-    elif channel == 'bing':
-        account = BingAccounts.objects.get(account_id=account_id)
-        campaigns = BingCampaign.objects.filter(account=account)
-        campaigns_json = json.loads(serializers.serialize("json", campaigns))
-        response['campaigns'] = campaigns_json
-
-        if gr_id:
-            gr = CampaignGrouping.objects.filter(id=gr_id)
-            gr_json = json.loads(serializers.serialize("json", gr))
-            response['group'] = gr_json
-
-    elif channel == 'facebook':
-        account = FacebookAccount.objects.get(account_id=account_id)
-        campaigns = FacebookCampaign.objects.filter(account=account)
-        campaigns_json = json.loads(serializers.serialize("json", campaigns))
-        response['campaigns'] = campaigns_json
-
-        if gr_id:
-            gr = CampaignGrouping.objects.filter(id=gr_id)
-            gr_json = json.loads(serializers.serialize("json", gr))
-            response['group'] = gr_json
 
     return JsonResponse(response)
 

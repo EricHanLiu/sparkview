@@ -221,17 +221,7 @@
                                                    data-c_id="{{ client_data.id }}"
                                                    data-group_name="{{ gr.group_name }}"
                                                    data-group_by="{{ gr.group_by }}"
-                                                   data-acc_ids="
-                                                        {% for a in client_data.adwords.all %}
-                                                            {{ a.dependent_account_id }},
-                                                        {% endfor %}
-                                                        {% for b in client_data.bing.all %}
-                                                            {{ b.account_id }},
-                                                        {% endfor %}
-                                                        {% for f in client_data.facebook.all %}
-                                                            {{ f.account_id }}
-                                                        {% endfor %}
-                                                        "
+                                                   data-acc_ids="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                                    data-group_budget="{{ gr.budget }}"
                                                    data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
                                                         {% if gr.start_date %}
