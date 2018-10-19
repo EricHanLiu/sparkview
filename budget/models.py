@@ -258,6 +258,10 @@ class Client(models.Model):
             for fa in self.facebook.all():
                 budget += fa.desired_spend
 
+            campaign_groups = CampaignGrouping.objects.filter(client=self)
+            for campaign_group in campaign_groups:
+                budget += campaign_group.budget
+
             budget += self.flex_budget
             self._current_budget = budget
 

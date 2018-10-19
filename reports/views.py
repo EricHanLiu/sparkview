@@ -61,3 +61,12 @@ def agency_overview(request):
     }
 
     return render(request, 'reports/agency_overview.html', context)
+
+
+def account_spend_progression_report(request):
+    """
+    Creates the report that warns about accounts that may lose values
+    """
+    accounts = Client.objects.filter(status=1)
+
+    return render(request, 'reports/account_spend_progression_report.html')
