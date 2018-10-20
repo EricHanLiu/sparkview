@@ -477,7 +477,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                             gr.aw_campaigns.add(c)
                             gr.save()
 
-                gr.current_spend = 0
+                gr.aw_spend = 0
 
                 if gr.start_date:
                     campaigns = []
@@ -500,11 +500,11 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                     )
 
                     for cmp in campaign_this_period:
-                        gr.current_spend += helper.mcv(cmp['cost'])
+                        gr.aw_spend += helper.mcv(cmp['cost'])
                         gr.save()
                 else:
                     for cmp in gr.aw_campaigns.all():
-                        gr.current_spend += cmp.campaign_cost
+                        gr.aw_spend += cmp.campaign_cost
                         gr.save()
 
 

@@ -470,16 +470,24 @@ class CampaignGrouping(models.Model):
     client = models.ForeignKey(Client, blank=True, null=True)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
+    adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
+    aw_spend = models.FloatField(default=0)
+    bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='bing_campaigns')
+    bing_spend = models.FloatField(default=0)
+    facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='facebook_campaigns')
+    fb_spend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
     current_spend = models.FloatField(default=0)
-    adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
-    bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
-    facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+
+    def current_spend(self):
+        return self.aw_spend + self.bing_spend + self.fb_spend
+
+    current_spend = property(current_spend)
 
 class Budget(models.Model):
 

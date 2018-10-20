@@ -386,9 +386,7 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                             gr.bing_campaigns.add(c)
                             gr.save()
 
-                temp_spend = gr.current_spend
-
-                gr.current_spend = 0
+                gr.bing_spend = 0
 
                 if gr.start_date:
 
@@ -409,16 +407,12 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
 
                     for cmp in campaigns_this_period:
                         if cmp['campaignid'] in campaigns:
-                            gr.current_spend += float(cmp['spend'])
-                            # gr.save()
-                    gr.current_spend += temp_spend
-                    gr.save()
+                            gr.bing_spend += float(cmp['spend'])
+                            gr.save()
                 else:
                     for cmp in gr.bing_campaigns.all():
-                        gr.current_spend += cmp.campaign_cost
-                        # gr.save()
-                    gr.current_spend += temp_spend
-                    gr.save()
+                        gr.bing_spend += cmp.campaign_cost
+                        gr.save()
 
 
 @celery_app.task(bind=True)

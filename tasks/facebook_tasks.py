@@ -365,9 +365,7 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                             gr.fb_campaigns.add(c)
                             gr.save()
 
-                temp_spend = gr.current_spend
-
-                gr.current_spend = 0
+                gr.fb_spend = 0
 
                 if gr.start_date:
                     cmp_list = []
@@ -385,16 +383,12 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                     campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
                     for cmp in campaigns_tp:
                         if cmp['campaign_id'] in cmp_list:
-                            gr.current_spend += float(cmp['spend'])
-                            # gr.save()
-                    gr.current_spend += temp_spend
-                    gr.save()
+                            gr.fb_spend += float(cmp['spend'])
+                            gr.save()
                 else:
                     for cmp in gr.fb_campaigns.all():
-                        gr.current_spend += cmp.campaign_cost
-                        # gr.save()
-                    gr.current_spend += temp_spend
-                    gr.save()
+                        gr.fb_spend += cmp.campaign_cost
+                        gr.save()
 
 
 @celery_app.task(bind=True)
