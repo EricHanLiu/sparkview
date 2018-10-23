@@ -16,6 +16,11 @@
   padding: 5px 15px;
   margin: 0;
 }
+
+.am-profile {
+  background: rgba(66, 134, 244, 0.5);
+}
+
 </style>
 {% endblock %}
 
@@ -29,14 +34,21 @@
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
                 {{ account.client_name }} Team
+                &nbsp;
+                <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
+                &nbsp;
+                <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000;">
+                  <span class="la la-edit">
+                  </span>
+                </a>
               </h3>
             </div>
           </div>
         </div>
-        <div class="m-portlet__body">
+        <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
           <div class="row">
             <div class="col-xl-10">
-              {% for role, assigned_member in account.assigned_members.items %}
+              {% for role, assigned_member in account.assigned_ams.items %}
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
@@ -44,10 +56,55 @@
                     </div>
                   </div>
                   <div class="m-card-profile__details">
-                    <span class="m-card-profile__name">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</span>
-                    <span class="m-card-profile__email m-link">{{ role }}</span>
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--info m-badge--wide">{{ role }}</span>
                     <br />
-                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }} / {{ account|get_allocation_this_month_member:assigned_member.member }}</span>
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+              {% for role, assigned_member in account.assigned_cms.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--success m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+              {% for role, assigned_member in account.assigned_seos.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--warning m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+              {% for role, assigned_member in account.assigned_strats.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--danger m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
                   </div>
                 </div>
               {% endfor %}
@@ -79,9 +136,6 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          {# if request.user.is_staff #}
-          <a href="/clients/accounts/{{ account.id }}/edit">Edit {{ account.client_name }}</a>
-          {# endif #}
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
@@ -266,7 +320,7 @@
                   ${{ interval.lowerBound }} - ${{ interval.upperBound }}
                 </td>
                 <td>
-                  {% if interval.feeStyle == 1 %}${% endif %}{{ interval.fee }}{% if interval.feeStyle == 0 %}%{% endif %}
+                  {% if interval.feeStyle == 1 %}${{ interval.fee|format_money }}{% endif %}{% if interval.feeStyle == 0 %}{{ interval.fee}}%{% endif %}
                 </td>
               </tr>
               {% endfor %}
@@ -298,7 +352,7 @@
                       <span class="m-widget1__desc">Total monthy budget</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-brand">${{ account.current_budget|floatformat:2 }}</span>
+                      <span class="m-widget1__number m--font-brand">${{ account.current_budget|format_money }}</span>
                     </div>
                   </div>
                 </div>
@@ -309,7 +363,7 @@
                       <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-danger">${{ account.current_spend|floatformat:2 }}</span>
+                      <span class="m-widget1__number m--font-danger">${{ account.current_spend|format_money }}</span>
                     </div>
                   </div>
                 </div>
@@ -320,7 +374,7 @@
                       <span class="m-widget1__desc">Left to spend this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget|floatformat:2 }}</span>
+                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget|format_money }}</span>
                     </div>
                   </div>
                 </div>

@@ -422,9 +422,9 @@ def account_single(request, id):
     now   = datetime.datetime.now()
     month = now.month
     year  = now.year
-    accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year)
+    accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
 
-    accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year).values('member', 'month', 'year').annotate(Sum('hours'))
+    accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False).values('member', 'month', 'year').annotate(Sum('hours'))
 
     for row in accountsHoursThisMonthByMember:
         row['member'] = members.get(id=row['member'])
@@ -587,6 +587,8 @@ def add_hours_to_account(request):
                       Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
                   )
 
+        all_accounts = Client.objects.all()
+
         months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
         years  = [2018, 2019]
 
@@ -595,6 +597,7 @@ def add_hours_to_account(request):
 
         context = {
             'member'   : member,
+            'all_accounts' : all_accounts,
             'accounts' : accounts,
             'months'   : months,
             'monthnow' : monthnow,
@@ -604,20 +607,44 @@ def add_hours_to_account(request):
         return render(request, 'client_area/insert_hours.html', context)
 
     elif (request.method == 'POST'):
-        account_id = request.POST.get('account_id')
-        account    = Client.objects.get(id=account_id)
         member = Member.objects.get(user=request.user)
-        if (not request.user.is_staff and not member.has_account(account_id)):
-            return HttpResponse('You do not have permission to add hours to this account')
+        accounts_count = member.accounts.count()
+
+        for i in range(accounts_count):
+            i = str(i)
+            account_id = request.POST.get('account-id-' + i)
+            account = Client.objects.get(id=account_id)
+
+            if (not request.user.is_staff and not member.has_account(account_id)):
+                return HttpResponse('You do not have permission to add hours to this account')
+            member     = Member.objects.get(user=request.user)
+            hours      = request.POST.get('hours-' + i)
+            month      = request.POST.get('month-' + i)
+            year       = request.POST.get('year-' + i)
+
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+
+        return redirect('/clients/accounts/report_hours')
+
+
+@login_required
+def value_added_hours(request):
+    if (request.method == 'GET'):
+        return HttpResponse('You should not be here')
+    elif (request.method == 'POST'):
+        account_id = request.POST.get('account_id')
+        account = Client.objects.get(id=account_id)
+        member = Member.objects.get(user=request.user)
+        # if (not request.user.is_staff and not member.has_account(account_id)):
+        #     return HttpResponse('You do not have permission to add hours to this account')
         member     = Member.objects.get(user=request.user)
         hours      = request.POST.get('hours')
         month      = request.POST.get('month')
         year       = request.POST.get('year')
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year, is_unpaid=True)
 
         return redirect('/clients/accounts/report_hours')
-
 
 @login_required
 def account_allocate_percentages(request):
@@ -719,3 +746,28 @@ def get_management_fee_details(request, id):
         count += 1
 
     return JsonResponse(fsj)
+
+
+@login_required
+def confirm_sent_am(request):
+    """
+    Sets a report's 'sent to am' date
+    """
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    account = Client.objects.get(id=account_id)
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+    pass
+
+@login_required
+def confirm_sent_client(request):
+    """
+    Sets a report's 'sent to client' date
+    """
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    account = Client.objects.get(id=account_id)
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+    pass

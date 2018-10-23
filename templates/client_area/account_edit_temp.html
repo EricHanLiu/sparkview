@@ -307,7 +307,7 @@ $(document).ready(function () {
              inner_html += '$' + fee_interval.lowerBound + ' - $' + fee_interval.upperBound;
              inner_html += '</td>';
              inner_html += '<td>';
-             if (fee_interval.feeType == 0) { // %
+             if (fee_interval.style == 0) { // %
                inner_html += fee_interval.fee + '%';
              } else { // $
                inner_html += '$' + fee_interval.fee;

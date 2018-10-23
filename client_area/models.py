@@ -17,8 +17,8 @@ class ParentClient(models.Model):
 # Keep a changelog of changes to the client model
 # To complete later, not a priority
 class AccountChanges(models.Model):
-    account     = models.ForeignKey('budget.Client', blank=True, null=True)
-    member      = models.ForeignKey(Member, blank=True, null=True)
+    account     = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, blank=True, null=True)
+    member      = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True)
     changeField = models.CharField(max_length=255, default='None')
     changedFrom = models.CharField(max_length=255, default='None')
     changedTo   = models.CharField(max_length=255, default='None')
@@ -98,3 +98,35 @@ class ManagementFeesStructure(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MonthlyReport(models.Model):
+    """
+    Monthly report that is made for a client. This class contains meta data for operational purposes (ie: is the report complete, what type of report is it)
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+    REPORT_TYPE_CHOICES = [(1, 'Standard'), (2, 'Advanced')]
+    REPORT_SERVICES = [(0, 'None'), (1, 'PPC'), (2, 'SEO'), (3, 'Both')]
+
+    account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, blank=True, null=True)
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.IntegerField(default=0)
+    tier = models.IntegerField(default=1)
+    cm = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, default=None)
+    report_type = models.IntegerField(default=1, choices=REPORT_TYPE_CHOICES)
+    report_services = models.IntegerField(default=0, choices=REPORT_SERVICES)
+    due_date = models.DateTimeField(blank=True, null=True)
+    date_received_by_am = models.DateTimeField(blank=True, null=True)
+    date_sent_by_am = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def received_by_am(self):
+        return self.date_received_by_am != None
+
+    @property
+    def sent_by_am(self):
+        return self.date_sent_by_am != None
+
+    def __str__(self):
+        return self.account.name + ' ' + self.month + '/' + self.year

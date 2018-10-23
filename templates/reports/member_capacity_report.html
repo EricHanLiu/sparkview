@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load humanize %}
+{% load template_filters %}
+
+{% block extraCss %}
+<style>
+.proj-avg {
+  display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+            {{ report_type }}
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row">
+          <div class="col-md-4">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Total Actual Hours
+                  </h5>
+                  <h1 class="text-center inner-text text-info">
+                      {{ actual_aggregate }}
+                  </h1>
+              </div>
+          </div>
+          <div class="col-md-4">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Total Allocated Hours
+                  </h5>
+                  <h1 class="text-center">
+                      {{ allocated_aggregate }}
+                  </h1>
+              </div>
+          </div>
+          <div class="col-md-4">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Total Available Hours
+                  </h5>
+                  <h1 class="text-center inner-text">
+                      {{ available_aggregate }}
+                  </h1>
+              </div>
+          </div>
+      </div>
+      <div class="row m-row--no-padding m-row--col-separator-xl">
+        <div class="col-12">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>Member</th>
+                <th>
+                  Actual Hours
+                </th>
+                <th>
+                  Allocated Hours
+                </th>
+                <th>
+                  Available Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for member in members %}
+              <tr>
+                <td>
+                  <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                </td>
+                <td>
+                  {{ member.actualHoursThisMonth }}
+                </td>
+                <td>
+                  {{ member.allocated_hours_month }}
+                </td>
+                <td>
+                  {{ member.hours_available }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

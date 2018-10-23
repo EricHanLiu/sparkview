@@ -11,7 +11,7 @@ import datetime
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry
 from budget.models import Client
-from client_area.models import AccountHourRecord
+from client_area.models import AccountHourRecord, MonthlyReport
 from .forms import NewMemberForm, NewTeamForm
 
 @login_required
@@ -29,11 +29,11 @@ def profile(request):
     now   = datetime.datetime.now()
     month = now.month
     year  = now.year
-    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year)
+    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
 
-    accounts = member.accounts
+    accounts = member.accounts.filter(Q(status=0) | Q(status=1))
 
-    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
+    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 
     accountHours = {}
     accountAllocation = {}
@@ -51,6 +51,23 @@ def profile(request):
 
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
+    reporting_period = now.day <= 31
+    reports = []
+
+    # Reports
+    if (reporting_period):
+        active_accounts = accounts.filter(status=1)
+        for account in active_accounts:
+            report, created = MonthlyReport.objects.get_or_create(account=account, month=month, year=year)
+            if (created):
+                if (account.tier == 1):
+                    report.report_type = 2 # Advanced
+                else:
+                    report.report_type = 1 # Standard
+                report.save()
+            reports.append(report)
+
+
     context = {
         'member'                  : member,
         'hoursThisMonth'          : memberHoursThisMonth,
@@ -62,7 +79,10 @@ def profile(request):
         'memberSkills'            : memberSkills,
         'accounts'                : accounts,
         'backupAccounts'          : backupAccounts,
-        'scoreBadges'             : scoreBadges
+        'scoreBadges'             : scoreBadges,
+        'reporting_period' : reporting_period,
+        'reports' : reports,
+        'month_str' : now.strftime("%B")
     }
 
     return render(request, 'user_management/profile.html', context)
@@ -347,16 +367,16 @@ def members_single(request, id):
     now   = datetime.datetime.now()
     month = now.month
     year  = now.year
-    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year)
+    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
 
     accounts = Client.objects.filter(
                   Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
                   Q(am1=member) | Q(am2=member) | Q(am3=member) |
                   Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
                   Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-              )
+              ).filter(Q(status=0) | Q(status=1))
 
-    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
+    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 
     accountHours = {}
     accountAllocation = {}

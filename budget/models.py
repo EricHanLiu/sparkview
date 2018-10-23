@@ -94,25 +94,25 @@ class Client(models.Model):
     actualHours    = models.IntegerField(default=0)
 
     # Member attributes (we'll see if there's a better way to do this)
-    cm1    = models.ForeignKey(Member, blank=True, null=True, related_name='cm1')
-    cm2    = models.ForeignKey(Member, blank=True, null=True, related_name='cm2')
-    cm3    = models.ForeignKey(Member, blank=True, null=True, related_name='cm3')
-    cmb    = models.ForeignKey(Member, blank=True, null=True, related_name='cmb')
+    cm1    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm1')
+    cm2    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm2')
+    cm3    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm3')
+    cmb    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cmb')
 
-    am1    = models.ForeignKey(Member, blank=True, null=True, related_name='am1')
-    am2    = models.ForeignKey(Member, blank=True, null=True, related_name='am2')
-    am3    = models.ForeignKey(Member, blank=True, null=True, related_name='am3')
-    amb    = models.ForeignKey(Member, blank=True, null=True, related_name='amb')
+    am1    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='am1')
+    am2    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='am2')
+    am3    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='am3')
+    amb    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='amb')
 
-    seo1   = models.ForeignKey(Member, blank=True, null=True, related_name='seo1')
-    seo2   = models.ForeignKey(Member, blank=True, null=True, related_name='seo2')
-    seo3   = models.ForeignKey(Member, blank=True, null=True, related_name='seo3')
-    seob   = models.ForeignKey(Member, blank=True, null=True, related_name='seob')
+    seo1   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seo1')
+    seo2   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seo2')
+    seo3   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seo3')
+    seob   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seob')
 
-    strat1 = models.ForeignKey(Member, blank=True, null=True, related_name='strat1')
-    strat2 = models.ForeignKey(Member, blank=True, null=True, related_name='strat2')
-    strat3 = models.ForeignKey(Member, blank=True, null=True, related_name='strat3')
-    stratb = models.ForeignKey(Member, blank=True, null=True, related_name='stratb')
+    strat1 = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='strat1')
+    strat2 = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='strat2')
+    strat3 = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='strat3')
+    stratb = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='stratb')
 
     # Allocation % of total hours
     cm1percent = models.FloatField(default=75.0)
@@ -141,7 +141,7 @@ class Client(models.Model):
         now   = datetime.datetime.now()
         month = now.month
         year  = now.year
-        hours = AccountHourRecord.objects.filter(account=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
 
     def getHoursRemainingThisMonth(self):
@@ -154,7 +154,7 @@ class Client(models.Model):
         now   = datetime.datetime.now()
         month = now.month
         year  = now.year
-        hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
 
     def getAllocationThisMonthMember(self, member):
@@ -211,20 +211,39 @@ class Client(models.Model):
         Loops through every interval in the management fee structure, determines
         """
         if not hasattr(self, '_ppcFee'):
-            fee = 0.0
-            if (self.management_fee_override != None and self.management_fee_override != 0.0):
-                fee = self.management_fee_override
-            elif (self.managementFee != None):
-                for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
-                    if (self.current_budget >= feeInterval.lowerBound and self.current_budget < feeInterval.upperBound):
-                        if (feeInterval.feeStyle == 0): # %
-                            fee = self.current_budget * (feeInterval.fee / 100.0)
-                            break
-                        elif (feeInterval.feeStyle == 1):
-                            fee = feeInterval.fee
-                            break
+            fee = fee = self.get_fee_by_spend(self.current_budget)
+            # if (self.management_fee_override != None and self.management_fee_override != 0.0):
+            #     fee = self.management_fee_override
+            # elif (self.managementFee != None):
+                # for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
+                #     if (self.current_budget >= feeInterval.lowerBound and self.current_budget < feeInterval.upperBound):
+                #         if (feeInterval.feeStyle == 0): # %
+                #             fee = self.current_budget * (feeInterval.fee / 100.0)
+                #             break
+                #         elif (feeInterval.feeStyle == 1):
+                #             fee = feeInterval.fee
+                #             break
             self._ppcFee = round(fee, 2)
         return self._ppcFee
+
+    def get_fee_by_spend(self, spend):
+        """
+        Get's fee by any amount, as opposed to just calculating it by budget
+        It is calculated by budget for anticipated fee, but actual fee or projected fee can be calculated using this as well
+        """
+        fee = 0.0
+        if (self.management_fee_override != None and self.management_fee_override != 0.0):
+            fee = self.management_fee_override
+        elif (self.managementFee != None):
+            for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
+                if (spend >= feeInterval.lowerBound and spend <= feeInterval.upperBound):
+                    if (feeInterval.feeStyle == 0): # %
+                        fee = spend * (feeInterval.fee / 100.0)
+                        break
+                    elif (feeInterval.feeStyle == 1):
+                        fee = spend
+                        break
+        return fee
 
     def getFee(self):
         if (self.management_fee_override != None and self.management_fee_override != 0.0):
@@ -281,6 +300,99 @@ class Client(models.Model):
 
         return flex_spend
 
+
+    @property
+    def assigned_ams(self):
+        """
+        Get's assigned ams
+        """
+        members = {}
+
+        if (self.am1 != None):
+            members['AM'] = {}
+            members['AM']['member'] = self.am1
+            members['AM']['allocated_percenage'] = self.am1percent
+        if (self.am2 != None):
+            members['AM2'] = {}
+            members['AM2']['member'] = self.am2
+            members['AM2']['allocated_percenage'] = self.am2percent
+        if (self.am3 != None):
+            members['AM3'] = {}
+            members['AM3']['member'] = self.am3
+            members['AM3']['allocated_percenage'] = self.am3percent
+
+        return members
+
+
+    @property
+    def assigned_cms(self):
+        """
+        Get's assigned cms
+        """
+        members = {}
+
+        if (self.cm1 != None):
+            members['CM'] = {}
+            members['CM']['member'] = self.cm1
+            members['CM']['allocated_percenage'] = self.cm1percent
+        if (self.cm2 != None):
+            members['CM2'] = {}
+            members['CM2']['member'] = self.cm2
+            members['CM2']['allocated_percenage'] = self.cm2percent
+        if (self.cm3 != None):
+            members['CM3'] = {}
+            members['CM3']['member'] = self.cm3
+            members['CM3']['allocated_percenage'] = self.cm3percent
+
+        return members
+
+
+    @property
+    def assigned_seos(self):
+        """
+        Get's assigned seos
+        """
+        members = {}
+
+        if (self.seo1 != None):
+            members['SEO'] = {}
+            members['SEO']['member'] = self.seo1
+            members['SEO']['allocated_percenage'] = self.seo1percent
+        if (self.seo2 != None):
+            members['SEO 2'] = {}
+            members['SEO 2']['member'] = self.seo2
+            members['SEO 2']['allocated_percenage'] = self.seo2percent
+        if (self.seo3 != None):
+            members['SEO 3'] = {}
+            members['SEO 3']['member'] = self.seo3
+            members['SEO 3']['allocated_percenage'] = self.seo3percent
+
+        return members
+
+
+    @property
+    def assigned_strats(self):
+        """
+        Get's assigned strats
+        """
+        members = {}
+
+        if (self.strat1 != None):
+            members['Strat'] = {}
+            members['Strat']['member'] = self.strat1
+            members['Strat']['allocated_percenage'] = self.strat1percent
+        if (self.strat2 != None):
+            members['Strat 2'] = {}
+            members['Strat 2']['member'] = self.strat2
+            members['Strat 2']['allocated_percenage'] = self.strat2percent
+        if (self.strat3 != None):
+            members['Strat 3'] = {}
+            members['Strat 3']['member'] = self.strat3
+            members['Strat 3']['allocated_percenage'] = self.strat3percent
+
+        return members
+
+
     @property
     def assigned_members(self):
         """
@@ -300,10 +412,10 @@ class Client(models.Model):
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percenage'] = self.cm3percent
-        if (self.cmb != None):
-            members['CM Backup'] = {}
-            members['CM Backup']['member'] = self.cmb
-            members['CM Backup']['allocated_percenage'] = self.cmbpercent
+        # if (self.cmb != None):
+        #     members['CM Backup'] = {}
+        #     members['CM Backup']['member'] = self.cmb
+        #     members['CM Backup']['allocated_percenage'] = self.cmbpercent
 
         if (self.am1 != None):
             members['AM'] = {}
@@ -317,10 +429,10 @@ class Client(models.Model):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percenage'] = self.am3percent
-        if (self.amb != None):
-            members['AM Backup'] = {}
-            members['AM Backup']['member'] = self.amb
-            members['AM Backup']['allocated_percenage'] = self.ambpercent
+        # if (self.amb != None):
+        #     members['AM Backup'] = {}
+        #     members['AM Backup']['member'] = self.amb
+        #     members['AM Backup']['allocated_percenage'] = self.ambpercent
 
         if (self.seo1 != None):
             members['SEO'] = {}
@@ -334,10 +446,10 @@ class Client(models.Model):
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percenage'] = self.seo3percent
-        if (self.seob != None):
-            members['SEO Backup'] = {}
-            members['SEO Backup']['member'] = self.seob
-            members['SEO Backup']['allocated_percenage'] = self.seobpercent
+        # if (self.seob != None):
+        #     members['SEO Backup'] = {}
+        #     members['SEO Backup']['member'] = self.seob
+        #     members['SEO Backup']['allocated_percenage'] = self.seobpercent
 
         if (self.strat1 != None):
             members['Strat'] = {}
@@ -351,10 +463,10 @@ class Client(models.Model):
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percenage'] = self.strat3percent
-        if (self.stratb != None):
-            members['Strat Backup'] = {}
-            members['Strat Backup']['member'] = self.stratb
-            members['Strat Backup']['allocated_percenage'] = self.stratbpercent
+        # if (self.stratb != None):
+        #     members['Strat Backup'] = {}
+        #     members['Strat Backup']['member'] = self.stratb
+        #     members['Strat Backup']['allocated_percenage'] = self.stratbpercent
 
         return members
 
