@@ -387,6 +387,7 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                             gr.save()
 
                 gr.fb_spend = 0
+                gr.fb_yspend = 0
 
                 if gr.start_date:
                     cmp_list = []
@@ -409,6 +410,7 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                 else:
                     for cmp in gr.fb_campaigns.all():
                         gr.fb_spend += cmp.campaign_cost
+                        gr.fb_yspend += cmp.campaign_yesterday_cost
                         gr.save()
 
 
