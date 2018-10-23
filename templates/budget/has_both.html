@@ -259,15 +259,46 @@
                                             </div>
                                             <div class="col-md-3">Group by: {{ gr.group_by }}</div>
                                             <div class="col-md-3">
-                                                Spend: {{ gr.current_spend|intcomma }}</div>
-                                            <div class="col-md-3">Budget: {{ gr.budget|intcomma }}</div>
+                                                Spend: {{ gr.current_spend|floatformat:2|intcomma }}</div>
+                                            <div class="col-md-3">Budget: {{ gr.budget|floatformat:2|intcomma }}</div>
                                             </div>
+                                            <div class="m--space-10"></div>
+                                            <div class="row">
+                                                <div class="col-md-3">Yesterday Spend: {{ gr.yesterday_spend|floatformat:2|intcomma }}</div>
+                                                <div class="col-md-3">Avg. Daily Spend: {{ gr.avg_daily_spend|floatformat:2|intcomma }}</div>
+                                                <div class="col-md-3">Recommended Daily Spend:
+                                                    {% if gr.rec_daily_spend < 0 %}
+                                                        0
+                                                    {% else %}
+                                                        {{ gr.rec_daily_spend|floatformat:2|intcomma }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <div class="m-form__group form-group row">
+                                                        <label class="col-9 col-form-label" id="cgr_as_{{ gr.id }}">Projected(average spend): {{ gr.project_average|floatformat:2|intcomma }}</label>
+                                                        <label class="col-9 col-form-label" style="display: none;" id="cgr_ys_{{ gr.id }}">Projected(yesterday spend): {{ gr.project_yesterday|floatformat:2|intcomma }}</label>
+                                                        <div class="col-3">
+                                                            <span class="m-switch m-switch--sm m-switch--outline m-switch--icon m-switch--success">
+                                                                <label>
+                                                                <input type="checkbox" checked="checked" name=""
+                                                                       id="cgr_proj_{{ gr.id }}" onclick="toggleCgrProjection({{ gr.id }})">
+                                                                <span></span>
+                                                                </label>
+                                                            </span>
+                                                        </div>
+									                </div>
+                                                </div>
+                                            </div>
+
                                             {% if gr.start_date %}
                                                 <div class="row">
                                                     <div class="col-md-6">Start: {{ gr.start_date }}</div>
                                                     <div class="col-md-6">End: {{ gr.end_date }}</div>
                                                 </div>
                                             {% endif %}
+
                                             <div class="progress m-progress--lg">
                                                 <div class="progress-bar
                                                         {{ gr.current_spend|percentage:gr.budget }}"

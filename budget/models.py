@@ -372,7 +372,7 @@ class Client(models.Model):
     def hybrid_projection(self, method):
         projection = self.current_spend
         now = datetime.datetime.today()
-        day_of_month = now.day
+        day_of_month = now.day - 1
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
         if (method == 0): # Project based on yesterday
@@ -473,20 +473,64 @@ class CampaignGrouping(models.Model):
     adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
     aw_spend = models.FloatField(default=0)
+    aw_yspend = models.FloatField(default=0)
     bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='bing_campaigns')
     bing_spend = models.FloatField(default=0)
+    bing_yspend = models.FloatField(default=0)
     facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='facebook_campaigns')
     fb_spend = models.FloatField(default=0)
+    fb_yspend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
-    current_spend = models.FloatField(default=0)
+    # current_spend = models.FloatField(default=0)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
     def current_spend(self):
         return self.aw_spend + self.bing_spend + self.fb_spend
 
+    def yesterday_spend(self):
+        return self.aw_yspend + self.bing_yspend + self.fb_yspend
+
+    def rec_daily_spend(self):
+        now = datetime.datetime.today()
+        day_of_month = now.day - 1
+        f, days_in_month = calendar.monthrange(now.year, now.month)
+        days_remaining = days_in_month - day_of_month
+
+        return (self.budget - self.current_spend) / days_remaining
+
+    def avg_daily_spend(self):
+        now = datetime.datetime.today()
+        day_of_month = now.day - 1
+        return self.current_spend / day_of_month
+
+    @property
+    def project_average(self):
+        return self.hybrid_projection(1)
+
+    @property
+    def project_yesterday(self):
+        return self.hybrid_projection(0)
+
+
+    def hybrid_projection(self, method):
+        projection = self.current_spend
+        now = datetime.datetime.today()
+        day_of_month = now.day - 1
+        f, days_in_month = calendar.monthrange(now.year, now.month)
+        days_remaining = days_in_month - day_of_month
+        if (method == 0): # Project based on yesterday
+            projection += (self.yesterday_spend * days_remaining)
+        elif (method == 1):
+            projection += ((self.current_spend / day_of_month) * days_remaining)
+
+        return projection
+
+    yesterday_spend = property(yesterday_spend)
+    avg_daily_spend = property(avg_daily_spend)
+    rec_daily_spend = property(rec_daily_spend)
     current_spend = property(current_spend)
 
 class Budget(models.Model):

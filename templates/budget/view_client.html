@@ -1347,6 +1347,21 @@
             $("#campaigns_" + gr_id).toggle("slow");
         }
 
+        function toggleCgrProjection(gr_id) {
+            let cgr_proj_toggle = $("#cgr_proj_" + gr_id);
+            let as_proj = $('#cgr_as_' + gr_id);
+            let ys_proj = $('#cgr_ys_' + gr_id);
+
+            cgr_proj_toggle.change(function () {
+                if($(this).is(':checked')){
+                    as_proj.show();
+                    ys_proj.hide();
+                } else {
+                    as_proj.hide();
+                    ys_proj.show();
+                }
+            })
+        }
 
         //document.addEventListener("DOMContentLoaded", function (event) {
         //    let data = chdata|safe;

@@ -272,6 +272,7 @@ class Campaign(models.Model):
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
+    campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
     campaign_serving_status = models.CharField(max_length=255, default='None')

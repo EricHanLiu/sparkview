@@ -336,6 +336,35 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
         'Spend'
     ]
 
+    today = datetime.today() - relativedelta(days=1)
+    ys = today -relativedelta(days=1)
+    yesterday = helper.create_daterange(ys, ys)
+
+    ys_report = helper.get_campaign_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="campaign_stats_tm",
+        extra_fields=fields,
+        **yesterday
+    )
+
+    ys_stats = helper.map_campaign_stats(ys_report)
+
+    for k, v in ys_stats.items():
+
+        campaign_id = v[0]['campaignid']
+        campaign_name = v[0]['campaignname']
+        campaign_cost = float(v[0]['spend'])
+
+        cmp, created = BingCampaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign_id,
+            campaign_name=campaign_name
+        )
+
+        cmp.campaign_yesterday_cost_cost = campaign_cost
+        cmp.save()
+
     report = helper.get_campaign_performance(
         account_id,
         dateRangeType="CUSTOM_DATE",
@@ -387,6 +416,7 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                             gr.save()
 
                 gr.bing_spend = 0
+                gr.bing_yspend = 0
 
                 if gr.start_date:
 
@@ -412,6 +442,7 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                 else:
                     for cmp in gr.bing_campaigns.all():
                         gr.bing_spend += cmp.campaign_cost
+                        gr.bing_yspend += cmp.campaign_yesterday_cost
                         gr.save()
 
 

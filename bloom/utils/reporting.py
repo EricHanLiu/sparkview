@@ -1121,11 +1121,11 @@ class AdwordsReporting(Reporting):
 
 
     def mcv(self, cost):
-        cost = float(cost)
-        if cost > 0:
-            cost = cost / 1000000
+        c = float(cost)
+        if c > 0:
+            c = float(cost) / 1000000
 
-        return cost
+        return c
 
     def calculate_ovu(self, estimated_spend, desired_spend):
         return (int(estimated_spend) / int(desired_spend)) * 100

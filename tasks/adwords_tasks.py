@@ -430,6 +430,8 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
 
     cmps = []
 
+    yesterday_spend = 0
+
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
@@ -441,23 +443,35 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
         **daterange
     )
 
+    campaigns_yesterday = helper.get_campaign_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="YESTERDAY"
+    )
+
+    for c in campaigns_yesterday:
+        cmp, created = Campaign.objects.get_or_create(
+            account=account,
+            campaign_id=c['campaign_id']
+        )
+        cmp.campaign_yesterday_cost = helper.mcv(c['cost'])
+        cmp.save()
+
     for campaign in campaign_this_month:
-        cost = helper.mcv(campaign['cost'])
         cmp, created = Campaign.objects.get_or_create(
             account=account,
             campaign_id=campaign['campaign_id']
         )
-        cmp.campaign_cost = cost
+        cmp.campaign_cost = helper.mcv(campaign['cost'])
         cmp.campaign_name = campaign['campaign']
         cmp.campaign_status = campaign['campaign_state']
         cmp.campaign_serving_status = campaign['campaign_serving_status']
         cmp.save()
 
         cmps.append(cmp)
-        if created:
-            print('Added to DB - [' + cmp.campaign_name + '].')
-        else:
-            print('Matched in DB - [' + cmp.campaign_name + '].')
+        # if created:
+        #     print('Added to DB - [' + cmp.campaign_name + '].')
+        # else:
+        #     print('Matched in DB - [' + cmp.campaign_name + '].')
 
     if client_id is not None:
         cl_acc = Client.objects.get(id=client_id)
@@ -478,6 +492,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                             gr.save()
 
                 gr.aw_spend = 0
+                gr.aw_yspend = 0
 
                 if gr.start_date:
                     campaigns = []
@@ -505,6 +520,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                 else:
                     for cmp in gr.aw_campaigns.all():
                         gr.aw_spend += cmp.campaign_cost
+                        gr.aw_yspend += cmp.campaign_yesterday_cost
                         gr.save()
 
 
@@ -1004,7 +1020,7 @@ def adwords_account_not_running(self, customer_id):
             nr_data.append({
                 'campaign': remove_accents(item['campaign']),
                 'impressions': item['impressions'],
-                'cost': int(item['cost'])/1000000
+                'cost': helper.mcv(item['cost'])
             })
 
     nr_no = len(nr_data)
