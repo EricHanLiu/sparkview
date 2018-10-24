@@ -33,7 +33,10 @@ ALLOWED_HOSTS = [
     'localhost',
     'app.mibhub.com',
 ]
-ADMINS = [('Octavian','octavian@hdigital.io')]
+ADMINS = [
+    ('Octavian','octavian@hdigital.io'),
+    ('Bloom Dev', 'dev@makeitbloom.com')
+]
 # Application definition
 
 INSTALLED_APPS = [
