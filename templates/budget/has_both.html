@@ -299,7 +299,7 @@
                                                 </div>
                                             {% endif %}
 
-                                            <div class="progress m-progress--lg">
+                                            <div class="progress m-progress--lg" style="position: relative;!important;">
                                                 <div class="progress-bar
                                                         {{ gr.current_spend|percentage:gr.budget }}"
                                                      role="progressbar"
@@ -310,6 +310,11 @@
                                                      title=""
                                                      data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
                                                     {% widthratio gr.current_spend gr.budget 100 %}%
+                                                </div>
+                                                <div class="black-marker"
+                                                     style="width: {{ blackmarker }}%"
+                                                     aria-valuenow="{{ blackmarker }}"
+                                                     aria-valuemin="0" aria-valuemax="100">
                                                 </div>
                                             </div>
                                             <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in
