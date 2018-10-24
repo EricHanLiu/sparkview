@@ -75,7 +75,7 @@ def check_spend_acc(account):
                     'account': account.dependent_account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -86,7 +86,7 @@ def check_spend_acc(account):
                     'account': account.account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -99,7 +99,7 @@ def check_spend_acc(account):
                     'account': account.dependent_account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -123,7 +123,7 @@ def check_spend_acc(account):
                     'account': account.dependent_account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -134,7 +134,7 @@ def check_spend_acc(account):
                     'account': account.account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -149,7 +149,7 @@ def check_spend_acc(account):
                     'account': account.dependent_account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -160,7 +160,7 @@ def check_spend_acc(account):
                     'account': account.account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -173,7 +173,7 @@ def check_spend_acc(account):
                     'account': account.dependent_account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -184,7 +184,7 @@ def check_spend_acc(account):
                     'account': account.account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -197,7 +197,7 @@ def check_spend_acc(account):
                     'account': account.dependent_account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -208,7 +208,7 @@ def check_spend_acc(account):
                     'account': account.account_name,
                     'estimated': percentage,
                     'budget': account.desired_spend,
-                    'current_spend': account.current_spend,
+                    'current_spend': round(account.current_spend, 2),
                     'channel': account.channel,
                     'average_projected': round(average_projected, 2),
                     'ys_projected': round(ys_projected, 2)
@@ -230,7 +230,7 @@ def check_spend_members(member):
             details = {
                 'account': acc.client_name,
                 'budget': acc.budget,
-                'current_spend': acc.current_spend,
+                'current_spend': round(acc.current_spend, 2),
                 'channel': 'Flex',
                 'average_projected': round(average_projected, 2),
                 'ys_projected': round(ys_projected, 2)
