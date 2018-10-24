@@ -31,6 +31,8 @@
                             {% for a in aw %}
                                 {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
+                        {% else %}
+                            No AdWords Account
                         {% endif %}">A</span>
                 <span class="m-badge {% if bing %}m-badge--success{% endif %}"
                       data-toggle="m-tooltip"
@@ -39,6 +41,8 @@
                             {% for b in bing %}
                                 {{ b.account_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
+                        {% else %}
+                            No Bing Account
                         {% endif %}">B</span>
                 <span class="m-badge {% if fb %}m-badge--info{% endif %}"
                       data-toggle="m-tooltip"
@@ -47,6 +51,8 @@
                             {% for f in fb %}
                                 {{ f.account_name }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
+                        {% else %}
+                            No Facebook Account
                         {% endif %}">F</span>
             {% endwith %}
         </div>
