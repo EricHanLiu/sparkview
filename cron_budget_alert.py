@@ -32,191 +32,224 @@ remaining = days - current_day
 
 
 # 99% - budget protection script
+mail_details = {}
+under = []
+over = []
+nods = []
+on_pace = []
 
-def check_spend(accounts, user):
-    under = []
-    over = []
-    nods = []
-    on_pace = []
-    flex = []
+def check_spend_acc(account):
 
-    members = Member.objects.all()
-    for member in members:
-        if member.user == user:
-            accs = member.get_accounts()
-            print(accs)
-            for acc in accs:
-                if acc.flex_budget > 0:
+    spend = account.current_spend
+    ys_projected = account.yesterday_spend * remaining + spend
+    average_projected = ((account.current_spend / current_day) * remaining) + account.current_spend
 
-                    average_projected = ((acc.current_spend / current_day) * remaining) + acc.current_spend
-                    ys_projected = acc.yesterday_spend * remaining + acc.current_spend
+    try:
+        percentage = (average_projected * 100) / account.desired_spend
+    except ZeroDivisionError:
+        percentage = 0
 
-                    details = {
-                        'client': acc.client_name,
-                        'budget': acc.budget,
-                        'current_spend': acc.current_spend,
-                        'average_projected': round(average_projected, 2),
-                        'ys_projected': round(ys_projected, 2)
-                    }
-                    flex.append(details)
+    if account.desired_spend == 0:
 
-    for account in accounts:
+        if account.channel == 'adwords':
 
-        spend = account.current_spend
-        projected = account.yesterday_spend * remaining + spend
+            details = {
+                'account': account.dependent_account_name,
+                'budget': account.desired_spend,
+                'channel': account.channel
+            }
+            nods.append(details)
+        else:
+            details = {
+                'account': account.account_name,
+                'budget': account.desired_spend,
+                'channel': account.channel
+            }
+            nods.append(details)
 
-        try:
-            percentage = (projected * 100) / account.desired_spend
-        except ZeroDivisionError:
-            percentage = 0
-
-        if account.desired_spend == 0:
-
+    elif account.desired_spend <= 10000:
+        if percentage < 90:
             if account.channel == 'adwords':
 
                 details = {
                     'account': account.dependent_account_name,
+                    'estimated': percentage,
                     'budget': account.desired_spend,
-                    'channel': account.channel
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
                 }
-                nods.append(details)
+                under.append(details)
             else:
                 details = {
                     'account': account.account_name,
+                    'estimated': percentage,
                     'budget': account.desired_spend,
-                    'channel': account.channel
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
                 }
-                nods.append(details)
-        elif account.desired_spend <= 10000:
-            if percentage < 90:
-                if account.channel == 'adwords':
+                under.append(details)
 
-                    details = {
-                        'account': account.dependent_account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    under.append(details)
-                else:
-                    details = {
-                        'account': account.account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    under.append(details)
-            elif percentage > 99:
-                if account.channel == 'adwords':
-                    details = {
-                        'account': account.dependent_account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    over.append(details)
-                else:
-                    details = {
-                        'account': account.account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    over.append(details)
-            elif 90 > percentage < 99:
-                if account.channel == 'adwords':
-                    details = {
-                        'account': account.dependent_account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    on_pace.append(details)
-                else:
-                    details = {
-                        'account': account.account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    on_pace.append(details)
-        elif account.desired_spend > 10000:
-            if percentage < 95:
-                if account.channel == 'adwords':
+        elif percentage > 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
 
-                    details = {
-                        'account': account.dependent_account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    under.append(details)
-                else:
-                    details = {
-                        'account': account.account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    under.append(details)
-            elif percentage > 99:
-                if account.channel == 'adwords':
-                    details = {
-                        'account': account.dependent_account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    over.append(details)
-                else:
-                    details = {
-                        'account': account.account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    over.append(details)
-            elif 95 > percentage < 99:
-                if account.channel == 'adwords':
-                    details = {
-                        'account': account.dependent_account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    on_pace.append(details)
-                else:
-                    details = {
-                        'account': account.account_name,
-                        'estimated': percentage,
-                        'budget': account.desired_spend,
-                        'current_spend': account.current_spend,
-                        'channel': account.channel,
-                        'projected': round(projected, 2)
-                    }
-                    on_pace.append(details)
+        elif 90 > percentage < 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+
+    elif account.desired_spend > 10000:
+        if percentage < 95:
+            if account.channel == 'adwords':
+
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                under.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                under.append(details)
+
+        elif percentage > 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+
+        elif 95 > percentage < 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+
+def check_spend_members(member):
+
+    flex = []
+
+    accs = member.get_accounts()
+
+    for acc in accs:
+        if acc.flex_budget > 0:
+
+            average_projected = ((acc.current_spend / current_day) * remaining) + acc.current_spend
+            ys_projected = acc.yesterday_spend * remaining + acc.current_spend
+
+            details = {
+                'account': acc.client_name,
+                'budget': acc.budget,
+                'current_spend': acc.current_spend,
+                'channel': 'Flex',
+                'average_projected': round(average_projected, 2),
+                'ys_projected': round(ys_projected, 2)
+            }
+            flex.append(details)
+
+        else:
+            adwords = acc.adwords.all()
+            bing = acc.bing.all()
+            facebook = acc.facebook.all()
+
+            final_ = list(chain(
+                adwords,
+                bing,
+                facebook
+            ))
+
+            for a in final_:
+                check_spend_acc(a)
 
     mail_details = {
         'under': under,
@@ -224,9 +257,9 @@ def check_spend(accounts, user):
         'nods': nods,
         'on_pace': on_pace,
         'flex': flex,
-        'user': user.get_full_name()
+        'user': member.user.get_full_name()
     }
-
+    print(mail_details)
     return mail_details
 
 
@@ -267,48 +300,24 @@ def check_spend(accounts, user):
 
 
 def budget_breakfast():
-    users = User.objects.all()
 
-    for user in users:
-        aw_accounts = DependentAccount.objects.filter(assigned_to=user)
-        aw_cm2 = DependentAccount.objects.filter(assigned_cm2=user)
-        aw_cm3 = DependentAccount.objects.filter(assigned_cm3=user)
-        aw_am = DependentAccount.objects.filter(assigned_am=user)
+    members = Member.objects.all()
 
-        bing_accounts = BingAccounts.objects.filter(assigned_to=user)
-        bing_cm2 = BingAccounts.objects.filter(assigned_cm2=user)
-        bing_cm3 = BingAccounts.objects.filter(assigned_cm3=user)
-        bing_am = BingAccounts.objects.filter(assigned_am=user)
-
-        fb_accounts = FacebookAccount.objects.filter(assigned_to=user)
-        fb_cm2 = FacebookAccount.objects.filter(assigned_cm2=user)
-        fb_cm3 = FacebookAccount.objects.filter(assigned_cm3=user)
-        fb_am = FacebookAccount.objects.filter(assigned_am=user)
-
-        accounts = list(chain(
-            aw_accounts,
-            aw_cm2,
-            aw_cm3,
-            aw_am,
-            bing_accounts,
-            bing_cm2,
-            bing_cm3,
-            bing_am,
-            fb_accounts,
-            fb_cm2,
-            fb_cm3,
-            fb_am
-        ))
-
-        mail_details = check_spend(accounts, user)
+    for member in members:
+        mail_details = check_spend_members(member)
 
         msg_html = render_to_string(settings.TEMPLATE_DIR + '/mails/budget_breakfast.html', mail_details)
 
         send_mail(
             'Daily budget report', msg_html,
-            settings.EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=msg_html
+            settings.EMAIL_HOST_USER, [member.user.email], fail_silently=False, html_message=msg_html
         )
         print('Mail sent!')
+
+        del under[:]
+        del over[:]
+        del nods[:]
+        del on_pace[:]
 
 
 # def budget_protection(client):
