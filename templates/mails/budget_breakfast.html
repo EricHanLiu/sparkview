@@ -10,6 +10,35 @@
 
 <div class="portlet"
      style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">Clients with flex budget:</h4>
+    <table style="background: #FFF; text-align: center; width: 100%;">
+        <tr>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Client Name</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Current Spend</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM(Average)</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM(Yesterday Spend)</th>
+
+        </tr>
+        {% for a in flex %}
+            <tr>
+                <td style="border: 1px solid #e2e2e2;">{{ a.client }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.budget }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.average_projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.ys_projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No account will overspend. :)</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+<div class="portlet"
+     style="padding: .1em; box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
     <h4 style="text-align: center; color: #444;">Accounts flagged to over or underspend:</h4>
     <table style="background: #FFF; text-align: center; width: 100%;">
         <tr>

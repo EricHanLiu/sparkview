@@ -18,6 +18,7 @@ from itertools import chain
 from adwords_dashboard.models import DependentAccount
 from bing_dashboard.models import BingAccounts
 from facebook_dashboard.models import FacebookAccount
+from user_management.models import Member
 
 logging.basicConfig(level=logging.INFO)
 
@@ -37,6 +38,27 @@ def check_spend(accounts, user):
     over = []
     nods = []
     on_pace = []
+    flex = []
+
+    members = Member.objects.all()
+    for member in members:
+        if member.user == user:
+            accs = member.get_accounts()
+            print(accs)
+            for acc in accs:
+                if acc.flex_budget > 0:
+
+                    average_projected = ((acc.current_spend / current_day) * remaining) + acc.current_spend
+                    ys_projected = acc.yesterday_spend * remaining + acc.current_spend
+
+                    details = {
+                        'client': acc.client_name,
+                        'budget': acc.budget,
+                        'current_spend': acc.current_spend,
+                        'average_projected': round(average_projected, 2),
+                        'ys_projected': round(ys_projected, 2)
+                    }
+                    flex.append(details)
 
     for account in accounts:
 
@@ -51,6 +73,7 @@ def check_spend(accounts, user):
         if account.desired_spend == 0:
 
             if account.channel == 'adwords':
+
                 details = {
                     'account': account.dependent_account_name,
                     'budget': account.desired_spend,
@@ -200,6 +223,7 @@ def check_spend(accounts, user):
         'over': over,
         'nods': nods,
         'on_pace': on_pace,
+        'flex': flex,
         'user': user.get_full_name()
     }
 
@@ -278,7 +302,6 @@ def budget_breakfast():
 
         mail_details = check_spend(accounts, user)
 
-        print(mail_details)
         msg_html = render_to_string(settings.TEMPLATE_DIR + '/mails/budget_breakfast.html', mail_details)
 
         send_mail(
