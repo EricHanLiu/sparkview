@@ -49,6 +49,26 @@
                 <td>No account will underspend. :)</td>
             </tr>
         {% endfor %}
+
+        {% for c in flex %}
+            <tr>
+                <td style="border: 1px solid #e2e2e2;">{{ c.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.channel|title }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.budget }}</td>
+                <td style="border: 1px solid #e2e2e2;
+                {% if c.average_projected > c.budget %}
+                    background: red;
+                {% elif c.average_projected < c.budget%}
+                    background: orange;
+                {% endif %}">{{ c.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.average_projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.ys_projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No account will underspend/overspend. :)</td>
+            </tr>
+        {% endfor %}
     </table>
 
 </div>

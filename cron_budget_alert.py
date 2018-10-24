@@ -259,7 +259,7 @@ def check_spend_members(member):
         'flex': flex,
         'user': member.user.get_full_name()
     }
-    print(mail_details)
+
     return mail_details
 
 
