@@ -433,6 +433,99 @@
           </div>
         </div>
       </div>
+
+      <!-- Promos -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                <a href="/budget/client/{{ account.id }}">Budget Information</a>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="row m-row--no-padding m-row--col-separator-xl">
+            <div class="col-md-12 col-lg-12 col-xl-6">
+              <div class="m-widget1">
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Total Budget</h3>
+                      <span class="m-widget1__desc">Total monthy budget</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-brand">${{ account.current_budget|format_money }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Spend This Month</h3>
+                      <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-danger">${{ account.current_spend|format_money }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Budget Remaining</h3>
+                      <span class="m-widget1__desc">Left to spend this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget|format_money }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12 col-lg-12 col-xl-6">
+              <div class="m-widget1">
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Allocated Hours This Month</h3>
+                      <span class="m-widget1__desc">All hours allocated this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-info">{{ account.allHours|floatformat }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Hours Worked This Month</h3>
+                      <span class="m-widget1__desc">All hours worked this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth|floatformat }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Hours Remaining This Month</h3>
+                      <span class="m-widget1__desc">All hours remaining this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth|floatformat }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End promos -->
+
     </div>
   </div>
 </div>

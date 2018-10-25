@@ -211,7 +211,7 @@ class Client(models.Model):
         Loops through every interval in the management fee structure, determines
         """
         if not hasattr(self, '_ppcFee'):
-            fee = fee = self.get_fee_by_spend(self.current_budget)
+            fee = self.get_fee_by_spend(self.current_budget)
             # if (self.management_fee_override != None and self.management_fee_override != 0.0):
             #     fee = self.management_fee_override
             # elif (self.managementFee != None):
@@ -241,7 +241,7 @@ class Client(models.Model):
                         fee = spend * (feeInterval.fee / 100.0)
                         break
                     elif (feeInterval.feeStyle == 1):
-                        fee = spend
+                        fee = feeInterval.fee
                         break
         return fee
 
@@ -299,6 +299,21 @@ class Client(models.Model):
             flex_spend += (self.bing_spend - self.bing_budget)
 
         return flex_spend
+
+
+    @property
+    def has_adwords(self):
+        return self.adwords != None
+
+
+    @property
+    def has_bing(self):
+        return self.bind != None
+
+
+    @property
+    def has_fb(self):
+        return self.fb != None
 
 
     @property

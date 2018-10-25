@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, Language, ClientType, Industry, ManagementFeesStructure, ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord
+from .models import MonthlyReport, Service, Language, ClientType, Industry, ManagementFeesStructure, ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord
 
 
 @admin.register(Service)
@@ -44,4 +44,9 @@ class ManagementFeeIntervalAdmin(admin.ModelAdmin):
 
 @admin.register(AccountHourRecord)
 class AccountHourRecordAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(MonthlyReport)
+class MonthlyReportAdmin(admin.ModelAdmin):
     pass

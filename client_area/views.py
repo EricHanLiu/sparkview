@@ -3,11 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 from django.db.models import Q
+from django.db.models.functions import Now
+from django.utils import timezone
 import calendar, datetime
 
 from budget.models import Client
 from user_management.models import Member, Team
-from .models import ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
+from .models import MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
 from .forms import NewClientForm
 
 
@@ -753,21 +755,82 @@ def confirm_sent_am(request):
     """
     Sets a report's 'sent to am' date
     """
+    if (request.method == 'GET'):
+        return HttpResponse('Invalid request')
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
-    pass
+
+    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
+    print(report.report_name)
+    report.date_sent_to_am = timezone.now()
+    report.save()
+
+    resp = {}
+    resp['response'] = report.date_sent_to_am
+
+    return JsonResponse(resp)
 
 @login_required
 def confirm_sent_client(request):
     """
     Sets a report's 'sent to client' date
     """
+    if (request.method == 'GET'):
+        return HttpResponse('Invalid request')
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
-    pass
+
+    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
+
+    report.date_sent_by_am = timezone.now()
+    report.save()
+
+    resp = {}
+    resp['response'] = report.date_sent_by_am
+
+    return JsonResponse(resp)
+
+
+@login_required
+def set_due_date(request):
+    """
+    Sets a report's due date
+    """
+    if (request.method == 'GET'):
+        return HttpResponse('Invalid request')
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    account = Client.objects.get(id=account_id)
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
+
+    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%Y-%m-%d")
+    report.save()
+
+    resp = {}
+    resp['response'] = report.due_date
+
+    return JsonResponse(resp)
+
+
+@login_required
+def new_promo(request):
+    """
+    Creates a new promo
+    """
+    if (request.method == 'GET'):
+        return HttpResponse('Invalid request')
+    account_id = request.POST.get('account_id')
+    account = Client.objects.get(id=account_id)
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    

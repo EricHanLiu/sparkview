@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from django.core import serializers
 from django.db.models import Q
+from django.utils import timezone
 import datetime
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry
@@ -392,6 +393,22 @@ def members_single(request, id):
         backupAccountAllocation[account.id] = 0
         backupAccountHours[account.id] = hours
 
+    reporting_period = now.day <= 31
+    reports = []
+
+    # Reports
+    if (reporting_period):
+        active_accounts = accounts.filter(status=1)
+        for account in active_accounts:
+            report, created = MonthlyReport.objects.get_or_create(account=account, month=month, year=year)
+            if (created):
+                if (account.tier == 1):
+                    report.report_type = 2 # Advanced
+                else:
+                    report.report_type = 1 # Standard
+                report.save()
+            reports.append(report)
+
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
     context = {
@@ -405,7 +422,9 @@ def members_single(request, id):
         'accounts'       : accounts,
         'backupAccounts' : backupAccounts,
         'scoreBadges'    : scoreBadges,
-        'incidents'               : incidents
+        'incidents' : incidents,
+        'reporting_period' : reporting_period,
+        'reports' : reports
     }
 
     return render(request, 'user_management/profile.html', context)

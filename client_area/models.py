@@ -116,17 +116,33 @@ class MonthlyReport(models.Model):
     report_type = models.IntegerField(default=1, choices=REPORT_TYPE_CHOICES)
     report_services = models.IntegerField(default=0, choices=REPORT_SERVICES)
     due_date = models.DateTimeField(blank=True, null=True)
-    date_received_by_am = models.DateTimeField(blank=True, null=True)
+    date_sent_to_am = models.DateTimeField(blank=True, null=True)
     date_sent_by_am = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
+    def report_name(self):
+        return self.account.client_name + ' ' + calendar.month_name[self.month] + ' Report'
+
+    @property
     def received_by_am(self):
-        return self.date_received_by_am != None
+        return self.date_sent_to_am != None
 
     @property
     def sent_by_am(self):
         return self.date_sent_by_am != None
 
     def __str__(self):
-        return self.account.name + ' ' + self.month + '/' + self.year
+        return self.report_name
+
+class Promo(models.Model):
+    """
+    A promo represents a promotion that a client is running. Purpose of this model is to remind members of important budget changes for their clients
+    """
+    name = models.CharField(max_length=255)
+    account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+
+    def __str__(self):
+        return self.name
