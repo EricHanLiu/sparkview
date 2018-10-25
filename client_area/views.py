@@ -621,6 +621,10 @@ def add_hours_to_account(request):
                 return HttpResponse('You do not have permission to add hours to this account')
             member     = Member.objects.get(user=request.user)
             hours      = request.POST.get('hours-' + i)
+            try:
+                hours = float(hours)
+            except:
+                continue
             month      = request.POST.get('month-' + i)
             year       = request.POST.get('year-' + i)
 
@@ -832,5 +836,3 @@ def new_promo(request):
     account = Client.objects.get(id=account_id)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
-
-    
