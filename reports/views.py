@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
 from client_area.models import AccountHourRecord
 from budget.models import Client
@@ -88,7 +88,9 @@ def cm_capacity(request):
         return HttpResponse('You do not have permission to view this page')
 
     # Probably has to be changed before production
-    role = Role.objects.filter(name='CM')
+    # This badly has to be fixed when we implement proper roles
+    # TODO: Make this reasonable
+    role = Role.objects.filter(Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(name='PPC Team Lead'))
     members = Member.objects.filter(role=role)
 
     actual_aggregate = AccountHourRecord.objects.filter(member__in=members, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
@@ -120,7 +122,7 @@ def am_capacity(request):
         return HttpResponse('You do not have permission to view this page')
 
     # Probably has to be changed before production
-    role = Role.objects.filter(name='AM')
+    role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
     members = Member.objects.filter(role=role)
 
     actual_aggregate = AccountHourRecord.objects.filter(member__in=members, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
@@ -152,7 +154,7 @@ def seo_capacity(request):
         return HttpResponse('You do not have permission to view this page')
 
     # Probably has to be changed before production
-    role = Role.objects.filter(name='SEO')
+    role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
     members = Member.objects.filter(role=role)
 
     actual_aggregate = AccountHourRecord.objects.filter(member__in=members, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
