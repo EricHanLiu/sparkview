@@ -93,11 +93,12 @@ def cm_capacity(request):
     role = Role.objects.filter(Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(name='PPC Team Lead'))
     members = Member.objects.filter(role=role)
 
-    actual_aggregate = AccountHourRecord.objects.filter(member__in=members, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
 
     for member in members:
+        actual_aggregate += member.actualHoursThisMonth
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
@@ -125,11 +126,12 @@ def am_capacity(request):
     role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
     members = Member.objects.filter(role=role)
 
-    actual_aggregate = AccountHourRecord.objects.filter(member__in=members, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
 
     for member in members:
+        actual_aggregate += member.actualHoursThisMonth
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
@@ -157,11 +159,12 @@ def seo_capacity(request):
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
     members = Member.objects.filter(role=role)
 
-    actual_aggregate = AccountHourRecord.objects.filter(member__in=members, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
 
     for member in members:
+        actual_aggregate += member.actualHoursThisMonth
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
