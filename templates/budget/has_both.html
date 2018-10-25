@@ -1,544 +1,640 @@
-<!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% load template_filters %} {% load humanize %} {% block view_client_block %}
+<!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% load template_filters %} {% load humanize %}
+{% block view_client_block %}
 
 
 
 
     <div class="m-accordion__item">
-        <div class="m-accordion__item-head collapsed" role="tab"
-             id="m_accordion_1_item_1_head" data-toggle="expand"
-             href="#m_accordion_1_item_1_body">
-            <h3 class="m-accordion__item-title">
-                <a href="/clients/accounts/{{ client_data.id }}">{{ client_data.client_name }}</a>
-                <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:client_data.status }}" data-toggle="m-tooltip" data-original-title="{{ client_data.get_status_display }}"></span>
-                <span class="la 	la-edit"
-                      data-toggle="modal"
-                      data-target="#m_edit_cname"
-                      data-clientid="{{ client_data.id }}"
-                      data-cname="{{ client_data.client_name }}">
+    <div class="m-accordion__item-head collapsed" role="tab"
+         id="m_accordion_1_item_1_head" data-toggle="expand"
+         href="#m_accordion_1_item_1_body">
+        <h3 class="m-accordion__item-title">
+            <a href="/clients/accounts/{{ client_data.id }}">{{ client_data.client_name }}</a>
+            <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:client_data.status }}"
+                  data-toggle="m-tooltip" data-original-title="{{ client_data.get_status_display }}"></span>
+            <span class="la 	la-edit"
+                  data-toggle="modal"
+                  data-target="#m_edit_cname"
+                  data-clientid="{{ client_data.id }}"
+                  data-cname="{{ client_data.client_name }}">
                 </span>
-                <span class="la la-plus" data-toggle="modal" data-target="#m_assign_accounts"></span>
-                <span class="float-right" style="font-size: 15px">{{ today }} of {{ no_of_days }} days</span><br/>
-                <span class="float-right" style="font-size: 15px">{{ remaining }} remaining days</span>
-            </h3>
-            <div class="m--space-30"></div>
+            <span class="la la-plus" data-toggle="modal" data-target="#m_assign_accounts"></span>
+            <span class="float-right" style="font-size: 15px">{{ today }} of {{ no_of_days }} days</span><br/>
+            <span class="float-right" style="font-size: 15px">{{ remaining }} remaining days</span>
+        </h3>
+        <div class="m--space-30">
+            {% with aw=client_data.adwords.all bing=client_data.bing.all fb=client_data.facebook.all %}
+                <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
+                      data-toggle="m-tooltip"
+                      data-original-title="
+                        {% if aw %}
+                            {% for a in aw %}
+                                {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            No AdWords Account
+                        {% endif %}">A</span>
+                <span class="m-badge {% if bing %}m-badge--success{% endif %}"
+                      data-toggle="m-tooltip"
+                      data-original-title="
+                        {% if bing %}
+                            {% for b in bing %}
+                                {{ b.account_name }}{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            No Bing Account
+                        {% endif %}">B</span>
+                <span class="m-badge {% if fb %}m-badge--info{% endif %}"
+                      data-toggle="m-tooltip"
+                      data-original-title="
+                        {% if fb %}
+                            {% for f in fb %}
+                                {{ f.account_name }}{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            No Facebook Account
+                        {% endif %}">F</span>
+            {% endwith %}
         </div>
+    </div>
 
-        <div class="m-accordion__item-body"
-             id="m_accordion_1_item_1_body"
-             role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
-             data-parent="#m_accordion_1" style="">
-            <div class="m-accordion__item-content">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded">
-                            <h5 class="m--padding-10">
-                                Budget
-                            </h5>
-                            <h1 class="text-center inner-text text-info">
-                                {{ client_data.currency }}{{ client_data.current_budget|floatformat:0|intcomma }}
-                            </h1>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded">
-                            <h5 class="m--padding-10">
-                                Spend
-                            </h5>
-                            <h1 class="text-center
+    <div class="m-accordion__item-body"
+         id="m_accordion_1_item_1_body"
+         role="tabpanel" aria-labelledby="m_accordion_1_item_1_head"
+         data-parent="#m_accordion_1" style="">
+    <div class="m-accordion__item-content">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                <h5 class="m--padding-10">
+                    Budget
+                </h5>
+                <h1 class="text-center inner-text text-info">
+                    {{ client_data.currency }}{{ client_data.current_budget|floatformat:0|intcomma }}
+                </h1>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                <h5 class="m--padding-10">
+                    Spend
+                </h5>
+                <h1 class="text-center
                                 {% if client_data.current_spend > client_data.current_budget %}
                                     m--font-danger
                                 {% else %}
                                     m--font-success
                                 {% endif %}
                                 inner-text">
-                                {{ client_data.currency }}{{ client_data.current_spend|floatformat:2|intcomma }}
-                            </h1>
-                        </div>
+                    {{ client_data.currency }}{{ client_data.current_spend|floatformat:2|intcomma }}
+                </h1>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                <div class="row">
+                    <div class="col-xl-4">
+                        <h5 class="m--padding-10">
+                            Projected
+                        </h5>
                     </div>
-                    <div class="col-md-4">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded">
-                          <div class="row">
-                            <div class="col-xl-4">
-                              <h5 class="m--padding-10">
-                                  Projected
-                              </h5>
-                            </div>
+                    <div class="col-xl-8">
+                        <div class="row">
                             <div class="col-xl-8">
-                              <div class="row">
-                                <div class="col-xl-8">
-                                  <label class="col-form-label" id="projectionDesc">Projecting with yesterday spend</label>
-                                </div>
-                                <div class="col-xl-4">
+                                <label class="col-form-label" id="projectionDesc">Projecting with yesterday
+                                    spend</label>
+                            </div>
+                            <div class="col-xl-4">
                                   <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
                                     <label>
                                       <input id="proj_check" type="checkbox" checked>
                                       <span></span>
                                     </label>
                                   </span>
-                                </div>
-                              </div>
                             </div>
-                          </div>
-                            <div id="projectionYesterday">
-                              {% with cprojected=client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected %}
-                              <h1 class="text-center {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
-                                  {{ client_data.currency }}{{ client_data.project_yesterday|floatformat:0|intcomma }}
-                              </h1>
-
-                            </div>
-                            <div id="projectionAverage" style="display:none;">
-                              <h1 class="text-center {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
-                                  {{ client_data.currency }}{{ client_data.project_average|floatformat:0|intcomma }}
-                              </h1>
-                            </div>
-                            {% endwith %}
                         </div>
                     </div>
                 </div>
+                <div id="projectionYesterday">
+                    {% with cprojected=client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected %}
+                        <h1 class="text-center
 
-                <div class="row bbox-row bg-white no-gutters">
-                    <div class="col-md-4">
-                        <h5 class="m--padding-20 text-center">
-                            Avg. Daily Spend
-                        </h5>
-                        <h1 class="text-center inner-text">
-                            {{ client_data.currency }}{{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|floatformat:2|intcomma }}
+                                {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
+                            {{ client_data.currency }}{{ client_data.project_yesterday|floatformat:0|intcomma }}
                         </h1>
+
+                        </div>
+                        <div id="projectionAverage" style="display:none;">
+                            <h1 class="text-center
+
+                                    {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
+                                {{ client_data.currency }}{{ client_data.project_average|floatformat:0|intcomma }}
+                            </h1>
+                        </div>
+                    {% endwith %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row bbox-row bg-white no-gutters">
+        <div class="col-md-4">
+            <h5 class="m--padding-20 text-center">
+                Avg. Daily Spend
+            </h5>
+            <h1 class="text-center inner-text">
+                {{ client_data.currency }}{{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|floatformat:2|intcomma }}
+            </h1>
+        </div>
+        <div class="col-md-4">
+            <h5 class="m--padding-20 text-center">
+                Recommended Daily Spend
+            </h5>
+            <h1 class="text-center inner-text">
+                {% if client_data.flex_budget > 0 %}
+                    {{ client_data.currency }}{{ client_data.rec_ds|floatformat:2|intcomma }}
+                {% else %}
+                    {% with rds=client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds %}
+                        {% if rds < 0 %}
+                            {{ client_data.currency }}0
+                        {% else %}
+                            {{ client_data.currency }}{{ rds|floatformat:2|intcomma }}
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            </h1>
+        </div>
+        <div class="col-md-4">
+            <h5 class="m--padding-20 text-center">
+                Yesterday Spend
+            </h5>
+            <h1 class="text-center inner-text">
+                {{ client_data.currency }}{{ client_data.yesterday_spend|floatformat:0|intcomma }}
+            </h1>
+        </div>
+    </div>
+    <div class="m--space-30"></div>
+    <div class="m-accordion m-accordion--bordered m-accordion--solid" id="m_accordion_4"
+         role="tablist">
+
+        <!--begin::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_1_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_1_body" aria-expanded="false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">Budget conditions</span>
+
+                <span class="m-accordion__item-mode"></span>
+            </div>
+
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_1_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_1_head"
+                 data-parent="#m_accordion_4" style="">
+                <div class="m-accordion__item-content">
+                    <div class="m-checkbox-inline" id="chart-options">
+                        {% for a in client_data.adwords.all %}
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="A - {{ a.dependent_account_name }} Spend"> A
+                                - {{ a.dependent_account_name }} Spend
+                                <span></span>
+                            </label>
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="A - {{ a.dependent_account_name }} Budget"> A
+                                - {{ a.dependent_account_name }} Budget
+                                <span></span>
+                            </label>
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="A - {{ a.dependent_account_name }} Projected"> A
+                                - {{ a.dependent_account_name }} Projected
+                                <span></span>
+                            </label>
+                        {% endfor %}
+                        {% for b in client_data.bing.all %}
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="B - {{ b.account_name }} Spend"> B - {{ b.account_name }}
+                                Spend
+                                <span></span>
+                            </label>
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="B - {{ b.account_name }} Budget"> B - {{ b.account_name }}
+                                Budget
+                                <span></span>
+                            </label>
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="B - {{ b.account_name }} Projected"> B
+                                - {{ b.account_name }} Projected
+                                <span></span>
+                            </label>
+                        {% endfor %}
+                        {% for f in client_data.facebook.all %}
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="F - {{ f.account_name }} Spend"> F - {{ f.account_name }}
+                                Spend
+                                <span></span>
+                            </label>
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="F - {{ f.account_name }} Budget"> F - {{ f.account_name }}
+                                Budget
+                                <span></span>
+                            </label>
+                            <label class="m-checkbox">
+                                <input type="checkbox" name="F - {{ f.account_name }} Projected"> F
+                                - {{ f.account_name }} Projected
+                                <span></span>
+                            </label>
+                        {% endfor %}
+                        <label class="m-checkbox">
+                            <input type="checkbox" name="Global Target Spend">Global Target Spend
+                            <span></span>
+                        </label>
                     </div>
-                    <div class="col-md-4">
-                        <h5 class="m--padding-20 text-center">
-                            Recommended Daily Spend
-                        </h5>
-                        <h1 class="text-center inner-text">
-                            {% if client_data.flex_budget > 0 %}
-                                {{ client_data.currency }}{{ client_data.rec_ds|floatformat:2|intcomma }}
-                            {% else %}
-                                {% with rds=client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds %}
-                                    {% if rds < 0 %}
-                                        {{ client_data.currency }}0
-                                    {% else %}
-                                        {{ client_data.currency }}{{ rds|floatformat:2|intcomma }}
-                                    {% endif %}
-                                {% endwith %}
-                            {% endif %}
-                        </h1>
-                    </div>
-                    <div class="col-md-4">
-                        <h5 class="m--padding-20 text-center">
-                            Yesterday Spend
-                        </h5>
-                        <h1 class="text-center inner-text">
-                            {{ client_data.currency }}{{ client_data.yesterday_spend|floatformat:0|intcomma }}
-                        </h1>
+                    <div class="m--space-15"></div>
+                    <button class="btn m-btn--pill m-btn--air btn-secondary btn-sm"
+                            onclick="gen_chart({{ chdata|safe }})">
+                        Generate chart
+                    </button>
+                    <div id="myChart">
+                        <canvas id="spendChart"></canvas>
                     </div>
                 </div>
-                <div class="m--space-30"></div>
-                <div class="m-accordion m-accordion--bordered m-accordion--solid" id="m_accordion_4"
-                     role="tablist">
+            </div>
+        </div>
+        <!--end::Item-->
 
-                    <!--begin::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_1_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_1_body" aria-expanded="false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Budget conditions</span>
+        <!--begin::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_2_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_2_body" aria-expanded="    false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">Campaign Groups</span>
 
-                            <span class="m-accordion__item-mode"></span>
-                        </div>
+                <span class="m-accordion__item-mode"></span>
+            </div>
 
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_1_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_1_head"
-                             data-parent="#m_accordion_4" style="">
-                            <div class="m-accordion__item-content">
-                                <div class="m-checkbox-inline" id="chart-options">
-                                    {% for a in client_data.adwords.all %}
-                                        <label class="m-checkbox">
-                                            <input type="checkbox" name="A - {{ a.dependent_account_name }} Spend"> A - {{ a.dependent_account_name }} Spend
-                                            <span></span>
-                                        </label>
-                                        <label class="m-checkbox">
-                                            <input type="checkbox" name="A - {{ a.dependent_account_name }} Budget"> A - {{ a.dependent_account_name }} Budget
-                                            <span></span>
-                                        </label>
-                                        <label class="m-checkbox">
-                                            <input type="checkbox" name="A - {{ a.dependent_account_name }} Projected"> A - {{ a.dependent_account_name }} Projected
-                                            <span></span>
-                                        </label>
-                                    {% endfor %}
-                                {% for b in client_data.bing.all %}
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="B - {{ b.account_name }} Spend"> B - {{ b.account_name }} Spend
-                                        <span></span>
-                                    </label>
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="B - {{ b.account_name }} Budget"> B - {{ b.account_name }} Budget
-                                        <span></span>
-                                    </label>
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="B - {{ b.account_name }} Projected"> B - {{ b.account_name }} Projected
-                                        <span></span>
-                                    </label>
-                                {% endfor %}
-                                {% for f in client_data.facebook.all %}
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="F - {{ f.account_name }} Spend"> F - {{ f.account_name }} Spend
-                                        <span></span>
-                                    </label>
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="F - {{ f.account_name }} Budget"> F - {{ f.account_name }} Budget
-                                        <span></span>
-                                    </label>
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="F - {{ f.account_name }} Projected"> F - {{ f.account_name }} Projected
-                                        <span></span>
-                                    </label>
-                                {% endfor %}
-                                    <label class="m-checkbox">
-                                        <input type="checkbox" name="Global Target Spend">Global Target Spend
-                                        <span></span>
-                                    </label>
-                                </div>
-                                <div class="m--space-15"></div>
-                                    <button class="btn m-btn--pill m-btn--air btn-secondary btn-sm" onclick="gen_chart({{ chdata|safe }})">
-                                        Generate chart
-                                    </button>
-                                <div id="myChart">
-                                    <canvas id="spendChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end::Item-->
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_2_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_2_head"
+                 data-parent="#m_accordion_4">
+                <div class="m-accordion__item-content">
+                    <p>
+                        <button type="button" data-toggle="modal"
+                                data-target="#m_add_campaign_group_across"
+                                data-acc_id="
 
-                    <!--begin::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_2_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_2_body" aria-expanded="    false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Campaign Groups</span>
+                                        {% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
+                                data-client_id="{{ client_data.id }}"
+                                class="btn m-btn--pill m-btn--air btn-outline-success btn-sm m-btn m-btn--custom">
+                            Add
+                        </button>
+                    </p>
 
-                            <span class="m-accordion__item-mode"></span>
-                        </div>
+                    {% for gr in groupings %}
+                        {% with adwords=client_data.adwords.all bing=client_data.bing.all facebook=client_data.facebool.all %}
+                            <div class="row">
+                                <div class="col-md-3">
+                                    Group name: {{ gr.group_name }}
+                                    <i class="fa fa-minus-circle" data-toggle="modal"
+                                       data-target="#m_delete_campaign_group"
+                                       data-grid="{{ gr.id }}"></i>
+                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                       data-target="#m_edit_campaign_group"
+                                       data-c_id="{{ client_data.id }}"
+                                       data-group_name="{{ gr.group_name }}"
+                                       data-group_by="{{ gr.group_by }}"
+                                       data-acc_ids="
 
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_2_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_2_head"
-                             data-parent="#m_accordion_4">
-                            <div class="m-accordion__item-content">
-                                <p>
-                                    <button type="button" data-toggle="modal"
-                                            data-target="#m_add_campaign_group_across"
-                                            data-acc_id="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
-                                            data-client_id="{{ client_data.id }}"
-                                            class="btn m-btn--pill m-btn--air btn-outline-success btn-sm m-btn m-btn--custom">
-                                        Add
-                                    </button>
-                                </p>
-
-                                {% for gr in groupings %}
-                                    {% with adwords=client_data.adwords.all bing=client_data.bing.all facebook=client_data.facebool.all %}
-                                        <div class="row">
-                                            <div class="col-md-3">
-                                                Group name: {{ gr.group_name }}
-                                                <i class="fa fa-minus-circle" data-toggle="modal"
-                                                   data-target="#m_delete_campaign_group"
-                                                   data-grid="{{ gr.id }}"></i>
-                                                <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
-                                                   data-target="#m_edit_campaign_group"
-                                                   data-c_id="{{ client_data.id }}"
-                                                   data-group_name="{{ gr.group_name }}"
-                                                   data-group_by="{{ gr.group_by }}"
-                                                   data-acc_ids="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
-                                                   data-group_budget="{{ gr.budget }}"
-                                                   data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
-                                                        {% if gr.start_date %}
-                                                   data-start_date="{{ gr.start_date }}"
-                                                   data-end_date="{{ gr.end_date }}"
-                                                        {% endif %}></i>
-                                            </div>
-                                            <div class="col-md-3">Group by: {{ gr.group_by }}</div>
-                                            <div class="col-md-3">
-                                                Spend: {{ gr.current_spend|intcomma }}</div>
-                                            <div class="col-md-3">Budget: {{ gr.budget|intcomma }}</div>
-                                            </div>
+                                               {% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
+                                       data-group_budget="{{ gr.budget }}"
+                                       data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
                                             {% if gr.start_date %}
-                                                <div class="row">
-                                                    <div class="col-md-6">Start: {{ gr.start_date }}</div>
-                                                    <div class="col-md-6">End: {{ gr.end_date }}</div>
-                                                </div>
-                                            {% endif %}
-                                            <div class="progress m-progress--lg">
-                                                <div class="progress-bar
-                                                        {{ gr.current_spend|percentage:gr.budget }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
-                                                     aria-valuenow="{% widthratio gr.current_spend gr.budget 100 %}"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top"
-                                                     title=""
-                                                     data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
-                                                    {% widthratio gr.current_spend gr.budget 100 %}%
-                                                </div>
-                                            </div>
-                                            <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in
-                                                group</a>
-                                            <div id="campaigns_{{ gr.id }}" style="display: none">
-                                                {% if gr.aw_campaigns.all %}
-                                                    {% for cmp in gr.aw_campaigns.all %}
-                                                        {% if gr.start_date %}
-                                                            <p>A - {{ cmp.campaign_name }}</p>
-                                                        {% else %}
-                                                            <p>A - {{ cmp.campaign_name }}
-                                                                - {{ cmp.campaign_cost|intcomma }}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                                {% if gr.bing_campaigns.all %}
-                                                    {% for cmp in gr.bing_campaigns.all %}
-                                                        {% if gr.start_date %}
-                                                            <p>B - {{ cmp.campaign_name }}</p>
-                                                        {% else %}
-                                                            <p>B - {{ cmp.campaign_name }}
-                                                                - {{ cmp.campaign_cost|intcomma }}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                                {% if gr.fb_campaigns.all %}
-                                                    {% for cmp in gr.fb_campaigns.all %}
-                                                        {% if gr.start_date %}
-                                                            <p>F - {{ cmp.campaign_name }}</p>
-                                                        {% else %}
-                                                            <p>F - {{ cmp.campaign_name }}
-                                                                - {{ cmp.campaign_cost|intcomma }}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </div>
-                                            {% if not forloop.last %}
-                                                <div class="m-separator"></div>{% endif %}
-                                    {% endwith %}
-                                {% endfor %}
+                                       data-start_date="{{ gr.start_date }}"
+                                       data-end_date="{{ gr.end_date }}"
+                                            {% endif %}></i>
+                                </div>
+                                <div class="col-md-3">Group by: {{ gr.group_by }}</div>
+                                <div class="col-md-3">
+                                    Spend: {{ gr.current_spend|floatformat:2|intcomma }}</div>
+                                <div class="col-md-3">Budget: {{ gr.budget|floatformat:2|intcomma }}</div>
                             </div>
-                        </div>
-                    </div>
-                    <!--end::Item-->
+                            <div class="m--space-10"></div>
+                            <div class="row">
+                                <div class="col-md-3">Yesterday
+                                    Spend: {{ gr.yesterday_spend|floatformat:2|intcomma }}</div>
+                                <div class="col-md-3">Avg. Daily
+                                    Spend: {{ gr.avg_daily_spend|floatformat:2|intcomma }}</div>
+                                <div class="col-md-3">Recommended Daily Spend:
+                                    {% if gr.rec_daily_spend < 0 %}
+                                        0
+                                    {% else %}
+                                        {{ gr.rec_daily_spend|floatformat:2|intcomma }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="m-form__group form-group row">
+                                        <label class="col-9 col-form-label" id="cgr_as_{{ gr.id }}">Projected(average
+                                            spend): {{ gr.project_average|floatformat:2|intcomma }}</label>
+                                        <label class="col-9 col-form-label" style="display: none;"
+                                               id="cgr_ys_{{ gr.id }}">Projected(yesterday
+                                            spend): {{ gr.project_yesterday|floatformat:2|intcomma }}</label>
+                                        <div class="col-3">
+                                                            <span class="m-switch m-switch--sm m-switch--outline m-switch--icon m-switch--success">
+                                                                <label>
+                                                                <input type="checkbox" checked="checked" name=""
+                                                                       id="cgr_proj_{{ gr.id }}"
+                                                                       onclick="toggleCgrProjection({{ gr.id }})">
+                                                                <span></span>
+                                                                </label>
+                                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!--begin::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_3_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_3_body" aria-expanded="    false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">AdWords</span>
-                            <span class="m-accordion__item-mode"></span>
-                        </div>
+                            {% if gr.start_date %}
+                                <div class="row">
+                                    <div class="col-md-6">Start: {{ gr.start_date }}</div>
+                                    <div class="col-md-6">End: {{ gr.end_date }}</div>
+                                </div>
+                            {% endif %}
 
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_3_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_3_head"
-                             data-parent="#m_accordion_4">
-                            <div class="m-accordion__item-content">
-                                {% for a in client_data.adwords.all %}
-                                    <span class="m-list-timeline__text">
+                            <div class="progress m-progress--lg" style="position: relative;!important;">
+                                <div class="progress-bar
+                                                        {{ gr.current_spend|percentage:gr.budget }}"
+                                     role="progressbar"
+                                     style="width: {% widthratio gr.current_spend gr.budget 100 %}%"
+                                     aria-valuenow="{% widthratio gr.current_spend gr.budget 100 %}"
+                                     aria-valuemin="0" aria-valuemax="100"
+                                     data-toggle="m-tooltip" data-placement="top"
+                                     title=""
+                                     data-original-title="{{ gr.current_spend }}/{{ gr.budget }}">
+                                    {% widthratio gr.current_spend gr.budget 100 %}%
+                                </div>
+                                <div class="black-marker"
+                                     style="width: {{ blackmarker }}%"
+                                     aria-valuenow="{{ blackmarker }}"
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in
+                                group</a>
+                            <div id="campaigns_{{ gr.id }}" style="display: none">
+                                {% if gr.aw_campaigns.all %}
+                                    {% for cmp in gr.aw_campaigns.all %}
+                                        {% if gr.start_date %}
+                                            <p>A - {{ cmp.campaign_name }}</p>
+                                        {% else %}
+                                            <p>A - {{ cmp.campaign_name }}
+                                                - {{ cmp.campaign_cost|intcomma }}</p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if gr.bing_campaigns.all %}
+                                    {% for cmp in gr.bing_campaigns.all %}
+                                        {% if gr.start_date %}
+                                            <p>B - {{ cmp.campaign_name }}</p>
+                                        {% else %}
+                                            <p>B - {{ cmp.campaign_name }}
+                                                - {{ cmp.campaign_cost|intcomma }}</p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if gr.fb_campaigns.all %}
+                                    {% for cmp in gr.fb_campaigns.all %}
+                                        {% if gr.start_date %}
+                                            <p>F - {{ cmp.campaign_name }}</p>
+                                        {% else %}
+                                            <p>F - {{ cmp.campaign_name }}
+                                                - {{ cmp.campaign_cost|intcomma }}</p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            {% if not forloop.last %}
+                                <div class="m-separator"></div>{% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--end::Item-->
+
+        <!--begin::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_3_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_3_body" aria-expanded="    false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">AdWords</span>
+                <span class="m-accordion__item-mode"></span>
+            </div>
+
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_3_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_3_head"
+                 data-parent="#m_accordion_4">
+                <div class="m-accordion__item-content">
+                    {% for a in client_data.adwords.all %}
+                        <span class="m-list-timeline__text">
                                         <h6>
                                             <a href="{% url 'tools:account_overview' a.dependent_account_id a.channel %}">
                                             {{ a.dependent_account_name }}</a> -
                                             <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                         </h6>
                                     </span>
-                                    <div class="row text-center">
-                                        <div class="col-md-2">
-                                            <b>Budget</b>:
-                                            <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend|floatformat:2|intcomma }}</span>
-                                            <span class="fa fa-pencil-square fa-4x"
-                                                  data-toggle="modal"
-                                                  data-target="#m_edit_budget"
-                                                  data-channel="adwords"
-                                                  data-accountid="{{ a.dependent_account_id }}"
-                                                  data-budget="{{ a.desired_spend }}"></span>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Current Total Spend</b>:
-                                            {{ a.current_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Target Daily Spend
-                                            </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Yesterday's
-                                                Spend</b>: {{ a.yesterday_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Current Daily Spend</b>:
-                                            {{ a.current_spend|daily_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Projected Spend EOM</b>:
-                                            {{ a.current_spend|projected:a.yesterday_spend|floatformat:2|intcomma }}
-                                        </div>
-                                    </div>
-                                    </p>
-                                    <div class="progress m-progress--lg"
-                                         style="position: relative;!important;">
-                                        <div class="progress-bar {{ a.current_spend|percentage:a.desired_spend }}"
-                                             role="progressbar"
-                                             style="width: {{ a.current_spend|div:a.desired_spend }}%;"
-                                             aria-valuenow="{{ a.current_spend|div:a.desired_spend }}"
-                                             aria-valuemin="0" aria-valuemax="100"
-                                             data-toggle="m-tooltip" data-placement="top"
-                                             title=""
-                                             data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
-                                            {{ a.current_spend|div:a.desired_spend|intcomma }}%
-                                        </div>
-                                        <div class="black-marker"
-                                             style="width: {{ blackmarker }}%"
-                                             aria-valuenow="{{ blackmarker }}"
-                                             aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-
-                                    </p>
-                                    <div class="m-separator"></div>
-                                    <small>Spend by network <span
-                                            class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <a href="#" data-toggle="modal" data-target="#m_add_kpi"
-                                           data-acc_id="{{ a.dependent_account_id }}"
-                                           data-acc_name="{{ a.dependent_account_name }}"> Add KPI</a>
-                                    </small>
-
-                                    {% for budget in budgets %}
-                                        {% if budget.adwords == a %}
-                                            <div class="row">
-                                                <div class="col-md-8">
-                                                    {% for network in budget.networks %}
-                                                        <span class="m-badge m-badge--bordered m-badge-bordered--danger m-badge--wide">{{ network }}</span>
-                                                    {% endfor %}
-
-                                                    <i class="fa fa-minus-circle" data-toggle="modal"
-                                                       data-target="#m_delete_kpi"
-                                                       data-budgetid="{{ budget.id }}"
-                                                       data-network="{{ budget.network_type }}"></i>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                                    Current spend: {{ budget.spend|intcomma }}
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <span class="m-badge m-badge--metal m-badge--dot"></span>
-                                                    Target Spend: {{ budget.budget|intcomma }}
-                                                </div>
-                                            </div>
-                                            <div class="row" style="margin-top: 10px">
-                                                <div class="col-md-12">
-                                                    <div class="progress m-progress--lg"
-                                                         style="position: relative;!important;">
-                                                        <div class="progress-bar {{ budget.spend|percentage:budget.budget }}"
-                                                             role="progressbar"
-                                                             style="width: {{ budget.spend|div:budget.budget }}%;"
-                                                             aria-valuenow="{{ budget.spend|div:budget.budget }}"
-                                                             aria-valuemin="0" aria-valuemax="100"
-                                                             data-toggle="m-tooltip" data-placement="top"
-                                                             title=""
-                                                             data-original-title="{{ budget.spend }}/{{ budget.budget }}">
-                                                            {{ budget.spend|div:budget.budget|intcomma }}%
-                                                        </div>
-                                                        <div class="black-marker"
-                                                             style="width: {{ blackmarker }}%"
-                                                             aria-valuenow="{{ blackmarker }}"
-                                                             aria-valuemin="0" aria-valuemax="100">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            </p>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <div class="m-separator"></div>
-                                    <small>Flight dates <span
-                                            class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
-                                           data-acc_id="{{ a.dependent_account_id }}"
-                                           data-channel="adwords"
-                                           data-acc_name="{{ a.dependent_account_name }}"> Add</a></small>
-
-                                    {% for fbudget in fbudgets %}
-                                        {% if fbudget.adwords_account == a %}
-                                            <p>
-                                            <div class="row">
-                                                <div class="col-md-3">
-                                                    <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
-                                                    <i class="fa fa-minus-circle" data-toggle="modal"
-                                                       data-target="#m_delete_flight_date"
-                                                       data-fbudgetid="{{ fbudget.id }}"></i>
-                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
-                                                       data-target="#m_edit_flight_date"
-                                                       data-channel="adwords"
-                                                       data-sdate="{{ fbudget.start_date }}"
-                                                       data-edate="{{ fbudget.end_date }}"
-                                                       data-acc_name="{{ a.dependent_account_name }}"
-                                                       data-budget="{{ fbudget.budget }}"
-                                                       data-budgetid="{{ fbudget.id }}"></i>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <b>Budget</b>: {{ fbudget.budget|intcomma }}</div>
-                                                <div class="col-md-3"><b>Start
-                                                    date</b>: {{ fbudget.start_date|intcomma }}
-                                                </div>
-                                                <div class="col-md-3"><b>End
-                                                    date</b>: {{ fbudget.end_date|intcomma }}</div>
-                                            </div>
-                                            <div class="progress m-progress--lg">
-                                                <div class="progress-bar
-                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
-                                                     aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top"
-                                                     title=""
-                                                     data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
-                                                    {% widthratio fbudget.current_spend fbudget.budget 100 %}%
-                                                </div>
-                                            </div>
-                                            </p>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                    <div class="m-separator"></div>
-
-                                {% empty %}
-                                    <p>
-                                    <h6>
-                                        No accounts selected for this client...
-                                    </h6>
-                                    </p>
-                                {% endfor %}
+                        <div class="row text-center">
+                            <div class="col-md-2">
+                                <b>Budget</b>:
+                                <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend|floatformat:2|intcomma }}</span>
+                                <span class="fa fa-pencil-square fa-4x"
+                                      data-toggle="modal"
+                                      data-target="#m_edit_budget"
+                                      data-channel="adwords"
+                                      data-accountid="{{ a.dependent_account_id }}"
+                                      data-budget="{{ a.desired_spend }}"></span>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Current Total Spend</b>:
+                                {{ a.current_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Target Daily Spend
+                                </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Yesterday's
+                                    Spend</b>: {{ a.yesterday_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Current Daily Spend</b>:
+                                {{ a.current_spend|daily_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Projected Spend EOM</b>:
+                                {{ a.current_spend|projected:a.yesterday_spend|floatformat:2|intcomma }}
                             </div>
                         </div>
-                    </div>
-                    <!--end::Item-->
-
-                    <!--begin::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_4_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_4_body" aria-expanded="    false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Bing</span>
-
-                            <span class="m-accordion__item-mode"></span>
+                        </p>
+                        <div class="progress m-progress--lg"
+                             style="position: relative;!important;">
+                            <div class="progress-bar {{ a.current_spend|percentage:a.desired_spend }}"
+                                 role="progressbar"
+                                 style="width: {{ a.current_spend|div:a.desired_spend }}%;"
+                                 aria-valuenow="{{ a.current_spend|div:a.desired_spend }}"
+                                 aria-valuemin="0" aria-valuemax="100"
+                                 data-toggle="m-tooltip" data-placement="top"
+                                 title=""
+                                 data-original-title="{{ a.current_spend }}/{{ a.desired_spend }}">
+                                {{ a.current_spend|div:a.desired_spend|intcomma }}%
+                            </div>
+                            <div class="black-marker"
+                                 style="width: {{ blackmarker }}%"
+                                 aria-valuenow="{{ blackmarker }}"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
                         </div>
 
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_4_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_4_head"
-                             data-parent="#m_accordion_4">
-                            <div class="m-accordion__item-content">
-                                <h3>Bing Accounts</h3>
-                                {% for b in client_data.bing.all %}
-                                    <div class="m-separator"></div>
-                                    <span class="m-list-timeline__text">
+                        </p>
+                        <div class="m-separator"></div>
+                        <small>Spend by network <span
+                                class="m-badge m-badge--metal m-badge--dot"></span>
+                            <a href="#" data-toggle="modal" data-target="#m_add_kpi"
+                               data-acc_id="{{ a.dependent_account_id }}"
+                               data-acc_name="{{ a.dependent_account_name }}"> Add KPI</a>
+                        </small>
+
+                        {% for budget in budgets %}
+                            {% if budget.adwords == a %}
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        {% for network in budget.networks %}
+                                            <span class="m-badge m-badge--bordered m-badge-bordered--danger m-badge--wide">{{ network }}</span>
+                                        {% endfor %}
+
+                                        <i class="fa fa-minus-circle" data-toggle="modal"
+                                           data-target="#m_delete_kpi"
+                                           data-budgetid="{{ budget.id }}"
+                                           data-network="{{ budget.network_type }}"></i>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        Current spend: {{ budget.spend|intcomma }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="m-badge m-badge--metal m-badge--dot"></span>
+                                        Target Spend: {{ budget.budget|intcomma }}
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-md-12">
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative;!important;">
+                                            <div class="progress-bar {{ budget.spend|percentage:budget.budget }}"
+                                                 role="progressbar"
+                                                 style="width: {{ budget.spend|div:budget.budget }}%;"
+                                                 aria-valuenow="{{ budget.spend|div:budget.budget }}"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 data-toggle="m-tooltip" data-placement="top"
+                                                 title=""
+                                                 data-original-title="{{ budget.spend }}/{{ budget.budget }}">
+                                                {{ budget.spend|div:budget.budget|intcomma }}%
+                                            </div>
+                                            <div class="black-marker"
+                                                 style="width: {{ blackmarker }}%"
+                                                 aria-valuenow="{{ blackmarker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="m-separator"></div>
+                        <small>Flight dates <span
+                                class="m-badge m-badge--metal m-badge--dot"></span>
+                            <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
+                               data-acc_id="{{ a.dependent_account_id }}"
+                               data-channel="adwords"
+                               data-acc_name="{{ a.dependent_account_name }}"> Add</a></small>
+
+                        {% for fbudget in fbudgets %}
+                            {% if fbudget.adwords_account == a %}
+                                <p>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
+                                        <i class="fa fa-minus-circle" data-toggle="modal"
+                                           data-target="#m_delete_flight_date"
+                                           data-fbudgetid="{{ fbudget.id }}"></i>
+                                        <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                           data-target="#m_edit_flight_date"
+                                           data-channel="adwords"
+                                           data-sdate="{{ fbudget.start_date }}"
+                                           data-edate="{{ fbudget.end_date }}"
+                                           data-acc_name="{{ a.dependent_account_name }}"
+                                           data-budget="{{ fbudget.budget }}"
+                                           data-budgetid="{{ fbudget.id }}"></i>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <b>Budget</b>: {{ fbudget.budget|intcomma }}</div>
+                                    <div class="col-md-3"><b>Start
+                                        date</b>: {{ fbudget.start_date|intcomma }}
+                                    </div>
+                                    <div class="col-md-3"><b>End
+                                        date</b>: {{ fbudget.end_date|intcomma }}</div>
+                                </div>
+                                <div class="progress m-progress--lg">
+                                    <div class="progress-bar
+                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
+                                         role="progressbar"
+                                         style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
+                                         aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         data-toggle="m-tooltip" data-placement="top"
+                                         title=""
+                                         data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
+                                        {% widthratio fbudget.current_spend fbudget.budget 100 %}%
+                                    </div>
+                                </div>
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="m-separator"></div>
+
+                    {% empty %}
+                        <p>
+                        <h6>
+                            No accounts selected for this client...
+                        </h6>
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--end::Item-->
+
+        <!--begin::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_4_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_4_body" aria-expanded="    false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">Bing</span>
+
+                <span class="m-accordion__item-mode"></span>
+            </div>
+
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_4_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_4_head"
+                 data-parent="#m_accordion_4">
+                <div class="m-accordion__item-content">
+                    <h3>Bing Accounts</h3>
+                    {% for b in client_data.bing.all %}
+                        <div class="m-separator"></div>
+                        <span class="m-list-timeline__text">
                                     <h6>
                                         <a href="{% url 'tools:account_overview' b.account_id b.channel %}">
                                             {{ b.account_name }}
@@ -547,391 +643,393 @@
                                         <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                     </h6>
                                 </span>
-                                    <p>
-                                    <div class="row text-center">
-                                        <div class="col-md-2">
-                                            <b>
-                                                Budget
-                                            </b>:
-                                            <span id="budget-{{ b.account_id }}">
+                        <p>
+                        <div class="row text-center">
+                            <div class="col-md-2">
+                                <b>
+                                    Budget
+                                </b>:
+                                <span id="budget-{{ b.account_id }}">
                                                                         {{ b.desired_spend|intcomma }}
                                                                     </span>
-                                            <span class="fa fa-pencil-square fa-4x"
-                                                  data-toggle="modal"
-                                                  data-target="#m_edit_budget"
-                                                  data-channel="bing"
-                                                  data-accountid="{{ b.account_id }}"
-                                                  data-budget="{{ b.desired_spend }}"></span>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Current Total
-                                                Spend</b>: {{ b.current_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Target Daily
-                                                Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
+                                <span class="fa fa-pencil-square fa-4x"
+                                      data-toggle="modal"
+                                      data-target="#m_edit_budget"
+                                      data-channel="bing"
+                                      data-accountid="{{ b.account_id }}"
+                                      data-budget="{{ b.desired_spend }}"></span>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Current Total
+                                    Spend</b>: {{ b.current_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Target Daily
+                                    Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
 
-                                            <b>Yesterday's
-                                                spend</b>: {{ b.yesterday_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Current Daily Spend</b>:
-                                            {{ b.current_spend|daily_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Projected Spend EOM</b>:
-                                            {{ b.current_spend|projected:b.yesterday_spend|floatformat:2|intcomma }}
-                                        </div>
-                                    </div>
-                                    </p>
-                                    <div class="progress m-progress--lg"
-                                         style="position: relative;!important;">
-                                        <div class="progress-bar {{ b.current_spend|percentage:b.desired_spend }}"
-                                             role="progressbar"
-                                             style="width: {{ b.current_spend|div:b.desired_spend }}%;"
-                                             aria-valuenow="{{ b.current_spend|div:b.desired_spend }}"
-                                             aria-valuemin="0" aria-valuemax="100"
-                                             data-toggle="m-tooltip" data-placement="top"
-                                             title=""
-                                             data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
-                                            {{ b.current_spend|div:b.desired_spend|intcomma }}%
-                                        </div>
-                                        <div class="black-marker"
-                                             style="width: {{ blackmarker }}%"
-                                             aria-valuenow="{{ blackmarker }}"
-                                             aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <div style="margin-top: 10px;">
-                                    </div>
-                                    <div class="m-separator"></div>
-                                    <small>Flight dates <span
-                                            class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
-                                           data-acc_id="{{ b.account_id }}"
-                                           data-channel="bing"
-                                           data-acc_name="{{ b.account_name }}"> Add</a></small>
-
-                                    {% for fbudget in fbudgets %}
-                                        {% if fbudget.bing_account == b %}
-                                            <p>
-                                            <div class="row">
-                                                <div class="col-md-3">
-                                                    <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
-                                                    <i class="fa fa-minus-circle" data-toggle="modal"
-                                                       data-target="#m_delete_flight_date"
-                                                       data-fbudgetid="{{ fbudget.id }}"></i>
-                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
-                                                       data-target="#m_edit_flight_date"
-                                                       data-channel="bing"
-                                                       data-sdate="{{ fbudget.start_date }}"
-                                                       data-edate="{{ fbudget.end_date }}"
-                                                       data-acc_name="{{ b.account_name }}"
-                                                       data-budget="{{ fbudget.budget }}"
-                                                       data-budgetid="{{ fbudget.id }}"></i>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <b>Budget</b>: {{ fbudget.budget|intcomma }}</div>
-                                                <div class="col-md-3"><b>Start
-                                                    date</b>: {{ fbudget.start_date }}</div>
-                                                <div class="col-md-3"><b>End
-                                                    date</b>: {{ fbudget.end_date }}</div>
-                                            </div>
-                                            <div class="progress m-progress--lg">
-                                                <div class="progress-bar
-                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
-                                                     aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top"
-                                                     title=""
-                                                     data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
-                                                    {% widthratio fbudget.current_spend fbudget.budget 100 %}%
-                                                </div>
-                                            </div>
-                                            </p>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <div class="m-separator"></div>
-
-                                {% empty %}
-
-                                    <h6>
-                                        <p>
-                                            No accounts selected for this client...
-                                        </p>
-                                    </h6>
-                                    </p>
-                                {% endfor %}
+                                <b>Yesterday's
+                                    spend</b>: {{ b.yesterday_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Current Daily Spend</b>:
+                                {{ b.current_spend|daily_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Projected Spend EOM</b>:
+                                {{ b.current_spend|projected:b.yesterday_spend|floatformat:2|intcomma }}
                             </div>
                         </div>
-                    </div>
-                    <!--end::Item-->
-
-                    <!--begin::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_5_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_5_body" aria-expanded="    false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Facebook</span>
-
-                            <span class="m-accordion__item-mode"></span>
+                        </p>
+                        <div class="progress m-progress--lg"
+                             style="position: relative;!important;">
+                            <div class="progress-bar {{ b.current_spend|percentage:b.desired_spend }}"
+                                 role="progressbar"
+                                 style="width: {{ b.current_spend|div:b.desired_spend }}%;"
+                                 aria-valuenow="{{ b.current_spend|div:b.desired_spend }}"
+                                 aria-valuemin="0" aria-valuemax="100"
+                                 data-toggle="m-tooltip" data-placement="top"
+                                 title=""
+                                 data-original-title="{{ b.current_spend }}/{{ b.desired_spend }}">
+                                {{ b.current_spend|div:b.desired_spend|intcomma }}%
+                            </div>
+                            <div class="black-marker"
+                                 style="width: {{ blackmarker }}%"
+                                 aria-valuenow="{{ blackmarker }}"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
                         </div>
+                        <div style="margin-top: 10px;">
+                        </div>
+                        <div class="m-separator"></div>
+                        <small>Flight dates <span
+                                class="m-badge m-badge--metal m-badge--dot"></span>
+                            <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
+                               data-acc_id="{{ b.account_id }}"
+                               data-channel="bing"
+                               data-acc_name="{{ b.account_name }}"> Add</a></small>
 
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_5_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_5_head"
-                             data-parent="#m_accordion_4">
-                            <div class="m-accordion__item-content">
-                                <h3>Facebook Accounts</h3>
-                                {% for f in client_data.facebook.all %}
-                                    <div class="m-separator"></div>
-                                    <span class="m-list-timeline__text">
+                        {% for fbudget in fbudgets %}
+                            {% if fbudget.bing_account == b %}
+                                <p>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
+                                        <i class="fa fa-minus-circle" data-toggle="modal"
+                                           data-target="#m_delete_flight_date"
+                                           data-fbudgetid="{{ fbudget.id }}"></i>
+                                        <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                           data-target="#m_edit_flight_date"
+                                           data-channel="bing"
+                                           data-sdate="{{ fbudget.start_date }}"
+                                           data-edate="{{ fbudget.end_date }}"
+                                           data-acc_name="{{ b.account_name }}"
+                                           data-budget="{{ fbudget.budget }}"
+                                           data-budgetid="{{ fbudget.id }}"></i>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <b>Budget</b>: {{ fbudget.budget|intcomma }}</div>
+                                    <div class="col-md-3"><b>Start
+                                        date</b>: {{ fbudget.start_date }}</div>
+                                    <div class="col-md-3"><b>End
+                                        date</b>: {{ fbudget.end_date }}</div>
+                                </div>
+                                <div class="progress m-progress--lg">
+                                    <div class="progress-bar
+                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
+                                         role="progressbar"
+                                         style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
+                                         aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         data-toggle="m-tooltip" data-placement="top"
+                                         title=""
+                                         data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
+                                        {% widthratio fbudget.current_spend fbudget.budget 100 %}%
+                                    </div>
+                                </div>
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="m-separator"></div>
+
+                    {% empty %}
+
+                        <h6>
+                            <p>
+                                No accounts selected for this client...
+                            </p>
+                        </h6>
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--end::Item-->
+
+        <!--begin::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_5_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_5_body" aria-expanded="    false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">Facebook</span>
+
+                <span class="m-accordion__item-mode"></span>
+            </div>
+
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_5_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_5_head"
+                 data-parent="#m_accordion_4">
+                <div class="m-accordion__item-content">
+                    <h3>Facebook Accounts</h3>
+                    {% for f in client_data.facebook.all %}
+                        <div class="m-separator"></div>
+                        <span class="m-list-timeline__text">
                                 <h6>
                                     {{ f.account_name }} -
                                     <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                 </h6>
                             </span>
-                                    <p>
-                                    <div class="row text-center">
-                                        <div class="col-md-2">
-                                            <b>
-                                                Budget
-                                            </b>:
-                                            <span id="budget-{{ f.account_id }}">
+                        <p>
+                        <div class="row text-center">
+                            <div class="col-md-2">
+                                <b>
+                                    Budget
+                                </b>:
+                                <span id="budget-{{ f.account_id }}">
                                         {{ f.desired_spend|floatformat:2|intcomma }}
                                     </span>
-                                            <span class="fa fa-pencil-square fa-4x"
-                                                  data-toggle="modal"
-                                                  data-target="#m_edit_budget"
-                                                  data-channel="facebook"
-                                                  data-accountid="{{ f.account_id }}"
-                                                  data-budget="{{ f.desired_spend }}"></span>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Current Total
-                                                Spend</b>: {{ f.current_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Target Daily
-                                                Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
+                                <span class="fa fa-pencil-square fa-4x"
+                                      data-toggle="modal"
+                                      data-target="#m_edit_budget"
+                                      data-channel="facebook"
+                                      data-accountid="{{ f.account_id }}"
+                                      data-budget="{{ f.desired_spend }}"></span>
+                            </div>
+                            <div class="col-md-2">
+                                <b>Current Total
+                                    Spend</b>: {{ f.current_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Target Daily
+                                    Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
 
-                                            <b>Yesterday's
-                                                spend</b>: {{ f.yesterday_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Current Daily Spend</b>:
-                                            {{ f.current_spend|daily_spend|floatformat:2|intcomma }}
-                                        </div>
-                                        <div class="col-md-2">
-                                            <b>Projected Spend EOM</b>:
-                                            {{ f.current_spend|projected:f.yesterday_spend|floatformat:2|intcomma }}
-                                        </div>
-                                    </div>
-                                    </p>
-                                    <div class="progress m-progress--lg"
-                                         style="position: relative;!important;">
-                                        <div class="progress-bar {{ f.current_spend|percentage:f.desired_spend }}"
-                                             role="progressbar"
-                                             style="width: {{ f.current_spend|div:f.desired_spend }}%;"
-                                             aria-valuenow="{{ f.current_spend|div:f.desired_spend }}"
-                                             aria-valuemin="0" aria-valuemax="100"
-                                             data-toggle="m-tooltip" data-placement="top"
-                                             title=""
-                                             data-original-title="{{ f.current_spend }}/{{ f.desired_spend }}">
-                                            {{ f.current_spend|div:f.desired_spend }}%
-                                        </div>
-                                        <div class="black-marker"
-                                             style="width: {{ blackmarker }}%"
-                                             aria-valuenow="{{ blackmarker }}"
-                                             aria-valuemin="0" aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <div style="margin-top: 10px;">
-                                    </div>
-                                    <div class="m-separator"></div>
-                                    <small>Flight dates <span
-                                            class="m-badge m-badge--metal m-badge--dot"></span>
-                                        <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
-                                           data-acc_id="{{ f.account_id }}"
-                                           data-channel="facebook"
-                                           data-acc_name="{{ f.account_name }}"> Add</a></small>
-
-                                    {% for fbudget in fbudgets %}
-                                        {% if fbudget.facebook_account == f %}
-                                            <p>
-                                            <div class="row">
-                                                <div class="col-md-3">
-                                                    <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
-                                                    <i class="fa fa-minus-circle" data-toggle="modal"
-                                                       data-target="#m_delete_flight_date"
-                                                       data-fbudgetid="{{ fbudget.id }}"></i>
-                                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
-                                                       data-target="#m_edit_flight_date"
-                                                       data-channel="facebook"
-                                                       data-sdate="{{ fbudget.start_date }}"
-                                                       data-edate="{{ fbudget.end_date }}"
-                                                       data-acc_name="{{ f.account_name }}"
-                                                       data-budget="{{ fbudget.budget }}"
-                                                       data-budgetid="{{ fbudget.id }}"></i>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <b>Budget</b>: {{ fbudget.budget|floatformat:2|intcomma }}
-                                                </div>
-                                                <div class="col-md-3"><b>Start
-                                                    date</b>: {{ fbudget.start_date }}</div>
-                                                <div class="col-md-3"><b>End
-                                                    date</b>: {{ fbudget.end_date }}</div>
-                                            </div>
-                                            <div class="progress m-progress--lg">
-                                                <div class="progress-bar
-                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
-                                                     aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top"
-                                                     title=""
-                                                     data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
-                                                    {% widthratio fbudget.current_spend fbudget.budget 100 %}%
-                                                </div>
-                                            </div>
-                                            </p>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <div class="m-separator"></div>
-
-                                {% empty %}
-
-                                    <h6>
-                                        <p>
-                                            No accounts selected for this client...
-                                        </p>
-                                    </h6>
-                                    </p>
-                                {% endfor %}
+                                <b>Yesterday's
+                                    spend</b>: {{ f.yesterday_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Current Daily Spend</b>:
+                                {{ f.current_spend|daily_spend|floatformat:2|intcomma }}
+                            </div>
+                            <div class="col-md-2">
+                                <b>Projected Spend EOM</b>:
+                                {{ f.current_spend|projected:f.yesterday_spend|floatformat:2|intcomma }}
                             </div>
                         </div>
-                    </div>
-                    <!--end::Item-->
-
-                    <!--begin::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_6_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_6_body" aria-expanded="    false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Flex Budget</span>
-
-                            <span class="m-accordion__item-mode"></span>
+                        </p>
+                        <div class="progress m-progress--lg"
+                             style="position: relative;!important;">
+                            <div class="progress-bar {{ f.current_spend|percentage:f.desired_spend }}"
+                                 role="progressbar"
+                                 style="width: {{ f.current_spend|div:f.desired_spend }}%;"
+                                 aria-valuenow="{{ f.current_spend|div:f.desired_spend }}"
+                                 aria-valuemin="0" aria-valuemax="100"
+                                 data-toggle="m-tooltip" data-placement="top"
+                                 title=""
+                                 data-original-title="{{ f.current_spend }}/{{ f.desired_spend }}">
+                                {{ f.current_spend|div:f.desired_spend }}%
+                            </div>
+                            <div class="black-marker"
+                                 style="width: {{ blackmarker }}%"
+                                 aria-valuenow="{{ blackmarker }}"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
                         </div>
+                        <div style="margin-top: 10px;">
+                        </div>
+                        <div class="m-separator"></div>
+                        <small>Flight dates <span
+                                class="m-badge m-badge--metal m-badge--dot"></span>
+                            <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
+                               data-acc_id="{{ f.account_id }}"
+                               data-channel="facebook"
+                               data-acc_name="{{ f.account_name }}"> Add</a></small>
 
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_6_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_6_head"
-                             data-parent="#m_accordion_4">
-                            <div class="m-accordion__item-content">
+                        {% for fbudget in fbudgets %}
+                            {% if fbudget.facebook_account == f %}
+                                <p>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
+                                        <i class="fa fa-minus-circle" data-toggle="modal"
+                                           data-target="#m_delete_flight_date"
+                                           data-fbudgetid="{{ fbudget.id }}"></i>
+                                        <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                           data-target="#m_edit_flight_date"
+                                           data-channel="facebook"
+                                           data-sdate="{{ fbudget.start_date }}"
+                                           data-edate="{{ fbudget.end_date }}"
+                                           data-acc_name="{{ f.account_name }}"
+                                           data-budget="{{ fbudget.budget }}"
+                                           data-budgetid="{{ fbudget.id }}"></i>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <b>Budget</b>: {{ fbudget.budget|floatformat:2|intcomma }}
+                                    </div>
+                                    <div class="col-md-3"><b>Start
+                                        date</b>: {{ fbudget.start_date }}</div>
+                                    <div class="col-md-3"><b>End
+                                        date</b>: {{ fbudget.end_date }}</div>
+                                </div>
+                                <div class="progress m-progress--lg">
+                                    <div class="progress-bar
+                                                        {{ fbudget.current_spend|percentage:fbudget.budget }}"
+                                         role="progressbar"
+                                         style="width: {% widthratio fbudget.current_spend fbudget.budget 100 %}%"
+                                         aria-valuenow="{% widthratio fbudget.current_spend fbudget.budget 100 %}"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         data-toggle="m-tooltip" data-placement="top"
+                                         title=""
+                                         data-original-title="{{ fbudget.current_spend }}/{{ fbudget.budget }}">
+                                        {% widthratio fbudget.current_spend fbudget.budget 100 %}%
+                                    </div>
+                                </div>
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="m-separator"></div>
+
+                    {% empty %}
+
+                        <h6>
+                            <p>
+                                No accounts selected for this client...
+                            </p>
+                        </h6>
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--end::Item-->
+
+        <!--begin::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_6_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_6_body" aria-expanded="    false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">Flex Budget</span>
+
+                <span class="m-accordion__item-mode"></span>
+            </div>
+
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_6_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_6_head"
+                 data-parent="#m_accordion_4">
+                <div class="m-accordion__item-content">
                               <span class="m-list-timeline__text">
                                   <h6>
 
                                   </h6>
                               </span>
-                              <div class="row text-center">
-                                  <div class="col-md-2">
-                                      <b>Budget</b>:
-                                      <span id="budget-flex-{{ client_data.id }}"></span>
-                                      {{ client_data.flex_budget|floatformat:2|intcomma }}
-                                  </div>
-                                  <div class="col-md-2">
-                                      <b>Current Total Spend</b>:
-                                      {{ client_data.flex_spend|floatformat:2|intcomma }}
-                                  </div>
-                                  <!-- <div class="col-md-2">
-                                      <b>Target Daily Spend
-                                      </b>:
-                                  </div>
-                                  <div class="col-md-2">
-                                      <b>Yesterday's
-                                          Spend</b>:
-                                  </div>
-                                  <div class="col-md-2">
-                                      <b>Current Daily Spend</b>:
-                                  </div>
-                                  <div class="col-md-2">
-                                      <b>Projected Spend EOM</b>:
+                    <div class="row text-center">
+                        <div class="col-md-2">
+                            <b>Budget</b>:
+                            <span id="budget-flex-{{ client_data.id }}"></span>
+                            {{ client_data.flex_budget|floatformat:2|intcomma }}
+                        </div>
+                        <div class="col-md-2">
+                            <b>Current Total Spend</b>:
+                            {{ client_data.flex_spend|floatformat:2|intcomma }}
+                        </div>
+                        <!-- <div class="col-md-2">
+                            <b>Target Daily Spend
+                            </b>:
+                        </div>
+                        <div class="col-md-2">
+                            <b>Yesterday's
+                                Spend</b>:
+                        </div>
+                        <div class="col-md-2">
+                            <b>Current Daily Spend</b>:
+                        </div>
+                        <div class="col-md-2">
+                            <b>Projected Spend EOM</b>:
 
-                                  </div> -->
-                              </div>
-                              </p>
-                              <div class="progress m-progress--lg"
-                                   style="position: relative;!important;">
-                                  <div class="progress-bar {{ client_data.flex_spend|percentage:client_data.flex_budget }}"
-                                       role="progressbar"
-                                       style="width: {{ client_data.flex_spend|div:client_data.flex_budget }}%;"
-                                       aria-valuenow="{{ client_data.flex_spend|div:client_data.flex_budget }}"
-                                       aria-valuemin="0" aria-valuemax="100"
-                                       data-toggle="m-tooltip" data-placement="top"
-                                       title=""
-                                       data-original-title="{{ client_data.flex_spend }}/{{ client_data.flex_budget }}">
-                                  </div>
-                                  <div class="black-marker"
-                                       style="width: {{ blackmarker }}%"
-                                       aria-valuenow="{{ blackmarker }}"
-                                       aria-valuemin="0" aria-valuemax="100">
-                                  </div>
-                              </div>
-                              <hr />
-                              <form method="post" action="/budget/clients/edit_flex_budget">
-                                {% csrf_token %}
-                                <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;" />
-                                <div class="form-group m-form__group">
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <label for="client_name">Flex Budget:</label>
-                                      <input type="text" name="flex_budget" class="form-control m-input" value="{{ client_data.flex_budget }}" />
-                                    </div>
-                                  </div>
-                                  <input type="submit" value="Submit" />
-                                </div>
-                              </form>
-                            </div>
+                        </div> -->
+                    </div>
+                    </p>
+                    <div class="progress m-progress--lg"
+                         style="position: relative;!important;">
+                        <div class="progress-bar {{ client_data.flex_spend|percentage:client_data.flex_budget }}"
+                             role="progressbar"
+                             style="width: {{ client_data.flex_spend|div:client_data.flex_budget }}%;"
+                             aria-valuenow="{{ client_data.flex_spend|div:client_data.flex_budget }}"
+                             aria-valuemin="0" aria-valuemax="100"
+                             data-toggle="m-tooltip" data-placement="top"
+                             title=""
+                             data-original-title="{{ client_data.flex_spend }}/{{ client_data.flex_budget }}">
+                        </div>
+                        <div class="black-marker"
+                             style="width: {{ blackmarker }}%"
+                             aria-valuenow="{{ blackmarker }}"
+                             aria-valuemin="0" aria-valuemax="100">
                         </div>
                     </div>
-                    <!--end::Item-->
-                    <div class="m-accordion__item">
-                        <div class="m-accordion__item-head collapsed" role="tab"
-                             id="m_accordion_4_item_7_head" data-toggle="collapse"
-                             href="#m_accordion_4_item_7_body" aria-expanded="    false">
-                            <span class="m-accordion__item-icon"></span>
-                            <span class="m-accordion__item-title">Other Budgets</span>
-
-                            <span class="m-accordion__item-mode"></span>
-                        </div>
-
-                        <div class="m-accordion__item-body collapse" id="m_accordion_4_item_7_body"
-                             role="tabpanel" aria-labelledby="m_accordion_4_item_7_head"
-                             data-parent="#m_accordion_4">
-                            <div class="m-accordion__item-content">
-                              <form method="post" action="/budget/clients/edit_other_budget">
-                                {% csrf_token %}
-                                <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;" />
-                                <div class="form-group m-form__group">
-                                  <div class="row">
-                                    <div class="col-md-6">
-                                      <label for="client_name">Other Budget:</label>
-                                      <input type="text" name="other_budget" class="form-control m-input" value="{{ client_data.other_budget }}" />
-                                    </div>
-                                  </div>
-                                  <input type="submit" value="Submit" />
+                    <hr/>
+                    <form method="post" action="/budget/clients/edit_flex_budget">
+                        {% csrf_token %}
+                        <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;"/>
+                        <div class="form-group m-form__group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="client_name">Flex Budget:</label>
+                                    <input type="text" name="flex_budget" class="form-control m-input"
+                                           value="{{ client_data.flex_budget }}"/>
                                 </div>
-                              </form>
                             </div>
+                            <input type="submit" value="Submit"/>
                         </div>
-                    </div>
+                    </form>
                 </div>
+            </div>
+        </div>
+        <!--end::Item-->
+        <div class="m-accordion__item">
+            <div class="m-accordion__item-head collapsed" role="tab"
+                 id="m_accordion_4_item_7_head" data-toggle="collapse"
+                 href="#m_accordion_4_item_7_body" aria-expanded="    false">
+                <span class="m-accordion__item-icon"></span>
+                <span class="m-accordion__item-title">Other Budgets</span>
+
+                <span class="m-accordion__item-mode"></span>
+            </div>
+
+            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_7_body"
+                 role="tabpanel" aria-labelledby="m_accordion_4_item_7_head"
+                 data-parent="#m_accordion_4">
+                <div class="m-accordion__item-content">
+                    <form method="post" action="/budget/clients/edit_other_budget">
+                        {% csrf_token %}
+                        <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;"/>
+                        <div class="form-group m-form__group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="client_name">Other Budget:</label>
+                                    <input type="text" name="other_budget" class="form-control m-input"
+                                           value="{{ client_data.other_budget }}"/>
+                                </div>
+                            </div>
+                            <input type="submit" value="Submit"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock view_client_block %}

@@ -879,8 +879,8 @@ def get_campaigns(request):
         for a in acc_ids:
             try:
                 account = DependentAccount.objects.get(dependent_account_id=a)
-                aw_campaigns = Campaign.objects.filter(account=account, campaign_status='enabled',
-                                                       campaign_serving_status='eligible')
+                # Query for all campaigns regarding the status
+                aw_campaigns = Campaign.objects.filter(account=account)
                 campaigns.extend(aw_campaigns)
             except (ValueError, ObjectDoesNotExist):
                 pass

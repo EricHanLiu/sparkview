@@ -326,6 +326,27 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
         filtering=filtering,
     )
 
+    yesterday = helper.set_params(
+        date_preset='yesterday',
+        level='campaign',
+        filtering=filtering
+    )
+
+    ys_campaigns = helper.get_account_insights(account.account_id, params=yesterday, extra_fields=fields)
+
+    for cmp in ys_campaigns:
+        campaign_name = cmp['campaign_name']
+        campaign_id = cmp['campaign_id']
+        campaign_cost = cmp['spend']
+
+        cmp, created = FacebookCampaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign_id,
+            campaign_name=campaign_name
+        )
+        cmp.campaign_yesterday_cost = campaign_cost
+        cmp.save()
+
     campaigns = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
 
     for cmp in campaigns:
@@ -365,9 +386,8 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                             gr.fb_campaigns.add(c)
                             gr.save()
 
-                temp_spend = gr.current_spend
-
-                gr.current_spend = 0
+                gr.fb_spend = 0
+                gr.fb_yspend = 0
 
                 if gr.start_date:
                     cmp_list = []
@@ -385,16 +405,13 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                     campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
                     for cmp in campaigns_tp:
                         if cmp['campaign_id'] in cmp_list:
-                            gr.current_spend += float(cmp['spend'])
-                            # gr.save()
-                    gr.current_spend += temp_spend
-                    gr.save()
+                            gr.fb_spend += float(cmp['spend'])
+                            gr.save()
                 else:
                     for cmp in gr.fb_campaigns.all():
-                        gr.current_spend += cmp.campaign_cost
-                        # gr.save()
-                    gr.current_spend += temp_spend
-                    gr.save()
+                        gr.fb_spend += cmp.campaign_cost
+                        gr.fb_yspend += cmp.campaign_yesterday_cost
+                        gr.save()
 
 
 @celery_app.task(bind=True)

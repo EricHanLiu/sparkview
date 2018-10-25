@@ -80,22 +80,11 @@
                                     <td class="text-center">
                                         <div class="row">
                                             <div class="col-md-4"><b>Current</b>:
-                                                {{ client.currency }}{{ client.current_spend|intcomma }}
+                                                {{ client.currency }}{{ client.current_spend|floatformat:2|intcomma }}
                                             </div>
-                                            {% if client.has_budget and client.has_gts %}
-                                                <div class="col-md-2"><b>Budget</b>:
-                                                    {{ client.currency }}{{ client.budget|intcomma }}</div>
-                                                <div class="col-md-2"><b>GTS</b>:
-                                                    {{ client.currency }}{{ client.target_spend|intcomma }}
-                                                </div>
-                                            {% elif client.has_gts and not client.has_budget %}
-                                                <div class="col-md-4"><b>GTS</b>:
-                                                    {{ client.currency }}{{ client.target_spend|intcomma }}
-                                                </div>
-                                            {% elif client.has_budget %}
-                                                <div class="col-md-4"><b>Budget</b>:
-                                                    {{ client.currency }}{{ client.budget|intcomma }}</div>
-                                            {% endif %}
+                                            <div class="col-md-4"><b>Budget</b>:
+                                                {{ client.currency }}{{ client.current_budget|intcomma }}
+                                            </div>
                                             <div class="col-md-4">
                                                 <b>Projected</b>:
                                                 {{ client.currency }}{{ client.aw_projected|addf:client.bing_projected|addf:client.fb_projected|floatformat:2|intcomma }}
@@ -103,37 +92,15 @@
                                         </div>
                                         <div class="progress m-progress--lg bloom-progress"
                                              style="position: relative!important;">
-                                            {% if client.has_gts and client.has_budget %}
-                                                <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.budget }} bloom-progress"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%;"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.budget }}">
-                                                    {% widthratio client.current_spend client.budget 100 %}%
-                                                </div>
-                                            {% elif client.has_gts %}
-                                                <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.target_spend }} bloom-progress"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.target_spend 100 %}%"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
-                                                    {% widthratio client.current_spend client.target_spend 100 %}%
-                                                </div>
-                                            {% elif client.has_budget %}
-                                                <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.budget }} bloom-progress"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.budget }}">
-                                                    {% widthratio client.current_spend client.budget 100 %}%
-                                                </div>
-                                            {% endif %}
+                                            <div id="{{ client.id }}_progressbar"
+                                                 class="progress-bar {{ client.current_spend|percentage:client.current_budget }} bloom-progress"
+                                                 role="progressbar"
+                                                 style="width: {% widthratio client.current_spend client.current_budget 100 %}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ client.current_spend }}/{{ client.current_budget }}">
+                                                {% widthratio client.current_spend client.current_budget 100 %}%
+                                            </div>
                                             <div class="black-marker"
                                                  style="width: {{ blackmarker }}%"
                                                  aria-valuenow="{{ blackmarker }}"
@@ -142,19 +109,9 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        {% if client.has_budget and client.has_gts %}
-                                            <span class="{{ client.current_spend|cgap:client.budget }}">
-                                                {{ client.currency }}{{ client.budget|subtract:client.current_spend|floatformat:2|intcomma }}
-                                            </span>
-                                        {% elif client.has_gts and not client.has_budget %}
-                                            <span class="{{ client.current_spend|cgap:client.budget }}">
-                                                {{ client.currency }}{{ client.target_spend|subtract:client.current_spend|floatformat:2|intcomma }}
-                                            </span>
-                                        {% elif client.has_budget %}
-                                            <span class="{{ client.current_spend|cgap:client.budget }}">
-                                                {{ client.currency }}{{ client.budget|subtract:client.current_spend|floatformat:2|intcomma }}
-                                            </span>
-                                        {% endif %}
+                                        <span class="{{ client.current_spend|cgap:client.current_budget }}">
+                                            {{ client.currency }}{{ client.current_budget|subtract:client.current_spend|floatformat:2|intcomma }}
+                                        </span>
                                     </td>
                                 </tr>
                             {% endfor %}
