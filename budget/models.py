@@ -313,7 +313,7 @@ class Client(models.Model):
 
     @property
     def has_fb(self):
-        return self.fb != None
+        return self.facebook != None
 
 
     @property
