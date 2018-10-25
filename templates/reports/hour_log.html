@@ -24,6 +24,9 @@
               <tr class="main-table-header">
                 <th>Member</th>
                 <th>
+                  Role
+                </th>
+                <th>
                   Hours Logged This Month
                 </th>
                 <th>
@@ -36,6 +39,9 @@
               <tr>
                 <td>
                   <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                </td>
+                <td>
+                  {{ member.role.name }}
                 </td>
                 <td>
                   {{ member.actual_hours_month }}

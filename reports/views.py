@@ -91,7 +91,7 @@ def cm_capacity(request):
     # This badly has to be fixed when we implement proper roles
     # TODO: Make this reasonable
     role = Role.objects.filter(Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(name='PPC Team Lead'))
-    members = Member.objects.filter(role=role)
+    members = Member.objects.filter(role__in=role)
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -124,7 +124,7 @@ def am_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
-    members = Member.objects.filter(role=role)
+    members = Member.objects.filter(role__in=role)
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -157,7 +157,7 @@ def seo_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
-    members = Member.objects.filter(role=role)
+    members = Member.objects.filter(role__in=role)
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
