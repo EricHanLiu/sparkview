@@ -16,20 +16,8 @@
                         </div>
                     </div>
                     <div class="m-portlet__body">
-
                         <div class="m-portlet__body">
-                            {# If client has global target spend and budget set display this view #}
-                            {% if client_data.has_gts and client_data.has_budget %}
-                                {% include 'budget/has_both.html' %}
-                                {# If client has global target spend set display this view#}
-                            {% elif client_data.has_gts %}
-                                {% include 'budget/has_gts.html' %}
-                                {# If client has budget set display this view #}
-                            {% elif client_data.has_budget %}
-                                {% include 'budget/has_budget.html' %}
-                            {% else %}
-                                {% include 'budget/has_none.html' %}
-                            {% endif %}
+                          {% include 'budget/has_both.html' %}
                         </div>
                     </div>
                 </div>

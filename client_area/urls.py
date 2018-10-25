@@ -12,5 +12,9 @@ urlpatterns = [
     url(r'^accounts/assign_members$', views.account_assign_members, name='account_assign_members'),
     url(r'^accounts/allocate_percentages$', views.account_allocate_percentages, name='account_allocate_percentages'),
     url(r'^accounts/report_hours$', views.add_hours_to_account, name='add_hours_to_account'),
-    url(r'^get_management_fee_details/(\d*)$', views.get_management_fee_details, name='get_management_fee_details')
+    url(r'^accounts/report_value_added_hours$', views.value_added_hours, name='value_added_hours'),
+    url(r'^get_management_fee_details/(\d*)$', views.get_management_fee_details, name='get_management_fee_details'),
+    url(r'^reports/confirm_sent_am$', views.confirm_sent_am, name='confirm_sent_am'),
+    url(r'^reports/confirm_sent_client$', views.confirm_sent_client, name='confirm_sent_client'),
+    url(r'^reports/set-due-date$', views.set_due_date, name='set_due_date')
 ]

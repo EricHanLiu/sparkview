@@ -50,13 +50,13 @@
                   Hours Available
                 </th>
                 <th>
+                  Actual Hours
+                </th>
+                <th>
                   # of Active Accounts
                 </th>
                 <th>
-                  # of Launch Accounts
-                </th>
-                <th>
-                  Actual Hours
+                  # of Onboarding Accounts
                 </th>
               </tr>
             </thead>
@@ -82,29 +82,13 @@
                   {{ member.hours_available }}
                 </td>
                 <td>
+                  {{ member.actual_hours_month }}
+                </td>
+                <td>
                   {{ member.account_count }}
                 </td>
                 <td>
-                  0
-                </td>
-                <td>
-                  <p style="margin-bottom: 0!important;" class="text-center"><b>
-                      15</b></p>
-                  <p style="margin-bottom: 0!important;" class="text-center">
-                      <small>10</small>
-                  </p>
-                  <p style="margin-bottom: 0!important;" class="text-center">
-                      <span class="m-badge
-                          {% if cpconv.0 < 0 %}
-                              m-badge--success
-                          {% elif cpconv.0 == 0 %}
-                              m-badge--metal
-                          {% else %}
-                              m-badge--success
-                          {% endif %} m-badge--wide">
-                      {{ 15|floatformat:2|cut:"-" }}%
-                      </span>
-                  </p>
+                  {{ member.onboarding_accounts_count }}
                 </td>
               </tr>
               {% endfor %}

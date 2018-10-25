@@ -9,6 +9,10 @@
   #my_skills_datatable td, th {
     text-align: center;
   }
+
+  #reports_datatable {
+    text-align: center;
+  }
 </style>
 {% endblock %}
 
@@ -25,14 +29,16 @@
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
                 {{ member.user.first_name }} {{ member.user.last_name }}
+                &nbsp;
+                <a href="/user_management/members/{{ member.id }}/edit" style="color: #000;">
+                  <span class="la la-edit">
+                  </span>
+                </a>
               </h3>
             </div>
           </div>
         </div>
         <div class="m-portlet__body">
-          {% if request.user.is_staff %}
-          <a href="/user_management/members/{{ member.id }}/edit">Edit {{ member.user.first_name }} {{ member.user.last_name }}</a>
-          {% endif %}
           <div class="form-group m-form__group">
             <label for="input_email">Email address:</label>
             <input type="email" class="form-control m-input" value="{{ member.user.email }}" disabled>
@@ -196,6 +202,7 @@
         </div>
       </div>
 
+      {% if accounts.count %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -244,10 +251,10 @@
                   {{ accountAllocation|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  {{ account.hoursWorkedThisMonth }}
+                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.allHours }}
+                  {{ account.allHours|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}
@@ -255,7 +262,85 @@
           </table>
         </div>
       </div>
+      {% endif %}
 
+      <!-- reporting portlet -->
+      {% if reporting_period %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        {% csrf_token %}
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                {{ month_str }} Reports
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="reports_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Account
+                </th>
+                <th>
+                  Report Type
+                </th>
+                <th>
+                  Due Date
+                </th>
+                <th>
+                  Sent to AM
+                </th>
+                <th>
+                  Sent to Client
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for report in reports %}
+              <tr>
+                <td>
+                  <a href="/clients/accounts/{{ report.account.id }}">{{ report.report_name }}</a>
+                </td>
+                <td>
+                  {{ report.get_report_type_display }}
+                </td>
+                <td>
+                  {% if report.due_date == None %}
+                  <div class="form-group m-form__group row">
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <input type="text" data-account="{{ report.account.id }}" class="form-control m_datepicker"
+                               readonly="" placeholder="Set Due Date Here">
+                    </div>
+                  </div>
+                  {% else %}
+                  {{ report.due_date }}
+                  {% endif %}
+                </td>
+                <td>
+                  <label class="m-checkbox">
+                    <input type="checkbox" class="sent-to-am" data-account="{{ report.account.id }}" {% if report.received_by_am %} checked disabled{% endif %}>
+                    <span></span>
+                  </label>
+                </td>
+                <td>
+                  <label class="m-checkbox">
+                    <input type="checkbox" class="sent-to-client" data-account="{{ report.account.id }}" {% if report.sent_by_am %} checked disabled{% endif %}>
+                    <span></span>
+                  </label>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+      <!-- end reporting portlet -->
+
+      {% if backup_accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -304,10 +389,10 @@
                   {{ backupAccountAllocation|get_item_from_list:account.id }}
                 </td>
                 <td>
-                  {{ account.hoursWorkedThisMonth }}
+                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.allHours }}
+                  {{ account.allHours|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}
@@ -315,6 +400,7 @@
           </table>
         </div>
       </div>
+      {% endif %}
 
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
@@ -401,4 +487,87 @@
 
   <!--End::Main Portlet-->
 </div>
+{% endblock %}
+
+{% block extraJs %}
+{% if reporting_period %}
+<script>
+$(document).ready(function () {
+  var $sentToAmCheck = $('.sent-to-am');
+  var $sentToClientCheck = $('.sent-to-client');
+  var $dueDatePickers = $('.m_datepicker');
+
+  var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+  $dueDatePickers.datepicker({
+      todayHighlight: !0,
+      autoclose: !0,
+      format: 'yyyy-mm-dd',
+      orientation: "bottom left",
+      templates: {leftArrow: '<i class="la la-angle-left"></i>', rightArrow: '<i class="la la-angle-right"></i>'}
+  }).on('show.bs.modal', function (event) {
+     event.stopPropagation();
+  });
+
+  /**
+   * Checks off report box
+   * @param  {string} el  jQuery element
+   * @param  {string} url string
+   * @return {}
+   */
+  var checkReportBox = function (el, url) {
+    $.ajax({
+        url: '/clients/reports/' + url,
+        data: {
+          'account_id': el.data('account'),
+          'month': {{ reports.0.month }}
+        },
+        headers: {'X-CSRFToken': csrftoken},
+        type: 'POST',
+        success: function (data) {
+          console.log(data);
+        }
+    });
+  };
+
+  var setDueDate = function (el) {
+    $.ajax({
+        url: '/clients/reports/set-due-date',
+        data: {
+          'account_id': el.data('account'),
+          'month': {{ reports.0.month }},
+          'due_date' : el.val()
+        },
+        headers: {'X-CSRFToken': csrftoken},
+        type: 'POST',
+        success: function (data) {
+          console.log(data);
+        }
+    });
+  }
+
+  $dueDatePickers.change(function () {
+    setDueDate($(this));
+    $(this).attr('disabled', 'disabled');
+  });
+
+
+  $sentToAmCheck.click(function () {
+    if ($(this).is(':checked')) {
+      checkReportBox($(this), 'confirm_sent_am');
+      $(this).attr('disabled', 'disabled');
+    }
+  });
+
+  $sentToClientCheck.click(function () {
+    if ($(this).is(':checked')) {
+      checkReportBox($(this), 'confirm_sent_client');
+      $(this).attr('disabled', 'disabled');
+    }
+  });
+
+
+});
+</script>
+{% endif %}
 {% endblock %}

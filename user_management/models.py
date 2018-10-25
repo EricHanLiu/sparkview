@@ -151,7 +151,7 @@ class Member(models.Model):
         now   = datetime.datetime.now()
         month = now.month
         year  = now.year
-        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
 
     def allocated_hours_month(self):
@@ -168,7 +168,7 @@ class Member(models.Model):
     def actual_hours_month_by_account(self, account_id):
         account = apps.get_model('budget', 'Client').objects.get(id=account_id)
         now   = datetime.datetime.now()
-        memberHoursThisMonth = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year, account=account).aggregate(Sum('hours'))['hours__sum']
+        memberHoursThisMonth = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year, account=account, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return memberHoursThisMonth if memberHoursThisMonth != None else 0
 
 
@@ -183,6 +183,19 @@ class Member(models.Model):
 
     def hours_available(self):
         return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
+
+    @property
+    def monthly_hour_capacity(self):
+        return round(140.0 * self.buffer_total_percentage / 100.0)
+
+    @property
+    def most_recent_hour_log(self):
+        now   = datetime.datetime.now()
+        hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year, is_unpaid=False)
+        if hours.count() == 0:
+            return 'None'
+        else:
+            return hours.order_by('-created_at')[0].created_at
 
     def has_account(self, account_id):
         """
@@ -225,6 +238,18 @@ class Member(models.Model):
 
     def get_accounts_count(self):
         return self.get_accounts().count()
+
+    @property
+    def active_accounts_count(self):
+        if not hasattr(self, '_active_accounts_count'):
+            self._active_accounts_count = self.get_accounts().filter(status=1).count()
+        return self._active_accounts_count
+
+    @property
+    def onboarding_accounts_count(self):
+        if not hasattr(self, '_onboarding_accounts_count'):
+            self._onboarding_accounts_count = self.get_accounts().filter(status=0).count()
+        return self._onboarding_accounts_count
 
     incidents            = property(countIncidents)
     mostRecentIncident   = property(getMostRecentIncident)

@@ -51,12 +51,21 @@ License: You must have a valid license purchased only from themeforest(the above
     {#        <link href="{% static 'assets/demo/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>#}
     <link href="{% static 'assets/demo/demo6/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
-    <link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet"
-          type="text/css"/>
+    <link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/demo/demo6/base/custom.css' %}" rel="stylesheet" type="text/css"/>
 
     <!--end::Base Styles -->
     <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}" />
+
+    <style>
+    .logo-text-custom {
+       color: #000;
+    }
+    .logo-text-custom:hover {
+       text-decoration: none;
+       color: #000;
+    }
+    </style>
 
     {% block extraCss %}
     {% endblock %}
@@ -119,10 +128,12 @@ License: You must have a valid license purchased only from themeforest(the above
                         <ul class="m-menu__nav  m-menu__nav--submenu-arrow ">
                             <li class="m-menu__item"
                                 data-menu-submenu-toggle="click">
+                                <a href="{% url 'index' %}" class="m-brand__logo-wrapper logo-text-custom">
                                 <h5 style="padding-top: 6px;">
                                     <span class="m-menu__item-here"></span>
                                     SparkView
                                 </h5>
+                                </a>
                                 <!-- <h6>v0.0.1-alpha</h6> -->
                             </li>
 
@@ -464,6 +475,41 @@ License: You must have a valid license purchased only from themeforest(the above
                                   <a href="/reports/agency_overview" class="m-menu__link ">
                                     <span class="m-menu__link-text">
                                       Agency Overview
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/account_spend_progression" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Account Spend Progression
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/cm_capacity" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      CM Capacity
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/am_capacity" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      AM Capacity
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/seo_capacity" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      SEO Capacity
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/hour_log" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Hour Reporting
                                     </span>
                                   </a>
                                 </li>

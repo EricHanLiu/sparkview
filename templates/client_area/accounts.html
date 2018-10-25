@@ -29,6 +29,7 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-12">
+      {% if accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
       		<div class="m-portlet__head-caption">
@@ -119,6 +120,8 @@
           </table>
         </div>
       </div>
+      {% endif %}
+      {% if backup_accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -209,6 +212,7 @@
           </table>
         </div>
       </div>
+      {% endif %}
     </div>
   </div>
   <!--End::Main Portlet-->
