@@ -52,7 +52,7 @@ def profile(request):
 
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
-    reporting_period = now.day <= 31
+    reporting_period = now.day <= 12
     reports = []
 
     # Reports
@@ -393,7 +393,7 @@ def members_single(request, id):
         backupAccountAllocation[account.id] = 0
         backupAccountHours[account.id] = hours
 
-    reporting_period = now.day <= 31
+    reporting_period = now.day <= 12
     reports = []
 
     # Reports
