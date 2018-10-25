@@ -33,7 +33,7 @@
                       Total Actual Hours
                   </h5>
                   <h1 class="text-center inner-text text-info">
-                      {{ actual_aggregate }}
+                      {{ actual_aggregate|floatformat:2 }}
                   </h1>
               </div>
           </div>
@@ -43,7 +43,7 @@
                       Total Allocated Hours
                   </h5>
                   <h1 class="text-center">
-                      {{ allocated_aggregate }}
+                      {{ allocated_aggregate|floatformat:2 }}
                   </h1>
               </div>
           </div>
@@ -53,7 +53,7 @@
                       Total Available Hours
                   </h5>
                   <h1 class="text-center inner-text">
-                      {{ available_aggregate }}
+                      {{ available_aggregate|floatformat:2 }}
                   </h1>
               </div>
           </div>
@@ -82,13 +82,13 @@
                   <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
                 </td>
                 <td>
-                  {{ member.actualHoursThisMonth }}
+                  {{ member.actualHoursThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ member.allocated_hours_month }}
+                  {{ member.allocated_hours_month|floatformat:2 }}
                 </td>
                 <td>
-                  {{ member.hours_available }}
+                  {{ member.hours_available|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}
