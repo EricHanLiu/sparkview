@@ -308,7 +308,7 @@ class Client(models.Model):
 
     @property
     def has_bing(self):
-        return self.bind != None
+        return self.bing != None
 
 
     @property
