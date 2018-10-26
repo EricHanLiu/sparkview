@@ -20,7 +20,7 @@
       <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
           <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-            Account Spend Progression Report
+            PPC Account Spend Progression Report
           </h3>
         </div>
       </div>
@@ -42,10 +42,10 @@
                   Projection
                 </th>
                 <th>
-                  Management Fee If Budget Spent
+                  PPC Management Fee If Budget Spent
                 </th>
                 <th class="proj-yest">
-                  Management Fee If Projected Spent
+                  PPC Management Fee If Projected Spent
                 </th>
                 <th>
                   Projected Loss
@@ -59,23 +59,23 @@
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  ${{ account.current_budget|floatformat:2 }}
+                  ${{ account.current_budget|format_money }}
                 </td>
                 <td>
-                  ${{ account.current_spend|floatformat:2 }}
+                  ${{ account.current_spend|format_money }}
                 </td>
                 <td class="proj-yest">
-                  ${{ account.project_yesterday|floatformat:2 }}
+                  ${{ account.project_yesterday|format_money }}
                 </td>
                 <td>
-                  ${{ account.ppcFee|floatformat:2 }}
+                  ${{ account.ppcFee|format_money }}
                 </td>
                 <td class="proj-yest">
-                  ${{ account|get_fee_by_spend:account.project_yesterday|floatformat:2 }}
+                  ${{ account|get_fee_by_spend:account.project_yesterday|format_money }}
                 </td>
                 <td class="proj-yest">
                   {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
-                  ${{ account.ppcFee|subtract:projected_fee|floatformat:2 }}
+                  ${{ account.ppcFee|subtract:projected_fee|format_money }}
                   {% endwith %}
                 </td>
               </tr>
