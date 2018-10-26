@@ -59,23 +59,23 @@
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  ${{ account.current_budget }}
+                  ${{ account.current_budget|floatformat:2 }}
                 </td>
                 <td>
-                  ${{ account.current_spend }}
+                  ${{ account.current_spend|floatformat:2 }}
                 </td>
                 <td class="proj-yest">
-                  ${{ account.project_yesterday }}
+                  ${{ account.project_yesterday|floatformat:2 }}
                 </td>
                 <td>
-                  ${{ account.totalFee }}
+                  ${{ account.ppcFee|floatformat:2 }}
                 </td>
                 <td class="proj-yest">
-                  ${{ account|get_fee_by_spend:account.project_yesterday }}
+                  ${{ account|get_fee_by_spend:account.project_yesterday|floatformat:2 }}
                 </td>
                 <td class="proj-yest">
                   {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
-                  ${{ account.totalFee|subtract:projected_fee }}
+                  ${{ account.ppcFee|subtract:projected_fee|floatformat:2 }}
                   {% endwith %}
                 </td>
               </tr>

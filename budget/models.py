@@ -265,7 +265,7 @@ class Client(models.Model):
             hours += self.seo_hours
         if (self.has_cro):
             hours += self.cro_hours
-        return hours
+        return round(hours, 2)
 
     def getCurrentBudget(self):
         if not hasattr(self, '_current_budget'):

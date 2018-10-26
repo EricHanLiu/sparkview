@@ -12,7 +12,7 @@ import datetime
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry
 from budget.models import Client
-from client_area.models import AccountHourRecord, MonthlyReport
+from client_area.models import AccountHourRecord, MonthlyReport, Promo
 from .forms import NewMemberForm, NewTeamForm
 
 @login_required
@@ -52,6 +52,8 @@ def profile(request):
 
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
+    promos = Promo.objects.filter(account__in=accounts)
+
     reporting_period = now.day <= 12
     reports = []
 
@@ -83,6 +85,7 @@ def profile(request):
         'scoreBadges'             : scoreBadges,
         'reporting_period' : reporting_period,
         'reports' : reports,
+        'promos' : promos,
         'month_str' : now.strftime("%B")
     }
 
@@ -379,6 +382,8 @@ def members_single(request, id):
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 
+    promos = Promo.objects.filter(account__in=accounts)
+
     accountHours = {}
     accountAllocation = {}
     for account in accounts:
@@ -424,7 +429,9 @@ def members_single(request, id):
         'scoreBadges'    : scoreBadges,
         'incidents' : incidents,
         'reporting_period' : reporting_period,
-        'reports' : reports
+        'reports' : reports,
+        'promos' : promos,
+        'month_str' : now.strftime("%B")
     }
 
     return render(request, 'user_management/profile.html', context)

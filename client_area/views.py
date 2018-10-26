@@ -9,7 +9,7 @@ import calendar, datetime
 
 from budget.models import Client
 from user_management.models import Member, Team
-from .models import MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
+from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
 from .forms import NewClientForm
 
 
@@ -431,6 +431,8 @@ def account_single(request, id):
     for row in accountsHoursThisMonthByMember:
         row['member'] = members.get(id=row['member'])
 
+    promos = Promo.objects.filter(account=account, end_date__gte=now)
+
     statusBadges = ['info', 'success', 'warning', 'danger']
 
     context = {
@@ -439,7 +441,8 @@ def account_single(request, id):
         'accountHoursMember'    : accountsHoursThisMonthByMember,
         'changes'               : changes,
         'accountHoursThisMonth' : accountHoursThisMonth,
-        'statusBadges'          : statusBadges
+        'statusBadges'          : statusBadges,
+        'promos' : promos
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -836,3 +839,16 @@ def new_promo(request):
     account = Client.objects.get(id=account_id)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
+
+    promo_name = request.POST.get('promo-name')
+    promo_start_date = request.POST.get('start-date')
+    promo_end_date = request.POST.get('end-date')
+
+    promo = Promo()
+    promo.name = promo_name
+    promo.account = account
+    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d")
+    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d")
+    promo.save()
+
+    return redirect('/clients/account/' + str(account_id))
