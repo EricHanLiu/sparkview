@@ -43,15 +43,6 @@
             <label for="input_email">Email address:</label>
             <input type="email" class="form-control m-input" value="{{ member.user.email }}" disabled>
           </div>
-          <!-- <div class="m-form__group form-group">
-            <label for="">Permissions:</label>
-            <div class="m-checkbox-list">
-              <label class="m-checkbox">
-                <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %} disabled> Admin
-                <span></span>
-              </label>
-            </div>
-          </div> -->
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
@@ -202,7 +193,7 @@
         </div>
       </div>
 
-      {% if accounts.count %}
+      {% if accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -339,6 +330,64 @@
       </div>
       {% endif %}
       <!-- end reporting portlet -->
+
+      <!-- Begin my promos -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                My Promos
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="row m-row--no-padding m-row--col-separator-xl">
+            {% if promos.count > 0 %}
+            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="promo_datatable">
+              <thead class="thead-inverse">
+                <tr class="main-table-header">
+                  <th>
+                    Name
+                  </th>
+                  <th>
+                    Account
+                  </th>
+                  <th>
+                    Start Date
+                  </th>
+                  <th>
+                    End Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for promo in promos %}
+                <tr>
+                  <td>
+                    {{ promo.name }}
+                  </td>
+                  <td>
+                    {{ promo.account.client_name }}
+                  </td>
+                  <td>
+                    {{ promo.start_date }}
+                  </td>
+                  <td>
+                    {{ promo.end_date }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            No promos for you right now!
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- end my promos -->
 
       {% if backup_accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">

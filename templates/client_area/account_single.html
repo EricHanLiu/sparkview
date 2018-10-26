@@ -45,6 +45,7 @@
             </div>
           </div>
         </div>
+        <!-- Assigned members -->
         <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
           <div class="row">
             <div class="col-xl-10">
@@ -122,9 +123,11 @@
             </div>
           </div>
         </div>
+        <!-- End of assigned members -->
       </div>
     </div>
     <div class="col-xl-4">
+      <!-- Details -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -190,6 +193,8 @@
           </div>
         </div>
       </div>
+      <!-- end details -->
+      <!-- Hours this month -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -233,6 +238,9 @@
           </table>
         </div>
       </div>
+      <!-- end hours this month -->
+
+      <!-- Account history -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -288,6 +296,8 @@
           </table>
         </div>
       </div>
+      <!-- end account history -->
+      <!-- Management fee structure -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -302,7 +312,7 @@
           {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
           <p>Manual Override: ${{ account.management_fee_override }}</p>
           {% else %}
-          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="fee_structure_datatable">
             <thead class="thead-inverse">
               <tr class="main-table-header">
                 <th>
@@ -329,8 +339,10 @@
           {% endif %}
         </div>
       </div>
+      <!-- end management fee structure -->
     </div>
     <div class="col-xl-8">
+      <!-- Main portlet -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -433,6 +445,8 @@
           </div>
         </div>
       </div>
+      <!-- End main portlet -->
+
 
       <!-- Promos -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -440,93 +454,67 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text">
-                <a href="/budget/client/{{ account.id }}">Budget Information</a>
+                Promos for {{ account.client_name }}
               </h3>
             </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_new_promo"> Add Promos
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
         <div class="m-portlet__body">
           <div class="row m-row--no-padding m-row--col-separator-xl">
-            <div class="col-md-12 col-lg-12 col-xl-6">
-              <div class="m-widget1">
-                <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Total Budget</h3>
-                      <span class="m-widget1__desc">Total monthy budget</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-brand">${{ account.current_budget|format_money }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Spend This Month</h3>
-                      <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-danger">${{ account.current_spend|format_money }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Budget Remaining</h3>
-                      <span class="m-widget1__desc">Left to spend this month</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget|format_money }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-12 col-lg-12 col-xl-6">
-              <div class="m-widget1">
-                <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Allocated Hours This Month</h3>
-                      <span class="m-widget1__desc">All hours allocated this month</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-info">{{ account.allHours|floatformat }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Hours Worked This Month</h3>
-                      <span class="m-widget1__desc">All hours worked this month</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth|floatformat }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Hours Remaining This Month</h3>
-                      <span class="m-widget1__desc">All hours remaining this month</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth|floatformat }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {% if promos.count > 0 %}
+            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="promo_datatable">
+              <thead class="thead-inverse">
+                <tr class="main-table-header">
+                  <th>
+                    Name
+                  </th>
+                  <th>
+                    Account
+                  </th>
+                  <th>
+                    Start Date
+                  </th>
+                  <th>
+                    End Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for promo in promos %}
+                <tr>
+                  <td>
+                    {{ promo.name }}
+                  </td>
+                  <td>
+                    {{ promo.account.client_name }}
+                  </td>
+                  <td>
+                    {{ promo.start_date }}
+                  </td>
+                  <td>
+                    {{ promo.end_date }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            No promos for {{ account.client_name }} right now!
+            {% endif %}
           </div>
         </div>
       </div>
       <!-- End promos -->
-
-    </div>
   </div>
 </div>
 <!--End::Main Portlet-->
@@ -875,6 +863,51 @@
 </div>
 <!-- End assign percentages modal -->
 
+<!-- Add promo -->
+<div class="modal fade" id="m_new_promo" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Add a promo to {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/new_promo" id="m_form_new_promo">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Name:</label>
+                        <input type="text" name="promo-name" class="form-control m-input" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Start Date:</label>
+                        <input type="text" name="start-date" class="form-control m_datepicker"
+                               readonly="" placeholder="Set start date here">
+                      </div>
+                      <div class="col-md-4">
+                        <label>End Date:</label>
+                        <input type="text" name="end-date" class="form-control m_datepicker"
+                               readonly="" placeholder="Set end date here">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Add Promo" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End add promo -->
+
 {% endblock %}
 
 {% block extraJs %}
@@ -882,13 +915,24 @@
 $(document).ready(function () {
   var $distrubteHoursBtn = $('#distribute_hours_btn');
 
+  $('.m_datepicker').datepicker({
+      todayHighlight: !0,
+      autoclose: !0,
+      format: 'yyyy-mm-dd',
+      orientation: "bottom left",
+      templates: {leftArrow: '<i class="la la-angle-left"></i>', rightArrow: '<i class="la la-angle-right"></i>'}
+  }).on('show.bs.modal', function (event) {
+     event.stopPropagation();
+  });
+
+
   var distributeHours = function () {
     var hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
     var seoHours = {{ account.seo_hours|escapejs }};
     var hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
     var croHours = {{ account.cro_hours|escapejs }};
     var totalHours = {{ account.allHours|escapejs }};
-    var ppcHours = {{ account.ppcHours|escapejs }}
+    var ppcHours = {{ account.ppcHours|escapejs }};
 
     // Cms
     var cms = [];

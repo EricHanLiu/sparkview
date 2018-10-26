@@ -144,7 +144,7 @@ $(document).ready(function () {
 
     });
 
-    $("#my_skills_datatable, #account_change_datatable").DataTable({
+    $("#my_skills_datatable, #account_change_datatable, #fee_structure_datatable").DataTable({
         "ordering": false,
         "bPaginate": false,
         "bLengthChange": false,

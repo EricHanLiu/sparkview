@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^get_management_fee_details/(\d*)$', views.get_management_fee_details, name='get_management_fee_details'),
     url(r'^reports/confirm_sent_am$', views.confirm_sent_am, name='confirm_sent_am'),
     url(r'^reports/confirm_sent_client$', views.confirm_sent_client, name='confirm_sent_client'),
-    url(r'^reports/set-due-date$', views.set_due_date, name='set_due_date')
+    url(r'^reports/set-due-date$', views.set_due_date, name='set_due_date'),
+    url(r'^accounts/new_promo$', views.new_promo, name='new_promo')
 ]
