@@ -132,6 +132,8 @@ def add_client(request):
         context['remaining'] = remaining
         context['no_of_days'] = lastday_month.day
         context['blackmarker'] = round(black_marker, 2)
+        context['statusBadges'] = ['info', 'success', 'warning', 'danger']
+
 
         return render(request, 'budget/clients.html', context)
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load template_filters %} {% load custom_filters %}
 {% load humanize %}{% block content %}
 
     <div class="m-content">
@@ -68,14 +68,19 @@
                                     <td style="text-align: center; vertical-align: middle;">
                                         <label class="m-checkbox m-checkbox--solid m-checkbox-primary">
                                             <input type="checkbox" name="client_ids" id="{{ client.id }}"
-                                                   value="{{ client.id }}">
+                                                   value="{{ client.id }}" />
                                             <span></span>
                                         </label>
                                     </td>
                                     <td>
+                                      <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:client.status }}"
+                                            data-toggle="m-tooltip" data-original-title="{{ client.get_status_display }}"><span style="display:none;">{{ client.get_status_display }}</span></span>
+                                            &nbsp;
+
                                         <a href="{% url 'budget:client_details' client.id %}">
                                             {{ client.client_name }}
                                         </a>
+
                                     </td>
                                     <td class="text-center">
                                         <div class="row">

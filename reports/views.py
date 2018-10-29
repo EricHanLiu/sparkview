@@ -73,8 +73,13 @@ def account_spend_progression(request):
         return HttpResponse('You do not have permission to view this page')
     accounts = Client.objects.filter(status=1)
 
+    total_projected_loss = 0.0
+    for account in accounts:
+        total_projected_loss += account.projected_loss
+
     context = {
-        'accounts' : accounts
+        'accounts' : accounts,
+        'total_projected_loss' : total_projected_loss
     }
 
     return render(request, 'reports/account_spend_progression.html', context)
@@ -102,7 +107,7 @@ def cm_capacity(request):
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
-    report_type = 'CM Member Capacity Report'
+    report_type = 'Paid Media Member Capacity Report'
 
     context = {
         'members' : members,

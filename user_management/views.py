@@ -22,6 +22,9 @@ def index(request):
 
 @login_required
 def profile(request):
+    """
+    Currently deprecated. No longer being used. Use member_single
+    """
     user         = request.user
     member       = Member.objects.get(user=user)
     incidents    = Incident.objects.filter(members=member)
@@ -37,10 +40,13 @@ def profile(request):
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 
     accountHours = {}
+    value_added_hours = {}
     accountAllocation = {}
     for account in accounts:
         hours  = account.getHoursWorkedThisMonthMember(member)
+        va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
+        value_added_hours[account.id] = va_hours
         accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
 
     backupAccountHours = {}
@@ -75,17 +81,18 @@ def profile(request):
         'member'                  : member,
         'hoursThisMonth'          : memberHoursThisMonth,
         'accountHours'            : accountHours,
-        'backupHours'             : backupAccountHours,
-        'accountAllocation'       : accountAllocation,
+        'backupHours' : backupAccountHours,
+        'accountAllocation' : accountAllocation,
         'backupAccountAllocation' : backupAccountAllocation,
-        'incidents'               : incidents,
-        'memberSkills'            : memberSkills,
-        'accounts'                : accounts,
-        'backupAccounts'          : backupAccounts,
-        'scoreBadges'             : scoreBadges,
+        'incidents' : incidents,
+        'memberSkills' : memberSkills,
+        'accounts' : accounts,
+        'backupAccounts' : backupAccounts,
+        'scoreBadges' : scoreBadges,
         'reporting_period' : reporting_period,
         'reports' : reports,
         'promos' : promos,
+        'value_added_hours' : value_added_hours,
         'month_str' : now.strftime("%B")
     }
 
@@ -360,11 +367,15 @@ def edit_team(request):
 
 
 @login_required
-def members_single(request, id):
-    if (not request.user.is_staff):
+def members_single(request, id=0):
+    if (not request.user.is_staff and id != 0):
         return HttpResponse('You do not have permission to view this page')
 
-    member = Member.objects.get(id=id)
+    if (id == 0): # This is a profile page
+        member = Member.objects.get(user=request.user)
+    else:
+        member = Member.objects.get(id=id)
+
     incidents    = Incident.objects.filter(members=member)
     memberSkills = SkillEntry.objects.filter(member=member)
 
@@ -382,13 +393,20 @@ def members_single(request, id):
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 
+    starAccounts = Client.objects.none()
+    if (request.user.is_staff):
+        starAccounts = Client.objects.filter(star_flag=True)
+
     promos = Promo.objects.filter(account__in=accounts)
 
     accountHours = {}
+    value_added_hours = {}
     accountAllocation = {}
     for account in accounts:
         hours  = account.getHoursWorkedThisMonthMember(member)
+        va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
+        value_added_hours[account.id] = va_hours
         accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
 
     backupAccountHours = {}
@@ -397,6 +415,13 @@ def members_single(request, id):
         hours  = account.getHoursWorkedThisMonthMember(member)
         backupAccountAllocation[account.id] = 0
         backupAccountHours[account.id] = hours
+
+    starAccountHours = {}
+    starAccountAllocation = {}
+    for account in starAccounts:
+        hours = account.getHoursWorkedThisMonthMember(member)
+        starAccountAllocation[account.id] = account.getAllocationThisMonthMember(member)
+        starAccountHours[account.id] = hours
 
     reporting_period = now.day <= 12
     reports = []
@@ -418,20 +443,24 @@ def members_single(request, id):
 
     context = {
         'hoursThisMonth' : memberHoursThisMonth,
-        'accountHours'            : accountHours,
-        'backupHours'             : backupAccountHours,
-        'accountAllocation'       : accountAllocation,
+        'accountHours' : accountHours,
+        'backupHours' : backupAccountHours,
+        'accountAllocation' : accountAllocation,
         'backupAccountAllocation' : backupAccountAllocation,
-        'member'         : member,
-        'memberSkills'   : memberSkills,
-        'accounts'       : accounts,
+        'member' : member,
+        'memberSkills' : memberSkills,
+        'accounts' : accounts,
         'backupAccounts' : backupAccounts,
-        'scoreBadges'    : scoreBadges,
+        'scoreBadges' : scoreBadges,
         'incidents' : incidents,
         'reporting_period' : reporting_period,
         'reports' : reports,
         'promos' : promos,
-        'month_str' : now.strftime("%B")
+        'value_added_hours' : value_added_hours,
+        'month_str' : now.strftime("%B"),
+        'starAccounts' : starAccounts,
+        'starAccountHours' : starAccountHours,
+        'starAccountAllocation' : starAccountAllocation
     }
 
     return render(request, 'user_management/profile.html', context)

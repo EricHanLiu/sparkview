@@ -590,7 +590,7 @@ def add_hours_to_account(request):
                       Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
                       Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
                       Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
-                  )
+                  ).order_by('client_name')
 
         all_accounts = Client.objects.all()
 
@@ -654,6 +654,7 @@ def value_added_hours(request):
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year, is_unpaid=True)
 
         return redirect('/clients/accounts/report_hours')
+
 
 @login_required
 def account_allocate_percentages(request):
@@ -780,6 +781,7 @@ def confirm_sent_am(request):
 
     return JsonResponse(resp)
 
+
 @login_required
 def confirm_sent_client(request):
     """
@@ -837,6 +839,7 @@ def new_promo(request):
         return HttpResponse('Invalid request')
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
+    member = Member.objects.get(user=request.user)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
 
@@ -851,4 +854,25 @@ def new_promo(request):
     promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d")
     promo.save()
 
-    return redirect('/clients/account/' + str(account_id))
+    return redirect('/clients/accounts/' + str(account_id))
+
+
+@login_required
+def star_account(request):
+    """
+    Stars or unstars an account
+    """
+    if (request.method == 'GET'):
+        return HttpResponse('Invalid request')
+    account_id = request.POST.get('account_id')
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    account = Client.objects.get(id=account_id)
+    set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
+
+    account.star_flag = set_to_star
+    account.save()
+
+    return JsonResponse({'resp' : 'success'})

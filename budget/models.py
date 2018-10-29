@@ -92,6 +92,7 @@ class Client(models.Model):
     status         = models.IntegerField(default=0, choices=STATUS_CHOICES)
     clientGrade    = models.IntegerField(default=0)
     actualHours    = models.IntegerField(default=0)
+    star_flag      = models.BooleanField(default=False)
 
     # Member attributes (we'll see if there's a better way to do this)
     cm1    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm1')
@@ -156,6 +157,13 @@ class Client(models.Model):
         year  = now.year
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
+
+
+    def value_added_hours_month_member(self, member):
+        now   = datetime.datetime.now()
+        hours = AccountHourRecord.objects.filter(member=member, account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+        return hours if hours != None else 0
+
 
     def getAllocationThisMonthMember(self, member):
         percentage = 0.0
@@ -299,6 +307,13 @@ class Client(models.Model):
             flex_spend += (self.bing_spend - self.bing_budget)
 
         return flex_spend
+
+
+    @property
+    def projected_loss(self):
+        fee_if_budget_spent = self.ppcFee
+        fee_if_projected_spent = self.get_fee_by_spend(self.project_yesterday)
+        return round(fee_if_budget_spent - fee_if_projected_spent, 2)
 
 
     @property

@@ -21,11 +21,16 @@
   background: rgba(66, 134, 244, 0.5);
 }
 
+.fa-star:hover {
+  cursor: pointer;
+}
+
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="m-content">
+  <!-- Assigned members -->
   <div class="row">
     <div class="col-xl-12">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -37,6 +42,8 @@
                 &nbsp;
                 <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
                 &nbsp;
+                <i class="fa fa-star" data-flag="{% if account.star_flag %}1{% else %}0{% endif %}" {% if account.star_flag %}style="color:#ffd53d;"{% endif %}></i>
+                &nbsp;
                 <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000;">
                   <span class="la la-edit">
                   </span>
@@ -44,11 +51,25 @@
               </h3>
             </div>
           </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_assign_members"> Assign Members
+                </button>
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_position_allocation"> Assign %
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
         <!-- Assigned members -->
         <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
           <div class="row">
-            <div class="col-xl-10">
+            <div class="col-xl-12">
               {% for role, assigned_member in account.assigned_ams.items %}
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
@@ -109,17 +130,6 @@
                   </div>
                 </div>
               {% endfor %}
-            </div>
-            <div class="col-xl-2">
-                <button type="button" class="btn btn-info m-btn" style="width: 100%;"
-                        data-toggle="modal"
-                        data-target="#m_assign_members"> Assign Members to {{ account.client_name }}
-                </button>
-                <br /><br />
-                <button type="button" class="btn btn-info m-btn" style="width: 100%;"
-                        data-toggle="modal"
-                        data-target="#m_position_allocation"> Assign Percentages to Positions
-                </button>
             </div>
           </div>
         </div>
@@ -246,7 +256,7 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                {{ account.client_name }} Account History
+                Account History
               </h3>
             </div>
           </div>
@@ -348,9 +358,18 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text">
-                <a href="/budget/client/{{ account.id }}">Budget Information</a>
+                Budget Information
               </h3>
             </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <a type="button" class="btn btn-info m-btn" href="/budget/client/{{ account.id }}">
+                   Manage Budget
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
         <div class="m-portlet__body">
@@ -446,15 +465,13 @@
         </div>
       </div>
       <!-- End main portlet -->
-
-
       <!-- Promos -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text">
-                Promos for {{ account.client_name }}
+                Promos
               </h3>
             </div>
           </div>
@@ -516,6 +533,7 @@
       </div>
       <!-- End promos -->
   </div>
+  <!-- end assigned members -->
 </div>
 <!--End::Main Portlet-->
 </div>
@@ -868,7 +886,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" >Add a promo to {{ account.client_name }}</h5>
+                <h5 class="modal-title" >Add a promo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
@@ -914,6 +932,36 @@
 <script>
 $(document).ready(function () {
   var $distrubteHoursBtn = $('#distribute_hours_btn');
+  var $starIcon = $('.fa-star');
+
+  var starAccount = function (flagOn) {
+    $.ajax({
+        url: '/clients/accounts/flag',
+        data: {
+          'account_id': {{ account.id }},
+          'star_flag': flagOn
+        },
+        headers: {'X-CSRFToken': csrftoken},
+        type: 'POST',
+        success: function (data) {
+          console.log(data);
+        }
+    });
+  };
+
+  $starIcon.click(function () {
+    if ($starIcon.data('flag') == '1') {
+      // On, so turn it off
+      starAccount(1);
+      $starIcon.data('flag', '0')
+      $starIcon.css('color', '');
+    } else {
+      // Off, so turn it on
+      starAccount(0);
+      $starIcon.data('flag', '1')
+      $starIcon.css('color', '#ffd53d');
+    }
+  });
 
   $('.m_datepicker').datepicker({
       todayHighlight: !0,
