@@ -680,12 +680,24 @@ def add_groupings(request):
         if group_by == 'text':
             group_by_text = request.POST.get('cgr_group_by_text')
 
-            new_group = CampaignGrouping.objects.create(
-                group_name=group_name,
-                group_by=group_by_text,
-                budget=budget,
-                client=client
-            )
+            group_text_contains = request.POST.get('cgr_text_contains')
+
+            if group_text_contains == 'yes':
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    client=client,
+                    group_by_contains=True
+                )
+            elif group_text_contains == 'no':
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    client=client,
+                    group_by_contains=False
+                )
 
         elif group_by == 'manual':
 
@@ -1067,7 +1079,7 @@ def assign_client_accounts(request):
 def disconnect_client_account(request):
 
     data = request.POST
-    print(data)
+
     channel = data['channel']
     acc_id = data['acc_id']
     client_id = data['client_id']

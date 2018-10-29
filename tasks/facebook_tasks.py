@@ -378,13 +378,22 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                     if gr.group_by == 'manual':
                         continue
                     else:
-                        if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
-                            gr.aw_campaigns.remove(c)
-                            gr.save()
+                        if gr.group_by_contains:
+                            if gr.group_by.lower() not in c.campaign_name.lower() and c in gr.fb_campaigns.all():
+                                gr.fb_campaigns.remove(c)
+                                gr.save()
 
-                        elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
-                            gr.fb_campaigns.add(c)
-                            gr.save()
+                            elif gr.group_by.lower() in c.campaign_name.lower() and c not in gr.fb_campaigns.all():
+                                gr.fb_campaigns.add(c)
+                                gr.save()
+                        elif not gr.group_by_contains:
+                            if gr.group_by.lower() in c.campaign_name.lower() and c in gr.fb_campaigns.all():
+                                gr.fb_campaigns.remove(c)
+                                gr.save()
+
+                            elif gr.group_by.lower() not in c.campaign_name.lower() and c not in gr.fb_campaigns.all():
+                                gr.fb_campaigns.add(c)
+                                gr.save()
 
                 gr.fb_spend = 0
                 gr.fb_yspend = 0

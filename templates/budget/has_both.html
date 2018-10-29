@@ -321,7 +321,13 @@
                                        data-end_date="{{ gr.end_date }}"
                                             {% endif %}></i>
                                 </div>
-                                <div class="col-md-3">Group by: {{ gr.group_by }}</div>
+                                    {% if gr.group_by_contains and gr.group_by == 'manual' %}
+                                        <div class="col-md-3">Group type: {{ gr.group_by }}</div>
+                                    {% elif not gr.group_by_contains %}
+                                        <div class="col-md-3">Doesn't contain: {{ gr.group_by }}</div>
+                                    {% elif gr.group_by_contains %}
+                                        <div class="col-md-3">Contains: {{ gr.group_by }}</div>
+                                    {% endif %}
                                 <div class="col-md-3">
                                     Spend: {{ gr.current_spend|floatformat:2|intcomma }}</div>
                                 <div class="col-md-3">Budget: {{ gr.budget|floatformat:2|intcomma }}</div>

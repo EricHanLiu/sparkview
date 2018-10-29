@@ -483,13 +483,23 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                     if gr.group_by == 'manual':
                         continue
                     else:
-                        if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
-                            gr.aw_campaigns.remove(c)
-                            gr.save()
+                        if gr.group_by_contains:
+                            if gr.group_by.lower() not in c.campaign_name.lower() and c in gr.aw_campaigns.all():
+                                gr.aw_campaigns.remove(c)
+                                gr.save()
 
-                        elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                            gr.aw_campaigns.add(c)
-                            gr.save()
+                            elif gr.group_by.lower() in c.campaign_name.lower() and c not in gr.aw_campaigns.all():
+                                gr.aw_campaigns.add(c)
+                                gr.save()
+                        elif not gr.group_by_contains:
+                            if gr.group_by.lower() in c.campaign_name.lower() and c in gr.aw_campaigns.all():
+                                gr.aw_campaigns.remove(c)
+                                gr.save()
+
+                            elif gr.group_by.lower() not in c.campaign_name.lower() and c not in gr.aw_campaigns.all():
+                                gr.aw_campaigns.add(c)
+                                gr.save()
+
 
                 gr.aw_spend = 0
                 gr.aw_yspend = 0

@@ -614,21 +614,30 @@ $(document).ready(function () {
         $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
         $("#campaign_list_across").append(
             '<div class="m-checkbox-inline">\n' +
+            '<div id="cgr_ch_contains">' +
             '<label class="m-checkbox">\n' +
-            '<input type="checkbox" name="text_contains"> Contains' +
+            '<input type="checkbox" class="yes_no" name="cgr_text_contains" id="text_yes" value="yes" checked> Contains text' +
             '<span></span>\n' +
             '</label>\n' +
             '<label class="m-checkbox">\n' +
-            '<input type="checkbox" name="text_doesnt_contain"> Does not contain' +
+            '<input type="checkbox" class="yes_no" name="cgr_text_contains" id="text_no" value="no"> Does not contain text' +
             '<span></span>\n' +
             '</label>\n' +
+            '</div>' +
             '<input type="text" class="form-control group-by"\n' +
             'name="cgr_group_by_text" id="cgr_group_by_text" placeholder="Group by.." required>' +
             '</div>');
+
+        $("input.yes_no").on('change', function () {
+            $("input.yes_no").prop('checked', false);
+            $(this).prop('checked', true);
+        });
+
     });
 
     $("#gr_manual_across").change(function () {
         $("#cgr_group_by_text").remove();
+        $("#cgr_ch_contains").remove();
         $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
 
         data = {
