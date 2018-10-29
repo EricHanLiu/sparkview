@@ -465,12 +465,6 @@
                 </th>
                 <th>Account</th>
                 <th>
-                  My Actual Hours
-                </th>
-                <th>
-                  My Allocated Hours
-                </th>
-                <th>
                   Total Actual Hours
                 </th>
                 <th>
@@ -486,12 +480,6 @@
                 </td>
                 <td>
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                </td>
-                <td>
-                  {{ accountHours|get_item_from_list:account.id }}
-                </td>
-                <td>
-                  {{ accountAllocation|get_item_from_list:account.id }}
                 </td>
                 <td>
                   {{ account.hoursWorkedThisMonth|floatformat:2 }}

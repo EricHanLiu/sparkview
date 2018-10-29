@@ -418,12 +418,8 @@ def members_single(request, id=0):
 
     starAccountHours = {}
     starAccountAllocation = {}
-    for account in starAccounts:
-        hours = account.getHoursWorkedThisMonthMember(member)
-        starAccountAllocation[account.id] = account.getAllocationThisMonthMember(member)
-        starAccountHours[account.id] = hours
 
-    reporting_period = now.day <= 12
+    reporting_period = now.day <= 31
     reports = []
 
     # Reports
