@@ -168,7 +168,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#my_clients_datatable").DataTable({
+    $("#my_clients_datatable, #star_clients_datatable").DataTable({
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": true,

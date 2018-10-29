@@ -108,6 +108,59 @@
           </table>
         </div>
       </div>
+        <!-- value added hours -->
+      {% if value_added_hours.count > 0 %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Value Added Hours This Month
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_value_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Account
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+                <th>
+                  Date Added
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in value_added_hours %}
+                <tr>
+                  <td>
+                    {{ hourRow.account.client_name }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours }}
+                  </td>
+                  <td>
+                    {{ hourRow.get_month_display }}, {{ hourRow.year }}
+                  </td>
+                  <td>
+                    {{ hourRow.created_at }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+      <!-- End value added hours -->
     </div>
     <div class="col-xl-8">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -193,6 +246,7 @@
         </div>
       </div>
 
+      <!-- Accounts -->
       {% if accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
@@ -254,6 +308,7 @@
         </div>
       </div>
       {% endif %}
+      <!-- end accounts -->
 
       <!-- reporting portlet -->
       {% if reporting_period %}
@@ -389,6 +444,70 @@
       </div>
       <!-- end my promos -->
 
+      {% if request.user.is_staff and starAccounts.count > 0 %}
+      <!-- Being starred accounts (admin only) -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Flagged Accounts
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="star_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  My Actual Hours
+                </th>
+                <th>
+                  My Allocated Hours
+                </th>
+                <th>
+                  Total Actual Hours
+                </th>
+                <th>
+                  Total Allocated Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in starAccounts %}
+              <tr>
+                <td>
+                  {{ account.parentClient.name }}
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  {{ accountHours|get_item_from_list:account.id }}
+                </td>
+                <td>
+                  {{ accountAllocation|get_item_from_list:account.id }}
+                </td>
+                <td>
+                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
+                </td>
+                <td>
+                  {{ account.allHours|floatformat:2 }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- End starred accounts -->
+      {% endif %}
+
       {% if backup_accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
@@ -451,6 +570,7 @@
       </div>
       {% endif %}
 
+      <!-- Member skills -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -484,6 +604,9 @@
           </table>
         </div>
       </div>
+      <!-- end member skills -->
+
+      <!-- Incidents -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -531,6 +654,7 @@
           {% endif %}
         </div>
       </div>
+      <!-- End incidents -->
     </div>
   </div>
 

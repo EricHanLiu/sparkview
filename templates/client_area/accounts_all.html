@@ -101,7 +101,7 @@
                   {{ account.tier }}
                 </td>
                 <td>
-                  <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
+                  <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"><span style="display:none;">{{ account.get_status_display }}</span></span>
                 </td>
                 <td>
                   {{ account.totalFee }}

@@ -178,15 +178,19 @@ class Member(models.Model):
             self._allocated_hours_percentage = 100.0 * (self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
         return self._allocated_hours_percentage
 
+
     def buffer_percentage(self):
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage
+
 
     def hours_available(self):
         return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
 
+
     @property
     def monthly_hour_capacity(self):
         return round(140.0 * self.buffer_total_percentage / 100.0)
+
 
     @property
     def most_recent_hour_log(self):
@@ -197,12 +201,14 @@ class Member(models.Model):
         else:
             return hours.order_by('-created_at')[0].created_at
 
+
     def has_account(self, account_id):
         """
         Returns True if this member deals with this account in any way, False otherwise (checks account member assignments)
         """
         account = apps.get_model('budget', 'Client').objects.get(id=account_id)
         return (account in self.accounts or account in self.backup_accounts)
+
 
     def teams_have_accounts(self, account_id):
         """
@@ -218,6 +224,7 @@ class Member(models.Model):
                 resp = True
                 break
         return resp
+
 
     def get_accounts(self):
         if not hasattr(self, '_accounts'):
@@ -236,6 +243,7 @@ class Member(models.Model):
             self._backupaccounts = Client.objects.filter(Q(cmb=self) | Q(amb=self) | Q(seob=self) | Q(stratb=self))
         return self._backupaccounts
 
+
     def get_accounts_count(self):
         return self.get_accounts().count()
 
@@ -250,6 +258,17 @@ class Member(models.Model):
         if not hasattr(self, '_onboarding_accounts_count'):
             self._onboarding_accounts_count = self.get_accounts().filter(status=0).count()
         return self._onboarding_accounts_count
+
+
+    @property
+    def utilization_rate(self):
+        """
+        Percentage that describes member efficiency. Actual / allocated
+        """
+        if (self.allocatedHoursMonth == 0.0):
+            return 0.0
+        return 100.0 * (self.actualHoursThisMonth / self.allocatedHoursMonth)
+
 
     incidents            = property(countIncidents)
     mostRecentIncident   = property(getMostRecentIncident)

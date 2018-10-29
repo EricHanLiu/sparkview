@@ -73,6 +73,9 @@
                 <th>
                   Available Hours
                 </th>
+                <th>
+                  Utilization Rate
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -89,6 +92,9 @@
                 </td>
                 <td>
                   {{ member.hours_available|floatformat:2 }}
+                </td>
+                <td>
+                  {{ member.utilization_rate|floatformat:2 }}%
                 </td>
               </tr>
               {% endfor %}
