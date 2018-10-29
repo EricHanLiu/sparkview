@@ -119,6 +119,9 @@
                     {% with cprojected=client_data.aw_projected|addf:client_data.bing_projected|addf:client_data.fb_projected %}
                         <h1 class="text-center
 
+
+
+
                                 {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
                             {{ client_data.currency }}{{ client_data.project_yesterday|floatformat:0|intcomma }}
                         </h1>
@@ -126,6 +129,9 @@
                         </div>
                         <div id="projectionAverage" style="display:none;">
                             <h1 class="text-center
+
+
+
 
                                     {% if client_data.budget != 0 %}{{ cprojected|pcolor:client_data.budget }}{% endif %} inner-text">
                                 {{ client_data.currency }}{{ client_data.project_average|floatformat:0|intcomma }}
@@ -281,6 +287,7 @@
                                 data-target="#m_add_campaign_group_across"
                                 data-acc_id="
 
+
                                         {% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                 data-client_id="{{ client_data.id }}"
                                 class="btn m-btn--pill m-btn--air btn-outline-success btn-sm m-btn m-btn--custom">
@@ -303,6 +310,9 @@
                                        data-group_by="{{ gr.group_by }}"
                                        data-acc_ids="
 
+
+
+
                                                {% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                        data-group_budget="{{ gr.budget }}"
                                        data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
@@ -311,7 +321,13 @@
                                        data-end_date="{{ gr.end_date }}"
                                             {% endif %}></i>
                                 </div>
-                                <div class="col-md-3">Group by: {{ gr.group_by }}</div>
+                                    {% if gr.group_by_contains and gr.group_by == 'manual' %}
+                                        <div class="col-md-3">Group type: {{ gr.group_by }}</div>
+                                    {% elif not gr.group_by_contains %}
+                                        <div class="col-md-3">Doesn't contain: {{ gr.group_by }}</div>
+                                    {% elif gr.group_by_contains %}
+                                        <div class="col-md-3">Contains: {{ gr.group_by }}</div>
+                                    {% endif %}
                                 <div class="col-md-3">
                                     Spend: {{ gr.current_spend|floatformat:2|intcomma }}</div>
                                 <div class="col-md-3">Budget: {{ gr.budget|floatformat:2|intcomma }}</div>
@@ -436,12 +452,19 @@
                 <div class="m-accordion__item-content">
                     {% for a in client_data.adwords.all %}
                         <span class="m-list-timeline__text">
-                                        <h6>
-                                            <a href="{% url 'tools:account_overview' a.dependent_account_id a.channel %}">
-                                            {{ a.dependent_account_name }}</a> -
-                                            <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                        </h6>
-                                    </span>
+                            <h6>
+                            <i class="fa fa-minus-circle"
+                               data-toggle="modal"
+                               data-target="#m_disconnect_account"
+                               data-client_id="{{ client_data.id }}"
+                               data-acc_id="{{ a.dependent_account_id }}"
+                               data-acc_name="{{ a.dependent_account_name }}"
+                               data-channel="{{ a.channel }}"></i>
+                            <a href="{% url 'tools:account_overview' a.dependent_account_id a.channel %}">
+                                {{ a.dependent_account_name }}</a> - <a
+                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                            </h6>
+                        </span>
                         <div class="row text-center">
                             <div class="col-md-2">
                                 <b>Budget</b>:
@@ -635,14 +658,21 @@
                     {% for b in client_data.bing.all %}
                         <div class="m-separator"></div>
                         <span class="m-list-timeline__text">
-                                    <h6>
-                                        <a href="{% url 'tools:account_overview' b.account_id b.channel %}">
-                                            {{ b.account_name }}
-                                        </a>
-                                            -
-                                        <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
-                                    </h6>
-                                </span>
+                            <h6>
+                                <i class="fa fa-minus-circle"
+                                   data-toggle="modal"
+                                   data-target="#m_disconnect_account"
+                                   data-client_id="{{ client_data.id }}"
+                                   data-acc_id="{{ b.account_id }}"
+                                   data-acc_name="{{ b.account_name }}"
+                                   data-channel="{{ b.channel }}"></i>
+                                <a href="{% url 'tools:account_overview' b.account_id b.channel %}">
+                                    {{ b.account_name }}
+                                </a>
+                                    -
+                                <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                            </h6>
+                        </span>
                         <p>
                         <div class="row text-center">
                             <div class="col-md-2">
@@ -787,6 +817,13 @@
                         <div class="m-separator"></div>
                         <span class="m-list-timeline__text">
                                 <h6>
+                                <i class="fa fa-minus-circle"
+                                   data-toggle="modal"
+                                   data-target="#m_disconnect_account"
+                                   data-client_id="{{ client_data.id }}"
+                                   data-acc_id="{{f.account_id }}"
+                                   data-acc_name="{{ f.account_name }}"
+                                   data-channel="{{ f.channel }}"></i>
                                     {{ f.account_name }} -
                                     <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
                                 </h6>

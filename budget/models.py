@@ -626,6 +626,7 @@ class CampaignGrouping(models.Model):
     fb_yspend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
     # current_spend = models.FloatField(default=0)
+    group_by_contains = models.BooleanField(blank=True, default=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 

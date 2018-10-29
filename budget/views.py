@@ -682,12 +682,24 @@ def add_groupings(request):
         if group_by == 'text':
             group_by_text = request.POST.get('cgr_group_by_text')
 
-            new_group = CampaignGrouping.objects.create(
-                group_name=group_name,
-                group_by=group_by_text,
-                budget=budget,
-                client=client
-            )
+            group_text_contains = request.POST.get('cgr_text_contains')
+
+            if group_text_contains == 'yes':
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    client=client,
+                    group_by_contains=True
+                )
+            elif group_text_contains == 'no':
+                new_group = CampaignGrouping.objects.create(
+                    group_name=group_name,
+                    group_by=group_by_text,
+                    budget=budget,
+                    client=client,
+                    group_by_contains=False
+                )
 
         elif group_by == 'manual':
 
@@ -1063,6 +1075,49 @@ def assign_client_accounts(request):
         'client': client.client_name
     }
     subprocess.Popen("python " + clients_file, shell=True)
+    return JsonResponse(response)
+
+@login_required
+def disconnect_client_account(request):
+
+    data = request.POST
+
+    channel = data['channel']
+    acc_id = data['acc_id']
+    client_id = data['client_id']
+
+    response = {}
+
+    if channel == 'adwords':
+
+        account = DependentAccount.objects.get(dependent_account_id=acc_id)
+        client = Client.objects.get(id=client_id)
+
+        client.adwords.remove(account)
+        client.save()
+
+        response['account'] = account.dependent_account_name
+
+    elif channel == 'bing':
+
+        account = BingAccounts.objects.get(account_id=acc_id)
+        client = Client.objects.get(id=client_id)
+
+        client.bing.remove(account)
+        client.save()
+
+        response['account'] = account.account_name
+
+    elif channel == 'facebook':
+
+        account = FacebookAccount.objects.get(account_id=acc_id)
+        client = Client.objects.get(id=client_id)
+
+        client.facebook.remove(account)
+        client.save()
+
+        response['account'] = account.account_name
+
     return JsonResponse(response)
 
 @login_required
