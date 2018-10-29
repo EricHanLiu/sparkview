@@ -1064,6 +1064,49 @@ def assign_client_accounts(request):
     return JsonResponse(response)
 
 @login_required
+def disconnect_client_account(request):
+
+    data = request.POST
+    print(data)
+    channel = data['channel']
+    acc_id = data['acc_id']
+    client_id = data['client_id']
+
+    response = {}
+
+    if channel == 'adwords':
+
+        account = DependentAccount.objects.get(dependent_account_id=acc_id)
+        client = Client.objects.get(id=client_id)
+
+        client.adwords.remove(account)
+        client.save()
+
+        response['account'] = account.dependent_account_name
+
+    elif channel == 'bing':
+
+        account = BingAccounts.objects.get(account_id=acc_id)
+        client = Client.objects.get(id=client_id)
+
+        client.bing.remove(account)
+        client.save()
+
+        response['account'] = account.account_name
+
+    elif channel == 'facebook':
+
+        account = FacebookAccount.objects.get(account_id=acc_id)
+        client = Client.objects.get(id=client_id)
+
+        client.facebook.remove(account)
+        client.save()
+
+        response['account'] = account.account_name
+
+    return JsonResponse(response)
+
+@login_required
 def edit_client_name(request):
 
     data = request.POST

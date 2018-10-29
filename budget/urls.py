@@ -13,6 +13,7 @@ urlpatterns = [
     url(r"^client/sixmonths/(?P<client_id>\d+)/", views.sixm_budget, name="six_months"),
     url(r"^client/hist/(?P<client_id>\d+)", views.hist_client_details, name="hist_client_details"),
     url(r"^client/accounts/add", views.assign_client_accounts),
+    url(r"^client/accounts/delete", views.disconnect_client_account),
     url(r"^client/editname", views.edit_client_name),
     url(r"^client/kpi/add", views.add_kpi),
     url(r"^client/kpi/delete", views.delete_kpi),

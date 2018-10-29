@@ -328,6 +328,19 @@ $(document).ready(function () {
         $(".modal-body #cgr_channel").val(channel);
     });
 
+    $("#m_disconnect_account").on('show.bs.modal', function (e) {
+
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        let client_id = $(e.relatedTarget).data('client_id');
+        let channel = $(e.relatedTarget).data('channel');
+
+        $(".modal-body #disc_acc_id").val(acc_id);
+        $(".modal-body #disc_client_id").val(client_id);
+        $(".modal-body #disc_channel").val(channel);
+        $(".modal-body #disc_acc_name").html(acc_name);
+    });
+
     $("#m_edit_campaign_group").on('show.bs.modal', function (e) {
 
         let gr_id = $(e.relatedTarget).data('grid');
@@ -596,10 +609,22 @@ $(document).ready(function () {
 
     $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
 
+    // TODO: Remove checkboxes on switching between checkboxes
     $("#gr_text_across").change(function () {
         $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
-        $("#campaign_list_across").append('<input type="text" class="form-control group-by"\n' +
-            'name="cgr_group_by_text" id="cgr_group_by_text" placeholder="Group by.." required>');
+        $("#campaign_list_across").append(
+            '<div class="m-checkbox-inline">\n' +
+            '<label class="m-checkbox">\n' +
+            '<input type="checkbox" name="text_contains"> Contains' +
+            '<span></span>\n' +
+            '</label>\n' +
+            '<label class="m-checkbox">\n' +
+            '<input type="checkbox" name="text_doesnt_contain"> Does not contain' +
+            '<span></span>\n' +
+            '</label>\n' +
+            '<input type="text" class="form-control group-by"\n' +
+            'name="cgr_group_by_text" id="cgr_group_by_text" placeholder="Group by.." required>' +
+            '</div>');
     });
 
     $("#gr_manual_across").change(function () {

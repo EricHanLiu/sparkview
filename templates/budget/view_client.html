@@ -17,7 +17,7 @@
                     </div>
                     <div class="m-portlet__body">
                         <div class="m-portlet__body">
-                          {% include 'budget/has_both.html' %}
+                            {% include 'budget/has_both.html' %}
                         </div>
                     </div>
                 </div>
@@ -385,26 +385,6 @@
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Campaign groups</p>
                         <div class="form-group">
-{#                            <div class="form-group m_form__group row">#}
-{#                                <div class="col-md-12">#}
-{#                                    <select class="form-control m-input--large" name="cgr_acc_id"#}
-{#                                            id="select_accounts_cgr" style="width: 100%;">#}
-{#                                        <option></option>#}
-{#                                        {% for a in client_data.adwords.all %}#}
-{#                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">#}
-{#                                                A - {{ a.dependent_account_name }}</option>#}
-{#                                        {% endfor %}#}
-{#                                        {% for b in client_data.bing.all %}#}
-{#                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B#}
-{#                                                - {{ b.account_name }}</option>#}
-{#                                        {% endfor %}#}
-{#                                        {% for f in client_data.facebook.all %}#}
-{#                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F#}
-{#                                                - {{ f.account_name }}</option>#}
-{#                                        {% endfor %}#}
-{#                                    </select>#}
-{#                                </div>#}
-{#                            </div>#}
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <input type="text" class="form-control group-name"
@@ -639,6 +619,33 @@
     </div>
     <!--End::Modal assing accounts-->
 
+    <!--START:Modal disconnect account-->
+    <div class="modal fade" id="m_disconnect_account" tabindex="-1" role="dialog"
+         aria-labelledby="disconnect_account">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Are you sure you want to disconnect <span class="m--font-bolder" id="disc_acc_name"></span> from client?</p>
+                    </div>
+                    <input type="hidden" id="disc_acc_id">
+                    <input type="hidden" id="disc_client_id">
+                    <input type="hidden" id="disc_channel">
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="disconnectAccount()">Yes
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="No">No
+                        </button>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal delete campaign group-->
 
     <script type="text/javascript">
 
@@ -1330,6 +1337,39 @@
             });
         }
 
+        function disconnectAccount() {
+
+            let modal = $("#m_disconnect_account");
+            let acc_id = $("#disc_acc_id").val();
+            let channel = $("#disc_channel").val();
+            let client_id = $("#disc_client_id").val();
+
+            let data = {
+                'acc_id': acc_id,
+                'channel': channel,
+                'client_id': client_id
+            };
+
+            $.ajax({
+                url: '/budget/client/accounts/delete',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    modal.modal('hide');
+                    toastr.success("Account " + data['account'] + " succesfully disconnected from client.")
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText);
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
+                }
+            });
+        }
+
         function toggleCampaigns(gr_id) {
             event.preventDefault();
             $("#campaigns_" + gr_id).toggle("slow");
@@ -1341,7 +1381,7 @@
             let ys_proj = $('#cgr_ys_' + gr_id);
 
             cgr_proj_toggle.change(function () {
-                if($(this).is(':checked')){
+                if ($(this).is(':checked')) {
                     as_proj.show();
                     ys_proj.hide();
                 } else {
@@ -1360,24 +1400,24 @@
 {% endblock content %}
 
 {% block extraJs %}
-<script>
-$(document).ready(function () {
-  $projectionToggle = $('#proj_check');
-  $projectAverage = $('#projectionAverage');
-  $projectYesterday = $('#projectionYesterday');
-  $projectDesc = $('#projectionDesc');
+    <script>
+        $(document).ready(function () {
+            $projectionToggle = $('#proj_check');
+            $projectAverage = $('#projectionAverage');
+            $projectYesterday = $('#projectionYesterday');
+            $projectDesc = $('#projectionDesc');
 
-  $projectionToggle.change(function () {
-    if ($(this).is(':checked')) {
-      $projectAverage.hide();
-      $projectYesterday.show();
-      $projectDesc.html('Projecting with yesterday spend');
-    } else {
-      $projectYesterday.hide();
-      $projectAverage.show();
-      $projectDesc.html('Projecting with average spend');
-    }
-  });
-});
-</script>
+            $projectionToggle.change(function () {
+                if ($(this).is(':checked')) {
+                    $projectAverage.hide();
+                    $projectYesterday.show();
+                    $projectDesc.html('Projecting with yesterday spend');
+                } else {
+                    $projectYesterday.hide();
+                    $projectAverage.show();
+                    $projectDesc.html('Projecting with average spend');
+                }
+            });
+        });
+    </script>
 {% endblock %}
