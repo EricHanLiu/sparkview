@@ -386,63 +386,24 @@
       {% endif %}
       <!-- end reporting portlet -->
 
-      <!-- Begin my promos -->
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+      <!-- Calendar promos -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text">
-                My Promos
+              Promo Calendar
               </h3>
             </div>
           </div>
         </div>
         <div class="m-portlet__body">
-          <div class="row m-row--no-padding m-row--col-separator-xl">
-            {% if promos.count > 0 %}
-            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="promo_datatable">
-              <thead class="thead-inverse">
-                <tr class="main-table-header">
-                  <th>
-                    Name
-                  </th>
-                  <th>
-                    Account
-                  </th>
-                  <th>
-                    Start Date
-                  </th>
-                  <th>
-                    End Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for promo in promos %}
-                <tr>
-                  <td>
-                    {{ promo.name }}
-                  </td>
-                  <td>
-                    {{ promo.account.client_name }}
-                  </td>
-                  <td>
-                    {{ promo.start_date }}
-                  </td>
-                  <td>
-                    {{ promo.end_date }}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-            {% else %}
-            No promos for you right now!
-            {% endif %}
+          <div id="calendar" class="fc fc-unthemed fc-ltr">
+
           </div>
         </div>
       </div>
-      <!-- end my promos -->
+      <!-- end promos -->
 
       {% if request.user.is_staff and starAccounts.count > 0 %}
       <!-- Being starred accounts (admin only) -->
@@ -669,6 +630,31 @@ $(document).ready(function () {
   }).on('show.bs.modal', function (event) {
      event.stopPropagation();
   });
+
+  /**
+   * Calendar
+   */
+   $('#calendar').fullCalendar({
+     header: {
+       left: "prev, next, today",
+       center: "title",
+       right: "month, listWeek"
+     },
+     aspectRatio: 2,
+     defaultDate: moment(),
+     defaultView: 'listWeek',
+     events: [
+       {% for promo in promos %}
+       {
+         title: "{{ promo.name }}",
+         description: "{{ promo.desc }}",
+         start: moment("{{ promo.start_date|date:'Y-m-d' }}"),
+         end: moment("{{ promo.end_date|date:'Y-m-d' }}"),
+         className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+       }{% if not forloop.last %},{% endif %}
+       {% endfor %}
+     ]
+   });
 
   /**
    * Checks off report box
