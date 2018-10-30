@@ -850,8 +850,8 @@ def new_promo(request):
     promo = Promo()
     promo.name = promo_name
     promo.account = account
-    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d")
-    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d")
+    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
+    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
     promo.save()
 
     return redirect('/clients/accounts/' + str(account_id))

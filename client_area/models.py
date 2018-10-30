@@ -1,5 +1,5 @@
 from django.db import models
-import calendar
+import calendar, datetime
 
 from user_management.models import Member
 
@@ -141,8 +141,22 @@ class Promo(models.Model):
     """
     name = models.CharField(max_length=255)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
+    desc = models.CharField(max_length=140, default='No description', null=True)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+
+    @property
+    def is_active(self):
+        now = datetime.datetime.now(self.start_date.tzinfo)
+        return (now >= self.start_date and now <= self.end_date)
+
+    @property
+    def formatted_start(self):
+        return self.start_date.strftime("%Y-%m-%d %H:%M")
+
+    @property
+    def formatted_end(self):
+        return self.end_date.strftime("%Y-%m-%d %H:%M")
 
     def __str__(self):
         return self.name

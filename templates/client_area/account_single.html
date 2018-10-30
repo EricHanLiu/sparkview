@@ -487,47 +487,8 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          <div class="row m-row--no-padding m-row--col-separator-xl">
-            {% if promos.count > 0 %}
-            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="promo_datatable">
-              <thead class="thead-inverse">
-                <tr class="main-table-header">
-                  <th>
-                    Name
-                  </th>
-                  <th>
-                    Account
-                  </th>
-                  <th>
-                    Start Date
-                  </th>
-                  <th>
-                    End Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for promo in promos %}
-                <tr>
-                  <td>
-                    {{ promo.name }}
-                  </td>
-                  <td>
-                    {{ promo.account.client_name }}
-                  </td>
-                  <td>
-                    {{ promo.start_date }}
-                  </td>
-                  <td>
-                    {{ promo.end_date }}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-            {% else %}
-            No promos for {{ account.client_name }} right now!
-            {% endif %}
+          <div id="calendar" class="fc fc-unthemed fc-ltr">
+
           </div>
         </div>
       </div>
@@ -904,12 +865,20 @@
                       </div>
                       <div class="col-md-4">
                         <label>Start Date:</label>
-                        <input type="text" name="start-date" class="form-control m_datepicker"
+                        <!-- <div class="input-group date datetimepicker bs-datetime">
+                            <input type="text" size="16" class="form-control">
+                            <span class="input-group-addon">
+                                <button class="btn default date-set" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div> -->
+                        <input type="text" name="start-date" class="form-control datetimepicker"
                                readonly="" placeholder="Set start date here">
                       </div>
                       <div class="col-md-4">
                         <label>End Date:</label>
-                        <input type="text" name="end-date" class="form-control m_datepicker"
+                        <input type="text" name="end-date" class="form-control datetimepicker"
                                readonly="" placeholder="Set end date here">
                       </div>
                     </div>
@@ -933,6 +902,31 @@
 $(document).ready(function () {
   var $distrubteHoursBtn = $('#distribute_hours_btn');
   var $starIcon = $('.fa-star');
+
+  /**
+   * Calendar
+   */
+  $('#calendar').fullCalendar({
+   header: {
+     left: "prev, next, today",
+     center: "title",
+     right: "month, listWeek"
+   },
+   aspectRatio: 2,
+   defaultDate: moment(),
+   defaultView: 'listWeek',
+   events: [
+     {% for promo in promos %}
+     {
+       title: "{{ promo.name }}",
+       description: "{{ promo.desc }}",
+       start: moment("{{ promo.formatted_start }}"),
+       end: moment("{{ promo.formatted_end }}"),
+       className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+     }{% if not forloop.last %},{% endif %}
+     {% endfor %}
+   ]
+  });
 
   var starAccount = function (flagOn) {
     $.ajax({
@@ -972,6 +966,8 @@ $(document).ready(function () {
   }).on('show.bs.modal', function (event) {
      event.stopPropagation();
   });
+
+  $('.datetimepicker').datetimepicker();
 
 
   var distributeHours = function () {

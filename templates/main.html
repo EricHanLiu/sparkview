@@ -52,6 +52,7 @@ License: You must have a valid license purchased only from themeforest(the above
     <link href="{% static 'assets/demo/demo6/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'assets/demo/demo6/base/custom.css' %}" rel="stylesheet" type="text/css"/>
 
     <!--end::Base Styles -->
@@ -513,6 +514,13 @@ License: You must have a valid license purchased only from themeforest(the above
                                     </span>
                                   </a>
                                 </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/facebook" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Facebook
+                                    </span>
+                                  </a>
+                                </li>
                               </ul>
                             </div>
                           </li>
@@ -762,6 +770,7 @@ License: You must have a valid license purchased only from themeforest(the above
 
 </script>
 
+<script src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
 <script src="{% static 'assets/app/js/custom.js' %}"></script>
 <!--end::Page Snippets -->
 {% block extraJs %}
