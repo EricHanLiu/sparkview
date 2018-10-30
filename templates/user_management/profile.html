@@ -648,8 +648,8 @@ $(document).ready(function () {
        {
          title: "{{ promo.name }}",
          description: "{{ promo.desc }}",
-         start: moment("{{ promo.start_date|date:'Y-m-d' }}"),
-         end: moment("{{ promo.end_date|date:'Y-m-d' }}"),
+         start: moment("{{ promo.formatted_start }}"),
+         end: moment("{{ promo.formatted_end }}"),
          className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
        }{% if not forloop.last %},{% endif %}
        {% endfor %}

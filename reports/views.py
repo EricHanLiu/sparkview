@@ -204,3 +204,20 @@ def hour_log(request):
     }
 
     return render(request, 'reports/hour_log.html', context)
+
+
+@login_required
+def facebook(request):
+    """
+    Creates report that just shows active FB accounts
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.exclude(facebook=None).filter(status=1)
+
+    context = {
+        'accounts' : accounts
+    }
+
+    return render(request, 'reports/facebook.html', context)

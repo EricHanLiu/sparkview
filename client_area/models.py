@@ -150,5 +150,13 @@ class Promo(models.Model):
         now = datetime.datetime.now(self.start_date.tzinfo)
         return (now >= self.start_date and now <= self.end_date)
 
+    @property
+    def formatted_start(self):
+        return self.start_date.strftime("%Y-%m-%d %H:%M")
+
+    @property
+    def formatted_end(self):
+        return self.end_date.strftime("%Y-%m-%d %H:%M")
+
     def __str__(self):
         return self.name
