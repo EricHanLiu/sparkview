@@ -600,11 +600,13 @@ $(document).ready(function () {
     });
 
     $("#campaigns_gr_across").select2({
-        placeholder: "Select campaigns..."
+        placeholder: "Select campaigns...",
+        closeOnSelect: false
     });
 
     $("#campaigns_gr_edit").select2({
-        placeholder: "Select campaigns..."
+        placeholder: "Select campaigns...",
+        closeOnSelect: false
     });
 
     $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
