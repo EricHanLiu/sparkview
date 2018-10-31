@@ -185,7 +185,6 @@ def adwords_cron_anomalies(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_account_anomalies(self, data):
-
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
@@ -208,7 +207,6 @@ def adwords_account_anomalies(self, data):
     return json.dumps(acc_anomalies)
 
 
-
 @celery_app.task(bind=True)
 def adwords_cron_ovu(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -229,10 +227,10 @@ def adwords_cron_ovu(self, customer_id):
         customer_id=account.dependent_account_id,
         dateRangeType="CUSTOM_DATE",
         extra_fields=[
-             "Date",
-             "AccountCurrencyCode"
-         ],
-         ** this_month
+            "Date",
+            "AccountCurrencyCode"
+        ],
+        **this_month
     )
 
     curr_code = data_this_month[0]['currency']
@@ -483,23 +481,26 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                     if gr.group_by == 'manual':
                         continue
                     else:
-                        if gr.group_by_contains:
-                            if gr.group_by.lower() not in c.campaign_name.lower() and c in gr.aw_campaigns.all():
-                                gr.aw_campaigns.remove(c)
-                                gr.save()
+                        # Retrieve keywords to group by as a list
+                        group_by = gr.group_by.split(',')
 
-                            elif gr.group_by.lower() in c.campaign_name.lower() and c not in gr.aw_campaigns.all():
-                                gr.aw_campaigns.add(c)
-                                gr.save()
-                        elif not gr.group_by_contains:
-                            if gr.group_by.lower() in c.campaign_name.lower() and c in gr.aw_campaigns.all():
-                                gr.aw_campaigns.remove(c)
-                                gr.save()
+                        # Loop through kws and add campaigns to the group
+                        for keyword in group_by:
+                            if '+' in keyword:
+                                if keyword.strip('+').lower() in c.campaign_name.lower() \
+                                        and c not in gr.aw_campaigns.all():
+                                    gr.aw_campaigns.add(c)
 
-                            elif gr.group_by.lower() not in c.campaign_name.lower() and c not in gr.aw_campaigns.all():
-                                gr.aw_campaigns.add(c)
-                                gr.save()
+                                if keyword.strip('+').lower() not in c.campaign_name.lower() \
+                                        and c in gr.aw_campaigns.all():
+                                    gr.aw_campaigns.remove(c)
 
+                            if '-' in keyword:
+                                if keyword.strip('-').lower() in c.campaign_name.lower() \
+                                        and c in gr.aw_campaigns.all():
+                                    gr.aw_campaigns.remove(c)
+
+                gr.save()
 
                 gr.aw_spend = 0
                 gr.aw_yspend = 0
@@ -673,7 +674,6 @@ def adwords_adgroup_labels(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_result_trends(self, customer_id):
-
     trends_data = {}
     w_data = {}
     to_parse = []
@@ -881,7 +881,6 @@ def adwords_account_quality_score(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_account_change_history(self, customer_id):
-
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
