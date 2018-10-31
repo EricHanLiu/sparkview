@@ -43,7 +43,9 @@ class DependentAccount(models.Model):
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
     dependent_OVU = models.IntegerField(default=0)
-    desired_spend = models.IntegerField(default=0)
+    desired_spend = models.IntegerField(default=0) # same as budget?
+    desired_spend_start_date = models.DateTimeField(default=None, null=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_end_date = models.DateTimeField(default=None, null=True)
     current_spend = models.FloatField(default=0)
     segmented_spend = JSONField(default=dict)
     trends = JSONField(default=dict)
@@ -96,6 +98,14 @@ class DependentAccount(models.Model):
     protected = models.BooleanField(default=False)
     currency = models.CharField(max_length=255, default='')
     ch_flag = models.BooleanField(default=False)
+
+
+    @property
+    def has_custom_dates(self):
+        """
+        Boolean. Checks if custom dates are set or the desired spend on the account
+        """
+        return (self.desired_spend_start_date != None and self.desired_spend_end_date != None)
 
 
     @property

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block content %}
+<div class="m-content">
+  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+            All Promos
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row m-row--no-padding m-row--col-separator-xl">
+        <div class="col-12">
+          <div id="calendar">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+  $(document).ready(function () {
+    /**
+     * Calendar
+     */
+     $('#calendar').fullCalendar({
+       header: {
+         left: "prev, next, today",
+         center: "title",
+         right: "month, listWeek"
+       },
+       aspectRatio: 2,
+       defaultDate: moment(),
+       defaultView: 'listWeek',
+       events: [
+         {% for promo in promos %}
+         {
+           title: "{{ promo }}",
+           description: "{{ promo.desc }}",
+           start: moment("{{ promo.formatted_start }}"),
+           end: moment("{{ promo.formatted_end }}"),
+           className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+         }{% if not forloop.last %},{% endif %}
+         {% endfor %}
+       ]
+     });
+  });
+</script>
+{% endblock %}

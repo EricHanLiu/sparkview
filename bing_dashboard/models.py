@@ -12,6 +12,8 @@ class BingAccounts(models.Model):
     account_ovu = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
     current_spend = models.FloatField(default=0)
+    desired_spend_start_date = models.DateTimeField(default=None, null=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_end_date = models.DateTimeField(default=None, null=True)
     segmented_spend = JSONField(default=dict)
     trends = JSONField(default=dict)
     qscore_data = JSONField(default=dict)
@@ -53,6 +55,13 @@ class BingAccounts(models.Model):
     assigned = models.BooleanField(default=False)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def has_custom_dates(self):
+        """
+        Boolean. Checks if custom dates are set or the desired spend on the account
+        """
+        return (self.desired_spend_start_date != None and self.desired_spend_end_date != None)
 
     class Meta:
         ordering = ['created_time','updated_time']
