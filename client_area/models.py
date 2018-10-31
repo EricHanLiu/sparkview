@@ -159,4 +159,4 @@ class Promo(models.Model):
         return self.end_date.strftime("%Y-%m-%d %H:%M")
 
     def __str__(self):
-        return self.name
+        return self.account.client_name + ': ' + self.name

@@ -646,11 +646,11 @@ $(document).ready(function () {
      events: [
        {% for promo in promos %}
        {
-         title: "{{ promo.name }}",
+         title: "{{ promo }}",
          description: "{{ promo.desc }}",
          start: moment("{{ promo.formatted_start }}"),
          end: moment("{{ promo.formatted_end }}"),
-         className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+         className: "{% if promo.is_active %}m-fc-event--solid-success{% else %}m-fc-event--solid-warning{% endif %}"
        }{% if not forloop.last %},{% endif %}
        {% endfor %}
      ]

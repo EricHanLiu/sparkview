@@ -27,7 +27,7 @@
     </div>
     <div class="m-portlet__body">
       <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-2">
               <div class="bbox shadow p-3 mb-5 bg-white rounded">
                   <h5 class="m--padding-10">
                       Total Actual Hours
@@ -37,23 +37,43 @@
                   </h1>
               </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-2">
               <div class="bbox shadow p-3 mb-5 bg-white rounded">
                   <h5 class="m--padding-10">
                       Total Allocated Hours
                   </h5>
-                  <h1 class="text-center">
+                  <h1 class="text-center inner-text">
                       {{ allocated_aggregate|floatformat:2 }}
                   </h1>
               </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-2">
               <div class="bbox shadow p-3 mb-5 bg-white rounded">
                   <h5 class="m--padding-10">
                       Total Available Hours
                   </h5>
                   <h1 class="text-center inner-text">
                       {{ available_aggregate|floatformat:2 }}
+                  </h1>
+              </div>
+          </div>
+          <div class="col-md-2">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Total Utiliation Rate
+                  </h5>
+                  <h1 class="text-center inner-text">
+                      {{ utilization_rate|floatformat:2 }}%
+                  </h1>
+              </div>
+          </div>
+          <div class="col-md-2">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Total Capacity Rate
+                  </h5>
+                  <h1 class="text-center inner-text">
+                      {{ capacity_rate|floatformat:2 }}%
                   </h1>
               </div>
           </div>
@@ -76,6 +96,9 @@
                 <th>
                   Utilization Rate
                 </th>
+                <th>
+                  Capacity Rate
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -95,6 +118,9 @@
                 </td>
                 <td>
                   {{ member.utilization_rate|floatformat:2 }}%
+                </td>
+                <td>
+                  {{ member.capacity_rate|floatformat:2 }}%
                 </td>
               </tr>
               {% endfor %}

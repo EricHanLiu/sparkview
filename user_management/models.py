@@ -188,6 +188,11 @@ class Member(models.Model):
 
 
     @property
+    def total_hours_minus_buffer(self):
+        return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0)
+
+
+    @property
     def monthly_hour_capacity(self):
         return round(140.0 * self.buffer_total_percentage / 100.0)
 
@@ -268,6 +273,16 @@ class Member(models.Model):
         if (self.allocatedHoursMonth == 0.0):
             return 0.0
         return 100.0 * (self.actualHoursThisMonth / self.allocatedHoursMonth)
+
+
+    @property
+    def capacity_rate(self):
+        """
+        Percentage of total available hours (after buffer) that are allocated
+        """
+        if (self.total_hours_minus_buffer == 0.0):
+            return 0.0
+        return 100 * (self.allocatedHoursMonth / self.total_hours_minus_buffer)
 
 
     incidents            = property(countIncidents)

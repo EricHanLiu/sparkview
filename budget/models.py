@@ -53,6 +53,8 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
     flex_budget = models.FloatField(default=0)
+    flex_budget_start_date = models.DateTimeField(default=None, null=True) # These are the start dates and end dates for the flex budget. Default should be this month.
+    flex_budget_end_date = models.DateTimeField(default=None, null=True)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
@@ -275,6 +277,27 @@ class Client(models.Model):
             hours += self.cro_hours
         return round(hours, 2)
 
+
+    def days_in_month_in_daterange(start, end, month):
+        """
+        Calculates how many days are in a certain month within a daterange. For example: October 28th to November 5th has 4 days in October, so this would return 4 for (2018-10-28, 2018-11-05, 10)
+        """
+        one_day = datetime.timedelta(1)
+        
+
+
+    @property
+    def adwords_budget_this_month(self):
+        if not hasattr(self, '_adwords_budget_this_month'):
+            budget = 0.0
+            for aa in self.adwords.all():
+                if (aa.has_custom_dates):
+                    """
+                    If there are custom dates, we need to get the portion of the budget that is in this month
+                    """
+                    pass
+
+
     def getCurrentBudget(self):
         if not hasattr(self, '_current_budget'):
             budget = 0.0
@@ -284,10 +307,6 @@ class Client(models.Model):
                 budget += ba.desired_spend
             for fa in self.facebook.all():
                 budget += fa.desired_spend
-
-            campaign_groups = CampaignGrouping.objects.filter(client=self)
-            for campaign_group in campaign_groups:
-                budget += campaign_group.budget
 
             budget += self.flex_budget
             self._current_budget = budget

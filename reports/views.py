@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
-from client_area.models import AccountHourRecord
+from client_area.models import AccountHourRecord, Promo
 from budget.models import Client
 import datetime
 
@@ -107,11 +107,16 @@ def cm_capacity(request):
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
+    capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+    utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
     report_type = 'Paid Media Member Capacity Report'
 
     context = {
         'members' : members,
         'actual_aggregate' : actual_aggregate,
+        'capacity_rate' : capacity_rate,
+        'utilization_rate': utilization_rate,
         'allocated_aggregate' : allocated_aggregate,
         'available_aggregate' : available_aggregate,
         'report_type' : report_type
@@ -140,11 +145,17 @@ def am_capacity(request):
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
+    capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+    utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
+
     report_type = 'AM Member Capacity Report'
 
     context = {
         'members' : members,
         'actual_aggregate' : actual_aggregate,
+        'capacity_rate' : capacity_rate,
+        'utilization_rate': utilization_rate,
         'allocated_aggregate' : allocated_aggregate,
         'available_aggregate' : available_aggregate,
         'report_type' : report_type
@@ -173,11 +184,16 @@ def seo_capacity(request):
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
+    capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+    utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
     report_type = 'SEO Member Capacity Report'
 
     context = {
         'members' : members,
         'actual_aggregate' : actual_aggregate,
+        'capacity_rate' : capacity_rate,
+        'utilization_rate': utilization_rate,
         'allocated_aggregate' : allocated_aggregate,
         'available_aggregate' : available_aggregate,
         'report_type' : report_type
@@ -221,3 +237,20 @@ def facebook(request):
     }
 
     return render(request, 'reports/facebook.html', context)
+
+
+@login_required
+def promos(request):
+    """
+    Shows calendar of all going on and upcoming promos
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    promos = Promo.objects.filter(end_date__gte=datetime.datetime.now())
+
+    context = {
+        'promos' : promos
+    }
+
+    return render(request, 'reports/promos.html', context)
