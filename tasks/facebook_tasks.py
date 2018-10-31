@@ -378,22 +378,26 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                     if gr.group_by == 'manual':
                         continue
                     else:
-                        if gr.group_by_contains:
-                            if gr.group_by.lower() not in c.campaign_name.lower() and c in gr.fb_campaigns.all():
-                                gr.fb_campaigns.remove(c)
-                                gr.save()
+                        # Retrieve keywords to group by as a list
+                        group_by = gr.group_by.split(',')
 
-                            elif gr.group_by.lower() in c.campaign_name.lower() and c not in gr.fb_campaigns.all():
-                                gr.fb_campaigns.add(c)
-                                gr.save()
-                        elif not gr.group_by_contains:
-                            if gr.group_by.lower() in c.campaign_name.lower() and c in gr.fb_campaigns.all():
-                                gr.fb_campaigns.remove(c)
-                                gr.save()
+                        # Loop through kws and add campaigns to the group
+                        for keyword in group_by:
+                            if '+' in keyword:
+                                if keyword.strip('+').lower() in c.campaign_name.lower() \
+                                        and c not in gr.fb_campaigns.all():
+                                    gr.fb_campaigns.add(c)
 
-                            elif gr.group_by.lower() not in c.campaign_name.lower() and c not in gr.fb_campaigns.all():
-                                gr.fb_campaigns.add(c)
-                                gr.save()
+                                if keyword.strip('+').lower() not in c.campaign_name.lower() \
+                                        and c in gr.fb_campaigns.all():
+                                    gr.fb_campaigns.remove(c)
+
+                            if '-' in keyword:
+                                if keyword.strip('-').lower() in c.campaign_name.lower() \
+                                        and c in gr.fb_campaigns.all():
+                                    gr.fb_campaigns.remove(c)
+
+                    gr.save()
 
                 gr.fb_spend = 0
                 gr.fb_yspend = 0
@@ -411,7 +415,8 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                         filtering=filtering,
                     )
 
-                    campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
+                    campaigns_tp = helper.get_account_insights(account.account_id, params=this_period,
+                                                               extra_fields=fields)
                     for cmp in campaigns_tp:
                         if cmp['campaign_id'] in cmp_list:
                             gr.fb_spend += float(cmp['spend'])

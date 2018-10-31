@@ -682,24 +682,12 @@ def add_groupings(request):
         if group_by == 'text':
             group_by_text = request.POST.get('cgr_group_by_text')
 
-            group_text_contains = request.POST.get('cgr_text_contains')
-
-            if group_text_contains == 'yes':
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by_text,
-                    budget=budget,
-                    client=client,
-                    group_by_contains=True
-                )
-            elif group_text_contains == 'no':
-                new_group = CampaignGrouping.objects.create(
-                    group_name=group_name,
-                    group_by=group_by_text,
-                    budget=budget,
-                    client=client,
-                    group_by_contains=False
-                )
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by_text,
+                budget=budget,
+                client=client
+            )
 
         elif group_by == 'manual':
 
