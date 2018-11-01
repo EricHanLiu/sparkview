@@ -556,7 +556,8 @@ class Client(models.Model):
         rec_ds = 0
 
         if self.flex_budget > 0:
-            rec_ds = (self.flex_budget - self.flex_spend) / remaining
+            if remaining != 0:
+                rec_ds = (self.flex_budget - self.flex_spend) / remaining
 
         return rec_ds
 
@@ -660,11 +661,15 @@ class CampaignGrouping(models.Model):
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
 
-        return (self.budget - self.current_spend) / days_remaining
+        answer = 0
+        if days_remaining != 0:
+            answer = (self.budget - self.current_spend) / days_remaining
+
+        return answer
 
     def avg_daily_spend(self):
-        now = datetime.datetime.today()
-        day_of_month = now.day - 1
+        now = datetime.datetime.today() - datetime.timedelta(1)
+        day_of_month = now.day
         return self.current_spend / day_of_month
 
     @property
@@ -678,8 +683,8 @@ class CampaignGrouping(models.Model):
 
     def hybrid_projection(self, method):
         projection = self.current_spend
-        now = datetime.datetime.today()
-        day_of_month = now.day - 1
+        now = datetime.datetime.today() - datetime.timedelta(1)
+        day_of_month = now.day
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
         if (method == 0): # Project based on yesterday
