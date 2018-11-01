@@ -44,8 +44,8 @@ class DependentAccount(models.Model):
     dependent_account_name = models.CharField(max_length=255, default="None")
     dependent_OVU = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0) # same as budget?
-    desired_spend_start_date = models.DateTimeField(default=None, null=True) # These are the start dates and end dates for the desired spend. Default should be this month.
-    desired_spend_end_date = models.DateTimeField(default=None, null=True)
+    desired_spend_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
     current_spend = models.FloatField(default=0)
     segmented_spend = JSONField(default=dict)
     trends = JSONField(default=dict)
