@@ -283,30 +283,78 @@ class Client(models.Model):
         Calculates how many days are in a certain month within a daterange. For example: October 28th to November 5th has 4 days in October, so this would return 4 for (2018-10-28, 2018-11-05, 10)
         """
         one_day = datetime.timedelta(1)
+        date_counter = 0
+        cur_date = start
+        while cur_date <= end:
+            if cur_date.month == month:
+                date_counter += 1
+            elif cur_date.month > month:
+                break
+            cur_date = cur_date + one_day
 
+        return date_counter
 
 
     @property
     def adwords_budget_this_month(self):
         if not hasattr(self, '_adwords_budget_this_month'):
             budget = 0.0
+            yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
             for aa in self.adwords.all():
                 if (aa.has_custom_dates):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    pass
+                    portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date, aa.desired_spend_end_date, yesterday.month) / (aa.desired_spend_end_date - aa.desired_spend_start_date).days
+                    budget += round(portion_of_spend * aa.desired_spend, 2)
+                else:
+                    budget += aa.desired_spend # this would be monthly budget
+            self._adwords_budget_this_month = budget
+        return self._adwords_budget_this_month
+
+
+    @property
+    def bing_budget_this_month(self):
+        if not hasattr(self, '_bing_budget_this_month'):
+            budget = 0.0
+            yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
+            for ba in self.bing.all():
+                if (ba.has_custom_dates):
+                    """
+                    If there are custom dates, we need to get the portion of the budget that is in this month
+                    """
+                    portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date, ba.desired_spend_end_date, yesterday.month) / (ba.desired_spend_end_date - ba.desired_spend_start_date).days
+                    budget += round(portion_of_spend * ba.desired_spend, 2)
+                else:
+                    budget += ba.desired_spend # this would be monthly budget
+            self._bing_budget_this_month = budget
+        return self._bing_budget_this_month
+
+
+    @property
+    def facebook_budget_this_month(self):
+        if not hasattr(self, '_facebook_budget_this_month'):
+            budget = 0.0
+            yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
+            for fa in self.facebook.all():
+                if (fa.has_custom_dates):
+                    """
+                    If there are custom dates, we need to get the portion of the budget that is in this month
+                    """
+                    portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date, fa.desired_spend_end_date, yesterday.month) / (fa.desired_spend_end_date - fa.desired_spend_start_date).days
+                    budget += round(portion_of_spend * fa.desired_spend, 2)
+                else:
+                    budget += fa.desired_spend # this would be monthly budget
+            self._facebook_budget_this_month = budget
+        return self._facebook_budget_this_month
 
 
     def getCurrentBudget(self):
         if not hasattr(self, '_current_budget'):
             budget = 0.0
-            for aa in self.adwords.all():
-                budget += aa.desired_spend
-            for ba in self.bing.all():
-                budget += ba.desired_spend
-            for fa in self.facebook.all():
-                budget += fa.desired_spend
+            budget += self.adwords_budget_this_month
+            budget += self.bing_budget_this_month
+            budget += self.facebook_budget_this_month
 
             budget += self.flex_budget
             self._current_budget = budget
@@ -369,6 +417,9 @@ class Client(models.Model):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percenage'] = self.am3percent
+        if (self.amb != None):
+            members['AMB'] = {}
+            members['AMB']['member'] = self.amb
 
         return members
 
@@ -392,6 +443,9 @@ class Client(models.Model):
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percenage'] = self.cm3percent
+        if (self.cmb != None):
+            members['CMB'] = {}
+            members['CMB']['member'] = self.cmb
 
         return members
 
@@ -415,6 +469,9 @@ class Client(models.Model):
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percenage'] = self.seo3percent
+        if (self.seob != None):
+            members['SEOB'] = {}
+            members['SEOB']['member'] = self.seob
 
         return members
 
@@ -438,6 +495,9 @@ class Client(models.Model):
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percenage'] = self.strat3percent
+        if (self.stratb != None):
+            members['Strat B'] = {}
+            members['Strat B']['member'] = self.stratb
 
         return members
 
