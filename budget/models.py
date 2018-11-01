@@ -53,8 +53,8 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
     flex_budget = models.FloatField(default=0)
-    flex_budget_start_date = models.DateTimeField(default=None, null=True) # These are the start dates and end dates for the flex budget. Default should be this month.
-    flex_budget_end_date = models.DateTimeField(default=None, null=True)
+    flex_budget_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the flex budget. Default should be this month.
+    flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
@@ -283,7 +283,7 @@ class Client(models.Model):
         Calculates how many days are in a certain month within a daterange. For example: October 28th to November 5th has 4 days in October, so this would return 4 for (2018-10-28, 2018-11-05, 10)
         """
         one_day = datetime.timedelta(1)
-        
+
 
 
     @property
@@ -532,8 +532,9 @@ class Client(models.Model):
 
     def hybrid_projection(self, method):
         projection = self.current_spend
-        now = datetime.datetime.today()
-        day_of_month = now.day - 1
+        now = datetime.datetime.today() - datetime.timedelta(1)
+        day_of_month = now.day
+        # day_of_month = now.day - 1
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
         if (method == 0): # Project based on yesterday

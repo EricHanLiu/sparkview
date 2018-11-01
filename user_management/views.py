@@ -8,7 +8,7 @@ from django.db.models.functions import Now
 from django.core import serializers
 from django.db.models import Q
 from django.utils import timezone
-import datetime
+import datetime, calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry
 from budget.models import Client
@@ -425,8 +425,11 @@ def members_single(request, id=0):
     # Reports
     if (reporting_period):
         active_accounts = accounts.filter(status=1)
+        last_month = month - 1
+        if last_month == 0:
+            last_month = 12
         for account in active_accounts:
-            report, created = MonthlyReport.objects.get_or_create(account=account, month=month, year=year)
+            report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if (created):
                 if (account.tier == 1):
                     report.report_type = 2 # Advanced
@@ -454,6 +457,7 @@ def members_single(request, id=0):
         'promos' : promos,
         'value_added_hours' : value_added_hours,
         'month_str' : now.strftime("%B"),
+        'last_month_str' : calendar.month_name[last_month],
         'starAccounts' : starAccounts,
         'starAccountHours' : starAccountHours,
         'starAccountAllocation' : starAccountAllocation
