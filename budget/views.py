@@ -109,7 +109,7 @@ def add_client(request):
     bng = []
     fb = []
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
     next_month_int = today.month + 1
     if next_month_int == 13:
         next_month_int = 1

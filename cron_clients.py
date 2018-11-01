@@ -119,7 +119,10 @@ def main():
 
                 aw_projected_val = projected(a.current_spend, a.yesterday_spend)
                 client.aw_projected += aw_projected_val
-                aw_projected_per_day = (aw_projected_val - a.current_spend) / remaining
+                if remaining > 0:
+                    aw_projected_per_day = (aw_projected_val - a.current_spend) / remaining
+                else:
+                    aw_projected_per_day = (aw_projected_val - a.current_spend)
                 for index, val in enumerate(pdays):
                     aw_projected[val.strftime("%Y-%m-%d")] = round((aw_projected_per_day * index) + a.current_spend, 2)
                 aw_p_final['A - ' + remove_accents(a.dependent_account_name) + ' Projected'] = aw_projected
@@ -205,7 +208,10 @@ def main():
 
                 bing_projected_val = projected(b.current_spend, b.yesterday_spend)
                 client.bing_projected += bing_projected_val
-                bing_projected_per_day = (bing_projected_val - b.current_spend) / remaining
+                if remaining > 0:
+                    bing_projected_per_day = (bing_projected_val - b.current_spend) / remaining
+                else:
+                    bing_projected_per_day = (bing_projected_val - b.current_spend)
                 for index, val in enumerate(pdays):
                     bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend, 2)
                 bing_p_final['B - ' + remove_accents(b.account_name) + ' Projected'] = bing_projected
@@ -273,7 +279,10 @@ def main():
 
                 fb_projected_val = projected(f.current_spend, f.yesterday_spend)
                 client.fb_projected += fb_projected_val
-                fb_projected_per_day = (fb_projected_val - f.current_spend) / remaining
+                if remaining > 0:
+                    fb_projected_per_day = (fb_projected_val - f.current_spend) / remaining
+                else:
+                    fb_projected_per_day = (fb_projected_val - f.current_spend)
                 for index, val in enumerate(pdays):
                     fb_projected[val.strftime("%Y-%m-%d")] = round((fb_projected_per_day * index) + f.current_spend, 2)
                 fb_p_final['F - ' + remove_accents(f.account_name) + ' Projected'] = fb_projected

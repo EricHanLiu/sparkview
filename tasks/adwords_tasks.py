@@ -248,9 +248,24 @@ def adwords_cron_ovu(self, customer_id):
     else:
         currency = curr_code
 
-    segmented_data = {
-        i['day']: i for i in data_this_month
-    }
+    segmented_data = {}
+
+    for i in data_this_month:
+        segmented_data[i['day']] = {
+            'client_name': remove_accents(i['client_name']),
+            'cost_/_conv.': i['cost_/_conv.'],
+            'impressions': i['impressions'],
+            'search_impr._share': i['search_impr._share'],
+            'all_conv._value': i['all_conv._value'],
+            'customer_id': i['customer_id'],
+            'day': i['day'],
+            'ctr': i['ctr'],
+            'clicks': i['clicks'],
+            'avg._cpc': i['avg._cpc'],
+            'conversions': i['conversions'],
+            'currency': i['currency'],
+            'cost': i['cost']
+        }
 
     last_7_ordered = helper.sort_by_date(last_7)
     last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
