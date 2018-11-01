@@ -5,11 +5,11 @@ import re
 import copy
 import time
 import warnings
+import calendar
 from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
-from datetime import date, timedelta
 from functools import partial
 from facebook_business.adobjects.adaccount import AdAccount
 from bing_dashboard.auth import BingAuth
@@ -335,8 +335,9 @@ class Reporting:
         return sorted(lst, key=itemgetter(key))
 
     def get_estimated_spend(self, current_spend, day_spend):
-        today = datetime.today()
-        end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-1)
+        today = datetime.today() - relativedelta(days=1)
+        # end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-1)
+        end_date = datetime(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         days_remaining = (end_date - today).days
         estimated_spend = float(current_spend) + (float(day_spend) * days_remaining)
 
