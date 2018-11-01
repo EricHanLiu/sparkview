@@ -109,6 +109,24 @@ class DependentAccount(models.Model):
 
 
     @property
+    def get_start_date(self):
+        """
+        Returns custom if custom, else first of yesterday's month
+        """
+        if (self.has_custom_dates):
+            return self.desired_spend_start_date
+
+
+    @property
+    def get_end_date(self):
+        """
+        Returns custom if custom, else last of yesterday's month
+        """
+        if (self.has_custom_dates):
+            return self.desired_spend_end_date
+        
+
+    @property
     def json(self):
         assigneds = {}
         if self.assigned_to:

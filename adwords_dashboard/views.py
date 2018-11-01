@@ -127,3 +127,7 @@ def anomalies_view(request):
         return JsonResponse({'tid': t_in_prog.id, 'tstate': t_in_prog.state})
     return JsonResponse({}, status=400)
 
+
+@login_required
+def set_budget_dates(request):
+    pass
