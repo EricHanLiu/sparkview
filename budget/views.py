@@ -270,9 +270,12 @@ def add_client(request):
 def client_details(request, client_id):
 
     today = datetime.today() - relativedelta(days=1)
+    next_month_int = today.month + 1
+    if (next_month_int == 13):
+        next_month_int = 1
     next_month = datetime(
         year=today.year,
-        month=((today.month + 1) % 12),
+        month=next_month_int,
         day=1
     )
     lastday_month = next_month + relativedelta(days=-1)
@@ -412,9 +415,12 @@ def last_month(request):
 def hist_client_details(request, client_id):
 
     today = datetime.today() - relativedelta(days=1)
+    next_month_int = today.month + 1
+    if (next_month_int == 13):
+        next_month_int = 1
     next_month = datetime(
         year=today.year,
-        month=((today.month + 1) % 12),
+        month=next_month_int,
         day=1
     )
     lastday_month = next_month + relativedelta(days=-1)
@@ -491,7 +497,10 @@ def sixm_budget(request, client_id):
 def flight_dates(request):
 
     if request.method == 'POST':
-
+        """
+        Temporary overriding this with a new approach to flight dates in an attempt to simplify the concept for the members
+        May come back to this later
+        """
         data = json.loads(request.body.decode('utf-8'))
         acc_id = data['acc_id']
         start_date = data['sdate']
@@ -501,24 +510,30 @@ def flight_dates(request):
 
         if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
-            FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-                                        adwords_account=account)
-            adwords_tasks.adwords_cron_flight_dates.delay(account.dependent_account_id)
+            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
+            #                             adwords_account=account)
+            # adwords_tasks.adwords_cron_flight_dates.delay(account.dependent_account_id)
 
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
-            FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-                                        bing_account=account)
-            bing_tasks.bing_cron_flight_dates.delay(account.account_id)
+            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
+            #                             bing_account=account)
+            # bing_tasks.bing_cron_flight_dates.delay(account.account_id)
 
         elif channel == 'facebook':
             account = FacebookAccount.objects.get(account_id=acc_id)
-            FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-                                        facebook_account=account)
-            facebook_tasks.facebook_cron_flight_dates.delay(account.account_id)
+            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
+            #                             facebook_account=account)
+            # facebook_tasks.facebook_cron_flight_dates.delay(account.account_id)
+
+        account.desired_spend_start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        account.desired_spend_end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        account.save()
+
+        print(account.desired_spend_end_date)
 
         context = {
-            'error': 'OK'
+            'resp': 'OK'
         }
         return JsonResponse(context)
 

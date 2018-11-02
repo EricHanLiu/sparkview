@@ -278,7 +278,7 @@ class Client(models.Model):
         return round(hours, 2)
 
 
-    def days_in_month_in_daterange(start, end, month):
+    def days_in_month_in_daterange(self, start, end, month):
         """
         Calculates how many days are in a certain month within a daterange. For example: October 28th to November 5th has 4 days in October, so this would return 4 for (2018-10-28, 2018-11-05, 10)
         """
