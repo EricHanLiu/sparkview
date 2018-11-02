@@ -1,6 +1,8 @@
 from django.conf.urls import url, include
 from tools import views
 
+app_name = "tools"
+
 urlpatterns = [
     url(r"^$", views.index_tools, name="index"),
     url(r"^ppcanalyser$", views.analyser, name="analyser"),

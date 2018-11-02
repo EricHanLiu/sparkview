@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "facebook"
+
 urlpatterns = [
     url(r"^$", views.facebook_dashboard, name="home"),
     url(r"^anomalies/(?P<account_id>\d+)$", views.campaign_anomalies, name='campaign_anomalies'),

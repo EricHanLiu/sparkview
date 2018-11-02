@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "bing"
+
 urlpatterns = [
     url(r"^$", views.bing_dashboard, name="home"),
     url(r"^auth/get_url", views.BingSingin.as_view(), name="get_auth_url"),

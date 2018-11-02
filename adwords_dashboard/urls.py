@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "adwords"
 
 urlpatterns = [
     url(r"^$", views.adwords_dashboard, name="home"),
