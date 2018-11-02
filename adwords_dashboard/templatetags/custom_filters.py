@@ -61,9 +61,12 @@ def mcv(value):
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
     today = datetime.datetime.today() - relativedelta(days=1)
+    next_month_int = today.month + 1
+    if (next_month_int == 13):
+        next_month_int = 1
     next_month = datetime.datetime(
         year=today.year,
-        month=((today.month + 1) % 12),
+        month=next_month_int,
         day=1
     )
     lastday_month = next_month + relativedelta(days=-1)
