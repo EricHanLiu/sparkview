@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Edit {{ account.client_name }}
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" id="m_form_add_client">
+            {% csrf_token %}
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="client_name">Account Name:</label>
+                    <input type="text" name="account_name" class="form-control m-input"
+                    placeholder="Please enter the client name" value="{{ account.client_name }}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label for="client_name">SEO Hours:</label>
+                    <input type="text" name="seo_hours" class="form-control m-input"
+                    placeholder="Leave it as 0 to turn off SEO" value="{{ account.seo_hours }}">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="client_name">CRO Hours:</label>
+                    <input type="text" name="cro_hours" class="form-control m-input"
+                    placeholder="Leave it at 0 to turn off CRO" value="{{ account.cro_hours }}">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="status">Status:</label>
+                    <select class="form-control m-input"
+                            name="status"
+                            style="width: 100%;">
+                            <option value="0" {% if account.status == 0 %}selected{% endif %}>Onboarding</option>
+                            <option value="1" {% if account.status == 1 %}selected{% endif %}>Active</option>
+                            <option value="2" {% if account.status == 2 %}selected{% endif %}>Inactive</option>
+                            <option value="3" {% if account.status == 3 %}selected{% endif %}>Lost</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="client_name">Management Fee:</label>
+                    <input type="text" name="fee_override" class="form-control m-input"
+                    placeholder="Management fee for this client" value="{{ account.management_fee_override }}">
+                  </div>
+                  {% if request.user.is_staff %}
+                  <div class="col-md-6">
+                    <label for="client_name">Allocated PPC Hours OVERRIDE:</label>
+                    <input type="text" name="hours_override" class="form-control m-input"
+                    placeholder="WARNING: This will override the management hours calculation" value="{{ account.allocated_ppc_override }}">
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              {% if request.user.is_staff %}
+              <hr />
+              <div class="row">
+                <label class="col-2 col-form-label">Add Management Fee Structure</label>
+                <div class="col-1">
+                  <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                    <label>
+                      <input name="mf_check" id="mf_check" type="checkbox">
+                      <span></span>
+                    </label>
+                  </span>
+                </div>
+              </div>
+              <div class="m-portlet__body" id="mf_form" style="display:none;">
+                <input type="text" value="1" id="fee_structure_type" name="fee_structure_type" style="display:none;" />
+                <div id="create_new_structure">
+                  <button type="button" name="button" class="btn btn-sm btn-outline-info" id="use_existing_structure_btn">Use existing fee structure</button>
+                  <div class="form-group m-form__group" id="management_fee_form">
+                    <input style="display:none;" value="1" id="rowNumInput" name="rowNumInput" />
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Name:</label>
+                        <input class="form-control m-input" name="fee_structure_name" />
+                      </div>
+                      <div class="col-md-6">
+                        <label>Setup Fee:</label>
+                        <input class="form-control m-input" name="setup_fee" />
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>Low Budget Bound ($):</label>
+                        <input class="form-control m-input" name="low-bound1" />
+                      </div>
+                      <div class="col-md-3">
+                        <label>High Budget Bound ($):</label>
+                        <input class="form-control m-input" name="high-bound1" />
+                      </div>
+                      <div class="col-md-2">
+                        <label>Fee type:</label>
+                        <select class="form-control m-input"
+                                name="fee-type1"
+                                style="width: 100%;">
+                                <option value="0">%</option>
+                                <option value="1">$</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Fee:</label>
+                        <input class="form-control m-input" name="fee1" />
+                      </div>
+                      <div class="col-md-1">
+                        <label>Add Level</label>
+                        <button type="button" name="button" class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="use_existing_structure" style="display:none;">
+                  <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_structure_btn">Create new fee structure</button>
+                  <div class="form-group m-form__group" id="management_fee_select">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label for="existing_structure">Management Fee Structure:</label>
+                        <select class="form-control m-input"
+                                name="existing_structure"
+                                id="existing_structure"
+                                style="width: 100%;" required>
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for fee_structure in management_fee_structures %}
+                                <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div id="preset_mf" style="display:none;">
+                          <hr />
+                          <h4>
+                            Setup Fee: $<span id="setup_fee_preset"></span>
+                          </h4>
+                          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'>
+                            <thead class="thead-inverse">
+                              <tr class="main-table-header">
+                                <th>
+                                  Monthly Media Spend
+                                </th>
+                                <th>
+                                  Monthly Fee
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody id="preset_mf_tbody">
+
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+              <input type="submit" value="Submit">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  var $createNewBtn   = $('#create_new_btn');
+  var $useExistingBtn = $('#use_existing_btn');
+  var $existingForm   = $('#existing_client_form');
+  var $newForm        = $('#new_client_form');
+
+  $createNewBtn.click(function () {
+    $existingForm.hide();
+    $newForm.show();
+  });
+
+  $useExistingBtn.click(function () {
+    $newForm.hide();
+    $existingForm.show();
+  });
+
+  /**
+   * Management fees
+   */
+  var $createNewFeeBtn   = $('#create_new_structure_btn');
+  var $useExistingFeeBtn = $('#use_existing_structure_btn');
+  var $createNewFeeDiv   = $('#create_new_structure');
+  var $useExistingFeeDiv = $('#use_existing_structure');
+  var $feeStructureType  = $('#fee_structure_type');
+
+  $createNewFeeBtn.click(function () {
+    $feeStructureType.val('1');
+    $useExistingFeeDiv.hide();
+    $createNewFeeDiv.show();
+  });
+
+  $useExistingFeeBtn.click(function () {
+    $feeStructureType.val('2');
+    $createNewFeeDiv.hide();
+    $useExistingFeeDiv.show();
+  });
+
+  var $addFeeBtn = $('.add-fee-level-btn');
+  var $feeForm   = $('#management_fee_form');
+  var $rowNum    = $('#rowNumInput');
+
+  var feeRows = 1;
+  var feeRowHtml = `
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label>Low Budget Bound ($):</label>
+                      <input class="form-control m-input" name="low-bound1" />
+                    </div>
+                    <div class="col-md-3">
+                      <label>High Budget Bound ($):</label>
+                      <input class="form-control m-input" name="high-bound1" />
+                    </div>
+                    <div class="col-md-2">
+                      <label>Fee type:</label>
+                      <select class="form-control m-input"
+                              name="fee-type1"
+                              style="width: 100%;">
+                              <option value="0">%</option>
+                              <option value="1">$</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label>Fee:</label>
+                      <input class="form-control m-input" name="fee1" />
+                    </div>
+                  </div>
+                  `;
+
+  $addFeeBtn.click(function () {
+    feeRows++;
+    $rowNum.val(feeRows);
+    var feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+                           .replace('high-bound1', 'high-bound' + feeRows)
+                           .replace('fee-type1', 'fee-type' + feeRows)
+                           .replace('fee1', 'fee' + feeRows);
+    $feeForm.append(feeRowHtmlTmp);
+  });
+
+  $mfCheck = $('#mf_check');
+  $mfForm = $('#mf_form');
+
+  $mfCheck.change(function () {
+    if ($(this).is(':checked')) {
+      $mfForm.show();
+    } else {
+      $mfForm.hide();
+    }
+  });
+
+  var $mfSelect = $('#existing_structure');
+  var $presetMf = $('#preset_mf');
+  var $presetMfTbody = $('#preset_mf_tbody');
+  var $presetSetupFee = $('#setup_fee_preset');
+
+  $mfSelect.change(function () {
+    if ($mfSelect.val() == '0') {
+      $presetMfTbody.html('');
+      $presetMf.hide();
+      return;
+    }
+
+    /**
+     * Get the management fee structure
+     */
+     $.ajax({
+         url: '/clients/get_management_fee_details/' + $mfSelect.val(),
+         headers: {'X-CSRFToken': csrftoken},
+         type: 'POST',
+         success: function (data) {
+           $presetMfTbody.html('');
+           $presetSetupFee.html(data.initial_fee);
+           for (var key in data.fee_intervals) {
+             var fee_interval = data.fee_intervals[key];
+             var inner_html = '';
+             inner_html += '<tr>';
+             inner_html += '<td>';
+             inner_html += '$' + fee_interval.lowerBound + ' - $' + fee_interval.upperBound;
+             inner_html += '</td>';
+             inner_html += '<td>';
+             if (fee_interval.style == 0) { // %
+               inner_html += fee_interval.fee + '%';
+             } else { // $
+               inner_html += '$' + fee_interval.fee;
+             }
+             inner_html += '</td>';
+             inner_html += '</tr>';
+             $presetMfTbody.append(inner_html);
+           }
+
+           $presetMf.show();
+         }
+     });
+
+  });
+
+});
+</script>
+{% endblock %}

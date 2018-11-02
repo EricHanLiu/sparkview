@@ -4,7 +4,7 @@ from bloom import celery_app
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
-from budget.models import FlightBudget, CampaignGrouping
+from budget.models import FlightBudget, CampaignGrouping, Client
 from bloom.settings import EMAIL_HOST_USER, TEMPLATE_DIR
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -321,13 +321,11 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
 
 @celery_app.task(bind=True)
-def bing_cron_campaign_stats(self, account_id):
+def bing_cron_campaign_stats(self, account_id, client_id=None):
     account = BingAccounts.objects.get(account_id=account_id)
-    groupings = CampaignGrouping.objects.filter(bing=account)
     helper = BingReportingService()
 
     cmps = []
-    campaigns = []
 
     this_month = helper.get_this_month_daterange()
 
@@ -336,6 +334,34 @@ def bing_cron_campaign_stats(self, account_id):
         'CampaignId',
         'Spend'
     ]
+
+    today = datetime.today() - relativedelta(days=1)
+    ys = today - relativedelta(days=1)
+    yesterday = helper.create_daterange(ys, ys)
+
+    ys_report = helper.get_campaign_performance(
+        account_id,
+        dateRangeType="CUSTOM_DATE",
+        report_name="campaign_stats_tm",
+        extra_fields=fields,
+        **yesterday
+    )
+
+    ys_stats = helper.map_campaign_stats(ys_report)
+
+    for k, v in ys_stats.items():
+        campaign_id = v[0]['campaignid']
+        campaign_name = v[0]['campaignname']
+        campaign_cost = float(v[0]['spend'])
+
+        cmp, created = BingCampaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign_id,
+            campaign_name=campaign_name
+        )
+
+        cmp.campaign_yesterday_cost_cost = campaign_cost
+        cmp.save()
 
     report = helper.get_campaign_performance(
         account_id,
@@ -368,44 +394,67 @@ def bing_cron_campaign_stats(self, account_id):
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
 
-    if groupings:
-        for gr in groupings:
-            for c in cmps:
-                if gr.group_by == 'manual':
-                    continue
-                else:
-                    if gr.group_by not in c.campaign_name and c in gr.bing_campaigns.all():
-                        gr.bing_campaigns.remove(c)
-                        gr.save()
+    if client_id is not None:
 
-                    elif gr.group_by in c.campaign_name and c not in gr.bing_campaigns.all():
-                        gr.bing_campaigns.add(c)
-                        gr.save()
+        client = Client.objects.get(id=client_id)
+        groupings = CampaignGrouping.objects.filter(client=client)
 
-            gr.current_spend = 0
+        if groupings:
+            for gr in groupings:
+                for c in cmps:
+                    if gr.group_by == 'manual':
+                        continue
+                    else:
+                        # Retrieve keywords to group by as a list
+                        group_by = gr.group_by.split(',')
 
-            if gr.start_date:
-                for c in gr.bing_campaigns.all():
-                    campaigns.append(c.campaign_id)
+                        # Loop through kws and add campaigns to the group
+                        for keyword in group_by:
+                            if '+' in keyword:
+                                if keyword.strip('+').lower() in c.campaign_name.lower() \
+                                        and c not in gr.bing_campaigns.all():
+                                    gr.bing_campaigns.add(c)
 
-                daterange = helper.create_daterange(gr.start_date, gr.end_date)
+                                if keyword.strip('+').lower() not in c.campaign_name.lower() \
+                                        and c in gr.bing_campaigns.all():
+                                    gr.bing_campaigns.remove(c)
 
-                campaigns_this_period = helper.get_campaign_performance(
-                    account_id,
-                    dateRangeType="CUSTOM_DATE",
-                    report_name="campaign_stats_tm",
-                    extra_fields=fields,
-                    **daterange
-                )
+                            if '-' in keyword:
+                                if keyword.strip('-').lower() in c.campaign_name.lower() \
+                                        and c in gr.bing_campaigns.all():
+                                    gr.bing_campaigns.remove(c)
 
-                for cmp in campaigns_this_period:
-                    if cmp['campaignid'] in campaigns:
-                        gr.current_spend += float(cmp['spend'])
-                        gr.save()
-            else:
-                for cmp in gr.bing_campaigns.all():
-                    gr.current_spend += cmp.campaign_cost
                     gr.save()
+
+                gr.bing_spend = 0
+                gr.bing_yspend = 0
+
+                if gr.start_date:
+
+                    campaigns = []
+
+                    for c in gr.bing_campaigns.all():
+                        campaigns.append(c.campaign_id)
+
+                    daterange = helper.create_daterange(gr.start_date, gr.end_date)
+
+                    campaigns_this_period = helper.get_campaign_performance(
+                        account_id,
+                        dateRangeType="CUSTOM_DATE",
+                        report_name="campaign_stats_tm",
+                        extra_fields=fields,
+                        **daterange
+                    )
+
+                    for cmp in campaigns_this_period:
+                        if cmp['campaignid'] in campaigns:
+                            gr.bing_spend += float(cmp['spend'])
+                            gr.save()
+                else:
+                    for cmp in gr.bing_campaigns.all():
+                        gr.bing_spend += cmp.campaign_cost
+                        gr.bing_yspend += cmp.campaign_yesterday_cost
+                        gr.save()
 
 
 @celery_app.task(bind=True)
@@ -669,7 +718,6 @@ def bing_accounts_not_running(self, account_id):
 
 @celery_app.task(bind=True)
 def bing_account_wasted_spend(self, account_id):
-
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
 
@@ -735,9 +783,9 @@ def bing_account_wasted_spend(self, account_id):
         account.save()
         calculate_account_score(account)
 
+
 @celery_app.task(bind=True)
 def bing_account_keyword_wastage(self, account_id):
-
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
 
@@ -799,11 +847,10 @@ def bing_account_keyword_wastage(self, account_id):
 
 @celery_app.task(bind=True)
 def calculate_account_score(self, account):
-
     if isinstance(account, BingAccounts):
 
         account.account_score = (account.trends_score + account.qs_score + account.dads_score + account.nr_score
-                             + account.wspend_score + account.kw_score) / 6
+                                 + account.wspend_score + account.kw_score) / 6
         account.save()
     else:
         raise TypeError('Object must be DependentAccount type.')

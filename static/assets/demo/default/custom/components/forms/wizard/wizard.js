@@ -53,7 +53,7 @@ var WizardDemo = function () {
         wizard.on('change', function (wizard) {
             mApp.scrollTop();
             let data = formEl.serializeArray();
-            console.log(data);
+
             var obj = {};
 
             for(var i = 0; i < data.length; i++){

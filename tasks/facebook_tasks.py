@@ -3,7 +3,7 @@ from bloom import celery_app
 from bloom.utils import FacebookReportingService
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
-from budget.models import FlightBudget, CampaignGrouping
+from budget.models import FlightBudget, CampaignGrouping, Client
 from facebook_business.api import FacebookAdsApi
 from bloom.settings import app_id, app_secret, w_access_token
 from dateutil.relativedelta import relativedelta
@@ -300,12 +300,10 @@ def facebook_cron_alerts(self, account_id):
 
 
 @celery_app.task(bind=True)
-def facebook_cron_campaign_stats(self, account_id):
+def facebook_cron_campaign_stats(self, account_id, client_id=None):
     account = FacebookAccount.objects.get(account_id=account_id)
-    groupings = CampaignGrouping.objects.filter(facebook=account)
 
     cmps = []
-    cmp_list = []
 
     helper = FacebookReportingService(facebook_init())
 
@@ -328,6 +326,27 @@ def facebook_cron_campaign_stats(self, account_id):
         filtering=filtering,
     )
 
+    yesterday = helper.set_params(
+        date_preset='yesterday',
+        level='campaign',
+        filtering=filtering
+    )
+
+    ys_campaigns = helper.get_account_insights(account.account_id, params=yesterday, extra_fields=fields)
+
+    for cmp in ys_campaigns:
+        campaign_name = cmp['campaign_name']
+        campaign_id = cmp['campaign_id']
+        campaign_cost = cmp['spend']
+
+        cmp, created = FacebookCampaign.objects.get_or_create(
+            account=account,
+            campaign_id=campaign_id,
+            campaign_name=campaign_name
+        )
+        cmp.campaign_yesterday_cost = campaign_cost
+        cmp.save()
+
     campaigns = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
 
     for cmp in campaigns:
@@ -349,44 +368,64 @@ def facebook_cron_campaign_stats(self, account_id):
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
 
-    if groupings:
-        for gr in groupings:
-            for c in cmps:
-                if gr.group_by == 'manual':
-                    continue
-                else:
-                    if gr.group_by not in c.campaign_name and c in gr.fb_campaigns.all():
-                        gr.aw_campaigns.remove(c)
-                        gr.save()
+    if client_id is not None:
+        client = Client.objects.get(id=client_id)
+        groupings = CampaignGrouping.objects.filter(client=client)
 
-                    elif gr.group_by in c.campaign_name and c not in gr.fb_campaigns.all():
-                        gr.fb_campaigns.add(c)
-                        gr.save()
+        if groupings:
+            for gr in groupings:
+                for c in cmps:
+                    if gr.group_by == 'manual':
+                        continue
+                    else:
+                        # Retrieve keywords to group by as a list
+                        group_by = gr.group_by.split(',')
 
-            gr.current_spend = 0
+                        # Loop through kws and add campaigns to the group
+                        for keyword in group_by:
+                            if '+' in keyword:
+                                if keyword.strip('+').lower() in c.campaign_name.lower() \
+                                        and c not in gr.fb_campaigns.all():
+                                    gr.fb_campaigns.add(c)
 
-            if gr.start_date:
+                                if keyword.strip('+').lower() not in c.campaign_name.lower() \
+                                        and c in gr.fb_campaigns.all():
+                                    gr.fb_campaigns.remove(c)
 
-                for c in gr.fb_campaigns.all():
-                    cmp_list.append(c.campaign_id)
+                            if '-' in keyword:
+                                if keyword.strip('-').lower() in c.campaign_name.lower() \
+                                        and c in gr.fb_campaigns.all():
+                                    gr.fb_campaigns.remove(c)
 
-                daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
-
-                this_period = helper.set_params(
-                    time_range=daterange,
-                    level='campaign',
-                    filtering=filtering,
-                )
-
-                campaigns_tp = helper.get_account_insights(account.account_id, params=this_period, extra_fields=fields)
-                for cmp in campaigns_tp:
-                    if cmp['campaign_id'] in cmp_list:
-                        gr.current_spend += float(cmp['spend'])
-                        gr.save()
-            else:
-                for cmp in gr.fb_campaigns.all():
-                    gr.current_spend += cmp.campaign_cost
                     gr.save()
+
+                gr.fb_spend = 0
+                gr.fb_yspend = 0
+
+                if gr.start_date:
+                    cmp_list = []
+                    for c in gr.fb_campaigns.all():
+                        cmp_list.append(c.campaign_id)
+
+                    daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
+
+                    this_period = helper.set_params(
+                        time_range=daterange,
+                        level='campaign',
+                        filtering=filtering,
+                    )
+
+                    campaigns_tp = helper.get_account_insights(account.account_id, params=this_period,
+                                                               extra_fields=fields)
+                    for cmp in campaigns_tp:
+                        if cmp['campaign_id'] in cmp_list:
+                            gr.fb_spend += float(cmp['spend'])
+                            gr.save()
+                else:
+                    for cmp in gr.fb_campaigns.all():
+                        gr.fb_spend += cmp.campaign_cost
+                        gr.fb_yspend += cmp.campaign_yesterday_cost
+                        gr.save()
 
 
 @celery_app.task(bind=True)

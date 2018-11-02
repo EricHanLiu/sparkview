@@ -3,8 +3,8 @@
 }
 
 .m-portlet.m-portlet--creative .m-portlet__head .m-portlet__head-caption .m-portlet__head-label.m-portlet__head-label--bloom {
-  color: #fff;
-  background: #212529;
+    color: #fff;
+    background: #212529;
 }
 
 .m-portlet.m-portlet--bloom.m-portlet--head-solid-bg .m-portlet__head {
@@ -106,7 +106,8 @@
 .progress.m-progress--lg {
     height: 30px;
 }
-.progress.m-progress--lg .progress-bar{
+
+.progress.m-progress--lg .progress-bar {
     height: 30px;
 }
 
@@ -116,7 +117,7 @@
 
 .delete-client {
     margin-left: 5px;
-    float: right!important;
+    float: right !important;
 }
 
 .add-client {
@@ -159,7 +160,8 @@ a:not([href]):not([tabindex]):focus {
 }
 
 .black-marker {
-    border-right: 1px solid black;
+    border-right: 1px solid;
+    border-color: rgba(0, 0, 0, 0.3);
     position: absolute;
     height: 100%;
 }
@@ -169,14 +171,15 @@ a:not([href]):not([tabindex]):focus {
 }
 
 .m-table.m-table--head-separator-bloom thead th {
-  border-top: 0;
-  border-bottom: 1px solid #1b2127; }
-
-input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+    border-top: 0;
+    border-bottom: 1px solid #1b2127;
 }
 
-input[type=number].table-number  {
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type=number].table-number {
     -moz-appearance: textfield;
     background-color: inherit;
     text-align: center;
@@ -198,6 +201,7 @@ input[type=number].table-number  {
     right: 17px;
     top: 10px;
 }
+
 .budget-container > label.yt {
     position: absolute;
     right: 124px;
@@ -225,7 +229,7 @@ m-table--head-separator-bloom {
     align-items: center
 }
 
-.m-divider>span:first-child {
+.m-divider > span:first-child {
     width: 100%;
     height: 1px;
     -webkit-box-flex: 1;
@@ -235,7 +239,7 @@ m-table--head-separator-bloom {
     display: inline-block
 }
 
-.m-divider>span:last-child {
+.m-divider > span:last-child {
     width: 100%;
     height: 1px;
     -webkit-box-flex: 1;
@@ -245,6 +249,179 @@ m-table--head-separator-bloom {
     display: inline-block
 }
 
-.m-divider>span:not(:first-child):not(:last-child) {
+.m-divider > span:not(:first-child):not(:last-child) {
     padding: 0 2rem
+}
+
+.dataTables_filter {
+    float: left !important;
+}
+
+.dataTables_filter input {
+    outline: 0;
+    border-width: 0 0 1px;
+    border-color: #000;
+    width: 300px;
+}
+
+.dataTables_length {
+    float: right !important;
+}
+
+table.dataTable tbody td {
+    vertical-align: middle;
+}
+
+.bloom-progress {
+    height: 50px !important;
+}
+
+.m-widget25 .m-widget25--progress {
+    margin: 30px auto 70px !important;
+    /*border: 1px solid rgba(0, 0, 0, 0.4);*/
+    box-shadow: 1px 1px;
+}
+
+.bbox {
+    min-height: 150px;
+    background: #f1f1f1;
+    margin-top: 20px;
+    padding-right: 10px;
+    box-shadow: 0 0 30px #F1f1f1;
+}
+
+.bbox-row {
+    min-height: 150px;
+    background: #f1f1f1;
+    box-shadow: 0 0 10px #F1f1f1;
+}
+
+.bbox .inner-text {
+    vertical-align: middle;
+    padding-top: 10px
+}
+
+span.twitter-typeahead .tt-menu,
+span.twitter-typeahead .tt-dropdown-menu {
+    cursor: pointer;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 260px;
+    padding: 5px 0;
+    margin: 6px 0 0;
+    list-style: none;
+    font-size: 14px;
+    text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+span.twitter-typeahead .tt-suggestion {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.42857143;
+    color: #333333;
+    white-space: nowrap;
+}
+
+span.twitter-typeahead .tt-suggestion.tt-cursor,
+span.twitter-typeahead .tt-suggestion:hover,
+span.twitter-typeahead .tt-suggestion:focus {
+    color: #ffffff;
+    text-decoration: none;
+    outline: 0;
+    background-color: #212529;
+}
+
+.input-group.input-group-lg span.twitter-typeahead .form-control {
+    height: 46px;
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.3333333;
+    border-radius: 6px;
+}
+
+.input-group.input-group-sm span.twitter-typeahead .form-control {
+    height: 30px;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+span.twitter-typeahead {
+    width: 100%;
+}
+
+.input-group span.twitter-typeahead {
+    display: block !important;
+    height: 34px;
+}
+
+.input-group span.twitter-typeahead .tt-menu,
+.input-group span.twitter-typeahead .tt-dropdown-menu {
+    top: 32px !important;
+}
+
+.input-group span.twitter-typeahead:not(:first-child):not(:last-child) .form-control {
+    border-radius: 0;
+}
+
+.input-group span.twitter-typeahead:first-child .form-control {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group span.twitter-typeahead:last-child .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.input-group.input-group-sm span.twitter-typeahead {
+    height: 30px;
+}
+
+.input-group.input-group-sm span.twitter-typeahead .tt-menu,
+.input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
+    top: 30px !important;
+}
+
+.input-group.input-group-lg span.twitter-typeahead {
+    height: 46px;
+}
+
+.input-group.input-group-lg span.twitter-typeahead .tt-menu,
+.input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
+    top: 46px !important;
+}
+
+.search-heading {
+    padding-left: 4%;
+    margin-top: 3px;
+    position: relative;
+}
+
+.search-heading:after {
+    position: absolute;
+    content: '';
+    border-bottom: 1px solid #D3D3D3;
+    width: 92%;
+    bottom: -5px;
+    left: 4%;
+
 }

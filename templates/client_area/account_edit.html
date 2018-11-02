@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Edit {{ account.name }}
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" id="m_form_add_client">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="client_name">Account Name:</label>
+                    <input type="text" name="account_name" class="form-control m-input"
+                    placeholder="Please enter the client name" value="{{ account.client_name }}">
+                    <span class="m-form__help">Required. 150 characters or fewer.</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="industry">Industry:</label>
+                    <select class="form-control m-input"
+                            name="industry"
+                            style="width: 100%;">
+                            {% for industry in industries %}
+                                <option value="{{ industry.id }}" {% if industry == account.industry %}selected{% endif %}>{{ industry.name }}</option>
+                            {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="team">Team:</label>
+                    <select class="form-control m-input"
+                            name="team"
+                            style="width: 100%;" multiple>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if team in account.team.all %} selected {% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                {% for contactInfo in account.contactInfo.all %}
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="contact_name">Contact Name:</label>
+                    <input type="text" name="contact_name"
+                    class="form-control m-input" value="{{ contactInfo.name }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="contact_email">Contact Email:</label>
+                    <input type="text" name="contact_email"
+                    class="form-control m-input" value="{{ contactInfo.email }}">
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="client_type">Client Type:</label>
+                    <select class="form-control m-input"
+                            name="client_type"
+                            style="width: 100%;">
+                        {% for client_type in client_types %}
+                            <option value="{{ client_type.id }}" {% if client_type == account.clientType %}selected{% endif %}>{{ client_type.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="language">Language:</label>
+                    <select class="form-control m-input"
+                            name="language"
+                            style="width: 100%;" multiple>
+                        {% for language in languages %}
+                            <option value="{{ language.id }}" {% if language in account.language.all %} selected {% endif %}>{{ language.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="tier">Tier:</label>
+                    <select class="form-control m-input"
+                            name="tier"
+                            style="width: 100%;">
+                        {% for tier in tiers %}
+                            <option value="{{ tier }}" {% if tier == account.tier %}selected{% endif %}>{{ tier }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="soldby">Sold by:</label>
+                    <select class="form-control m-input"
+                            name="soldby"
+                            style="width: 100%;">
+                        {% for member in members %}
+                            <option value="{{ member.id }}" {% if member == member.soldBy %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="service">Services:</label>
+                    <select class="form-control m-input"
+                            name="service"
+                            style="width: 100%;" multiple>
+                        {% for service in services %}
+                            <option value="{{ service.id }}" {% if service in account.services.all %} selected {% endif %}>{{ service.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="status">Status:</label>
+                    <select class="form-control m-input"
+                            name="status"
+                            style="width: 100%;">
+                            {% for statusId, statusName in statuses %}
+                              <option value="{{ statusId }}" {% if statusId == account.status %}selected{% endif %}>{{ statusName }}</option>
+                            {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <input type="submit" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

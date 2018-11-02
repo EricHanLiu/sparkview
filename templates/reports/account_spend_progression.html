@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load humanize %}
+{% load template_filters %}
+
+{% block extraCss %}
+<style>
+.proj-avg {
+  display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+            PPC Account Spend Progression Report
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row">
+          <div class="col-md-4">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Total Projected Opportunity Loss
+                  </h5>
+                  <h1 class="text-center inner-text text-info">
+                      ${{ total_projected_loss|format_money }}
+                  </h1>
+              </div>
+          </div>
+      </div>
+      <div class="row m-row--no-padding m-row--col-separator-xl">
+        <div class="col-12">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>Account</th>
+                <th>
+                  Budget
+                </th>
+                <th>
+                  Spend This Month
+                </th>
+                <th class="proj-yest">
+                  Projection
+                </th>
+                <th>
+                  PPC Management Fee If Budget Spent
+                </th>
+                <th class="proj-yest">
+                  PPC Management Fee If Projected Spent
+                </th>
+                <th>
+                  Projected Opportunity Loss
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in accounts %}
+              <tr>
+                <td>
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                </td>
+                <td>
+                  ${{ account.current_budget|format_money }}
+                </td>
+                <td>
+                  ${{ account.current_spend|format_money }}
+                </td>
+                <td class="proj-yest">
+                  ${{ account.project_yesterday|format_money }}
+                </td>
+                <td>
+                  ${{ account.ppcFee|format_money }}
+                </td>
+                <td class="proj-yest">
+                  ${{ account|get_fee_by_spend:account.project_yesterday|format_money }}
+                </td>
+                <td class="proj-yest">
+                  {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
+                  ${{ account.ppcFee|subtract:projected_fee|format_money }}
+                  {% endwith %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

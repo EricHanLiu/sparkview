@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import json
-import re
 import itertools
 import calendar
 import unicodedata
@@ -9,11 +8,11 @@ from django.template.loader import render_to_string
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
-from budget.models import FlightBudget, Budget, CampaignGrouping
+from budget.models import FlightBudget, Budget, CampaignGrouping, Client
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
-from datetime import datetime, date
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from operator import itemgetter
 from itertools import groupby
@@ -52,14 +51,15 @@ def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
 
 
-def account_anomalies(account_id, helper, daterange1):
+def account_anomalies(account_id, helper, daterange1, daterange2):
     current_period_performance = helper.get_account_performance(
         customer_id=account_id, dateRangeType="CUSTOM_DATE",
-        extra_fields=["SearchImpressionShare"], **daterange1
+        **daterange1
     )
 
     previous_period_performance = helper.get_account_performance(
-        customer_id=account_id, dateRangeType="LAST_MONTH",
+        customer_id=account_id, dateRangeType="CUSTOM_DATE",
+        **daterange2
     )
 
     # Returns dict of metrics the following:
@@ -109,10 +109,13 @@ def adwords_cron_anomalies(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
+    today = datetime.today()
+    last_month = today - relativedelta(months=1)
+
     current_period_daterange = helper.get_this_month_daterange()
-    maxDate = helper.subtract_days(current_period_daterange["minDate"], days=1)
-    previous_period_daterange = helper.get_daterange(
-        days=6, maxDate=maxDate
+    previous_period_daterange = helper.create_daterange(
+        minDate=last_month.replace(day=1),
+        maxDate=last_month.replace(day=today.day - 1)
     )
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -121,6 +124,7 @@ def adwords_cron_anomalies(self, customer_id):
         account.dependent_account_id,
         helper,
         current_period_daterange,
+        previous_period_daterange
     )
 
     cmp_anomalies = campaign_anomalies(
@@ -146,9 +150,9 @@ def adwords_cron_anomalies(self, customer_id):
         impressions=acc_anomalies['impressions'][0],
         ctr=acc_anomalies['ctr'][0],
         conversions=acc_anomalies['conversions'][0],
-        cpc=acc_anomalies['avg._cpc'][0],
-        cost_per_conversions=acc_anomalies['cost_/_conv.'][0],
-        search_impr_share=acc_anomalies['search_impr._share'][0],
+        cpc=acc_anomalies['avg_cpc'][0],
+        cost_per_conversions=acc_anomalies['cost__conv'][0],
+        search_impr_share=acc_anomalies['search_impr_share'][0],
         metadata=acc_metadata
     )
 
@@ -170,13 +174,37 @@ def adwords_cron_anomalies(self, customer_id):
             clicks=cmp["clicks"][0],
             impressions=cmp["impressions"][0],
             ctr=cmp["ctr"][0],
-            search_impr_share=cmp["search_impr._share"][0],
+            search_impr_share=cmp["search_impr_share"][0],
             conversions=cmp["conversions"][0],
-            cost_per_conversions=helper.mcv(cmp["cost_/_conv."][0]),
+            cost_per_conversions=helper.mcv(cmp["cost__conv"][0]),
             cost=helper.mcv(cmp["cost"][0]),
-            cpc=helper.mcv(cmp["avg._cpc"][0]),
+            cpc=helper.mcv(cmp["avg_cpc"][0]),
             metadata=json.dumps(metadata_cmp)
         )
+
+
+@celery_app.task(bind=True)
+def adwords_account_anomalies(self, data):
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+    helper = AdwordsReportingService(client)
+
+    current_period_daterange = helper.create_daterange(
+        minDate=datetime.strptime(data['smin'], '%Y-%m-%d'),
+        maxDate=datetime.strptime(data['smax'], '%Y-%m-%d')
+    )
+    previous_period_daterange = helper.create_daterange(
+        minDate=datetime.strptime(data['fmin'], '%Y-%m-%d'),
+        maxDate=datetime.strptime(data['fmax'], '%Y-%m-%d')
+    )
+
+    acc_anomalies = account_anomalies(
+        data['account_id'],
+        helper,
+        current_period_daterange,
+        previous_period_daterange
+    )
+
+    return json.dumps(acc_anomalies)
 
 
 @celery_app.task(bind=True)
@@ -199,10 +227,10 @@ def adwords_cron_ovu(self, customer_id):
         customer_id=account.dependent_account_id,
         dateRangeType="CUSTOM_DATE",
         extra_fields=[
-             "Date",
-             "AccountCurrencyCode"
-         ],
-         ** this_month
+            "Date",
+            "AccountCurrencyCode"
+        ],
+        **this_month
     )
 
     curr_code = data_this_month[0]['currency']
@@ -220,9 +248,24 @@ def adwords_cron_ovu(self, customer_id):
     else:
         currency = curr_code
 
-    segmented_data = {
-        i['day']: i for i in data_this_month
-    }
+    segmented_data = {}
+
+    for i in data_this_month:
+        segmented_data[i['day']] = {
+            'client_name': remove_accents(i['client_name']),
+            'cost_/_conv.': i['cost_/_conv.'],
+            'impressions': i['impressions'],
+            'search_impr._share': i['search_impr._share'],
+            'all_conv._value': i['all_conv._value'],
+            'customer_id': i['customer_id'],
+            'day': i['day'],
+            'ctr': i['ctr'],
+            'clicks': i['clicks'],
+            'avg._cpc': i['avg._cpc'],
+            'conversions': i['conversions'],
+            'currency': i['currency'],
+            'cost': i['cost']
+        }
 
     last_7_ordered = helper.sort_by_date(last_7)
     last_7_days_cost = sum([helper.mcv(item['cost']) for item in last_7])
@@ -280,6 +323,8 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
     if len(cmp_ids) == 0:
         print('No active campaigns found.')
+        account.blacklisted = True
+        account.save()
     else:
         predicates = [
             {
@@ -393,12 +438,12 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
 
 @celery_app.task(bind=True)
-def adwords_cron_campaign_stats(self, customer_id):
+def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    groupings = CampaignGrouping.objects.filter(adwords=account)
 
     cmps = []
-    campaigns = []
+
+    yesterday_spend = 0
 
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -411,67 +456,98 @@ def adwords_cron_campaign_stats(self, customer_id):
         **daterange
     )
 
+    campaigns_yesterday = helper.get_campaign_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="YESTERDAY"
+    )
+
+    for c in campaigns_yesterday:
+        cmp, created = Campaign.objects.get_or_create(
+            account=account,
+            campaign_id=c['campaign_id']
+        )
+        cmp.campaign_yesterday_cost = helper.mcv(c['cost'])
+        cmp.save()
+
     for campaign in campaign_this_month:
-        cost = helper.mcv(campaign['cost'])
         cmp, created = Campaign.objects.get_or_create(
             account=account,
             campaign_id=campaign['campaign_id']
         )
-        cmp.campaign_cost = cost
+        cmp.campaign_cost = helper.mcv(campaign['cost'])
         cmp.campaign_name = campaign['campaign']
         cmp.campaign_status = campaign['campaign_state']
         cmp.campaign_serving_status = campaign['campaign_serving_status']
         cmp.save()
 
         cmps.append(cmp)
-        if created:
-            print('Added to DB - [' + cmp.campaign_name + '].')
-        else:
-            print('Matched in DB - [' + cmp.campaign_name + '].')
+        # if created:
+        #     print('Added to DB - [' + cmp.campaign_name + '].')
+        # else:
+        #     print('Matched in DB - [' + cmp.campaign_name + '].')
 
-    if groupings:
-        for gr in groupings:
-            for c in cmps:
-                if gr.group_by == 'manual':
-                    continue
+    if client_id is not None:
+        cl_acc = Client.objects.get(id=client_id)
+        groupings = CampaignGrouping.objects.filter(client=cl_acc)
+
+        if groupings:
+            for gr in groupings:
+                for c in cmps:
+                    if gr.group_by == 'manual':
+                        continue
+                    else:
+                        # Retrieve keywords to group by as a list
+                        group_by = gr.group_by.split(',')
+
+                        # Loop through kws and add campaigns to the group
+                        for keyword in group_by:
+                            if '+' in keyword:
+                                if keyword.strip('+').lower() in c.campaign_name.lower() \
+                                        and c not in gr.aw_campaigns.all():
+                                    gr.aw_campaigns.add(c)
+
+                                if keyword.strip('+').lower() not in c.campaign_name.lower() \
+                                        and c in gr.aw_campaigns.all():
+                                    gr.aw_campaigns.remove(c)
+
+                            if '-' in keyword:
+                                if keyword.strip('-').lower() in c.campaign_name.lower() \
+                                        and c in gr.aw_campaigns.all():
+                                    gr.aw_campaigns.remove(c)
+
+                gr.save()
+
+                gr.aw_spend = 0
+                gr.aw_yspend = 0
+
+                if gr.start_date:
+                    campaigns = []
+
+                    for c in gr.aw_campaigns.all():
+                        campaigns.append(c.campaign_id)
+
+                    predicate = {
+                        "field": "CampaignId",
+                        "operator": "IN",
+                        "values": campaigns,
+                    }
+
+                    daterange = helper.create_daterange(gr.start_date, gr.end_date)
+                    campaign_this_period = helper.get_campaign_performance(
+                        customer_id=account.dependent_account_id,
+                        dateRangeType="CUSTOM_DATE",
+                        extra_predicates=predicate,
+                        **daterange
+                    )
+
+                    for cmp in campaign_this_period:
+                        gr.aw_spend += helper.mcv(cmp['cost'])
+                        gr.save()
                 else:
-                    if gr.group_by not in c.campaign_name and c in gr.aw_campaigns.all():
-                        gr.aw_campaigns.remove(c)
+                    for cmp in gr.aw_campaigns.all():
+                        gr.aw_spend += cmp.campaign_cost
+                        gr.aw_yspend += cmp.campaign_yesterday_cost
                         gr.save()
-
-                    elif gr.group_by in c.campaign_name and c not in gr.aw_campaigns.all():
-                        gr.aw_campaigns.add(c)
-                        gr.save()
-
-            gr.current_spend = 0
-
-            if gr.start_date:
-
-                for c in gr.aw_campaigns.all():
-                    campaigns.append(c.campaign_id)
-
-                predicate = {
-                    "field": "CampaignId",
-                    "operator": "IN",
-                    "values": campaigns,
-                }
-
-                daterange = helper.create_daterange(gr.start_date, gr.end_date)
-
-                campaign_this_period = helper.get_campaign_performance(
-                    customer_id=account.dependent_account_id,
-                    dateRangeType="CUSTOM_DATE",
-                    extra_predicates=predicate,
-                    **daterange
-                )
-
-                for cmp in campaign_this_period:
-                    gr.current_spend += helper.mcv(cmp['cost'])
-                    gr.save()
-            else:
-                for cmp in gr.aw_campaigns.all():
-                    gr.current_spend += cmp.campaign_cost
-                    gr.save()
 
 
 @celery_app.task(bind=True)
@@ -613,25 +689,78 @@ def adwords_adgroup_labels(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_result_trends(self, customer_id):
+    trends_data = {}
+    w_data = {}
+    to_parse = []
+
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    today = datetime.today()
+    today = datetime.today() - relativedelta(days=1)
     minDate = (today - relativedelta(months=2)).replace(day=1)
+
     daterange = helper.create_daterange(minDate, today)
+    daterange2 = helper.create_daterange(minDate - relativedelta(months=1), today - relativedelta(months=1))
+    daterange3 = helper.create_daterange(minDate - relativedelta(months=2), today - relativedelta(months=2))
+
     weekly = helper.get_this_month_daterange()
     data = helper.get_account_performance(
         customer_id=account.dependent_account_id,
         dateRangeType="CUSTOM_DATE",
         extra_fields=[
-            'MonthOfYear',
             'ConversionRate',
             'CostPerConversion',
             'ConversionValue'
         ],
         **daterange
     )
+
+    trends_data[minDate.strftime('%B')] = {
+        'cvr': data[0]['conv._rate'],
+        'conversions': data[0]['conversions'],
+        'cost': helper.mcv(data[0]['cost']),
+        'roi': round(float(data[0]['total_conv._value']) / helper.mcv(data[0]['cost'])),
+        'cpa': helper.mcv(data[0]['cost_/_conv.'])
+    }
+
+    data2 = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=[
+            'ConversionRate',
+            'CostPerConversion',
+            'ConversionValue'
+        ],
+        **daterange2
+    )
+
+    trends_data[(minDate - relativedelta(months=1)).strftime('%B')] = {
+        'cvr': data2[0]['conv._rate'],
+        'conversions': data2[0]['conversions'],
+        'cost': helper.mcv(data2[0]['cost']),
+        'roi': round(float(data2[0]['total_conv._value']) / helper.mcv(data2[0]['cost'])),
+        'cpa': helper.mcv(data2[0]['cost_/_conv.'])
+    }
+
+    data3 = helper.get_account_performance(
+        customer_id=account.dependent_account_id,
+        dateRangeType="CUSTOM_DATE",
+        extra_fields=[
+            'ConversionRate',
+            'CostPerConversion',
+            'ConversionValue'
+        ],
+        **daterange3
+    )
+
+    trends_data[(minDate - relativedelta(months=2)).strftime('%B')] = {
+        'cvr': data3[0]['conv._rate'],
+        'conversions': data3[0]['conversions'],
+        'cost': helper.mcv(data3[0]['cost']),
+        'roi': round(float(data3[0]['total_conv._value']) / helper.mcv(data3[0]['cost'])),
+        'cpa': helper.mcv(data3[0]['cost_/_conv.'])
+    }
 
     weekly_data = helper.get_account_performance(
         customer_id=account.dependent_account_id,
@@ -645,19 +774,6 @@ def adwords_result_trends(self, customer_id):
         **weekly
     )
 
-    trends_data = {}
-    w_data = {}
-    to_parse = []
-    # print(data)
-    for item in data:
-        trends_data[item['month_of_year']] = {
-            'cvr': item['conv._rate'],
-            'conversions': item['conversions'],
-            'cost': helper.mcv(item['cost']),
-            'roi': round(float(item['total_conv._value']) / helper.mcv(item['cost'])),
-            'cpa': helper.mcv(item['cost_/_conv.'])
-        }
-
     for item in sorted(weekly_data, key=lambda k: k['week']):
         w_data[item['week']] = {
             'cvr': item['conv._rate'],
@@ -669,9 +785,6 @@ def adwords_result_trends(self, customer_id):
 
     for v in sorted(trends_data.items(), reverse=True):
         to_parse.append(v)
-
-    # ctr_change = helper.get_change(to_parse[2][1]['ctr'].strip('%'), to_parse[0][1]['ctr'].strip('%'))
-    # ctr_score = helper.get_score(round(ctr_change, 2), 'CTR')
 
     cvr_change = helper.get_change(to_parse[2][1]['cvr'].strip('%'), to_parse[0][1]['cvr'].strip('%'))
     cvr_score = helper.get_score(round(cvr_change, 2), 'CVR')
@@ -691,7 +804,6 @@ def adwords_result_trends(self, customer_id):
     trends_score = float(cvr_score[0] + conv_score[0] + roi_score[0] + cpa_score[0] + cost_score[0]) / 5
 
     account.trends = trends_data
-    # account.ctr_score = ctr_score
     account.cvr_score = cvr_score
     account.conversions_score = conv_score
     account.roi_score = roi_score
@@ -784,31 +896,13 @@ def adwords_account_quality_score(self, customer_id):
 
 @celery_app.task(bind=True)
 def adwords_account_change_history(self, customer_id):
-    MAIL_ADS = [
-        'xurxo@makeitbloom.com',
-        'jeff@makeitbloom.com',
-        'franck@makeitbloom.com',
-        'marina@makeitbloom.com',
-        'lexi@makeitbloom.com',
-    ]
-
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
     today = datetime.today() - relativedelta(days=1)
     _5_days_ago = today - relativedelta(days=4)
 
-    fminDateL = (today - relativedelta(months=2)).replace(day=1)
-    fmaxDateL = fminDateL.replace(day=calendar.monthrange(fminDateL.year, fminDateL.month)[1])
-
-    minDate = today.replace(day=1)
-    maxDate = today.replace(day=calendar.monthrange(minDate.year, minDate.month)[1])
-
-    minDateL = (today - relativedelta(months=1)).replace(day=1)
-    maxDateL = minDateL.replace(day=calendar.monthrange(minDateL.year, minDateL.month)[1])
-
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    # campaigns = Campaign.objects.filter(account=account, campaign_status='enabled', campaign_serving_status='eligible')
     campaigns = Campaign.objects.filter(account=account)
 
     dates = helper.perdelta(_5_days_ago, today, timedelta(days=1))
@@ -823,6 +917,7 @@ def adwords_account_change_history(self, customer_id):
 
     service = client.GetService('CustomerSyncService', version=API_VERSION)
 
+    # Last 5 days changes number
     for date in dates:
         selector = {
             'dateTimeRange': {
@@ -833,31 +928,28 @@ def adwords_account_change_history(self, customer_id):
         }
 
         day_changes = service.get(selector)
-        no_of_changes = helper.get_change_no(day_changes)
-        # if date.day == 12:
-        #     print(day_changes)
-        daily[date.strftime('%Y-%m-%d')] = no_of_changes
+        daily[date.strftime('%Y-%m-%d')] = helper.get_change_no(day_changes)
 
     selector1 = {
         'dateTimeRange': {
-            'min': minDate.strftime('%Y%m%d %H%M%S'),
-            'max': maxDate.strftime('%Y%m%d %H%M%S')
+            'min': today.replace(day=1).strftime('%Y%m%d %H%M%S'),
+            'max': today.strftime('%Y%m%d %H%M%S')
         },
         'campaignIds': campaign_ids
     }
 
     selector2 = {
         'dateTimeRange': {
-            'min': minDateL.strftime('%Y%m%d %H%M%S'),
-            'max': maxDateL.strftime('%Y%m%d %H%M%S')
+            'min': (today - relativedelta(months=1)).replace(day=1).strftime('%Y%m%d %H%M%S'),
+            'max': (today - relativedelta(months=1)).strftime('%Y%m%d %H%M%S')
         },
         'campaignIds': campaign_ids
     }
 
     selector3 = {
         'dateTimeRange': {
-            'min': fminDateL.strftime('%Y%m%d %H%M%S'),
-            'max': fmaxDateL.strftime('%Y%m%d %H%M%S')
+            'min': (today - relativedelta(months=2)).replace(day=1).strftime('%Y%m%d %H%M%S'),
+            'max': (today - relativedelta(months=2)).strftime('%Y%m%d %H%M%S')
         },
         'campaignIds': campaign_ids
     }
@@ -893,16 +985,15 @@ def adwords_account_change_history(self, customer_id):
             if e.errors[0]['reason'] == 'TOO_MANY_CHANGES':
                 change_counter3 = 19999
 
-        # Get last change timestamp for mail
-
         change_val = helper.get_change(change_counter, change_counter2)
         change_score = helper.get_change_score(change_val)
 
+        # Last three months of changes
         changed_data = {
             'monthly': {
-                fminDateL.strftime('%Y-%m-%d'): change_counter3,
-                minDateL.strftime('%Y-%m-%d'): change_counter2,
-                minDate.strftime('%Y-%m-%d'): change_counter
+                (today - relativedelta(months=2)).replace(day=1).strftime('%Y-%m-%d'): change_counter3,
+                (today - relativedelta(months=1)).replace(day=1).strftime('%Y-%m-%d'): change_counter2,
+                today.replace(day=1).strftime('%Y-%m-%d'): change_counter
             },
             'daily': daily
         }
@@ -915,31 +1006,14 @@ def adwords_account_change_history(self, customer_id):
 
         flag = all(value == 0 for value in daily.values())
 
+        # We set a boolean to find the accounts to be added to the e-mail
         if flag:
-            mail_details = {
-                'account': account,
-            }
-
-            if account.assigned_am:
-                MAIL_ADS.append(account.assigned_am.email)
-                print('Found AM - ' + account.assigned_am.username)
-            if account.assigned_to:
-                MAIL_ADS.append(account.assigned_to.email)
-                print('Found CM - ' + account.assigned_to.username)
-            if account.assigned_cm2:
-                MAIL_ADS.append(account.assigned_cm2.email)
-                print('Found CM2 - ' + account.assigned_cm2.username)
-            if account.assigned_cm3:
-                MAIL_ADS.append(account.assigned_cm3.email)
-                print('Found CM3 - ' + account.assigned_cm3.username)
-
-            mail_list = set(MAIL_ADS)
-            msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
-
-            send_mail(
-                account.dependent_account_name + ' - No changes for more than 5 days', msg_html,
-                EMAIL_HOST_USER, mail_list, fail_silently=False, html_message=msg_html)
-            mail_list.clear()
+            account.ch_flag = True
+            account.save()
+            print('MAIL')
+        else:
+            account.ch_flag = False
+            account.save()
 
     else:
         print('No active campaigns found.')
@@ -947,6 +1021,7 @@ def adwords_account_change_history(self, customer_id):
         account.changed_data = {
             'lastChangeTimestamp': 'NO_ACTIVE_CAMPAIGNS'
         }
+        account.ch_flag = False
         account.save()
         calculate_account_score(account)
 
@@ -966,7 +1041,11 @@ def adwords_account_not_running(self, customer_id):
 
     for item in campaign_yesterday:
         if item['impressions'] == '0':
-            nr_data.append(item)
+            nr_data.append({
+                'campaign': remove_accents(item['campaign']),
+                'impressions': item['impressions'],
+                'cost': helper.mcv(item['cost'])
+            })
 
     nr_no = len(nr_data)
     nr_score = 0
@@ -1112,8 +1191,10 @@ def adwords_account_extensions(self, customer_id):
         missing_no = len(missing)
 
         cmp_score += (missing_no * 100) / all_ext
-
-    ext_score = cmp_score / len(ext)
+    if ext:
+        ext_score = cmp_score / len(ext)
+    else:
+        ext_score = 0.0
 
     account.ext_data = ext_data
     account.ext_score = ext_score

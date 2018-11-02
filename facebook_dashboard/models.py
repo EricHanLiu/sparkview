@@ -10,6 +10,8 @@ class FacebookAccount(models.Model):
     account_name = models.CharField(max_length=255, default="None")
     desired_spend = models.IntegerField(default=0)
     current_spend = models.FloatField(default=0)
+    desired_spend_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
     segmented_spend = JSONField(default=dict)
     channel = models.CharField(max_length=255, default='None')
     trends = JSONField(default=dict)
@@ -37,6 +39,14 @@ class FacebookAccount(models.Model):
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
     metadata = JSONField(default=dict)
+
+
+    @property
+    def has_custom_dates(self):
+        """
+        Boolean. Checks if custom dates are set or the desired spend on the account
+        """
+        return (self.desired_spend_start_date != None and self.desired_spend_end_date != None)
 
     @property
     def json(self):
@@ -136,6 +146,7 @@ class FacebookCampaign(models.Model):
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=455, default='None')
     campaign_cost = models.FloatField(default=0)
+    campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
 

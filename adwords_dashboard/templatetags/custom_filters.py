@@ -7,6 +7,24 @@ from calendar import monthrange
 register = template.Library()
 
 
+@register.filter(name='cgap')
+def cgap(value, arg):
+    try:
+        result = (value / arg) * 100
+    except ZeroDivisionError:
+        result = 0
+
+    if 90 < result < 100:
+        return 'm-font m--font-success'
+
+    elif 0 < result <= 90:
+        return 'm-font m--font-warning'
+    elif result == 0:
+        return 'm-font'
+    else:
+        return 'm-font m--font-danger'
+
+
 @register.filter("get_dict_value")
 def get_dict_value(data, key):
 
@@ -15,11 +33,22 @@ def get_dict_value(data, key):
     except TypeError:
         return [0,0,0]
 
+@register.filter
+def slugify_(string):
+    string = re.sub('\s+', '_', string)
+    string = re.sub('[^\w.-]', '', string)
+    return string.strip('_.- ').lower()
+
 @register.filter("addf")
 def addf(value, arg):
     """Adds the arg to the value."""
     return float(value) + float(arg)
 addf.is_safe = False
+
+
+@register.filter("diff")
+def diff(first, second):
+    return ((first - second) / first) * 100
 
 
 @register.filter("mcv")
@@ -32,9 +61,12 @@ def mcv(value):
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
     today = datetime.datetime.today() - relativedelta(days=1)
+    next_month_int = today.month + 1
+    if (next_month_int == 13):
+        next_month_int = 1
     next_month = datetime.datetime(
         year=today.year,
-        month=((today.month + 1) % 12),
+        month=next_month_int,
         day=1
     )
     lastday_month = next_month + relativedelta(days=-1)
@@ -52,6 +84,13 @@ def div(value, div):
     try:
         return round((value / div) * 100, 2)
     except ZeroDivisionError:
+        return 0
+
+@register.filter
+def divide(value, arg):
+    try:
+        return float(value) / float(arg)
+    except (ValueError, ZeroDivisionError):
         return 0
 
 @register.filter('startswith')
@@ -158,3 +197,20 @@ def replace ( string, args ):
     replace = args.split(args[0])[2]
 
     return re.sub( search, replace, string )
+
+
+@register.filter(name='pcolor')
+def projected_color(projected, budget):
+    try:
+        proc = (projected * 100) / budget
+    except ZeroDivisionError:
+        proc = 0
+
+    if proc == 0:
+        return 'm--font'
+    elif proc < 90:
+        return 'm--font-warning'
+    elif proc > 100:
+        return 'm--font-danger'
+    elif 90 < proc <= 100:
+        return 'm--font-success'

@@ -1,4 +1,5 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load template_filters %} {% load custom_filters %}
+{% load humanize %}{% block content %}
 
     <div class="m-content">
         <div class="row">
@@ -24,6 +25,15 @@
                                         id="clients_delete_btn"> Delete client(s)
                                 </button>
                         </div>
+                        <div class="m--space-30"></div>
+                        <!-- <div class="row">
+                            <div class="col-md-6">
+                                <i class="la la-star-o"></i> - Client has Budget feature. <i class="la la-star"></i>
+                                -
+                                Client has GTS feature.
+                                <i class="la la-star-o"></i><i class="la la-star"></i> - Client has both features.
+                            </div>
+                        </div> -->
                         <div class="m-separator m-separator--dashed"></div>
                         <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
                                id="clients_datatable">
@@ -49,8 +59,7 @@
                                 <th style="width: 5%;"></th>
                                 <th>Client Name</th>
                                 <th style="text-align: center">Monthly up to Up-to-Date Spend</th>
-                                <th style="text-align: center">Budget</th>
-                                <th style="text-align: center">Global Target Spend</th>
+                                <th style="text-align: center">Gap</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -59,89 +68,44 @@
                                     <td style="text-align: center; vertical-align: middle;">
                                         <label class="m-checkbox m-checkbox--solid m-checkbox-primary">
                                             <input type="checkbox" name="client_ids" id="{{ client.id }}"
-                                                   value="{{ client.id }}">
+                                                   value="{{ client.id }}" />
                                             <span></span>
                                         </label>
                                     </td>
                                     <td>
+                                      <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:client.status }}"
+                                            data-toggle="m-tooltip" data-original-title="{{ client.get_status_display }}"><span style="display:none;">{{ client.get_status_display }}</span></span>
+                                            &nbsp;
+
                                         <a href="{% url 'budget:client_details' client.id %}">
-                                                {{ client.client_name }}
+                                            {{ client.client_name }}
                                         </a>
-                                        {% if client.has_gts and client.has_budget %}
-                                            <i class="la la-star-o"></i>
-                                            <i class="la la-star"></i>
-                                        {% elif client.has_budget %}
-                                            <i class="la la-star-o"></i>
-                                        {% elif client.has_gts %}
-                                            <i class="la la-star"></i>
-                                        {% endif %}
-                                        <div class="row">
-                                            {% if client.has_gts %}
-                                                <div class="col-md-6">Target Daily Spend:
-                                                    {{ client.current_spend | ideal_day_spend:client.target_spend }}
-                                                </div>
-                                            {% else %}
-                                                <div class="col-md-6">Target Daily Spend:
-                                                    {{ client.current_spend | ideal_day_spend:client.budget }}
-                                                </div>
-                                            {% endif %}
-                                            <div class="col-md-6">Yesterday spend: {{ client.yesterday_spend }}</div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">Current Daily Spend:
-                                                {{ client.current_spend|daily_spend|floatformat:2 }}</div>
-                                            <div class="col-md-6">Projected Spend EOM:
-{#                                                {{ client.current_spend|projected|floatformat:2 }}#}
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">Current Total Spend:
-                                                {{ client.current_spend|floatformat:2 }}</div>
-                                            <div class="col-md-6">AdWords Spend:
-                                                {{ client.aw_spend|floatformat:2 }}</div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">Bing spend:
-                                                {{ client.bing_spend|floatformat:2 }}</div>
-                                            <div class="col-md-6">Facebook Spend:
-                                                {{ client.fb_spend|floatformat:2 }}
-                                            </div>
-                                        </div>
 
                                     </td>
-                                    <td style="text-align: center">
-                                        <div class="progress m-progress--lg" style="position: relative;!important;">
-                                            {% if client.has_gts and client.has_budget %}
-                                                <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.target_spend }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.target_spend 100 %}%"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
-                                                    {% widthratio client.current_spend client.target_spend 100 %}%
-                                                </div>
-                                            {% elif client.has_gts %}
-                                                <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.target_spend }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.target_spend 100 %}%"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.target_spend }}">
-                                                    {% widthratio client.current_spend client.target_spend 100 %}%
-                                                </div>
-                                            {% elif client.has_budget %}
-                                                <div id="{{ client.id }}_progressbar"
-                                                     class="progress-bar {{ client.current_spend|percentage:client.budget }}"
-                                                     role="progressbar"
-                                                     style="width: {% widthratio client.current_spend client.budget 100 %}%"
-                                                     aria-valuemin="0" aria-valuemax="100"
-                                                     data-toggle="m-tooltip" data-placement="top" title=""
-                                                     data-original-title="{{ client.current_spend }}/{{ client.budget }}">
-                                                    {% widthratio client.current_spend client.budget 100 %}%
-                                                </div>
-                                            {% endif %}
+                                    <td class="text-center">
+                                        <div class="row">
+                                            <div class="col-md-4"><b>Current</b>:
+                                                {{ client.currency }}{{ client.current_spend|floatformat:2|intcomma }}
+                                            </div>
+                                            <div class="col-md-4"><b>Budget</b>:
+                                                {{ client.currency }}{{ client.current_budget|intcomma }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>Projected</b>:
+                                                {{ client.currency }}{{ client.aw_projected|addf:client.bing_projected|addf:client.fb_projected|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                        <div class="progress m-progress--lg bloom-progress"
+                                             style="position: relative!important;">
+                                            <div id="{{ client.id }}_progressbar"
+                                                 class="progress-bar {{ client.current_spend|percentage:client.current_budget }} bloom-progress"
+                                                 role="progressbar"
+                                                 style="width: {% widthratio client.current_spend client.current_budget 100 %}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ client.current_spend }}/{{ client.current_budget }}">
+                                                {% widthratio client.current_spend client.current_budget 100 %}%
+                                            </div>
                                             <div class="black-marker"
                                                  style="width: {{ blackmarker }}%"
                                                  aria-valuenow="{{ blackmarker }}"
@@ -149,43 +113,11 @@
                                             </div>
                                         </div>
                                     </td>
-                                    {% if client.has_gts and client.has_budget %}
-                                        <td style="text-align: center" id="budget-{{ client.id }}">
-                                            {{ client.budget }}
-                                        </td>
-                                        <td style="text-align: center" id="gts-{{ client.id }}">
-                                            <input id="client_gts-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.target_spend }}" class="table-number">
-                                        </td>
-                                    {% elif client.has_gts %}
-                                        <td style="text-align: center" id="budget-{{ client.id }}">
-                                            {{ client.budget }}
-                                        </td>
-                                        <td style="text-align: center" id="gts-{{ client.id }}">
-                                            <input id="client_gts-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.target_spend }}" class="table-number">
-                                        </td>
-                                    {% elif client.has_budget %}
-                                        <td style="text-align: center" id="budget-{{ client.id }}">
-                                            {{ client.budget }}
-                                        </td>
-                                        <td style="text-align: center" id="gts-{{ client.id }}">
-                                            <input id="client_gts-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.target_spend }}" class="table-number" disabled>
-                                        </td>
-                                    {% else %}
-                                        <td style="text-align: center" id="budget-{{ client.id }}">
-                                            {{ client.budget }}
-                                        </td>
-                                        <td style="text-align: center" id="gts-{{ client.id }}">
-                                            <input id="client_gts-{{ client.id }}" type="number"
-                                                   onkeypress="submitClientBudget(event, {{ client.id }})"
-                                                   value="{{ client.target_spend }}" class="table-number" disabled>
-                                        </td>
-                                    {% endif %}
+                                    <td class="text-center">
+                                        <span class="{{ client.current_spend|cgap:client.current_budget }}">
+                                            {{ client.currency }}{{ client.current_budget|subtract:client.current_spend|floatformat:2|intcomma }}
+                                        </span>
+                                    </td>
                                 </tr>
                             {% endfor %}
                             <div id="error_message" class="note hide">
@@ -194,13 +126,6 @@
                             </tbody>
                         </table>
                         </form>
-                        <p></p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <i class="la la-star-o"></i> - Client has Budget feature. <i class="la la-star"></i> - Client has GTS feature.
-                                <i class="la la-star-o"></i><i class="la la-star"></i> - Client has both features.
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -336,7 +261,7 @@
                                                                         <input
                                                                                 type="text" class="form-control m-input"
                                                                                 name="client_name" id="client_name"
-                                                                                aria-describedby="client-error" />
+                                                                                aria-describedby="client-error"/>
                                                                     </p>
                                                                     <div id="client-error"
                                                                          class="form-control-feedback"></div>
@@ -390,7 +315,8 @@
                                                                             multiple="multiple" id="m_select2_adwords"
                                                                             style="width: 100%;">
                                                                         {% for a in adwords %}
-                                                                            <option name="aw_account" value="{{ a.dependent_account_id }}|{{ a.dependent_account_name }}">{{ a.dependent_account_name }}</option>
+                                                                            <option name="aw_account"
+                                                                                    value="{{ a.dependent_account_id }}|{{ a.dependent_account_name }}">{{ a.dependent_account_name }}</option>
                                                                         {% endfor %}
                                                                     </select>
                                                                     <div id="budget-fields">
@@ -426,7 +352,8 @@
                                                                         multiple="" id="m_select2_bing"
                                                                         style="width: 100%">
                                                                     {% for b in bing %}
-                                                                        <option name="bing_acc" value="{{ b.account_id }}|{{ b.account_name }}">{{ b.account_name }}</option>
+                                                                        <option name="bing_acc"
+                                                                                value="{{ b.account_id }}|{{ b.account_name }}">{{ b.account_name }}</option>
                                                                     {% endfor %}
                                                                 </select>
                                                                 <div id="budget-fields-bing">
@@ -461,7 +388,8 @@
                                                                     multiple="" id="m_select2_facebook"
                                                                     style="width: 100%">
                                                                 {% for f in facebook %}
-                                                                    <option name="fb_acc" value="{{ f.account_id }}|{{ f.account_name }}">{{ f.account_name }}</option>
+                                                                    <option name="fb_acc"
+                                                                            value="{{ f.account_id }}|{{ f.account_name }}">{{ f.account_name }}</option>
                                                                 {% endfor %}
                                                             </select>
                                                             <div id="budget-fields-facebook">
@@ -591,7 +519,8 @@
                                                                             </div>
                                                                             <div class="form-group m-form__group m-form__group--sm row">
                                                                                 <div class="col-xl-12 col-lg-12">
-                                                                                    <span class="m-form__control-static" id="bing_name_fstep">{{ b.account_name }}</span>
+                                                                                    <span class="m-form__control-static"
+                                                                                          id="bing_name_fstep">{{ b.account_name }}</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -624,7 +553,8 @@
                                                                             </div>
                                                                             <div class="form-group m-form__group m-form__group--sm row">
                                                                                 <div class="col-xl-12 col-lg-12">
-                                                                                    <span class="m-form__control-static" id="fb_name_fstep"></span>
+                                                                                    <span class="m-form__control-static"
+                                                                                          id="fb_name_fstep"></span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -693,7 +623,6 @@
         </div>
     </div>
     <!-- End::Modal -->
-
 
 
     <script type="text/javascript">

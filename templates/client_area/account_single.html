@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block extraCss %}
+<style>
+.m-card-profile {
+  display:inline-block;
+  float:left;
+  width: 200px;
+  padding: 5px 15px;
+  margin: 0;
+}
+
+.am-profile {
+  background: rgba(66, 134, 244, 0.5);
+}
+
+.fa-star:hover {
+  cursor: pointer;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <!-- Assigned members -->
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                {{ account.client_name }} Team
+                &nbsp;
+                <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
+                &nbsp;
+                <i class="fa fa-star" data-flag="{% if account.star_flag %}1{% else %}0{% endif %}" {% if account.star_flag %}style="color:#ffd53d;"{% endif %}></i>
+                &nbsp;
+                <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000;">
+                  <span class="la la-edit">
+                  </span>
+                </a>
+              </h3>
+            </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_assign_members"> Assign Members
+                </button>
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_position_allocation"> Assign %
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Assigned members -->
+        <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
+          <div class="row">
+            <div class="col-xl-12">
+              {% for role, assigned_member in account.assigned_ams.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--info m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+              {% for role, assigned_member in account.assigned_cms.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--success m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+              {% for role, assigned_member in account.assigned_seos.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--warning m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+              {% for role, assigned_member in account.assigned_strats.items %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge  m-badge--danger m-badge--wide">{{ role }}</span>
+                    <br />
+                    <span data-toggle="m-tooltip" data-original-title="{{ assigned_member.allocated_percenage }}%">{{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <!-- End of assigned members -->
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <!-- Details -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Details
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label>Contact Name:</label>
+                {% for clientContact in account.contactInfo.all %}
+                <input type="text" class="form-control m-input" value="{{ clientContact.name }}" disabled>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label>Contact Email:</label>
+                {% for clientContact in account.contactInfo.all %}
+                <input type="text" class="form-control m-input" value="{{ clientContact.email }}" disabled>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="team">Team:</label>
+                {% for team in account.team.all %}
+                <input type="text" class="form-control m-input" value="{{ team.name }}" disabled>
+                {% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label for="role">Industry:</label>
+                <input type="text" class="form-control m-input" value="{{ account.industry.name }}" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="team">Services:</label>
+                {% if account.aw_budget != 0.0 %}
+                <input type="text" class="form-control m-input" value="Adwords" disabled>
+                {% endif %}
+                {% if account.bing_budget != 0.0 %}
+                <input type="text" class="form-control m-input" value="Bing" disabled>
+                {% endif %}
+                {% if account.fb_budget != 0.0 %}
+                <input type="text" class="form-control m-input" value="Facebook" disabled>
+                {% endif %}
+                {% if account.has_seo %}
+                <input type="text" class="form-control m-input" value="SEO" disabled>
+                {% endif %}
+                {% if account.has_cro %}
+                <input type="text" class="form-control m-input" value="CRO" disabled>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end details -->
+      <!-- Hours this month -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Hours This Month
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="single_client_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Member
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in accountHoursMember %}
+                <tr>
+                  <td>
+                    {{ hourRow.member }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours__sum }}
+                  </td>
+                  <td>
+                    {{ hourRow.month }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- end hours this month -->
+
+      <!-- Account history -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Account History
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Member
+                </th>
+                <th>
+                  Field Changed
+                </th>
+                <th>
+                  Changed From
+                </th>
+                <th>
+                  Changed To
+                </th>
+                <th>
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for change in changes.all %}
+              <tr>
+                <td>
+                  {{ change.member.user.first_name }} {{ change.member.user.last_name }}
+                </td>
+                <td>
+                  {{ change.changeField }}
+                </td>
+                <td>
+                  {{ change.changedFrom }}
+                </td>
+                <td>
+                  {{ change.changedTo }}
+                </td>
+                <td>
+                  {{ change.datetime }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- end account history -->
+      <!-- Management fee structure -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Management Fee Structure
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
+          <p>Manual Override: ${{ account.management_fee_override }}</p>
+          {% else %}
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="fee_structure_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Monthly Media Spend
+                </th>
+                <th>
+                  Monthly Fee
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for interval in account.managementFee.feeStructure.all %}
+              <tr>
+                <td>
+                  ${{ interval.lowerBound }} - ${{ interval.upperBound }}
+                </td>
+                <td>
+                  {% if interval.feeStyle == 1 %}${{ interval.fee|format_money }}{% endif %}{% if interval.feeStyle == 0 %}{{ interval.fee}}%{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+        </div>
+      </div>
+      <!-- end management fee structure -->
+    </div>
+    <div class="col-xl-8">
+      <!-- Main portlet -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                Budget Information
+              </h3>
+            </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <a type="button" class="btn btn-info m-btn" href="/budget/client/{{ account.id }}">
+                   Manage Budget
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="row m-row--no-padding m-row--col-separator-xl">
+            <div class="col-md-12 col-lg-12 col-xl-6">
+              <div class="m-widget1">
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Total Budget</h3>
+                      <span class="m-widget1__desc">Total monthy budget</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-brand">${{ account.current_budget|format_money }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Spend This Month</h3>
+                      <span class="m-widget1__desc">Amount spent (Adwords, FB, Bing)</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-danger">${{ account.current_spend|format_money }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Budget Remaining</h3>
+                      <span class="m-widget1__desc">Left to spend this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-success">${{ account.remainingBudget|format_money }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12 col-lg-12 col-xl-6">
+              <div class="m-widget1">
+                <!-- <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Client Status</h3>
+                      <span class="m-widget1__desc">Status of the client</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-accent">
+                        <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }} m-badge--wide" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}">{{ account.get_status_display }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div> -->
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Allocated Hours This Month</h3>
+                      <span class="m-widget1__desc">All hours allocated this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-info">{{ account.allHours|floatformat }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Hours Worked This Month</h3>
+                      <span class="m-widget1__desc">All hours worked this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-info">{{ account.hoursWorkedThisMonth|floatformat }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="m-widget1__item">
+                  <div class="row m-row--no-padding align-items-center">
+                    <div class="col">
+                      <h3 class="m-widget1__title">Hours Remaining This Month</h3>
+                      <span class="m-widget1__desc">All hours remaining this month</span>
+                    </div>
+                    <div class="col m--align-right">
+                      <span class="m-widget1__number m--font-{% if account.hoursRemainingMonth < 0 %}danger{% else %}info{% endif %}">{{ account.hoursRemainingMonth|floatformat }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End main portlet -->
+      <!-- Promos -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                Promos
+              </h3>
+            </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_new_promo"> Add Promos
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div id="calendar" class="fc fc-unthemed fc-ltr">
+
+          </div>
+        </div>
+      </div>
+      <!-- End promos -->
+  </div>
+  <!-- end assigned members -->
+</div>
+<!--End::Main Portlet-->
+</div>
+
+<!-- Begin assign members modal -->
+<div class="modal fade" id="m_assign_members" tabindex="-1" role="dialog" aria-labelledby="m_assign_members">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Assign Members to {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/assign_members" id="m_form_assign_members">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>AM:</label>
+                        <select class="form-control m-input"
+                                name="am1-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.am1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>AM2:</label>
+                        <select class="form-control m-input"
+                                name="am2-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.am2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>AM3:</label>
+                        <select class="form-control m-input"
+                                name="am3-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.am3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>AM Backup:</label>
+                        <select class="form-control m-input"
+                                name="amb-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.amb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label for="buffer_total_percentage">CM:</label>
+                        <select class="form-control m-input"
+                                name="cm1-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.cm1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="buffer_learning_percentage">CM2:</label>
+                        <select class="form-control m-input"
+                                name="cm2-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.cm2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="buffer_trainers_percentage">CM3:</label>
+                        <select class="form-control m-input"
+                                name="cm3-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.cm3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label for="buffer_sales_percentage">CM Backup:</label>
+                        <select class="form-control m-input"
+                                name="cmb-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.cmb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>Strat:</label>
+                        <select class="form-control m-input"
+                                name="strat1-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.strat1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Strat 2:</label>
+                        <select class="form-control m-input"
+                                name="strat2-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.strat2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Strat 3:</label>
+                        <select class="form-control m-input"
+                                name="strat3-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.strat3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Strat Backup:</label>
+                        <select class="form-control m-input"
+                                name="stratb-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.stratb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <label>SEO:</label>
+                        <select class="form-control m-input"
+                                name="seo1-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.seo1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>SEO2:</label>
+                        <select class="form-control m-input"
+                                name="seo2-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.seo2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>SEO3:</label>
+                        <select class="form-control m-input"
+                                name="seo3-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.seo3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label>SEO Backup:</label>
+                        <select class="form-control m-input"
+                                name="seob-assign"
+                                style="width: 100%;">
+                                <option value="0">
+                                  None
+                                </option>
+                            {% for member in members %}
+                                <option value="{{ member.id }}" {% if member.id == account.seob.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Submit" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End member assignment modal -->
+
+<!-- Allocation per position modal -->
+<div class="modal fade" id="m_position_allocation" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Percentages per position for {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/allocate_percentages" id="m_form_allocate_percentages">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>AM:</label>
+                        <input type="text" name="am1-percent" id="am1-percent" class="form-control m-input" value="{{ account.am1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>AM2:</label>
+                        <input type="text" name="am2-percent" id="am2-percent" class="form-control m-input" value="{{ account.am2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>AM3:</label>
+                        <input type="text" name="am3-percent" id="am3-percent" class="form-control m-input" value="{{ account.am3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>CM:</label>
+                        <input type="text" name="cm1-percent" id="cm1-percent" class="form-control m-input" value="{{ account.cm1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>CM2:</label>
+                        <input type="text" name="cm2-percent" id="cm2-percent" class="form-control m-input" value="{{ account.cm2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>CM3:</label>
+                        <input type="text" name="cm3-percent" id="cm3-percent" class="form-control m-input" value="{{ account.cm3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Strat:</label>
+                        <input type="text" name="strat1-percent" id="strat1-percent" class="form-control m-input" value="{{ account.strat1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Strat 2:</label>
+                        <input type="text" name="strat2-percent" id="strat2-percent" class="form-control m-input" value="{{ account.strat2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Strat 3:</label>
+                        <input type="text" name="strat3-percent" id="strat3-percent" class="form-control m-input" value="{{ account.strat3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>SEO:</label>
+                        <input type="text" name="seo1-percent" id="seo1-percent" class="form-control m-input" value="{{ account.seo1percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>SEO 2:</label>
+                        <input type="text" name="seo2-percent" id="seo2-percent" class="form-control m-input" value="{{ account.seo2percent }}" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>SEO 3:</label>
+                        <input type="text" name="seo3-percent" id="seo3-percent" class="form-control m-input" value="{{ account.seo3percent }}" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-success" id="distribute_hours_btn" style="margin-right:auto;">Distribute hours proportionately</button>
+                  <input type="submit" value="Submit" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End assign percentages modal -->
+
+<!-- Add promo -->
+<div class="modal fade" id="m_new_promo" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Add a promo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/new_promo" id="m_form_new_promo">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Name:</label>
+                        <input type="text" name="promo-name" class="form-control m-input" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Start Date:</label>
+                        <!-- <div class="input-group date datetimepicker bs-datetime">
+                            <input type="text" size="16" class="form-control">
+                            <span class="input-group-addon">
+                                <button class="btn default date-set" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div> -->
+                        <input type="text" name="start-date" class="form-control datetimepicker"
+                               readonly="" placeholder="Set start date here">
+                      </div>
+                      <div class="col-md-4">
+                        <label>End Date:</label>
+                        <input type="text" name="end-date" class="form-control datetimepicker"
+                               readonly="" placeholder="Set end date here">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Add Promo" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End add promo -->
+
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  var $distrubteHoursBtn = $('#distribute_hours_btn');
+  var $starIcon = $('.fa-star');
+
+  /**
+   * Calendar
+   */
+  $('#calendar').fullCalendar({
+   header: {
+     left: "prev, next, today",
+     center: "title",
+     right: "month, listWeek"
+   },
+   aspectRatio: 2,
+   defaultDate: moment(),
+   defaultView: 'listWeek',
+   events: [
+     {% for promo in promos %}
+     {
+       title: "{{ promo.name }}",
+       description: "{{ promo.desc }}",
+       start: moment("{{ promo.formatted_start }}"),
+       end: moment("{{ promo.formatted_end }}"),
+       className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+     }{% if not forloop.last %},{% endif %}
+     {% endfor %}
+   ]
+  });
+
+  var starAccount = function (flagOn) {
+    $.ajax({
+        url: '/clients/accounts/flag',
+        data: {
+          'account_id': {{ account.id }},
+          'star_flag': flagOn
+        },
+        headers: {'X-CSRFToken': csrftoken},
+        type: 'POST',
+        success: function (data) {
+          console.log(data);
+        }
+    });
+  };
+
+  $starIcon.click(function () {
+    if ($starIcon.data('flag') == '1') {
+      // On, so turn it off
+      starAccount(1);
+      $starIcon.data('flag', '0')
+      $starIcon.css('color', '');
+    } else {
+      // Off, so turn it on
+      starAccount(0);
+      $starIcon.data('flag', '1')
+      $starIcon.css('color', '#ffd53d');
+    }
+  });
+
+  $('.m_datepicker').datepicker({
+      todayHighlight: !0,
+      autoclose: !0,
+      format: 'yyyy-mm-dd',
+      orientation: "bottom left",
+      templates: {leftArrow: '<i class="la la-angle-left"></i>', rightArrow: '<i class="la la-angle-right"></i>'}
+  }).on('show.bs.modal', function (event) {
+     event.stopPropagation();
+  });
+
+  $('.datetimepicker').datetimepicker();
+
+
+  var distributeHours = function () {
+    var hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
+    var seoHours = {{ account.seo_hours|escapejs }};
+    var hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
+    var croHours = {{ account.cro_hours|escapejs }};
+    var totalHours = {{ account.allHours|escapejs }};
+    var ppcHours = {{ account.ppcHours|escapejs }};
+
+    // Cms
+    var cms = [];
+    {% if account.cm1 != None %}cms.push(1);{% endif %}
+    {% if account.cm2 != None %}cms.push(2);{% endif %}
+    {% if account.cm3 != None %}cms.push(3);{% endif %}
+    // Ams
+    var ams = [];
+    {% if account.am1 != None %}ams.push(1);{% endif %}
+    {% if account.am2 != None %}ams.push(2);{% endif %}
+    {% if account.am3 != None %}ams.push(3);{% endif %}
+    // strats
+    var strats = [];
+    {% if account.strat1 != None %}strats.push(1);{% endif %}
+    {% if account.strat2 != None %}strats.push(2);{% endif %}
+    {% if account.strat3 != None %}strats.push(3);{% endif %}
+    // seos
+    var seos = [];
+    {% if account.seo1 != None %}seos.push(1);{% endif %}
+    {% if account.seo2 != None %}seos.push(2);{% endif %}
+    {% if account.seo3 != None %}seos.push(3);{% endif %}
+
+    /**
+     * Calculate hour percentages
+     */
+    var cmPortion = 0.75;
+    var amPortion = 0.25;
+    var seoPortion = 0.0;
+
+    if (hasSeo || hasCro) {
+      var seoTotalPortion = ((seoHours + croHours) / totalHours);
+      seoPortion = seoTotalPortion * 0.9;
+      var remainingPortion = 1.0 - seoTotalPortion;
+      cmPortion = remainingPortion * 0.75;
+      amPortion = (remainingPortion * 0.25) + (seoPortion * 0.1);
+    }
+
+    var eachCm = (100.0 * cmPortion / cms.length).toFixed(2);
+    var eachAm = (100.0 * amPortion / ams.length).toFixed(2);
+    var eachSeo = (100.0 * seoPortion / seos.length).toFixed(2);
+
+    /**
+     * First set all to 0
+     */
+     for (var i = 1; i <= 3; i++) {
+       document.getElementById('cm' + i + '-percent').value = '0.0';
+       document.getElementById('am' + i + '-percent').value = '0.0';
+       document.getElementById('strat' + i + '-percent').value = '0.0';
+       document.getElementById('seo' + i + '-percent').value = '0.0';
+     }
+
+    cms.forEach(function (i) {
+      var el = document.getElementById('cm' + i + '-percent').value = eachCm;
+    });
+
+    ams.forEach(function (i) {
+      var el = document.getElementById('am' + i + '-percent').value = eachAm;
+    });
+
+    seos.forEach(function (i) {
+      var el = document.getElementById('seo' + i + '-percent').value = eachSeo;
+    });
+
+  };
+
+  $distrubteHoursBtn.click(distributeHours);
+});
+</script>
+{% endblock %}

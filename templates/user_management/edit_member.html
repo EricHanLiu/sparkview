@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+      					Edit Member
+      				</h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" id="form_edit_user">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+              <h3>Editing {{ member.user.username }}</h3>
+              <hr />
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="input_first_name">First Name:</label>
+                    <input type="text" name="first_name" class="form-control m-input"
+                    placeholder="Please enter first name" value="{{ member.user.first_name }}">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="input_last_name">Last Name:</label>
+                    <input type="text" name="last_name" class="form-control m-input"
+                    placeholder="Please enter last name" value="{{ member.user.last_name }}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <label for="input_email">Email address:</label>
+                <input type="email" name="email" class="form-control m-input"
+                placeholder="example@domain.com" value="{{ member.user.email }}">
+              </div>
+              <div class="m-form__group form-group">
+                <label for="">Permissions:</label>
+                <div class="m-checkbox-list">
+                  <label class="m-checkbox">
+                    <input type="checkbox" name="is_staff" {% if member.user.is_staff %} checked {% endif %}> Admin
+                    <span></span>
+                  </label>
+                </div>
+              </div>
+              <h3>Team and Role</h3>
+              <hr />
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="team">Team:</label>
+                    <select class="form-control m-input"
+                            name="team"
+                            style="width: 100%;" required multiple>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if team in member.team.all %} selected {% endif %}>{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="role">Role:</label>
+                    <select class="form-control m-input"
+                            name="role"
+                            style="width: 100%;" required>
+                        {% for role in roles %}
+                            <option value="{{ role.id }}" {% if member.role.id == role.id %} selected {% endif %}>{{ role.name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <h3>Buffer Information</h3>
+              <hr />
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label for="buffer_total_percentage">Total Percentage:</label>
+                    <input type="text" name="buffer_total_percentage" class="form-control m-input"
+                    placeholder="Please enter total percentage" value="{{ member.buffer_total_percentage }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="buffer_learning_percentage">Learning Percentage:</label>
+                    <input type="text" name="buffer_learning_percentage" class="form-control m-input"
+                    placeholder="Please enter learning percentage" value="{{ member.buffer_learning_percentage }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="buffer_trainers_percentage">Trainers Percentage:</label>
+                    <input type="text" name="buffer_trainers_percentage" class="form-control m-input"
+                    placeholder="Please enter trainers percentage" value="{{ member.buffer_trainers_percentage }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="buffer_sales_percentage">Sales Percentage:</label>
+                    <input type="text" name="buffer_sales_percentage" class="form-control m-input"
+                    placeholder="Please enter sales percentage" value="{{ member.buffer_sales_percentage }}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label for="buffer_planning_percentage">Planning Percentage:</label>
+                    <input type="text" name="buffer_planning_percentage" class="form-control m-input"
+                    placeholder="Please enter planning percentage" value="{{ member.buffer_planning_percentage }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="buffer_internal_percentage">Internal Percentage:</label>
+                    <input type="text" name="buffer_internal_percentage" class="form-control m-input"
+                    placeholder="Please enter internal percentage" value="{{ member.buffer_internal_percentage }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="buffer_seniority_percentage">Seniority Percentage:</label>
+                    <input type="text" name="buffer_seniority_percentage" class="form-control m-input"
+                    placeholder="Please enter seniority percentage" value="{{ member.buffer_seniority_percentage }}">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="buffer_buffer_percentage">Buffer Percentage:</label>
+                    <input type="text" name="buffer_buffer_percentage" class="form-control m-input"
+                    placeholder="Please enter buffer percentage" value="{{ member.buffer_buffer_percentage }}">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label for="buffer_hours_available">Hours Available:</label>
+                    <input type="text" name="buffer_hours_available" class="form-control m-input"
+                    placeholder="Please enter hours available" value="{{ member.buffer_hours_available }}">
+                  </div>
+                </div>
+              </div>
+              <h3>Member Skills</h3>
+              <hr />
+              {% for memberSkill in memberSkills %}
+                {% if forloop.first %}
+                <div class="form-group m-form__group">
+                  <div class="row">
+                {% else %}
+                {% cycle '' '' '' '' '' '<div class="form-group m-form__group"><div class="row">' %}
+                {% endif %}
+                <div class="col-md-2">
+                  <label for="skill_{{ memberSkill.skill.name }}">{{ memberSkill.skill.name }}:</label>
+                  <select class="form-control m-input"
+                          name="skill_{{ memberSkill.skill.name }}"
+                          style="width: 100%;" required>
+                      {% for skillOption in skillOptions %}
+                          <option value="{{ skillOption }}" {% if skillOption == memberSkill.score %}selected{% endif %}>{{ skillOption }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+                {% if forloop.last %}
+                  </div>
+                </div>
+                {% else %}
+                {% cycle '' '' '' '' '' '</div></div>' %}
+                {% endif %}
+              {% endfor %}
+              <input type="submit" value="Update">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

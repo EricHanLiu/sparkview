@@ -35,12 +35,17 @@ class ManagerAccount(models.Model):
 
 class DependentAccount(models.Model):
 
-    #REVIEW
     manager_account = models.CharField(max_length=255, default='None')
+    # TODO:
+    # The fields above should be called account_id, account_name and ovu
+    # Refactoring isn't worth
+    # Maybe create another table named AdwordsAccount and populate it with current information
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
     dependent_OVU = models.IntegerField(default=0)
-    desired_spend = models.IntegerField(default=0)
+    desired_spend = models.IntegerField(default=0) # same as budget?
+    desired_spend_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
     current_spend = models.FloatField(default=0)
     segmented_spend = JSONField(default=dict)
     trends = JSONField(default=dict)
@@ -92,7 +97,34 @@ class DependentAccount(models.Model):
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
     currency = models.CharField(max_length=255, default='')
+    ch_flag = models.BooleanField(default=False)
 
+
+    @property
+    def has_custom_dates(self):
+        """
+        Boolean. Checks if custom dates are set or the desired spend on the account
+        """
+        return (self.desired_spend_start_date != None and self.desired_spend_end_date != None)
+
+
+    @property
+    def get_start_date(self):
+        """
+        Returns custom if custom, else first of yesterday's month
+        """
+        if (self.has_custom_dates):
+            return self.desired_spend_start_date
+
+
+    @property
+    def get_end_date(self):
+        """
+        Returns custom if custom, else last of yesterday's month
+        """
+        if (self.has_custom_dates):
+            return self.desired_spend_end_date
+        
 
     @property
     def json(self):
@@ -268,6 +300,7 @@ class Campaign(models.Model):
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
+    campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
     campaign_serving_status = models.CharField(max_length=255, default='None')

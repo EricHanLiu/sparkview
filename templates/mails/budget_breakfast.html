@@ -17,7 +17,8 @@
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Platform</th>
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
             <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Current Total Spend</th>
-            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM(Average)</th>
+            <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM(Yesterday Spend)</th>
 
         </tr>
         {% for a in over %}
@@ -26,7 +27,8 @@
                 <td style="border: 1px solid #e2e2e2;">{{ a.channel|title }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ a.budget }}</td>
                 <td style="border: 1px solid #e2e2e2; background: red">{{ a.current_spend }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ a.projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.average_projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ a.ys_projected }}</td>
             </tr>
         {% empty %}
             <tr>
@@ -39,11 +41,32 @@
                 <td style="border: 1px solid #e2e2e2;">{{ b.channel|title }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ b.budget }}</td>
                 <td style="border: 1px solid #e2e2e2; background: orange">{{ b.current_spend }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ b.projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ b.average_projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ b.ys_projected }}</td>
             </tr>
         {% empty %}
             <tr>
                 <td>No account will underspend. :)</td>
+            </tr>
+        {% endfor %}
+
+        {% for c in flex %}
+            <tr>
+                <td style="border: 1px solid #e2e2e2;">{{ c.account }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.channel|title }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.budget }}</td>
+                <td style="border: 1px solid #e2e2e2;
+                {% if c.average_projected > c.budget %}
+                    background: red;
+                {% elif c.average_projected < c.budget%}
+                    background: orange;
+                {% endif %}">{{ c.current_spend }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.average_projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ c.ys_projected }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No account with flex budget will underspend/overspend. :)</td>
             </tr>
         {% endfor %}
     </table>
@@ -80,14 +103,16 @@
         <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Platform</th>
         <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Budget</th>
         <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Current Total Spend</th>
-        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM(Average)</th>
+        <th style="background: #D3D3D3;color: #000; border: 1px solid #000">Projected Spend EOM(Yesterday Spend)</th>
         {% for d in on_pace %}
             <tr>
                 <td style="border: 1px solid #e2e2e2;">{{ d.account }}</td>
                 <td style="border: 1px solid #e2e2e2; background: green">{{ d.channel|title }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ d.budget }}</td>
                 <td style="border: 1px solid #e2e2e2;">{{ d.current_spend }}</td>
-                <td style="border: 1px solid #e2e2e2;">{{ d.projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ d.average_projected }}</td>
+                <td style="border: 1px solid #e2e2e2;">{{ d.ys_projected }}</td>
             </tr>
         {% empty %}
             <tr>

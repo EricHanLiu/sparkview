@@ -1,4 +1,5 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% block content %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %} {% load humanize %}
+{% block content %}
 
     <div class="m-content">
         <div class="row">
@@ -6,6 +7,7 @@
                 <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
+
                             <div class="m-portlet__head-title">
                                 <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
                                     <span>Client Details</span>
@@ -14,45 +16,8 @@
                         </div>
                     </div>
                     <div class="m-portlet__body">
-                        <div class="m-portlet m-portlet--tabs m-portlet--bloom m-portlet--head-solid-bg m-portlet--head-sm">
-                            <div class="m-portlet__head">
-                                <div class="m-portlet__head-caption">
-                                    <div class="m-portlet__head-title">
-                                        <h3 class="m-portlet__head-text">
-                                            <a href="{% url 'budget:add_client' %}">
-                                            <span>
-                                                <i class="la la-angle-left"></i> Go Back
-                                            </span>
-                                            </a>
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="m-portlet__head-tools">
-                                    <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right"
-                                        role="tablist">
-                                        <li class="nav-item m-tabs__item">
-                                            <a class="nav-link m-tabs__link active show" data-toggle="tab"
-                                               href="#m_tabs_7_1" role="tab" aria-selected="true">
-                                                Info
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="m-portlet__body">
-                                {# If client has global target spend and budget set display this view #}
-                                {% if client_data.has_gts and client_data.has_budget %}
-                                    {% include 'budget/has_both.html' %}
-                                    {# If client has global target spend set display this view#}
-                                {% elif client_data.has_gts %}
-                                    {% include 'budget/has_gts.html' %}
-                                    {# If client has budget set display this view #}
-                                {% elif client_data.has_budget %}
-                                    {% include 'budget/has_budget.html' %}
-                                {% else %}
-                                    {% include 'budget/has_none.html' %}
-                                {% endif %}
-                            </div>
+                        <div class="m-portlet__body">
+                            {% include 'budget/has_both.html' %}
                         </div>
                     </div>
                 </div>
@@ -415,30 +380,11 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <form id="add_campaign_group_across">
-                        {#                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_id">#}
+                        <input type="hidden" name="cgr_acc_id" id="cgr_acc_ids">
+                        <input type="hidden" name="cgr_client_id" id="cgr_client_id">
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Campaign groups</p>
                         <div class="form-group">
-                            <div class="form-group m_form__group row">
-                                <div class="col-md-12">
-                                    <select class="form-control m-input--large" name="cgr_acc_id"
-                                            id="select_accounts_cgr" style="width: 100%;">
-                                        <option></option>
-                                        {% for a in client_data.adwords.all %}
-                                            <option value="{{ a.dependent_account_id }}" data-channel="{{ a.channel }}">
-                                                A - {{ a.dependent_account_name }}</option>
-                                        {% endfor %}
-                                        {% for b in client_data.bing.all %}
-                                            <option value="{{ b.account_id }}" data-channel="{{ b.channel }}">B
-                                                - {{ b.account_name }}</option>
-                                        {% endfor %}
-                                        {% for f in client_data.facebook.all %}
-                                            <option value="{{ f.account_id }}" data-channel="{{ f.channel }}">F
-                                                - {{ f.account_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <input type="text" class="form-control group-name"
@@ -515,13 +461,6 @@
                         <input type="hidden" name="cgr_channel" id="cgr_channel">
                         <p>Edit campaign group</p>
                         <div class="form-group">
-                            <div class="form-group m-form__group row">
-                                <div class="col-md-12">
-                                    <label for="cgr_acc_name">Account: </label>
-                                    <input type="text" name="cgr_acc_name" class="form-control" id="cgr_acc_name"
-                                           disabled>
-                                </div>
-                            </div>
                             <div class="form-group m-form__group row">
                                 <div class="col-lg-4 col-md-4 col-sm-12">
                                     <label for="cgr_group_name">Group name:</label>
@@ -680,6 +619,33 @@
     </div>
     <!--End::Modal assing accounts-->
 
+    <!--START:Modal disconnect account-->
+    <div class="modal fade" id="m_disconnect_account" tabindex="-1" role="dialog"
+         aria-labelledby="disconnect_account">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Are you sure you want to disconnect <span class="m--font-bolder" id="disc_acc_name"></span> from client?</p>
+                    </div>
+                    <input type="hidden" id="disc_acc_id">
+                    <input type="hidden" id="disc_client_id">
+                    <input type="hidden" id="disc_channel">
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8 text-center">
+                        <button type="button" class="btn btn-success btn-sm" onclick="disconnectAccount()">Yes
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="No">No
+                        </button>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END:Modal delete campaign group-->
 
     <script type="text/javascript">
 
@@ -706,6 +672,141 @@
             });
             return lst
         }
+
+        // Chart functions
+        function addData(chart, label, data) {
+            chart.data.labels.push(label);
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            });
+            chart.update();
+        }
+
+        function removeData(chart) {
+            chart.data.labels.pop();
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.pop();
+            });
+            chart.update();
+        }
+
+        function generate_chart_data(data) {
+
+            let options = [];
+            let datasets = [];
+
+            $('#chart-options input:checked').each(function () {
+                options.push($(this).attr('name'))
+            });
+
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    for (key2 in data[key]) {
+                        if (data[key].hasOwnProperty(key2)) {
+                            if (options.includes(key2)) {
+                                var dataset = {
+                                    ...key2.includes('Projected') && {
+                                        borderDash: [3, 3],
+                                        type: 'scatter',
+                                        beginAtZero: false,
+                                        fill: true,
+                                    },
+                                    label: key2,
+                                    backgroundColor: random_rgba(),
+                                    borderColor: random_rgba(),
+                                    data: gen_xy(data[key][key2]),
+                                    borderWidth: 2,
+                                    fill: false
+                                };
+                                datasets.push(dataset)
+                            }
+                        }
+                    }
+                }
+            }
+            return datasets
+        }
+
+        function gen_chart(data) {
+
+            let datasets = generate_chart_data(data);
+
+            var ctx = document.getElementById('spendChart').getContext('2d');
+
+            if (window.chart !== undefined) {
+                window.chart.destroy();
+            }
+
+            window.chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'scatter',
+                data: {
+                    datasets: datasets
+                },
+
+                // Configuration options go here
+                options: {
+                    responsive: true,
+                    display: true,
+                    title: {
+                        display: true,
+                        text: '',
+                        fontSize: 20,
+                        padding: 25,
+                        fontStyle: 'normal'
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 0.5,
+
+                        }
+                    },
+                    elements: {
+                        point: {
+                            pointStyle: 'circle',
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            radius: 1.6,
+                            hitRadius: 20,
+                            hoverBorderWidth: 1,
+                        },
+                        line: {
+                            tension: 0.4,
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                tooltipFormat: 'MMM DD',
+                                displayFormats: {
+                                    day: 'MMM DD'
+                                },
+                            },
+                            gridLines: {
+                                display: false,
+                            },
+                        }],
+                        yAxes: [{
+                            display: true,
+                            type: 'linear',
+                            gridLines: {
+                                display: true,
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                },
+
+            });
+        }
+
 
         let generate_chart_config = function (data) {
 
@@ -1186,16 +1287,16 @@
 
             var modal = $("#m_edit_campaign_group");
             let data = $("#edit_campaign_group").serializeArray();
-            console.log(data)
+
             $.ajax({
                 type: "POST",
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 url: '/budget/groupings/update/',
                 data: data,
                 complete: function () {
-                    //setTimeout(function () {
-                    //    location.reload();
-                    //}, 1200);
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
                 },
                 success: function () {
                     modal.modal('hide');
@@ -1236,17 +1337,87 @@
             });
         }
 
+        function disconnectAccount() {
+
+            let modal = $("#m_disconnect_account");
+            let acc_id = $("#disc_acc_id").val();
+            let channel = $("#disc_channel").val();
+            let client_id = $("#disc_client_id").val();
+
+            let data = {
+                'acc_id': acc_id,
+                'channel': channel,
+                'client_id': client_id
+            };
+
+            $.ajax({
+                url: '/budget/client/accounts/delete',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    modal.modal('hide');
+                    toastr.success("Account " + data['account'] + " succesfully disconnected from client.")
+                },
+                error: function (ajaxContext) {
+                    toastr.error(ajaxContext.statusText);
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1200);
+                }
+            });
+        }
+
         function toggleCampaigns(gr_id) {
             event.preventDefault();
             $("#campaigns_" + gr_id).toggle("slow");
         }
 
+        function toggleCgrProjection(gr_id) {
+            let cgr_proj_toggle = $("#cgr_proj_" + gr_id);
+            let as_proj = $('#cgr_as_' + gr_id);
+            let ys_proj = $('#cgr_ys_' + gr_id);
 
-        document.addEventListener("DOMContentLoaded", function (event) {
-            let data = {{ chdata|safe }};
-            generate_chart_config(data);
-        });
+            cgr_proj_toggle.change(function () {
+                if ($(this).is(':checked')) {
+                    as_proj.show();
+                    ys_proj.hide();
+                } else {
+                    as_proj.hide();
+                    ys_proj.show();
+                }
+            })
+        }
+
+        //document.addEventListener("DOMContentLoaded", function (event) {
+        //    let data = chdata|safe;
+        //    generate_chart_config(data);
+        //});
 
     </script>
 {% endblock content %}
 
+{% block extraJs %}
+    <script>
+        $(document).ready(function () {
+            $projectionToggle = $('#proj_check');
+            $projectAverage = $('#projectionAverage');
+            $projectYesterday = $('#projectionYesterday');
+            $projectDesc = $('#projectionDesc');
+
+            $projectionToggle.change(function () {
+                if ($(this).is(':checked')) {
+                    $projectAverage.hide();
+                    $projectYesterday.show();
+                    $projectDesc.html('Projecting with yesterday spend');
+                } else {
+                    $projectYesterday.hide();
+                    $projectAverage.show();
+                    $projectDesc.html('Projecting with average spend');
+                }
+            });
+        });
+    </script>
+{% endblock %}

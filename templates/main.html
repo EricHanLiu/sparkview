@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <!DOCTYPE html>
-<!-- 
+<!--
 Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 4
 Author: KeenThemes
 Website: http://www.keenthemes.com/
@@ -22,6 +22,18 @@ License: You must have a valid license purchased only from themeforest(the above
     <meta name="description" content="Latest updates and statistic charts">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% if request.META.HTTP_HOST != "127.0.0.1:8000" %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-127221597-1');
+    </script>
+    {% endif %}
+
     <!--begin::Web font -->
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
     <script>
@@ -33,23 +45,37 @@ License: You must have a valid license purchased only from themeforest(the above
         });
     </script>
 
-
     <!--end::Web font -->
     <!--begin::Base Styles -->
     <link href="{% static 'assets/vendors/base/vendors.bundle.css' %}" rel="stylesheet" type="text/css"/>
     {#        <link href="{% static 'assets/demo/default/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>#}
     <link href="{% static 'assets/demo/demo6/base/style.bundle.css' %}" rel="stylesheet" type="text/css"/>
     <link href="{% static 'assets/app/js/datatables/datatables.min.css' %}" rel="stylesheet" type="text/css"/>
-    <link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet"
-          type="text/css"/>
+    <link href="{% static 'assets/demo/default/custom/components/percircle/css/percircle.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet" type="text/css" />
     <link href="{% static 'assets/demo/demo6/base/custom.css' %}" rel="stylesheet" type="text/css"/>
+
     <!--end::Base Styles -->
-    {#		<link rel="shortcut icon"#}
-    {#          href="https://www.makeitbloom.com/wp-content/themes/bloom/src/favicons/apple-touch-icon.png"/>#}
+    <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}" />
+
+    <style>
+    .logo-text-custom {
+       color: #000;
+    }
+    .logo-text-custom:hover {
+       text-decoration: none;
+       color: #000;
+    }
+    </style>
+
+    {% block extraCss %}
+    {% endblock %}
+
 </head>
 <!-- end::Head -->
 <!-- end::Body -->
-<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin-light m-aside-left--fixed m-aside-left--offcanvas m-aside-left--minimize m-brand--minimize m-footer--push m-aside--offcanvas-default">
+<!-- <body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin-light m-aside-left--fixed m-aside-left--offcanvas m-aside-left--minimize m-brand--minimize m-footer--push m-aside--offcanvas-default"  > -->
+<body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-brand--minimize m-footer--push m-aside--offcanvas-default">
 <!-- begin:: Page -->
 <div class="m-grid m-grid--hor m-grid--root m-page">
     <!-- BEGIN: Header -->
@@ -59,35 +85,10 @@ License: You must have a valid license purchased only from themeforest(the above
                 <!-- BEGIN: Brand -->
                 <div class="m-stack__item m-brand  m-brand--skin-light ">
                     <div class="m-stack m-stack--ver m-stack--general">
-                        <div class="m-stack__item m-stack__item--middle m-brand__logo">
-                            <a href="{% url 'index' %}" class="m-brand__logo-wrapper">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 80 80">
-                                    <metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-                                        <x:xmpmeta xmlns:x="adobe:ns:meta/"
-                                                   x:xmptk="Adobe XMP Core 5.6-c138 79.159824, 2016/09/14-01:09:01        ">
-                                            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-                                                <rdf:Description rdf:about=""/>
-                                            </rdf:RDF>
-                                        </x:xmpmeta>
-                                        <?xpacket end="w"?></metadata>
-                                    <defs>
-                                        <style>
-                                            .cls-1 {
-                                                fill: #1b2126;
-                                            }
-
-                                            .cls-2 {
-                                                fill: #fff;
-                                                fill-rule: evenodd;
-                                            }
-                                        </style>
-                                    </defs>
-                                    <rect class="cls-1" width="80" height="80"/>
-                                    <path id="Bloom_logo_copy_2" data-name="Bloom logo copy 2" class="cls-2"
-                                          d="M1116.3,2916h-16.28v48.85h16.28a8.1,8.1,0,0,0,8.04-8.16v-10.67c0-3.81-2.11-5.33-4.99-5.71,2.88-.38,4.99-1.91,4.99-5.71v-10.44A8.105,8.105,0,0,0,1116.3,2916Zm-0.08,38.66a2,2,0,0,1-1.98,2.01h-6.17v-12.75h6.17a2,2,0,0,1,1.98,2.01v8.73Zm0-19.97a2,2,0,0,1-1.98,2.01h-6.17v-12.4h6.17a2,2,0,0,1,1.98,2.01v8.38Zm16.63,26.48a1.687,1.687,0,0,0,.35-1.03,1.584,1.584,0,0,0-.47-1.16,1.554,1.554,0,0,0-1.16-.48h-1.61v4.55h0.7v-1.26h0.76l1.02,1.26h0.91l-1.13-1.39A1.8,1.8,0,0,0,1132.85,2961.17Zm-2.19-.09v-1.87h0.91a0.9,0.9,0,0,1,.66.27,0.954,0.954,0,0,1,0,1.33,0.9,0.9,0,0,1-.66.27h-0.91Zm4.53-1.81a4.166,4.166,0,0,0-.87-1.31,3.946,3.946,0,0,0-1.29-.88,3.836,3.836,0,0,0-1.57-.32,3.9,3.9,0,0,0-1.59.32,3.946,3.946,0,0,0-1.29.88,4.083,4.083,0,0,0-1.18,2.93,4.074,4.074,0,0,0,.31,1.6,4.237,4.237,0,0,0,.87,1.3,3.946,3.946,0,0,0,1.29.88,3.9,3.9,0,0,0,1.59.32,3.836,3.836,0,0,0,1.57-.32,3.946,3.946,0,0,0,1.29-.88,4.237,4.237,0,0,0,.87-1.3,4.074,4.074,0,0,0,.31-1.6A4.138,4.138,0,0,0,1135.19,2959.27Zm-0.78,2.87a3.258,3.258,0,0,1-.69,1.04,3.146,3.146,0,0,1-1.02.7,3.054,3.054,0,0,1-1.24.25,3.13,3.13,0,0,1-2.28-.95,3.268,3.268,0,0,1-.94-2.29,3.357,3.357,0,0,1,.25-1.28,3.258,3.258,0,0,1,.69-1.04,3.13,3.13,0,0,1,2.28-.95,3.054,3.054,0,0,1,1.24.25,3.146,3.146,0,0,1,1.02.7,3.258,3.258,0,0,1,.69,1.04,3.357,3.357,0,0,1,.25,1.28A3.28,3.28,0,0,1,1134.41,2962.14Z"
-                                          transform="translate(-1072 -2900)"/>
-                                </svg>
-                            </a>
+                        <div class="m-stack__item m-stack__item--middle m-brand__logo" style="background:#fff;">
+                          <a href="{% url 'index' %}" class="m-brand__logo-wrapper">
+                            <img src="{% static 'assets/app/media/img/logos/sparkview.png' %}" height="60" />
+                          </a>
                         </div>
                         <div class="m-stack__item m-stack__item--middle m-brand__tools">
                             <!-- BEGIN: Responsive Aside Left Menu Toggler -->
@@ -112,12 +113,12 @@ License: You must have a valid license purchased only from themeforest(the above
                     </div>
                 </div>
                 <!-- END: Brand -->
-                <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
-                    <div class="m-header__title">
+                <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav" style="padding-left:1.5rem;">
+                    <!-- <div class="m-header__title">
                         <h3 class="m-header__title-text">
-{#                            Applications#}
+                            Applications
                         </h3>
-                    </div>
+                    </div> -->
                     <!-- BEGIN: Horizontal Menu -->
                     <button class="m-aside-header-menu-mobile-close  m-aside-header-menu-mobile-close--skin-light "
                             id="m_aside_header_menu_mobile_close_btn">
@@ -126,13 +127,78 @@ License: You must have a valid license purchased only from themeforest(the above
                     <div id="m_header_menu"
                          class="m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light ">
                         <ul class="m-menu__nav  m-menu__nav--submenu-arrow ">
+                            <li class="m-menu__item"
+                                data-menu-submenu-toggle="click">
+                                <a href="{% url 'index' %}" class="m-brand__logo-wrapper logo-text-custom">
+                                <h5 style="padding-top: 6px;">
+                                    <span class="m-menu__item-here"></span>
+                                    SparkView
+                                </h5>
+                                </a>
+                                <!-- <h6>v0.0.1-alpha</h6> -->
+                            </li>
+
+                              {# Client area #}
+                              <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                              data-menu-submenu-toggle="click" aria-haspopup="true"  style="padding-left:1.5rem;">
+                              <a href="#" class="m-menu__link m-menu__toggle">
+                                <span class="m-menu__item-here"></span>
+                                <span class="m-menu__link-text">
+                                  Clients
+                                </span>
+                                <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                <i class="m-menu__ver-arrow la la-angle-right"></i>
+                              </a>
+                              <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                <ul class="m-menu__subnav">
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        My Accounts
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/team" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        My Team's Accounts
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/report_hours" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        Report Hours
+                                      </span>
+                                    </a>
+                                  </li>
+                                  {% if request.user.is_staff %}
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/all" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        All Accounts
+                                      </span>
+                                    </a>
+                                  </li>
+                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                    <a href="/clients/accounts/new" class="m-menu__link ">
+                                      <span class="m-menu__link-text">
+                                        Add New Account
+                                      </span>
+                                    </a>
+                                  </li>
+                                  {% endif %}
+                                </ul>
+                              </div>
+                            </li>
                             <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
                                 data-menu-submenu-toggle="click" aria-haspopup="true">
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
                                     <span class="m-menu__link-text">
-												Performance
-											</span>
+                  										Performance
+                  									</span>
                                     <i class="m-menu__hor-arrow la la-angle-down"></i>
                                     <i class="m-menu__ver-arrow la la-angle-right"></i>
                                 </a>
@@ -143,28 +209,28 @@ License: You must have a valid license purchased only from themeforest(the above
                                             <a href="{% url 'adwords:home' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
                                                 <span class="m-menu__link-title">
-															<span class="m-menu__link-wrap">
-																<span class="m-menu__link-text">
-																	AdWords
-																</span>
-															</span>
-														</span>
+                      													<span class="m-menu__link-wrap">
+                      														<span class="m-menu__link-text">
+                      															AdWords
+                      														</span>
+                      													</span>
+                      												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'bing:home' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
                                                 <span class="m-menu__link-text">
-															Bing Ads
-														</span>
+                        													Bing Ads
+                        												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'facebook:home' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
                                                 <span class="m-menu__link-text">
-															Facebook
-														</span>
+                        													Facebook
+                        												</span>
                                             </a>
                                         </li>
 
@@ -176,8 +242,8 @@ License: You must have a valid license purchased only from themeforest(the above
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
                                     <span class="m-menu__link-text">
-												Budgets
-											</span>
+                  										Budgets
+                  									</span>
                                     <i class="m-menu__hor-arrow la la-angle-down"></i>
                                     <i class="m-menu__ver-arrow la la-angle-right"></i>
                                 </a>
@@ -188,44 +254,71 @@ License: You must have a valid license purchased only from themeforest(the above
                                             <a href="{% url 'budget:add_client' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-ello"></i>
                                                 <span class="m-menu__link-text">
-                                                            All platforms
-                                                        </span>
+                        													All platforms
+                        												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'budget:adwords' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
                                                 <span class="m-menu__link-text">
-                                                            AdWords
-                                                        </span>
+                        													AdWords
+                        												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'budget:bing' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
                                                 <span class="m-menu__link-text">
-                                                            Bing Ads
-                                                        </span>
+                        													Bing Ads
+                        												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'budget:facebook' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
                                                 <span class="m-menu__link-text">
-                                                            Facebook
-                                                        </span>
+                        													Facebook
+                        												</span>
                                             </a>
                                         </li>
+                                        {% if request.user.is_staff %}
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:adwords' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
+                                                <span class="m-menu__link-text">
+                        													Activate - Adwords
+                        												</span>
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:bing' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
+                                                <span class="m-menu__link-text">
+                        													Activate - Bing Ads
+                        												</span>
+                                            </a>
+                                        </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="{% url 'accounts:facebook' %}" class="m-menu__link ">
+                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
+                                                <span class="m-menu__link-text">
+                        													Activate - Facebook
+                        												</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                             </li>
-                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+
+                            <!-- <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
                                 data-menu-submenu-toggle="click" aria-haspopup="true">
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
                                     <span class="m-menu__link-text">
-												Accounts
-											</span>
+										Accounts
+									</span>
                                     <i class="m-menu__hor-arrow la la-angle-down"></i>
                                     <i class="m-menu__ver-arrow la la-angle-right"></i>
                                 </a>
@@ -236,36 +329,36 @@ License: You must have a valid license purchased only from themeforest(the above
                                             <a href="{% url 'accounts:adwords' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
                                                 <span class="m-menu__link-text">
-                                                            AdWords
-                                                        </span>
+													AdWords
+												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'accounts:bing' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
                                                 <span class="m-menu__link-text">
-                                                            Bing Ads
-                                                        </span>
+													Bing Ads
+												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'accounts:facebook' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
                                                 <span class="m-menu__link-text">
-                                                            Facebook
-                                                        </span>
+													Facebook
+												</span>
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
-                            </li>
+                            </li> -->
                             <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
                                 data-menu-submenu-toggle="click" aria-haspopup="true">
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
                                     <span class="m-menu__link-text">
-												Tools
-											</span>
+                  										Tools
+                  									</span>
                                     <i class="m-menu__hor-arrow la la-angle-down"></i>
                                     <i class="m-menu__ver-arrow la la-angle-right"></i>
                                 </a>
@@ -276,88 +369,215 @@ License: You must have a valid license purchased only from themeforest(the above
                                             <a href="{% url 'tools:index' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
                                                 <span class="m-menu__link-text">
-                                                            Labels
-                                                        </span>
+                        													Labels
+                        												</span>
                                             </a>
                                         </li>
                                         <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                             <a href="{% url 'tools:analyser' %}" class="m-menu__link ">
                                                 <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
                                                 <span class="m-menu__link-text">
-                                                            PPC Analyzer
-                                                        </span>
+                        													PPC Analyzer
+                        												</span>
                                             </a>
                                         </li>
                                         {% if request.user.is_staff %}
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'tools:admin_reports' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
-                                                <span class="m-menu__link-text">
-                                                            Admin reports
-                                                        </span>
-                                            </a>
-                                        </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="{% url 'tools:admin_reports' %}" class="m-menu__link ">
+                                                    <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
+                                                    <span class="m-menu__link-text">
+                																				Admin reports
+                																		</span>
+                                                </a>
+                                            </li>
                                         {% endif %}
                                     </ul>
                                 </div>
                             </li>
+
+                            {# User management #}
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                                data-menu-submenu-toggle="click" aria-haspopup="true">
+                                <a href="#" class="m-menu__link m-menu__toggle">
+                                    <span class="m-menu__item-here"></span>
+                                    <span class="m-menu__link-text">
+                  										Users
+                  									</span>
+                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
+                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
+                                </a>
+                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                                    <ul class="m-menu__subnav">
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="/user_management/profile" class="m-menu__link ">
+                      												<span class="m-menu__link-text">
+                      													Profile
+                      												</span>
+                                            </a>
+                                        </li>
+                                        {% if request.user.is_staff %}
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/members" class="m-menu__link ">
+                          												<span class="m-menu__link-text">
+                          													Members
+                          												</span>
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/members/training" class="m-menu__link ">
+						                                      <span class="m-menu__link-text">
+							                                      Member Training
+						                                      </span>
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/members/new" class="m-menu__link ">
+						                                      <span class="m-menu__link-text">
+							                                      Add New Member
+						                                      </span>
+                                                </a>
+                                            </li>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/skills" class="m-menu__link ">
+						                                      <span class="m-menu__link-text">
+							                                      Skills
+						                                      </span>
+                                                </a>
+                                            </li>
+                                            <hr/>
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/user_management/teams" class="m-menu__link ">
+						                                      <span class="m-menu__link-text">
+							                                      Teams
+						                                      </span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </li>
+
+                            {% if request.user.is_staff %}
+                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
+                            data-menu-submenu-toggle="click" aria-haspopup="true">
+                            <a href="#" class="m-menu__link m-menu__toggle">
+                              <span class="m-menu__item-here"></span>
+                              <span class="m-menu__link-text">
+                                Reports
+                              </span>
+                              <i class="m-menu__hor-arrow la la-angle-down"></i>
+                              <i class="m-menu__ver-arrow la la-angle-right"></i>
+                            </a>
+                            <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
+                              <span class="m-menu__arrow m-menu__arrow--adjust"></span>
+                              <ul class="m-menu__subnav">
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/agency_overview" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Agency Overview
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/account_spend_progression" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      PPC Account Spend Progression
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/cm_capacity" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Paid Capacity
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/am_capacity" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      AM Capacity
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/seo_capacity" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      SEO Capacity
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/hour_log" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Hour Reporting
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/facebook" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Facebook
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/promos" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Promos
+                                    </span>
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </li>
+                          {% endif %}
+                          <li class="m-menu__item m-menu__item--rel" aria-haspopup="false">
+                          <a href="https://docs.google.com/forms/d/e/1FAIpQLSeCjfnKOTa4vVjx7EBlUG3yfKZUOaFyzcU54hlR0FcaCSRYbA/viewform" class="m-menu__link" target="_blank">
+                            <span class="m-menu__item-here"></span>
+                            <span class="m-menu__link-text">
+                              Report a Bug
+                            </span>
+                          </a>
+                        </li>
                         </ul>
                     </div>
                     <!-- END: Horizontal Menu -->
                     <!-- BEGIN: Topbar -->
                     <div id="m_header_topbar" class="m-topbar  m-stack m-stack--ver m-stack--general">
-                        <div class="m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-right m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light"
-                             id="m_quicksearch" data-search-type="default">
+                        <div class="m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-right m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light">
                             <!--BEGIN: Search Form -->
                             <form class="m-header-search__form">
                                 <div class="m-header-search__wrapper">
-											<span class="m-header-search__icon-search" id="m_quicksearch_search">
-												<i class="fa fa-search"></i>
-											</span>
+                                    <span class="m-header-search__icon-search">
+                                        <i class="fa fa-search"></i>
+                                    </span>
                                     <span class="m-header-search__input-wrapper">
-												<input autocomplete="off" type="text" name="q"
-                                                       class="m-header-search__input" value="" placeholder="Search..."
-                                                       id="m_quicksearch_input">
-											</span>
-                                    <span class="m-header-search__icon-close" id="m_quicksearch_close">
-												<i class="la la-remove"></i>
-											</span>
-                                    <span class="m-header-search__icon-cancel" id="m_quicksearch_cancel">
-												<i class="la la-remove"></i>
-											</span>
+                                        <input autocomplete="off" type="text" name="q"
+                                               class="m-header-search__input typeahead form-control m-input tt-input"
+                                               value="" placeholder="Search...">
+                                    </span>
                                 </div>
                             </form>
-                            <!--END: Search Form -->
-                            <!--BEGIN: Search Results -->
-                            {#									<div class="m-dropdown__wrapper">#}
-                            {#										<div class="m-dropdown__arrow m-dropdown__arrow--center"></div>#}
-                            {#										<div class="m-dropdown__inner">#}
-                            {#											<div class="m-dropdown__body">#}
-                            {#												<div class="m-dropdown__scrollable m-scrollable" data-max-height="300" data-mobile-max-height="200">#}
-                            {#													<div class="m-dropdown__content m-list-search m-list-search--skin-light"></div>#}
-                            {#												</div>#}
-                            {#											</div>#}
-                            {#										</div>#}
-                            {#									</div>#}
-                            <!--BEGIN: END Results -->
                         </div>
                         <div class="m-stack__item m-topbar__nav-wrapper">
                             <ul class="m-topbar__nav m-nav m-nav--inline">
                                 <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
                                     data-dropdown-toggle="click">
                                     <a href="#" class="m-nav__link m-dropdown__toggle">
-												<span class="m-topbar__userpic m--hide">
-													<img src="{% static 'assets/app/media/img/users/user4.jpg' %}"
-                                                         class="m--img-rounded m--marginless m--img-centered" alt=""/>
-												</span>
+                                        <span class="m-topbar__userpic m--hide">
+                                            <img src="{% static 'assets/app/media/img/users/user4.jpg' %}"
+                                                 class="m--img-rounded m--marginless m--img-centered"
+                                                 alt=""/>
+                                        </span>
                                         <span class="m-nav__link-icon m-topbar__usericon">
-													<span class="m-nav__link-icon-wrapper">
-														<i class="fa fa-user"></i>
-													</span>
-												</span>
+                                            <span class="m-nav__link-icon-wrapper">
+                                                <i class="fa fa-user"></i>
+                                            </span>
+                                        </span>
                                         <span class="m-topbar__username m--hide">
-													{{ request.user.username }}
-												</span>
+                                            {{ request.user.username }}
+                                        </span>
                                     </a>
                                     <div class="m-dropdown__wrapper">
                                         <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
@@ -369,11 +589,11 @@ License: You must have a valid license purchased only from themeforest(the above
                                                              class="m--img-rounded m--marginless" alt=""/>
                                                     </div>
                                                     <div class="m-card-user__details">
-																<span class="m-card-user__name m--font-weight-500">
-																	<a href="{% url 'profile' %}">
-                                                                        {{ request.user.get_full_name }}
-                                                                        </a>
-																</span>
+																		<span class="m-card-user__name m--font-weight-500">
+																			<a href="/user_management/profile">
+																				{{ request.user.get_full_name }}
+																			</a>
+																		</span>
                                                         <a href="" class="m-card-user__email m--font-weight-300 m-link">
                                                             {{ request.user.email }}
                                                         </a>
@@ -415,71 +635,14 @@ License: You must have a valid license purchased only from themeforest(the above
     </header>
     <!-- END: Header -->
     <!-- begin::Body -->
-    <div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body">
+    <div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body" {% if request.user.id == 56 %}style="background: rgba(240, 158, 255, 0.7)"{% endif %}><!-- TODO: Temporary joke for Amelie, remove this eventually -->
         <!-- BEGIN: Left Aside -->
-        <button class="m-aside-left-close  m-aside-left-close--skin-light " id="m_aside_left_close_btn">
-            <i class="la la-close"></i>
-        </button>
-        <div id="m_aside_left" class="m-grid__item	m-aside-left  m-aside-left--skin-light ">
-            <!-- BEGIN: Aside Menu -->
-            <div id="m_ver_menu" class="m-aside-menu  m-aside-menu--skin-light m-aside-menu--submenu-skin-light "
-                    data-menu-vertical="true" data-menu-scrollable="true" data-menu-dropdown-timeout="500">
-                <ul class="m-menu__nav  m-menu__nav--dropdown-submenu-arrow ">
-                    <li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"
-                        data-menu-submenu-toggle="hover">
-                        <a href="{% url 'adwords:home' %}" class="m-menu__link">
-                            <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
-                            <span class="m-menu__link-text">
-										AdWords dashboard
-									</span>
-                        </a>
-                    </li>
-                    <li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"
-                        data-menu-submenu-toggle="hover" data-redirect="true">
-                        <a href="{% url 'bing:home' %}" class="m-menu__link">
-                            <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
-                            <span class="m-menu__link-text">
-										Bing dashboard
-									</span>
-                        </a>
-                    </li>
-                    <li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"
-                        data-menu-submenu-toggle="hover" data-redirect="true">
-                        <a href="{% url 'facebook:home' %}" class="m-menu__link">
-                            <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
-                            <span class="m-menu__link-title">
-										<span class="m-menu__link-wrap">
-											<span class="m-menu__link-text">
-												Facebook dashboard
-											</span>
-										</span>
-									</span>
-                        </a>
-                    </li>
-                    {% if request.user.is_staff %}
-                        <li class="m-menu__item  m-menu__item--submenu" aria-haspopup="true"
-                            data-menu-submenu-toggle="hover" data-redirect="true">
-                            <a href="{% url 'user_list' %}" class="m-menu__link">
-                                <i class="m-menu__link-icon fa fa-user"></i>
-                                <span class="m-menu__link-text">
-										Users Administration
-									</span>
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-            <!-- END: Aside Menu -->
-        </div>
-        <!-- END: Left Aside -->
-        <div class="m-grid__item m-grid__item--fluid m-wrapper">
-            <!-- BEGIN: Subheader -->
+        {% block leftAside %}
+        {% endblock %}
 
-            <!-- END: Subheader -->
-            {#					<div class="m-content">#}
+        <div class="m-grid__item m-grid__item--fluid m-wrapper">
             {% block content %}
             {% endblock %}
-            {#					</div>#}
         </div>
     </div>
     <!-- end:: Body -->
@@ -488,12 +651,9 @@ License: You must have a valid license purchased only from themeforest(the above
         <div class="m-container m-container--fluid m-container--full-height m-page__container">
             <div class="m-stack m-stack--flex-tablet-and-mobile m-stack--ver m-stack--desktop">
                 <div class="m-stack__item m-stack__item--left m-stack__item--middle m-stack__item--last">
-							<span class="m-footer__copyright">
-								2018 &copy; Bloom Platform by
-								<a href="http://hdigital.io" class="m-link">
-									HyperDigital
-								</a>
-							</span>
+                    <span class="m-footer__copyright">
+                        2018 &copy; SparkView
+                    </span>
                 </div>
             </div>
         </div>
@@ -519,17 +679,109 @@ License: You must have a valid license purchased only from themeforest(the above
         type="text/javascript"></script>
 <script src="{% static 'assets/demo/default/custom/components/forms/widgets/bootstrap-datepicker.js' %}"
         type="text/javascript"></script>
-<script src="{% static 'assets/demo/default/custom/components/portlets/tools.js' %}" type="text/javascript"></script>
-
-<script src="{% static 'assets/app/js/datatables/datatables.min.js' %}" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="{% static 'assets/demo/default/custom/components/forms/widgets/bootstrap-daterangepicker.js' %}"
+        type="text/javascript"></script>
+{#<script src="{% static 'assets/demo/default/custom/components/portlets/tools.js' %}"#}
+{#        type="text/javascript"></script>#}
+<script src="{% static 'assets/app/js/datatables/datatables.min.js' %}"
+        type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"
+        type="text/javascript"></script>
 <!--end::Base Scripts -->
 <!--begin::Page Snippets -->
 <script src="{% static 'assets/app/js/moment.js' %}"></script>
+<script src="{% static 'assets/app/js/humanize.min.js' %}"></script>
 <script src="{% static 'assets/app/js/Chart.min.js' %}"></script>
-{#        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>#}
+<script type="text/javascript">
+    // Instantiate the Bloodhound suggestion engine
+    var clients = new Bloodhound({
+
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('cname'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            wildcard: '%QUERY',
+            url: '/search?query=%QUERY',
+            transform: function (response) {
+                // Map the remote source JSON array to a JavaScript object array
+                return $.map(response, function (elem) {
+                    return {
+                        cname: elem.name,
+                        url: elem.url,
+                        username: elem.username
+                    };
+                });
+            }
+        }
+    });
+
+    var users = new Bloodhound({
+
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            wildcard: '%QUERY',
+            url: '/search?query=%QUERY',
+            transform: function (response) {
+                // Map the remote source JSON array to a JavaScript object array
+                return $.map(response, function (elem) {
+                    return {
+                        username: elem.username,
+                    };
+                });
+            }
+        }
+    });
+
+    // Instantiate the Typeahead UI
+    $('input.typeahead').typeahead({
+            hint: !0,
+            highlight: !0,
+            limit: 10,
+            minLength: 2,
+        },
+        {
+            name: 'clients',
+            display: 'cname',
+            source: clients,
+            templates:
+                {
+                    header: '<h6 class="search-heading">Clients</h5>',
+                    suggestion: function (data) {
+                        if ("cname" in data) {
+                            return "<a href=" + data.url + ">" + data.cname + "</a>";
+                        } else {
+                            return "<div></div>"
+                        }
+                    },
+
+
+                }
+        },
+        {
+            name: 'users',
+            display: 'username',
+            source: users,
+            templates:
+                {
+                    header: '<h6 class="search-heading">Users</h5>',
+                    suggestion: function (data) {
+                        console.log(data)
+                        if ("username" in data) {
+                            return "<div>" + data.username + "</div>";
+                        } else {
+                            return "<div></div>"
+                        }
+                    },
+                }
+        });
+
+</script>
+
+<script src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
 <script src="{% static 'assets/app/js/custom.js' %}"></script>
 <!--end::Page Snippets -->
+{% block extraJs %}
+{% endblock %}
 </body>
 <!-- end::Body -->
 </html>

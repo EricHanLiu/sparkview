@@ -11,7 +11,7 @@ var mApp = function() {
         var skin = el.data('skin') ? 'm-tooltip--skin-' + el.data('skin') : '';
         var width = el.data('width') == 'auto' ? 'm-tooltop--auto-width' : '';
         var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
-            
+
         el.tooltip({
             trigger: triggerValue,
             template: '<div class="m-tooltip ' + skin + ' ' + width + ' tooltip" role="tooltip">\
@@ -20,7 +20,7 @@ var mApp = function() {
             </div>'
         });
     }
-    
+
     /**
     * Initializes bootstrap tooltips
     */
@@ -37,7 +37,7 @@ var mApp = function() {
     var initPopover = function(el) {
         var skin = el.data('skin') ? 'm-popover--skin-' + el.data('skin') : '';
         var triggerValue = el.data('trigger') ? el.data('trigger') : 'hover';
-            
+
         el.popover({
             trigger: triggerValue,
             template: '\
@@ -68,7 +68,7 @@ var mApp = function() {
             var fileName = $(this).val();
             $(this).next('.custom-file-label').addClass("selected").html(fileName);
         });
-    }           
+    }
 
     /**
     * Initializes metronic portlet
@@ -152,7 +152,7 @@ var mApp = function() {
 
             $(this).click(function(e) {
                 e.preventDefault();
-                
+
                 var tab = $(this);
                 var tabs = tab.closest('[data-tabs="true"]');
                 var contents = $( tabs.data('tabs-contents') );
@@ -162,7 +162,7 @@ var mApp = function() {
                 tab.addClass('m-tabs__item--active');
 
                 contents.find('.m-tabs-content__item.m-tabs-content__item--active').removeClass('m-tabs-content__item--active');
-                content.addClass('m-tabs-content__item--active');         
+                content.addClass('m-tabs-content__item--active');
             });
 
             $(this).data('tabs-initialized', true);
@@ -173,7 +173,7 @@ var mApp = function() {
     * Initializes bootstrap collapse for Metronic's accordion feature
     */
     var initAccordions = function(el) {
-       
+
     }
 
 	var hideTouchWarning = function() {
@@ -241,7 +241,7 @@ var mApp = function() {
         },
 
         /**
-        * 
+        *
         * @param {object} el jQuery element object
         */
         // wrJangoer function to scroll(focus) to an element
@@ -250,7 +250,7 @@ var mApp = function() {
         },
 
         /**
-        * 
+        *
         * @param {object} el jQuery element object
         */
         // wrJangoer function to scroll(focus) to an element
@@ -259,7 +259,7 @@ var mApp = function() {
         },
 
         /**
-        * 
+        *
         * @param {object} el jQuery element object
         */
         // wrJangoer function to scroll(focus) to an element
@@ -268,7 +268,7 @@ var mApp = function() {
         },
 
         /**
-        * 
+        *
         * @param {object} el jQuery element object
         */
         // wrJangoer function to scroll(focus) to an element
@@ -277,7 +277,7 @@ var mApp = function() {
         },
 
         /**
-        * 
+        *
         * @param {object} el jQuery element object
         */
         // function to init portlet
@@ -286,7 +286,7 @@ var mApp = function() {
         },
 
         /**
-        * 
+        *
         * @param {object} el jQuery element object
         */
         // function to init portlets
@@ -311,7 +311,7 @@ var mApp = function() {
         },
 
         /**
-        * Scrolls until element is centered in the viewport 
+        * Scrolls until element is centered in the viewport
         * @param {object} el jQuery element object
         */
         // wrJangoer function to scroll(focus) to an element
@@ -344,8 +344,8 @@ var mApp = function() {
                 el.css('overflow', 'auto');
             } else {
                 if (doNotDestroy !== true) {
-                     mApp.destroyScroller(el); 
-                }               
+                     mApp.destroyScroller(el);
+                }
                 el.mCustomScrollbar({
                     scrollInertia: 0,
                     autoDraggerLength: true,
@@ -360,7 +360,7 @@ var mApp = function() {
                     setHeight: (options.height ? options.height : ''),
                     theme:"minimal-dark"
                 });
-            }           
+            }
         },
 
         /**
@@ -380,7 +380,7 @@ var mApp = function() {
         alert: function(options) {
             options = $.extend(true, {
                 container: "", // alerts parent container(by default placed after the page breadcrumbs)
-                place: "append", // "append" or "prepend" in container 
+                place: "append", // "append" or "prepend" in container
                 type: 'success', // alert's type
                 message: "", // alert's message
                 close: true, // make alert closable
@@ -434,7 +434,7 @@ var mApp = function() {
         /**
         * Blocks element with loading indiciator using http://malsup.com/jquery/block/
         * @param {object} target jQuery element object
-        * @param {object} options 
+        * @param {object} options
         */
         block: function(target, options) {
             var el = $(target);
@@ -501,7 +501,7 @@ var mApp = function() {
                     if (el) {
                         el.css('position', '');
                         el.css('zoom', '');
-                    }                    
+                    }
                 }
             };
 
@@ -515,7 +515,7 @@ var mApp = function() {
         },
 
         /**
-        * Un-blocks the blocked element 
+        * Un-blocks the blocked element
         * @param {object} target jQuery element object
         */
         unblock: function(target) {
@@ -528,7 +528,7 @@ var mApp = function() {
 
         /**
         * Blocks the page body element with loading indicator
-        * @param {object} options 
+        * @param {object} options
         */
         blockPage: function(options) {
             return mApp.block('body', options);
@@ -548,12 +548,12 @@ var mApp = function() {
         */
         progress: function(target, options) {
             var skin = (options && options.skin) ? options.skin : 'light';
-            var alignment = (options && options.alignment) ? options.alignment : 'right'; 
-            var size = (options && options.size) ? 'm-spinner--' + options.size : ''; 
+            var alignment = (options && options.alignment) ? options.alignment : 'right';
+            var size = (options && options.size) ? 'm-spinner--' + options.size : '';
             var classes = 'm-loader ' + 'm-loader--' + skin + ' m-loader--' + alignment + ' m-loader--' + size;
 
             mApp.unprogress(target);
-            
+
             $(target).addClass(classes);
             $(target).data('progress-classes', classes);
         },
@@ -580,10 +580,10 @@ var mUtil = function() {
     var resizeHandlers = [];
 
     /** @type {object} breakpoints The device width breakpoints **/
-    var breakpoints = {        
-        sm: 544, // Small screen / phone           
-        md: 768, // Medium screen / tablet            
-        lg: 992, // Large screen / desktop        
+    var breakpoints = {
+        sm: 544, // Small screen / phone
+        md: 768, // Medium screen / tablet
+        lg: 992, // Large screen / desktop
         xl: 1200 // Extra large screen / wide desktop
     };
 
@@ -601,8 +601,8 @@ var mUtil = function() {
     };
 
     /**
-    * Handle window resize event with some 
-    * delay to attach event handlers upon resize complete 
+    * Handle window resize event with some
+    * delay to attach event handlers upon resize complete
     */
     var _windowResizeHandler = function() {
         var _runResizeHandlers = function() {
@@ -656,12 +656,12 @@ var mUtil = function() {
         */
         runResizeHandlers: function() {
             _runResizeHandlers();
-        },        
+        },
 
         /**
         * Get GET parameter value from URL.
         * @param {string} paramName Parameter name.
-        * @returns {string}  
+        * @returns {string}
         */
         getURLParam: function(paramName) {
             var searchString = window.location.search.substring(1),
@@ -679,7 +679,7 @@ var mUtil = function() {
 
         /**
         * Checks whether current device is mobile touch.
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         isMobileDevice: function() {
             return (this.getViewPort().width < this.getBreakpoint('lg') ? true : false);
@@ -687,7 +687,7 @@ var mUtil = function() {
 
         /**
         * Checks whether current device is desktop.
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         isDesktopDevice: function() {
             return mUtil.isMobileDevice() ? false : true;
@@ -695,7 +695,7 @@ var mUtil = function() {
 
         /**
         * Gets browser window viewport size. Ref: http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-        * @returns {object}  
+        * @returns {object}
         */
         getViewPort: function() {
             var e = window,
@@ -714,7 +714,7 @@ var mUtil = function() {
         /**
         * Checks whether given device mode is currently activated.
         * @param {string} mode Responsive mode name(e.g: desktop, desktop-and-tablet, tablet, tablet-and-mobile, mobile)
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         isInResponsiveRange: function(mode) {
             var breakpoint = this.getViewPort().width;
@@ -741,7 +741,7 @@ var mUtil = function() {
         /**
         * Generates unique ID for give prefix.
         * @param {string} prefix Prefix for generated ID
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         getUniqueID: function(prefix) {
             return prefix + Math.floor(Math.random() * (new Date()).getTime());
@@ -750,7 +750,7 @@ var mUtil = function() {
         /**
         * Gets window width for give breakpoint mode.
         * @param {string} mode Responsive mode name(e.g: xl, lg, md, sm)
-        * @returns {number}  
+        * @returns {number}
         */
         getBreakpoint: function(mode) {
             if ($.inArray(mode, breakpoints)) {
@@ -762,7 +762,7 @@ var mUtil = function() {
         * Checks whether object has property matchs given key path.
         * @param {object} obj Object contains values paired with given key path
         * @param {string} keys Keys path seperated with dots
-        * @returns {object}  
+        * @returns {object}
         */
         isset: function(obj, keys) {
             var stone;
@@ -796,7 +796,7 @@ var mUtil = function() {
         /**
         * Gets highest z-index of the given element parents
         * @param {object} el jQuery element object
-        * @returns {number}  
+        * @returns {number}
         */
         getHighestZindex: function(el) {
             var elem = $(el),
@@ -826,7 +826,7 @@ var mUtil = function() {
         * Checks whether the element has given classes
         * @param {object} el jQuery element object
         * @param {string} Classes string
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         hasClasses: function(el, classes) {
             var classesArr = classes.split(" ");
@@ -835,7 +835,7 @@ var mUtil = function() {
                 if ( el.hasClass( classesArr[i] ) == false ) {
                     return false;
                 }
-            }                
+            }
 
             return true;
         },
@@ -843,7 +843,7 @@ var mUtil = function() {
         /**
         * Gets element actual/real width
         * @param {object} el jQuery element object
-        * @returns {number}  
+        * @returns {number}
         */
         realWidth: function(el){
             var clone = $(el).clone();
@@ -860,11 +860,11 @@ var mUtil = function() {
         /**
         * Checks whether the element has any parent with fixed position
         * @param {object} el jQuery element object
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         hasFixedPositionedParent: function(el) {
             var result = false;
-            
+
             el.parents().each(function () {
                 if ($(this).css('position') == 'fixed') {
                     result = true;
@@ -891,7 +891,7 @@ var mUtil = function() {
         * Gets randomly generated integer value within given min and max range
         * @param {number} min Range start value
         * @param {number} min Range end value
-        * @returns {number}  
+        * @returns {number}
         */
         getRandomInt: function(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -900,7 +900,7 @@ var mUtil = function() {
         /**
         * Gets state color's hex code by color name
         * @param {string} name Color name
-        * @returns {string}  
+        * @returns {string}
         */
         getColor: function(name) {
             return colors[name];
@@ -908,7 +908,7 @@ var mUtil = function() {
 
         /**
         * Checks whether Angular library is included
-        * @returns {boolean}  
+        * @returns {boolean}
         */
         isAngularVersion: function() {
             return window.Zone !== undefined  ? true : false;
@@ -959,18 +959,18 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('dropdown')) {                      
+                if (!element.data('dropdown')) {
                     // create instance
                     Plugin.init(options);
                     Plugin.build();
                     Plugin.setup();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('dropdown', dropdown);
                 } else {
                     // get instance from the element
                     dropdown = element.data('dropdown');
-                }               
+                }
 
                 return dropdown;
             },
@@ -994,7 +994,7 @@ jQuery.fn.extend({
                     dropdown.options.dropAuto = true;
                 } else if (element.data('drop-auto') === false) {
                     dropdown.options.dropAuto = false;
-                }               
+                }
 
                 if (dropdown.scrollable.length > 0) {
                     if (dropdown.scrollable.data('min-height')) {
@@ -1004,7 +1004,7 @@ jQuery.fn.extend({
                     if (dropdown.scrollable.data('max-height')) {
                         dropdown.options.maxHeight = dropdown.scrollable.data('max-height');
                     }
-                }                
+                }
             },
 
             /**
@@ -1012,27 +1012,27 @@ jQuery.fn.extend({
              */
             build: function () {
                 if (mUtil.isMobileDevice()) {
-                    if (element.data('dropdown-toggle') == 'hover' || element.data('dropdown-toggle') == 'click') { 
+                    if (element.data('dropdown-toggle') == 'hover' || element.data('dropdown-toggle') == 'click') {
                         dropdown.options.toggle = 'click';
                     } else {
-                        dropdown.options.toggle = 'click'; 
-                        dropdown.toggle.click(Plugin.toggle); 
+                        dropdown.options.toggle = 'click';
+                        dropdown.toggle.click(Plugin.toggle);
                     }
                 } else {
-                    if (element.data('dropdown-toggle') == 'hover') {     
-                        dropdown.options.toggle = 'hover';              
+                    if (element.data('dropdown-toggle') == 'hover') {
+                        dropdown.options.toggle = 'hover';
                         element.mouseleave(Plugin.hide);
                     } else if(element.data('dropdown-toggle') == 'click') {
-                        dropdown.options.toggle = 'click';                  
+                        dropdown.options.toggle = 'click';
                     } else {
                         if (dropdown.options.toggle == 'hover') {
                             element.mouseenter(Plugin.show);
                             element.mouseleave(Plugin.hide);
                         } else {
-                            dropdown.toggle.click(Plugin.toggle);      
+                            dropdown.toggle.click(Plugin.toggle);
                         }
                     }
-                }                
+                }
 
                 // handle dropdown close icon
                 if (dropdown.close.length) {
@@ -1041,7 +1041,7 @@ jQuery.fn.extend({
 
                 // disable dropdown close
                 Plugin.disableClose();
-            }, 
+            },
 
             /**
              * Setup dropdown
@@ -1053,7 +1053,7 @@ jQuery.fn.extend({
 
                 if (dropdown.options.align) {
                     element.addClass('m-dropdown--align-' + dropdown.options.align);
-                } 
+                }
 
                 if (dropdown.options.width) {
                     dropdown.wrapper.css('width', dropdown.options.width);
@@ -1062,31 +1062,31 @@ jQuery.fn.extend({
                 if (element.data('dropdown-persistent')) {
                     dropdown.options.persistent = true;
                 }
-        
+
                 // handle height
                 if (dropdown.options.minHeight) {
-                    dropdown.scrollable.css('min-height', dropdown.options.minHeight);                    
-                } 
+                    dropdown.scrollable.css('min-height', dropdown.options.minHeight);
+                }
 
                 if (dropdown.options.maxHeight) {
-                    dropdown.scrollable.css('max-height', dropdown.options.maxHeight);     
-                    dropdown.scrollable.css('overflow-y', 'auto'); 
+                    dropdown.scrollable.css('max-height', dropdown.options.maxHeight);
+                    dropdown.scrollable.css('overflow-y', 'auto');
 
                     if (mUtil.isDesktopDevice()) {
-                        mApp.initScroller(dropdown.scrollable, {});                
-                    }   
-                }      
+                        mApp.initScroller(dropdown.scrollable, {});
+                    }
+                }
 
                 // set zindex
                 Plugin.setZindex();
             },
 
             /**
-             * sync 
+             * sync
              */
             sync: function () {
                 $(element).data('dropdown', dropdown);
-            }, 
+            },
 
             /**
              * Sync dropdown object with jQuery element
@@ -1114,7 +1114,7 @@ jQuery.fn.extend({
              */
             setContent: function (content) {
                 element.find('.m-dropdown__content').html(content);
-                
+
                 return dropdown;
             },
 
@@ -1123,7 +1123,7 @@ jQuery.fn.extend({
              */
             show: function() {
                 if (dropdown.options.toggle == 'hover' && element.data('hover')) {
-                    Plugin.clearHovered(); 
+                    Plugin.clearHovered();
                     return dropdown;
                 }
 
@@ -1135,7 +1135,7 @@ jQuery.fn.extend({
                     Plugin.adjustArrowPos();
                 }
 
-                Plugin.eventTrigger('beforeShow'); 
+                Plugin.eventTrigger('beforeShow');
 
                 Plugin.hideOpened();
 
@@ -1151,16 +1151,16 @@ jQuery.fn.extend({
                     element.after(dropdownoff);
                     dropdownoff.click(function(e) {
                         Plugin.hide();
-                        $(this).remove();                    
+                        $(this).remove();
                         e.preventDefault();
                     });
-                } 
+                }
 
                 element.focus();
                 element.attr('aria-expanded', 'true');
                 dropdown.open = true;
 
-                Plugin.handleDropPosition();          
+                Plugin.handleDropPosition();
 
                 Plugin.eventTrigger('afterShow');
 
@@ -1185,9 +1185,9 @@ jQuery.fn.extend({
                     if (Plugin.eventTrigger('beforeHide') === false) {
                         // cancel hide
                         return;
-                    }  
+                    }
 
-                    Plugin.clearHovered();        
+                    Plugin.clearHovered();
                     element.removeClass('m-dropdown--open');
                     dropdown.open = false;
                     Plugin.eventTrigger('afterHide');
@@ -1198,7 +1198,7 @@ jQuery.fn.extend({
                     }
                     var timeout = setTimeout(function() {
                         if (element.data('hover')) {
-                            Plugin.clearHovered();        
+                            Plugin.clearHovered();
                             element.removeClass('m-dropdown--open');
                             dropdown.open = false;
                             Plugin.eventTrigger('afterHide');
@@ -1206,18 +1206,18 @@ jQuery.fn.extend({
                     }, dropdown.options.hoverTimeout);
 
                     element.data('hover', true);
-                    element.data('timeout', timeout); 
-                }     
+                    element.data('timeout', timeout);
+                }
             },
 
             /**
              * Hide clicked dropdown
              */
-            hideClicked: function() {    
+            hideClicked: function() {
                 if (Plugin.eventTrigger('beforeHide') === false) {
                     // cancel hide
                     return;
-                }             
+                }
                 element.removeClass('m-dropdown--open');
                 if (element.data('dropoff')) {
                     element.data('dropoff').remove();
@@ -1246,7 +1246,7 @@ jQuery.fn.extend({
                     dropdown.currentDropPos = 'down';
                 }
 
-                return dropdown;                
+                return dropdown;
             },
 
             /**
@@ -1269,8 +1269,8 @@ jQuery.fn.extend({
                 if (dropdown.arrow.length > 0) {
                     if (mUtil.isInResponsiveRange('mobile') && element.hasClass('m-dropdown--mobile-full-width')) {
                         pos = element.offset().left + (width / 2) - Math.abs(dropdown.arrow.width() / 2) - parseInt(dropdown.wrapper.css('left'));
-                        dropdown.arrow.css('right', 'auto');    
-                        dropdown.arrow.css('left', pos);    
+                        dropdown.arrow.css('right', 'auto');
+                        dropdown.arrow.css('left', pos);
                         dropdown.arrow.css('margin-left', 'auto');
                         dropdown.arrow.css('margin-right', 'auto');
                     } else if (dropdown.arrow.hasClass('m-dropdown__arrow--adjust')) {
@@ -1278,14 +1278,14 @@ jQuery.fn.extend({
                         if (element.hasClass('m-dropdown--align-push')) {
                             pos = pos + 20;
                         }
-                        if (alignment == 'right') { 
-                            dropdown.arrow.css('left', 'auto');  
+                        if (alignment == 'right') {
+                            dropdown.arrow.css('left', 'auto');
                             dropdown.arrow.css('right', pos);
-                        } else {                            
-                            dropdown.arrow.css('right', 'auto');  
+                        } else {
+                            dropdown.arrow.css('right', 'auto');
                             dropdown.arrow.css('left', pos);
-                        }  
-                    }                    
+                        }
+                    }
                 }
             },
 
@@ -1294,7 +1294,7 @@ jQuery.fn.extend({
              */
             handleDropPosition: function() {
                 return;
-                
+
                 if (dropdown.options.dropAuto == true) {
                     if (Plugin.isInVerticalViewport() === false) {
                         if (dropdown.currentDropPos == 'up') {
@@ -1304,7 +1304,7 @@ jQuery.fn.extend({
                         } else if (dropdown.currentDropPos == 'down') {
                             element.addClass('m-dropdown--up');
                             dropdown.arrow.appendTo(dropdown.wrapper);
-                            dropdown.currentDropPos = 'up'; 
+                            dropdown.currentDropPos = 'up';
                         }
                     }
                 }
@@ -1395,7 +1395,7 @@ jQuery.fn.extend({
         //////////////////////
         // ** Public API ** //
         //////////////////////
-       
+
         /**
          * Show dropdown
          * @returns {mDropdown}
@@ -1466,7 +1466,7 @@ jQuery.fn.extend({
          */
         dropdown.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };        
+        };
 
         return dropdown;
     };
@@ -1486,16 +1486,16 @@ jQuery.fn.extend({
 
     // global init
     if (mUtil.isMobileDevice()) {
-        $(document).on('click', '[data-dropdown-toggle="click"] .m-dropdown__toggle, [data-dropdown-toggle="hover"] .m-dropdown__toggle', function(e) { 
-            e.preventDefault(); 
-            $(this).parent('.m-dropdown').mDropdown().toggle(); 
+        $(document).on('click', '[data-dropdown-toggle="click"] .m-dropdown__toggle, [data-dropdown-toggle="hover"] .m-dropdown__toggle', function(e) {
+            e.preventDefault();
+            $(this).parent('.m-dropdown').mDropdown().toggle();
         });
     } else {
-        $(document).on('click', '[data-dropdown-toggle="click"] .m-dropdown__toggle', function(e) { 
+        $(document).on('click', '[data-dropdown-toggle="click"] .m-dropdown__toggle', function(e) {
             e.preventDefault();
-            $(this).parent('.m-dropdown').mDropdown().toggle();   
+            $(this).parent('.m-dropdown').mDropdown().toggle();
         });
-        $(document).on('mouseenter', '[data-dropdown-toggle="hover"]', function(e) { 
+        $(document).on('mouseenter', '[data-dropdown-toggle="hover"]', function(e) {
              e.preventDefault();
             $(this).mDropdown().toggle();
         });
@@ -1506,16 +1506,16 @@ jQuery.fn.extend({
         $('.m-dropdown.m-dropdown--open').each(function() {
             if (!$(this).data('dropdown')) {
                 return;
-            }        
-            
+            }
+
             var target = $(e.target);
             var dropdown = $(this).mDropdown();
             var toggle = $(this).find('.m-dropdown__toggle');
 
             if (toggle.length > 0 && target.is(toggle) !== true && toggle.find(target).length === 0 && target.find(toggle).length === 0 && dropdown.isPersistent() == false) {
-                dropdown.hide();     
+                dropdown.hide();
             } else if ($(this).find(target).length === 0) {
-                dropdown.hide();       
+                dropdown.hide();
             }
         });
     });
@@ -1533,18 +1533,18 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('example')) {                      
+                if (!element.data('example')) {
                     // create instance
                     Plugin.init(options);
                     Plugin.build();
                     Plugin.setup();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('example', example);
                 } else {
                     // get instance from the element
                     example = element.data('example');
-                }               
+                }
 
                 return example;
             },
@@ -1564,7 +1564,7 @@ jQuery.fn.extend({
                     if (example.scrollable.data('data-max-height')) {
                         example.options.maxHeight = example.scrollable.data('data-max-height');
                     }
-                }                
+                }
             },
 
             /**
@@ -1572,17 +1572,17 @@ jQuery.fn.extend({
              */
             build: function () {
                 if (mUtil.isMobileDevice()) {
-                    
+
                 } else {
-                    
-                }                
-            }, 
+
+                }
+            },
 
             /**
              * Setup example
              */
             setup: function () {
-               
+
             },
 
             /**
@@ -1622,7 +1622,7 @@ jQuery.fn.extend({
         //////////////////////
         // ** Public API ** //
         //////////////////////
-       
+
 
         /**
          * Set example content
@@ -1638,14 +1638,14 @@ jQuery.fn.extend({
          */
         example.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };        
+        };
 
         return example;
     };
 
     // default options
     $.fn.mExample.defaults = {
-       
+
     };
 }(jQuery));
 (function($) {
@@ -1662,9 +1662,9 @@ jQuery.fn.extend({
              * Run plugin
              * @returns {mHeader}
              */
-            run: function(options) { 
+            run: function(options) {
                 if (element.data('header')) {
-                    header = element.data('header');                
+                    header = element.data('header');
                 } else {
                     // reset header
                     Plugin.init(options);
@@ -1676,7 +1676,7 @@ jQuery.fn.extend({
                     Plugin.build();
 
                     element.data('header', header);
-                } 
+                }
 
                 return header;
             },
@@ -1685,7 +1685,7 @@ jQuery.fn.extend({
              * Handles subheader click toggle
              * @returns {mHeader}
              */
-            init: function(options) {                
+            init: function(options) {
                 header.options = $.extend(true, {}, $.fn.mHeader.defaults, options);
             },
 
@@ -1694,7 +1694,7 @@ jQuery.fn.extend({
              * @returns {mHeader}
              */
             build: function() {
-                Plugin.toggle();                   
+                Plugin.toggle();
             },
 
             toggle: function() {
@@ -1702,7 +1702,7 @@ jQuery.fn.extend({
 
                 if (header.options.minimize.mobile === false && header.options.minimize.desktop === false) {
                     return;
-                }          
+                }
 
                 $(window).scroll(function() {
                     var offset = 0;
@@ -1722,7 +1722,7 @@ jQuery.fn.extend({
                     if (
                         (mUtil.isInResponsiveRange('tablet-and-mobile') && header.options.classic && header.options.classic.mobile) ||
                         (mUtil.isInResponsiveRange('desktop') && header.options.classic && header.options.classic.desktop)
-                        
+
                         ) {
                         if (st > offset){ // down scroll mode
                             $("body").addClass(on);
@@ -1739,7 +1739,7 @@ jQuery.fn.extend({
                             $("body").addClass(off);
                             $("body").removeClass(on);
                         }
-                        
+
                         lastScrollTop = st;
                     }
                 });
@@ -1777,13 +1777,13 @@ jQuery.fn.extend({
         classic: false,
         offset: {
             mobile: 150,
-            desktop: 200        
+            desktop: 200
         },
         minimize: {
             mobile: false,
             desktop: false
         }
-    }; 
+    };
 }(jQuery));
 (function($) {
 
@@ -1799,13 +1799,13 @@ jQuery.fn.extend({
              * Run plugin
              * @returns {mMenu}
              */
-            run: function(options, reinit) { 
+            run: function(options, reinit) {
                 if (element.data('menu') && reinit !== true) {
-                    menu = element.data('menu');                
+                    menu = element.data('menu');
                 } else {
                     // reset menu
                     Plugin.init(options);
-                    
+
                     // reset menu
                     Plugin.reset();
 
@@ -1813,7 +1813,7 @@ jQuery.fn.extend({
                     Plugin.build();
 
                     element.data('menu', menu);
-                } 
+                }
 
                 return menu;
             },
@@ -1822,7 +1822,7 @@ jQuery.fn.extend({
              * Handles submenu click toggle
              * @returns {mMenu}
              */
-            init: function(options) { 
+            init: function(options) {
                 menu.events = [];
 
                 // merge default and user defined options
@@ -1837,10 +1837,10 @@ jQuery.fn.extend({
              * @returns {mMenu}
              */
             build: function() {
-                element.on('click', '.m-menu__toggle', Plugin.handleSubmenuAccordion);                
+                element.on('click', '.m-menu__toggle', Plugin.handleSubmenuAccordion);
 
                 // dropdown mode(hoverable)
-                if (Plugin.getSubmenuMode() === 'dropdown' || Plugin.isConditionalSubmenuDropdown()) {   
+                if (Plugin.getSubmenuMode() === 'dropdown' || Plugin.isConditionalSubmenuDropdown()) {
                 	// dropdown submenu - hover toggle
 	                element.on({mouseenter: Plugin.handleSubmenuDrodownHoverEnter, mouseleave: Plugin.handleSubmenuDrodownHoverExit}, '[data-menu-submenu-toggle="hover"]');
 
@@ -1849,7 +1849,7 @@ jQuery.fn.extend({
                     element.on('click', '[data-menu-submenu-toggle="tab"] > .m-menu__toggle, [data-menu-submenu-toggle="tab"] > .m-menu__link .m-menu__toggle', Plugin.handleSubmenuDropdownTabClick);
                 }
 
-                element.find('.m-menu__item:not(.m-menu__item--submenu) > .m-menu__link:not(.m-menu__toggle):not(.m-menu__link--toggle-skip)').click(Plugin.handleLinkClick);             
+                element.find('.m-menu__item:not(.m-menu__item--submenu) > .m-menu__link:not(.m-menu__toggle):not(.m-menu__link--toggle-skip)').click(Plugin.handleLinkClick);
             },
 
             /**
@@ -1877,7 +1877,7 @@ jQuery.fn.extend({
             * Get submenu mode for current breakpoint and menu state
             * @returns {mMenu}
             */
-            getSubmenuMode: function() {                
+            getSubmenuMode: function() {
                 if (mUtil.isInResponsiveRange('desktop')) {
                     if (mUtil.isset(menu.options.submenu, 'desktop.state.body')) {
                         if ($('body').hasClass(menu.options.submenu.desktop.state.body)) {
@@ -1905,20 +1905,20 @@ jQuery.fn.extend({
                 if (mUtil.isInResponsiveRange('desktop') && mUtil.isset(menu.options.submenu, 'desktop.state.body')) {
                     return true;
                 } else {
-                    return false;    
-                }                
+                    return false;
+                }
             },
 
             /**
              * Handles menu link click
              * @returns {mMenu}
              */
-            handleLinkClick: function(e) {    
+            handleLinkClick: function(e) {
                 if (Plugin.eventTrigger('linkClick', $(this)) === false) {
                     e.preventDefault();
                 };
 
-                if (Plugin.getSubmenuMode() === 'dropdown' || Plugin.isConditionalSubmenuDropdown()) { 
+                if (Plugin.getSubmenuMode() === 'dropdown' || Plugin.isConditionalSubmenuDropdown()) {
                     Plugin.handleSubmenuDropdownClose(e, $(this));
                 }
             },
@@ -1934,7 +1934,7 @@ jQuery.fn.extend({
 
                 if (menu.resumeDropdownHover() === false) {
                     return;
-                }               
+                }
 
                 var item = $(this);
 
@@ -1983,7 +1983,7 @@ jQuery.fn.extend({
                 var item = $(this).closest('.m-menu__item');
 
                 if (item.data('menu-submenu-mode') == 'accordion') {
-                    return;   
+                    return;
                 }
 
                 if (item.hasClass('m-menu__item--hover') == false) {
@@ -2009,13 +2009,13 @@ jQuery.fn.extend({
                 var item = $(this).closest('.m-menu__item');
 
                 if (item.data('menu-submenu-mode') == 'accordion') {
-                    return;   
+                    return;
                 }
 
                 if (item.hasClass('m-menu__item--hover') == false) {
                     item.addClass('m-menu__item--open-dropdown');
                     Plugin.showSubmenuDropdown(item);
-                } 
+                }
 
                 e.preventDefault();
             },
@@ -2036,8 +2036,8 @@ jQuery.fn.extend({
                 if (shown.length > 0 && el.hasClass('m-menu__toggle') === false && el.find('.m-menu__toggle').length === 0) {
                     // close opened dropdown menus
                     shown.each(function() {
-                        Plugin.hideSubmenuDropdown($(this), true);    
-                    });                     
+                        Plugin.hideSubmenuDropdown($(this), true);
+                    });
                 }
             },
 
@@ -2064,7 +2064,7 @@ jQuery.fn.extend({
                     e.preventDefault();
                     var speed = menu.options.accordion.slideSpeed;
                     var hasClosables = false;
-                    
+
                     if (li.hasClass('m-menu__item--open') === false) {
                         // hide other accordions
                         if (menu.options.accordion.expandAll === false) {
@@ -2072,34 +2072,34 @@ jQuery.fn.extend({
                             closables.each(function() {
                                 $(this).children('.m-menu__submenu').slideUp(speed, function() {
                                     Plugin.scrollToItem(item);
-                                });                                
+                                });
                                 $(this).removeClass('m-menu__item--open');
                             });
 
                             if (closables.length > 0) {
                                 hasClosables = true;
                             }
-                        }                         
+                        }
 
                         if (hasClosables) {
                             submenu.slideDown(speed, function() {
                                 Plugin.scrollToItem(item);
-                            }); 
+                            });
                             li.addClass('m-menu__item--open');
                         } else {
                             submenu.slideDown(speed, function() {
                                 Plugin.scrollToItem(item);
                             });
                             li.addClass('m-menu__item--open');
-                        }                        
-                    } else {  
+                        }
+                    } else {
                         submenu.slideUp(speed, function() {
                              Plugin.scrollToItem(item);
-                        });                        
-                        li.removeClass('m-menu__item--open');                  
+                        });
+                        li.removeClass('m-menu__item--open');
                     }
                 }
-            },     
+            },
 
             /**
              * scroll to item function
@@ -2107,7 +2107,7 @@ jQuery.fn.extend({
              */
             scrollToItem: function(item) {
                 // handle auto scroll for accordion submenus
-                if (mUtil.isInResponsiveRange('desktop') && menu.options.accordion.autoScroll && !element.data('menu-scrollable')) {                        
+                if (mUtil.isInResponsiveRange('desktop') && menu.options.accordion.autoScroll && !element.data('menu-scrollable')) {
                     mApp.scrollToViewport(item);
                 }
             },
@@ -2143,25 +2143,25 @@ jQuery.fn.extend({
                     if (item.is(el) || el.find(item).length > 0 || item.find(el).length > 0) {
                         return;
                     } else {
-                        Plugin.hideSubmenuDropdown(el, true); 
+                        Plugin.hideSubmenuDropdown(el, true);
                     }
                 });
 
                 // adjust submenu position
                 Plugin.adjustSubmenuDropdownArrowPos(item);
-                
+
                 // add submenu activation class
                 item.addClass('m-menu__item--hover');
 
                 if (item.data('menu-dropdown-toggle-class')) {
                     $('body').addClass(item.data('menu-dropdown-toggle-class'));
-                } 
+                }
 
                 // handle auto scroll for accordion submenus
                 if (Plugin.getSubmenuMode() === 'accordion' && menu.options.accordion.autoScroll) {
                     mApp.scrollTo(item.children('.m-menu__item--submenu'));
-                }              
-            },                
+                }
+            },
 
             /**
              * Handles submenu click toggle
@@ -2180,14 +2180,14 @@ jQuery.fn.extend({
                 var check;
 
                 if (
-                    Plugin.getSubmenuMode() == 'dropdown' && 
+                    Plugin.getSubmenuMode() == 'dropdown' &&
                     (
                         (mUtil.isInResponsiveRange('desktop') && mUtil.isset(menu.options, 'resize.desktop') && (check = menu.options.resize.desktop) && currentWidth <= (breakpoint = resize.data('menu-resize-desktop-breakpoint'))) ||
                         (mUtil.isInResponsiveRange('tablet') && mUtil.isset(menu.options, 'resize.tablet') && (check = menu.options.resize.tablet) && currentWidth <= (breakpoint = resize.data('menu-resize-tablet-breakpoint'))) ||
                         (mUtil.isInResponsiveRange('mobile') && mUtil.isset(menu.options, 'resize.mobile') && (check = menu.options.resize.mobile) && currentWidth <= (breakpoint = resize.data('menu-resize-mobile-breakpoint')))
                     )
                     ) {
-                 
+
                     var moved = submenu.find('> .m-menu__subnav > .m-menu__item').length; // currently move
                     var left = element.find('> .m-menu__nav > .m-menu__item:not(.m-menu__item--resize)').length; // currently left
                     var total = moved + left;
@@ -2204,10 +2204,10 @@ jQuery.fn.extend({
                                 if (check.apply() === false) {
                                     item.appendTo(submenu.find('> .m-menu__subnav'));
                                     return false;
-                                }         
+                                }
 
                                 moved--;
-                                left++;                        
+                                left++;
                             });
                         }
                     } else {
@@ -2215,9 +2215,9 @@ jQuery.fn.extend({
                         if (left > 0) {
                             var items = element.find('> .m-menu__nav > .m-menu__item:not(.m-menu__item--resize)');
                             var index = items.length - 1;
-                                
+
                             for(var i = 0; i < items.length; i++) {
-                                var item = $(items.get(index)); 
+                                var item = $(items.get(index));
                                 index--;
 
                                 if (check.apply() === true) {
@@ -2227,17 +2227,17 @@ jQuery.fn.extend({
                                 item.appendTo(submenu.find('> .m-menu__subnav'));
 
                                 moved++;
-                                left--; 
-                            } 
+                                left--;
+                            }
                         }
                     }
 
                     if (moved > 0) {
-                        resize.show();  
+                        resize.show();
                     } else {
                         resize.hide();
-                    }                   
-                } else {    
+                    }
+                } else {
                     submenu.find('> .m-menu__subnav > .m-menu__item').each(function() {
                         var elementsNumber = submenu.find('> .m-menu__subnav > .m-menu__item').length;
                         element.find('> .m-menu__nav > .m-menu__item').get(elementsNumber).after($(this));
@@ -2259,7 +2259,7 @@ jQuery.fn.extend({
                     e.stopPropagation();
                     e.preventDefault();
                     $(this).remove();
-                    Plugin.hideSubmenuDropdown(el, true);                    
+                    Plugin.hideSubmenuDropdown(el, true);
                 });
             },
 
@@ -2267,27 +2267,27 @@ jQuery.fn.extend({
              * Handles submenu click toggle
              * @returns {mMenu}
              */
-            adjustSubmenuDropdownArrowPos: function(item) {                
+            adjustSubmenuDropdownArrowPos: function(item) {
                 var arrow = item.find('> .m-menu__submenu > .m-menu__arrow.m-menu__arrow--adjust');
                 var submenu = item.find('> .m-menu__submenu');
                 var subnav = item.find('> .m-menu__submenu > .m-menu__subnav');
-                
+
                 if (arrow.length > 0) {
                     var pos;
                     var link = item.children('.m-menu__link');
 
-                    if (submenu.hasClass('m-menu__submenu--classic') || submenu.hasClass('m-menu__submenu--fixed')) { 
+                    if (submenu.hasClass('m-menu__submenu--classic') || submenu.hasClass('m-menu__submenu--fixed')) {
                         if (submenu.hasClass('m-menu__submenu--right')) {
                             pos = item.outerWidth() / 2;
                             if (submenu.hasClass('m-menu__submenu--pull')) {
-                                pos = pos + Math.abs(parseInt(submenu.css('margin-right')));    
-                            }  
+                                pos = pos + Math.abs(parseInt(submenu.css('margin-right')));
+                            }
                             pos = submenu.width() - pos;
                         } else if (submenu.hasClass('m-menu__submenu--left')) {
                             pos = item.outerWidth() / 2;
                             if (submenu.hasClass('m-menu__submenu--pull')) {
-                                pos = pos + Math.abs(parseInt(submenu.css('margin-left')));    
-                            } 
+                                pos = pos + Math.abs(parseInt(submenu.css('margin-left')));
+                            }
                         }
                     } else  {
                         if (submenu.hasClass('m-menu__submenu--center') || submenu.hasClass('m-menu__submenu--full')) {
@@ -2298,7 +2298,7 @@ jQuery.fn.extend({
                         } else if (submenu.hasClass('m-menu__submenu--right')) {
                             // to do
                         }
-                    } 
+                    }
 
                     arrow.css('left', pos);
                 }
@@ -2337,7 +2337,7 @@ jQuery.fn.extend({
                         $(this).removeClass('m-menu__item--open');
                         $(this).children('.m-menu__submenu').css('display', '');
                     });
-                });             
+                });
 
                 // close open submenus
                 if (menu.options.accordion.expandAll === false) {
@@ -2372,7 +2372,7 @@ jQuery.fn.extend({
                 var link = item.children('.m-menu__link');
 
                 breadcrumbs.push({
-                    text: link.find('.m-menu__link-text').html(), 
+                    text: link.find('.m-menu__link-text').html(),
                     title: link.attr('title'),
                     href: link.attr('href')
                 });
@@ -2380,7 +2380,7 @@ jQuery.fn.extend({
                 item.parents('.m-menu__item--submenu').each(function() {
                     var submenuLink = $(this).children('.m-menu__link');
                     breadcrumbs.push({
-                        text: submenuLink.find('.m-menu__link-text').html(), 
+                        text: submenuLink.find('.m-menu__link-text').html(),
                         title: submenuLink.attr('title'),
                         href: submenuLink.attr('href')
                     });
@@ -2396,17 +2396,17 @@ jQuery.fn.extend({
              * @returns {mMenu}
              */
             getPageTitle: function(item) {
-                item = $(item);       
+                item = $(item);
 
                 return item.children('.m-menu__link').find('.m-menu__link-text').html();
             },
 
             /**
-             * Sync 
+             * Sync
              */
             sync: function () {
                 $(element).data('menu', menu);
-            }, 
+            },
 
             /**
              * Trigger events
@@ -2446,8 +2446,8 @@ jQuery.fn.extend({
         if (typeof(options)  !== "undefined") {
             $(window).resize(function() {
                 Plugin.run.apply(menu, [options, true]);
-            });  
-        }        
+            });
+        }
 
         //////////////////////
         // ** Public API ** //
@@ -2519,34 +2519,34 @@ jQuery.fn.extend({
     // Plugin default options
     $.fn.mMenu.defaults = {
         // accordion submenu mode
-        accordion: {   
+        accordion: {
             slideSpeed: 200,  // accordion toggle slide speed in milliseconds
             autoScroll: true, // enable auto scrolling(focus) to the clicked menu item
             expandAll: true   // allow having multiple expanded accordions in the menu
         },
-        
+
         // dropdown submenu mode
         dropdown: {
             timeout: 500  // timeout in milliseconds to show and hide the hoverable submenu dropdown
         }
-    }; 
+    };
 
     // Plugin global lazy initialization
     $(document).on('click', function(e) {
         $('.m-menu__nav .m-menu__item.m-menu__item--submenu.m-menu__item--hover:not(.m-menu__item--tabs)[data-menu-submenu-toggle="click"]').each(function() {
             var  element = $(this).closest('.m-menu__nav').parent();
-            menu = element.mMenu(); 
+            menu = element.mMenu();
 
-            if (menu.getSubmenuMode() !== 'dropdown') { 
+            if (menu.getSubmenuMode() !== 'dropdown') {
                 return;
-            }            
+            }
 
             if ($(e.target).is(element) == false && element.find($(e.target)).length == 0) {
                 var items = element.find('.m-menu__item--submenu.m-menu__item--hover:not(.m-menu__item--tabs)[data-menu-submenu-toggle="click"]');
                 items.each(function() {
                     menu.hideDropdown($(this));
                 });
-            }          
+            }
         });
     });
 }(jQuery));
@@ -2563,18 +2563,18 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('messenger')) {                      
+                if (!element.data('messenger')) {
                     // create instance
                     Plugin.init(options);
                     Plugin.build();
                     Plugin.setup();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('messenger', messenger);
                 } else {
                     // get instance from the element
                     messenger = element.data('messenger');
-                }               
+                }
 
                 return messenger;
             },
@@ -2594,7 +2594,7 @@ jQuery.fn.extend({
                     if (messenger.scrollable.data('data-max-height')) {
                         messenger.options.maxHeight = messenger.scrollable.data('data-max-height');
                     }
-                }                
+                }
             },
 
             /**
@@ -2602,17 +2602,17 @@ jQuery.fn.extend({
              */
             build: function () {
                 if (mUtil.isMobileDevice()) {
-                    
+
                 } else {
-                    
-                }                
-            }, 
+
+                }
+            },
 
             /**
              * Setup messenger
              */
             setup: function () {
-               
+
             },
 
             /**
@@ -2652,7 +2652,7 @@ jQuery.fn.extend({
         //////////////////////
         // ** Public API ** //
         //////////////////////
-       
+
 
         /**
          * Set messenger content
@@ -2668,14 +2668,14 @@ jQuery.fn.extend({
          */
         messenger.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };        
+        };
 
         return messenger;
     };
 
     // default options
     $.fn.mMessenger.defaults = {
-       
+
     };
 }(jQuery));
 (function($) {
@@ -2693,17 +2693,17 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('offcanvas')) {                      
+                if (!element.data('offcanvas')) {
                     // create instance
                     Plugin.init(options);
                     Plugin.build();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('offcanvas', offcanvas);
                 } else {
                     // get instance from the element
                     offcanvas = element.data('offcanvas');
-                }               
+                }
 
                 return offcanvas;
             },
@@ -2718,11 +2718,11 @@ jQuery.fn.extend({
                 offcanvas.options = $.extend(true, {}, $.fn.mOffcanvas.defaults, options);
 
                 offcanvas.overlay;
-                
+
                 offcanvas.classBase = offcanvas.options.class;
                 offcanvas.classShown = offcanvas.classBase + '--on';
                 offcanvas.classOverlay = offcanvas.classBase + '-overlay';
-                
+
                 offcanvas.state = element.hasClass(offcanvas.classShown) ? 'shown' : 'hidden';
                 offcanvas.close = offcanvas.options.close;
 
@@ -2730,7 +2730,7 @@ jQuery.fn.extend({
                     offcanvas.toggleTarget = offcanvas.options.toggle.target;
                     offcanvas.toggleState = offcanvas.options.toggle.state;
                 } else {
-                    offcanvas.toggleTarget = offcanvas.options.toggle; 
+                    offcanvas.toggleTarget = offcanvas.options.toggle;
                     offcanvas.toggleState = '';
                 }
             },
@@ -2748,11 +2748,11 @@ jQuery.fn.extend({
             },
 
             /**
-             * sync 
+             * sync
              */
             sync: function () {
                 $(element).data('offcanvas', offcanvas);
-            }, 
+            },
 
             /**
              * Handles offcanvas click toggle
@@ -2782,14 +2782,14 @@ jQuery.fn.extend({
                 if (offcanvas.toggleState != '') {
                     target.addClass(offcanvas.toggleState);
                 }
-                
+
                 $('body').addClass(offcanvas.classShown);
                 element.addClass(offcanvas.classShown);
 
                 offcanvas.state = 'shown';
 
                 if (offcanvas.options.overlay) {
-                    var overlay = $('<div class="' + offcanvas.classOverlay + '"></div>');                
+                    var overlay = $('<div class="' + offcanvas.classOverlay + '"></div>');
                     element.after(overlay);
                     offcanvas.overlay = overlay;
                     offcanvas.overlay.on('click', function(e) {
@@ -2797,7 +2797,7 @@ jQuery.fn.extend({
                         e.preventDefault();
                         Plugin.hide();
                     });
-                } 
+                }
 
                 Plugin.eventTrigger('afterShow');
 
@@ -2813,7 +2813,7 @@ jQuery.fn.extend({
                 }
 
                 var target = el ? $(el) : $(offcanvas.toggleTarget);
-                                
+
                 Plugin.eventTrigger('beforeHide');
 
                 if (offcanvas.toggleState != '') {
@@ -2827,7 +2827,7 @@ jQuery.fn.extend({
 
                 if (offcanvas.options.overlay) {
                     offcanvas.overlay.remove();
-                } 
+                }
 
                 Plugin.eventTrigger('afterHide');
 
@@ -2867,7 +2867,7 @@ jQuery.fn.extend({
 
         // main variables
         var the = this;
-        
+
         // init plugin
         Plugin.run.apply(this, [options]);
 
@@ -2876,14 +2876,14 @@ jQuery.fn.extend({
          ********************/
 
         /**
-         * Hide 
+         * Hide
          */
         offcanvas.hide =  function () {
             return Plugin.hide();
         };
 
         /**
-         * Show 
+         * Show
          */
         offcanvas.show =  function () {
             return Plugin.show();
@@ -2902,15 +2902,15 @@ jQuery.fn.extend({
          */
         offcanvas.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };   
+        };
 
         return offcanvas;
     };
 
     // default options
     $.fn.mOffcanvas.defaults = {
-        
-    }; 
+
+    };
 }(jQuery));
 (function ($) {
     // Plugin function
@@ -2925,17 +2925,17 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (element.data('portlet-object')) {            
+                if (element.data('portlet-object')) {
                     // get instance from the element
                     portlet = element.data('portlet-object');
-                } else {                              
-                    // create instance                   
+                } else {
+                    // create instance
                     Plugin.init(options);
                     Plugin.build();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('portlet-object', portlet);
-                }               
+                }
 
                 return portlet;
             },
@@ -2946,7 +2946,7 @@ jQuery.fn.extend({
             init: function(options) {
                 portlet.options = $.extend(true, {}, $.fn.mPortlet.defaults, options);
                 portlet.events = [];
-                portlet.eventOne = false;       
+                portlet.eventOne = false;
 
                 if ( element.find('> .m-portlet__body').length !== 0 ) {
                     portlet.body = element.find('> .m-portlet__body');
@@ -2966,7 +2966,7 @@ jQuery.fn.extend({
                         e.preventDefault();
                         Plugin.remove();
                     });
-                }                 
+                }
 
                 // reload
                 var reload = element.find('> .m-portlet__head [data-portlet-tool=reload]')
@@ -2993,10 +2993,10 @@ jQuery.fn.extend({
                         e.preventDefault();
                         Plugin.fullscreen();
                     });
-                }                    
+                }
 
                 Plugin.setupTooltips();
-            }, 
+            },
 
             /**
              * Remove portlet
@@ -3013,9 +3013,9 @@ jQuery.fn.extend({
                 Plugin.removeTooltips();
 
                 element.remove();
-                
+
                 Plugin.eventTrigger('afterRemove');
-            }, 
+            },
 
             /**
              * Set content
@@ -3023,7 +3023,7 @@ jQuery.fn.extend({
             setContent: function (html) {
                 if (html) {
                     portlet.body.html(html);
-                }               
+                }
             },
 
             /**
@@ -3090,8 +3090,8 @@ jQuery.fn.extend({
                         fullscreen.data('offset', fullscreenOn ? '0,10px,0,0' : '0,5px');
                         fullscreen.tooltip('dispose');
                         mApp.initTooltip(fullscreen);
-                    }                
-                }                   
+                    }
+                }
             },
 
             /**
@@ -3117,15 +3117,15 @@ jQuery.fn.extend({
                     var fullscreen = element.find('> .m-portlet__head [data-portlet-tool=fullscreen]');
                     if (fullscreen.length === 1) {
                         fullscreen.tooltip('dispose');
-                    }                
-                }                   
+                    }
+                }
             },
 
             /**
              * Reload
              */
             reload: function () {
-                Plugin.eventTrigger('reload');                
+                Plugin.eventTrigger('reload');
             },
 
             /**
@@ -3133,10 +3133,10 @@ jQuery.fn.extend({
              */
             toggle: function () {
                 if (element.hasClass('m-portlet--collapse') || element.hasClass('m-portlet--collapsed')) {
-                    Plugin.expand();                    
+                    Plugin.expand();
                 } else {
-                    Plugin.collapse();            
-                }                  
+                    Plugin.collapse();
+                }
             },
 
             /**
@@ -3145,15 +3145,15 @@ jQuery.fn.extend({
             collapse: function() {
                 if (Plugin.eventTrigger('beforeCollapse') === false) {
                     return;
-                } 
+                }
 
-                portlet.body.slideUp(portlet.options.bodyToggleSpeed, function() {                        
-                    Plugin.eventTrigger('afterCollapse');    
+                portlet.body.slideUp(portlet.options.bodyToggleSpeed, function() {
+                    Plugin.eventTrigger('afterCollapse');
                 });
 
                 element.addClass('m-portlet--collapse');
 
-                Plugin.setupTooltips();  
+                Plugin.setupTooltips();
             },
 
             /**
@@ -3162,10 +3162,10 @@ jQuery.fn.extend({
             expand: function() {
                 if (Plugin.eventTrigger('beforeExpand') === false) {
                     return;
-                } 
+                }
 
-                portlet.body.slideDown(portlet.options.bodyToggleSpeed, function(){                        
-                    Plugin.eventTrigger('afterExpand');                         
+                portlet.body.slideDown(portlet.options.bodyToggleSpeed, function(){
+                    Plugin.eventTrigger('afterExpand');
                 });
 
                 element.removeClass('m-portlet--collapse');
@@ -3188,7 +3188,7 @@ jQuery.fn.extend({
                     element.removeClass('m-portlet--fullscreen');
 
                     Plugin.setupTooltips();
-                    
+
                     Plugin.eventTrigger('afterFullscreenOff');
                 } else {
                     Plugin.eventTrigger('beforeFullscreenOn');
@@ -3197,13 +3197,13 @@ jQuery.fn.extend({
                     $('body').addClass('m-portlet--fullscreen');
 
                     Plugin.setupTooltips();
-                    
+
                     Plugin.eventTrigger('afterFullscreenOn');
-                }                  
-            }, 
+                }
+            },
 
             /**
-             * sync 
+             * sync
              */
             sync: function () {
                 $(element).data('portlet', portlet);
@@ -3251,7 +3251,7 @@ jQuery.fn.extend({
         //////////////////////
         // ** Public API ** //
         //////////////////////
-       
+
         /**
          * Remove portlet
          * @returns {mPortlet}
@@ -3317,7 +3317,7 @@ jQuery.fn.extend({
         };
 
         /**
-         * Get portletbody 
+         * Get portletbody
          * @returns {jQuery}
          */
         portlet.getBody = function () {
@@ -3325,7 +3325,7 @@ jQuery.fn.extend({
         };
 
          /**
-         * Get portletbody 
+         * Get portletbody
          * @returns {jQuery}
          */
         portlet.getSelf = function () {
@@ -3346,7 +3346,7 @@ jQuery.fn.extend({
          */
         portlet.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };        
+        };
 
         return portlet;
     };
@@ -3357,7 +3357,7 @@ jQuery.fn.extend({
         tooltips: true,
         tools: {
             toggle: {
-                collapse: 'Collapse', 
+                collapse: 'Collapse',
                 expand: 'Expand'
             },
             reload: 'Reload',
@@ -3365,7 +3365,7 @@ jQuery.fn.extend({
             fullscreen: {
                 on: 'Fullscreen',
                 off: 'Exit Fullscreen'
-            }        
+            }
         }
     };
 }(jQuery));
@@ -3376,23 +3376,23 @@ jQuery.fn.extend({
         // Plugin scope variables
         var qs = this;
         var element = $(this);
-        
-        // Plugin class        
+
+        // Plugin class
         var Plugin = {
             /**
-             * Run plugin 
+             * Run plugin
              */
             run: function(options) {
                 if (!element.data('qs')) {
                     // init plugin
                     Plugin.init(options);
                     // build dom
-                    Plugin.build();                   
+                    Plugin.build();
                     // store the instance in the element's data
                     element.data('qs', qs);
                 } else {
                     // retrieve the instance fro the element's data
-                    qs = element.data('qs'); 
+                    qs = element.data('qs');
                 }
 
                 return qs;
@@ -3417,10 +3417,10 @@ jQuery.fn.extend({
                 if (qs.options.type == 'default') {
                     // search icon
                     qs.iconSearch = $(qs.options.iconSearch);
-                        
+
                     // cancel icon
                     qs.iconCancel = $(qs.options.iconCancel);
-                }               
+                }
 
                 // dropdown
                 qs.dropdown = element.mDropdown({mobileOverlay: false});
@@ -3430,7 +3430,7 @@ jQuery.fn.extend({
 
                 // ajax processing state
                 qs.processing = false;
-            }, 
+            },
 
             /**
              * Build plugin
@@ -3438,10 +3438,10 @@ jQuery.fn.extend({
             build: function() {
                 // attach input keyup handler
                 qs.input.keyup(Plugin.handleSearch);
-                
+
                 if (qs.options.type == 'default') {
                     qs.input.focus(Plugin.showDropdown);
-                    
+
                     qs.iconCancel.click(Plugin.handleCancel);
 
                     qs.iconSearch.click(function() {
@@ -3463,13 +3463,13 @@ jQuery.fn.extend({
                         qs.input.focus();
                     });
                     qs.iconClose.click(Plugin.closeDropdown);
-                }               
+                }
             },
 
             /**
              * Search handler
-             */ 
-            handleSearch: function(e) { 
+             */
+            handleSearch: function(e) {
                 var query = qs.input.val();
 
                 if (query.length === 0) {
@@ -3486,7 +3486,7 @@ jQuery.fn.extend({
                 qs.processing = true;
                 qs.form.addClass(qs.options.spinner);
                 Plugin.handleCancelIconVisibility('off');
-                
+
                 $.ajax({
                     url: qs.options.source,
                     data: {query: query},
@@ -3496,28 +3496,28 @@ jQuery.fn.extend({
                         qs.form.removeClass(qs.options.spinner);
                         Plugin.handleCancelIconVisibility('on');
                         qs.dropdown.setContent(res).show();
-                        element.addClass(qs.options.hasResultClass);    
+                        element.addClass(qs.options.hasResultClass);
                     },
                     error: function(res) {
                         qs.processing = false;
                         qs.form.removeClass(qs.options.spinner);
                         Plugin.handleCancelIconVisibility('on');
-                        qs.dropdown.setContent(qs.options.templates.error.apply(qs, res)).show();  
-                        element.addClass(qs.options.hasResultClass);   
+                        qs.dropdown.setContent(qs.options.templates.error.apply(qs, res)).show();
+                        element.addClass(qs.options.hasResultClass);
                     }
                 });
-            }, 
+            },
 
             /**
              * Handle cancel icon visibility
-             */ 
+             */
             handleCancelIconVisibility: function(status) {
                 if (qs.options.type == 'dropdown') {
                     //return;
                 }
 
                 if (status == 'on') {
-                    if (qs.input.val().length === 0) {                       
+                    if (qs.input.val().length === 0) {
                         if (qs.iconCancel) qs.iconCancel.css('visibility', 'hidden');
                         if (qs.iconClose) qs.iconClose.css('visibility', 'hidden');
                     } else {
@@ -3525,7 +3525,7 @@ jQuery.fn.extend({
                         qs.cancelTimeout = setTimeout(function() {
                             if (qs.iconCancel) qs.iconCancel.css('visibility', 'visible');
                             if (qs.iconClose) qs.iconClose.css('visibility', 'visible');
-                        }, 500);                        
+                        }, 500);
                     }
                 } else {
                     if (qs.iconCancel) qs.iconCancel.css('visibility', 'hidden');
@@ -3535,11 +3535,11 @@ jQuery.fn.extend({
 
             /**
              * Cancel handler
-             */ 
+             */
             handleCancel: function(e) {
                 qs.input.val('');
                 qs.iconCancel.css('visibility', 'hidden');
-                element.removeClass(qs.options.hasResultClass);   
+                element.removeClass(qs.options.hasResultClass);
                 //qs.input.focus();
 
                 Plugin.closeDropdown();
@@ -3547,15 +3547,15 @@ jQuery.fn.extend({
 
             /**
              * Cancel handler
-             */ 
+             */
             closeDropdown: function() {
                 qs.dropdown.hide();
             },
 
             /**
              * Show dropdown
-             */ 
-            showDropdown: function(e) { 
+             */
+            showDropdown: function(e) {
                 if (qs.dropdown.isShown() == false && qs.input.val().length > qs.options.minLength && qs.processing == false) {
                     qs.dropdown.show();
                     e.preventDefault();
@@ -3605,17 +3605,17 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('scrollTop')) {                      
+                if (!element.data('scrollTop')) {
                     // create instance
                     Plugin.init(options);
                     Plugin.build();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('scrollTop', scrollTop);
                 } else {
                     // get instance from the element
                     scrollTop = element.data('scrollTop');
-                }               
+                }
 
                 return scrollTop;
             },
@@ -3624,7 +3624,7 @@ jQuery.fn.extend({
              * Handles subscrollTop click scrollTop
              */
             init: function(options) {
-                scrollTop.element = element;    
+                scrollTop.element = element;
                 scrollTop.events = [];
 
                 // merge default and user defined options
@@ -3646,16 +3646,16 @@ jQuery.fn.extend({
                     });
                 }
 
-                // handle button click 
+                // handle button click
                 element.on('click', Plugin.scroll);
             },
 
             /**
-             * sync 
+             * sync
              */
             sync: function () {
                 $(element).data('scrollTop', scrollTop);
-            }, 
+            },
 
             /**
              * Handles offcanvas click scrollTop
@@ -3713,7 +3713,7 @@ jQuery.fn.extend({
 
         // main variables
         var the = this;
-        
+
         // init plugin
         Plugin.run.apply(this, [options]);
 
@@ -3734,7 +3734,7 @@ jQuery.fn.extend({
          */
         scrollTop.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };   
+        };
 
         return scrollTop;
     };
@@ -3743,7 +3743,7 @@ jQuery.fn.extend({
     $.fn.mScrollTop.defaults = {
         offset: 300,
         speed: 600
-    }; 
+    };
 }(jQuery));
 (function($) {
     // plugin setup
@@ -3760,17 +3760,17 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('toggle')) {                      
+                if (!element.data('toggle')) {
                     // create instance
                     Plugin.init(options);
                     Plugin.build();
-                    
-                    // assign instance to the element                    
+
+                    // assign instance to the element
                     element.data('toggle', toggle);
                 } else {
                     // get instance from the element
                     toggle = element.data('toggle');
-                }               
+                }
 
                 return toggle;
             },
@@ -3779,7 +3779,7 @@ jQuery.fn.extend({
              * Handles subtoggle click toggle
              */
             init: function(options) {
-                toggle.element = element;    
+                toggle.element = element;
                 toggle.events = [];
 
                 // merge default and user defined options
@@ -3800,11 +3800,11 @@ jQuery.fn.extend({
             },
 
             /**
-             * sync 
+             * sync
              */
             sync: function () {
                 $(element).data('toggle', toggle);
-            }, 
+            },
 
             /**
              * Handles offcanvas click toggle
@@ -3825,7 +3825,7 @@ jQuery.fn.extend({
              */
             toggleOn: function() {
                 Plugin.eventTrigger('beforeOn');
-                
+
                 toggle.target.addClass(toggle.targetState);
 
                 if (toggle.togglerState) {
@@ -3894,7 +3894,7 @@ jQuery.fn.extend({
 
         // main variables
         var the = this;
-        
+
         // init plugin
         Plugin.run.apply(this, [options]);
 
@@ -3904,28 +3904,28 @@ jQuery.fn.extend({
 
 
         /**
-         * Get toggle state 
+         * Get toggle state
          */
         toggle.getState =  function () {
             return toggle.state;
         };
 
         /**
-         * Toggle 
+         * Toggle
          */
         toggle.toggle =  function () {
             return Plugin.toggle();
         };
 
         /**
-         * Toggle on 
+         * Toggle on
          */
         toggle.toggleOn =  function () {
             return Plugin.toggleOn();
         };
 
         /**
-         * Toggle off 
+         * Toggle off
          */
         toggle.toggleOff =  function () {
             return Plugin.toggleOff();
@@ -3945,7 +3945,7 @@ jQuery.fn.extend({
          */
         toggle.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };     
+        };
 
         return toggle;
     };
@@ -3954,7 +3954,7 @@ jQuery.fn.extend({
     $.fn.mToggle.defaults = {
         togglerState: '',
         targetState: ''
-    }; 
+    };
 }(jQuery));
 (function($) {
     // plugin setup
@@ -3971,17 +3971,17 @@ jQuery.fn.extend({
              * Run
              */
             run: function (options) {
-                if (!element.data('wizard')) {                      
+                if (!element.data('wizard')) {
                     //== Create instance
                     Plugin.init(options);
                     Plugin.build();
-                    
-                    //== Assign instance to the element                    
+
+                    //== Assign instance to the element
                     element.data('wizard', wizard);
                 } else {
                     // get instance from the element
                     wizard = element.data('wizard');
-                }               
+                }
 
                 return wizard;
             },
@@ -3992,12 +3992,12 @@ jQuery.fn.extend({
             init: function(options) {
                 //== Elements
                 wizard.steps = wizard.find('.m-wizard__step');
-                wizard.progress = wizard.find('.m-wizard__progress .progress-bar'); 
-                wizard.btnSubmit = wizard.find('[data-wizard-action="submit"]'); 
-                wizard.btnNext = wizard.find('[data-wizard-action="next"]'); 
-                wizard.btnPrev = wizard.find('[data-wizard-action="prev"]'); 
-                wizard.btnLast = wizard.find('[data-wizard-action="last"]'); 
-                wizard.btnFirst = wizard.find('[data-wizard-action="first"]');  
+                wizard.progress = wizard.find('.m-wizard__progress .progress-bar');
+                wizard.btnSubmit = wizard.find('[data-wizard-action="submit"]');
+                wizard.btnNext = wizard.find('[data-wizard-action="next"]');
+                wizard.btnPrev = wizard.find('[data-wizard-action="prev"]');
+                wizard.btnLast = wizard.find('[data-wizard-action="last"]');
+                wizard.btnFirst = wizard.find('[data-wizard-action="first"]');
 
                 //== Merge default and user defined options
                 wizard.options = $.extend(true, {}, $.fn.mWizard.defaults, options);
@@ -4005,12 +4005,12 @@ jQuery.fn.extend({
                 //== Variables
                 wizard.events = [];
                 wizard.currentStep = 1;
-                wizard.totalSteps = wizard.steps.length;  
+                wizard.totalSteps = wizard.steps.length;
 
                 //== Init current step
                 if (wizard.options.startStep > 1) {
                     Plugin.goTo(wizard.options.startStep);
-                }       
+                }
 
                 //== Init UI
                 Plugin.updateUI();
@@ -4056,7 +4056,7 @@ jQuery.fn.extend({
 
                     if (num) {
                         Plugin.goTo(num);
-                    }                    
+                    }
                 });
             },
 
@@ -4065,7 +4065,7 @@ jQuery.fn.extend({
              */
             sync: function () {
                 $(element).data('wizard', wizard);
-            }, 
+            },
 
             /**
              * Handles wizard click toggle
@@ -4078,7 +4078,7 @@ jQuery.fn.extend({
 
                 //== Validate step number
                 if (number) {
-                    number = parseInt(number); 
+                    number = parseInt(number);
                 } else {
                     number = Plugin.getNextStep();
                 }
@@ -4098,12 +4098,12 @@ jQuery.fn.extend({
                     wizard.currentStep = number;
 
                     //== Update UI
-                    Plugin.updateUI();             
+                    Plugin.updateUI();
 
                     //== Trigger change event
-                    Plugin.eventTrigger('change')       
+                    Plugin.eventTrigger('change')
                 }
-                
+
                 //== After next and prev events
                 if (number > wizard.startStep) {
                     Plugin.eventTrigger('afterNext');
@@ -4212,7 +4212,7 @@ jQuery.fn.extend({
 
                 if (!wizard.progress) {
                     return;
-                } 
+                }
 
                 //== Update progress
                 if (element.hasClass('m-wizard--1')) {
@@ -4227,15 +4227,15 @@ jQuery.fn.extend({
                     var step = element.find('.m-wizard__step').eq(0);
                     var progress = (wizard.currentStep - 1) * (100 * (1 / (wizard.totalSteps - 1)));
 
-                    if (mUtil.isInResponsiveRange('minimal-desktop-and-below')) {  
+                    if (mUtil.isInResponsiveRange('minimal-desktop-and-below')) {
                         wizard.progress.css('height', progress + '%');
                     } else {
                         wizard.progress.css('width', progress + '%');
                     }
                 } else {
                     var width = 100 * ((wizard.currentStep) / (wizard.totalSteps));
-                    wizard.progress.css('width', width + '%'); 
-                }             
+                    wizard.progress.css('width', width + '%');
+                }
             },
 
             /**
@@ -4257,7 +4257,7 @@ jQuery.fn.extend({
                     return wizard.currentStep + 1;
                 } else {
                     return wizard.totalSteps;
-                } 
+                }
             },
 
             /**
@@ -4268,7 +4268,7 @@ jQuery.fn.extend({
                     return wizard.currentStep - 1;
                 } else {
                     return 1;
-                } 
+                }
             },
 
             /**
@@ -4307,7 +4307,7 @@ jQuery.fn.extend({
 
         //== Main variables
         var the = this;
-        
+
         //== Init plugin
         Plugin.run.apply(this, [options]);
 
@@ -4316,28 +4316,28 @@ jQuery.fn.extend({
          ********************/
 
         /**
-         * Go to the next step 
+         * Go to the next step
          */
         wizard.goNext =  function () {
             return Plugin.goNext();
         };
 
         /**
-         * Go to the prev step 
+         * Go to the prev step
          */
         wizard.goPrev =  function () {
             return Plugin.goPrev();
         };
 
         /**
-         * Go to the last step 
+         * Go to the last step
          */
         wizard.goLast =  function () {
             return Plugin.goLast();
         };
 
         /**
-         * Go to the first step 
+         * Go to the first step
          */
         wizard.goFirst =  function () {
             return Plugin.goFirst();
@@ -4351,21 +4351,21 @@ jQuery.fn.extend({
         };
 
         /**
-         * Get current step number 
+         * Get current step number
          */
         wizard.getStep =  function () {
             return wizard.currentStep;
         };
 
         /**
-         * Check last step 
+         * Check last step
          */
         wizard.isLastStep =  function () {
             return Plugin.isLastStep();
         };
 
         /**
-         * Check first step 
+         * Check first step
          */
         wizard.isFirstStep =  function () {
             return Plugin.isFirstStep();
@@ -4385,7 +4385,7 @@ jQuery.fn.extend({
          */
         wizard.one =  function (name, handler) {
             return Plugin.addEvent(name, handler, true);
-        };   
+        };
 
         return wizard;
     };
@@ -4393,7 +4393,7 @@ jQuery.fn.extend({
     //== Default options
     $.fn.mWizard.defaults = {
         startStep: 1
-    }; 
+    };
 }(jQuery));
 (function($) {
 
@@ -4625,7 +4625,7 @@ swal.setDefaults({
 	cancelButtonClass: 'btn btn-secondary m-btn m-btn--custom',
 	cancelButtonColor: null
 });
-Chart.elements.Rectangle.prototype.draw = function() {    
+Chart.elements.Rectangle.prototype.draw = function() {
     var ctx = this._chart.ctx;
     var vm = this._view;
     var left, right, top, bottom, signX, signY, borderSkipped, radius;
@@ -4641,9 +4641,9 @@ Chart.elements.Rectangle.prototype.draw = function() {
         right = vm.x + vm.width / 2;
 
         if (vm.y > 2 * cornerRadius) {
-        	top = vm.y - cornerRadius;        
+        	top = vm.y - cornerRadius;
         } else {
-        	top = vm.y;        
+        	top = vm.y;
         }
 
         bottom = vm.base;
@@ -4729,9 +4729,9 @@ Chart.elements.Rectangle.prototype.draw = function() {
         height = corners[0][1] - corners[1][1];
         x = corners[1][0];
         y = corners[1][1];
-        
+
         var radius = cornerRadius;
-        
+
         // Fix radius being too large
         if(radius > height/2){
             radius = height/2;
@@ -4754,7 +4754,7 @@ Chart.elements.Rectangle.prototype.draw = function() {
     if (borderWidth) {
         ctx.stroke();
     }
-}; 
+};
 
   $.fn.markdown.defaults.iconlibrary = 'fa';
 //$.fn.bootstrapSwitch.defaults.size = 'large';
@@ -4762,7 +4762,7 @@ Chart.elements.Rectangle.prototype.draw = function() {
 $.fn.timepicker.defaults = $.extend(true, {}, $.fn.timepicker.defaults, {
     icons: {
         up: 'la la-angle-up',
-        down: 'la la-angle-down'  
+        down: 'la la-angle-down'
     }
 });
 jQuery.validator.setDefaults({
@@ -4789,8 +4789,8 @@ jQuery.validator.setDefaults({
                     $(element).closest('.m-checkbox').find('>span').after(error);
                 } else {
                     $(element).after(error);
-                }                
-            }            
+                }
+            }
         }
     },
 
@@ -4834,7 +4834,7 @@ var mLayout = function() {
         var header = $('.m-header');
         var options = {
             offset: {},
-            minimize:{}       
+            minimize:{}
         };
 
         if (header.data('minimize-mobile') == 'hide') {
@@ -4859,13 +4859,13 @@ var mLayout = function() {
 
         if (header.data('minimize-mobile-offset')) {
             options.offset.mobile = header.data('minimize-mobile-offset');
-        }        
+        }
 
         header.mHeader(options);
     }
 
     // handle horizontal menu
-    var initHorMenu = function() { 
+    var initHorMenu = function() {
         // init aside left offcanvas
         horMenuOffcanvas = $('#m_header_menu').mOffcanvas({
             class: 'm-aside-header-menu-mobile',
@@ -4874,9 +4874,9 @@ var mLayout = function() {
             toggle: {
                 target: '#m_aside_header_menu_mobile_toggle',
                 state: 'm-brand__toggler--active'
-            }            
+            }
         });
-        
+
         horMenu = $('#m_header_menu').mMenu({
             // submenu modes
             submenu: {
@@ -4898,7 +4898,7 @@ var mLayout = function() {
                         return true;
                     }
                 }
-            }    
+            }
         });
     }
 
@@ -4907,7 +4907,7 @@ var mLayout = function() {
         var menu = $('#m_ver_menu');
 
         // init aside menu
-        var menuOptions = {  
+        var menuOptions = {
             // submenu setup
             submenu: {
                 desktop: {
@@ -4915,7 +4915,7 @@ var mLayout = function() {
                     default: (menu.data('menu-dropdown') == true ? 'dropdown' : 'accordion'),
                     // whenever body has this class switch the menu mode to dropdown
                     state: {
-                        body: 'm-aside-left--minimize',  
+                        body: 'm-aside-left--minimize',
                         mode: 'dropdown'
                     }
                 },
@@ -4934,7 +4934,7 @@ var mLayout = function() {
 
         // handle fixed aside menu
         if (menu.data('menu-scrollable')) {
-            function initScrollableMenu(obj) {    
+            function initScrollableMenu(obj) {
                 if (mUtil.isInResponsiveRange('tablet-and-mobile')) {
                     // destroy if the instance was previously created
                     mApp.destroyScroller(obj);
@@ -4944,18 +4944,18 @@ var mLayout = function() {
                 var height = mUtil.getViewPort().height - $('.m-header').outerHeight()
                     - ($('.m-aside-left .m-aside__header').length != 0 ? $('.m-aside-left .m-aside__header').outerHeight() : 0)
                     - ($('.m-aside-left .m-aside__footer').length != 0 ? $('.m-aside-left .m-aside__footer').outerHeight() : 0);
-                    //- $('.m-footer').outerHeight(); 
+                    //- $('.m-footer').outerHeight();
 
                 // create/re-create a new instance
                 mApp.initScroller(obj, {height: height});
             }
 
             initScrollableMenu(asideMenu);
-            
-            mUtil.addResizeHandler(function() {            
+
+            mUtil.addResizeHandler(function() {
                 initScrollableMenu(asideMenu);
-            });   
-        }      
+            });
+        }
     }
 
     // handle vertical menu
@@ -4969,9 +4969,9 @@ var mLayout = function() {
             close: '#m_aside_left_close_btn',
             toggle: {
                 target: '#m_aside_left_offcanvas_toggle',
-                state: 'm-brand__toggler--active'                
-            }            
-        });        
+                state: 'm-brand__toggler--active'
+            }
+        });
     }
 
     // handle sidebar toggle
@@ -4998,9 +4998,9 @@ var mLayout = function() {
     var initTopbar = function() {
         $('#m_aside_header_topbar_mobile_toggle').click(function() {
             $('body').toggleClass('m-topbar--on');
-        });                                  
+        });
 
-        // Animated Notification Icon 
+        // Animated Notification Icon
         setInterval(function() {
             $('#m_topbar_notification_icon .m-nav__link-icon').addClass('m-animate-shake');
             $('#m_topbar_notification_icon .m-nav__link-badge').addClass('m-animate-blink');
@@ -5018,7 +5018,7 @@ var mLayout = function() {
 
         qs.mQuicksearch({
             type: qs.data('search-type'), // quick search type
-            source: 'https://keenthemes.com/metronic/preview/inc/api/quick_search.php',            
+            source: 'https://keenthemes.com/metronic/preview/inc/api/quick_search.php',
             spinner: 'm-loader m-loader--skin-light m-loader--right',
 
             input: '#m_quicksearch_input',
@@ -5027,13 +5027,13 @@ var mLayout = function() {
             iconSearch: '#m_quicksearch_search',
 
             hasResultClass: 'm-list-search--has-result',
-            minLength: 1,            
+            minLength: 1,
             templates: {
                 error: function(qs) {
                     return '<div class="m-search-results m-search-results--skin-light"><span class="m-search-result__message">Something went wrong</div></div>';
-                }                            
+                }
             }
-        });      
+        });
     }
 
     var initScrollTop = function() {
@@ -5044,7 +5044,7 @@ var mLayout = function() {
     }
 
     return {
-        init: function() {  
+        init: function() {
             this.initHeader();
             this.initAside();
         },
@@ -5059,7 +5059,7 @@ var mLayout = function() {
 
         initAside: function() {
             initLeftAside();
-            initLeftAsideMenu();            
+            initLeftAsideMenu();
             initLeftAsideToggle();
         },
 
@@ -5090,13 +5090,13 @@ $(document).ready(function() {
 
 var mQuickSidebar = function() {
     var topbarAside = $('#m_quick_sidebar');
-    var topbarAsideTabs = $('#m_quick_sidebar_tabs');    
+    var topbarAsideTabs = $('#m_quick_sidebar_tabs');
     var topbarAsideClose = $('#m_quick_sidebar_close');
     var topbarAsideToggle = $('#m_quick_sidebar_toggle');
     var topbarAsideContent = topbarAside.find('.m-quick-sidebar__content');
 
     var initMessages = function() {
-        var messenger = $('#m_quick_sidebar_tabs_messenger');  
+        var messenger = $('#m_quick_sidebar_tabs_messenger');
 
         if (messenger.length === 0) {
             return;
@@ -5105,22 +5105,22 @@ var mQuickSidebar = function() {
         var messengerMessages = messenger.find('.m-messenger__messages');
 
         var init = function() {
-            var height = topbarAside.outerHeight(true) - 
-                topbarAsideTabs.outerHeight(true) - 
+            var height = topbarAside.outerHeight(true) -
+                topbarAsideTabs.outerHeight(true) -
                 messenger.find('.m-messenger__form').outerHeight(true) - 120;
-            
+
             // init messages scrollable content
             messengerMessages.css('height', height);
             mApp.initScroller(messengerMessages, {});
         }
 
-        init();        
-        
+        init();
+
         // reinit on window resize
         mUtil.addResizeHandler(init);
     }
 
-    var initSettings = function() { 
+    var initSettings = function() {
         var settings = $('#m_quick_sidebar_tabs_settings');
 
         if (settings.length === 0) {
@@ -5173,10 +5173,10 @@ var mQuickSidebar = function() {
     var initOffcanvas = function() {
         topbarAside.mOffcanvas({
             class: 'm-quick-sidebar',
-            overlay: true,  
+            overlay: true,
             close: topbarAsideClose,
             toggle: topbarAsideToggle
-        });   
+        });
 
         // run once on first time dropdown shown
         topbarAside.mOffcanvas().one('afterShow', function() {
@@ -5184,21 +5184,21 @@ var mQuickSidebar = function() {
 
             setTimeout(function() {
                 mApp.unblock(topbarAside);
-                
+
                 topbarAsideContent.removeClass('m--hide');
 
                 initOffcanvasTabs();
-            }, 1000);                         
+            }, 1000);
         });
     }
 
-    return {     
-        init: function() {  
+    return {
+        init: function() {
             if (topbarAside.length === 0) {
                 return;
             }
 
-            initOffcanvas(); 
+            initOffcanvas();
         }
     };
 }();

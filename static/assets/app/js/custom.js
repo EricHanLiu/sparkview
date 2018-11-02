@@ -23,6 +23,9 @@ $(document).ready(function () {
         bFilter: false,
         bPaginate: false,
         bInfo: false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#qs_table").DataTable({
@@ -30,6 +33,9 @@ $(document).ready(function () {
         bPaginate: true,
         pageLength: 5,
         bInfo: false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#nlc_table").DataTable({
@@ -37,6 +43,9 @@ $(document).ready(function () {
         bPaginate: true,
         pageLength: 5,
         bInfo: false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#ext_table").DataTable({
@@ -52,29 +61,147 @@ $(document).ready(function () {
                 'bSearchable': false
             },
             null,
-        ]
+        ],
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $('#accounts').DataTable({
-        'pagingType': 'full_numbers'
+        'pagingType': 'full_numbers',
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#labels").DataTable({
         'pagingType': 'full_numbers',
-        'pageLength': 5
+        'pageLength': 5,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#adwords_datatable").DataTable({
-        'pagingType': "full_numbers"
+        'pagingType': "full_numbers",
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+            'searchPlaceholder': 'Search accounts...'
+        }
+    });
+
+    $("#adwords_anomalies_datatable").DataTable({
+        'pagingType': "full_numbers",
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#campaign_groupings").DataTable({
-        'pagingType': "full_numbers"
+        'pagingType': "full_numbers",
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
     });
 
     $("#clients_last_month").DataTable({
         'pagingType': "full_numbers"
     });
+
+    $("#members_datatable").DataTable({
+        'scrollX': true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+    });
+
+    $("#skills_datatable").DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+    });
+
+    $("#training_datatable").DataTable({
+        "scrollX": true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+
+    });
+
+    $("#my_skills_datatable, #account_change_datatable, #fee_structure_datatable").DataTable({
+        "ordering": false,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+    });
+
+
+    $("#all_clients_datatable").DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+    });
+
+    $("#my_clients_datatable, #star_clients_datatable").DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+    });
+
+    $("#team_clients_datatable, #client_hours_datatable").DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+        }
+    });
+
+    var options = {
+        toggle: 'click',
+        hoverTimeout: 300,
+        skin: 'light',
+        height: 'auto',
+        maxHeight: false,
+        minHeight: false,
+        persistent: false,
+        mobileOverlay: true
+    };
+
+    // var dropdown1 = new $.fn.mDropdown('m_topbar_notification_icon', options);
 
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
@@ -82,7 +209,11 @@ $(document).ready(function () {
             'searchable': false,
             'orderable': false
         }],
-        'order': [[1, 'asc']]
+        'order': [[1, 'asc']],
+        'language': {
+            'sSearch': '<i class="fa fa-search"></i>',
+            'searchPlaceholder': 'Search clients and budgets...'
+        }
     });
 
     // Delete one or multiple clients
@@ -187,9 +318,34 @@ $(document).ready(function () {
         $(".modal-body #cgr_channel").val(channel);
     });
 
+    $("#m_add_campaign_group_across").on('show.bs.modal', function (e) {
+
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let client_id = $(e.relatedTarget).data('client_id');
+        let channel = $(e.relatedTarget).data('channel');
+        $(".modal-body #cgr_acc_ids").val(acc_id);
+        $(".modal-body #cgr_client_id").val(client_id);
+        $(".modal-body #cgr_channel").val(channel);
+    });
+
+    $("#m_disconnect_account").on('show.bs.modal', function (e) {
+
+        let acc_id = $(e.relatedTarget).data('acc_id');
+        let acc_name = $(e.relatedTarget).data('acc_name');
+        let client_id = $(e.relatedTarget).data('client_id');
+        let channel = $(e.relatedTarget).data('channel');
+
+        $(".modal-body #disc_acc_id").val(acc_id);
+        $(".modal-body #disc_client_id").val(client_id);
+        $(".modal-body #disc_channel").val(channel);
+        $(".modal-body #disc_acc_name").html(acc_name);
+    });
+
     $("#m_edit_campaign_group").on('show.bs.modal', function (e) {
 
         let gr_id = $(e.relatedTarget).data('grid');
+        let c_id = $(e.relatedTarget).data('c_id');
+        let acc_ids = $(e.relatedTarget).data('acc_ids');
         let acc_name = $(e.relatedTarget).data('acc_name');
         let group_name = $(e.relatedTarget).data('group_name');
         let group_by = $(e.relatedTarget).data('group_by');
@@ -206,8 +362,9 @@ $(document).ready(function () {
 
         data = {
             'account_id': acc_id,
+            'account_ids': acc_ids,
             'gr_id': gr_id,
-            'channel': channel
+            'c_id': c_id
         };
 
         if (group_by === 'manual') {
@@ -241,33 +398,35 @@ $(document).ready(function () {
                     let cmps_in_gr = data['group'];
 
                     campaigns.forEach(item => {
-                        if (cmps_in_gr[0]['fields']['aw_campaigns'].length > 0) {
+
+                        if (item.model === 'adwords_dashboard.campaign') {
                             if (cmps_in_gr[0]['fields']['aw_campaigns'].includes(item['pk'])) {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             } else {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
-                        } else if (data['group'][0]['fields']['bing_campaigns'].length > 0) {
+                        }
+
+                        if (item.model === 'bing_dashboard.bingcampaign') {
                             if (cmps_in_gr[0]['fields']['bing_campaigns'].includes(item['pk'])) {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             } else {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
-                        } else if (data['group'][0]['fields']['fb_campaigns'].length > 0) {
+                        }
+
+                        if (item.model === 'facebook_dashboard.facebookcampaign') {
                             if (cmps_in_gr[0]['fields']['fb_campaigns'].includes(item['pk'])) {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
+                                let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], true, true);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             } else {
-                                let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                                let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
                                 $("#campaigns_gr_edit").append(new_option).trigger('change');
                             }
-                        } else {
-                            let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                            $("#campaigns_gr_edit").append(new_option).trigger('change');
                         }
                     });
                 },
@@ -346,6 +505,11 @@ $(document).ready(function () {
         $(".modal-body #cid").val(cid);
         $(".modal-body #channel").val(channel);
         $(e.currentTarget).find('input[name="target_spend"]').val(target_spend);
+    });
+
+    // Modals for team page
+    $('#m_edit_team').on('show.bs.modal', function (e) {
+
     });
 
     // Handles the switch between Global Target Spend and normal client budget
@@ -436,11 +600,13 @@ $(document).ready(function () {
     });
 
     $("#campaigns_gr_across").select2({
-        placeholder: "Select campaigns..."
+        placeholder: "Select campaigns...",
+        closeOnSelect: false
     });
 
     $("#campaigns_gr_edit").select2({
-        placeholder: "Select campaigns..."
+        placeholder: "Select campaigns...",
+        closeOnSelect: false
     });
 
     $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
@@ -456,7 +622,7 @@ $(document).ready(function () {
         $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
 
         data = {
-            'account_id': $("#select_accounts_cgr").val(),
+            'account_ids': $("#cgr_acc_ids").val(),
             'channel': $("#select_accounts_cgr").find(':selected').data('channel')
         };
 
@@ -466,11 +632,20 @@ $(document).ready(function () {
             type: 'POST',
             data: data,
             success: function (data) {
-
                 let campaigns = data['campaigns'];
                 campaigns.forEach(item => {
-                    let new_option = new Option(item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                    $("#campaigns_gr_across").append(new_option).trigger('change');
+                    if (item['model'] === 'adwords_dashboard.campaign') {
+                        var new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $("#campaigns_gr_across").append(new_option).trigger('change');
+                    }
+                    if (item['model'] === 'bing_dashboard.bingcampaign') {
+                        var new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $("#campaigns_gr_across").append(new_option).trigger('change');
+                    }
+                    if (item['model'] === 'facebook_dashboard.facebookcampaign') {
+                        var new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $("#campaigns_gr_across").append(new_option).trigger('change');
+                    }
                 });
             },
             error: function (ajaxContext) {

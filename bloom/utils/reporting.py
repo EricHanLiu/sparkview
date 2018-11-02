@@ -5,11 +5,11 @@ import re
 import copy
 import time
 import warnings
+import calendar
 from datetime import datetime
 from bloom import settings
 from operator import itemgetter
 from dateutil.relativedelta import relativedelta
-from datetime import date, timedelta
 from functools import partial
 from facebook_business.adobjects.adaccount import AdAccount
 from bing_dashboard.auth import BingAuth
@@ -219,6 +219,7 @@ class Reporting:
             'costperconversion',
             'impressionsharepercent',
             'spend',
+            'all_conv._value',
         ]
 
         if not len(intersect_keys) == len(d1_keys):
@@ -242,12 +243,8 @@ class Reporting:
                     v1 = v[0]
                     v2 = v[1]
 
-                if k == 'cost':
-                    v1 = float(v1) / 1000000 if v1 != '' else 0.0
-                    v2 = float(v2) / 1000000 if v2 != '' else 0.0
-                else:
-                    v1 = float(v1) if v1 != '' else 0.0
-                    v2 = float(v2) if v2 != '' else 0.0
+                v1 = float(v1) if v1 != '' else 0.0
+                v2 = float(v2) if v2 != '' else 0.0
 
                 try:
                     difference[k] = ((v1 - v2) / v1) * 100
@@ -258,7 +255,7 @@ class Reporting:
 
             difference[k] = dict1[k]
 
-        summary = {k: [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
+        summary = {k.replace('.', '').replace('/',''): [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
 
         return summary
 
@@ -338,8 +335,9 @@ class Reporting:
         return sorted(lst, key=itemgetter(key))
 
     def get_estimated_spend(self, current_spend, day_spend):
-        today = datetime.today()
-        end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-1)
+        today = datetime.today() - relativedelta(days=1)
+        # end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-1)
+        end_date = datetime(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         days_remaining = (end_date - today).days
         estimated_spend = float(current_spend) + (float(day_spend) * days_remaining)
 
@@ -878,6 +876,7 @@ class AdwordsReporting(Reporting):
             "CostPerConversion",
             "AverageCpc",
             "SearchImpressionShare",
+            "AllConversionValue"
         ]
 
         extra_fields = kwargs.get("extra_fields", None)
@@ -1123,11 +1122,11 @@ class AdwordsReporting(Reporting):
 
 
     def mcv(self, cost):
-        cost = float(cost)
-        if cost > 0:
-            cost = cost / 1000000
+        c = float(cost)
+        if c > 0:
+            c = float(cost) / 1000000
 
-        return cost
+        return c
 
     def calculate_ovu(self, estimated_spend, desired_spend):
         return (int(estimated_spend) / int(desired_spend)) * 100

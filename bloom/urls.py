@@ -35,6 +35,7 @@ urlpatterns = [
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^auth/", include('social_django.urls', namespace='social')),
     url(r"^accounts/profile$", profile.view_profile, name='profile'),
+    url(r"^search/", profile.search, name='search'),
     url(r"^users$", profile.user_list, name='user_list'),
     url(r"^users/add$", profile.create_user, name='create_user'),
     url(r"^users/delete$", profile.delete_user, name='delete_user'),
@@ -48,6 +49,10 @@ urlpatterns = [
     url(r'^budget/', include('budget.urls', namespace='budget')),
     url(r'^tools/', include('tools.urls', namespace='tools')),
     url(r'^bloomapi/', include('api.urls', namespace='bloomapi')),
+    url(r'^clients/', include('client_area.urls', namespace='client_area')),
+    url(r'^user_management/', include('user_management.urls', namespace='user_management')),
+    url(r'^reports/', include('reports.urls', namespace='reports')),
     url(r'^admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+admin.site.site_header = 'Bloom Admin'
