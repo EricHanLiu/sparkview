@@ -399,6 +399,11 @@ def members_single(request, id=0):
 
     promos = Promo.objects.filter(account__in=accounts)
 
+    value_added_hours = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=True).values('account', 'month', 'year').annotate(Sum('hours'))
+
+    for row in value_added_hours:
+        row['account'] = Client.objects.get(id=row['account'])
+
     accountHours = {}
     value_added_hours = {}
     accountAllocation = {}
@@ -406,8 +411,10 @@ def members_single(request, id=0):
         hours  = account.getHoursWorkedThisMonthMember(member)
         va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
-        value_added_hours[account.id] = va_hours
+        # value_added_hours[account.id] = va_hours
         accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
+
+    print(value_added_hours)
 
     backupAccountHours = {}
     backupAccountAllocation = {}

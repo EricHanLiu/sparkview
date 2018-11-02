@@ -154,6 +154,15 @@ class Member(models.Model):
         hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
 
+    @property
+    def value_added_hours_this_month(self):
+        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
+        now   = datetime.datetime.now()
+        month = now.month
+        year  = now.year
+        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+        return hours if hours != None else 0
+
     def allocated_hours_month(self):
         if not hasattr(self, '_allocatedHoursMonth'):
             accounts = self.accounts

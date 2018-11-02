@@ -427,8 +427,12 @@ def account_single(request, id):
     accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
 
     accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False).values('member', 'month', 'year').annotate(Sum('hours'))
+    accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=True).values('member', 'month', 'year').annotate(Sum('hours'))
 
     for row in accountsHoursThisMonthByMember:
+        row['member'] = members.get(id=row['member'])
+
+    for row in accountsValueHoursThisMonthByMember:
         row['member'] = members.get(id=row['member'])
 
     promos = Promo.objects.filter(account=account, end_date__gte=now)
@@ -439,6 +443,7 @@ def account_single(request, id):
         'account'               : account,
         'members'               : members,
         'accountHoursMember'    : accountsHoursThisMonthByMember,
+        'value_hours_member' : accountsValueHoursThisMonthByMember,
         'changes'               : changes,
         'accountHoursThisMonth' : accountHoursThisMonth,
         'statusBadges'          : statusBadges,
@@ -452,8 +457,8 @@ def account_single(request, id):
 def account_assign_members(request):
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
-        return HttpResponse('You do not have permission to view this page')
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page. Only admins can assign members now.')
 
     account    = Client.objects.get(id=account_id)
 

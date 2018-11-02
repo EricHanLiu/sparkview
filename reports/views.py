@@ -74,12 +74,16 @@ def account_spend_progression(request):
     accounts = Client.objects.filter(status=1)
 
     total_projected_loss = 0.0
+    total_projected_overspend = 0.0
     for account in accounts:
         total_projected_loss += account.projected_loss
+        if (account.projected_loss < 0): # we will overspend
+            total_projected_overspend += self.project_yesterday - self.current_budget
 
     context = {
         'accounts' : accounts,
-        'total_projected_loss' : total_projected_loss
+        'total_projected_loss' : total_projected_loss,
+        'total_projected_overspend' : total_projected_overspend
     }
 
     return render(request, 'reports/account_spend_progression.html', context)
@@ -108,7 +112,10 @@ def cm_capacity(request):
         available_aggregate += member.hours_available
 
     capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-    utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+    if (allocated_aggregate == 0):
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
     report_type = 'Paid Media Member Capacity Report'
 
@@ -146,7 +153,10 @@ def am_capacity(request):
         available_aggregate += member.hours_available
 
     capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-    utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+    if (allocated_aggregate == 0):
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
 
     report_type = 'AM Member Capacity Report'
@@ -185,7 +195,10 @@ def seo_capacity(request):
         available_aggregate += member.hours_available
 
     capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-    utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+    if (allocated_aggregate == 0):
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
     report_type = 'SEO Member Capacity Report'
 
@@ -200,6 +213,47 @@ def seo_capacity(request):
     }
 
     return render(request, 'reports/member_capacity_report.html', context)
+
+@login_required
+def strat_capacity(requests):
+        """
+        Creates report that shows the capacity of the strats on an aggregated and individual basis
+        """
+        if (not request.user.is_staff):
+            return HttpResponse('You do not have permission to view this page')
+
+        # Probably has to be changed before production
+        role = Role.objects.filter(Q(name='	Strategist'))
+        members = Member.objects.filter(role__in=role)
+
+        actual_aggregate = 0.0
+        allocated_aggregate = 0.0
+        available_aggregate = 0.0
+
+        for member in members:
+            actual_aggregate += member.actualHoursThisMonth
+            allocated_aggregate += member.allocated_hours_month()
+            available_aggregate += member.hours_available
+
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+        if (allocated_aggregate == 0):
+            utilization_rate = 0
+        else:
+            utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
+        report_type = 'Strategy Capacity Report'
+
+        context = {
+            'members' : members,
+            'actual_aggregate' : actual_aggregate,
+            'capacity_rate' : capacity_rate,
+            'utilization_rate': utilization_rate,
+            'allocated_aggregate' : allocated_aggregate,
+            'available_aggregate' : available_aggregate,
+            'report_type' : report_type
+        }
+
+        return render(request, 'reports/member_capacity_report.html', context)
 
 @login_required
 def hour_log(request):
