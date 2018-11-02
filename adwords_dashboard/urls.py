@@ -6,6 +6,8 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
+app_name = "adwords"
+
 urlpatterns = [
     url(r"^$", views.adwords_dashboard, name="home"),
     url(r"^anomalies/(?P<account_id>\d+)$", views.campaign_anomalies, name='campaign_anomalies'),
