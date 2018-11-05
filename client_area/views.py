@@ -618,7 +618,13 @@ def add_hours_to_account(request):
 
     elif (request.method == 'POST'):
         member = Member.objects.get(user=request.user)
-        accounts_count = member.accounts.count()
+        accounts = Client.objects.filter(
+                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
+                      Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
+                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
+                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+                  ).order_by('client_name')
+        accounts_count = accounts.count()
 
         for i in range(accounts_count):
             i = str(i)

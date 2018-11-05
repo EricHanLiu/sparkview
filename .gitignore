@@ -4,7 +4,6 @@
 bloomenv/
 *.sass*
 *.map
-migrations
 logs
 nohup.out
 .idea/

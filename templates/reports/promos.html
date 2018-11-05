@@ -17,6 +17,93 @@
       </div>
     </div>
     <div class="m-portlet__body">
+      <div class="row">
+          <div class="col-md-6">
+            {% if promos_start_today.count > 0 %}
+            <h4>Promos Starting Today</h4>
+            <hr />
+            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline promo-dt'>
+              <thead class="thead-inverse">
+                <tr class="main-table-header">
+                  <th>Account</th>
+                  <th>
+                    Promo
+                  </th>
+                  <th>
+                    Start Date
+                  </th>
+                  <th>
+                    End Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for promo in promos_start_today %}
+                <tr>
+                  <td>
+                    {{ promo.account.client_name }}
+                  </td>
+                  <td>
+                    {{ promo.name }}
+                  </td>
+                  <td>
+                    {{ promo.start_date }}
+                  </td>
+                  <td>
+                    {{ promo.end_date }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <h4>No Promos Starting Today</h4>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            {% if promos_end_today.count > 0 %}
+            <h4>Promos Ending Today</h4>
+            <hr />
+            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline promo-dt'>
+              <thead class="thead-inverse">
+                <tr class="main-table-header">
+                  <th>Account</th>
+                  <th>
+                    Promo
+                  </th>
+                  <th>
+                    Start Date
+                  </th>
+                  <th>
+                    End Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for promo in promos_end_today %}
+                <tr>
+                  <td>
+                    {{ promo.account.client_name }}
+                  </td>
+                  <td>
+                    {{ promo.name }}
+                  </td>
+                  <td>
+                    {{ promo.start_date }}
+                  </td>
+                  <td>
+                    {{ promo.end_date }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <h4>No Promos Ending Today</h4>
+            {% endif %}
+          </div>
+      </div>
+      <hr />
       <div class="row m-row--no-padding m-row--col-separator-xl">
         <div class="col-12">
           <div id="calendar">

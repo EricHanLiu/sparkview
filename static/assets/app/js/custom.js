@@ -120,6 +120,15 @@ $(document).ready(function () {
         }
     });
 
+    $('.promo-dt').DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "ordering": false
+    });
+
     $("#skills_datatable").DataTable({
         "bPaginate": false,
         "bLengthChange": false,

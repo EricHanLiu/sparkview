@@ -111,8 +111,12 @@ def cm_capacity(request):
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
-    capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-    if (allocated_aggregate == 0):
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
+    if allocated_aggregate == 0:
         utilization_rate = 0
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
@@ -152,7 +156,11 @@ def am_capacity(request):
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
-    capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
     if (allocated_aggregate == 0):
         utilization_rate = 0
     else:
@@ -189,12 +197,18 @@ def seo_capacity(request):
     allocated_aggregate = 0.0
     available_aggregate = 0.0
 
+    seo_accounts = Client.objects.filter(Q(has_seo=True) | Q(has_cro=True)).filter(Q(status=0) | Q(status=1))
+
     for member in members:
         actual_aggregate += member.actualHoursThisMonth
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
-    capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
     if (allocated_aggregate == 0):
         utilization_rate = 0
     else:
@@ -209,13 +223,14 @@ def seo_capacity(request):
         'utilization_rate': utilization_rate,
         'allocated_aggregate' : allocated_aggregate,
         'available_aggregate' : available_aggregate,
-        'report_type' : report_type
+        'report_type' : report_type,
+        'seo_accounts' : seo_accounts
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/seo_member_capacity_report.html', context)
 
 @login_required
-def strat_capacity(requests):
+def strat_capacity(request):
         """
         Creates report that shows the capacity of the strats on an aggregated and individual basis
         """
@@ -235,7 +250,11 @@ def strat_capacity(requests):
             allocated_aggregate += member.allocated_hours_month()
             available_aggregate += member.hours_available
 
-        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+        if allocated_aggregate + available_aggregate == 0:
+            capacity_rate = 0
+        else:
+            capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
         if (allocated_aggregate == 0):
             utilization_rate = 0
         else:
@@ -254,6 +273,7 @@ def strat_capacity(requests):
         }
 
         return render(request, 'reports/member_capacity_report.html', context)
+
 
 @login_required
 def hour_log(request):
@@ -303,8 +323,41 @@ def promos(request):
 
     promos = Promo.objects.filter(end_date__gte=datetime.datetime.now())
 
+    today = datetime.datetime.now().date()
+    tomorrow = today + datetime.timedelta(1)
+    today_start = datetime.datetime.combine(today, datetime.time())
+    today_end = datetime.datetime.combine(tomorrow, datetime.time())
+
+    promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lte=today_end)
+    promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=today_end)
+
     context = {
-        'promos' : promos
+        'promos' : promos,
+        'promos_start_today' : promos_start_today,
+        'promos_end_today' : promos_end_today
     }
 
     return render(request, 'reports/promos.html', context)
+
+
+@login_required
+def actual_hours(request):
+    """
+    Shows tables of all hours from selection of members, clients, and month
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    if (request.method == 'GET'):
+        now = datetime.datetime.now()
+        hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).annotate(Sum('hours'))
+    elif (request.method == 'POST'):
+        pass
+    else:
+        return HttpResponse('Invalid request type')
+
+    context = {
+        'hours' : hours
+    }
+
+    return render(request, 'reports/actual_hours.html', context)
