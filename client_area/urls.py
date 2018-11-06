@@ -1,6 +1,8 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "client_area"
+
 urlpatterns = [
     url(r'^$', views.accounts, name='accounts'),
     url(r'^team$', views.accounts_team, name='accounts_team'),
