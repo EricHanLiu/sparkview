@@ -120,6 +120,15 @@ $(document).ready(function () {
         }
     });
 
+    $('.promo-dt').DataTable({
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "ordering": false
+    });
+
     $("#skills_datatable").DataTable({
         "bPaginate": false,
         "bLengthChange": false,
@@ -168,7 +177,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#my_clients_datatable, #star_clients_datatable").DataTable({
+    $("#my_clients_datatable, #star_clients_datatable, #seo_clients_datatable").DataTable({
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": true,

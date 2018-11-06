@@ -58,9 +58,9 @@
               </div>
           </div>
           <div class="col-md-2">
-              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded" data-toggle="m-tooltip" data-placement="top" data-original-title="100 * Acutal Hours / Allocated Hours">
                   <h5 class="m--padding-10">
-                      Total Utiliation Rate
+                      Total Utilization Rate
                   </h5>
                   <h1 class="text-center inner-text">
                       {{ utilization_rate|floatformat:2 }}%
@@ -68,7 +68,7 @@
               </div>
           </div>
           <div class="col-md-2">
-              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded" data-toggle="m-tooltip" data-placement="top" data-original-title="100 * Allocated Hours / Total Available Hours">
                   <h5 class="m--padding-10">
                       Total Capacity Rate
                   </h5>
@@ -99,6 +99,9 @@
                 <th>
                   Capacity Rate
                 </th>
+                <th>
+                  Value Added Hours
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -121,6 +124,9 @@
                 </td>
                 <td>
                   {{ member.capacity_rate|floatformat:2 }}%
+                </td>
+                <td>
+                  {{ member.value_added_hours_this_month|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}

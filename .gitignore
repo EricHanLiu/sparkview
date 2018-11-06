@@ -4,8 +4,8 @@
 bloomenv/
 *.sass*
 *.map
-migrations
 logs
+migrations
 nohup.out
 .idea/
 config.sh
