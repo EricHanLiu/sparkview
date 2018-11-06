@@ -1,5 +1,6 @@
 from django import template
 from user_management.models import Member
+import calendar
 
 register = template.Library()
 
@@ -48,3 +49,13 @@ def format_money(num):
     Formats 1234.5 like $1,234.50
     """
     return '{:,.2f}'.format(num)
+
+@register.filter
+def get_month_name(month_num):
+    """
+    Gives month name from num. input 1, output January
+    """
+    month_num = int(month_num)
+    if month_num > 12 or month_num < 1:
+        return 'None'
+    return calendar.month_name[month_num]

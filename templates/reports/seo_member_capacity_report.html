@@ -136,5 +136,68 @@
       </div>
     </div>
   </div>
+  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+            SEO Clients
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row m-row--no-padding m-row--col-separator-xl">
+        <div class="col-12">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="seo_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>Account</th>
+                <th>
+                  Status
+                </th>
+                <th>
+                  Has SEO
+                </th>
+                <th>
+                  Has CRO
+                </th>
+                <th>
+                  SEO Hours
+                </th>
+                <th>
+                  CRO Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in seo_accounts %}
+              <tr>
+                <td>
+                  {{ account.client_name }}
+                </td>
+                <td>
+                  <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"><span style="display:none;">{{ account.get_status_display }}</span></span>
+                </td>
+                <td>
+                  {{ account.has_seo }}
+                </td>
+                <td>
+                  {{ account.has_cro }}
+                </td>
+                <td>
+                  {{ account.seo_hours }}
+                </td>
+                <td>
+                  {{ account.cro_hours }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

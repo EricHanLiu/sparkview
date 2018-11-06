@@ -5,7 +5,7 @@ from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
 from client_area.models import AccountHourRecord, Promo
 from budget.models import Client
-import datetime
+import datetime, calendar
 
 # Create your views here.
 @login_required
@@ -197,6 +197,7 @@ def seo_capacity(request):
     allocated_aggregate = 0.0
     available_aggregate = 0.0
 
+    statusBadges = ['info', 'success', 'warning', 'danger']
     seo_accounts = Client.objects.filter(Q(has_seo=True) | Q(has_cro=True)).filter(Q(status=0) | Q(status=1))
 
     for member in members:
@@ -224,7 +225,8 @@ def seo_capacity(request):
         'allocated_aggregate' : allocated_aggregate,
         'available_aggregate' : available_aggregate,
         'report_type' : report_type,
-        'seo_accounts' : seo_accounts
+        'seo_accounts' : seo_accounts,
+        'statusBadges' : statusBadges
     }
 
     return render(request, 'reports/seo_member_capacity_report.html', context)
@@ -348,16 +350,102 @@ def actual_hours(request):
     if (not request.user.is_staff):
         return HttpResponse('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
+    accounts = Client.objects.all()
+    members = Member.objects.all()
+    months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    years = [2018, 2019, 2020]
+
+    selected = {}
+    selected['account'] = 'all'
+    selected['member'] = 'all'
+    selected['month'] = 'all'
+    selected['year'] = now.year
+
     if (request.method == 'GET'):
-        now = datetime.datetime.now()
-        hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).annotate(Sum('hours'))
+        hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).values('member', 'account', 'year', 'month').annotate(sum_hours=Sum('hours'))
     elif (request.method == 'POST'):
-        pass
+        year = request.POST.get('year')
+        month = request.POST.get('month')
+        member = request.POST.get('member')
+        account = request.POST.get('account')
+
+        hours = AccountHourRecord.objects.all()
+
+        if (year != 'all'):
+            hours = hours.filter(year=year)
+            selected['year'] = year
+        if (month != 'all'):
+            hours = hours.filter(month=month)
+            selected['month'] = month
+        if (member != 'all'):
+            hours = hours.filter(member=member)
+            selected['member'] = member
+        if (account != 'all'):
+            hours = hours.filter(account=account)
+            selected['account'] = account
+
+        hours = hours.values('member', 'account', 'year', 'month').annotate(sum_hours=Sum('hours'))
+
     else:
         return HttpResponse('Invalid request type')
 
+    for hour in hours:
+        hour['member'] = members.get(id=hour['member'])
+        hour['account'] = accounts.get(id=hour['account'])
+
     context = {
-        'hours' : hours
+        'hours' : hours,
+        'accounts' : accounts,
+        'members' : members,
+        'months' : months,
+        'years' : years,
+        'selected' : selected
     }
 
     return render(request, 'reports/actual_hours.html', context)
+
+
+@login_required
+def account_capacity(request):
+    """
+    Capacity report for accounts
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(status=1) # active accounts only
+
+    actual_aggregate = 0.0
+    allocated_aggregate = 0.0
+    available_aggregate = 0.0
+
+    for account in accounts:
+        actual_aggregate += account.hoursWorkedThisMonth
+        allocated_aggregate += account.allHours
+        # available_aggregate += member.hours_available
+
+    # if allocated_aggregate + available_aggregate == 0:
+    #     capacity_rate = 0
+    # else:
+    #     capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
+    if (allocated_aggregate == 0):
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
+
+    report_type = 'Account Capacity Report'
+
+    context = {
+        'accounts' : accounts,
+        'actual_aggregate' : actual_aggregate,
+        # 'capacity_rate' : capacity_rate,
+        'utilization_rate': utilization_rate,
+        'allocated_aggregate' : allocated_aggregate,
+        # 'available_aggregate' : available_aggregate,
+        'report_type' : report_type
+    }
+
+    return render(request, 'reports/account_capacity_report.html', context)

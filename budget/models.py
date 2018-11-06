@@ -141,11 +141,13 @@ class Client(models.Model):
         return self.aw_yesterday + self.bing_yesterday + self.fb_yesterday
 
     def getHoursWorkedThisMonth(self):
-        now   = datetime.datetime.now()
-        month = now.month
-        year  = now.year
-        hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
-        return hours if hours != None else 0
+        if not hasattr(self, '_hours_worked_this_month'):
+            now   = datetime.datetime.now()
+            month = now.month
+            year  = now.year
+            hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+            self._hours_worked_this_month = hours if hours != None else 0
+        return self._hours_worked_this_month
 
     def getHoursRemainingThisMonth(self):
         # Cache this because its calls DB stuff
@@ -159,6 +161,15 @@ class Client(models.Model):
         year  = now.year
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
+
+
+    @property
+    def value_added_hours_this_month(self):
+        if not hasattr(self, '_value_added_hours_this_month'):
+            now   = datetime.datetime.now()
+            hours = AccountHourRecord.objects.filter(account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+            self._value_added_hours_this_month = hours if hours != None else 0
+        return self._value_added_hours_this_month
 
 
     def value_added_hours_month_member(self, member):
@@ -375,6 +386,15 @@ class Client(models.Model):
 
         return flex_spend
 
+
+    @property
+    def utilization_rate_this_month(self):
+        """
+        Gets the utilization rate this month as percentage (100 * actual / allocated)
+        """
+        if self.allHours == 0:
+            return 0.0
+        return 100 * self.hoursWorkedThisMonth / self.allHours
 
     @property
     def projected_loss(self):

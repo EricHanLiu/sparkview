@@ -22,7 +22,6 @@ def accounts(request):
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
-
     context = {
         'member'         : member,
         'backupAccounts' : backupAccounts,
