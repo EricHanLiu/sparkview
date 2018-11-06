@@ -31,10 +31,10 @@ class FacebookAccount(models.Model):
     historical_qs = models.IntegerField(default=0)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    assigned_to = models.ForeignKey(User, null=True, blank=True)
-    assigned_cm2 = models.ForeignKey(User, null=True, blank=True, related_name='fb_cm2')
-    assigned_cm3 = models.ForeignKey(User, null=True, blank=True, related_name='fb_cm3')
-    assigned_am = models.ForeignKey(User, null=True, blank=True, related_name='fb_am')
+    assigned_to = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True)
+    assigned_cm2 = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='fb_cm2')
+    assigned_cm3 = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='fb_cm3')
+    assigned_am = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='fb_am')
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
@@ -99,7 +99,7 @@ class FacebookAccount(models.Model):
 
 class FacebookPerformance(models.Model):
 
-    account = models.ForeignKey(FacebookAccount)
+    account = models.ForeignKey(FacebookAccount, models.DO_NOTHING)
     performance_type = models.CharField(max_length=255)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
@@ -142,7 +142,7 @@ class FacebookPerformance(models.Model):
 
 class FacebookCampaign(models.Model):
 
-    account = models.ForeignKey(FacebookAccount)
+    account = models.ForeignKey(FacebookAccount, models.DO_NOTHING)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=455, default='None')
     campaign_cost = models.FloatField(default=0)
@@ -164,7 +164,7 @@ class FacebookCampaign(models.Model):
 
 class FacebookAlert(models.Model):
 
-    account = models.ForeignKey(FacebookAccount)
+    account = models.ForeignKey(FacebookAccount, models.DO_NOTHING)
     alert_type = models.CharField(max_length=255)
     alert_reason = models.CharField(max_length=255)
     ad_id = models.CharField(max_length=255)

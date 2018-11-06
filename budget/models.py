@@ -668,7 +668,7 @@ class Client(models.Model):
 
 class ClientCData(models.Model):
 
-    client = models.ForeignKey(Client, blank=True, null=True)
+    client = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
     aw_budget = JSONField(default=dict)
     aw_projected = JSONField(default=dict)
     aw_spend = JSONField(default=dict)
@@ -703,9 +703,9 @@ class FlightBudget(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     current_spend = models.FloatField(default=0)
-    adwords_account = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
-    bing_account = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
-    facebook_account = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
+    adwords_account = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
+    bing_account = models.ForeignKey(bing_a.BingAccounts, models.DO_NOTHING, blank=True, null=True)
+    facebook_account = models.ForeignKey(fb.FacebookAccount, models.DO_NOTHING, blank=True, null=True)
 
 
 class CampaignGrouping(models.Model):
@@ -717,15 +717,16 @@ class CampaignGrouping(models.Model):
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
     aw_spend = models.FloatField(default=0)
     aw_yspend = models.FloatField(default=0)
-    bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='bing_campaigns')
     bing_spend = models.FloatField(default=0)
     bing_yspend = models.FloatField(default=0)
-    facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='facebook_campaigns')
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
+    bing = models.ForeignKey(bing_a.BingAccounts, models.DO_NOTHING, blank=True, null=True)
+    facebook = models.ForeignKey(fb.FacebookAccount, models.DO_NOTHING, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
@@ -780,8 +781,8 @@ class CampaignGrouping(models.Model):
     current_spend = property(current_spend)
 
 class Budget(models.Model):
-
-    adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
+  
+    adwords = models.ForeignKey(adwords_a.DependentAccount,models.DO_NOTHING, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')
     network_type = models.CharField(max_length=255, default='ALL')
