@@ -1,7 +1,5 @@
 version: '3'
 networks:
-  app-net: 
-    driver: bridge
   broker-net:
 services:
   broker:
@@ -29,7 +27,6 @@ services:
       - broker
     networks:
       - broker-net
-      - app-net
     environment:
       - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
       - PSQL_NAME=bloom
@@ -51,7 +48,6 @@ services:
       - broker
     networks:
       - broker-net
-      - app-net
     ports:
       - "8000:8000"
     environment:
