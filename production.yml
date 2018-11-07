@@ -3,8 +3,6 @@ networks:
   app-net: 
     driver: bridge
   broker-net:
-volumes:
-  psql-data:  
 services:
   broker:
     hostname: rabbit1
@@ -27,10 +25,8 @@ services:
       - .:/bloom
     links:
       - broker
-      - psql
     depends_on:
       - broker
-      - psql
     networks:
       - broker-net
       - app-net
@@ -46,20 +42,11 @@ services:
     links:
       - worker
       - broker
-      - psql
     depends_on:
       - worker
       - broker
-      - psql
     networks:
       - broker-net
       - app-net
     ports:
       - "8000:8000"
-  
-  psql:
-    image: 'postgres'
-    volumes:
-      - psql-data
-    networks:
-      - app-net

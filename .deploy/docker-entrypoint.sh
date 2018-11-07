@@ -25,10 +25,10 @@ if [ $MODE = "prod" ];
 then
   echo "Running server in production"
 
-  PSQL_NAME="bloom"
-  PSQL_USER="bloom"
-  PSQL_PASSWORD="Digital987x123"
-  PSQL_HOST="localhost"
+  export PSQL_NAME="bloom"
+  export PSQL_USER="bloom"
+  export PSQL_PASSWORD="Digital987x123"
+  export PSQL_HOST="localhost"
   if [ $APP = "celery" ];
   then
     echo "Starting celery"
