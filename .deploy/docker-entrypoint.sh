@@ -11,9 +11,6 @@ python manage.py makemigrations reports
 python manage.py makemigrations user_management
 python manage.py migrate
 
-
-
-
 if [ $2 = "prod" ];
 then
   echo "Running server in production"
