@@ -32,6 +32,10 @@ services:
       - app-net
     environment:
       - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
+      - PSQL_NAME=bloom
+      - PSQL_USER=bloom
+      - PSQL_PASSWORD=Digital987x123
+      - PSQL_HOST=bloom-instance
 
   web:
     image: hyperdigitalteam/bloom
@@ -50,3 +54,9 @@ services:
       - app-net
     ports:
       - "8000:8000"
+    environment:
+      - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
+      - PSQL_NAME=bloom
+      - PSQL_USER=bloom
+      - PSQL_PASSWORD=Digital987x123
+      - PSQL_HOST=bloom-instance
