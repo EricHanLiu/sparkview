@@ -25,7 +25,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 
@@ -113,6 +113,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('PSQL_NAME', 'postgres'),
         'USER': os.environ.get('PSQL_USER', 'postgres'),
+        'PASSWORD': os.environ.get("PSQL_PASSWORD", 'postgres'),
         'HOST': os.environ.get('PSQL_HOST', 'psql'),
         'PORT': 5432,
     }
@@ -288,7 +289,7 @@ else:
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-CELERY_BROKER_URL = "amqp://bloom:bloombrokerpass@192.168.0.199:5672/celeryhost"
+CELERY_BROKER_URL = "amqp://bloom:bloombrokerpass@broker:5672/celeryhost"
 CELERY_TIMEZONE = "UTC"
 
 
