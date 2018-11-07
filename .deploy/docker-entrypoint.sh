@@ -11,7 +11,17 @@ python manage.py makemigrations reports
 python manage.py makemigrations user_management
 python manage.py migrate
 
-if [ $2 = "prod" ];
+if [ -z $2 ] || [ -z $1 ]
+then
+  echo "Mode and app is not set"
+  echo "Run the script like this sh ${0} [app_name] [mode]"
+  exit 0
+fi
+
+MODE=$2
+APP=$1
+
+if [ $MODE = "prod" ];
 then
   echo "Running server in production"
 
@@ -19,7 +29,7 @@ then
   PSQL_USER="bloom"
   PSQL_PASSWORD="Digital987x123"
   PSQL_HOST="localhost"
-  if [ $1 = "celery" ];
+  if [ $APP = "celery" ];
   then
     echo "Starting celery"
     celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8
@@ -30,7 +40,7 @@ then
 
 else
   echo "Running server in development"
-  if [ $1 = "celery" ];
+  if [ $APP = "celery" ];
   then
     echo "Starting celery"
     celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8

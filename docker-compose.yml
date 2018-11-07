@@ -23,7 +23,7 @@ services:
     build: 
       context: .
     working_dir: /bloom
-    entrypoint: "sh .deploy/docker-entrypoint.sh celery"
+    entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh celery dev"
     volumes:
       - .:/bloom
     links:
@@ -43,7 +43,7 @@ services:
       context: .
     working_dir: /bloom
     # command: bash -c "python manage.py migrate && gunicorn bloom.wsgi --config /bloom/.deploy/gunicorn_conf.py"
-    entrypoint: "sh .deploy/docker-entrypoint.sh web dev"
+    entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh web dev"
     volumes:
       - .:/bloom
     links:

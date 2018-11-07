@@ -22,7 +22,7 @@ services:
   worker:
     image: hyperdigitalteam/bloom
     working_dir: /bloom
-    entrypoint: "sh .deploy/docker-entrypoint.sh celery"
+    entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh celery prod"
     volumes:
       - .:/bloom
     links:
@@ -37,30 +37,10 @@ services:
     environment:
       - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
 
-
-  workerbeat:
-    build: 
-      context: . 
-    working_dir: /bloom
-    command: bash -c "celery beat -A bloom:celery_app --loglevel=info"
-    volumes:
-      - .:/bloom
-    links:
-      - broker
-      - psql
-    depends_on:
-      - broker
-      - psql
-    networks:
-      - broker-net
-      - app-net
-  
   web:
     image: hyperdigitalteam/bloom
     working_dir: /bloom
-    # command: bash -c "python manage.py migrate && gunicorn bloom.wsgi --config /bloom/.deploy/gunicorn_conf.py"
-    entrypoint: "sh .deploy/docker-entrypoint.sh web prod"
-    # command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh web prod"
     volumes:
       - .:/bloom
     links:
