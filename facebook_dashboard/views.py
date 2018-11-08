@@ -28,7 +28,7 @@ def facebook_dashboard(request):
                                                        alert_type='DISAPPROVED_AD').count()
         items.append(item)
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         return render(request, 'facebook/dashboard.html', {'items': items})
     else:
         return render(request, 'login/login.html')

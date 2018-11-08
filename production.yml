@@ -1,7 +1,5 @@
 version: '3'
 networks:
-  app-net: 
-    driver: bridge
   broker-net:
 services:
   broker:
@@ -16,7 +14,7 @@ services:
       - broker-net
     ports:
       - "5672:5672"
-  
+
   worker:
     image: hyperdigitalteam/bloom
     working_dir: /bloom
@@ -29,9 +27,12 @@ services:
       - broker
     networks:
       - broker-net
-      - app-net
     environment:
       - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
+      - PSQL_NAME=bloom
+      - PSQL_USER=bloom
+      - PSQL_PASSWORD=Digital987x123
+      - PSQL_HOST=bloom-instance
 
   web:
     image: hyperdigitalteam/bloom
@@ -47,6 +48,11 @@ services:
       - broker
     networks:
       - broker-net
-      - app-net
     ports:
       - "8000:8000"
+    environment:
+      - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
+      - PSQL_NAME=bloom
+      - PSQL_USER=bloom
+      - PSQL_PASSWORD=Digital987x123
+      - PSQL_HOST=bloom-instance

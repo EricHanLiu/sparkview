@@ -30,7 +30,7 @@ def adwords_dashboard(request):
         item['metadata'] = query[0].metadata if query else {}
         items.append(item)
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         return render(request, 'adwords/dashboard.html', {'items': items})
     else:
         return render(request, 'login/login.html')
