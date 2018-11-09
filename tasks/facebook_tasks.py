@@ -396,6 +396,8 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                                 if keyword.strip('-').lower() in c.campaign_name.lower() \
                                         and c in gr.fb_campaigns.all():
                                     gr.fb_campaigns.remove(c)
+                                else:
+                                    gr.fb_campaigns.add(c)
 
                     gr.save()
 
@@ -407,20 +409,24 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
                     for c in gr.fb_campaigns.all():
                         cmp_list.append(c.campaign_id)
 
-                    daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
+                    if len(cmp_list) > 0:
 
-                    this_period = helper.set_params(
-                        time_range=daterange,
-                        level='campaign',
-                        filtering=filtering,
-                    )
+                        daterange = helper.get_custom_date_range(gr.start_date, gr.end_date)
 
-                    campaigns_tp = helper.get_account_insights(account.account_id, params=this_period,
-                                                               extra_fields=fields)
-                    for cmp in campaigns_tp:
-                        if cmp['campaign_id'] in cmp_list:
-                            gr.fb_spend += float(cmp['spend'])
-                            gr.save()
+                        this_period = helper.set_params(
+                            time_range=daterange,
+                            level='campaign',
+                            filtering=filtering,
+                        )
+
+                        campaigns_tp = helper.get_account_insights(account.account_id, params=this_period,
+                                                                   extra_fields=fields)
+                        for cmp in campaigns_tp:
+                            if cmp['campaign_id'] in cmp_list:
+                                gr.fb_spend += float(cmp['spend'])
+                                gr.save()
+                    else:
+                        continue
                 else:
                     for cmp in gr.fb_campaigns.all():
                         gr.fb_spend += cmp.campaign_cost

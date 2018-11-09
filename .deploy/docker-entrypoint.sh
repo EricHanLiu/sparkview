@@ -9,6 +9,7 @@ python manage.py makemigrations client_area
 python manage.py makemigrations budget
 python manage.py makemigrations reports
 python manage.py makemigrations user_management
+python manage.py makemigrations django_celery_results
 python manage.py migrate
 
 if [ -z $2 ] || [ -z $1 ]
