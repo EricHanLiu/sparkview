@@ -312,6 +312,9 @@ class Member(models.Model):
 
     @property
     def get_unread_notifications(self):
+        """
+        Fetches the notifications for this member
+        """
         Notification = apps.get_model('notifications', 'Notification')
         notifications = Notification.objects.filter(member=self, confirmed=False)
         return notifications

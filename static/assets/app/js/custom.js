@@ -215,6 +215,8 @@ $(document).ready(function () {
 
     // var dropdown1 = new $.fn.mDropdown('m_topbar_notification_icon', options);
 
+    // var dropdown1 = new mDropdown('m_dropdown_api_1', options);
+
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{
             'targets': 0,
