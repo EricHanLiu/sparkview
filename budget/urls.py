@@ -29,5 +29,5 @@ urlpatterns = [
     url(r"^fbudget/update/$", views.update_fbudget, name='flight_budget_update'),
     url(r"^fbudget/delete/$", views.delete_fbudget, name='flight_budget_delete'),
     url(r"^gtsorbudget/$", views.gts_or_budget, name='gts_or_budget'),
-
+    url(r'^confirm_budget$', views.confirm_budget, name='confirm_budget')
 ]

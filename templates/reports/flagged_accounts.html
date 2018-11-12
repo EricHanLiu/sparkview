@@ -11,7 +11,7 @@
       <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
           <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-            Hour Log Report
+            Flagged Accounts
           </h3>
         </div>
       </div>
@@ -19,35 +19,35 @@
     <div class="m-portlet__body">
       <div class="row m-row--no-padding m-row--col-separator-xl">
         <div class="col-12">
-          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_clients_datatable">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="star_clients_datatable">
             <thead class="thead-inverse">
               <tr class="main-table-header">
-                <th>Member</th>
                 <th>
-                  Role
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  Total Actual Hours
                 </th>
                 <th>
-                  Hours Logged This Month
-                </th>
-                <th>
-                  Most Recent Log
+                  Total Allocated Hours
                 </th>
               </tr>
             </thead>
             <tbody>
-              {% for member in members %}
+              {% for account in accounts %}
               <tr>
                 <td>
-                  <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                  {{ account.parentClient.name }}
                 </td>
                 <td>
-                  {{ member.role.name }}
+                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  {{ member.all_hours_month }}
+                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ member.most_recent_hour_log }}
+                  {{ account.allHours|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}

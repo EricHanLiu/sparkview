@@ -7,13 +7,13 @@ import time
 from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData
+from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData, BudgetUpdate
 from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
@@ -269,7 +269,7 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.today() - relativedelta(days=1) # This is actually yesterday
     next_month_int = today.month + 1
     if (next_month_int == 13):
         next_month_int = 1
@@ -290,6 +290,8 @@ def client_details(request, client_id):
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
 
+        budget_updated_for_month, created = BudgetUpdate.objects.get_or_create(account=client, month=today.month, year=today.year)
+
         statusBadges = ['info', 'success', 'warning', 'danger']
 
         context = {
@@ -305,7 +307,8 @@ def client_details(request, client_id):
             'chdata': chdata_json[0]['fields'] if chdata_json else {},
             'fbudgets': fbudgets,
             'statusBadges': statusBadges,
-            'groupings': cmp_groupings
+            'groupings': cmp_groupings,
+            'budget_updated_for_month' : budget_updated_for_month
         }
 
         return render(request, 'budget/view_client.html', context)
@@ -1202,3 +1205,26 @@ def edit_other_budget(request):
     account.save()
 
     return redirect('/budget/client/' + str(account.id))
+
+
+@login_required
+def confirm_budget(request):
+    if (request.method != 'POST'):
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = int(request.POST.get('account_id'))
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    now = datetime.now()
+    account = Client.objects.get(id=account_id)
+
+    budget_update, created = BudgetUpdate.objects.get_or_create(account=account, month=now.month, year=now.year)
+    if budget_update.updated == True:
+        return HttpResponse('Makes no difference')
+
+    budget_update.updated = True
+    budget_update.save()
+
+    return HttpResponse('Success')

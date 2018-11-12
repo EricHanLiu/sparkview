@@ -14,5 +14,8 @@ urlpatterns = [
     url(r'^facebook$', views.facebook, name='facebook'),
     url(r'^promos$', views.promos, name='promos'),
     url(r'^actual_hours$', views.actual_hours, name='actual_hours'),
-    url(r'^account_capacity$', views.account_capacity, name='account_capacity')
+    url(r'^account_capacity$', views.account_capacity, name='account_capacity'),
+    url(r'^monthly_reporting$', views.monthly_reporting, name='monthly_reporting'),
+    url(r'^backups$', views.backup_report, name='backup_report'),
+    url(r'^flagged_accounts$', views.flagged_accounts, name='flagged_accounts')
 ]

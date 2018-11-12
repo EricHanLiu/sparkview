@@ -142,8 +142,14 @@ class Promo(models.Model):
     name = models.CharField(max_length=255)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     desc = models.CharField(max_length=140, default='No description', null=True)
+    has_fb = models.BooleanField(default=False)
+    has_aw = models.BooleanField(default=False)
+    has_bing = models.BooleanField(default=False)
+    has_other = models.BooleanField(default=False)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    confirmed_started = models.DateTimeField(default=None, null=True)
+    confirmed_ended = models.DateTimeField(default=None, null=True)
 
     @property
     def is_active(self):
@@ -158,5 +164,33 @@ class Promo(models.Model):
     def formatted_end(self):
         return self.end_date.strftime("%Y-%m-%d %H:%M")
 
+    @property
+    def services_str(self):
+        services_arr = []
+        if self.has_aw:
+            services_arr.append('AW')
+        if self.has_fb:
+            services_arr.append('FB')
+        if self.has_bing:
+            services_arr.append('Bing')
+        if self.has_other:
+            services_arr.append('Other')
+
+        return ', '.join(services_arr)
+
+
     def __str__(self):
         return self.account.client_name + ': ' + self.name
+
+
+class AccountAllocatedHoursHistory(models.Model):
+    """
+    Backs up account history allocation by account and member
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+
+    account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
+    member = models.ForeignKey('user_management.Member', on_delete=models.SET_NULL, null=True)
+    month = models.IntegerField(choices=MONTH_CHOICES, default=1)
+    year = models.PositiveSmallIntegerField(blank=True, null=True)
+    allocated_hours = models.FloatField(default=0)

@@ -34,8 +34,8 @@ for row in reader:
     # parent client
     client_name = row[0]
     if (client_name != ''):
-        client = ParentClient.objects.get_or_create(name=client_name)
-        account.parentClient = client[0]
+        client, created = ParentClient.objects.get_or_create(name=client_name)
+        account.parentClient = client
 
     url = row[2]
     account.url = url

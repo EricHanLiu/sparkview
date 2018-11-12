@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
-from client_area.models import AccountHourRecord, Promo
+from client_area.models import AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client
 import datetime, calendar
 
@@ -64,6 +64,7 @@ def agency_overview(request):
 
     return render(request, 'reports/agency_overview.html', context)
 
+
 @login_required
 def account_spend_progression(request):
     """
@@ -78,7 +79,7 @@ def account_spend_progression(request):
     for account in accounts:
         total_projected_loss += account.projected_loss
         if (account.projected_loss < 0): # we will overspend
-            total_projected_overspend += self.project_yesterday - self.current_budget
+            total_projected_overspend += account.project_yesterday - account.current_budget
 
     context = {
         'accounts' : accounts,
@@ -87,6 +88,7 @@ def account_spend_progression(request):
     }
 
     return render(request, 'reports/account_spend_progression.html', context)
+
 
 @login_required
 def cm_capacity(request):
@@ -135,6 +137,7 @@ def cm_capacity(request):
 
     return render(request, 'reports/member_capacity_report.html', context)
 
+
 @login_required
 def am_capacity(request):
     """
@@ -181,6 +184,7 @@ def am_capacity(request):
 
     return render(request, 'reports/member_capacity_report.html', context)
 
+
 @login_required
 def seo_capacity(request):
     """
@@ -197,6 +201,9 @@ def seo_capacity(request):
     allocated_aggregate = 0.0
     available_aggregate = 0.0
 
+    total_seo_hours = 0.0
+    total_cro_hours = 0.0
+
     statusBadges = ['info', 'success', 'warning', 'danger']
     seo_accounts = Client.objects.filter(Q(has_seo=True) | Q(has_cro=True)).filter(Q(status=0) | Q(status=1))
 
@@ -204,6 +211,12 @@ def seo_capacity(request):
         actual_aggregate += member.actualHoursThisMonth
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
+
+    for account in seo_accounts:
+        if account.has_seo:
+            total_seo_hours += account.seo_hours
+        if account.has_cro:
+            total_cro_hours += account.cro_hours
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -226,10 +239,13 @@ def seo_capacity(request):
         'available_aggregate' : available_aggregate,
         'report_type' : report_type,
         'seo_accounts' : seo_accounts,
-        'statusBadges' : statusBadges
+        'statusBadges' : statusBadges,
+        'total_seo_hours' : total_seo_hours,
+        'total_cro_hours' : total_cro_hours
     }
 
     return render(request, 'reports/seo_member_capacity_report.html', context)
+
 
 @login_required
 def strat_capacity(request):
@@ -240,7 +256,7 @@ def strat_capacity(request):
             return HttpResponse('You do not have permission to view this page')
 
         # Probably has to be changed before production
-        role = Role.objects.filter(Q(name='	Strategist'))
+        role = Role.objects.filter(Q(name='Strategist'))
         members = Member.objects.filter(role__in=role)
 
         actual_aggregate = 0.0
@@ -323,7 +339,7 @@ def promos(request):
     if (not request.user.is_staff):
         return HttpResponse('You do not have permission to view this page')
 
-    promos = Promo.objects.filter(end_date__gte=datetime.datetime.now())
+    promos = Promo.objects.filter(end_date__gte=seven_days_ago)
 
     today = datetime.datetime.now().date()
     tomorrow = today + datetime.timedelta(1)
@@ -354,7 +370,7 @@ def actual_hours(request):
     accounts = Client.objects.all()
     members = Member.objects.all()
     months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
-    years = [2018, 2019, 2020]
+    years = ['2018', '2019', '2020']
 
     selected = {}
     selected['account'] = 'all'
@@ -370,7 +386,7 @@ def actual_hours(request):
         member = request.POST.get('member')
         account = request.POST.get('account')
 
-        hours = AccountHourRecord.objects.all()
+        hours = AccountHourRecord.objects.filter()
 
         if (year != 'all'):
             hours = hours.filter(year=year)
@@ -380,10 +396,10 @@ def actual_hours(request):
             selected['month'] = month
         if (member != 'all'):
             hours = hours.filter(member=member)
-            selected['member'] = member
+            selected['member'] = int(member)
         if (account != 'all'):
             hours = hours.filter(account=account)
-            selected['account'] = account
+            selected['account'] = int(account)
 
         hours = hours.values('member', 'account', 'year', 'month').annotate(sum_hours=Sum('hours'))
 
@@ -404,6 +420,58 @@ def actual_hours(request):
     }
 
     return render(request, 'reports/actual_hours.html', context)
+
+
+@login_required
+def monthly_reporting(request):
+    """
+    Shows status of reports
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    accounts = Client.objects.all()
+    months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    years = ['2018', '2019', '2020']
+
+    selected = {}
+    selected['account'] = 'all'
+    selected['month'] = 'all'
+    selected['year'] = now.year
+
+    if (request.method == 'GET'):
+        reports = MonthlyReport.objects.filter(year=now.year, month=now.month)
+    elif (request.method == 'POST'):
+        year = request.POST.get('year')
+        month = request.POST.get('month')
+        account_id = request.POST.get('account')
+
+        reports = MonthlyReport.objects.filter()
+
+        if (year != 'all'):
+            reports = reports.filter(year=year)
+            selected['year'] = year
+        if (month != 'all'):
+            reports = reports.filter(month=month)
+            selected['month'] = month
+        if (account_id != 'all'):
+            account = Client.objects.get(id=account_id)
+            reports = reports.filter(account=account)
+            selected['account'] = int(account_id)
+
+    else:
+        return HttpResponse('Invalid request type')
+
+    context = {
+        'reports' : reports,
+        'accounts' : accounts,
+        'months' : months,
+        'years' : years,
+        'selected' : selected
+    }
+
+    return render(request, 'reports/monthly_reports.html', context)
 
 
 @login_required
@@ -449,3 +517,37 @@ def account_capacity(request):
     }
 
     return render(request, 'reports/account_capacity_report.html', context)
+
+
+@login_required
+def backup_report(request):
+    """
+    Lists accounts that currently have backups
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.exclude(cmb=None, amb=None, seob=None, stratb=None)
+
+    context = {
+        'accounts' : accounts
+    }
+
+    return render(request, 'reports/backup_report.html', context)
+
+
+@login_required
+def flagged_accounts(request):
+    """
+    Lists accounts that currently have backups
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(star_flag=True)
+
+    context = {
+        'accounts' : accounts
+    }
+
+    return render(request, 'reports/flagged_accounts.html', context)
