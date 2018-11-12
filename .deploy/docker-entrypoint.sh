@@ -1,5 +1,4 @@
 #!/bin/bash
-
 python manage.py makemigrations accounts
 python manage.py makemigrations adwords_dashboard
 python manage.py makemigrations bing_dashboard
