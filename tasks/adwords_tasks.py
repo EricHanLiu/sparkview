@@ -514,6 +514,8 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                                 if keyword.strip('-').lower() in c.campaign_name.lower() \
                                         and c in gr.aw_campaigns.all():
                                     gr.aw_campaigns.remove(c)
+                                else:
+                                    gr.aw_campaigns.add(c)
 
                 gr.save()
 
@@ -526,23 +528,27 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                     for c in gr.aw_campaigns.all():
                         campaigns.append(c.campaign_id)
 
-                    predicate = {
-                        "field": "CampaignId",
-                        "operator": "IN",
-                        "values": campaigns,
-                    }
+                    if len(campaigns) > 0:
 
-                    daterange = helper.create_daterange(gr.start_date, gr.end_date)
-                    campaign_this_period = helper.get_campaign_performance(
-                        customer_id=account.dependent_account_id,
-                        dateRangeType="CUSTOM_DATE",
-                        extra_predicates=predicate,
-                        **daterange
-                    )
+                        predicate = {
+                            "field": "CampaignId",
+                            "operator": "IN",
+                            "values": campaigns,
+                        }
 
-                    for cmp in campaign_this_period:
-                        gr.aw_spend += helper.mcv(cmp['cost'])
-                        gr.save()
+                        daterange = helper.create_daterange(gr.start_date, gr.end_date)
+                        campaign_this_period = helper.get_campaign_performance(
+                            customer_id=account.dependent_account_id,
+                            dateRangeType="CUSTOM_DATE",
+                            extra_predicates=predicate,
+                            **daterange
+                        )
+
+                        for cmp in campaign_this_period:
+                            gr.aw_spend += helper.mcv(cmp['cost'])
+                            gr.save()
+                    else:
+                        continue
                 else:
                     for cmp in gr.aw_campaigns.all():
                         gr.aw_spend += cmp.campaign_cost

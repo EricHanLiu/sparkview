@@ -59,10 +59,10 @@ class Client(models.Model):
     currency = models.CharField(max_length=255, default='', blank=True)
 
     # Parent Client (aka Client, this model should be Account)
-    parentClient = models.ForeignKey(ParentClient, null=True, blank=True)
+    parentClient = models.ForeignKey(ParentClient, models.DO_NOTHING, null=True, blank=True)
 
     # Management Fee Structure lets you calculate the actual fee of that client
-    managementFee = models.ForeignKey(ManagementFeesStructure, null=True, blank=True)
+    managementFee = models.ForeignKey(ManagementFeesStructure, models.DO_NOTHING, null=True, blank=True)
 
     # MRR or one time
     payment_schedule = models.IntegerField(default=0, choices=PAYMENT_SCHEDULE_CHOICES)
@@ -76,13 +76,13 @@ class Client(models.Model):
 
     # The following attributes are for the client management implementation
     team           = models.ManyToManyField(Team, blank=True, related_name='team')
-    industry       = models.ForeignKey(Industry, null=True, related_name='industry', blank=True)
+    industry       = models.ForeignKey(Industry, models.DO_NOTHING, null=True, related_name='industry', blank=True)
     language       = models.ManyToManyField(Language, related_name='language')
     contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url            = models.URLField(max_length=300, null=True, blank=True)
-    clientType     = models.ForeignKey(ClientType, null=True, related_name='client_type', blank=True)
+    clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
     tier           = models.IntegerField(default=1)
-    soldBy         = models.ForeignKey(Member, null=True, related_name='sold_by')
+    soldBy         = models.ForeignKey(Member, models.DO_NOTHING, null=True, related_name='sold_by')
     # maybe do services another way?
     services       = models.ManyToManyField(Service, blank=True, related_name='services')
     has_seo        = models.BooleanField(default=False)
@@ -97,25 +97,25 @@ class Client(models.Model):
     star_flag      = models.BooleanField(default=False)
 
     # Member attributes (we'll see if there's a better way to do this)
-    cm1    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm1')
-    cm2    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm2')
-    cm3    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cm3')
-    cmb    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='cmb')
+    cm1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm1')
+    cm2    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm2')
+    cm3    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm3')
+    cmb    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cmb')
 
-    am1    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='am1')
-    am2    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='am2')
-    am3    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='am3')
-    amb    = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='amb')
+    am1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am1')
+    am2    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am2')
+    am3    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am3')
+    amb    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='amb')
 
-    seo1   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seo1')
-    seo2   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seo2')
-    seo3   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seo3')
-    seob   = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='seob')
+    seo1   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo1')
+    seo2   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo2')
+    seo3   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo3')
+    seob   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seob')
 
-    strat1 = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='strat1')
-    strat2 = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='strat2')
-    strat3 = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='strat3')
-    stratb = models.ForeignKey(Member, on_delete=models.SET_NULL, blank=True, null=True, related_name='stratb')
+    strat1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat1')
+    strat2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat2')
+    strat3 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat3')
+    stratb = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='stratb')
 
     # Allocation % of total hours
     cm1percent = models.FloatField(default=75.0)
@@ -726,7 +726,7 @@ class BudgetUpdate(models.Model):
 
 class ClientCData(models.Model):
 
-    client = models.ForeignKey(Client, blank=True, null=True)
+    client = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
     aw_budget = JSONField(default=dict)
     aw_projected = JSONField(default=dict)
     aw_spend = JSONField(default=dict)
@@ -761,29 +761,30 @@ class FlightBudget(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     current_spend = models.FloatField(default=0)
-    adwords_account = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
-    bing_account = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
-    facebook_account = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
+    adwords_account = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
+    bing_account = models.ForeignKey(bing_a.BingAccounts, models.DO_NOTHING, blank=True, null=True)
+    facebook_account = models.ForeignKey(fb.FacebookAccount, models.DO_NOTHING, blank=True, null=True)
 
 
 class CampaignGrouping(models.Model):
 
-    client = models.ForeignKey(Client, blank=True, null=True)
+    client = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
-    adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
     aw_spend = models.FloatField(default=0)
     aw_yspend = models.FloatField(default=0)
-    bing = models.ForeignKey(bing_a.BingAccounts, blank=True, null=True)
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='bing_campaigns')
     bing_spend = models.FloatField(default=0)
     bing_yspend = models.FloatField(default=0)
-    facebook = models.ForeignKey(fb.FacebookAccount, blank=True, null=True)
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='facebook_campaigns')
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
+    bing = models.ForeignKey(bing_a.BingAccounts, models.DO_NOTHING, blank=True, null=True)
+    facebook = models.ForeignKey(fb.FacebookAccount, models.DO_NOTHING, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
@@ -839,8 +840,8 @@ class CampaignGrouping(models.Model):
 
 
 class Budget(models.Model):
-
-    adwords = models.ForeignKey(adwords_a.DependentAccount, blank=True, null=True)
+  
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')
     network_type = models.CharField(max_length=255, default='ALL')

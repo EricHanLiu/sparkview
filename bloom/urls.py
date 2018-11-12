@@ -19,9 +19,18 @@ from . import registration_views as lviews
 from . import profile_views as profile
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
+from bloom.jwt_views import CustomTokenObtainPairView, CustomTokenVerifyView
 
 urlpatterns = [
     url(r"^$", lviews.index, name='index'),
+    url(r'^api/token/$', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url(r'^api/token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
+    url(r'^api/token/verify/$', CustomTokenVerifyView.as_view(), name='token_verify'),
     url(r"^auth/login$", lviews.bloom_login, name='login'),
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^auth/", include('social_django.urls', namespace='social')),
@@ -39,6 +48,7 @@ urlpatterns = [
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^budget/', include('budget.urls', namespace='budget')),
     url(r'^tools/', include('tools.urls', namespace='tools')),
+    url(r'^bloomapi/', include('api.urls', namespace='bloomapi')),
     url(r'^clients/', include('client_area.urls', namespace='client_area')),
     url(r'^user_management/', include('user_management.urls', namespace='user_management')),
     url(r'^reports/', include('reports.urls', namespace='reports')),

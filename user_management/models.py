@@ -17,7 +17,7 @@ class RoleGroup(models.Model):
 # Role at the company (example, Campaign Manager)
 class Role(models.Model):
     name  = models.CharField(max_length=255)
-    group = models.ForeignKey(RoleGroup, blank=True, null=True)
+    group = models.ForeignKey(RoleGroup, models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -78,8 +78,8 @@ class Skill(models.Model):
 
 # Actually sets a score to the skill for a member
 class SkillEntry(models.Model):
-    skill      = models.ForeignKey('Skill', on_delete=models.CASCADE, default=None)
-    member     = models.ForeignKey('Member', on_delete=models.CASCADE, default=None)
+    skill      = models.ForeignKey('Skill', models.CASCADE, default=None)
+    member     = models.ForeignKey('Member', models.CASCADE, default=None)
     score      = models.IntegerField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -93,8 +93,8 @@ class SkillEntry(models.Model):
 
 # Keeps track of all skill entries, not only current
 class SkillHistory(models.Model):
-    skill      = models.ForeignKey('Skill', on_delete=models.CASCADE, default=None)
-    member     = models.ForeignKey('Member', on_delete=models.CASCADE, default=None)
+    skill      = models.ForeignKey('Skill', models.CASCADE, default=None)
+    member     = models.ForeignKey('Member', models.CASCADE, default=None)
     score      = models.IntegerField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -104,9 +104,9 @@ class SkillHistory(models.Model):
 # Extension of user class via OneToOneField
 # Needed to add many more fields to users (which are employees, also called members)
 class Member(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, models.CASCADE)
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
-    role = models.ForeignKey('Role', on_delete=models.SET_NULL, default=None, null=True)
+    role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage     = models.FloatField(null=True, blank=True, default=100)
@@ -330,7 +330,7 @@ class Notification(models.Model):
     """
     These are notifications that a user will see in the top right hand corner of the interface
     """
-    member   = models.ForeignKey(Member, default=None, null=True)
+    member   = models.ForeignKey(Member,  models.DO_NOTHING, default=None, null=True)
     message  = models.CharField(max_length=999)
     link     = models.URLField(max_length=499)
     read     = models.BooleanField(default=False)

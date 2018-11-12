@@ -423,6 +423,8 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                                 if keyword.strip('-').lower() in c.campaign_name.lower() \
                                         and c in gr.bing_campaigns.all():
                                     gr.bing_campaigns.remove(c)
+                                else:
+                                    gr.bing_campaigns.add(c)
 
                     gr.save()
 
@@ -436,20 +438,24 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                     for c in gr.bing_campaigns.all():
                         campaigns.append(c.campaign_id)
 
-                    daterange = helper.create_daterange(gr.start_date, gr.end_date)
+                    if len(campaigns) > 0:
 
-                    campaigns_this_period = helper.get_campaign_performance(
-                        account_id,
-                        dateRangeType="CUSTOM_DATE",
-                        report_name="campaign_stats_tm",
-                        extra_fields=fields,
-                        **daterange
-                    )
+                        daterange = helper.create_daterange(gr.start_date, gr.end_date)
 
-                    for cmp in campaigns_this_period:
-                        if cmp['campaignid'] in campaigns:
-                            gr.bing_spend += float(cmp['spend'])
-                            gr.save()
+                        campaigns_this_period = helper.get_campaign_performance(
+                            account_id,
+                            dateRangeType="CUSTOM_DATE",
+                            report_name="campaign_stats_tm",
+                            extra_fields=fields,
+                            **daterange
+                        )
+
+                        for cmp in campaigns_this_period:
+                            if cmp['campaignid'] in campaigns:
+                                gr.bing_spend += float(cmp['spend'])
+                                gr.save()
+                    else:
+                        continue
                 else:
                     for cmp in gr.bing_campaigns.all():
                         gr.bing_spend += cmp.campaign_cost

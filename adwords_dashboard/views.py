@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -31,7 +30,7 @@ def adwords_dashboard(request):
         item['metadata'] = query[0].metadata if query else {}
         items.append(item)
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         return render(request, 'adwords/dashboard.html', {'items': items})
     else:
         return render(request, 'login/login.html')

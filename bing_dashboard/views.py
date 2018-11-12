@@ -87,7 +87,7 @@ class BingSingin(View):
 
         current_user = request.user
 
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             bing_auth = BingAuth(username=current_user.username)
             return JsonResponse({'url': bing_auth.get_auth_url()})
 
@@ -103,7 +103,7 @@ class BingExchange(View):
         if 'code' not in url:
             return HttpResponse('Missing URI', status=403)
 
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             bing_auth = BingAuth(username=current_user.username)
             creds = bing_auth.authenticate(response_uri=url)
             if creds:
@@ -118,7 +118,7 @@ class AuthenticateBing(View):
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
 
             bing_auth = BingAuth(username=current_user.username)
             creds = bing_auth.get_creds()

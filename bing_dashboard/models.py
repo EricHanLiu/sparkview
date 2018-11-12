@@ -48,10 +48,10 @@ class BingAccounts(models.Model):
     weekly_data = JSONField(default=dict, null=True, blank=True)
     yesterday_spend = models.FloatField(default=0)
     hist_qs = JSONField(default=dict, null=True, blank=True)
-    assigned_to = models.ForeignKey(User, null=True, blank=True)
-    assigned_cm2 = models.ForeignKey(User, null=True, blank=True, related_name='bing_cm2')
-    assigned_cm3 = models.ForeignKey(User, null=True, blank=True, related_name='bing_cm3')
-    assigned_am = models.ForeignKey(User, null=True, blank=True, related_name='bing_am')
+    assigned_to = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True)
+    assigned_cm2 = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='bing_cm2')
+    assigned_cm3 = models.ForeignKey(User,  models.DO_NOTHING,null=True, blank=True, related_name='bing_cm3')
+    assigned_am = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='bing_am')
     assigned = models.BooleanField(default=False)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
@@ -71,7 +71,7 @@ class BingAccounts(models.Model):
 
 class BingAnomalies(models.Model):
 
-    account = models.ForeignKey(BingAccounts, default=None)
+    account = models.ForeignKey(BingAccounts, models.DO_NOTHING, default=None)
     performance_type = models.CharField(max_length=255, default='None')
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
@@ -95,7 +95,7 @@ class BingAnomalies(models.Model):
 
 class BingAlerts(models.Model):
 
-    account = models.ForeignKey(BingAccounts, default=None)
+    account = models.ForeignKey(BingAccounts,models.DO_NOTHING, default=None)
     alert_type = models.CharField(max_length=255, default='None')
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
@@ -110,7 +110,7 @@ class BingAlerts(models.Model):
 
 class BingCampaign(models.Model):
 
-    account = models.ForeignKey(BingAccounts, default=None)
+    account = models.ForeignKey(BingAccounts,models.DO_NOTHING, default=None)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
