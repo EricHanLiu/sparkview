@@ -310,6 +310,13 @@ class Member(models.Model):
         return 100 * (self.allocatedHoursMonth / self.total_hours_minus_buffer)
 
 
+    @property
+    def get_unread_notifications(self):
+        Notification = apps.get_model('notifications', 'Notification')
+        notifications = Notification.objects.filter(member=self, confirmed=False)
+        return notifications
+
+
     incidents            = property(countIncidents)
     mostRecentIncident   = property(getMostRecentIncident)
     skills               = property(getSkills)
@@ -324,14 +331,3 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
-
-
-class Notification(models.Model):
-    """
-    These are notifications that a user will see in the top right hand corner of the interface
-    """
-    member   = models.ForeignKey(Member,  models.DO_NOTHING, default=None, null=True)
-    message  = models.CharField(max_length=999)
-    link     = models.URLField(max_length=499)
-    read     = models.BooleanField(default=False)
-    datetime = models.DateTimeField(auto_now_add=True)

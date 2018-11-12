@@ -690,7 +690,7 @@ class AccountBudgetSpendHistory(models.Model):
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
 
-    account = models.ForeignKey(Client, blank=True, null=True)
+    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     aw_budget = models.FloatField(default=0)
@@ -717,7 +717,7 @@ class BudgetUpdate(models.Model):
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
 
-    account = models.ForeignKey(Client, blank=True, null=True)
+    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
     updated = models.BooleanField(default=False)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -840,7 +840,7 @@ class CampaignGrouping(models.Model):
 
 
 class Budget(models.Model):
-  
+
     adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')
