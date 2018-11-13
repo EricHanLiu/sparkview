@@ -32,7 +32,7 @@ services:
       - PSQL_NAME=bloom
       - PSQL_USER=bloom
       - PSQL_PASSWORD=Digital987x123
-      - PSQL_HOST=bloom-instance
+      - PSQL_HOST=bloom-database
 
   web:
     image: hyperdigitalteam/bloom
@@ -55,4 +55,4 @@ services:
       - PSQL_NAME=bloom
       - PSQL_USER=bloom
       - PSQL_PASSWORD=Digital987x123
-      - PSQL_HOST=bloom-instance
+      - PSQL_HOST=bloom-database
