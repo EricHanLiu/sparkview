@@ -896,8 +896,21 @@ def confirm_promo(request):
     member = Member.objects.get(user=request.user)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
-    pass
 
+    print(request.POST)
+
+    promo = get_object_or_404(Promo, id=int(request.POST.get('promo_id')))
+
+    type_of_confirmation = int(request.POST.get('confirmation_type'))
+
+    if type_of_confirmation == 0: # This means we are confirming the promo started
+        promo.confirmed_started = datetime.datetime.now()
+    elif type_of_confirmation == 1: # This means we are confirming the promo ended
+        promo.confirmed_ended = datetime.datetime.now()
+
+    promo.save()
+
+    return HttpResponse('Success! Promo confirmed')
 
 @login_required
 def star_account(request):

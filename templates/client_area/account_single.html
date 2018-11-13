@@ -616,13 +616,13 @@
                   {{ promo.desc }}
                 </td>
                 <td>
-                  {{ promo.service_str }}
+                  {{ promo.services_str }}
                 </td>
                 <td>
-                  <input type="checkbox" />
+                  <input type="checkbox" class="confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ account.id }}" data-confirmation-type="0" {% if promo.confirmed_started != None %}checked disabled{% endif %} />
                 </td>
                 <td>
-                  <input type="checkbox" />
+                  <input type="checkbox" class="confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ account.id }}" data-confirmation-type="1" {% if promo.confirmed_ended != None %}checked disabled{% endif %} />
                 </td>
               </tr>
               {% endfor %}
@@ -1056,6 +1056,29 @@
 $(document).ready(function () {
   var $distrubteHoursBtn = $('#distribute_hours_btn');
   var $starIcon = $('.fa-flag');
+  let $promoCheck = $('.confirm-promo');
+
+  $promoCheck.click(function () {
+    let confirmation_type = $(this).data('confirmation-type');
+    let promo_type = $(this).data('promo-id');
+    if ($(this).is(':checked')) {
+      $.ajax({
+          url: '/clients/promos/confirm',
+          data: {
+            'account_id': {{ account.id }},
+            'promo_id': promo_type,
+            'confirmation_type' : confirmation_type
+          },
+          headers: {'X-CSRFToken': csrftoken},
+          type: 'POST',
+          success: function (data) {
+            console.log(data);
+            $(this).prop('disabled', 'disabled');
+          }
+      });
+    }
+
+  });
 
   /**
    * Calendar
