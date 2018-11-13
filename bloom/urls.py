@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^clients/', include('client_area.urls', namespace='client_area')),
     url(r'^user_management/', include('user_management.urls', namespace='user_management')),
     url(r'^reports/', include('reports.urls', namespace='reports')),
+    # url(r'^notifications/', include('notifications.urls', namespace='notifications')),
     url(r'^admin/', admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
