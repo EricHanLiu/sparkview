@@ -29,7 +29,7 @@ then
   export PSQL_NAME="bloom"
   export PSQL_USER="bloom"
   export PSQL_PASSWORD="Digital987x123"
-  export PSQL_HOST="bloom-instance"
+  export PSQL_HOST="bloom-database"
   if [ $APP = "celery" ];
   then
     echo "Starting celery"
