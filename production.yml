@@ -19,8 +19,6 @@ services:
     image: hyperdigitalteam/bloom
     working_dir: /bloom
     entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh celery prod"
-    volumes:
-      - .:/bloom
     links:
       - broker
     depends_on:
@@ -38,8 +36,6 @@ services:
     image: hyperdigitalteam/bloom
     working_dir: /bloom
     entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh web prod"
-    volumes:
-      - .:/bloom
     links:
       - worker
       - broker
