@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block extraCss %}
+<style>
+.la-edit:hover {
+  cursor: pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+    <div class="m-portlet__head">
+      <div class="m-portlet__head-caption">
+        <div class="m-portlet__head-title">
+          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+            Edit Promos
+          </h3>
+        </div>
+      </div>
+    </div>
+    <div class="m-portlet__body">
+      <div class="row">
+        {% for promo in promos %}
+        <div class="col-xs-1 col-md-4">
+          <div class="m-portlet m-portlet--bordered m-portlet--rounded m-portlet--unair m-portlet--head-sm">
+            <div class="m-portlet__head">
+              <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                  <h3 class="m-portlet__head-text">
+                    {{ promo }}
+                  </h3>
+                </div>
+              </div>
+              <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                  <li class="m-portlet__nav-item">
+                    <span class="la la-edit" data-toggle="modal" data-target="#m_edit_promo" data-promo-id="{{ promo.id }}" data-promo-name="{{ promo.name }}"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="m-portlet__body">
+              <p>
+                Start Date: {{ promo.start_date }}
+              </p>
+              <p>
+                End Date: {{ promo.end_date }}
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit promo -->
+<div class="modal fade" id="m_edit_promo" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Edit <span id="promo_name_span"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" id="m_form_edit_promo">
+              {% csrf_token %}
+              <input id="promo_id" name="promo_id" type="text" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Name:</label>
+                        <input type="text" id="promo_name_input" name="promo-name" class="form-control m-input" />
+                      </div>
+                      <div class="col-md-4">
+                        <label>Start Date:</label>
+                        <input type="text" name="start-date" class="form-control datetimepicker"
+                               readonly="" placeholder="Set start date here">
+                      </div>
+                      <div class="col-md-4">
+                        <label>End Date:</label>
+                        <input type="text" name="end-date" class="form-control datetimepicker"
+                               readonly="" placeholder="Set end date here">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Submit" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End edit promo -->
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  $('#m_edit_promo').on('show.bs.modal', function (e) {
+      let promo_id = $(e.relatedTarget).data('promo-id');
+      let promo_name = $(e.relatedTarget).data('promo-name');
+      $('.modal #promo_id').attr('value', promo_id);
+      $('.modal #promo_name_input').attr('value', promo_name);
+      $('.modal #promo_name_span').html(promo_name);
+  });
+
+  $('.datetimepicker').datetimepicker();
+});
+</script>
+{% endblock %}

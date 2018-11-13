@@ -385,7 +385,7 @@
       </div>
       {% endif %}
       <!-- end reporting portlet -->
-
+      {% if promos.count > 0 %}
       <!-- Calendar promos -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress">
         <div class="m-portlet__head">
@@ -403,7 +403,77 @@
           </div>
         </div>
       </div>
+      <!-- Promo this month summary -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text">
+                Promo Summary
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Promo Name
+                </th>
+                <th>
+                  Start Date
+                </th>
+                <th>
+                  End Date
+                </th>
+                <th>
+                  Desc
+                </th>
+                <th>
+                  Services
+                </th>
+                <th>
+                  Confirmed Started
+                </th>
+                <th>
+                  Confirmed Ended
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for promo in promos %}
+              <tr>
+                <td>
+                  {{ promo }}
+                </td>
+                <td>
+                  {{ promo.start_date }}
+                </td>
+                <td>
+                  {{ promo.end_date }}
+                </td>
+                <td>
+                  {{ promo.desc }}
+                </td>
+                <td>
+                  {{ promo.service_str }}
+                </td>
+                <td>
+                  <input type="checkbox" />
+                </td>
+                <td>
+                  <input type="checkbox" />
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- End promos this month summary -->
       <!-- end promos -->
+      {% endif %}
 
       {% if request.user.is_staff and starAccounts.count > 0 %}
       <!-- Being starred accounts (admin only) -->
@@ -642,7 +712,7 @@ $(document).ready(function () {
      },
      aspectRatio: 2,
      defaultDate: moment(),
-     defaultView: 'listWeek',
+     defaultView: 'month',
      events: [
        {% for promo in promos %}
        {

@@ -389,7 +389,7 @@ def members_single(request, id=0):
                   Q(am1=member) | Q(am2=member) | Q(am3=member) |
                   Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
                   Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-              ).filter(Q(status=0) | Q(status=1))
+              ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 

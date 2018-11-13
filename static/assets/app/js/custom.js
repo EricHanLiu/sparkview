@@ -188,7 +188,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#team_clients_datatable, #client_hours_datatable").DataTable({
+    $(".team_clients_datatable, #client_hours_datatable").DataTable({
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": true,
@@ -196,7 +196,10 @@ $(document).ready(function () {
         "bAutoWidth": false,
         'language': {
             'sSearch': '<i class="fa fa-search"></i>',
-        }
+        },
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
     });
 
     var options = {
@@ -211,6 +214,8 @@ $(document).ready(function () {
     };
 
     // var dropdown1 = new $.fn.mDropdown('m_topbar_notification_icon', options);
+
+    // var dropdown1 = new mDropdown('m_dropdown_api_1', options);
 
     let table = $("#clients_datatable").DataTable({
         'columnDefs': [{

@@ -1,4 +1,14 @@
 <!DOCTYPE html> {% load staticfiles %} {% load custom_filters %} {% load template_filters %} {% load humanize %}
+
+
+{% block extraCss %}
+<style>
+.la-edit:hover, .la-plus:hover {
+  cursor: pointer;
+}
+</style>
+{% endblock %}
+
 {% block view_client_block %}
 
 
@@ -20,6 +30,11 @@
                   data-cname="{{ client_data.client_name }}">
                 </span>
             <span class="la la-plus" data-toggle="modal" data-target="#m_assign_accounts"></span>
+            {% if budget_updated_for_month.updated %}
+            <span style="font-size: 1rem; font-weight:200;">Budget updated for November</span>
+            {% else %}
+            &nbsp;&nbsp;<span style="font-size: 1rem; font-weight:200;">Confirm budget updated for November</span> <input type="checkbox" id="budget_updated_check" />
+            {% endif %}
             <span class="float-right" style="font-size: 15px">{{ today }} of {{ no_of_days }} days</span><br/>
             <span class="float-right" style="font-size: 15px">{{ remaining }} remaining days</span>
         </h3>

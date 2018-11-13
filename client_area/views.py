@@ -18,7 +18,7 @@ def accounts(request):
     member  = Member.objects.get(user=request.user)
     accounts = member.accounts
 
-    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member))
+    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=1) | Q(status=0))
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -39,7 +39,7 @@ def accounts_team(request):
 
     accounts = {}
     for team in teams.all():
-        accounts[team.id] = Client.objects.filter(team=team)
+        accounts[team.id] = Client.objects.filter(team=team).filter(Q(status=1) | Q(status=0))
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -58,7 +58,7 @@ def accounts_all(request):
     if (not request.user.is_staff):
         return HttpResponse('You do not have permission to view this page')
 
-    accounts = Client.objects.all()
+    accounts = Client.objects.filter(Q(status=1) | Q(status=0))
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -434,7 +434,9 @@ def account_single(request, id):
     for row in accountsValueHoursThisMonthByMember:
         row['member'] = members.get(id=row['member'])
 
-    promos = Promo.objects.filter(account=account, end_date__gte=now)
+    seven_days_ago = now - datetime.timedelta(7)
+
+    promos = Promo.objects.filter(account=account, end_date__gte=seven_days_ago)
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -856,17 +858,59 @@ def new_promo(request):
     promo_name = request.POST.get('promo-name')
     promo_start_date = request.POST.get('start-date')
     promo_end_date = request.POST.get('end-date')
+    promo_desc = request.POST.get('promo-desc')
+    print(promo_start_date)
+    promo_has_aw = request.POST.get('has-aw')
+    promo_has_fb = request.POST.get('has-fb')
+    promo_has_bing = request.POST.get('has-bing')
+    promo_has_other = request.POST.get('has-other')
 
     promo = Promo()
     promo.name = promo_name
     promo.account = account
     promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
     promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
-    # promo.desc = request.POST.get('promo-desc')
+    promo.desc = promo_desc
+    if (promo_has_aw):
+        promo.has_aw = True
+    if (promo_has_fb):
+        promo.has_fb = True
+    if (promo_has_bing):
+        promo.has_bing = True
+    if (promo_has_other):
+        promo.has_other = True
     promo.save()
 
     return redirect('/clients/accounts/' + str(account_id))
 
+
+@login_required
+def confirm_promo(request):
+    """
+    Confirms the beginning or end of a promo (done by CM or AM)
+    """
+    if (request.method == 'GET'):
+        return HttpResponse('Invalid request')
+    account_id = request.POST.get('account_id')
+    account = Client.objects.get(id=account_id)
+    member = Member.objects.get(user=request.user)
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    print(request.POST)
+
+    promo = get_object_or_404(Promo, id=int(request.POST.get('promo_id')))
+
+    type_of_confirmation = int(request.POST.get('confirmation_type'))
+
+    if type_of_confirmation == 0: # This means we are confirming the promo started
+        promo.confirmed_started = datetime.datetime.now()
+    elif type_of_confirmation == 1: # This means we are confirming the promo ended
+        promo.confirmed_ended = datetime.datetime.now()
+
+    promo.save()
+
+    return HttpResponse('Success! Promo confirmed')
 
 @login_required
 def star_account(request):
@@ -887,3 +931,40 @@ def star_account(request):
     account.save()
 
     return JsonResponse({'resp' : 'success'})
+
+
+@login_required
+def edit_promos(request):
+    """
+    Page that lets you edit promos
+    """
+    member = Member.objects.get(user=request.user)
+
+    accounts = member.accounts.filter(Q(status=0) | Q(status=1))
+    backup_accounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
+
+    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+
+    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=backup_accounts))
+
+    if (request.method == 'POST'):
+        promo_id = request.POST.get('promo_id')
+        member = Member.objects.get(user=request.user)
+        if (not request.user.is_staff and not promos.filter(id=promo_id).exists()):
+            return HttpResponse('You do not have permission to view this page')
+
+        promo_name = request.POST.get('promo-name')
+        promo_start_date = request.POST.get('start-date')
+        promo_end_date = request.POST.get('end-date')
+
+        promo = Promo.objects.get(id=promo_id)
+        promo.name = promo_name
+        promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
+        promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+        promo.save()
+
+    context = {
+        'promos' : promos
+    }
+
+    return render(request, 'client_area/edit_promos.html', context)

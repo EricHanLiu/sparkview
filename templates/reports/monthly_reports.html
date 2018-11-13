@@ -11,28 +11,15 @@
       <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
           <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-            Actual Hours Report
+            Monthly Reports
           </h3>
         </div>
       </div>
     </div>
     <div class="m-portlet__body">
-      <form class="m-form" method="post" id="actual_hours_form">
+      <form class="m-form" method="post" id="monthly_reports_form">
       {% csrf_token %}
         <div class="row">
-              <div class="col-md-2">
-                <label for="member">Member:</label>
-                <select class="form-control m-input"
-                        name="member"
-                        style="width: 100%;">
-                        <option value="all" {% if selected.member == 'all' %}selected{% endif %}>
-                          All
-                        </option>
-                    {% for member in members %}
-                        <option value="{{ member.id }}" {% if selected.member == member.id %}selected{% endif %}>{{ member.user.get_full_name }}</option>
-                    {% endfor %}
-                </select>
-              </div>
               <div class="col-md-2">
                 <label for="account">Account:</label>
                 <select class="form-control m-input"
@@ -87,30 +74,30 @@
               <tr class="main-table-header">
                 <th>Member</th>
                 <th>
-                  Account
-                </th>
-                <th>
-                  Hours
-                </th>
-                <th>
                   Month
+                </th>
+                <th>
+                  Sent to AM
+                </th>
+                <th>
+                  Sent to Client
                 </th>
               </tr>
             </thead>
             <tbody>
-              {% for hour in hours %}
+              {% for report in reports %}
               <tr>
                 <td>
-                  {{ hour.member.user.get_full_name }}
+                  {{ report.account.client_name }}
                 </td>
                 <td>
-                  {{ hour.account.client_name }}
+                  {{ report.month|get_month_name }}, {{ report.year }}
                 </td>
                 <td>
-                  {{ hour.sum_hours }}
+                  {{ report.date_sent_to_am }}
                 </td>
                 <td>
-                  {{ hour.month|get_month_name }}, {{ hour.year }}
+                  {{ report.date_sent_by_am }}
                 </td>
               </tr>
               {% endfor %}

@@ -30,6 +30,11 @@ class Team(models.Model):
     def getMembers(self):
         return list(Member.objects.filter(team = self))
 
+    @property
+    def team_lead(self):
+        role = Role.objects.get(name='Team Lead')
+        return Member.objects.filter(team__in=[self])
+
     members = property(getMembers)
 
     def __str__(self):
@@ -163,6 +168,17 @@ class Member(models.Model):
         hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
 
+
+    @property
+    def all_hours_month(self):
+        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
+        now   = datetime.datetime.now()
+        month = now.month
+        year  = now.year
+        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        return hours if hours != None else 0
+
+
     def allocated_hours_month(self):
         if not hasattr(self, '_allocatedHoursMonth'):
             accounts = self.accounts
@@ -209,7 +225,7 @@ class Member(models.Model):
     @property
     def most_recent_hour_log(self):
         now   = datetime.datetime.now()
-        hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year, is_unpaid=False)
+        hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year)
         if hours.count() == 0:
             return 'None'
         else:
@@ -294,6 +310,16 @@ class Member(models.Model):
         return 100 * (self.allocatedHoursMonth / self.total_hours_minus_buffer)
 
 
+    @property
+    def get_unread_notifications(self):
+        """
+        Fetches the notifications for this member
+        """
+        Notification = apps.get_model('notifications', 'Notification')
+        notifications = Notification.objects.filter(member=self, confirmed=False)
+        return notifications
+
+
     incidents            = property(countIncidents)
     mostRecentIncident   = property(getMostRecentIncident)
     skills               = property(getSkills)
@@ -308,14 +334,3 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name
-
-
-class Notification(models.Model):
-    """
-    These are notifications that a user will see in the top right hand corner of the interface
-    """
-    member   = models.ForeignKey(Member,  models.DO_NOTHING, default=None, null=True)
-    message  = models.CharField(max_length=999)
-    link     = models.URLField(max_length=499)
-    read     = models.BooleanField(default=False)
-    datetime = models.DateTimeField(auto_now_add=True)

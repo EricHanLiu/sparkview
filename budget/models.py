@@ -325,6 +325,16 @@ class Client(models.Model):
 
 
     @property
+    def one_contact(self):
+        """
+        Just returns the first contact
+        """
+        if (self.contactInfo.all().count() == 0):
+            return None
+        return self.contactInfo.all()[0]
+
+
+    @property
     def bing_budget_this_month(self):
         if not hasattr(self, '_bing_budget_this_month'):
             budget = 0.0
@@ -601,6 +611,14 @@ class Client(models.Model):
 
 
     @property
+    def team_leads(self):
+        team_leads = Team.objects.none()
+        for team in self.team.all():
+            team_leads = team_leads | team.team_lead
+        return team_leads
+
+
+    @property
     def project_average(self):
         return self.hybrid_projection(1)
 
@@ -664,6 +682,46 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
+
+
+class AccountBudgetSpendHistory(models.Model):
+    """
+    Keeps historical data for client budget and spend
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+
+    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
+    month = models.IntegerField(choices=MONTH_CHOICES, default=1)
+    year = models.PositiveSmallIntegerField(blank=True, null=True)
+    aw_budget = models.FloatField(default=0)
+    bing_budget = models.FloatField(default=0)
+    fb_budget = models.FloatField(default=0)
+    flex_budget = models.FloatField(default=0)
+    aw_spend = models.FloatField(default=0)
+    bing_spend = models.FloatField(default=0)
+    fb_spend = models.FloatField(default=0)
+    flex_spend = models.FloatField(default=0)
+
+    @property
+    def budget(self):
+        return self.aw_budget + self.bing_budget + self.fb_budget + self.flex_budget
+
+    @property
+    def spend(self):
+        return self.aw_spend + self.bing_spend + self.fb_spend + self.bing_spend
+
+
+class BudgetUpdate(models.Model):
+    """
+    TEMPORARY SOLUTION: Record of if a budget has been updated this month
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+
+    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
+    updated = models.BooleanField(default=False)
+    month = models.IntegerField(choices=MONTH_CHOICES, default=1)
+    year = models.PositiveSmallIntegerField(blank=True, null=True)
+
 
 
 class ClientCData(models.Model):
@@ -780,8 +838,9 @@ class CampaignGrouping(models.Model):
     rec_daily_spend = property(rec_daily_spend)
     current_spend = property(current_spend)
 
+
 class Budget(models.Model):
-  
+
     adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')

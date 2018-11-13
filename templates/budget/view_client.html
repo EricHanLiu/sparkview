@@ -1407,6 +1407,25 @@
             $projectYesterday = $('#projectionYesterday');
             $projectDesc = $('#projectionDesc');
 
+            $updatedCheck = $('#budget_updated_check');
+
+            $updatedCheck.change(function () {
+              if ($(this).is(':checked')) {
+                $.ajax({
+                    url: '/budget/confirm_budget',
+                    data: {
+                      'account_id': {{ client_data.id }}
+                    },
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    success: function (data) {
+                      $(this).attr('disabled', 'disabled');
+                      console.log(data);
+                    }
+                });
+              }
+            });
+
             $projectionToggle.change(function () {
                 if ($(this).is(':checked')) {
                     $projectAverage.hide();
