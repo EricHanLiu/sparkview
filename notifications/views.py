@@ -1,3 +1,8 @@
 from django.shortcuts import render
 
-# Create your views here.
+@login_required
+def center(request):
+    """
+    Notification center
+    Lists notifications to users
+    """
