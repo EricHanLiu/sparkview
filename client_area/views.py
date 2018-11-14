@@ -55,7 +55,7 @@ def accounts_team(request):
 
 @login_required
 def accounts_all(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0))
@@ -896,8 +896,6 @@ def confirm_promo(request):
     member = Member.objects.get(user=request.user)
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
-
-    print(request.POST)
 
     promo = get_object_or_404(Promo, id=int(request.POST.get('promo_id')))
 

@@ -311,7 +311,7 @@ class Member(models.Model):
 
 
     @property
-    def get_unread_notifications(self):
+    def unread_notifications(self):
         """
         Fetches the notifications for this member
         """
