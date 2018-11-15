@@ -42,3 +42,14 @@ for scheduled_notification in scheduled_notifications:
     Add other members explicitly
     """
     members = members | scheduled_notifications.members.all()
+
+    for member in members:
+        """
+        Now go through each member and make the notification
+        """
+        notification = Notification()
+        notification.member = member
+        notification.message = scheduled_notification.message
+        if scheduled_notification.link != None:
+            notification.link = scheduled_notification.link
+        notification.save()
