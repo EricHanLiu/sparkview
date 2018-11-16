@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from user_management.models import Member
+from .models import Notification
 
 
 @login_required
@@ -38,3 +39,22 @@ def create(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page.')
     return HttpResponse('Create')
+
+
+@login_required
+def confirm(request):
+    """
+    Confirms that a notification has been acknowleged by a user
+    """
+    member = Member.objects.get(user=request.user)
+    notification_id = request.POST.get('notification_id')
+    notification = Notification.objects.get(id=notification_id)
+    if notification.member != member:
+        return HttpResponse('This is not your notification')
+    elif notification.confirmed:
+        return HttpResponse('This notification is already confirmed')
+
+    notification.confirmed = True
+    notification.save()
+
+    return HttpResponse('Success')

@@ -67,6 +67,9 @@ License: You must have a valid license purchased only from themeforest(the above
        text-decoration: none;
        color: #000;
     }
+    .fa-check-circle:hover {
+      cursor: pointer;
+    }
     </style>
 
     {% block extraCss %}
@@ -591,10 +594,11 @@ License: You must have a valid license purchased only from themeforest(the above
                               <!-- Begin notifications -->
                               {% with notifications=request.user|get_unread_notifications %}
                               <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
-                                  data-dropdown-toggle="click">
+                                  data-dropdown-toggle="click" data-dropdown-persistent="1">
+                                  <input value="{{ notifications.count }}" id="notif_count" style="display:none;" />
                                   <a href="#" class="m-nav__link m-dropdown__toggle">
                                     {% if notifications.count > 0 %}
-                                    <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger"></span>
+                                    <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span>
                                     {% endif %}
                                     <span class="m-nav__link-icon"><i class="fa fa-bell"></i></span>
                                   </a>
@@ -615,9 +619,11 @@ License: You must have a valid license purchased only from themeforest(the above
                                                       {% else %}
                                                         {% for notification in notifications %}
                                                         <div class="m-list-timeline__item">
-                                                          <span class="m-list-timeline__badge -m-list-timeline__badge--state-success"></span>
+                                                          <span class="m-list-timeline__badge m-list-timeline__badge--{{ notification.colour }}"></span>
                                                           {% if notification.link != None %}<a style="text-decoration: none;" href="{{ notification.link }}" class="m-list-timeline__text">{% else %}<span class="m-list-timeline__text">{% endif %}{{ notification.message }}{% if notification.link != None %}</a>{% else %}</span>{% endif %}
-                                                          <span class="m-list-timeline__time">Just now</span>
+                                                          <span class="m-list-timeline__time">
+                                                            <i class="fa fa-check-circle notif-check" style="color:#ddd;" data-checked="0" data-notification-id="{{ notification.id }}"></i>
+                                                          </span>
                                                         </div>
                                                         {% endfor %}
                                                       {% endif %}
@@ -846,6 +852,39 @@ License: You must have a valid license purchased only from themeforest(the above
                 }
         });
 
+</script>
+
+<script>
+  /**
+   * This is where we will handle notification confirmation
+   */
+  $(document).ready(function () {
+    let $notificationChecks = $('.notif-check');
+    let $notifCount = $('#notif_count');
+    let $notifDot = $('.notif-dot');
+    $notificationChecks.click(function () {
+      let $el = $(this);
+      let $notif = $(this).closest('.m-list-timeline__item');
+      $.ajax({
+          url: '/notifications/confirm',
+          data: {
+            'notification_id': $(this).data('notification-id')
+          },
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          type: 'POST',
+          success: function (data) {
+            // console.log(data);
+            $el.data('checked', '1');
+            $el.css('color', 'rgb(41, 163, 41)');
+            $notif.fadeOut();
+            $notifCount.val(parseInt($notifCount.val()) - 1);
+            if (parseInt($notifCount.val()) == 0) {
+              $notifDot.hide();
+            }
+          }
+      });
+    });
+  });
 </script>
 
 <script src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>

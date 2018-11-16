@@ -5,6 +5,7 @@ import django
 django.setup()
 from bloom import settings
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from budget.models import Client
 from user_management.models import Team, Member, Role
 from notifications.models import Notification, ScheduledNotification
@@ -19,8 +20,7 @@ first_weekday, num_in_month = calendar.monthrange(now.year, now.month)
 negative_day_of_month = num_in_month - now.day + 1 # Gives 1 for last day of month, 2 for second to last day, etc
 day_of_week = now.weekday()
 
-# TODO: Needs a bit of work to handle arrays
-scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week__contains=[day_of_month]))
+scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week=day_of_week))
 
 for scheduled_notification in scheduled_notifications:
     """
@@ -41,9 +41,9 @@ for scheduled_notification in scheduled_notifications:
     """
     Add other members explicitly
     """
-    members = members | scheduled_notifications.members.all()
+    members = members | scheduled_notification.members.all()
 
-    for member in members:
+    for member in members.distinct():
         """
         Now go through each member and make the notification
         """
@@ -52,4 +52,5 @@ for scheduled_notification in scheduled_notifications:
         notification.message = scheduled_notification.message
         if scheduled_notification.link != None:
             notification.link = scheduled_notification.link
+        print('Created notification for ' + str(member.user.get_full_name()))
         notification.save()
