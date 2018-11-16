@@ -9,7 +9,6 @@ python manage.py makemigrations budget
 python manage.py makemigrations reports
 python manage.py makemigrations user_management
 python manage.py makemigrations django_celery_results
-python manage.py makemigrations notifications
 python manage.py migrate
 
 if [ -z $2 ] || [ -z $1 ]
@@ -34,7 +33,7 @@ then
   then
     echo "Starting celery"
     celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8
-  else 
+  else
     echo "Starting gunicorn"
     gunicorn bloom.wsgi --config ${PROJECT_DIR}/.deploy/gunicorn_conf.py
   fi
@@ -45,7 +44,7 @@ else
   then
     echo "Starting celery"
     celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8
-  else 
+  else
     echo "Starting django"
     python manage.py runserver 0.0.0.0:8000
   fi
