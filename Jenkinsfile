@@ -50,8 +50,9 @@ pipeline {
             steps {
 
                 sh """
-                ssh -i /var/lib/jenkins/.ssh/id_rsa -t jenkins@app.mibhub.com  \
-                "sudo docker service update --image ${imageTag}:latest --with-registry-auth --force bloom_web;\
+                ssh -i /var/lib/jenkins/.ssh/id_rsa -t jenkins@app.mibhub.com \
+                "sudo docker pull ${imageTag}:latest;\
+                 sudo docker service update --image ${imageTag}:latest --with-registry-auth --force bloom_web;\
                  sudo docker service update --image ${imageTag}:latest --with-registry-auth --force bloom_worker;"
                 """
 
