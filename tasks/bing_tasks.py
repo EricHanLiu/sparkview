@@ -4,6 +4,8 @@ from bloom import celery_app
 from bloom.utils import BingReportingService
 from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
+from bing_dashboard import auth
+from bingads import ServiceClient
 from budget.models import FlightBudget, CampaignGrouping, Client
 from bloom.settings import EMAIL_HOST_USER, TEMPLATE_DIR
 from django.core.mail import send_mail
@@ -13,6 +15,70 @@ from dateutil.relativedelta import relativedelta
 import itertools
 from operator import itemgetter
 
+
+def get_accounts():
+    data = {}
+    account_list = []
+
+    authentication = auth.BingAuth().get_auth()
+
+    customer_service = ServiceClient(
+        service='CustomerManagementService',
+        authorization_data=authentication,
+        environment='production',
+        version=11,
+    )
+
+    user = customer_service.GetUser(UserId=None).User
+
+    paging = {
+        'Index': 0,
+        'Size': 250
+    }
+
+    predicates = {
+        'Predicate': [
+            {
+                'Field': 'UserId',
+                'Operator': 'Equals',
+                'Value': user.Id,
+            },
+        ]
+    }
+
+    search_accounts_request = {
+        'PageInfo': paging,
+        'Predicates': predicates
+    }
+
+    accounts = customer_service.SearchAccounts(
+        PageInfo=paging,
+        Predicates=predicates
+    )
+
+    return accounts['Account']
+
+
+@celery_app.task(bind=True)
+def bing_cron_accounts(self):
+    accounts = get_accounts()
+
+    for account in accounts:
+        account_name = account['Name']
+        account_id = account.Id
+
+        BingAccounts.objects.get_or_create(account_id=account_id,
+                                           account_name=account_name,
+                                           channel='bing')
+        print('Added to DB - ' + str(account_name) + ' - ' + str(account_id))
+
+
+@celery_app.task(bind=True)
+def bing_anomalies(self):
+
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+    for acc in accounts:
+        bing_cron_anomalies_accounts.delay(acc.account_id)
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -163,6 +229,14 @@ def bing_cron_anomalies_campaigns(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def bing_ovu(self):
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+
+    for acc in accounts:
+        bing_cron_ovu.delay(acc.account_id)
+
+
+@celery_app.task(bind=True)
 def bing_cron_ovu(self, customer_id):
     account = BingAccounts.objects.get(account_id=customer_id)
     helper = BingReportingService()
@@ -212,6 +286,15 @@ def bing_cron_ovu(self, customer_id):
     account.segmented_spend = segmented_data
 
     account.save()
+
+
+@celery_app.task(bind=True)
+def bing_alerts(self):
+
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+
+    for acc in accounts:
+        bing_cron_alerts.delay(acc.account_id)
 
 
 @celery_app.task(bind=True)
@@ -321,6 +404,49 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
 
 @celery_app.task(bind=True)
+def bing_campaigns(self):
+
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+    for acc in accounts:
+        bing_cron_campaign_stats.delay(acc.account_id)
+
+
+@celery_app.task(bind=True)
+def bing_flight_dates(self):
+
+    bing = BingAccounts.objects.filter(blacklisted=False)
+    for b in bing:
+        bing_cron_flight_dates.delay(b.account_id)
+
+
+@celery_app.task(bind=True)
+def bing_cron_flight_dates(self, customer_id):
+    fields = [
+        'Spend'
+    ]
+
+    account = BingAccounts.objects.get(account_id=customer_id)
+    helper = BingReportingService()
+
+    budgets = FlightBudget.objects.filter(bing_account=account)
+
+    for b in budgets:
+        date_range = helper.create_daterange(b.start_date, b.end_date)
+        data = helper.get_account_performance(
+            account_id=account.account_id,
+            dateRangeType="CUSTOM_DATE",
+            report_name="account_flight_dates",
+            extra_fields=fields,
+            **date_range
+        )
+        spend = sum([float(item['spend']) for item in data])
+        b.current_spend = spend
+        b.save()
+
+
+
+
+@celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id, client_id=None):
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
@@ -335,7 +461,7 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
         'Spend'
     ]
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.today()
     ys = today - relativedelta(days=1)
     yesterday = helper.create_daterange(ys, ys)
 
@@ -464,28 +590,12 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
 
 
 @celery_app.task(bind=True)
-def bing_cron_flight_dates(self, customer_id):
-    fields = [
-        'Spend'
-    ]
+def bing_trends(self):
 
-    account = BingAccounts.objects.get(account_id=customer_id)
-    helper = BingReportingService()
+    accounts = BingAccounts.objects.filter(blacklisted=False)
 
-    budgets = FlightBudget.objects.filter(bing_account=account)
-
-    for b in budgets:
-        date_range = helper.create_daterange(b.start_date, b.end_date)
-        data = helper.get_account_performance(
-            account_id=account.account_id,
-            dateRangeType="CUSTOM_DATE",
-            report_name="account_flight_dates",
-            extra_fields=fields,
-            **date_range
-        )
-        spend = sum([float(item['spend']) for item in data])
-        b.current_spend = spend
-        b.save()
+    for account in accounts:
+        bing_result_trends.delay(account.account_id)
 
 
 @celery_app.task(bind=True)
@@ -586,6 +696,14 @@ def bing_result_trends(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def bing_qs(self):
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        bing_account_quality_score.delay(account.account_id)
+
+
+@celery_app.task(bind=True)
 def bing_account_quality_score(self, customer_id):
     account = BingAccounts.objects.get(account_id=customer_id)
     helper = BingReportingService()
@@ -665,12 +783,20 @@ def bing_account_quality_score(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def bing_cron_accounts_not_running():
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+    for account in accounts:
+        bing_accounts_not_running.delay(account.account_id)
+
+
+
+@celery_app.task(bind=True)
 def bing_accounts_not_running(self, account_id):
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
 
     cmps = []
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.today()
     yesterday = helper.create_daterange(today, today)
 
     fields = [
@@ -720,6 +846,15 @@ def bing_accounts_not_running(self, account_id):
     account.nr_data = cmps
     account.nr_score = nr_score
     account.save()
+
+
+@celery_app.task(bind=True)
+def bing_wasted_spend(self):
+
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        bing_account_wasted_spend.delay(account.account_id)
 
 
 @celery_app.task(bind=True)
@@ -788,6 +923,15 @@ def bing_account_wasted_spend(self, account_id):
 
         account.save()
         calculate_account_score(account)
+
+
+@celery_app.task(bind=True)
+def bing_kw_wastage(self):
+
+    accounts = BingAccounts.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        bing_account_keyword_wastage.delay(account.account_id)
 
 
 @celery_app.task(bind=True)

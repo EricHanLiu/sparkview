@@ -5,24 +5,50 @@ import calendar
 import unicodedata
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.core.exceptions import ObjectDoesNotExist
 from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
+from adwords_dashboard.cron_scripts import get_accounts
 from budget.models import FlightBudget, Budget, CampaignGrouping, Client
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from budget.models import Member
+from datetime import date, timedelta, datetime
 from operator import itemgetter
 from itertools import groupby
 from zeep.helpers import serialize_object
-from datetime import date, timedelta
+from itertools import chain
+
+under = []
+over = []
+nods = []
+on_pace = []
 
 
 def remove_accents(input_str):
     nkfd_form = unicodedata.normalize('NFKD', str(input_str))
     return u"".join([c for c in nkfd_form if not unicodedata.combining(c)])
+
+
+def perdelta(start, end, delta):
+    curr = start
+    while curr <= end:
+        yield curr
+        curr += delta
+
+def projected(spend, yspend):
+
+    today = datetime.today()
+    lastday_month = calendar.monthrange(today.year, today.month)
+    remaining = lastday_month[1] - today.day
+
+    # projected value
+    rval = spend + (yspend * remaining)
+
+    return round(rval ,2)
 
 
 def month_converter(month):
@@ -49,6 +75,240 @@ def month_converter(month):
 
 def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+
+def check_spend_acc(account):
+
+    now = datetime.today()
+    current_day = now.day
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - current_day
+
+    spend = account.current_spend
+    ys_projected = account.yesterday_spend * remaining + spend
+    average_projected = ((account.current_spend / current_day) * remaining) + account.current_spend
+
+    try:
+        percentage = (average_projected * 100) / account.desired_spend
+    except ZeroDivisionError:
+        percentage = 0
+
+    if account.desired_spend == 0:
+
+        if account.channel == 'adwords':
+
+            details = {
+                'account': account.dependent_account_name,
+                'budget': account.desired_spend,
+                'channel': account.channel
+            }
+            nods.append(details)
+        else:
+            details = {
+                'account': account.account_name,
+                'budget': account.desired_spend,
+                'channel': account.channel
+            }
+            nods.append(details)
+
+    elif account.desired_spend <= 10000:
+        if percentage < 90:
+            if account.channel == 'adwords':
+
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                under.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                under.append(details)
+
+        elif percentage > 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': account.current_spend,
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+
+        elif 90 > percentage < 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+
+    elif account.desired_spend > 10000:
+        if percentage < 95:
+            if account.channel == 'adwords':
+
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                under.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                under.append(details)
+
+        elif percentage > 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                over.append(details)
+
+        elif 95 > percentage < 99:
+            if account.channel == 'adwords':
+                details = {
+                    'account': account.dependent_account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+            else:
+                details = {
+                    'account': account.account_name,
+                    'estimated': percentage,
+                    'budget': account.desired_spend,
+                    'current_spend': round(account.current_spend, 2),
+                    'channel': account.channel,
+                    'average_projected': round(average_projected, 2),
+                    'ys_projected': round(ys_projected, 2)
+                }
+                on_pace.append(details)
+
+def check_spend_members(member):
+
+    flex = []
+
+    now = datetime.today()
+    current_day = now.day
+    days = calendar.monthrange(now.year, now.month)[1]
+    remaining = days - current_day
+
+    accs = member.get_accounts()
+
+    for acc in accs:
+        if acc.flex_budget > 0:
+
+            average_projected = ((acc.current_spend / current_day) * remaining) + acc.current_spend
+            ys_projected = acc.yesterday_spend * remaining + acc.current_spend
+
+            details = {
+                'account': acc.client_name,
+                'budget': acc.budget,
+                'current_spend': round(acc.current_spend, 2),
+                'channel': 'Flex',
+                'average_projected': round(average_projected, 2),
+                'ys_projected': round(ys_projected, 2)
+            }
+            flex.append(details)
+
+        else:
+            adwords = acc.adwords.all()
+            bing = acc.bing.all()
+            facebook = acc.facebook.all()
+
+            final_ = list(chain(
+                adwords,
+                bing,
+                facebook
+            ))
+
+            for a in final_:
+                check_spend_acc(a)
+
+    mail_details = {
+        'under': under,
+        'over': over,
+        'nods': nods,
+        'on_pace': on_pace,
+        'flex': flex,
+        'user': member.user.get_full_name()
+    }
+
+    return mail_details
 
 
 def account_anomalies(account_id, helper, daterange1, daterange2):
@@ -105,6 +365,59 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
 
 @celery_app.task(bind=True)
+def adwords_accounts(self):
+
+    client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+
+    accounts = get_accounts.get_dependent_accounts(client)
+
+    for acc_id, name in accounts.items():
+
+        try:
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+            account.dependent_account_name = name
+            account.save()
+            print('Matched in DB(' + str(acc_id) + ')')
+
+        except:
+            DependentAccount.objects.create(dependent_account_id=acc_id, dependent_account_name=name,
+                                                   channel='adwords')
+            print('Added to DB - ' + str(acc_id) + ' - ' + name)
+
+
+
+@celery_app.task(bind=True)
+def budget_breakfast(self):
+
+    members = Member.objects.all()
+
+    for member in members:
+        mail_details = check_spend_members(member)
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/budget_breakfast.html', mail_details)
+
+        send_mail(
+            'Daily budget report', msg_html,
+            EMAIL_HOST_USER, [member.user.email], fail_silently=False, html_message=msg_html
+        )
+        print('Mail sent!')
+
+        del under[:]
+        del over[:]
+        del nods[:]
+        del on_pace[:]
+
+
+@celery_app.task(bind=True)
+def adwords_anomalies(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_cron_anomalies.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
 def adwords_cron_anomalies(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
@@ -115,7 +428,7 @@ def adwords_cron_anomalies(self, customer_id):
     current_period_daterange = helper.get_this_month_daterange()
     previous_period_daterange = helper.create_daterange(
         minDate=last_month.replace(day=1),
-        maxDate=last_month.replace(day=today.day - 1)
+        maxDate=last_month.replace(day=today.day)
     )
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -208,7 +521,17 @@ def adwords_account_anomalies(self, data):
 
 
 @celery_app.task(bind=True)
+def adwords_ovu(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_cron_ovu.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
 def adwords_cron_ovu(self, customer_id):
+
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     helper = AdwordsReportingService(get_client())
@@ -225,12 +548,11 @@ def adwords_cron_ovu(self, customer_id):
 
     data_this_month = helper.get_account_performance(
         customer_id=account.dependent_account_id,
-        dateRangeType="CUSTOM_DATE",
+        dateRangeType="THIS_MONTH",
         extra_fields=[
             "Date",
             "AccountCurrencyCode"
-        ],
-        **this_month
+        ]
     )
 
     curr_code = data_this_month[0]['currency']
@@ -292,6 +614,15 @@ def adwords_cron_ovu(self, customer_id):
     account.currency = currency
     account.segmented_spend = segmented_data
     account.save()
+
+
+@celery_app.task(bind=True)
+def adwords_alerts(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_cron_disapproved_alert.delay(account.dependent_account_id)
 
 
 @celery_app.task(bind=True)
@@ -438,6 +769,15 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_campaigns(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_cron_campaign_stats.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
 def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
@@ -555,6 +895,19 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                         gr.aw_yspend += cmp.campaign_yesterday_cost
                         gr.save()
 
+@celery_app.task(bind=True)
+def adwords_campaign_groups(self, client_id):
+
+    pass
+
+
+@celery_app.task(bind=True)
+def adwords_adgroups(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_cron_adgroup_stats.delay(account.dependent_account_id)
 
 @celery_app.task(bind=True)
 def adwords_cron_adgroup_stats(self, customer_id):
@@ -590,6 +943,14 @@ def adwords_cron_adgroup_stats(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_flight_dates(self):
+
+    aw = DependentAccount.objects.filter(blacklisted=False)
+
+    for a in aw:
+        adwords_cron_flight_dates.delay(a.dependent_account_id)
+
+@celery_app.task(bind=True)
 def adwords_cron_flight_dates(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
@@ -608,6 +969,14 @@ def adwords_cron_flight_dates(self, customer_id):
         b.current_spend = spend
         b.save()
 
+
+@celery_app.task(bind=True)
+def adwords_networks_spend(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_cron_budgets.delay(account.dependent_account_id)
 
 @celery_app.task(bind=True)
 def adwords_cron_budgets(self, customer_id):
@@ -694,6 +1063,14 @@ def adwords_adgroup_labels(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_trends(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_result_trends.delay(account.dependent_account_id)
+
+@celery_app.task(bind=True)
 def adwords_result_trends(self, customer_id):
     trends_data = {}
     w_data = {}
@@ -703,7 +1080,7 @@ def adwords_result_trends(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.today()
     minDate = (today - relativedelta(months=2)).replace(day=1)
 
     daterange = helper.create_daterange(minDate, today)
@@ -821,6 +1198,14 @@ def adwords_result_trends(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_quality_score(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_account_quality_score.delay(account.dependent_account_id)
+
+@celery_app.task(bind=True)
 def adwords_account_quality_score(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
@@ -901,11 +1286,18 @@ def adwords_account_quality_score(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_change_history(self):
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+    for account in accounts:
+        adwords_account_change_history.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
 def adwords_account_change_history(self, customer_id):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    today = datetime.today() - relativedelta(days=1)
+    today = datetime.today()
     _5_days_ago = today - relativedelta(days=4)
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -1033,6 +1425,410 @@ def adwords_account_change_history(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_no_changes_5(self):
+
+    accs = []
+
+    MAIL_ADS = [
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+        'octavian@hdigital.io'
+    ]
+
+    accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
+
+    for account in accounts:
+        if account.ch_flag:
+            accs.append(account)
+
+        if account.assigned_am:
+            MAIL_ADS.append(account.assigned_am.email)
+            print('Found AM - ' + account.assigned_am.username)
+        if account.assigned_to:
+            MAIL_ADS.append(account.assigned_to.email)
+            print('Found CM - ' + account.assigned_to.username)
+        if account.assigned_cm2:
+            MAIL_ADS.append(account.assigned_cm2.email)
+            print('Found CM2 - ' + account.assigned_cm2.username)
+        if account.assigned_cm3:
+            MAIL_ADS.append(account.assigned_cm3.email)
+            print('Found CM3 - ' + account.assigned_cm3.username)
+
+    mail_details = {
+        'accounts': accs,
+    }
+
+    mail_list = set(MAIL_ADS)
+    msg_html = render_to_string(TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
+
+    send_mail(
+        'No changes for more than 5 days', msg_html,
+        EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html)
+    mail_list.clear()
+
+
+
+@celery_app.task(bind=True)
+def adwords_labels(self):
+
+    client = get_client()
+
+    account_label_service = client.GetService('ManagedCustomerService', version=API_VERSION)
+    selector = {'fields': ['AccountLabels', 'CustomerId']}
+    result = account_label_service.get(selector)
+
+    if not result:
+        data = []
+    else:
+        data = result['entries']
+
+    Label.objects.filter(label_type='ACCOUNT').delete()
+
+    print('Labels dropped from DB')
+
+    if len(data) > 0:
+        for d in data:
+            if 'accountLabels' in d:
+                for label in d['accountLabels']:
+                    try:
+                        account = DependentAccount.objects.get(dependent_account_id=d['customerId'])
+                        lbl = \
+                        Label.objects.update_or_create(label_id=label['id'], name=label['name'], label_type='ACCOUNT')[0]
+                        lbl.accounts.add(account)
+                        lbl.save()
+                    except ObjectDoesNotExist:
+                        continue
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_text_labels.delay(account.dependent_account_id)
+        adwords_campaign_labels.delay(account.dependent_account_id)
+        adwords_adgroup_labels.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
+def cron_clients(self):
+    today = date.today()
+    first_day = date(today.year, today.month, 1)
+    last_day = date(today.year, today.month, monthrange(today.year, today.month)[1])
+
+    remaining = last_day.day - today.day
+
+    pdays = []
+    bdays = []
+
+    for result in perdelta(today, last_day, timedelta(days=1)):
+        pdays.append(result)
+
+    for result in perdelta(first_day, last_day, timedelta(days=1)):
+        bdays.append(result)
+
+    clients = Client.objects.all()
+
+    for client in clients:
+
+        # S - Spend, P - Projected, B - Budget
+        aw_s_final, aw_p_final, aw_b_final, gts_final = {}, {}, {}, {}
+        bing_b_final, bing_p_final, bing_s_final = {}, {}, {}
+        fb_b_final, fb_p_final, fb_s_final = {}, {}, {}
+
+        new_client_cdata, created = ClientCData.objects.get_or_create(client=client)
+        aw_temp = 0.0
+        b_temp = 0.0
+        fb_temp = 0.0
+
+        client.budget = 0
+        client.current_spend = 0
+        client.aw_spend = 0
+        client.bing_spend = 0
+        client.fb_spend = 0
+        client.aw_budget = 0
+        client.bing_budget = 0
+        client.fb_budget = 0
+        client.aw_yesterday = 0
+        client.bing_yesterday = 0
+        client.fb_yesterday = 0
+        client.aw_current_ds = 0
+        client.bing_current_ds = 0
+        client.fb_current_ds = 0
+        client.aw_projected = 0
+        client.bing_projected = 0
+        client.fb_projected = 0
+        client.aw_rec_ds = 0
+        client.bing_rec_ds = 0
+        client.fb_rec_ds = 0
+
+        # Maybe this will work?
+        client.budget += client.flex_budget
+
+        client.save()
+
+        adwords = client.adwords.all()
+        if adwords:
+            client.currency = client.adwords.all()[0].currency
+        if len(adwords) > 0:
+
+            for a in adwords:
+
+                aw_budget, aw_spend, aw_projected, gts_values = {}, {}, {}, {}
+
+                account_name = a.dependent_account_name
+                client.budget += a.desired_spend
+                client.current_spend += a.current_spend
+                client.aw_spend += a.current_spend
+                client.aw_yesterday += a.yesterday_spend
+                client.aw_budget += a.desired_spend
+                client.aw_current_ds += a.current_spend / today.day
+
+                for k, v in sorted(a.segmented_spend.items()):
+                    if v['cost'] == 0:
+                        aw_temp = aw_temp + float(v['cost'])
+                    else:
+                        aw_temp = aw_temp + float(int(v['cost']) / 1000000)
+                    aw_spend[v['day']] = round(aw_temp, 2)
+                aw_s_final['A - ' + remove_accents(account_name) + ' Spend'] = aw_spend
+
+                aw_projected_val = projected(a.current_spend, a.yesterday_spend)
+                client.aw_projected += aw_projected_val
+                if remaining > 0:
+                    aw_projected_per_day = (aw_projected_val - a.current_spend) / remaining
+                else:
+                    aw_projected_per_day = (aw_projected_val - a.current_spend)
+                for index, val in enumerate(pdays):
+                    aw_projected[val.strftime("%Y-%m-%d")] = round((aw_projected_per_day * index) + a.current_spend, 2)
+                aw_p_final['A - ' + remove_accents(a.dependent_account_name) + ' Projected'] = aw_projected
+
+                # Budget only client
+                if client.has_budget and not client.has_gts:
+                    aw_budget_per_day = round(a.desired_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
+                    aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+
+                    if remaining > 0:
+                        client.aw_rec_ds += (a.desired_spend - a.current_spend) / remaining
+                    else:
+                        client.aw_rec_ds += a.desired_spend - a.current_spend
+
+                # GTS only client
+                elif client.has_gts and not client.has_budget:
+                    gts_per_day = round(client.target_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
+                    gts_final['Global Target Spend'] = gts_values
+
+                    if remaining > 0:
+                        client.aw_rec_ds += (client.target_spend - a.current_spend) / remaining
+                    else:
+                        client.aw_rec_ds += client.target_spend - a.current_spend
+
+                # Both options active
+                elif client.has_gts and client.has_budget:
+                    gts_per_day = round(client.target_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
+                    gts_final['Global Target Spend'] = gts_values
+
+                    if a.desired_spend > 0:
+                        aw_budget_per_day = round(a.desired_spend / last_day.day, 2)
+                        for index, val in enumerate(bdays, start=1):
+                            aw_budget[val.strftime("%Y-%m-%d")] = round(aw_budget_per_day * index, 2)
+                        aw_b_final['A - ' + remove_accents(a.dependent_account_name) + ' Budget'] = aw_budget
+
+                        if remaining > 0:
+                            client.aw_rec_ds += (a.desired_spend - a.current_spend) / remaining
+                        else:
+                            client.aw_rec_ds += a.desired_spend - a.current_spend
+                    else:
+                        if remaining > 0:
+                            client.aw_rec_ds += (a.desired_spend - a.current_spend) / remaining
+                        else:
+                            client.aw_rec_ds += a.desired_spend - a.current_spend
+
+
+        else:
+            aw_s_final = {}
+            aw_b_final = {}
+            aw_p_final = {}
+            gts_values = {}
+
+            if client.has_gts and not client.has_budget:
+                gts_per_day = round(client.target_spend / last_day.day, 2)
+                for index, val in enumerate(bdays, start=1):
+                    gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
+                gts_final['Global Target Spend'] = gts_values
+
+        bing = client.bing.all()
+        if len(bing) > 0:
+            for b in bing:
+
+                bing_budget, bing_spend, bing_projected = {}, {}, {}
+
+                client.budget += b.desired_spend
+                client.current_spend += b.current_spend
+                client.bing_spend += b.current_spend
+                client.bing_yesterday += b.yesterday_spend
+                client.bing_budget += b.desired_spend
+                client.bing_current_ds += b.current_spend / today.day
+
+                for k, v in sorted(b.segmented_spend.items()):
+                    b_temp = b_temp + float(v['spend'])
+                    bing_spend[v['gregoriandate']] = round(b_temp, 2)
+                bing_s_final['B - ' + remove_accents(b.account_name) + ' Spend'] = bing_spend
+
+                bing_projected_val = projected(b.current_spend, b.yesterday_spend)
+                client.bing_projected += bing_projected_val
+                if remaining > 0:
+                    bing_projected_per_day = (bing_projected_val - b.current_spend) / remaining
+                else:
+                    bing_projected_per_day = (bing_projected_val - b.current_spend)
+                for index, val in enumerate(pdays):
+                    bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend,
+                                                                     2)
+                bing_p_final['B - ' + remove_accents(b.account_name) + ' Projected'] = bing_projected
+
+                # Budget only client
+                if client.has_budget and not client.has_gts:
+                    bing_budget_per_day = round(b.desired_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
+                    bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+
+                    if remaining > 0:
+                        client.bing_rec_ds += (b.desired_spend - b.current_spend) / remaining
+                    else:
+                        client.bing_rec_ds += b.desired_spend - b.current_spend
+
+                # GTS only client
+                elif client.has_gts and not client.has_budget:
+                    if remaining > 0:
+                        client.bing_rec_ds += (client.target_spend - b.current_spend) / remaining
+                    else:
+                        client.bing_rec_ds += client.target_spend - b.current_spend
+                # Both options active
+                elif client.has_gts and client.has_budget:
+
+                    if b.desired_spend > 0:
+                        bing_budget_per_day = round(b.desired_spend / last_day.day, 2)
+                        for index, val in enumerate(bdays, start=1):
+                            bing_budget[val.strftime("%Y-%m-%d")] = round(bing_budget_per_day * index, 2)
+                        bing_b_final['B - ' + remove_accents(b.account_name) + ' Budget'] = bing_budget
+
+                        if remaining > 0:
+                            client.bing_rec_ds += (b.desired_spend - b.current_spend) / remaining
+                        else:
+                            client.bing_rec_ds += b.desired_spend - b.current_spend
+                    else:
+                        if remaining > 0:
+                            client.bing_rec_ds += (client.target_spend - b.current_spend) / remaining
+                        else:
+                            client.bing_rec_ds += client.target_spend - b.current_spend
+
+        else:
+            bing_s_final = {}
+            bing_p_final = {}
+            bing_b_final = {}
+
+        facebook = client.facebook.all()
+        if len(facebook) > 0:
+            for f in facebook:
+
+                fb_budget, fb_spend, fb_projected = {}, {}, {}
+
+                client.budget += f.desired_spend
+                client.current_spend += f.current_spend
+                client.fb_spend += f.current_spend
+                client.fb_yesterday += f.yesterday_spend
+                client.fb_budget += f.desired_spend
+                client.fb_current_ds += f.current_spend / today.day
+
+                for k, v in sorted(f.segmented_spend.items()):
+                    fb_temp = fb_temp + float(v)
+                    fb_spend[k] = round(fb_temp, 2)
+                fb_s_final['F - ' + remove_accents(f.account_name) + ' Spend'] = fb_spend
+
+                fb_projected_val = projected(f.current_spend, f.yesterday_spend)
+                client.fb_projected += fb_projected_val
+                if remaining > 0:
+                    fb_projected_per_day = (fb_projected_val - f.current_spend) / remaining
+                else:
+                    fb_projected_per_day = (fb_projected_val - f.current_spend)
+                for index, val in enumerate(pdays):
+                    fb_projected[val.strftime("%Y-%m-%d")] = round((fb_projected_per_day * index) + f.current_spend, 2)
+                fb_p_final['F - ' + remove_accents(f.account_name) + ' Projected'] = fb_projected
+
+                # Budget only client
+                if client.has_budget and not client.has_gts:
+                    fb_budget_per_day = round(f.desired_spend / last_day.day, 2)
+                    for index, val in enumerate(bdays, start=1):
+                        fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
+                    fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+
+                    if remaining > 0:
+                        client.fb_rec_ds += (f.desired_spend - f.current_spend) / remaining
+                    else:
+                        client.fb_rec_ds += f.desired_spend - f.current_spend
+
+                # GTS only client
+                elif client.has_gts and not client.has_budget:
+                    if remaining > 0:
+                        client.fb_rec_ds += (client.target_spend - f.current_spend) / remaining
+                    else:
+                        client.fb_rec_ds += client.target_spend - f.current_spend
+                # Both options active
+                elif client.has_gts and client.has_budget:
+                    if f.desired_spend > 0:
+                        fb_budget_per_day = round(f.desired_spend / last_day.day, 2)
+                        for index, val in enumerate(bdays, start=1):
+                            fb_budget[val.strftime("%Y-%m-%d")] = round(fb_budget_per_day * index, 2)
+                        fb_b_final['F - ' + remove_accents(f.account_name) + ' Budget'] = fb_budget
+
+                        if remaining > 0:
+                            client.fb_rec_ds += (f.desired_spend - f.current_spend) / remaining
+                        else:
+                            client.fb_rec_ds += f.desired_spend - f.current_spend
+
+                    else:
+                        if remaining > 0:
+                            client.fb_rec_ds += (client.target_spend - f.current_spend) / remaining
+                        else:
+                            client.fb_rec_ds += client.target_spend - f.current_spend
+
+        else:
+            fb_s_final = {}
+            fb_p_final = {}
+            fb_b_final = {}
+
+        new_client_cdata.aw_budget = aw_b_final
+        new_client_cdata.aw_spend = aw_s_final
+        new_client_cdata.aw_projected = aw_p_final
+        new_client_cdata.bing_budget = bing_b_final
+        new_client_cdata.bing_spend = bing_s_final
+        new_client_cdata.bing_projected = bing_p_final
+        new_client_cdata.fb_budget = fb_b_final
+        new_client_cdata.fb_spend = fb_s_final
+        new_client_cdata.fb_projected = fb_p_final
+        new_client_cdata.global_target_spend = gts_final
+
+        new_client_cdata.save()
+        client.save()
+
+
+
+@celery_app.task(bind=True)
+def adwords_not_running(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_account_not_running.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
 def adwords_account_not_running(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
@@ -1083,6 +1879,11 @@ def adwords_account_not_running(self, customer_id):
     account.nr_score = nr_score
     account.save()
 
+
+@celery_app.task(bind=True)
+def adwords_no_changes(self):
+    # I don't think we need a new task for this - REVIEW
+    adwords_cron_no_changes.delay()
 
 @celery_app.task(bind=True)
 def adwords_cron_no_changes(self):
@@ -1148,6 +1949,15 @@ def adwords_cron_no_changes(self):
 
 
 @celery_app.task(bind=True)
+def adwords_extensions(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_account_extensions.delay(account.dependent_account_id)
+
+
+@celery_app.task(bind=True)
 def adwords_account_extensions(self, customer_id):
     AVAILABLE_EXTENSIONS = [
         'AFFILIATE_LOCATION',
@@ -1208,6 +2018,14 @@ def adwords_account_extensions(self, customer_id):
 
 
 @celery_app.task(bind=True)
+def adwords_nlc(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_nlc_attr_model.delay(account.dependent_account_id)
+
+@celery_app.task(bind=True)
 def adwords_nlc_attr_model(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
@@ -1242,6 +2060,15 @@ def adwords_nlc_attr_model(self, customer_id):
     account.nlc_score = score
     account.save()
     calculate_account_score(account)
+
+
+@celery_app.task(bind=True)
+def adwords_wasted_spend(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_account_wasted_spend.delay(account.dependent_account_id)
 
 
 @celery_app.task(bind=True)
@@ -1312,6 +2139,15 @@ def adwords_account_wasted_spend(self, customer_id):
 
         account.save()
         calculate_account_score(account)
+
+
+@celery_app.task(bind=True)
+def adwords_kw_wastage(self):
+
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        adwords_account_keyword_wastage.delay(account.dependent_account_id)
 
 
 @celery_app.task(bind=True)

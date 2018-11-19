@@ -38,6 +38,23 @@ services:
     environment:
       - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
 
+  workerbeat:
+    build:
+      context: .
+    working_dir: /bloom
+    command: bash -c "celery beat -A bloom:celery_app --loglevel=info -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    volumes:
+      - .:/bloom
+    links:
+      - broker
+      - psql
+    depends_on:
+      - broker
+      - psql
+    networks:
+      - broker-net
+      - app-net
+
   web:
     build: 
       context: .
