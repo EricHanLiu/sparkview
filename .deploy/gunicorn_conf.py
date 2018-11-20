@@ -23,11 +23,11 @@ worker_connections = 1000
 #If set to 0 automatic restart is disabled
 max_requests = 0
 
-timeout = 30
+timeout = 60
 
 # The number of seconds to wait for requests on a Keep-Alive connection.
 keepalive = 2
 
 # accesslog = "/var/log/gunicorn/access.log"
 # errorlog = "/var/log/gunicorn/error.log"
-loglevel = "info"
+loglevel = "debug"
