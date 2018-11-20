@@ -23,7 +23,7 @@ worker_connections = 1000
 #If set to 0 automatic restart is disabled
 max_requests = 0
 
-timeout = 60
+timeout = 30
 
 # The number of seconds to wait for requests on a Keep-Alive connection.
 keepalive = 2
