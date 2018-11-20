@@ -26,27 +26,27 @@ services:
     networks:
       - broker-net
     environment:
-      - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
       - PSQL_NAME=bloom
       - PSQL_USER=bloom
       - PSQL_PASSWORD=Digital987x123
-      - PSQL_HOST=bloom-database
+      - PSQL_HOST=bloom-db
 
   workerbeat:
     image: hyperdigitalteam/bloom
     working_dir: /bloom
     command: bash -c "celery beat -A bloom:celery_app --loglevel=info -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-    volumes:
-    - .:/bloom
     links:
     - broker
-    - psql
     depends_on:
     - broker
-    - psql
     networks:
     - broker-net
-    - app-net
+
+    environment:
+      - PSQL_NAME=bloom
+      - PSQL_USER=bloom
+      - PSQL_PASSWORD=Digital987x123
+      - PSQL_HOST=bloom-db
 
   web:
     image: hyperdigitalteam/bloom
@@ -63,8 +63,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
       - PSQL_NAME=bloom
       - PSQL_USER=bloom
       - PSQL_PASSWORD=Digital987x123
-      - PSQL_HOST=bloom-database
+      - PSQL_HOST=bloom-db

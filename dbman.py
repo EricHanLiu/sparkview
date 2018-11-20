@@ -8,6 +8,7 @@ django.setup()
 
 from django.contrib.auth.models import User
 from client_area import models as cl_models
+from user_management import models as u_models
 from budget import models as b_models
 from facebook_dashboard import models as fd_models
 from bing_dashboard import models as bi_models
@@ -18,6 +19,7 @@ from adwords_dashboard import models as ad_models
 all_modules = [
   [("User", User)],
   inspect.getmembers(cl_models, inspect.isclass),
+  inspect.getmembers(u_models, inspect.isclass),
   inspect.getmembers(b_models, inspect.isclass),
   inspect.getmembers(fd_models, inspect.isclass),
   inspect.getmembers(ad_models, inspect.isclass),
