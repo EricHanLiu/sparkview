@@ -432,6 +432,7 @@ def monthly_reporting(request):
 
     now = datetime.datetime.now()
     accounts = Client.objects.all()
+    teams = Team.objects.all()
     months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
     years = ['2018', '2019', '2020']
 
@@ -439,6 +440,10 @@ def monthly_reporting(request):
     selected['account'] = 'all'
     selected['month'] = 'all'
     selected['year'] = now.year
+    selected['team'] = 'all'
+
+    complete_denom = 0
+    complete_numer = 0
 
     if (request.method == 'GET'):
         reports = MonthlyReport.objects.filter(year=now.year, month=now.month)
@@ -446,6 +451,7 @@ def monthly_reporting(request):
         year = request.POST.get('year')
         month = request.POST.get('month')
         account_id = request.POST.get('account')
+        team_id = request.POST.get('team')
 
         reports = MonthlyReport.objects.filter()
 
@@ -455,6 +461,11 @@ def monthly_reporting(request):
         if (month != 'all'):
             reports = reports.filter(month=month)
             selected['month'] = month
+        if (team_id != 'all'):
+            team = Team.objects.get(id=team_id)
+            team_accounts = accounts.filter(team=team)
+            reports = reports.filter(account__in=team_accounts)
+            selected['team'] = int(team_id)
         if (account_id != 'all'):
             account = Client.objects.get(id=account_id)
             reports = reports.filter(account=account)
@@ -463,9 +474,20 @@ def monthly_reporting(request):
     else:
         return HttpResponse('Invalid request type')
 
+    for report in reports:
+        if report.complete_ontime:
+            complete_numer += 1
+        complete_denom += 1
+
+    complete_rate = 0.0
+    if complete_denom != 0:
+        complete_rate = 100.0 * complete_numer / complete_denom
+
     context = {
         'reports' : reports,
         'accounts' : accounts,
+        'complete_rate' : complete_rate,
+        'teams' : teams,
         'months' : months,
         'years' : years,
         'selected' : selected
@@ -551,3 +573,39 @@ def flagged_accounts(request):
     }
 
     return render(request, 'reports/flagged_accounts.html', context)
+
+
+@login_required
+def performance_anomalies(request):
+    """
+    Finds campaigns that are underperforming or overperforming
+    """
+    if (not request.user.is_staff):
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(Q(target_cpa__gt=0.0) | Q(target_roas__gt=0.0))
+
+    good_accounts = []
+    bad_accounts = []
+
+    for account in accounts:
+        if account.target_roas > 0.0:
+            roas_diff = (account.roas_this_month - account.target_roas) / account.target_roas
+            if roas_diff >= 0.1:
+                good_accounts.append(account)
+            elif roas_diff <= -0.1:
+                bad_accounts.append(account)
+
+        if account.target_cpa > 0.0:
+            cpa_diff = (account.cpa_this_month - account.target_cpa) / account.target_cpa
+            if cpa_diff >= 0.1:
+                good_accounts.append(account)
+            elif cpa_diff <= -0.1:
+                bad_accounts.append(account)
+
+    context = {
+        'good_accounts' : good_accounts,
+        'bad_accounts' : bad_accounts
+    }
+
+    return render(request, 'reports/performance_anomalies.html', context)

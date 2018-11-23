@@ -59,3 +59,11 @@ def get_month_name(month_num):
     if month_num > 12 or month_num < 1:
         return 'None'
     return calendar.month_name[month_num]
+
+
+@register.filter
+def mcv(value):
+    try:
+        return float(value) / 1000000
+    except ValueError:
+        return 0

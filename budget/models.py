@@ -80,7 +80,7 @@ class Client(models.Model):
     language       = models.ManyToManyField(Language, related_name='language')
     contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url            = models.URLField(max_length=300, null=True, blank=True)
-    clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
+    # clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
     tier           = models.IntegerField(default=1)
     soldBy         = models.ForeignKey(Member, models.DO_NOTHING, null=True, related_name='sold_by')
     # maybe do services another way?
@@ -95,6 +95,8 @@ class Client(models.Model):
     clientGrade    = models.IntegerField(default=0)
     actualHours    = models.IntegerField(default=0)
     star_flag      = models.BooleanField(default=False)
+    target_cpa = models.FloatField(default=0)
+    target_roas = models.FloatField(default=0)
 
     # Member attributes (we'll see if there's a better way to do this)
     cm1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm1')
@@ -162,6 +164,186 @@ class Client(models.Model):
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
 
+    @property
+    def google_kpi_month(self):
+        """
+        Returns google ads kpi info this month
+        """
+        if not hasattr(self, '_google_cpa_month'):
+            kpid = {}
+            conversions = 0.0
+            cost = 0.0
+            conversion_value = 0.0
+
+            for aa in self.adwords.all():
+                aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
+                recent_perf = aw_perf[0].metadata if aw_perf else {}
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']: # We have CPA info
+                    conversions += float(recent_perf['vals']['conversions'][1])
+                    cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
+                kpid['roas'] = 0.0
+                if 'vals' in recent_perf and 'all_conv_value' in recent_perf['vals']:
+                    conversion_value += float(recent_perf['vals']['all_conv_value'][1])
+
+            kpid['conversions'] = conversions
+            kpid['cost'] = cost
+            kpid['conversion_value'] = conversion_value
+
+            try:
+                kpid['cpa'] = cost / conversions
+            except:
+                kpid['cpa'] = 0.0
+
+            try:
+                kpid['roas'] = conversion_value / cost
+            except:
+                kpid['roas'] = 0.0
+
+            self._google_cpa_month = kpid
+        return self._google_cpa_month
+
+    @property
+    def facebook_kpi_month(self):
+        """
+        Returns facebook ads kpi info this month
+        """
+        if not hasattr(self, '_facebook_cpa_month'):
+            kpid = {}
+            conversions = 0.0
+            cost = 0.0
+            conversion_value = 0.0
+
+            for fa in self.facebook.all():
+                fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
+                recent_perf = fb_perf[0].metadata if fb_perf else {}
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']: # We have CPA info
+                    conversions += float(recent_perf['vals']['conversions'][1])
+                    cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
+                kpid['roas'] = 0.0
+                if 'vals' in recent_perf and 'all_conv_value' in recent_perf['vals']: # we have conversion value info
+                    conversion_value += float(recent_perf['vals']['all_conv_value'][1]) # TODO: it's not called this in facebook ads
+
+            kpid['conversions'] = conversions
+            kpid['cost'] = cost
+            kpid['conversion_value'] = conversion_value
+
+            try:
+                kpid['cpa'] = cost / conversions
+            except:
+                kpid['cpa'] = 0.0
+
+            try:
+                kpid['roas'] = conversion_value / cost
+            except:
+                kpid['roas'] = 0.0
+
+            self._facebook_cpa_month = kpid
+        return self._facebook_cpa_month
+
+    @property
+    def kpi_info(self):
+        """
+        Returns a dict with both the KPI string and the value (only adwords for beta)
+        """
+        """
+        Example output from adwords performance object
+        In all arrays, 0 is diff, 1 is now, 2 is previous
+        {'vals': {'ctr': [-13.391984359726287, '10.23%', '11.60%'], 'cost': [14.090268386064498, '2099960000', '1804070000'],
+        'clicks': [-13.098134630981345, '2466', '2789'],
+        'avg_cpc': [24.039621168084643, '851565', '646852'], 'cost__conv': [0.9137399904610828, '32534091', '32236814'],
+        'client_name': ['AbbVie - HS', 'AbbVie - HS', 'AbbVie - HS'], 'conversions': [13.307513555383418, '64.55', '55.96'],
+        'customer_id': ['8156310238', '8156310238', '8156310238'], 'impressions': [0.31927685864742716, '24117', '24040'],
+        'all_conv_value': [0.0, '0.00', '0.00'], 'search_impr_share': [1.7761989342806417, '61.93%', '60.83%']},
+        'daterange1_max': '20181120', 'daterange1_min': '20181101', 'daterange2_max': '20181020', 'daterange2_min': '20181001'}
+        """
+        if not hasattr(self, '_kpi_info'):
+            kpid = {}
+
+            conversions = 0.0
+            cost = 0.0
+            final_cpa = 0.0
+
+            total_add_spend = 0.0
+            total_conversion_value = 0.0
+            roas = 0.0
+
+            """
+            Parse adwords performance object
+            """
+            # for aa in self.adwords.all():
+            #     aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
+            #     recent_perf = aw_perf[0].metadata if aw_perf else {}
+            #     if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']: # We have CPA info
+            #         conversions += float(recent_perf['vals']['conversions'][1])
+            #         cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
+
+            conversions += self.google_kpi_month['conversions']
+            cost += self.google_kpi_month['cost']
+            total_conversion_value += self.google_kpi_month['conversion_value']
+
+            """
+            Facebook
+            """
+            # for fa in self.facebook.all():
+            #     fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
+            #     recent_perf = fb_perf[0].metadata if fb_perf else {}
+            #     if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']: # We have CPA info
+            #         conversions += float(recent_perf['vals']['conversions'][1])
+            #         cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
+
+            conversion += self.facebook_kpi_month['conversions']
+            cost += self.facebook_kpi_month['cost']
+            total_active_cro += self.facebook_kpi_month['conversion_value']
+
+            # """
+            # Parse Bing performance object
+            # """
+            # for ba in self.bing.all():
+            #     bing_perf = bing_a.BingAnomalies.objects.filter(account=ba, performance_type='ACCOUNT')
+            #     recent_perf = bing_perf[0] if bing_perf else {}
+            #     conversions += float(recent_perf.conversions)
+            #     cost += float(recent_perf.cost)
+
+            try:
+                final_cpa = cost / conversions
+            except:
+                final_cpa = 0.0
+            kpid['cpa'] = final_cpa
+
+            try:
+                kpid['roas'] = total_conversion_value / cost
+            except:
+                kpid['roas'] = 0.0
+
+
+            if len(kpid) == 0:
+                self._kpi_info = kpid
+                return self._kpi_info
+
+            # kpid['cpa'] = 0.0
+            # if 'cost__conv' in kpid['kpi']['vals']:
+            #     kpid['cpa'] = float(kpid['kpi']['vals']['cost__conv'][1]) / 1000000.0
+            #
+            # kpid['roas'] = 0.0
+            # if 'all_conv_value' in kpid['kpi']['vals']:
+            #     kpid['roas'] = float(kpid['kpi']['vals']['all_conv_value'][1]) / (float(kpid['kpi']['vals']['cost'][1]) / 1000000.0)
+
+            self._kpi_info = kpid
+        return self._kpi_info
+
+    @property
+    def cpa_this_month(self):
+        """
+        TODO: Needs to be improved
+        """
+        return self.kpi_info['cpa']
+
+    @property
+    def roas_this_month(self):
+        """
+        TODO: Needs to be improved
+        """
+        return self.kpi_info['roas']
 
     @property
     def value_added_hours_this_month(self):

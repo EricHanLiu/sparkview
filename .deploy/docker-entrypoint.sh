@@ -34,7 +34,7 @@ then
   then
     echo "Starting celery"
     celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8
-  else 
+  else
     echo "Starting gunicorn"
     gunicorn bloom.wsgi --config ${PROJECT_DIR}/.deploy/gunicorn_conf.py
   fi
@@ -45,7 +45,7 @@ else
   then
     echo "Starting celery"
     celery worker -A bloom:celery_app --loglevel=info --time-limit=300 --concurrency=8
-  else 
+  else
     echo "Starting django"
     python manage.py runserver 0.0.0.0:8000
   fi

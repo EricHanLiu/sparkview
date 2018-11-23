@@ -19,5 +19,6 @@ urlpatterns = [
     url(r'^account_capacity$', views.account_capacity, name='account_capacity'),
     url(r'^monthly_reporting$', views.monthly_reporting, name='monthly_reporting'),
     url(r'^backups$', views.backup_report, name='backup_report'),
-    url(r'^flagged_accounts$', views.flagged_accounts, name='flagged_accounts')
+    url(r'^flagged_accounts$', views.flagged_accounts, name='flagged_accounts'),
+    url(r'^performance_anomalies$', views.performance_anomalies, name='performance_anomalies')
 ]

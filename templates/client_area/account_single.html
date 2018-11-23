@@ -152,6 +152,102 @@
       </div>
     </div>
     <div class="col-xl-4">
+      <!-- KPI -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                KPIs
+              </h3>
+            </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#m_set_kpis" id="kpi_btn">
+                   Set KPIs
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="form-group m-form__group">
+            <div class="row">
+              <div class="col-md-12 col-lg-12 col-xl-6">
+                  {% if account.target_roas != None and account.target_roas != 0.0 %}
+                  <div class="m-widget1__item">
+                    <div class="row m-row--no-padding align-items-center">
+                      <div class="col">
+                        <h3 class="m-widget1__title">ROAS</h3>
+                        <span class="m-widget1__desc">Target ROAS</span>
+                      </div>
+                      <div class="col m--align-right">
+                        <span class="m-widget1__number m--font-brand">{{ account.roas_this_month|floatformat:2 }}</span>
+                        <br />
+                        <span>{{ account.target_roas|floatformat:2 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+                  <div class="m-widget1__item">
+                    <div class="row m-row--no-padding align-items-center">
+                      <div class="col">
+                        <span class="m-widget1__title">Google Ads ROAS</span>
+                        <span class="m-widget1__desc">Target ROAS</span>
+                      </div>
+                      <div class="col m--align-right">
+                        <span class="m-widget1__number m--font-brand">{{ account.roas_this_month|floatformat:2 }}</span>
+                        <br />
+                        <span>{{ account.target_roas|floatformat:2 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  There is no target ROAS
+                  {% endif %}
+              </div>
+              <div class="col-md-12 col-lg-12 col-xl-6">
+                  {% if account.target_cpa != None and account.target_cpa != 0.0 %}
+                  <div class="m-widget1__item">
+                    <div class="row m-row--no-padding align-items-center">
+                      <div class="col">
+                        <h3 class="m-widget1__title">CPA</h3>
+                        <span class="m-widget1__desc">Target CPA</span>
+                      </div>
+                      <div class="col m--align-right">
+                        <span class="m-widget1__number m--font-brand">${{ account.cpa_this_month|format_money }}</span>
+                        <br />
+                        <span>${{ account.target_cpa|format_money }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <hr />
+                  <div class="m-widget1__item">
+                    <div class="row m-row--no-padding align-items-center">
+                      <div class="col">
+                        <span class="m-widget1__title">Google Ads CPA</span>
+                        <span class="m-widget1__desc">Target CPA</span>
+                      </div>
+                      <div class="col m--align-right">
+                        <span class="m-widget1__number m--font-brand">${{ account.google_kpi_month.cpa|format_money }}</span>
+                        <br />
+                        <span>${{ account.target_cpa|format_money }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  There is no target CPA
+                  {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End KPI -->
       <!-- Details -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
@@ -474,19 +570,6 @@
             </div>
             <div class="col-md-12 col-lg-12 col-xl-6">
               <div class="m-widget1">
-                <!-- <div class="m-widget1__item">
-                  <div class="row m-row--no-padding align-items-center">
-                    <div class="col">
-                      <h3 class="m-widget1__title">Client Status</h3>
-                      <span class="m-widget1__desc">Status of the client</span>
-                    </div>
-                    <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-accent">
-                        <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }} m-badge--wide" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}">{{ account.get_status_display }}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div> -->
                 <div class="m-widget1__item">
                   <div class="row m-row--no-padding align-items-center">
                     <div class="col">
@@ -1048,6 +1131,44 @@
     </div>
 </div>
 <!-- End add promo -->
+<!-- Set KPI modal -->
+<div class="modal fade" id="m_set_kpis" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Set KPIs for {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/set_kpis">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Target ROAS:</label>
+                        <input type="text" name="set-roas" class="form-control m-input" value="{{ account.target_roas }}" />
+                      </div>
+                      <div class="col-md-6">
+                        <label>Target CPA:</label>
+                        <input type="text" name="set-cpa" class="form-control m-input" value="{{ account.target_cpa }}" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Set Targets" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End set KPIs -->
 
 {% endblock %}
 

@@ -124,7 +124,7 @@ class DependentAccount(models.Model):
         """
         if (self.has_custom_dates):
             return self.desired_spend_end_date
-        
+
 
     @property
     def json(self):

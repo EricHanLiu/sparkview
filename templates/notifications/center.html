@@ -25,7 +25,7 @@
         <div class="m-portlet__body">
           <div class="m-widget2">
             {% for notification in notifications %}
-            <div class="m-widget2__item m-widget2__item--brand">
+            <div class="m-widget2__item m-widget2__item--{{ notification.colour }}">
               <div class="m-widget2__checkbox">
                 <label class="m-checkbox m-checkbox--solid m-checkbox--single m-checkbox--brand">
                   <input type="checkbox" class="notif-check-page" data-notification-id="{{ notification.id }}">

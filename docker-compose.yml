@@ -1,10 +1,10 @@
 version: '3'
 networks:
-  app-net: 
+  app-net:
     driver: bridge
   broker-net:
 volumes:
-  psql-data:  
+  psql-data:
 services:
   broker:
     hostname: rabbit1
@@ -18,9 +18,9 @@ services:
       - broker-net
     ports:
       - "5672:5672"
-  
+
   worker:
-    build: 
+    build:
       context: .
     working_dir: /bloom
     entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh celery dev"
@@ -39,7 +39,7 @@ services:
       - CQLENG_ALLOW_SCHEMA_MANAGEMENT=1
 
   web:
-    build: 
+    build:
       context: .
     working_dir: /bloom
     # command: bash -c "python manage.py migrate && gunicorn bloom.wsgi --config /bloom/.deploy/gunicorn_conf.py"
@@ -59,7 +59,7 @@ services:
       - app-net
     ports:
       - "8000:8000"
-  
+
   psql:
     image: 'postgres'
     volumes:

@@ -13,20 +13,27 @@ class Notification(models.Model):
                           (3, 'Reporting'),
                           (4, 'Other')]
 
-    NOTIFICATION_COLOUR_CLASSES = ['danger', 'success', 'brand', 'warning', '']
+    SEVERITY_TYPES = [(0, 'Info'),
+                      (1, 'Reminder'),
+                      (2, 'Success'),
+                      (3, 'Warning'),
+                      (4, 'Urgent')]
+
+    NOTIFICATION_COLOUR_CLASSES = ['brand', 'primary', 'success', 'warning', 'danger']
 
     member = models.ForeignKey('user_management.Member', models.DO_NOTHING, default=None, null=True, blank=True)
     account = models.ForeignKey('budget.Client', models.DO_NOTHING, default=None, null=True, blank=True)
     message = models.CharField(max_length=999)
     link = models.URLField(max_length=499, blank=True)
     type = models.IntegerField(choices=NOTIFICATION_TYPES, default=4, blank=True)
+    severity = models.IntegerField(choices=SEVERITY_TYPES, default=0, blank=True)
     confirmed = models.BooleanField(default=False)
     confirmed_at = models.DateTimeField(null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
 
     @property
     def colour(self):
-        return self.NOTIFICATION_COLOUR_CLASSES[self.type]
+        return self.NOTIFICATION_COLOUR_CLASSES[self.severity]
 
 
     def __str__(self):

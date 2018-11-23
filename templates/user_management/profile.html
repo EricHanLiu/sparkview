@@ -64,6 +64,79 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                KPIs
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'>
+            <thead>
+              <tr>
+                <th>
+                  Account
+                </th>
+                <th>
+                  ROAS
+                </th>
+                <th>
+                  Target ROAS
+                </th>
+                <th>
+                  CPA
+                </th>
+                <th>
+                  Target CPA
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in accounts %}
+                <tr>
+                  <td>
+                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                  </td>
+                  {% if account.target_roas > 0.0 %}
+                  <td>
+                    {{ account.roas_this_month|format_money }}
+                  </td>
+                  <td>
+                    {{ account.target_roas|format_money }}
+                  </td>
+                  {% else %}
+                  <td>
+                    None
+                  </td>
+                  <td>
+                    None
+                  </td>
+                  {% endif %}
+                  {% if account.target_cpa > 0.0 %}
+                  <td>
+                    {{ account.cpa_this_month|format_money }}
+                  </td>
+                  <td>
+                    {{ account.target_cpa|format_money }}
+                  </td>
+                  {% else %}
+                  <td>
+                    None
+                  </td>
+                  <td>
+                    None
+                  </td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
                 My Hours This Month
               </h3>
             </div>
@@ -177,7 +250,7 @@
           <div class="m-portlet ">
             <div class="m-portlet__body  m-portlet__body--no-padding">
               <div class="row m-row--no-padding m-row--col-separator-xl">
-                <div class="col-md-12 col-lg-6 col-xl-4">
+                <div class="col-md-12 col-lg-6 col-xl-3">
                   <!--begin::Total Profit-->
                   <div class="m-widget24">
                     <div class="m-widget24__item">
@@ -185,7 +258,7 @@
                         Allocated Hours
                       </h4><br>
                       <span class="m-widget24__desc">
-                          Hours to work this month
+                          This month
                       </span>
                       <span class="m-widget24__stats m--font-brand" style="margin-bottom:2.86rem;">
                         {{ member.allocatedHoursMonth|floatformat:2 }}
@@ -194,7 +267,7 @@
                   </div>
                   <!--end::Total Profit-->
                 </div>
-                <div class="col-md-12 col-lg-6 col-xl-4">
+                <div class="col-md-12 col-lg-6 col-xl-3">
                   <!--begin::New Feedbacks-->
                   <div class="m-widget24">
                     <div class="m-widget24__item">
@@ -202,7 +275,7 @@
                         Hours Available
                       </h4><br>
                       <span class="m-widget24__desc">
-                          Hours available to be allocated
+                          This month
                       </span>
                       <span class="m-widget24__stats m--font-info" style="margin-bottom:2.86rem;">
                         {{ member.hours_available|floatformat:2 }}
@@ -211,7 +284,7 @@
                   </div>
                   <!--end::New Feedbacks-->
                 </div>
-                <div class="col-md-12 col-lg-6 col-xl-4">
+                <div class="col-md-12 col-lg-6 col-xl-3">
                   <!--begin::New Orders-->
                   <div class="m-widget24">
                     <div class="m-widget24__item">
@@ -219,10 +292,27 @@
                         Actual Hours
                       </h4><br>
                       <span class="m-widget24__desc">
-                          Hours worked this month
+                          This month
                       </span>
                       <span class="m-widget24__stats m--font-danger" style="margin-bottom:2.86rem;">
                         {{ member.actualHoursThisMonth|floatformat:2 }}
+                      </span>
+                    </div>
+                  </div>
+                  <!--end::New Orders-->
+                </div>
+                <div class="col-md-12 col-lg-6 col-xl-3">
+                  <!--begin::New Orders-->
+                  <div class="m-widget24">
+                    <div class="m-widget24__item">
+                      <h4 class="m-widget24__title">
+                        Value Added Hours
+                      </h4><br>
+                      <span class="m-widget24__desc">
+                          This month
+                      </span>
+                      <span class="m-widget24__stats m--font-danger" style="margin-bottom:2.86rem;">
+                        {{ member.value_added_hours_this_month|floatformat:2 }}
                       </span>
                     </div>
                   </div>
@@ -337,6 +427,9 @@
                   Due Date
                 </th>
                 <th>
+                  AM
+                </th>
+                <th>
                   Sent to AM
                 </th>
                 <th>
@@ -366,6 +459,9 @@
                   {% endif %}
                 </td>
                 <td>
+                  {{ report.account.main_am }}
+                </td>
+                <td>
                   <label class="m-checkbox">
                     <input type="checkbox" class="sent-to-am" data-account="{{ report.account.id }}" {% if report.received_by_am %} checked disabled{% endif %}>
                     <span></span>
@@ -392,86 +488,91 @@
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text">
-              Promo Calendar
+              Promos
               </h3>
             </div>
           </div>
+          <div class="m-portlet__head-tools">
+					<ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right" role="tablist">
+						<li class="nav-item m-tabs__item">
+							<a class="nav-link m-tabs__link active show" data-toggle="tab" href="#m_tabs_7_1" role="tab" aria-selected="true">
+								Calendar
+							</a>
+						</li>
+						<li class="nav-item m-tabs__item">
+							<a class="nav-link m-tabs__link" data-toggle="tab" href="#m_tabs_7_2" role="tab" aria-selected="false">
+								Summary
+							</a>
+						</li>
+					</ul>
+				</div>
         </div>
         <div class="m-portlet__body">
-          <div id="calendar" class="fc fc-unthemed fc-ltr">
+          <div class="tab-content">
+            <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
+              <div id="calendar" class="fc fc-unthemed fc-ltr">
 
-          </div>
-        </div>
-      </div>
-      <!-- Promo this month summary -->
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text">
-                Promo Summary
-              </h3>
+              </div>
+					  </div>
+            <div class="tab-pane active show" id="m_tabs_7_2" role="tabpanel">
+              <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
+                <thead class="thead-inverse">
+                  <tr class="main-table-header">
+                    <th>
+                      Promo Name
+                    </th>
+                    <th>
+                      Start Date
+                    </th>
+                    <th>
+                      End Date
+                    </th>
+                    <th>
+                      Desc
+                    </th>
+                    <th>
+                      Services
+                    </th>
+                    <th>
+                      Confirmed Started
+                    </th>
+                    <th>
+                      Confirmed Ended
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for promo in promos %}
+                  <tr>
+                    <td>
+                      {{ promo }}
+                    </td>
+                    <td>
+                      {{ promo.start_date }}
+                    </td>
+                    <td>
+                      {{ promo.end_date }}
+                    </td>
+                    <td>
+                      {{ promo.desc }}
+                    </td>
+                    <td>
+                      {{ promo.service_str }}
+                    </td>
+                    <td>
+                      <input type="checkbox" />
+                    </td>
+                    <td>
+                      <input type="checkbox" />
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-        <div class="m-portlet__body">
-          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="account_change_datatable">
-            <thead class="thead-inverse">
-              <tr class="main-table-header">
-                <th>
-                  Promo Name
-                </th>
-                <th>
-                  Start Date
-                </th>
-                <th>
-                  End Date
-                </th>
-                <th>
-                  Desc
-                </th>
-                <th>
-                  Services
-                </th>
-                <th>
-                  Confirmed Started
-                </th>
-                <th>
-                  Confirmed Ended
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for promo in promos %}
-              <tr>
-                <td>
-                  {{ promo }}
-                </td>
-                <td>
-                  {{ promo.start_date }}
-                </td>
-                <td>
-                  {{ promo.end_date }}
-                </td>
-                <td>
-                  {{ promo.desc }}
-                </td>
-                <td>
-                  {{ promo.service_str }}
-                </td>
-                <td>
-                  <input type="checkbox" />
-                </td>
-                <td>
-                  <input type="checkbox" />
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
       </div>
-      <!-- End promos this month summary -->
       <!-- end promos -->
       {% endif %}
 

@@ -17,6 +17,19 @@
       </div>
     </div>
     <div class="m-portlet__body">
+      <div class="row">
+          <div class="col-md-4">
+              <div class="bbox shadow p-3 mb-5 bg-white rounded">
+                  <h5 class="m--padding-10">
+                      Completion Percentage
+                  </h5>
+                  <h1 class="text-center inner-text text-info">
+                      {{ complete_rate }}%
+                  </h1>
+              </div>
+          </div>
+      </div>
+      <hr />
       <form class="m-form" method="post" id="monthly_reports_form">
       {% csrf_token %}
         <div class="row">
@@ -30,6 +43,19 @@
                         </option>
                     {% for account in accounts %}
                         <option value="{{ account.id }}" {% if selected.account == account.id %}selected{% endif %}>{{ account.client_name }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="account">Team:</label>
+                <select class="form-control m-input"
+                        name="team"
+                        style="width: 100%;">
+                        <option value="all" {% if selected.team == 'all' %}selected{% endif %}>
+                          All
+                        </option>
+                    {% for team in teams %}
+                        <option value="{{ team.id }}" {% if selected.team == team.id %}selected{% endif %}>{{ team.name }}</option>
                     {% endfor %}
                 </select>
               </div>
@@ -77,6 +103,9 @@
                   Month
                 </th>
                 <th>
+                  Due date
+                </th>
+                <th>
                   Sent to AM
                 </th>
                 <th>
@@ -92,6 +121,9 @@
                 </td>
                 <td>
                   {{ report.month|get_month_name }}, {{ report.year }}
+                </td>
+                <td>
+                  {{ report.due_date }}
                 </td>
                 <td>
                   {{ report.date_sent_to_am }}

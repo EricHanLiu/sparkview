@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from user_management.models import Member
 from .models import Notification
+import datetime
 
 
 @login_required
@@ -55,6 +56,7 @@ def confirm(request):
         return HttpResponse('This notification is already confirmed')
 
     notification.confirmed = True
+    notification.confirmed_at = datetime.datetime.now()
     notification.save()
 
     return HttpResponse('Success')
