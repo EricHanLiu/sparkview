@@ -27,4 +27,4 @@ class Migration(migrations.Migration):
                 ('member', models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='user_management.Member')),
             ],
         ),
-    ]
+]
