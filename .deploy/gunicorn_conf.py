@@ -30,8 +30,4 @@ keepalive = 2
 
 # accesslog = "/var/log/gunicorn/access.log"
 # errorlog = "/var/log/gunicorn/error.log"
-<<<<<<< HEAD
-loglevel = "info"
-=======
 loglevel = "debug"
->>>>>>> 0e143cf9c14dccca65e5438194eab96bbe46e69e
