@@ -55,7 +55,7 @@ def accounts_team(request):
 
 @login_required
 def accounts_all(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0))
@@ -122,6 +122,8 @@ def account_new(request):
             # Make a contact object
             contactInfo = ClientContact(name=cleanedInputs['contact_name'], email=cleanedInputs['contact_email'])
 
+            print(cleanedInputs)
+
             # Get existing client
             if (not int(request.POST.get('existing_client')) == 0):
                 client = ParentClient.objects.get(id=request.POST.get('existing_client'))
@@ -130,7 +132,7 @@ def account_new(request):
 
             account = Client.objects.create(
                         client_name=cleanedInputs['account_name'],
-                        clientType=cleanedInputs['client_type'],
+                        # clientType=cleanedInputs['client_type'],
                         industry=cleanedInputs['industry'],
                         soldBy=cleanedInputs['sold_by']
                     )
@@ -448,6 +450,7 @@ def account_single(request, id):
         'changes'               : changes,
         'accountHoursThisMonth' : accountHoursThisMonth,
         'statusBadges'          : statusBadges,
+        'kpid' : account.kpi_info,
         'promos' : promos
     }
 
@@ -897,8 +900,6 @@ def confirm_promo(request):
     if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
         return HttpResponse('You do not have permission to view this page')
 
-    print(request.POST)
-
     promo = get_object_or_404(Promo, id=int(request.POST.get('promo_id')))
 
     type_of_confirmation = int(request.POST.get('confirmation_type'))
@@ -968,3 +969,28 @@ def edit_promos(request):
     }
 
     return render(request, 'client_area/edit_promos.html', context)
+
+
+@login_required
+def set_kpis(request):
+    """
+    Sets the KPIs for an account
+    """
+    member = Member.objects.get(user=request.user)
+    account_id = int(request.POST.get('account_id'))
+    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+        return HttpResponse('You do not have permission to view this page')
+
+    account = Client.objects.get(id=account_id)
+    roas = request.POST.get('set-roas')
+    cpa = request.POST.get('set-cpa')
+
+    if (roas != None and roas != '' and float(roas) != 0):
+        account.target_roas = roas
+
+    if (cpa != None and cpa != '' and float(cpa) != 0):
+        account.target_cpa = cpa
+
+    account.save()
+
+    return redirect('/clients/accounts/' + str(account.id))

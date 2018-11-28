@@ -132,6 +132,10 @@ class MonthlyReport(models.Model):
     def sent_by_am(self):
         return self.date_sent_by_am != None
 
+    @property
+    def complete_ontime(self):
+        return self.date_sent_by_am <= self.due_date
+
     def __str__(self):
         return self.report_name
 

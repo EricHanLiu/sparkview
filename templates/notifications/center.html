@@ -14,19 +14,64 @@
     <div class="col-xl-12">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
-      		<div class="m-portlet__head-caption">
-      			<div class="m-portlet__head-title">
-      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					Notification Center
-      				</h3>
-      			</div>
-      		</div>
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Notification Center
+              </h3>
+            </div>
+          </div>
         </div>
         <div class="m-portlet__body">
-
+          <div class="m-widget2">
+            {% for notification in notifications %}
+            <div class="m-widget2__item m-widget2__item--{{ notification.colour }}">
+              <div class="m-widget2__checkbox">
+                <label class="m-checkbox m-checkbox--solid m-checkbox--single m-checkbox--brand">
+                  <input type="checkbox" class="notif-check-page" data-notification-id="{{ notification.id }}">
+                  <span></span>
+                </label>
+              </div>
+              <div class="m-widget2__desc">
+                <a href="{{ notification.link }}" class="m-widget2__text">
+                  {{ notification.message }}
+                </a><br>
+                <span class="m-widget2__user-name">
+                  <a href="#" class="m-widget2__link">
+                    Created {{ notification.created }}
+                  </a>
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  let $notifCheckPage = $('.notif-check-page');
+  $notifCheckPage.click(function () {
+    let $el = $(this);
+    let $notif = $(this).closest('.m-widget2__item');
+    $.ajax({
+        url: '/notifications/confirm',
+        data: {
+          'notification_id': $(this).data('notification-id')
+        },
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        type: 'POST',
+        success: function (data) {
+          $el.prop('disabled', 'disabled');
+          $notif.fadeOut();
+        }
+    });
+  });
+});
+</script>
 {% endblock %}

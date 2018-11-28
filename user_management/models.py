@@ -31,6 +31,13 @@ class Team(models.Model):
         return list(Member.objects.filter(team = self))
 
     @property
+    def accounts(self):
+        """
+        Returns the team's accounts
+        """
+        pass
+
+    @property
     def team_lead(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self])
@@ -311,7 +318,7 @@ class Member(models.Model):
 
 
     @property
-    def get_unread_notifications(self):
+    def unread_notifications(self):
         """
         Fetches the notifications for this member
         """
@@ -333,4 +340,4 @@ class Member(models.Model):
     account_count = property(get_accounts_count)
 
     def __str__(self):
-        return self.user.first_name + ' ' + self.user.last_name
+        return self.user.get_full_name()

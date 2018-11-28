@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load notification_tags %}
 <!DOCTYPE html>
 <!--
 Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 4
@@ -66,6 +67,9 @@ License: You must have a valid license purchased only from themeforest(the above
        text-decoration: none;
        color: #000;
     }
+    .fa-check-circle:hover {
+      cursor: pointer;
+    }
     </style>
 
     {% block extraCss %}
@@ -125,12 +129,11 @@ License: You must have a valid license purchased only from themeforest(the above
                             <li class="m-menu__item"
                                 data-menu-submenu-toggle="click">
                                 <a href="{% url 'index' %}" class="m-brand__logo-wrapper logo-text-custom">
-                                <h5 style="padding-top: 6px;">
-                                    <span class="m-menu__item-here"></span>
-                                    SparkView
-                                </h5>
+                                  <h5 style="padding-top: 6px;">
+                                      <span class="m-menu__item-here"></span>
+                                      SparkView
+                                  </h5>
                                 </a>
-                                <!-- <h6>v0.0.1-alpha</h6> -->
                             </li>
 
                               {# Client area #}
@@ -378,7 +381,21 @@ License: You must have a valid license purchased only from themeforest(the above
                       												</span>
                                             </a>
                                         </li>
+                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                            <a href="/notifications" class="m-menu__link ">
+                                              <span class="m-menu__link-text">
+                                                Notifications Center
+                                              </span>
+                                            </a>
+                                        </li>
                                         {% if request.user.is_staff %}
+                                            <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                                <a href="/notifications/creator" class="m-menu__link ">
+                                                  <span class="m-menu__link-text">
+                                                    Notification Creator
+                                                  </span>
+                                                </a>
+                                            </li>
                                             <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                                 <a href="/user_management/members" class="m-menu__link ">
                           												<span class="m-menu__link-text">
@@ -532,6 +549,13 @@ License: You must have a valid license purchased only from themeforest(the above
                                     </span>
                                   </a>
                                 </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/performance_anomalies" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Performance Anomalies
+                                    </span>
+                                  </a>
+                                </li>
                               </ul>
                             </div>
                           </li>
@@ -574,71 +598,54 @@ License: You must have a valid license purchased only from themeforest(the above
                         </div>
                         <div class="m-stack__item m-topbar__nav-wrapper">
                             <ul class="m-topbar__nav m-nav m-nav--inline">
-                              <!-- <li class="m-nav__item m-topbar__notifications m-topbar__notifications--img m-dropdown m-dropdown--large m-dropdown--header-bg-fill m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width" data-dropdown-toggle="click" m-dropdown-toggle="click" m-dropdown-persistent="1" aria-expanded="true">
-                                <a href="#" class="m-nav__link m-dropdown__toggle" id="m_topbar_notification_icon">
-                                  <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger"></span>
-                                  <span class="m-nav__link-icon"><i class="fa fa-bell"></i></span>
-                                </a>
-                                <div class="m-dropdown__wrapper" style="z-index: 101;">
-                                  <span class="m-dropdown__arrow m-dropdown__arrow--center"></span>
-                                  <div class="m-dropdown__inner">
-                                    <div class="m-dropdown__body">
-                                      <div class="m-dropdown__content">
-                                        <div class="tab-content">
-                                          <div class="tab-pane active show" id="topbar_notifications_notifications" role="tabpanel">
-                                            <div class="m-scrollable m-scroller ps" data-scrollable="true" data-height="250" data-mobile-height="200" style="height: 250px; overflow: hidden;">
-                                              <div class="m-list-timeline m-list-timeline--skin-light">
-                                                <div class="m-list-timeline__items">
-                                                  <div class="m-list-timeline__item">
-                                                    <span class="m-list-timeline__badge -m-list-timeline__badge--state-success"></span>
-                                                    <span class="m-list-timeline__text">12 new users registered</span>
-                                                    <span class="m-list-timeline__time">Just now</span>
+                              <!-- Begin notifications -->
+                              {% with notifications=request.user|get_unread_notifications %}
+                              <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
+                                  data-dropdown-toggle="click" data-dropdown-persistent="1">
+                                  <input value="{{ notifications.count }}" id="notif_count" style="display:none;" />
+                                  <a href="#" class="m-nav__link m-dropdown__toggle">
+                                    {% if notifications.count > 0 %}
+                                    <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span>
+                                    {% endif %}
+                                    <span class="m-nav__link-icon"><i class="fa fa-bell"></i></span>
+                                  </a>
+                                  <div class="m-dropdown__wrapper">
+                                      <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
+                                      <div class="m-dropdown__inner">
+                                        <div class="m-dropdown__body">
+                                          <div class="m-dropdown__content">
+                                            <div class="tab-content">
+                                              <div class="tab-pane active show" id="topbar_notifications_notifications" role="tabpanel">
+                                                <div class="m-scrollable m-scroller ps" data-scrollable="true" data-height="250" data-mobile-height="200" style="height: 250px; overflow: hidden;">
+                                                  <div class="m-list-timeline m-list-timeline--skin-light">
+                                                    <div class="m-list-timeline__items">
+                                                      {% if notifications.count == 0 %}
+                                                      <div class="m-list-timeline__item">
+                                                        <span class="m-list-timeline__text">Nothing to see here!</span>
+                                                      </div>
+                                                      {% else %}
+                                                        {% for notification in notifications %}
+                                                        <div class="m-list-timeline__item">
+                                                          <span class="m-list-timeline__badge m-list-timeline__badge--{{ notification.colour }}"></span>
+                                                          {% if notification.link != None %}<a style="text-decoration: none;" href="{{ notification.link }}" class="m-list-timeline__text">{% else %}<span class="m-list-timeline__text">{% endif %}{{ notification.message }}{% if notification.link != None %}</a>{% else %}</span>{% endif %}
+                                                          <span class="m-list-timeline__time">
+                                                            <i class="fa fa-check-circle notif-check" style="color:#ddd;" data-checked="0" data-notification-id="{{ notification.id }}"></i>
+                                                          </span>
+                                                        </div>
+                                                        {% endfor %}
+                                                      {% endif %}
+                                                    </div>
                                                   </div>
-                                                  <div class="m-list-timeline__item">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span class="m-list-timeline__text">System shutdown <span class="m-badge m-badge--success m-badge--wide">pending</span></span>
-                                                    <span class="m-list-timeline__time">14 mins</span>
-                                                  </div>
-                                                  <div class="m-list-timeline__item">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span class="m-list-timeline__text">New invoice received</span>
-                                                    <span class="m-list-timeline__time">20 mins</span>
-                                                  </div>
-                                                  <div class="m-list-timeline__item">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span class="m-list-timeline__text">DB overloaded 80% <span class="m-badge m-badge--info m-badge--wide">settled</span></span>
-                                                    <span class="m-list-timeline__time">1 hr</span>
-                                                  </div>
-                                                  <div class="m-list-timeline__item">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span class="m-list-timeline__text">System error - <a href="#" class="m-link">Check</a></span>
-                                                    <span class="m-list-timeline__time">2 hrs</span>
-                                                  </div>
-                                                  <div class="m-list-timeline__item m-list-timeline__item--read">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span href="" class="m-list-timeline__text">New order received <span class="m-badge m-badge--danger m-badge--wide">urgent</span></span>
-                                                    <span class="m-list-timeline__time">7 hrs</span>
-                                                  </div>
-                                                  <div class="m-list-timeline__item m-list-timeline__item--read">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span class="m-list-timeline__text">Production server down</span>
-                                                    <span class="m-list-timeline__time">3 hrs</span>
-                                                  </div>
-                                                  <div class="m-list-timeline__item">
-                                                    <span class="m-list-timeline__badge"></span>
-                                                    <span class="m-list-timeline__text">Production server up</span>
-                                                    <span class="m-list-timeline__time">5 hrs</span>
-                                                  </div>
-                                                </div>
+                                                <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 4px; height: 250px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 220px;"></div></div></div>
                                               </div>
-                                            <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 4px; height: 250px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 220px;"></div></div></div>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
-                                    </div>
                                   </div>
-                                </div>
-                              </li> -->
+                              </li>
+                              {% endwith %}
+                              <!-- End notifications -->
                               <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
                                   data-dropdown-toggle="click">
                                   <a href="#" class="m-nav__link m-dropdown__toggle">
@@ -852,6 +859,39 @@ License: You must have a valid license purchased only from themeforest(the above
                 }
         });
 
+</script>
+
+<script>
+  /**
+   * This is where we will handle notification confirmation
+   */
+  $(document).ready(function () {
+    let $notificationChecks = $('.notif-check');
+    let $notifCount = $('#notif_count');
+    let $notifDot = $('.notif-dot');
+    $notificationChecks.click(function () {
+      let $el = $(this);
+      let $notif = $(this).closest('.m-list-timeline__item');
+      $.ajax({
+          url: '/notifications/confirm',
+          data: {
+            'notification_id': $(this).data('notification-id')
+          },
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          type: 'POST',
+          success: function (data) {
+            // console.log(data);
+            $el.data('checked', '1');
+            $el.css('color', 'rgb(41, 163, 41)');
+            $notif.fadeOut();
+            $notifCount.val(parseInt($notifCount.val()) - 1);
+            if (parseInt($notifCount.val()) == 0) {
+              $notifDot.hide();
+            }
+          }
+      });
+    });
+  });
 </script>
 
 <script src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>

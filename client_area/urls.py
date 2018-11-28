@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^accounts/new_promo$', views.new_promo, name='new_promo'),
     url(r'^accounts/flag$', views.star_account, name='star_account'),
     url(r'^promos/edit$', views.edit_promos, name='edit_promos'),
-    url(r'^promos/confirm$', views.confirm_promo, name='confirm_promo')
+    url(r'^promos/confirm$', views.confirm_promo, name='confirm_promo'),
+    url(r'^accounts/set_kpis$', views.set_kpis, name='set_kpis')
 ]
