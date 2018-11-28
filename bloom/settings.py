@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'client_area',
     'user_management',
     'reports',
+    'notifications',
     'social_django',
     'corsheaders',
     'django_crontab',
