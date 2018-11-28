@@ -339,6 +339,8 @@ def promos(request):
     if (not request.user.is_staff):
         return HttpResponse('You do not have permission to view this page')
 
+    seven_days_ago = datetime.datetime.now() - datetime.timedelta(7)
+
     promos = Promo.objects.filter(end_date__gte=seven_days_ago)
 
     today = datetime.datetime.now().date()
@@ -580,32 +582,76 @@ def performance_anomalies(request):
     """
     Finds campaigns that are underperforming or overperforming
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.filter(Q(target_cpa__gt=0.0) | Q(target_roas__gt=0.0))
 
+    excellent_accounts = []
     good_accounts = []
+    fair_accounts = []
     bad_accounts = []
 
     for account in accounts:
         if account.target_roas > 0.0:
             roas_diff = (account.roas_this_month - account.target_roas) / account.target_roas
             if roas_diff >= 0.1:
+                excellent_accounts.append(account)
+            elif roas_diff >= 0.0:
                 good_accounts.append(account)
-            elif roas_diff <= -0.1:
+            elif roas_diff >= -0.1:
+                fair_accounts.append(account)
+            elif roas_diff < -0.1:
                 bad_accounts.append(account)
 
         if account.target_cpa > 0.0:
             cpa_diff = (account.cpa_this_month - account.target_cpa) / account.target_cpa
             if cpa_diff >= 0.1:
+                excellent_accounts.append(account)
+            elif cpa_diff >= 0.0:
                 good_accounts.append(account)
-            elif cpa_diff <= -0.1:
+            elif cpa_diff >= -0.1:
+                fair_accounts.append(account)
+            elif cpa_diff < -0.1:
                 bad_accounts.append(account)
 
     context = {
+        'excellent_accounts' : excellent_accounts,
         'good_accounts' : good_accounts,
+        'fair_accounts' : fair_accounts,
         'bad_accounts' : bad_accounts
     }
 
     return render(request, 'reports/performance_anomalies.html', context)
+
+
+@login_required
+def monthly_accounts(request):
+    """
+    The overall monthly account reports
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    default_month = now.month
+    default_year = now.year
+
+
+    # TODO fix
+    month = default_month
+    year = default_year
+
+    accounts = Client.objects.filter(status=1)
+    account_dict = {}
+
+    for account in accounts:
+        bh = AccountBudgetSpendHistory.objects.filter(month=month, year=year, account=account)
+        tmpa = []
+        tmpa.append(account)
+        tmpa.append(bh)
+
+    
+
+
+    pass

@@ -241,6 +241,11 @@ class Client(models.Model):
         return self._facebook_cpa_month
 
     @property
+    def bing_kpi_month(self):
+        #TODO
+        pass
+
+    @property
     def kpi_info(self):
         """
         Returns a dict with both the KPI string and the value (only adwords for beta)
@@ -268,15 +273,8 @@ class Client(models.Model):
             roas = 0.0
 
             """
-            Parse adwords performance object
+            Adwords
             """
-            # for aa in self.adwords.all():
-            #     aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
-            #     recent_perf = aw_perf[0].metadata if aw_perf else {}
-            #     if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']: # We have CPA info
-            #         conversions += float(recent_perf['vals']['conversions'][1])
-            #         cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
-
             conversions += self.google_kpi_month['conversions']
             cost += self.google_kpi_month['cost']
             total_conversion_value += self.google_kpi_month['conversion_value']
@@ -284,25 +282,11 @@ class Client(models.Model):
             """
             Facebook
             """
-            # for fa in self.facebook.all():
-            #     fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
-            #     recent_perf = fb_perf[0].metadata if fb_perf else {}
-            #     if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']: # We have CPA info
-            #         conversions += float(recent_perf['vals']['conversions'][1])
-            #         cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
-
-            conversion += self.facebook_kpi_month['conversions']
+            conversions += self.facebook_kpi_month['conversions']
             cost += self.facebook_kpi_month['cost']
-            total_active_cro += self.facebook_kpi_month['conversion_value']
+            total_conversion_value += self.facebook_kpi_month['conversion_value']
 
-            # """
-            # Parse Bing performance object
-            # """
-            # for ba in self.bing.all():
-            #     bing_perf = bing_a.BingAnomalies.objects.filter(account=ba, performance_type='ACCOUNT')
-            #     recent_perf = bing_perf[0] if bing_perf else {}
-            #     conversions += float(recent_perf.conversions)
-            #     cost += float(recent_perf.cost)
+            # TODO: Add bing
 
             try:
                 final_cpa = cost / conversions
@@ -319,14 +303,6 @@ class Client(models.Model):
             if len(kpid) == 0:
                 self._kpi_info = kpid
                 return self._kpi_info
-
-            # kpid['cpa'] = 0.0
-            # if 'cost__conv' in kpid['kpi']['vals']:
-            #     kpid['cpa'] = float(kpid['kpi']['vals']['cost__conv'][1]) / 1000000.0
-            #
-            # kpid['roas'] = 0.0
-            # if 'all_conv_value' in kpid['kpi']['vals']:
-            #     kpid['roas'] = float(kpid['kpi']['vals']['all_conv_value'][1]) / (float(kpid['kpi']['vals']['cost'][1]) / 1000000.0)
 
             self._kpi_info = kpid
         return self._kpi_info
@@ -620,15 +596,15 @@ class Client(models.Model):
         if (self.am1 != None):
             members['AM'] = {}
             members['AM']['member'] = self.am1
-            members['AM']['allocated_percenage'] = self.am1percent
+            members['AM']['allocated_percentage'] = self.am1percent
         if (self.am2 != None):
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
-            members['AM2']['allocated_percenage'] = self.am2percent
+            members['AM2']['allocated_percentage'] = self.am2percent
         if (self.am3 != None):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
-            members['AM3']['allocated_percenage'] = self.am3percent
+            members['AM3']['allocated_percentage'] = self.am3percent
         if (self.amb != None):
             members['AMB'] = {}
             members['AMB']['member'] = self.amb
@@ -646,15 +622,15 @@ class Client(models.Model):
         if (self.cm1 != None):
             members['CM'] = {}
             members['CM']['member'] = self.cm1
-            members['CM']['allocated_percenage'] = self.cm1percent
+            members['CM']['allocated_percentage'] = self.cm1percent
         if (self.cm2 != None):
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
-            members['CM2']['allocated_percenage'] = self.cm2percent
+            members['CM2']['allocated_percentage'] = self.cm2percent
         if (self.cm3 != None):
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
-            members['CM3']['allocated_percenage'] = self.cm3percent
+            members['CM3']['allocated_percentage'] = self.cm3percent
         if (self.cmb != None):
             members['CMB'] = {}
             members['CMB']['member'] = self.cmb
@@ -672,15 +648,15 @@ class Client(models.Model):
         if (self.seo1 != None):
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
-            members['SEO']['allocated_percenage'] = self.seo1percent
+            members['SEO']['allocated_percentage'] = self.seo1percent
         if (self.seo2 != None):
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
-            members['SEO 2']['allocated_percenage'] = self.seo2percent
+            members['SEO 2']['allocated_percentage'] = self.seo2percent
         if (self.seo3 != None):
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
-            members['SEO 3']['allocated_percenage'] = self.seo3percent
+            members['SEO 3']['allocated_percentage'] = self.seo3percent
         if (self.seob != None):
             members['SEOB'] = {}
             members['SEOB']['member'] = self.seob
@@ -698,15 +674,15 @@ class Client(models.Model):
         if (self.strat1 != None):
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
-            members['Strat']['allocated_percenage'] = self.strat1percent
+            members['Strat']['allocated_percentage'] = self.strat1percent
         if (self.strat2 != None):
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
-            members['Strat 2']['allocated_percenage'] = self.strat2percent
+            members['Strat 2']['allocated_percentage'] = self.strat2percent
         if (self.strat3 != None):
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
-            members['Strat 3']['allocated_percenage'] = self.strat3percent
+            members['Strat 3']['allocated_percentage'] = self.strat3percent
         if (self.stratb != None):
             members['Strat B'] = {}
             members['Strat B']['member'] = self.stratb
@@ -724,70 +700,70 @@ class Client(models.Model):
         if (self.cm1 != None):
             members['CM'] = {}
             members['CM']['member'] = self.cm1
-            members['CM']['allocated_percenage'] = self.cm1percent
+            members['CM']['allocated_percentage'] = self.cm1percent
         if (self.cm2 != None):
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
-            members['CM2']['allocated_percenage'] = self.cm2percent
+            members['CM2']['allocated_percentage'] = self.cm2percent
         if (self.cm3 != None):
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
-            members['CM3']['allocated_percenage'] = self.cm3percent
+            members['CM3']['allocated_percentage'] = self.cm3percent
         # if (self.cmb != None):
         #     members['CM Backup'] = {}
         #     members['CM Backup']['member'] = self.cmb
-        #     members['CM Backup']['allocated_percenage'] = self.cmbpercent
+        #     members['CM Backup']['allocated_percentage'] = self.cmbpercent
 
         if (self.am1 != None):
             members['AM'] = {}
             members['AM']['member'] = self.am1
-            members['AM']['allocated_percenage'] = self.am1percent
+            members['AM']['allocated_percentage'] = self.am1percent
         if (self.am2 != None):
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
-            members['AM2']['allocated_percenage'] = self.am2percent
+            members['AM2']['allocated_percentage'] = self.am2percent
         if (self.am3 != None):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
-            members['AM3']['allocated_percenage'] = self.am3percent
+            members['AM3']['allocated_percentage'] = self.am3percent
         # if (self.amb != None):
         #     members['AM Backup'] = {}
         #     members['AM Backup']['member'] = self.amb
-        #     members['AM Backup']['allocated_percenage'] = self.ambpercent
+        #     members['AM Backup']['allocated_percentage'] = self.ambpercent
 
         if (self.seo1 != None):
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
-            members['SEO']['allocated_percenage'] = self.seo1percent
+            members['SEO']['allocated_percentage'] = self.seo1percent
         if (self.seo2 != None):
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
-            members['SEO 2']['allocated_percenage'] = self.seo2percent
+            members['SEO 2']['allocated_percentage'] = self.seo2percent
         if (self.seo3 != None):
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
-            members['SEO 3']['allocated_percenage'] = self.seo3percent
+            members['SEO 3']['allocated_percentage'] = self.seo3percent
         # if (self.seob != None):
         #     members['SEO Backup'] = {}
         #     members['SEO Backup']['member'] = self.seob
-        #     members['SEO Backup']['allocated_percenage'] = self.seobpercent
+        #     members['SEO Backup']['allocated_percentage'] = self.seobpercent
 
         if (self.strat1 != None):
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
-            members['Strat']['allocated_percenage'] = self.strat1percent
+            members['Strat']['allocated_percentage'] = self.strat1percent
         if (self.strat2 != None):
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
-            members['Strat 2']['allocated_percenage'] = self.strat2percent
+            members['Strat 2']['allocated_percentage'] = self.strat2percent
         if (self.strat3 != None):
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
-            members['Strat 3']['allocated_percenage'] = self.strat3percent
+            members['Strat 3']['allocated_percentage'] = self.strat3percent
         # if (self.stratb != None):
         #     members['Strat Backup'] = {}
         #     members['Strat Backup']['member'] = self.stratb
-        #     members['Strat Backup']['allocated_percenage'] = self.stratbpercent
+        #     members['Strat Backup']['allocated_percentage'] = self.stratbpercent
 
         return members
 
