@@ -57,13 +57,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_crontab',
     'django_extensions',
+    'django_celery_results',
+    'django_celery_beat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_celery_results',
     'django.contrib.humanize',
 ]
 

@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os
-# from adwords_dashboard.models import DependentAccount
 from celery import Celery
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 
 

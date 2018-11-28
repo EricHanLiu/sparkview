@@ -24,7 +24,6 @@ from itertools import chain
 
 
 # Create your views here.
-clients_file = settings.BASE_DIR + "/cron_clients.py"
 
 @login_required
 @xframe_options_exempt
@@ -260,7 +259,7 @@ def add_client(request):
 
         context = {}
 
-        subprocess.Popen("python " + clients_file, shell=True)
+        adwords_tasks.cron_clients.delay()
 
         return JsonResponse(context)
 
@@ -364,7 +363,9 @@ def client_details(request, client_id):
                 'target_spend': client.target_spend,
                 'error_message': 'Please enter a value greater than 0(zero).',
             }
-        subprocess.Popen("python " + clients_file, shell=True)
+
+        adwords_tasks.cron_clients.delay()
+
         return JsonResponse(context)
 
 
@@ -971,7 +972,8 @@ def update_budget(request):
             'pb_color': pb_color,
             'gts_budget': gts_budget
         }
-        subprocess.Popen("python " + clients_file, shell=True)
+
+        adwords_tasks.cron_clients.delay()
         return JsonResponse(context)
 
 
@@ -1083,7 +1085,8 @@ def assign_client_accounts(request):
     response = {
         'client': client.client_name
     }
-    subprocess.Popen("python " + clients_file, shell=True)
+
+    adwords_tasks.cron_clients.delay()
     return JsonResponse(response)
 
 @login_required

@@ -5,6 +5,8 @@ from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
 from budget.models import FlightBudget, CampaignGrouping, Client
 from facebook_business.api import FacebookAdsApi
+from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
+from facebook_business.adobjects.adaccount import AdAccount
 from bloom.settings import app_id, app_secret, w_access_token
 from dateutil.relativedelta import relativedelta
 
@@ -82,12 +84,49 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
 
 @celery_app.task(bind=True)
+def facebook_accounts(self):
+
+    FacebookAdsApi.init(app_id, app_secret, w_access_token)
+
+    me = AdUser(fbid='me')
+    accounts = list(me.get_ad_accounts())
+    # remove personal AdAccount from list
+    accounts = [a for a in accounts if a.get('id') != 'act_220247200']
+
+    for acc in accounts:
+        account = AdAccount(acc['id'])
+        account.remote_read(fields=[
+            AdAccount.Field.account_id,
+            AdAccount.Field.name,
+        ])
+
+        try:
+            FacebookAccount.objects.get(account_id=account[AdAccount.Field.account_id])
+            print('Matched in DB(' + account[AdAccount.Field.account_id] + ')')
+        except ObjectDoesNotExist:
+            FacebookAccount.objects.create(account_id=account[AdAccount.Field.account_id],
+                                           account_name=account[AdAccount.Field.name], channel='facebook')
+            print('Added to DB - ' + str(account[AdAccount.Field.name]) + '.')
+
+
+
+@celery_app.task(bind=True)
+def facebook_ovu(self):
+
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+
+        facebook_cron_ovu.delay(account.account_id)
+
+
+@celery_app.task(bind=True)
 def facebook_cron_ovu(self, account_id):
     account = FacebookAccount.objects.get(account_id=account_id)
     helper = FacebookReportingService(facebook_init())
 
     this_month = helper.set_params(
-        time_range=helper.get_this_month_daterange(),
+        date_preset='this_month',
         level='account',
     )
 
@@ -102,7 +141,7 @@ def facebook_cron_ovu(self, account_id):
     )
 
     segmented_param = helper.set_params(
-        time_range=helper.get_this_month_daterange(),
+        date_preset='this_month',
         time_increment=1,
         level='account'
     )
@@ -132,6 +171,16 @@ def facebook_cron_ovu(self, account_id):
     account.current_spend = current_spend
     account.segmented_spend = segmented_data
     account.save()
+
+
+@celery_app.task(bind=True)
+def facebook_anomalies(self):
+
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+
+        facebook_cron_anomalies.delay(account.account_id)
 
 
 @celery_app.task(bind=True)
@@ -255,6 +304,16 @@ def facebook_cron_anomalies_campaigns(self, account_id):
 
 
 @celery_app.task(bind=True)
+def facebook_alerts(self):
+
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+
+        facebook_cron_alerts.delay(account.account_id)
+
+
+@celery_app.task(bind=True)
 def facebook_cron_alerts(self, account_id):
     fields = [
         'ad_name',
@@ -297,6 +356,15 @@ def facebook_cron_alerts(self, account_id):
             ad_name=ad['ad_name']
         )
         print('[INFO] Added alert to DB.')
+
+
+@celery_app.task(bind=True)
+def facebook_campaigns(self):
+
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        facebook_cron_campaign_stats.delay(account.account_id)
 
 
 @celery_app.task(bind=True)
@@ -435,6 +503,14 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
 
 
 @celery_app.task(bind=True)
+def facebook_flight_dates(self):
+
+    fb = FacebookAccount.objects.filter(blacklisted=False)
+
+    for f in fb:
+        facebook_cron_flight_dates.delay(f.account_id)
+
+@celery_app.task(bind=True)
 def facebook_cron_flight_dates(self, customer_id):
     fields = [
         'spend',
@@ -461,6 +537,14 @@ def facebook_cron_flight_dates(self, customer_id):
         b.current_spend = spend
         b.save()
 
+
+@celery_app.task(bind=True)
+def facebook_trends(self):
+
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
+
+    for account in accounts:
+        facebook_result_trends.delay(account.account_id)
 
 @celery_app.task(bind=True)
 def facebook_result_trends(self, customer_id):
