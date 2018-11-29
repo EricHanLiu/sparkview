@@ -1,14 +1,14 @@
 #!/bin/bash
-python manage.py makemigrations accounts
-python manage.py makemigrations adwords_dashboard
-python manage.py makemigrations bing_dashboard
-python manage.py makemigrations facebook_dashboard
-python manage.py makemigrations tools
-python manage.py makemigrations client_area
-python manage.py makemigrations budget
-python manage.py makemigrations reports
-python manage.py makemigrations user_management
-python manage.py makemigrations django_celery_results
+# python manage.py makemigrations accounts
+# python manage.py makemigrations adwords_dashboard
+# python manage.py makemigrations bing_dashboard
+# python manage.py makemigrations facebook_dashboard
+# python manage.py makemigrations tools
+# python manage.py makemigrations client_area
+# python manage.py makemigrations budget
+# python manage.py makemigrations reports
+# python manage.py makemigrations user_management
+# python manage.py makemigrations django_celery_results
 python manage.py migrate
 
 if [ -z $2 ] || [ -z $1 ]

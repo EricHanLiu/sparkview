@@ -134,6 +134,8 @@ class MonthlyReport(models.Model):
 
     @property
     def complete_ontime(self):
+        if self.date_sent_by_am == None or self.due_date == None:
+            return False
         return self.date_sent_by_am <= self.due_date
 
     def __str__(self):

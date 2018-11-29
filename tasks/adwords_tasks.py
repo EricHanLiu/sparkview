@@ -534,6 +534,8 @@ def adwords_cron_ovu(self, customer_id):
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
+    print(account)
+
     helper = AdwordsReportingService(get_client())
     this_month = helper.get_this_month_daterange()
 
