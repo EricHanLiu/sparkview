@@ -136,6 +136,16 @@ class Client(models.Model):
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
 
+    @property
+    def calculated_tier(self):
+        proj_management_fee = self.totalFee
+        if proj_management_fee < 1500:
+            return 1
+        elif proj_management_fee < 4000:
+            return 2
+        else:
+            return 3
+
     def getRemainingBudget(self):
         return self.current_budget - self.current_spend
 
@@ -794,7 +804,7 @@ class Client(models.Model):
 
     @property
     def team_leads(self):
-        team_leads = Team.objects.none()
+        team_leads = Member.objects.none()
         for team in self.team.all():
             team_leads = team_leads | team.team_lead
         return team_leads
@@ -875,6 +885,7 @@ class AccountBudgetSpendHistory(models.Model):
     account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
+    management_fee = models.FloatField(default=0.0)
     aw_budget = models.FloatField(default=0)
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
@@ -1029,3 +1040,19 @@ class Budget(models.Model):
     network_type = models.CharField(max_length=255, default='ALL')
     networks = ArrayField(models.CharField(max_length=255), blank=True, null=True)
     spend = models.FloatField(default=0)
+
+
+class TierChangeProposal(models.Model):
+    """
+    Tier change proposed by budget or management fee change
+    """
+
+    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True, default=None)
+    tier_from = models.IntegerField(default=0)
+    tier_to = models.IntegerField(default=0)
+    fee_from = models.FloatField(default=0.0)
+    fee_to = models.FloatField(default=0.0)
+    changed = models.BooleanField(default=False)
+    changed_by = models.ForeignKey('user_management.Member', models.DO_NOTHING, blank=True, null=True, default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    changed_at = models.DateTimeField(auto_now=True)

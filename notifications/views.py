@@ -23,16 +23,6 @@ def center(request):
 
 
 @login_required
-def creator(request):
-    """
-    Page to create notifications (recurring or one time)
-    """
-    if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page.')
-    return HttpResponse('Creator')
-
-
-@login_required
 def create(request):
     """
     Creates recurring or one time notification

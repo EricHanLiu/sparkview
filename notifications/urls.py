@@ -5,6 +5,5 @@ app_name = "notifications"
 
 urlpatterns = [
     url(r'^$', views.center, name='center'),
-    url(r'^creator$', views.creator, name='creator'),
     url(r'^confirm$', views.confirm, name='confirm')
 ]

@@ -21,6 +21,7 @@ from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from itertools import chain
+import calendar
 
 
 # Create your views here.
@@ -297,6 +298,7 @@ def client_details(request, client_id):
             'client_data': client,
             'today': today.day,
             'no_of_days': lastday_month.day,
+            'current_month': calendar.month_name[today.month],
             'remaining': remaining,
             'blackmarker': round(black_marker, 2),
             'adwords': DependentAccount.objects.filter(blacklisted=False),

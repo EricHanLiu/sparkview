@@ -40,7 +40,7 @@ class Team(models.Model):
     @property
     def team_lead(self):
         role = Role.objects.get(name='Team Lead')
-        return Member.objects.filter(team__in=[self])
+        return Member.objects.filter(team__in=[self], role=role)
 
     members = property(getMembers)
 

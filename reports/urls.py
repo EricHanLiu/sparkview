@@ -21,5 +21,7 @@ urlpatterns = [
     url(r'^backups$', views.backup_report, name='backup_report'),
     url(r'^flagged_accounts$', views.flagged_accounts, name='flagged_accounts'),
     url(r'^performance_anomalies$', views.performance_anomalies, name='performance_anomalies'),
-    url(r'^monthly_accounts$', views.monthly_accounts, name='monthly_accounts')
+    url(r'^account_history$', views.account_history, name='account_history'),
+    url(r'^tier_overview$', views.tier_overview, name='tier_overview'),
+    url(r'^update_tier$', views.update_tier, name='update_tier')
 ]

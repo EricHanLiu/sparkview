@@ -69,7 +69,7 @@ def profile(request):
         for account in active_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=month, year=year)
             if (created):
-                if (account.tier == 1):
+                if account.tier == 1:
                     report.report_type = 2 # Advanced
                 else:
                     report.report_type = 1 # Standard
@@ -436,7 +436,7 @@ def members_single(request, id=0):
         for account in active_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if (created):
-                if (account.tier == 1):
+                if account.tier == 1:
                     report.report_type = 2 # Advanced
                 else:
                     report.report_type = 1 # Standard

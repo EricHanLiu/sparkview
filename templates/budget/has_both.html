@@ -31,9 +31,9 @@
                 </span>
             <span class="la la-plus" data-toggle="modal" data-target="#m_assign_accounts"></span>
             {% if budget_updated_for_month.updated %}
-            <span style="font-size: 1rem; font-weight:200;">Budget updated for November</span>
+            <span style="font-size: 1rem; font-weight:200;">Budget updated for {{ current_month }}</span>
             {% else %}
-            &nbsp;&nbsp;<span style="font-size: 1rem; font-weight:200;">Confirm budget updated for November</span> <input type="checkbox" id="budget_updated_check" />
+            &nbsp;&nbsp;<span style="font-size: 1rem; font-weight:200;">Confirm budget updated for {{ current_month }}</span> <input type="checkbox" id="budget_updated_check" />
             {% endif %}
             <span class="float-right" style="font-size: 15px">{{ today }} of {{ no_of_days }} days</span><br/>
             <span class="float-right" style="font-size: 15px">{{ remaining }} remaining days</span>

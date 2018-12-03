@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
-from client_area.models import AccountHourRecord, Promo, MonthlyReport
-from budget.models import Client
+from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
+from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal
 import datetime, calendar
 
 # Create your views here.
@@ -626,7 +626,7 @@ def performance_anomalies(request):
 
 
 @login_required
-def monthly_accounts(request):
+def account_history(request):
     """
     The overall monthly account reports
     """
@@ -637,21 +637,94 @@ def monthly_accounts(request):
     default_month = now.month
     default_year = now.year
 
+    months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    years = ['2018', '2019', '2020']
+
+    selected = {}
+    selected['account'] = 'all'
+    selected['member'] = 'all'
+    selected['month'] = 'all'
+    selected['year'] = now.year
 
     # TODO fix
     month = default_month
     year = default_year
 
-    accounts = Client.objects.filter(status=1)
-    account_dict = {}
+    all_accounts = Client.objects.all()
+    accounts_array = []
 
-    for account in accounts:
-        bh = AccountBudgetSpendHistory.objects.filter(month=month, year=year, account=account)
+    if request.method == 'POST':
+        if request.POST.get('year') != 'all':
+            year = int(request.POST.get('year'))
+        if request.POST.get('month') != 'all':
+            month = int(request.POST.get('month'))
+
+    for account in all_accounts:
+        try:
+            bh = AccountBudgetSpendHistory.objects.get(month=month, year=year, account=account)
+        except:
+            continue
+
+        allocated_history = AccountAllocatedHoursHistory.objects.filter(month=month, year=year, account=account).values('account', 'year', 'month').annotate(sum_hours=Sum('allocated_hours'))
+        allocated_hours = 0.0
+        if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+            allocated_hours = allocated_history[0]['sum_hours']
+
         tmpa = []
         tmpa.append(account)
         tmpa.append(bh)
+        tmpa.append(allocated_hours)
+        accounts_array.append(tmpa)
 
-    
+    context = {
+        'months' : months,
+        'years' : years,
+        'all_accounts' : all_accounts,
+        'accounts_array' : accounts_array
+    }
+
+    return render(request, 'reports/account_history.html', context)
+
+@login_required
+def tier_overview(request):
+    """
+    Tier overview
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    proposals = TierChangeProposal.objects.filter(changed_by=None)
+    changed_proposals = TierChangeProposal.objects.exclude(changed_by=None)
+
+    context = {
+        'proposals' : proposals,
+        'changed_proposals' : changed_proposals
+    }
+
+    return render(request, 'reports/tier_center.html', context)
 
 
-    pass
+@login_required
+def update_tier(request):
+    """
+    Updates an account's tier from a tier proposal
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    proposal_id = request.POST.get('proposal_id')
+    accept_change = int(request.POST.get('accept')) == 1
+    proposal = TierChangeProposal.objects.get(id=proposal_id)
+
+    """
+    Execute proposal
+    """
+    if accept_change:
+        proposal.account.tier = proposal.tier_to
+        proposal.changed = True
+    else:
+        proposal.changed = False
+    proposal.changed_by = Member.objects.get(user=request.user)
+    proposal.save()
+
+    return HttpResponse('Success')

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block extraCss %}
+<style>
+.fa:hover {
+  cursor:pointer;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Tier Change Proposals
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+
+          <div class="m-widget2">
+            {% for proposal in proposals %}
+            <div class="row">
+              <div class="col-md-1">
+                <i class="fa fa-check-circle tier-change-yes" style="color:rgb(41, 163, 41); font-size:2rem; padding-left:25%;" data-proposal-id="{{ proposal.id }}"></i>
+                &nbsp;&nbsp;
+                <i class="fa fa-times-circle tier-change-no" style="color:#C70039; font-size:2rem;" data-proposal-id="{{ proposal.id }}"></i>
+              </div>
+              <div class="col-md-11">
+                <div class="m-widget2__desc">
+                  <span class="m-widget2__text">
+                    Change {{ proposal.account.client_name }} from tier {{ proposal.tier_from }} to tier {{ proposal.tier_to }}? Their management fee has changed from ${{ proposal.fee_from }} to ${{ proposal.fee_to }}.
+                  </span><br>
+                  <span class="m-widget2__user-name">
+                    <span class="m-widget2__link">
+                      Proposal created {{ proposal.created_at }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Tiers Recently Changes
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <div class="m-widget2">
+            {% for proposal in changed_proposals %}
+            <div class="row">
+              <div class="col-md-12">
+                <div class="m-widget2__desc">
+                  <span class="m-widget2__text">
+                    {% if proposal.changed %}Changed{% else %}Did not change{% endif %} {{ proposal.account.client_name }} from tier {{ proposal.tier_from }} to tier {{ proposal.tier_to }}.
+                  </span><br>
+                  <span class="m-widget2__user-name">
+                    <span class="m-widget2__link">
+                      Proposal handled by {{ proposal.changed_by }} on {{ proposal.changed_at }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  let $tierChangeYes = $('.tier-change-yes');
+  let $tierChangeNo = $('.tier-change-no');
+
+  let executeProposal = function ($el, accepted) {
+    let proposal_id = $el.data('proposal-id');
+    let $close_row = $el.closest('.row');
+    $.ajax({
+        url: '/reports/update_tier',
+        data: {
+          'proposal_id': proposal_id,
+          'accept': accepted
+        },
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        type: 'POST',
+        success: function (data) {
+          $el.prop('disabled', 'disabled');
+          $close_row.fadeOut();
+        }
+    });
+  };
+
+  $tierChangeYes.click(function () {
+    executeProposal($(this), 1);
+  });
+
+  $tierChangeNo.click(function () {
+    executeProposal($(this), 0);
+  });
+});
+</script>
+{% endblock %}
