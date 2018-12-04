@@ -341,3 +341,21 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+
+class BackupPeriod(models.Model):
+    """
+    Represents a period of time where a member will need a backup or backups
+    """
+    member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+
+class Backup(models.Model):
+    """
+    Represents a member (the backup), an account, and a period (via backup period fk)
+    """
+    member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True)
+    account = models.ForeignKey('budget.Client', on_delete=models.DO_NOTHING, null=True)
+    period = models.ForeignKey(BackupPeriod, on_delete=models.DO_NOTHING, null=True)

@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 import datetime, calendar
 
-from .models import Member, Incident, Team, Role, Skill, SkillEntry
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo
 from .forms import NewMemberForm, NewTeamForm
@@ -546,3 +546,54 @@ def skills_new(request):
         return redirect('/user_management/skills')
     else:
         return HttpResponse('Invalid request type')
+
+
+@login_required
+def backups(request):
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    if request.method == 'POST':
+        """
+        Creates a backup period
+        """
+        form_type = request.POST.get('type')
+        if form_type == 'period':
+            member_id = request.POST.get('member')
+            member = Member.objects.get(id=member_id)
+
+            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
+            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
+
+            bp = BackupPeriod()
+            bp.member = member
+            bp.start_date = start_date
+            bp.end_date = end_date
+            bp.save()
+        elif form_type == 'backup':
+            member_id = request.POST.get('member')
+            member = Member.objects.get(id=member_id)
+            account_id = request.POST.get('account')
+            account = Client.objects.get(id=account_id)
+            bp_id = request.POST.get('bp')
+            bp = BackupPeriod.objects.get(id=bp_id)
+
+            b = Backup()
+            
+
+    now = datetime.datetime.now()
+    seven_days_ago = now - datetime.timedelta(7)
+    seven_days_future = now + datetime.timedelta(7)
+    members = Member.objects.all()
+    accounts = Client.objects.all()
+
+    #backup_periods = BackupPeriod.objects.filter(start_date__gte=seven_days_ago, end_date__lte=seven_days_future)
+    backup_periods = BackupPeriod.objects.all()
+
+    context = {
+        'members' : members,
+        'accounts' : accounts,
+        'backup_periods' : backup_periods
+    }
+
+    return render(request, 'user_management/backup.html', context)

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+      		<div class="m-portlet__head-caption">
+      			<div class="m-portlet__head-title">
+      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+      					Backups
+      				</h3>
+      			</div>
+      		</div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#modal_add_backup_event"> Add Backup Event
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% for backup_period in backup_periods %}
+            <div class="card">
+              <div class="card-header">
+                {{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}
+                <div class="float-md-right">
+                  <button type="button" class="btn btn-sm btn-info add-bk-btn"
+                          data-toggle="modal"
+                          data-period="{{ backup_period.id }}"
+                          data-target="#modal_add_backup"> Add Backup
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row" style="padding: 0rem 1rem 0rem 1rem;">
+                  {% for backup in backup_period.backup_set.all %}
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">{{ backup.member.user.get_full_name }}</h5>
+                        <p class="card-text">{{ backup.account.client_name }}</p>
+                        <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% if not forloop.last %}
+            <hr />
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+
+
+<!-- Add backup event modal -->
+<div class="modal fade" id="modal_add_backup_event" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Add Backup Event</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST">
+              {% csrf_token %}
+              <input name="type" type="text" value="period" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label>Member:</label>
+                        <select class="form-control m-input"
+                                name="member"
+                                style="width: 100%;">
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Start date:</label>
+                        <input type="text" name="start_date" class="form-control m_datepicker" placeholder="Set start date">
+                      </div>
+                      <div class="col-md-6">
+                        <label>End date:</label>
+                        <input type="text" name="end_date" class="form-control m_datepicker" placeholder="Set start date">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Add Backup Event" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End Add backup event -->
+
+<!-- Add backup modal -->
+<div class="modal fade" id="modal_add_backup" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Add Backup</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/user_management/add_backup">
+              {% csrf_token %}
+              <input name="type" type="text" value="backup" style="display:none;" />
+              <input name="period" id="period_input" type="text" value="" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Member:</label>
+                        <select class="form-control m-input"
+                                name="member"
+                                style="width: 100%;">
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label>Account:</label>
+                        <select class="form-control m-input"
+                                name="account"
+                                style="width: 100%;">
+                            {% for account in accounts %}
+                                <option value="{{ account.id }}">{{ account.client_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Add Backup" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End Add backup -->
+
+{% endblock %}
+
+{% block extraJs %}
+<script>
+$(document).ready(function () {
+  let $dueDatePickers = $('.m_datepicker');
+  let $addBackupBtn = $('.add-bk-btn');
+  let $modalAddBackup = $('#modal_add_backup');
+  let $periodInput = $('#period_input');
+
+  $dueDatePickers.datepicker({
+      todayHighlight: !0,
+      autoclose: !0,
+      format: 'yyyy-mm-dd',
+      orientation: "bottom left",
+      templates: {leftArrow: '<i class="la la-angle-left"></i>', rightArrow: '<i class="la la-angle-right"></i>'}
+  }).on('show.bs.modal', function (event) {
+     event.stopPropagation();
+  });
+
+  $modalAddBackup.on('show.bs.modal', function (e) {
+    let period_id = $(e.relatedTarget).data('period');
+    $periodInput.attr('value', period_id);
+  });
+});
+</script>
+{% endblock %}

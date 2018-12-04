@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^teams$', views.teams, name='teams'),
     url(r'^teams/new$', views.new_team, name='new_team'),
     url(r'^skills$', views.skills, name='skills'),
-    url(r'^skills/new$', views.skills_new, name='skills_new')
+    url(r'^skills/new$', views.skills_new, name='skills_new'),
+    url(r'^backups$', views.backups, name='backups')
 ]

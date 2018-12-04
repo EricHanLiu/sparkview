@@ -80,7 +80,7 @@ class Client(models.Model):
     language       = models.ManyToManyField(Language, related_name='language')
     contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url            = models.URLField(max_length=300, null=True, blank=True)
-    clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
+    #clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
     tier           = models.IntegerField(default=1)
     soldBy         = models.ForeignKey(Member, models.DO_NOTHING, null=True, related_name='sold_by')
     # maybe do services another way?
@@ -140,11 +140,11 @@ class Client(models.Model):
     def calculated_tier(self):
         proj_management_fee = self.totalFee
         if proj_management_fee < 1500:
-            return 1
+            return 3
         elif proj_management_fee < 4000:
             return 2
         else:
-            return 3
+            return 1
 
     def getRemainingBudget(self):
         return self.current_budget - self.current_spend
