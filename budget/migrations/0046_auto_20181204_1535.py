@@ -11,10 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='client',
-            name='clientType',
-        ),
         migrations.AlterField(
             model_name='tierchangeproposal',
             name='account',

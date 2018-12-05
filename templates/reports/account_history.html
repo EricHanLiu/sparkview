@@ -81,6 +81,9 @@
                   Allocated Hours
                 </th>
                 <th>
+                  Actual/Allocated
+                </th>
+                <th>
                   Spend
                 </th>
                 <th>
@@ -95,10 +98,13 @@
                   {{ account.0.client_name }}
                 </td>
                 <td>
-                  actuals
+                  {{ account.3 }}
                 </td>
                 <td>
                   {{ account.2|format_money }}
+                </td>
+                <td>
+                  {{ account.4 }}
                 </td>
                 <td>
                   ${{ account.1.spend|format_money }}

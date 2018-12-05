@@ -161,6 +161,10 @@ class Client(models.Model):
             self._hours_worked_this_month = hours if hours != None else 0
         return self._hours_worked_this_month
 
+    def actual_hours_month_year(self, month, year):
+        hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+        return hours if hours != None else 0
+
     def getHoursRemainingThisMonth(self):
         # Cache this because its calls DB stuff
         if not hasattr(self, '_hoursRemainingMonth'):
