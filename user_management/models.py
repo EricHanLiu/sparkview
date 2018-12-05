@@ -359,3 +359,5 @@ class Backup(models.Model):
     member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True)
     account = models.ForeignKey('budget.Client', on_delete=models.DO_NOTHING, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.DO_NOTHING, null=True)
+    bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)
+    approved = models.BooleanField(default=False)

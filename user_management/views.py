@@ -575,11 +575,15 @@ def backups(request):
             member = Member.objects.get(id=member_id)
             account_id = request.POST.get('account')
             account = Client.objects.get(id=account_id)
-            bp_id = request.POST.get('bp')
+            bp_id = request.POST.get('period')
             bp = BackupPeriod.objects.get(id=bp_id)
 
             b = Backup()
-            
+            b.account = account
+            b.member = member
+            b.period = bp
+            b.save()
+
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)

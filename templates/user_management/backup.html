@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 {% extends 'main.html' %}
 {% load staticfiles %}
+
+{% block extraCss %}
+<style>
+.approved-btn:hover {
+  cursor: default;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="m-content">
   <div class="row">
@@ -27,34 +36,48 @@
         </div>
         <div class="m-portlet__body">
           {% for backup_period in backup_periods %}
-            <div class="card">
-              <div class="card-header">
-                {{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}
-                <div class="float-md-right">
-                  <button type="button" class="btn btn-sm btn-info add-bk-btn"
-                          data-toggle="modal"
-                          data-period="{{ backup_period.id }}"
-                          data-target="#modal_add_backup"> Add Backup
-                  </button>
+          <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+              <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                  <h3 class="m-portlet__head-text" style="font-size: 1.2rem;">
+                    {{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}
+                  </h3>
                 </div>
               </div>
-              <div class="card-body">
-                <div class="row" style="padding: 0rem 1rem 0rem 1rem;">
-                  {% for backup in backup_period.backup_set.all %}
-                    <div class="card">
-                      <div class="card-body">
-                        <h5 class="card-title">{{ backup.member.user.get_full_name }}</h5>
-                        <p class="card-text">{{ backup.account.client_name }}</p>
-                        <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
+              <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                  <li class="m-portlet__nav-item">
+                    <button type="button" class="btn btn-sm btn-info add-bk-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}"
+                            data-target="#modal_add_backup"> Add Backup
+                    </button>
+                  </li>
+                </ul>
               </div>
             </div>
-            {% if not forloop.last %}
-            <hr />
-            {% endif %}
+            <div class="m-portlet__body">
+              <div class="row">
+                {% for backup in backup_period.backup_set.all %}
+                <div class="col-2">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">{{ backup.member.user.get_full_name }}</h5>
+                      <p class="card-text">{{ backup.account.client_name }}</p>
+                      <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                      {% if backup.approved %}
+                      <button type="button" class="btn btn-sm btn-success approved-btn" data-backup-id="{{ backup.id }}" disabled>Approved</button>
+                      {% else %}
+                      <button type="button" class="btn btn-sm" data-backup-id="{{ backup.id }}">Approve</button>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
           {% endfor %}
         </div>
       </div>
@@ -126,7 +149,7 @@
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            <form class="m-form" method="POST" action="/user_management/add_backup">
+            <form class="m-form" method="POST">
               {% csrf_token %}
               <input name="type" type="text" value="backup" style="display:none;" />
               <input name="period" id="period_input" type="text" value="" style="display:none;" />
