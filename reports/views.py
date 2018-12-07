@@ -10,7 +10,7 @@ import datetime, calendar
 # Create your views here.
 @login_required
 def agency_overview(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     # Get account related metrics
@@ -70,7 +70,7 @@ def account_spend_progression(request):
     """
     Creates the report that warns about accounts that may lose values
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
     accounts = Client.objects.filter(status=1)
 
@@ -95,7 +95,7 @@ def cm_capacity(request):
     """
     Creates report that shows the capacity of the PPC campaign managers on an aggregated and individual basis
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     # Probably has to be changed before production
@@ -143,7 +143,7 @@ def am_capacity(request):
     """
     Creates report that shows the capacity of the account managers on an aggregated and individual basis
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     # Probably has to be changed before production
@@ -190,7 +190,7 @@ def seo_capacity(request):
     """
     Creates report that shows the capacity of the account managers on an aggregated and individual basis
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     # Probably has to be changed before production
@@ -252,7 +252,7 @@ def strat_capacity(request):
         """
         Creates report that shows the capacity of the strats on an aggregated and individual basis
         """
-        if (not request.user.is_staff):
+        if not request.user.is_staff:
             return HttpResponse('You do not have permission to view this page')
 
         # Probably has to be changed before production
@@ -298,7 +298,7 @@ def hour_log(request):
     """
     Creates report that shows which users have added hours this month
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     now   = datetime.datetime.now()
@@ -319,7 +319,7 @@ def facebook(request):
     """
     Creates report that just shows active FB accounts
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.exclude(facebook=None).filter(status=1)
@@ -336,7 +336,7 @@ def promos(request):
     """
     Shows calendar of all going on and upcoming promos
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     seven_days_ago = datetime.datetime.now() - datetime.timedelta(7)
@@ -365,7 +365,7 @@ def actual_hours(request):
     """
     Shows tables of all hours from selection of members, clients, and month
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     now = datetime.datetime.now()
@@ -429,7 +429,7 @@ def monthly_reporting(request):
     """
     Shows status of reports
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     now = datetime.datetime.now()
@@ -443,9 +443,6 @@ def monthly_reporting(request):
     selected['month'] = 'all'
     selected['year'] = now.year
     selected['team'] = 'all'
-
-    complete_denom = 0
-    complete_numer = 0
 
     if (request.method == 'GET'):
         reports = MonthlyReport.objects.filter(year=now.year, month=now.month)
@@ -476,19 +473,28 @@ def monthly_reporting(request):
     else:
         return HttpResponse('Invalid request type')
 
+
+    complete_reports = reports.exclude(sent_by_am=None).count()
+    report_count = reports.count()
+
+    completion_rate = 0.0
+    if report_count != 0.0:
+        completion_rate = 100.0 * complete_reports / report_count
+
     for report in reports:
         if report.complete_ontime:
-            complete_numer += 1
-        complete_denom += 1
+            ontime_number += 1
+        ontime_denom += 1
 
-    complete_rate = 0.0
-    if complete_denom != 0:
-        complete_rate = 100.0 * complete_numer / complete_denom
+    ontime_rate = 0.0
+    if ontime_denom != 0:
+        ontime_rate = 100.0 * ontime_numer / ontime_denom
 
     context = {
         'reports' : reports,
         'accounts' : accounts,
-        'complete_rate' : complete_rate,
+        'ontime_rate' : ontime_rate,
+        'completion_rate' : completion_rate,
         'teams' : teams,
         'months' : months,
         'years' : years,
@@ -503,7 +509,7 @@ def account_capacity(request):
     """
     Capacity report for accounts
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.filter(status=1) # active accounts only
@@ -548,7 +554,7 @@ def backup_report(request):
     """
     Lists accounts that currently have backups
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.exclude(cmb=None, amb=None, seob=None, stratb=None)
@@ -565,7 +571,7 @@ def flagged_accounts(request):
     """
     Lists accounts that currently have backups
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.filter(star_flag=True)

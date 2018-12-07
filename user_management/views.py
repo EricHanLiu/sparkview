@@ -19,90 +19,10 @@ from .forms import NewMemberForm, NewTeamForm
 def index(request):
     return redirect('/user_management/members')
 
-
-@login_required
-def profile(request):
-    """
-    Currently deprecated. No longer being used. Use member_single
-    """
-    user         = request.user
-    member       = Member.objects.get(user=user)
-    incidents    = Incident.objects.filter(members=member)
-    memberSkills = SkillEntry.objects.filter(member=member)
-
-    now   = datetime.datetime.now()
-    month = now.month
-    year  = now.year
-    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
-
-    accounts = member.accounts.filter(Q(status=0) | Q(status=1))
-
-    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
-
-    accountHours = {}
-    value_added_hours = {}
-    accountAllocation = {}
-    for account in accounts:
-        hours  = account.getHoursWorkedThisMonthMember(member)
-        va_hours = account.value_added_hours_month_member(member)
-        accountHours[account.id] = hours
-        value_added_hours[account.id] = va_hours
-        accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
-
-    backupAccountHours = {}
-    backupAccountAllocation = {}
-    for account in backupAccounts:
-        hours  = account.getHoursWorkedThisMonthMember(member)
-        backupAccountAllocation[account.id] = 0
-        backupAccountHours[account.id] = hours
-
-    scoreBadges = ['secondary', 'danger', 'warning', 'success']
-
-    promos = Promo.objects.filter(account__in=accounts)
-
-    reporting_period = now.day <= 12
-    reports = []
-
-    # Reports
-    if (reporting_period):
-        active_accounts = accounts.filter(status=1)
-        for account in active_accounts:
-            report, created = MonthlyReport.objects.get_or_create(account=account, month=month, year=year)
-            if (created):
-                if account.tier == 1:
-                    report.report_type = 2 # Advanced
-                else:
-                    report.report_type = 1 # Standard
-                report.save()
-            reports.append(report)
-
-
-    context = {
-        'member'                  : member,
-        'hoursThisMonth'          : memberHoursThisMonth,
-        'accountHours'            : accountHours,
-        'backupHours' : backupAccountHours,
-        'accountAllocation' : accountAllocation,
-        'backupAccountAllocation' : backupAccountAllocation,
-        'incidents' : incidents,
-        'memberSkills' : memberSkills,
-        'accounts' : accounts,
-        'backupAccounts' : backupAccounts,
-        'scoreBadges' : scoreBadges,
-        'reporting_period' : reporting_period,
-        'reports' : reports,
-        'promos' : promos,
-        'value_added_hours' : value_added_hours,
-        'month_str' : now.strftime("%B")
-    }
-
-    return render(request, 'user_management/profile.html', context)
-
-
 @login_required
 def members(request):
     # Authenticate if staff or not
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
     members = Member.objects.only('team',
                                   'role',
@@ -125,7 +45,7 @@ def members(request):
 @login_required
 def new_member(request):
     # Authenticate if staff or not
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
     if (request.method == 'GET'):
         teams         = Team.objects.all()
@@ -243,7 +163,7 @@ def new_member(request):
 @login_required
 def edit_member(request, id):
     # Authenticate if staff or not
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     if (request.method == 'POST'):
@@ -343,7 +263,7 @@ def teams(request):
 
 @login_required
 def new_team(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
     if (request.method == 'POST'):
         # Information about the team
@@ -371,7 +291,7 @@ def members_single(request, id=0):
     if (not request.user.is_staff and id != 0):
         return HttpResponse('You do not have permission to view this page')
 
-    if (id == 0): # This is a profile page
+    if id == 0: # This is a profile page
         member = Member.objects.get(user=request.user)
     else:
         member = Member.objects.get(id=id)
@@ -391,10 +311,14 @@ def members_single(request, id=0):
                   Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
               ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
-    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
+    #backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
+    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+
+    backing_me = backup_periods.filter(member=member)
 
     starAccounts = Client.objects.none()
-    if (request.user.is_staff):
+    if request.user.is_staff:
         starAccounts = Client.objects.filter(star_flag=True)
 
     promos = Promo.objects.filter(account__in=accounts)
@@ -416,10 +340,10 @@ def members_single(request, id=0):
 
     backupAccountHours = {}
     backupAccountAllocation = {}
-    for account in backupAccounts:
-        hours  = account.getHoursWorkedThisMonthMember(member)
-        backupAccountAllocation[account.id] = 0
-        backupAccountHours[account.id] = hours
+    # for account in backupAccounts:
+    #     hours  = account.getHoursWorkedThisMonthMember(member)
+    #     backupAccountAllocation[account.id] = 0
+    #     backupAccountHours[account.id] = hours
 
     starAccountHours = {}
     starAccountAllocation = {}
@@ -428,7 +352,7 @@ def members_single(request, id=0):
     reports = []
 
     # Reports
-    if (reporting_period):
+    if reporting_period:
         active_accounts = accounts.filter(status=1)
         last_month = month - 1
         if last_month == 0:
@@ -454,7 +378,9 @@ def members_single(request, id=0):
         'member' : member,
         'memberSkills' : memberSkills,
         'accounts' : accounts,
-        'backupAccounts' : backupAccounts,
+        # 'backupAccounts' : backupAccounts,
+        'backups' : backups,
+        'backing_me' : backing_me,
         'scoreBadges' : scoreBadges,
         'incidents' : incidents,
         'reporting_period' : reporting_period,
@@ -494,7 +420,7 @@ def training_members(request):
 
 @login_required
 def training_members_json(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     members = list(Member.objects.values())
@@ -503,7 +429,7 @@ def training_members_json(request):
 
 @login_required
 def skills(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     skills = Skill.objects.all()
@@ -517,7 +443,7 @@ def skills(request):
 
 @login_required
 def skills_single(request, id):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     skill = Skill.objects.get(id=id)
@@ -531,7 +457,7 @@ def skills_single(request, id):
 
 @login_required
 def skills_new(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     if (request.method == 'POST'):
@@ -583,21 +509,36 @@ def backups(request):
             b.member = member
             b.period = bp
             b.save()
+        elif form_type == 'approval':
+            bu_id = request.POST.get('bu_id')
 
+            approved_by = Member.objects.get(user=request.user)
+
+            b = Backup.objects.get(id=bu_id)
+            b.approved = True
+            b.approved_by = approved_by
+            b.save()
+
+            return HttpResponse('Approved')
+        elif form_type == 'delete':
+            pass
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
     seven_days_future = now + datetime.timedelta(7)
     members = Member.objects.all()
-    accounts = Client.objects.all()
+    accounts = Client.objects.filter(status=1)
 
     #backup_periods = BackupPeriod.objects.filter(start_date__gte=seven_days_ago, end_date__lte=seven_days_future)
     backup_periods = BackupPeriod.objects.all()
+    active_backups = backup_periods.filter(start_date__lte=now, end_date__gte=now)
+    non_active_backup_periods = backup_periods.exclude(start_date__lte=now, end_date__gte=now)
 
     context = {
         'members' : members,
         'accounts' : accounts,
-        'backup_periods' : backup_periods
+        'active_backups' : active_backups,
+        'non_active_backup_periods': non_active_backup_periods
     }
 
     return render(request, 'user_management/backup.html', context)

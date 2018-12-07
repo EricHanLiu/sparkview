@@ -356,8 +356,10 @@ class Backup(models.Model):
     """
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
-    member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True)
+    member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='backup_member')
     account = models.ForeignKey('budget.Client', on_delete=models.DO_NOTHING, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.DO_NOTHING, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)
     approved = models.BooleanField(default=False)
+    approved_by = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='approved_by')
+    approved_at = models.DateTimeField(auto_now=True)

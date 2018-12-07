@@ -56,6 +56,7 @@
                   </div>
                 </div>
               </div>
+              {% if request.user.is_staff %}
               <div class="form-group m-form__group">
 
                 <div class="row">
@@ -64,15 +65,15 @@
                     <input type="text" name="fee_override" class="form-control m-input"
                     placeholder="Management fee for this client" value="{{ account.management_fee_override }}">
                   </div>
-                  {% if request.user.is_staff %}
                   <div class="col-md-6">
                     <label for="client_name">Allocated PPC Hours OVERRIDE:</label>
                     <input type="text" name="hours_override" class="form-control m-input"
                     placeholder="WARNING: This will override the management hours calculation" value="{{ account.allocated_ppc_override }}">
                   </div>
-                  {% endif %}
                 </div>
               </div>
+              {% endif %}
+
               {% if request.user.is_staff %}
               <hr />
               <div class="row">

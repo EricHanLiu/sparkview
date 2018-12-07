@@ -80,7 +80,7 @@ class Client(models.Model):
     language       = models.ManyToManyField(Language, related_name='language')
     contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url            = models.URLField(max_length=300, null=True, blank=True)
-    clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
+    #clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
     tier           = models.IntegerField(default=1)
     soldBy         = models.ForeignKey(Member, models.DO_NOTHING, null=True, related_name='sold_by')
     # maybe do services another way?
@@ -643,9 +643,6 @@ class Client(models.Model):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percenage'] = self.am3percent
-        if (self.amb != None):
-            members['AMB'] = {}
-            members['AMB']['member'] = self.amb
 
         return members
 
@@ -669,9 +666,6 @@ class Client(models.Model):
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percenage'] = self.cm3percent
-        if (self.cmb != None):
-            members['CMB'] = {}
-            members['CMB']['member'] = self.cmb
 
         return members
 
@@ -695,10 +689,6 @@ class Client(models.Model):
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percenage'] = self.seo3percent
-        if (self.seob != None):
-            members['SEOB'] = {}
-            members['SEOB']['member'] = self.seob
-
         return members
 
 
@@ -721,9 +711,6 @@ class Client(models.Model):
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percenage'] = self.strat3percent
-        if (self.stratb != None):
-            members['Strat B'] = {}
-            members['Strat B']['member'] = self.stratb
 
         return members
 

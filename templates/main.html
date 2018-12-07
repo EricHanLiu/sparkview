@@ -612,9 +612,10 @@ License: You must have a valid license purchased only from themeforest(the above
                                   <input value="{{ notifications.count }}" id="notif_count" style="display:none;" />
                                   <a href="#" class="m-nav__link m-dropdown__toggle">
                                     {% if notifications.count > 0 %}
-                                    <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span>
+                                    <span class="m-nav__link-badge m-badge text-center">{{ notifications.count }}</span>
+                                    <!-- <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span> -->
                                     {% endif %}
-                                    <span class="m-nav__link-icon"><i class="fa fa-bell"></i></span>
+                                    <span class="m-nav__link-icon"><i class="fa fa-bell" style="font-size:1.5rem;{% if notifications.count > 0 %}color:#f4516c;{% endif %}"></i></span>
                                   </a>
                                   <div class="m-dropdown__wrapper">
                                       <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>

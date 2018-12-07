@@ -19,7 +19,7 @@
       		<div class="m-portlet__head-caption">
       			<div class="m-portlet__head-title">
       				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					Backups
+      					Active Backups
       				</h3>
       			</div>
       		</div>
@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="m-portlet__body">
-          {% for backup_period in backup_periods %}
+          {% for backup_period in active_backups %}
           <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
             <div class="m-portlet__head">
               <div class="m-portlet__head-caption">
@@ -63,13 +63,80 @@
                 <div class="col-2">
                   <div class="card">
                     <div class="card-body">
-                      <h5 class="card-title">{{ backup.member.user.get_full_name }}</h5>
-                      <p class="card-text">{{ backup.account.client_name }}</p>
-                      <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                      <a href="/user_management/members/{{ backup.member.id }}"><h5 class="card-title">{{ backup.member.user.get_full_name }}</h5></a>
+                      <a href="/clients/accounts/{{ backup.account.id }}"><p class="card-text">{{ backup.account.client_name }}</p></a>
+                      <br />
                       {% if backup.approved %}
                       <button type="button" class="btn btn-sm btn-success approved-btn" data-backup-id="{{ backup.id }}" disabled>Approved</button>
                       {% else %}
-                      <button type="button" class="btn btn-sm" data-backup-id="{{ backup.id }}">Approve</button>
+                      <button type="button" class="btn btn-sm approve" data-backup-id="{{ backup.id }}">Approve</button>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Non Active Backups
+              </h3>
+            </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#modal_add_backup_event"> Add Backup Event
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% for backup_period in non_active_backup_periods %}
+          <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+              <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                  <h3 class="m-portlet__head-text" style="font-size: 1.2rem;">
+                    {{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}
+                  </h3>
+                </div>
+              </div>
+              <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                  <li class="m-portlet__nav-item">
+                    <button type="button" class="btn btn-sm btn-info add-bk-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}"
+                            data-target="#modal_add_backup"> Add Backup
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="m-portlet__body">
+              <div class="row">
+                {% for backup in backup_period.backup_set.all %}
+                <div class="col-2">
+                  <div class="card">
+                    <div class="card-body">
+                      <a href="/user_management/members/{{ backup.member.id }}"><h5 class="card-title">{{ backup.member.user.get_full_name }}</h5></a>
+                      <a href="/clients/accounts/{{ backup.account.id }}"><p class="card-text">{{ backup.account.client_name }}</p></a>
+                      <br />
+                      {% if backup.approved %}
+                      <button type="button" class="btn btn-sm btn-success approved-btn" data-backup-id="{{ backup.id }}" disabled>Approved</button>
+                      {% else %}
+                      <button type="button" class="btn btn-sm approve" data-backup-id="{{ backup.id }}">Approve</button>
                       {% endif %}
                     </div>
                   </div>
@@ -200,6 +267,7 @@ $(document).ready(function () {
   let $addBackupBtn = $('.add-bk-btn');
   let $modalAddBackup = $('#modal_add_backup');
   let $periodInput = $('#period_input');
+  let $approval = $('.approve');
 
   $dueDatePickers.datepicker({
       todayHighlight: !0,
@@ -215,6 +283,31 @@ $(document).ready(function () {
     let period_id = $(e.relatedTarget).data('period');
     $periodInput.attr('value', period_id);
   });
+
+  $approval.click(function () {
+    let buId = $(this).data('backup-id');
+    let $this = $(this);
+    $.ajax({
+        url: '/user_management/backups',
+        data: {
+          'bu_id': buId,
+          'type': 'approval'
+        },
+        headers: {'X-CSRFToken': csrftoken},
+        type: 'POST',
+        success: function (data) {
+          console.log(data);
+          console.log()
+          $this.removeClass('approve');
+          $this.addClass('btn-success');
+          $this.addClass('approved-btn');
+          $this.html('Approved');
+          $this.prop('disabled', 'disabled');
+        }
+    });
+  });
+
+
 });
 </script>
 {% endblock %}

@@ -35,13 +35,16 @@
                   <th>
                     End Date
                   </th>
+                  <th>
+                    Confirmed Started
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {% for promo in promos_start_today %}
                 <tr>
                   <td>
-                    {{ promo.account.client_name }}
+                    <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
                   </td>
                   <td>
                     {{ promo.name }}
@@ -51,6 +54,13 @@
                   </td>
                   <td>
                     {{ promo.end_date }}
+                  </td>
+                  <td>
+                    {% if promo.confirmed_started %}
+                    <i class="fa fa-check-circle tier-change-yes" style="color:rgb(41, 163, 41); font-size:1.5rem;"></i>
+                    {% else %}
+                    <i class="fa fa-times-circle tier-change-no" style="color:#C70039; font-size:1.5rem;"></i>
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}
@@ -77,13 +87,16 @@
                   <th>
                     End Date
                   </th>
+                  <th>
+                    Confirmed Ended
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {% for promo in promos_end_today %}
                 <tr>
                   <td>
-                    {{ promo.account.client_name }}
+                    <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
                   </td>
                   <td>
                     {{ promo.name }}
@@ -94,6 +107,11 @@
                   <td>
                     {{ promo.end_date }}
                   </td>
+                  {% if promo.confirmed_ended %}
+                  <i class="fa fa-check-circle tier-change-yes" style="color:rgb(41, 163, 41); font-size:1.5rem;"></i>
+                  {% else %}
+                  <i class="fa fa-times-circle tier-change-no" style="color:#C70039; font-size:1.5rem;"></i>
+                  {% endif %}
                 </tr>
                 {% endfor %}
               </tbody>

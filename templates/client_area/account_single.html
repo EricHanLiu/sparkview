@@ -130,6 +130,21 @@
                   </div>
                 </div>
               {% endfor %}
+              {% for backup in backups %}
+                <div class="m-card-profile">
+                  <div class="m-card-profile__pic">
+                    <div class="m-card-profile__pic-wrapper">
+                      <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                    </div>
+                  </div>
+                  <div class="m-card-profile__details">
+                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">{% if request.user.is_staff %}<a href="/user_management/members/{{ backup.member.id }}">{% endif %}{{ backup.member.user.get_full_name }}{% if request.user.is_staff %}</a>{% endif %}</h3>
+                    <span class="m-badge m-badge--wide" style="background: #AA43DE; color: white;">Backup</span>
+                    <br />
+                    <span data-toggle="m-tooltip">{{ backup.period.start_date }} - {{ backup.period.end_date }}</span>
+                  </div>
+                </div>
+              {% endfor %}
               {% for assigned_member in account.team_leads %}
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
@@ -777,19 +792,6 @@
                             {% endfor %}
                         </select>
                       </div>
-                      <div class="col-md-3">
-                        <label>AM Backup:</label>
-                        <select class="form-control m-input"
-                                name="amb-assign"
-                                style="width: 100%;">
-                                <option value="0">
-                                  None
-                                </option>
-                            {% for member in members %}
-                                <option value="{{ member.id }}" {% if member.id == account.amb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                      </div>
                     </div>
                   </div>
                   <div class="form-group m-form__group">
@@ -830,19 +832,6 @@
                                 </option>
                             {% for member in members %}
                                 <option value="{{ member.id }}" {% if member.id == account.cm3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                      </div>
-                      <div class="col-md-3">
-                        <label for="buffer_sales_percentage">CM Backup:</label>
-                        <select class="form-control m-input"
-                                name="cmb-assign"
-                                style="width: 100%;">
-                                <option value="0">
-                                  None
-                                </option>
-                            {% for member in members %}
-                                <option value="{{ member.id }}" {% if member.id == account.cmb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -889,19 +878,6 @@
                             {% endfor %}
                         </select>
                       </div>
-                      <div class="col-md-3">
-                        <label>Strat Backup:</label>
-                        <select class="form-control m-input"
-                                name="stratb-assign"
-                                style="width: 100%;">
-                                <option value="0">
-                                  None
-                                </option>
-                            {% for member in members %}
-                                <option value="{{ member.id }}" {% if member.id == account.stratb.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                      </div>
                     </div>
                   </div>
                   <div class="form-group m-form__group">
@@ -942,19 +918,6 @@
                                 </option>
                             {% for member in members %}
                                 <option value="{{ member.id }}" {% if member.id == account.seo3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                      </div>
-                      <div class="col-md-3">
-                        <label>SEO Backup:</label>
-                        <select class="form-control m-input"
-                                name="seob-assign"
-                                style="width: 100%;">
-                                <option value="0">
-                                  None
-                                </option>
-                            {% for member in members %}
-                                <option value="{{ member.id }}" {% if member.id == account.seob.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
                             {% endfor %}
                         </select>
                       </div>

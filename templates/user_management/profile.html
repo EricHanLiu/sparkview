@@ -557,13 +557,13 @@
                       {{ promo.desc }}
                     </td>
                     <td>
-                      {{ promo.service_str }}
+                      {{ promo.services_str }}
                     </td>
                     <td>
-                      <input type="checkbox" />
+                      <input type="checkbox" class="confirm-promo" data-account-id="{{ promo.account.id }}" data-promo-id="{{ promo.id }}" data-account-id="{{ account.id }}" data-confirmation-type="0" {% if promo.confirmed_started != None %}checked disabled{% endif %} />
                     </td>
                     <td>
-                      <input type="checkbox" />
+                      <input type="checkbox" class="confirm-promo" data-account-id="{{ promo.account.id }}" data-promo-id="{{ promo.id }}" data-account-id="{{ account.id }}" data-confirmation-type="1" {% if promo.confirmed_ended != None %}checked disabled{% endif %} />
                     </td>
                   </tr>
                   {% endfor %}
@@ -576,7 +576,7 @@
       <!-- end promos -->
       {% endif %}
 
-      {% if request.user.is_staff and starAccounts.count > 0 %}
+      {% if starAccounts.count > 0 and request.user.is_staff or starAccounts > 0 and member.role.name == 'Strategist' %}
       <!-- Being starred accounts (admin only) -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
@@ -628,7 +628,7 @@
       <!-- End starred accounts -->
       {% endif %}
 
-      {% if backupAccounts.count > 0 %}
+      {% if backups.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -651,9 +651,6 @@
                   My Actual Hours
                 </th>
                 <th>
-                  My Allocated Hours
-                </th>
-                <th>
                   Total Actual Hours
                 </th>
                 <th>
@@ -662,27 +659,70 @@
               </tr>
             </thead>
             <tbody>
-              {% for account in backupAccounts %}
+              {% for backup in backups %}
               <tr>
                 <td>
-                  {{ account.parentClient.name }}
+                  {{ backup.account.parentClient.name }}
                 </td>
                 <td>
-                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                  <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
                 </td>
                 <td>
-                  {{ backupHours|get_item_from_list:account.id }}
+                  {# backupHours|get_item_from_list:account.id #} 0
                 </td>
                 <td>
-                  {{ backupAccountAllocation|get_item_from_list:account.id }}
+                  {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
-                </td>
-                <td>
-                  {{ account.allHours|floatformat:2 }}
+                  {{ backup.account.allHours|floatformat:2 }}
                 </td>
               </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if backing_me.count > 0 %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                People backing me up
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_backup_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>Member</th>
+                <th>
+                  Account
+                </th>
+                <th>
+                  Date Range
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for backup_period in backing_me %}
+              {% for backup in backup_period.backup_set.all %}
+              <tr>
+                <td>
+                  <a href="/user_management/accounts/{{ backup.member.id }}">{{ backup.member.user.get_full_name }}</a>
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                </td>
+                <td>
+                  {{ backup_period.start_date }} - {{ backup_period.end_date }}
+                </td>
+              </tr>
+              {% endfor %}
               {% endfor %}
             </tbody>
           </table>
@@ -783,7 +823,6 @@
 {% endblock %}
 
 {% block extraJs %}
-{% if reporting_period %}
 <script>
 $(document).ready(function () {
   var $sentToAmCheck = $('.sent-to-am');
@@ -791,6 +830,31 @@ $(document).ready(function () {
   var $dueDatePickers = $('.m_datepicker');
 
   var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+  let $promoCheck = $('.confirm-promo');
+
+  $promoCheck.click(function () {
+    let confirmation_type = $(this).data('confirmation-type');
+    let promo_type = $(this).data('promo-id');
+    let account_id = $(this).data('account-id');
+    if ($(this).is(':checked')) {
+      $.ajax({
+          url: '/clients/promos/confirm',
+          data: {
+            'account_id': account_id,
+            'promo_id': promo_type,
+            'confirmation_type' : confirmation_type
+          },
+          headers: {'X-CSRFToken': csrftoken},
+          type: 'POST',
+          success: function (data) {
+            console.log(data);
+            $(this).prop('disabled', 'disabled');
+          }
+      });
+    }
+
+  });
 
   $dueDatePickers.datepicker({
       todayHighlight: !0,
@@ -887,5 +951,4 @@ $(document).ready(function () {
 
 });
 </script>
-{% endif %}
 {% endblock %}

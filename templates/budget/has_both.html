@@ -467,8 +467,8 @@
                                data-acc_name="{{ a.dependent_account_name }}"
                                data-channel="{{ a.channel }}"></i>
                             <a href="{% url 'tools:account_overview' a.dependent_account_id a.channel %}">
-                                {{ a.dependent_account_name }}</a> - <a
-                                    href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                                {{ a.dependent_account_name }}</a>
+                                <!-- - <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a> -->
                             </h6>
                         </span>
                         <div class="row text-center">
@@ -675,8 +675,8 @@
                                 <a href="{% url 'tools:account_overview' b.account_id b.channel %}">
                                     {{ b.account_name }}
                                 </a>
-                                    -
-                                <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                                    <!-- -
+                                <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a> -->
                             </h6>
                         </span>
                         <p>
@@ -830,8 +830,9 @@
                                    data-acc_id="{{f.account_id }}"
                                    data-acc_name="{{ f.account_name }}"
                                    data-channel="{{ f.channel }}"></i>
-                                    {{ f.account_name }} -
-                                    <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a>
+                                    {{ f.account_name }}
+                                    <!-- -
+                                    <a href="{% url 'budget:six_months' client_data.id %}">Budget for next 6 months</a> -->
                                 </h6>
                             </span>
                         <p>

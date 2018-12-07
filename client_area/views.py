@@ -8,7 +8,7 @@ from django.utils import timezone
 import calendar, datetime
 
 from budget.models import Client
-from user_management.models import Member, Team
+from user_management.models import Member, Team, BackupPeriod, Backup
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
 from .forms import NewClientForm
 
@@ -72,7 +72,7 @@ def accounts_all(request):
 
 @login_required
 def account_new(request):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     if (request.method == 'GET'):
@@ -252,35 +252,34 @@ def account_edit_temp(request, id):
         fee_override = request.POST.get('fee_override')
         hours_override = request.POST.get('hours_override')
 
-        if (account.client_name != account_name):
+        if account.client_name != account_name:
             # Audit log There
             account.client_name = account_name
 
-        if (seo_hours != '' and float(seo_hours) != 0.0):
+        if seo_hours != '' and float(seo_hours) != 0.0:
             account.has_seo = True
             account.seo_hours = seo_hours
         else:
             account.has_seo = False
             account.seo_hours = 0.0
 
-        if (cro_hours != '' and float(cro_hours) != 0.0):
+        if cro_hours != '' and float(cro_hours) != 0.0:
             account.has_cro = True
             account.cro_hours = cro_hours
         else:
             account.has_cro = False
             account.cro_hours = 0.0
 
-        if (fee_override != 'None'):
-            account.management_fee_override = float(fee_override)
-
-        if (request.user.is_staff):
-            if (hours_override != 'None'):
+        if request.user.is_staff:
+            if fee_override != 'None':
+                account.management_fee_override = float(fee_override)
+            if hours_override != 'None':
                 account.allocated_ppc_override = float(hours_override)
 
         # Make management fee structure
-        if (request.user.is_staff and 'mf_check' in request.POST):
+        if request.user.is_staff and 'mf_check' in request.POST:
             fee_create_or_existing = request.POST.get('fee_structure_type')
-            if (fee_create_or_existing == '1'):
+            if fee_create_or_existing == '1':
                 # Create new management fee
                 number_of_tiers = request.POST.get('rowNumInput')
                 fee_structure_name = request.POST.get('fee_structure_name')
@@ -298,7 +297,7 @@ def account_edit_temp(request, id):
                     management_fee_structure.feeStructure.add(feeInterval)
                 management_fee_structure.save()
                 account.managementFee = management_fee_structure
-            elif (fee_create_or_existing == '2'):
+            elif fee_create_or_existing == '2':
                 # Use existing
                 existing_fee_id = request.POST.get('existing_structure')
                 management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
@@ -313,7 +312,7 @@ def account_edit_temp(request, id):
 
 @login_required
 def account_edit(request, id):
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     if (request.method == 'GET'):
@@ -414,7 +413,7 @@ def account_edit(request, id):
 @login_required
 def account_single(request, id):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
+    if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
         return HttpResponse('You do not have permission to view this page')
 
     account = Client.objects.get(id=id)
@@ -429,6 +428,9 @@ def account_single(request, id):
 
     accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False).values('member', 'month', 'year').annotate(Sum('hours'))
     accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=True).values('member', 'month', 'year').annotate(Sum('hours'))
+
+    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    backups = Backup.objects.filter(account=account, period__in=backup_periods, approved=True)
 
     for row in accountsHoursThisMonthByMember:
         row['member'] = members.get(id=row['member'])
@@ -445,6 +447,7 @@ def account_single(request, id):
     context = {
         'account'               : account,
         'members'               : members,
+        'backups' : backups,
         'accountHoursMember'    : accountsHoursThisMonthByMember,
         'value_hours_member' : accountsValueHoursThisMonthByMember,
         'changes'               : changes,
@@ -461,7 +464,7 @@ def account_single(request, id):
 def account_assign_members(request):
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page. Only admins can assign members now.')
 
     account    = Client.objects.get(id=account_id)
@@ -490,13 +493,6 @@ def account_assign_members(request):
         member = Member.objects.get(id=cm3_id)
     account.cm3 = member
 
-    cmb_id = request.POST.get('cmb-assign')
-    if (cmb_id == '0'):
-        member = None
-    else:
-        member = Member.objects.get(id=cmb_id)
-    account.cmb = member
-
     # AMs
     am1_id = request.POST.get('am1-assign')
     if (am1_id == '0'):
@@ -518,13 +514,6 @@ def account_assign_members(request):
     else:
         member = Member.objects.get(id=am3_id)
     account.am3 = member
-
-    amb_id = request.POST.get('amb-assign')
-    if (amb_id == '0'):
-        member = None
-    else:
-        member = Member.objects.get(id=amb_id)
-    account.amb = member
 
     # SEO
     seo1_id = request.POST.get('seo1-assign')
@@ -548,13 +537,6 @@ def account_assign_members(request):
         member = Member.objects.get(id=seo3_id)
     account.seo3 = member
 
-    seob_id = request.POST.get('seob-assign')
-    if (seob_id == '0'):
-        member = None
-    else:
-        member = Member.objects.get(id=seob_id)
-    account.seob = member
-
     # Strat
     srtat1_id = request.POST.get('strat1-assign')
     if (srtat1_id == '0'):
@@ -576,13 +558,6 @@ def account_assign_members(request):
     else:
         member = Member.objects.get(id=srtat3_id)
     account.strat3 = member
-
-    srtatb_id = request.POST.get('stratb-assign')
-    if (srtatb_id == '0'):
-        member = None
-    else:
-        member = Member.objects.get(id=srtatb_id)
-    account.stratb = member
 
     account.save()
 
@@ -653,9 +628,9 @@ def add_hours_to_account(request):
 
 @login_required
 def value_added_hours(request):
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('You should not be here')
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
         account_id = request.POST.get('account_id')
         account = Client.objects.get(id=account_id)
         member = Member.objects.get(user=request.user)
@@ -676,7 +651,7 @@ def account_allocate_percentages(request):
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account    = Client.objects.get(id=account_id)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     # There may be a better way to handle this form
@@ -752,7 +727,7 @@ def get_management_fee_details(request, id):
     """
     Returns a json format of a management fee structure. Used to render them dynamically
     """
-    if (not request.user.is_staff):
+    if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
     fee_structure = get_object_or_404(ManagementFeesStructure, id=id)
