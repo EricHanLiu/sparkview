@@ -495,8 +495,8 @@ def monthly_reporting(request):
     context = {
         'reports' : reports,
         'accounts' : accounts,
-        'ontime_rate' : ontime_rate,
-        'completion_rate' : completion_rate,
+        'ontime_pct' : ontime_rate,
+        'completion_pct' : completion_rate,
         'teams' : teams,
         'months' : months,
         'years' : years,
