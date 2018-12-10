@@ -138,7 +138,13 @@
                     <div class="card-body">
                       <a href="/user_management/members/{{ backup.member.id }}"><h5 class="card-title">{{ backup.member.user.get_full_name }}</h5></a>
                       <a href="/clients/accounts/{{ backup.account.id }}"><p class="card-text">{{ backup.account.client_name }}</p></a>
-                      <br />
+                      {% if backup.bc_link != None %}
+                      <p class="card-text"><a href="{{ backup.bc_link }}">Basecamp link</a></p>
+                      {% else %}
+                      <p style="color:red;">
+                        Warning: no Basecamp link!
+                      </p>
+                      {% endif %}
                       {% if backup.approved %}
                       <button type="button" class="btn btn-sm btn-success approved-btn" data-backup-id="{{ backup.id }}" disabled>Approved</button>
                       {% else %}
