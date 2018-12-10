@@ -105,7 +105,7 @@ class DependentAccount(models.Model):
         """
         Boolean. Checks if custom dates are set or the desired spend on the account
         """
-        return (self.desired_spend_start_date != None and self.desired_spend_end_date != None)
+        return self.desired_spend_start_date != None and self.desired_spend_end_date != None
 
 
     @property
@@ -113,7 +113,7 @@ class DependentAccount(models.Model):
         """
         Returns custom if custom, else first of yesterday's month
         """
-        if (self.has_custom_dates):
+        if self.has_custom_dates:
             return self.desired_spend_start_date
 
 
@@ -122,7 +122,7 @@ class DependentAccount(models.Model):
         """
         Returns custom if custom, else last of yesterday's month
         """
-        if (self.has_custom_dates):
+        if self.has_custom_dates:
             return self.desired_spend_end_date
 
 

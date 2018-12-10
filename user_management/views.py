@@ -503,11 +503,13 @@ def backups(request):
             account = Client.objects.get(id=account_id)
             bp_id = request.POST.get('period')
             bp = BackupPeriod.objects.get(id=bp_id)
+            bc_link = request.POST.get('bc_link')
 
             b = Backup()
             b.account = account
             b.member = member
             b.period = bp
+            b.bc_link = bc_link
             b.save()
         elif form_type == 'approval':
             bu_id = request.POST.get('bu_id')

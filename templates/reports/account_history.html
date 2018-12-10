@@ -98,13 +98,13 @@
                   {{ account.0.client_name }}
                 </td>
                 <td>
-                  {{ account.3 }}
+                  {{ account.3|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.2|format_money }}
+                  {{ account.2|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.4 }}
+                  {{ account.4|floatformat:2 }}
                 </td>
                 <td>
                   ${{ account.1.spend|format_money }}

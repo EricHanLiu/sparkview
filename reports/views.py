@@ -648,7 +648,6 @@ def account_history(request):
 
     selected = {}
     selected['account'] = 'all'
-    selected['member'] = 'all'
     selected['month'] = 'all'
     selected['year'] = now.year
 
@@ -657,15 +656,21 @@ def account_history(request):
     year = default_year
 
     all_accounts = Client.objects.all()
+    accounts = all_accounts
     accounts_array = []
 
     if request.method == 'POST':
         if request.POST.get('year') != 'all':
             year = int(request.POST.get('year'))
+            selected['year'] = year
         if request.POST.get('month') != 'all':
             month = int(request.POST.get('month'))
+            selected['month'] = month
+        if request.POST.get('account') != 'all':
+            accounts = all_accounts.filter(id=request.POST.get('account'))
+            selected['account'] = accounts[0].id
 
-    for account in all_accounts:
+    for account in accounts:
         try:
             bh = AccountBudgetSpendHistory.objects.get(month=month, year=year, account=account)
         except:

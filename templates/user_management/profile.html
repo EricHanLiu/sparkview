@@ -704,6 +704,9 @@
                   Account
                 </th>
                 <th>
+                  Basecamp
+                </th>
+                <th>
                   Date Range
                 </th>
               </tr>
@@ -717,6 +720,9 @@
                 </td>
                 <td>
                   <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                </td>
+                <td>
+                  <a href="{{ backup.bc_link }}">Basecamp</a>
                 </td>
                 <td>
                   {{ backup_period.start_date }} - {{ backup_period.end_date }}
