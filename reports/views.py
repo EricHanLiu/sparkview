@@ -474,16 +474,18 @@ def monthly_reporting(request):
         return HttpResponse('Invalid request type')
 
 
-    complete_reports = reports.exclude(sent_by_am=None).count()
+    complete_reports = reports.exclude(date_sent_by_am=None).count()
     report_count = reports.count()
 
     completion_rate = 0.0
     if report_count != 0.0:
         completion_rate = 100.0 * complete_reports / report_count
 
+    ontime_numer = 0.0
+    ontime_denom = 0.0
     for report in reports:
         if report.complete_ontime:
-            ontime_number += 1
+            ontime_numer += 1
         ontime_denom += 1
 
     ontime_rate = 0.0

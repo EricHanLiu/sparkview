@@ -107,11 +107,13 @@
                   <td>
                     {{ promo.end_date }}
                   </td>
-                  {% if promo.confirmed_ended %}
-                  <i class="fa fa-check-circle tier-change-yes" style="color:rgb(41, 163, 41); font-size:1.5rem;"></i>
-                  {% else %}
-                  <i class="fa fa-times-circle tier-change-no" style="color:#C70039; font-size:1.5rem;"></i>
-                  {% endif %}
+                  <td>
+                    {% if promo.confirmed_ended %}
+                    <i class="fa fa-check-circle tier-change-yes" style="color:rgb(41, 163, 41); font-size:1.5rem;"></i>
+                    {% else %}
+                    <i class="fa fa-times-circle tier-change-no" style="color:#C70039; font-size:1.5rem;"></i>
+                    {% endif %}
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
