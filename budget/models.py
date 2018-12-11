@@ -377,29 +377,29 @@ class Client(models.Model):
     def getAllocationThisMonthMember(self, member):
         percentage = 0.0
         # Boilerplate incoming
-        if (self.cm1 == member):
+        if self.cm1 == member:
             percentage += self.cm1percent
-        if (self.cm2 == member):
+        if self.cm2 == member:
             percentage += self.cm2percent
-        if (self.cm3 == member):
+        if self.cm3 == member:
             percentage += self.cm3percent
-        if (self.am1 == member):
+        if self.am1 == member:
             percentage += self.am1percent
-        if (self.am2 == member):
+        if self.am2 == member:
             percentage += self.am2percent
-        if (self.am3 == member):
+        if self.am3 == member:
             percentage += self.am3percent
-        if (self.seo1 == member):
+        if self.seo1 == member:
             percentage += self.seo1percent
-        if (self.seo2 == member):
+        if self.seo2 == member:
             percentage += self.seo2percent
-        if (self.seo3 == member):
+        if self.seo3 == member:
             percentage += self.seo3percent
-        if (self.strat1 == member):
+        if self.strat1 == member:
             percentage += self.strat1percent
-        if (self.strat2 == member):
+        if self.strat2 == member:
             percentage += self.strat2percent
-        if (self.strat3 == member):
+        if self.strat3 == member:
             percentage += self.strat3percent
 
         return round(self.getAllocatedHours() * percentage / 100.0, 2)
@@ -410,7 +410,7 @@ class Client(models.Model):
         Get's the SEO fee
         """
         fee = 0.0
-        if (self.has_seo):
+        if self.has_seo:
             fee += self.seo_hours * self.seo_hourly_fee
         return fee
 
@@ -419,7 +419,7 @@ class Client(models.Model):
         Get's the CRO fee
         """
         fee = 0.0
-        if (self.has_cro):
+        if self.has_cro:
             fee += self.cro_hours * self.cro_hourly_fee
         return fee
 
@@ -449,28 +449,28 @@ class Client(models.Model):
         It is calculated by budget for anticipated fee, but actual fee or projected fee can be calculated using this as well
         """
         fee = 0.0
-        if (self.management_fee_override != None and self.management_fee_override != 0.0):
+        if self.management_fee_override != None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         elif (self.managementFee != None):
             for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
-                if (spend >= feeInterval.lowerBound and spend <= feeInterval.upperBound):
-                    if (feeInterval.feeStyle == 0): # %
+                if spend >= feeInterval.lowerBound and spend <= feeInterval.upperBound:
+                    if feeInterval.feeStyle == 0: # %
                         fee = spend * (feeInterval.fee / 100.0)
                         break
-                    elif (feeInterval.feeStyle == 1):
+                    elif feeInterval.feeStyle == 1:
                         fee = feeInterval.fee
                         break
         return fee
 
     def getFee(self):
-        if (self.management_fee_override != None and self.management_fee_override != 0.0):
+        if self.management_fee_override != None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
             fee = self.getPpcFee() + self.getCroFee() + self.getSeoFee()
         return fee
 
     def getPpcAllocatedHours(self):
-        if (self.allocated_ppc_override != None and self.allocated_ppc_override != 0.0):
+        if self.allocated_ppc_override != None and self.allocated_ppc_override != 0.0:
             unrounded = self.allocated_ppc_override
         else:
             unrounded = (self.getPpcFee() / 125.0)  * ((100.0 - self.allocated_ppc_buffer) / 100.0)
@@ -478,9 +478,9 @@ class Client(models.Model):
 
     def getAllocatedHours(self):
         hours = self.getPpcAllocatedHours()
-        if (self.has_seo):
+        if self.has_seo:
             hours += self.seo_hours
-        if (self.has_cro):
+        if self.has_cro:
             hours += self.cro_hours
         return round(hours, 2)
 
@@ -508,7 +508,7 @@ class Client(models.Model):
             budget = 0.0
             yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
             for aa in self.adwords.all():
-                if (aa.has_custom_dates):
+                if aa.has_custom_dates:
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
@@ -525,7 +525,7 @@ class Client(models.Model):
         """
         Just returns the first contact
         """
-        if (self.contactInfo.all().count() == 0):
+        if self.contactInfo.all().count() == 0:
             return None
         return self.contactInfo.all()[0]
 
@@ -536,7 +536,7 @@ class Client(models.Model):
             budget = 0.0
             yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
             for ba in self.bing.all():
-                if (ba.has_custom_dates):
+                if ba.has_custom_dates:
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
@@ -554,7 +554,7 @@ class Client(models.Model):
             budget = 0.0
             yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
             for fa in self.facebook.all():
-                if (fa.has_custom_dates):
+                if fa.has_custom_dates:
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
@@ -583,11 +583,11 @@ class Client(models.Model):
 
     def getFlexSpendThisMonth(self):
         flex_spend = 0.0
-        if (self.aw_spend > self.aw_budget):
+        if self.aw_spend > self.aw_budget:
             flex_spend += (self.aw_spend - self.aw_budget)
-        if (self.fb_spend > self.fb_budget):
+        if self.fb_spend > self.fb_budget:
             flex_spend += (self.fb_spend - self.fb_budget)
-        if (self.bing_spend > self.bing_budget):
+        if self.bing_spend > self.bing_budget:
             flex_spend += (self.bing_spend - self.bing_budget)
 
         return flex_spend
@@ -631,15 +631,15 @@ class Client(models.Model):
         """
         members = {}
 
-        if (self.am1 != None):
+        if self.am1 != None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
             members['AM']['allocated_percenage'] = self.am1percent
-        if (self.am2 != None):
+        if self.am2 != None:
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
             members['AM2']['allocated_percenage'] = self.am2percent
-        if (self.am3 != None):
+        if self.am3 != None:
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percenage'] = self.am3percent
@@ -654,15 +654,15 @@ class Client(models.Model):
         """
         members = {}
 
-        if (self.cm1 != None):
+        if self.cm1 != None:
             members['CM'] = {}
             members['CM']['member'] = self.cm1
             members['CM']['allocated_percenage'] = self.cm1percent
-        if (self.cm2 != None):
+        if self.cm2 != None:
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
             members['CM2']['allocated_percenage'] = self.cm2percent
-        if (self.cm3 != None):
+        if self.cm3 != None:
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percenage'] = self.cm3percent
@@ -677,15 +677,15 @@ class Client(models.Model):
         """
         members = {}
 
-        if (self.seo1 != None):
+        if self.seo1 != None:
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
             members['SEO']['allocated_percenage'] = self.seo1percent
-        if (self.seo2 != None):
+        if self.seo2 != None:
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
             members['SEO 2']['allocated_percenage'] = self.seo2percent
-        if (self.seo3 != None):
+        if self.seo3 != None:
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percenage'] = self.seo3percent
@@ -699,15 +699,15 @@ class Client(models.Model):
         """
         members = {}
 
-        if (self.strat1 != None):
+        if self.strat1 != None:
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
             members['Strat']['allocated_percenage'] = self.strat1percent
-        if (self.strat2 != None):
+        if self.strat2 != None:
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
             members['Strat 2']['allocated_percenage'] = self.strat2percent
-        if (self.strat3 != None):
+        if self.strat3 != None:
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percenage'] = self.strat3percent
@@ -722,15 +722,15 @@ class Client(models.Model):
         """
         members = {}
 
-        if (self.cm1 != None):
+        if self.cm1 != None:
             members['CM'] = {}
             members['CM']['member'] = self.cm1
             members['CM']['allocated_percenage'] = self.cm1percent
-        if (self.cm2 != None):
+        if self.cm2 != None:
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
             members['CM2']['allocated_percenage'] = self.cm2percent
-        if (self.cm3 != None):
+        if self.cm3 != None:
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percenage'] = self.cm3percent
@@ -739,15 +739,15 @@ class Client(models.Model):
         #     members['CM Backup']['member'] = self.cmb
         #     members['CM Backup']['allocated_percenage'] = self.cmbpercent
 
-        if (self.am1 != None):
+        if self.am1 != None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
             members['AM']['allocated_percenage'] = self.am1percent
-        if (self.am2 != None):
+        if self.am2 != None:
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
             members['AM2']['allocated_percenage'] = self.am2percent
-        if (self.am3 != None):
+        if self.am3 != None:
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percenage'] = self.am3percent
@@ -756,15 +756,15 @@ class Client(models.Model):
         #     members['AM Backup']['member'] = self.amb
         #     members['AM Backup']['allocated_percenage'] = self.ambpercent
 
-        if (self.seo1 != None):
+        if self.seo1 != None:
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
             members['SEO']['allocated_percenage'] = self.seo1percent
-        if (self.seo2 != None):
+        if self.seo2 != None:
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
             members['SEO 2']['allocated_percenage'] = self.seo2percent
-        if (self.seo3 != None):
+        if self.seo3 != None:
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percenage'] = self.seo3percent
@@ -773,15 +773,15 @@ class Client(models.Model):
         #     members['SEO Backup']['member'] = self.seob
         #     members['SEO Backup']['allocated_percenage'] = self.seobpercent
 
-        if (self.strat1 != None):
+        if self.strat1 != None:
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
             members['Strat']['allocated_percenage'] = self.strat1percent
-        if (self.strat2 != None):
+        if self.strat2 != None:
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
             members['Strat 2']['allocated_percenage'] = self.strat2percent
-        if (self.strat3 != None):
+        if self.strat3 != None:
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percenage'] = self.strat3percent

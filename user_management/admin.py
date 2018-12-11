@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Role, Member, Team, Incident, Skill, SkillEntry, BackupPeriod, Backup
+from .models import Role, Member, Team, Incident, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
@@ -31,4 +31,8 @@ class BackupPeriodAdmin(admin.ModelAdmin):
 
 @admin.register(Backup)
 class BackupAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(TrainingHoursRecord)
+class TrainingHoursRecordAdmin(admin.ModelAdmin):
     pass

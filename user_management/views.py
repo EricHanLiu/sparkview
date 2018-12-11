@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 import datetime, calendar
 
-from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo
 from .forms import NewMemberForm, NewTeamForm
@@ -311,7 +311,6 @@ def members_single(request, id=0):
                   Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
               ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
-    #backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
 
@@ -329,27 +328,26 @@ def members_single(request, id=0):
     #     row['account'] = Client.objects.get(id=row['account'])
 
     accountHours = {}
-    # value_added_hours = {}
     accountAllocation = {}
     for account in accounts:
         hours  = account.getHoursWorkedThisMonthMember(member)
         va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
-        # value_added_hours[account.id] = va_hours
         accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
 
     backupAccountHours = {}
     backupAccountAllocation = {}
-    # for account in backupAccounts:
-    #     hours  = account.getHoursWorkedThisMonthMember(member)
-    #     backupAccountAllocation[account.id] = 0
-    #     backupAccountHours[account.id] = hours
 
     starAccountHours = {}
     starAccountAllocation = {}
 
     reporting_period = now.day <= 31
     reports = []
+
+    """
+    Trainer and trainee hours
+    """
+    #trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=now.month, year=now.year)
 
     # Reports
     if reporting_period:
@@ -378,7 +376,6 @@ def members_single(request, id=0):
         'member' : member,
         'memberSkills' : memberSkills,
         'accounts' : accounts,
-        # 'backupAccounts' : backupAccounts,
         'backups' : backups,
         'backing_me' : backing_me,
         'scoreBadges' : scoreBadges,
@@ -525,6 +522,8 @@ def backups(request):
         elif form_type == 'delete':
             pass
 
+        return redirect('/user_management/backups')
+
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
     seven_days_future = now + datetime.timedelta(7)
@@ -544,3 +543,29 @@ def backups(request):
     }
 
     return render(request, 'user_management/backup.html', context)
+
+
+@login_required
+def add_training_hours(request):
+    """
+    Adds a training hour record
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    #trainer_id = request.POST.get('trainer_id')
+    trainer = Member.objects.get(user=request.user)
+
+    trainee_id = request.POST.get('trainee_id')
+    trainee = Member.objects.get(id=trainee_id)
+
+    if trainer == trainee:
+        return HttpResponse('You can\'t train yourself!')
+
+    month = request.POST.get('month')
+    year = request.POST.get('year')
+    hours = request.POST.get('hours')
+
+    TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
+
+    return redirect('/clients/accounts/report_hours')

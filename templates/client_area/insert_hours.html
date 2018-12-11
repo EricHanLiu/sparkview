@@ -126,6 +126,69 @@
           </form>
         </div>
       </div>
+      <!-- end value added hours -->
+      {% if request.user.is_staff %}
+      <!-- training hours -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Training Hours
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <form class="m-form" method="post" action="/user_management/add_training_hours">
+            {% csrf_token %}
+            <div class="m-portlet__body">
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-3">
+                    <label>Trainee:</label>
+                    <select class="form-control m-input"
+                            name="trainee_id"
+                            style="width: 100%;" required>
+                        {% for member in members %}
+                            <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label>Hours:</label>
+                    <input type="text" name="hours"
+                    class="form-control m-input">
+                  </div>
+                  <div class="col-md-3">
+                    <label>Month:</label>
+                    <select class="form-control m-input"
+                            name="month"
+                            style="width: 100%;" required>
+                        {% for monthNum, monthName in months %}
+                            <option value="{{ monthNum }}" {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="year">Year:</label>
+                    <select class="form-control m-input"
+                            name="year"
+                            style="width: 100%;" required>
+                        {% for year in years %}
+                            <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <input type="submit" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- end training hours -->
+      {% endif %}
     </div>
   </div>
   <!--End::Main Portlet-->

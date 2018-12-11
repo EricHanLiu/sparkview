@@ -75,7 +75,7 @@ def account_new(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         teams        = Team.objects.all()
         client_types = ClientType.objects.all()
         clients      = ParentClient.objects.all()
@@ -99,7 +99,7 @@ def account_new(request):
         }
 
         return render(request, 'client_area/account_new.html', context)
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
 
         formData = {
             'account_name'   : request.POST.get('account_name'),
@@ -125,7 +125,7 @@ def account_new(request):
             print(cleanedInputs)
 
             # Get existing client
-            if (not int(request.POST.get('existing_client')) == 0):
+            if not int(request.POST.get('existing_client')) == 0:
                 client = ParentClient.objects.get(id=request.POST.get('existing_client'))
             else:
                 client = ParentClient.objects.create(name=request.POST.get('client_name'))
@@ -201,10 +201,10 @@ def account_new(request):
             # account.managementFee = feeStructure
 
             # Check if we sold SEO and/or CRO
-            if (request.POST.get('seo_check')):
+            if request.POST.get('seo_check'):
                 account.has_seo = True
                 account.seo_hours = request.POST.get('seo_hours')
-            if (request.POST.get('cro_check')):
+            if request.POST.get('cro_check'):
                 account.has_cro = True
                 account.cro_hours = request.POST.get('cro_hours')
 
@@ -567,7 +567,7 @@ def account_assign_members(request):
 @login_required
 def add_hours_to_account(request):
 
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         member   = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
                       Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
@@ -584,18 +584,24 @@ def add_hours_to_account(request):
         now = datetime.datetime.now()
         monthnow = now.month
 
+        members = Member.objects.none
+        if request.user.is_staff:
+            # Reason for this is that this members list if used for the training hours, which is staff only
+            members = Member.objects.all()
+
         context = {
             'member'   : member,
             'all_accounts' : all_accounts,
             'accounts' : accounts,
             'months'   : months,
             'monthnow' : monthnow,
-            'years'    : years
+            'years'    : years,
+            'members' : members
         }
 
         return render(request, 'client_area/insert_hours.html', context)
 
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
         member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
                       Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |

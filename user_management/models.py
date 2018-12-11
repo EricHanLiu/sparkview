@@ -4,6 +4,7 @@ from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
 import datetime
+import calendar
 
 
 class RoleGroup(models.Model):
@@ -351,6 +352,9 @@ class BackupPeriod(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
 
+    def __str__(self):
+        return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(self.end_date)
+
 
 class Backup(models.Model):
     """
@@ -363,3 +367,20 @@ class Backup(models.Model):
     approved = models.BooleanField(default=False)
     approved_by = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='approved_by')
     approved_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.member.user.get_full_name() + ' backing up ' + self.period.member.user.get_full_name() + ' on ' + self.account.client_name + ' ' + str(self.period.start_date) + ' to ' + str(self.period.end_date)
+
+
+class TrainingHoursRecord(models.Model):
+    """
+    Training hour record represents a period of time where a trainer trained a trainee
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+
+    trainer = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='trainer')
+    trainee = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='trainee')
+    hours = models.FloatField(default=0.0)
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.PositiveSmallIntegerField(blank=True, null=True)
+    added = models.DateTimeField(auto_now_add=True)
