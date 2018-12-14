@@ -25,7 +25,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 
@@ -214,9 +214,10 @@ CRONJOBS = [
     ('30 9 * * *', 'bing_alerts.main', '> ' + BASE_DIR + '/logs/bing_alerts.log'),
     ('30 9 * * *', 'facebook_alerts.main', '> ' + BASE_DIR + '/logs/facebook_alerts.log'),
     ('00 12 * * *', 'cron_budgets.main', '> ' + BASE_DIR + '/logs/budgets.log'),
-    ('00 12 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
-    ('00 12 * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
-    ('00 12 * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
+    # ('00 12 * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+    ('00 * * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+    ('00 * * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
+    ('00 * * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
     ('15 12 * * *', 'cron_adgroups.main', '> ' + BASE_DIR + '/logs/adwords_adgroups.log'),
     ('20 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('30 12 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
@@ -240,6 +241,9 @@ CRONJOBS = [
     ('10 14 * * *', 'bing_kw_wastage.main', '> ' + BASE_DIR + '/logs/bing_kw_wastage.log'),
     ('00 15 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
     ('10 15 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
+    ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
+    ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'), # Midnight, first day of the month
+    ('0 0 1 * *', 'monthly_budget_spend_context.main', '> ' + BASE_DIR + '/logs/budget_spend_context.log'),
 ]
 
 # Bing Stuff

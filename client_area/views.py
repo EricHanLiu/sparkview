@@ -167,7 +167,7 @@ def account_new(request):
                 init_fee = request.POST.get('setup_fee')
                 management_fee_structure = ManagementFeesStructure()
                 management_fee_structure.name = fee_structure_name
-                management_fee_structure.initFee = init_fee
+                management_fee_structure.initialFee = init_fee
                 management_fee_structure.save()
                 for i in range(1, int(number_of_tiers) + 1):
                     feeType = request.POST.get('fee-type' + str(i))
@@ -576,7 +576,7 @@ def add_hours_to_account(request):
                       Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
                   ).order_by('client_name')
 
-        all_accounts = Client.objects.all()
+        all_accounts = Client.objects.all().order_by('client_name')
 
         months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
         years  = [2018, 2019]
@@ -642,10 +642,10 @@ def value_added_hours(request):
         member = Member.objects.get(user=request.user)
         # if (not request.user.is_staff and not member.has_account(account_id)):
         #     return HttpResponse('You do not have permission to add hours to this account')
-        member     = Member.objects.get(user=request.user)
-        hours      = request.POST.get('hours')
-        month      = request.POST.get('month')
-        year       = request.POST.get('year')
+        member = Member.objects.get(user=request.user)
+        hours = request.POST.get('hours')
+        month = request.POST.get('month')
+        year = request.POST.get('year')
 
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year, is_unpaid=True)
 
@@ -656,7 +656,7 @@ def value_added_hours(request):
 def account_allocate_percentages(request):
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
-    account    = Client.objects.get(id=account_id)
+    account = Client.objects.get(id=account_id)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
@@ -669,57 +669,57 @@ def account_allocate_percentages(request):
     account.cm1percent = cm1percent
 
     cm2percent = request.POST.get('cm2-percent')
-    if (cm2percent == None or cm2percent == ''):
+    if cm2percent == None or cm2percent == '':
         cm2percent = 0
     account.cm2percent = cm2percent
 
     cm3percent = request.POST.get('cm3-percent')
-    if (cm3percent == None or cm3percent == ''):
+    if cm3percent == None or cm3percent == '':
         cm3percent = 0
     account.cm3percent = cm3percent
 
     am1percent = request.POST.get('am1-percent')
-    if (am1percent == None or am1percent == ''):
+    if am1percent == None or am1percent == '':
         am1percent = 0
     account.am1percent = am1percent
 
     am2percent = request.POST.get('am2-percent')
-    if (am2percent == None or am2percent == ''):
+    if am2percent == None or am2percent == '':
         am2percent = 0
     account.am2percent = am2percent
 
     am3percent = request.POST.get('am3-percent')
-    if (am3percent == None or am3percent == ''):
+    if am3percent == None or am3percent == '':
         am3percent = 0
     account.am3percent = am3percent
 
     seo1percent = request.POST.get('seo1-percent')
-    if (seo1percent == None or seo1percent == ''):
+    if seo1percent == None or seo1percent == '':
         seo1percent = 0
     account.seo1percent = seo1percent
 
     seo2percent = request.POST.get('seo2-percent')
-    if (seo2percent == None or seo2percent == ''):
+    if seo2percent == None or seo2percent == '':
         seo2percent = 0
     account.seo2percent = seo2percent
 
     seo3percent = request.POST.get('seo3-percent')
-    if (seo3percent == None or seo3percent == ''):
+    if seo3percent == None or seo3percent == '':
         seo3percent = 0
     account.seo3percent = seo3percent
 
     strat1percent = request.POST.get('strat1-percent')
-    if (strat1percent == None or strat1percent == ''):
+    if strat1percent == None or strat1percent == '':
         strat1percent = 0
     account.strat1percent = strat1percent
 
     strat2percent = request.POST.get('strat2-percent')
-    if (strat2percent == None or strat2percent == ''):
+    if strat2percent == None or strat2percent == '':
         strat2percent = 0
     account.strat2percent = strat2percent
 
     strat3percent = request.POST.get('strat3-percent')
-    if (strat3percent == None or strat3percent == ''):
+    if strat3percent == None or strat3percent == '':
         strat3percent = 0
     account.strat3percent = strat3percent
 
@@ -843,7 +843,7 @@ def new_promo(request):
     promo_start_date = request.POST.get('start-date')
     promo_end_date = request.POST.get('end-date')
     promo_desc = request.POST.get('promo-desc')
-    print(promo_start_date)
+
     promo_has_aw = request.POST.get('has-aw')
     promo_has_fb = request.POST.get('has-fb')
     promo_has_bing = request.POST.get('has-bing')
@@ -855,13 +855,13 @@ def new_promo(request):
     promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
     promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
     promo.desc = promo_desc
-    if (promo_has_aw):
+    if promo_has_aw:
         promo.has_aw = True
-    if (promo_has_fb):
+    if promo_has_fb:
         promo.has_fb = True
-    if (promo_has_bing):
+    if promo_has_bing:
         promo.has_bing = True
-    if (promo_has_other):
+    if promo_has_other:
         promo.has_other = True
     promo.save()
 
@@ -894,25 +894,50 @@ def confirm_promo(request):
 
     return HttpResponse('Success! Promo confirmed')
 
+
 @login_required
 def star_account(request):
     """
     Stars or unstars an account
     """
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('Invalid request')
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
-    account = Client.objects.get(id=account_id)
-    set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
+    bc_link = request.POST.get('bc_link')
+    if bc_link == None or bc_link == '':
+        return HttpResponse('You need to enter a basecamp link to flag an account')
 
-    account.star_flag = set_to_star
+    account = Client.objects.get(id=account_id)
+    #set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
+
+    now = datetime.datetime.now()
+    account.flagged_bc_link = bc_link
+    account.flagged_datetime = now
+    account.star_flag = True
     account.save()
 
-    return JsonResponse({'resp' : 'success'})
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def assign_member_flagged_account(request):
+    """
+    Assigns a member to a flagged account
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=request.POST.get('member'))
+    flagged_account = Client.objects.get(id=request.POST.get('account'))
+
+    flagged_account.flagged_assigned_member = member
+    flagged_account.save()
+
+    return redirect('/reports/flagged_accounts')
 
 
 @login_required

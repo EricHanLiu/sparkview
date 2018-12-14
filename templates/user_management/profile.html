@@ -3,6 +3,7 @@
 {% load staticfiles %}
 
 {% load template_filters %}
+{% load notification_tags %}
 
 {% block extraCss %}
 <style>
@@ -21,6 +22,22 @@
 
 {% block content %}
 <div class="m-content">
+  {% with notifications=request.user|get_unread_notifications %}
+  {% if notifications.count > 0 %}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    </button>
+	  <strong>Heads Up!</strong> You have unread notifications.
+	</div>
+  {% endif %}
+  {% endwith %}
+  {% if backups.count > 0 %}
+  <div class="alert alert-info alert-dismissible fade show" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		</button>
+	  	<strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to check on them!
+	</div>
+  {% endif %}
   <div class="row">
     <div class="col-xl-4">
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -181,8 +198,110 @@
           </table>
         </div>
       </div>
-        <!-- value added hours -->
+      {% if trainer_hours_this_month.count > 0 %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Trainer Hours This Month
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Trainee
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+                <th>
+                  Date Added
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in trainer_hours_this_month %}
+                <tr>
+                  <td>
+                    {{ hourRow.trainee.user.get_full_name }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours }}
+                  </td>
+                  <td>
+                    {{ hourRow.get_month_display }}, {{ hourRow.year }}
+                  </td>
+                  <td>
+                    {{ hourRow.created }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+      {% if trainee_hours_this_month.count > 0 %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Trainee Hours This Month
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_hours_datatable">
+            <thead>
+              <tr>
+                <th>
+                  Trainer
+                </th>
+                <th>
+                  Hours
+                </th>
+                <th>
+                  Month
+                </th>
+                <th>
+                  Date Added
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for hourRow in trainer_hours_this_month %}
+                <tr>
+                  <td>
+                    {{ hourRow.trainer.user.get_full_name }}
+                  </td>
+                  <td>
+                    {{ hourRow.hours }}
+                  </td>
+                  <td>
+                    {{ hourRow.get_month_display }}, {{ hourRow.year }}
+                  </td>
+                  <td>
+                    {{ hourRow.created }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
       {% if value_added_hours.count > 0 %}
+      <!-- value added hours -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -249,78 +368,77 @@
         <div class="m-portlet__body">
           <div class="m-portlet ">
             <div class="m-portlet__body  m-portlet__body--no-padding">
-              <div class="row m-row--no-padding m-row--col-separator-xl">
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                  <!--begin::Total Profit-->
-                  <div class="m-widget24">
-                    <div class="m-widget24__item">
-                      <h4 class="m-widget24__title">
-                        Allocated Hours
-                      </h4><br>
-                      <span class="m-widget24__desc">
-                          This month
-                      </span>
-                      <span class="m-widget24__stats m--font-brand" style="margin-bottom:2.86rem;">
-                        {{ member.allocatedHoursMonth|floatformat:2 }}
-                      </span>
+              <div class="m-portlet__body m-portlet__body--no-padding">
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                  <div class="col-md-12 col-lg-12 col-xl-4">
+                    <div class="m-widget1">
+                      <div class="m-widget1__item">
+                        <div class="row m-row--no-padding align-items-center">
+                          <div class="col">
+                            <h3 class="m-widget1__title">Allocated Hours</h3>
+                            <span class="m-widget1__desc">This month</span>
+                          </div>
+                          <div class="col m--align-right">
+                            <span class="m-widget1__number m--font-brand">{{ member.allocatedHoursMonth|floatformat:2 }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="m-widget1__item">
+                        <div class="row m-row--no-padding align-items-center">
+                          <div class="col">
+                            <h3 class="m-widget1__title">Value Added Hours</h3>
+                            <span class="m-widget1__desc">This month</span>
+                          </div>
+                          <div class="col m--align-right">
+                            <span class="m-widget1__number m--font-accent">{{ member.value_added_hours_this_month|floatformat:2 }}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <!--end::Total Profit-->
-                </div>
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                  <!--begin::New Feedbacks-->
-                  <div class="m-widget24">
-                    <div class="m-widget24__item">
-                      <h4 class="m-widget24__title">
-                        Hours Available
-                      </h4><br>
-                      <span class="m-widget24__desc">
-                          This month
-                      </span>
-                      <span class="m-widget24__stats m--font-info" style="margin-bottom:2.86rem;">
-                        {{ member.hours_available|floatformat:2 }}
-                      </span>
+                  <div class="col-md-12 col-lg-12 col-xl-4">
+                    <div class="m-widget1">
+                      <div class="m-widget1__item">
+                        <div class="row m-row--no-padding align-items-center">
+                          <div class="col">
+                            <h3 class="m-widget1__title">Hours Available</h3>
+                            <span class="m-widget1__desc">This month</span>
+                          </div>
+                          <div class="col m--align-right">
+                            <span class="m-widget1__number m--font-accent">{{ member.hours_available|floatformat:2 }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="m-widget1__item">
+                        <div class="row m-row--no-padding align-items-center">
+                          <div class="col">
+                            <h3 class="m-widget1__title">Training Hours</h3>
+                            <span class="m-widget1__desc">This month</span>
+                          </div>
+                          <div class="col m--align-right">
+                            <span class="m-widget1__number m--font-info">{{ trainee_hour_total }}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <!--end::New Feedbacks-->
-                </div>
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                  <!--begin::New Orders-->
-                  <div class="m-widget24">
-                    <div class="m-widget24__item">
-                      <h4 class="m-widget24__title">
-                        Actual Hours
-                      </h4><br>
-                      <span class="m-widget24__desc">
-                          This month
-                      </span>
-                      <span class="m-widget24__stats m--font-danger" style="margin-bottom:2.86rem;">
-                        {{ member.actualHoursThisMonth|floatformat:2 }}
-                      </span>
+                  <div class="col-md-12 col-lg-12 col-xl-4">
+                    <div class="m-widget1">
+                      <div class="m-widget1__item">
+                        <div class="row m-row--no-padding align-items-center">
+                          <div class="col">
+                            <h3 class="m-widget1__title">Actual Hours</h3>
+                            <span class="m-widget1__desc">This month</span>
+                          </div>
+                          <div class="col m--align-right">
+                            <span class="m-widget1__number m--font-success">{{ member.actualHoursThisMonth|floatformat:2 }}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <!--end::New Orders-->
-                </div>
-                <div class="col-md-12 col-lg-6 col-xl-3">
-                  <!--begin::New Orders-->
-                  <div class="m-widget24">
-                    <div class="m-widget24__item">
-                      <h4 class="m-widget24__title">
-                        Value Added Hours
-                      </h4><br>
-                      <span class="m-widget24__desc">
-                          This month
-                      </span>
-                      <span class="m-widget24__stats m--font-danger" style="margin-bottom:2.86rem;">
-                        {{ member.value_added_hours_this_month|floatformat:2 }}
-                      </span>
-                    </div>
-                  </div>
-                  <!--end::New Orders-->
                 </div>
               </div>
-              <br />
-              <hr />
               <div class="row m-row--no-padding m-row--col-separator-xl" style="margin-top:0.5rem;">
                 <div class="progress m-progress--lg" style="width:100%;">
                   <div class="progress-bar" role="progressbar" style="width: {{ member.buffer_learning_percentage }}%" data-toggle="m-tooltip" data-original-title="Learning Buffer: {{ member.learning_hours }} hours" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
@@ -400,6 +518,62 @@
       {% endif %}
       <!-- end accounts -->
 
+      {% if backups.count > 0 %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                My Backup Accounts
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_backup_clients_datatable">
+            <thead class="thead-inverse">
+              <tr class="main-table-header">
+                <th>
+                  Client
+                </th>
+                <th>Account</th>
+                <th>
+                  My Actual Hours
+                </th>
+                <th>
+                  Total Actual Hours
+                </th>
+                <th>
+                  Total Allocated Hours
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for backup in backups %}
+              <tr>
+                <td>
+                  {{ backup.account.parentClient.name }}
+                </td>
+                <td>
+                  <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                </td>
+                <td>
+                  {# backupHours|get_item_from_list:account.id #} 0
+                </td>
+                <td>
+                  {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
+                </td>
+                <td>
+                  {{ backup.account.allHours|floatformat:2 }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
       <!-- reporting portlet -->
       {% if reporting_period %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -444,7 +618,11 @@
                   <a href="/clients/accounts/{{ report.account.id }}">{{ report.report_name }}</a>
                 </td>
                 <td>
-                  {{ report.get_report_type_display }}
+                  {% if report.report_type != None %}
+                    {{ report.get_report_type_display }}
+                  {% else %}
+
+                  {% endif %}
                 </td>
                 <td>
                   {% if report.due_date == None %}
@@ -626,62 +804,6 @@
         </div>
       </div>
       <!-- End starred accounts -->
-      {% endif %}
-
-      {% if backups.count > 0 %}
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                My Backup Accounts
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div class="m-portlet__body">
-          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_backup_clients_datatable">
-            <thead class="thead-inverse">
-              <tr class="main-table-header">
-                <th>
-                  Client
-                </th>
-                <th>Account</th>
-                <th>
-                  My Actual Hours
-                </th>
-                <th>
-                  Total Actual Hours
-                </th>
-                <th>
-                  Total Allocated Hours
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for backup in backups %}
-              <tr>
-                <td>
-                  {{ backup.account.parentClient.name }}
-                </td>
-                <td>
-                  <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
-                </td>
-                <td>
-                  {# backupHours|get_item_from_list:account.id #} 0
-                </td>
-                <td>
-                  {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
-                </td>
-                <td>
-                  {{ backup.account.allHours|floatformat:2 }}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
       {% endif %}
 
       {% if backing_me.count > 0 %}

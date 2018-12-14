@@ -51,9 +51,19 @@ class Team(models.Model):
 
 # Incident
 class Incident(models.Model):
-    members     = models.ManyToManyField('Member', default=None)
-    description = models.CharField(max_length=355)
-    date        = models.DateTimeField()
+    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing')]
+
+    members = models.ManyToManyField('Member', default=None)
+    account = models.ForeignKey('budget.Client', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    platform = models.IntegerField(default=0, choices=PLATFORMS)
+    description = models.CharField(max_length=355, default='')
+    client_aware = models.BooleanField(default=False)
+    client_at_risk = models.BooleanField(default=False)
+    justification = models.CharField(max_length=900, default='')
+    additional_comments = models.CharField(max_length=300, default='')
+    refund_required = models.BooleanField(default=False)
+    refund_amount = models.IntegerField(default=0.0)
+    date = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         return 'Incident ' + str(self.id)
@@ -115,6 +125,7 @@ class Member(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
+    image = models.CharField(max_length=255, null=True, default=None)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage     = models.FloatField(null=True, blank=True, default=100)
@@ -157,7 +168,7 @@ class Member(models.Model):
         return SkillEntry.objects.filter(member=self).order_by('skill')
 
     def onAllTeams(self):
-        return (self.team.all().count() == Team.objects.all().count())
+        return self.team.all().count() == Team.objects.all().count()
 
     def actual_hours_month(self):
         AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
@@ -166,6 +177,10 @@ class Member(models.Model):
         year  = now.year
         hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours != None else 0
+
+    @property
+    def team_string(self):
+        return ','.join(str(team) for team in self.team.all())
 
     @property
     def value_added_hours_this_month(self):
@@ -183,8 +198,14 @@ class Member(models.Model):
         now   = datetime.datetime.now()
         month = now.month
         year  = now.year
-        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
-        return hours if hours != None else 0
+        hours = 0.0
+        hours_qs = AccountHourRecord.objects.filter(member=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        if hours_qs != None:
+            hours += hours_qs
+        trainer_hours_qs = TrainingHoursRecord.objects.filter(trainer=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        if trainer_hours_qs != None:
+            hours += trainer_hours_qs
+        return hours
 
 
     def allocated_hours_month(self):
@@ -234,10 +255,26 @@ class Member(models.Model):
     def most_recent_hour_log(self):
         now   = datetime.datetime.now()
         hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year)
-        if hours.count() == 0:
+        trainer_hours = TrainingHoursRecord.objects.filter(trainer=self, month=now.month, year=now.year)
+        hours_count = hours.count()
+        trainer_hours_count = trainer_hours.count()
+        if hours_count == 0 and trainer_hours_count == 0:
             return 'None'
-        else:
+
+        #Next two if statements handle case where one of them is none or has no entries
+        if hours_count == 0:
+            return trainer_hours.order_by('-added')[0].added
+
+        if trainer_hours_count == 0:
             return hours.order_by('-created_at')[0].created_at
+
+        recent_actual_hour = hours.order_by('-created_at')[0].created_at
+        recent_trainer_hour = trainer_hours.order_by('-added')[0].added
+
+        if recent_actual_hour >= recent_trainer_hour:
+            return recent_actual_hour
+        else:
+            return recent_trainer_hour
 
 
     def has_account(self, account_id):

@@ -77,6 +77,8 @@
                       {% else %}
                       <button type="button" class="btn btn-sm approve" data-backup-id="{{ backup.id }}">Approve</button>
                       {% endif %}
+                      <button type="button" class="btn btn-sm"  data-toggle="modal" data-target="#modal_edit_backup" data-backup-id="{{ backup.id }}" data-backup-member="{{ backup.member.id }}" data-backup-account="{{ backup.account.id }}" data-backup-bc="{{ backup.bc_link }}">Edit</button>
+                      <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_delete_backup" data-backup-id="{{ backup.id }}">Delete</button>
                     </div>
                   </div>
                 </div>
@@ -150,6 +152,8 @@
                       {% else %}
                       <button type="button" class="btn btn-sm approve" data-backup-id="{{ backup.id }}">Approve</button>
                       {% endif %}
+                      <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#modal_edit_backup" data-backup-id="{{ backup.id }}" data-backup-member="{{ backup.member.id }}" data-backup-account="{{ backup.account.id }}" data-backup-bc="{{ backup.bc_link }}">Edit</button>
+                      <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_delete_backup" data-backup-str="{{ backup }}" data-backup-id="{{ backup.id }}">Delete</button>
                     </div>
                   </div>
                 </div>
@@ -242,7 +246,7 @@
                                 name="member"
                                 style="width: 100%;">
                             {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
                             {% endfor %}
                         </select>
                       </div>
@@ -276,6 +280,90 @@
 </div>
 <!-- End Add backup -->
 
+<!-- Edit backup modal -->
+<div class="modal fade" id="modal_edit_backup" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Edit Backup <span="edit-backup-str"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST">
+              {% csrf_token %}
+              <input name="type" type="text" value="edit" style="display:none;" />
+              <input name="edit-bu-id" id="edit_bu_id" type="text" value="" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Member:</label>
+                        <select class="form-control m-input"
+                                id="edit_bu_member"
+                                name="member"
+                                style="width: 100%;">
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label>Account:</label>
+                        <select class="form-control m-input"
+                                id="edit_bu_account"
+                                name="account"
+                                style="width: 100%;">
+                            {% for account in accounts %}
+                                <option value="{{ account.id }}">{{ account.client_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label>Basecamp link:</label>
+                        <input type="text" id="edit_bu_bc" name="bc_link" class="form-control" placeholder="Basecamp link">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Edit Backup" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End Edit backup -->
+
+
+<!-- Delete backup modal -->
+<div class="modal fade" id="modal_delete_backup" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Are you sure you want to delete <code id="delete_backup_str"></code>? This cannot be undone.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST">
+              {% csrf_token %}
+              <input name="type" type="text" value="delete" style="display:none;" />
+              <input name="bu_id" id="bu_id_del" type="text" value="" style="display:none;" />
+              <div class="modal-footer">
+                  <input type="submit" value="Delete" class="btn btn-danger">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End delete backup -->
 {% endblock %}
 
 {% block extraJs %}
@@ -284,8 +372,20 @@ $(document).ready(function () {
   let $dueDatePickers = $('.m_datepicker');
   let $addBackupBtn = $('.add-bk-btn');
   let $modalAddBackup = $('#modal_add_backup');
+  let $modalDeleteBackup = $('#modal_delete_backup');
   let $periodInput = $('#period_input');
   let $approval = $('.approve');
+  let $buIdDel = $('#bu_id_del');
+  let $delBuStr = $('#delete_backup_str');
+
+  /**
+   * DOM elements for editing backups
+   */
+   let $editBuId = $('#edit_bu_id');
+   let $editBuMember = $('#edit_bu_member');
+   let $editBuAccount = $('#edit_bu_account');
+   let $editBuBc = $('#edit_bu_bc');
+   let $editModal = $('#modal_edit_backup');
 
   $dueDatePickers.datepicker({
       todayHighlight: !0,
@@ -297,9 +397,30 @@ $(document).ready(function () {
      event.stopPropagation();
   });
 
+  $editModal.on('show.bs.modal', function (e) {
+    let buId = $(e.relatedTarget).data('backup-id');
+    let buMember = $(e.relatedTarget).data('backup-member');
+    let buAccount = $(e.relatedTarget).data('backup-account');
+    let buBc = $(e.relatedTarget).data('backup-bc');
+
+    console.log(buMember);
+
+    $editBuId.attr('value', buId);
+    $editBuMember.val(buMember);
+    $editBuAccount.val(buAccount);
+    $editBuBc.attr('value', buBc);
+    // $periodInput.attr('value', period_id);
+  });
+
   $modalAddBackup.on('show.bs.modal', function (e) {
     let period_id = $(e.relatedTarget).data('period');
     $periodInput.attr('value', period_id);
+  });
+
+  $modalDeleteBackup.on('show.bs.modal', function (e) {
+    let buId = $(e.relatedTarget).data('backup-id');
+    $buIdDel.attr('value', buId);
+    $delBuStr.html($(e.relatedTarget).data('backup-str'));
   });
 
   $approval.click(function () {

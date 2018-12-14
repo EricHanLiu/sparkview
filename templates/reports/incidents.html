@@ -11,9 +11,17 @@
       <div class="m-portlet__head-caption">
         <div class="m-portlet__head-title">
           <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-            Flagged Accounts
+            Incidents
           </h3>
         </div>
+      </div>
+
+      <div class="m-portlet__head-tools">
+        <ul class="m-portlet__nav">
+          <li class="m-portlet__nav-item">
+            <a href="/reports/incidents/new" class="btn btn-info m-btn" >New Incident</a>
+          </li>
+        </ul>
       </div>
     </div>
     <div class="m-portlet__body">
@@ -44,39 +52,6 @@
               </tr>
             </thead>
             <tbody>
-              {% for account in accounts %}
-              <tr>
-                <td>
-                  {{ account.parentClient.name }}
-                </td>
-                <td>
-                  <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                </td>
-                <td>
-                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
-                </td>
-                <td>
-                  {{ account.allHours|floatformat:2 }}
-                </td>
-                <td>
-                  {% if account.flagged_assigned_member != None %}
-                  {{ account.flagged_assigned_member.user.get_full_name }}
-                  {% else %}
-                  <button type="button" class="btn btn-sm btn-info m-btn" data-account="{{ account.id }}" data-toggle="modal" data-target="#flag_member_modal">Assign Member</button>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if account.flagged_bc_link != None %}
-                  <a href="{{ account.flagged_bc_link }}">Basecamp</a>
-                  {% else %}
-                  None
-                  {% endif %}
-                </td>
-                <td>
-                  {{ account.flagged_datetime }}
-                </td>
-              </tr>
-              {% endfor %}
             </tbody>
           </table>
         </div>
@@ -128,16 +103,4 @@
     </div>
 </div>
 <!-- End Flag member modal -->
-{% endblock %}
-
-{% block extraJs %}
-<script>
-$(document).ready(function () {
-  let $modal = $('#flag_member_modal');
-  $modal.on('show.bs.modal', function (e) {
-    let acc_id = $(e.relatedTarget).data('account');
-    $('#member_account_id').attr('value', acc_id);
-  });
-});
-</script>
 {% endblock %}

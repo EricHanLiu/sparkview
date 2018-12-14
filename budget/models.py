@@ -80,7 +80,7 @@ class Client(models.Model):
     language       = models.ManyToManyField(Language, related_name='language')
     contactInfo    = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url            = models.URLField(max_length=300, null=True, blank=True)
-    clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
+    #clientType     = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
     tier           = models.IntegerField(default=1)
     soldBy         = models.ForeignKey(Member, models.DO_NOTHING, null=True, related_name='sold_by')
     # maybe do services another way?
@@ -95,6 +95,9 @@ class Client(models.Model):
     clientGrade    = models.IntegerField(default=0)
     actualHours    = models.IntegerField(default=0)
     star_flag      = models.BooleanField(default=False)
+    flagged_bc_link = models.CharField(max_length=255, default=None, null=True)
+    flagged_assigned_member = models.ForeignKey(Member, models.DO_NOTHING, null=True, default=None, related_name='flagged_assigned_member')
+    flagged_datetime = models.DateTimeField(default=None, null=True)
     target_cpa = models.FloatField(default=0)
     target_roas = models.FloatField(default=0)
 
@@ -429,17 +432,8 @@ class Client(models.Model):
         """
         if not hasattr(self, '_ppcFee'):
             fee = self.get_fee_by_spend(self.current_budget)
-            # if (self.management_fee_override != None and self.management_fee_override != 0.0):
-            #     fee = self.management_fee_override
-            # elif (self.managementFee != None):
-                # for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
-                #     if (self.current_budget >= feeInterval.lowerBound and self.current_budget < feeInterval.upperBound):
-                #         if (feeInterval.feeStyle == 0): # %
-                #             fee = self.current_budget * (feeInterval.fee / 100.0)
-                #             break
-                #         elif (feeInterval.feeStyle == 1):
-                #             fee = feeInterval.fee
-                #             break
+            if self.status == 0 and self.managementFee != None:
+                fee += self.managementFee.initialFee
             self._ppcFee = round(fee, 2)
         return self._ppcFee
 
@@ -451,7 +445,7 @@ class Client(models.Model):
         fee = 0.0
         if self.management_fee_override != None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
-        elif (self.managementFee != None):
+        elif self.managementFee != None:
             for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
                 if spend >= feeInterval.lowerBound and spend <= feeInterval.upperBound:
                     if feeInterval.feeStyle == 0: # %
@@ -528,6 +522,21 @@ class Client(models.Model):
         if self.contactInfo.all().count() == 0:
             return None
         return self.contactInfo.all()[0]
+
+    @property
+    def service_str(self):
+        """
+        Returns string of the PPC services that are active on this account
+        """
+        services = []
+        if self.adwords.count() > 0:
+            services.append('Adwords')
+        if self.facebook.count() > 0:
+            services.append('Facebook')
+        if self.bing.count() > 0:
+            services.append('Bing')
+
+        return ', '.join(services)
 
 
     @property
@@ -1037,7 +1046,6 @@ class TierChangeProposal(models.Model):
     """
     Tier change proposed by budget or management fee change
     """
-
     account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True, default=None)
     tier_from = models.IntegerField(default=0)
     tier_to = models.IntegerField(default=0)

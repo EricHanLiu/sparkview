@@ -5,6 +5,7 @@ from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal
+from notifications.models import Notification
 import datetime, calendar
 
 # Create your views here.
@@ -340,7 +341,7 @@ def promos(request):
         return HttpResponse('You do not have permission to view this page')
 
     seven_days_ago = datetime.datetime.now() - datetime.timedelta(7)
-
+    seven_days_future = datetime.datetime.now() + datetime.timedelta(7)
     promos = Promo.objects.filter(end_date__gte=seven_days_ago)
 
     today = datetime.datetime.now().date()
@@ -348,8 +349,8 @@ def promos(request):
     today_start = datetime.datetime.combine(today, datetime.time())
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
 
-    promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lte=today_end)
-    promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=today_end)
+    promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lte=seven_days_future) #this is really this week
+    promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=seven_days_future)
 
     context = {
         'promos' : promos,
@@ -577,9 +578,11 @@ def flagged_accounts(request):
         return HttpResponse('You do not have permission to view this page')
 
     accounts = Client.objects.filter(star_flag=True)
+    members = Member.objects.all()
 
     context = {
-        'accounts' : accounts
+        'accounts' : accounts,
+        'members': members
     }
 
     return render(request, 'reports/flagged_accounts.html', context)
@@ -749,3 +752,42 @@ def update_tier(request):
     proposal.save()
 
     return HttpResponse('Success')
+
+
+@login_required
+def outstanding_notifications(request):
+    """
+    Report to show who hasn't acknowledged their notifications
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    outstanding = Notification.objects.filter(confirmed=False).order_by('created')
+
+    context = {
+        'rnotifications' : outstanding
+    }
+
+    return render(request, 'reports/outstanding_notifications.html', context)
+
+@login_required
+def incidents(request):
+    """
+    Incidents page
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    return render(request, 'reports/incidents.html')
+
+@login_required
+def new_incident(request):
+    """
+    New incident page
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    
+
+    return render(request, 'reports/new_incident.html')

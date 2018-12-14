@@ -23,5 +23,8 @@ urlpatterns = [
     url(r'^performance_anomalies$', views.performance_anomalies, name='performance_anomalies'),
     url(r'^account_history$', views.account_history, name='account_history'),
     url(r'^tier_overview$', views.tier_overview, name='tier_overview'),
-    url(r'^update_tier$', views.update_tier, name='update_tier')
+    url(r'^update_tier$', views.update_tier, name='update_tier'),
+    url(r'^outstanding_notifications$', views.outstanding_notifications, name='outstanding_notifications'),
+    url(r'^incidents$', views.incidents, name='incidents'),
+    url(r'^incidents/new$', views.new_incident, name='new_incident')
 ]

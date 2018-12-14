@@ -21,10 +21,15 @@
   background: rgba(66, 134, 244, 0.5);
 }
 
+.m-card-profile__pic-wrapper img {
+  max-height:80px;
+}
+
+{% if not account.star_flag %}
 .fa-flag:hover {
   cursor: pointer;
 }
-
+{% endif %}
 </style>
 {% endblock %}
 
@@ -42,7 +47,7 @@
                 &nbsp;
                 <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
                 &nbsp;
-                <i class="fa fa-flag" data-flag="{% if account.star_flag %}1{% else %}0{% endif %}" {% if account.star_flag %}style="color:#ff5733;"{% endif %}></i>
+                <i class="fa fa-flag" {% if not account.star_flag %}data-toggle="modal" data-target="#flag_account_modal"{% endif %} data-flag="{% if account.star_flag %}1{% else %}0{% endif %}" {% if account.star_flag %}style="color:#ff5733;"{% endif %}></i>
                 &nbsp;
                 <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000;">
                   <span class="la la-edit">
@@ -74,7 +79,11 @@
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
+                      {% if assigned_member.member.image != None %}
+                      <img src="{% static 'img/bloomers/'|add:assigned_member.member.image %}" />
+                      {% else %}
                       <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                      {% endif %}
                     </div>
                   </div>
                   <div class="m-card-profile__details">
@@ -89,7 +98,11 @@
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
+                      {% if assigned_member.member.image != None %}
+                      <img src="{% static 'img/bloomers/'|add:assigned_member.member.image %}" />
+                      {% else %}
                       <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                      {% endif %}
                     </div>
                   </div>
                   <div class="m-card-profile__details">
@@ -104,7 +117,11 @@
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
+                      {% if assigned_member.member.image != None %}
+                      <img src="{% static 'img/bloomers/'|add:assigned_member.member.image %}" />
+                      {% else %}
                       <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                      {% endif %}
                     </div>
                   </div>
                   <div class="m-card-profile__details">
@@ -119,7 +136,11 @@
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
+                      {% if assigned_member.member.image != None %}
+                      <img src="{% static 'img/bloomers/'|add:assigned_member.member.image %}" />
+                      {% else %}
                       <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                      {% endif %}
                     </div>
                   </div>
                   <div class="m-card-profile__details">
@@ -134,7 +155,11 @@
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
+                      {% if backup.member.image != None %}
+                      <img src="{% static 'img/bloomers/'|add:backup.member.image %}" />
+                      {% else %}
                       <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                      {% endif %}
                     </div>
                   </div>
                   <div class="m-card-profile__details">
@@ -149,7 +174,11 @@
                 <div class="m-card-profile">
                   <div class="m-card-profile__pic">
                     <div class="m-card-profile__pic-wrapper">
+                      {% if assigned_member.member.image != None %}
+                      <img src="{% static 'img/bloomers/'|add:assigned_member.member.image %}" />
+                      {% else %}
                       <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt="" />
+                      {% endif %}
                     </div>
                   </div>
                   <div class="m-card-profile__details">
@@ -1133,6 +1162,41 @@
 </div>
 <!-- End set KPIs -->
 
+<!-- Flag account -->
+<div class="modal fade" id="flag_account_modal" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Flag Account {{ account.client_name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form class="m-form" method="POST" action="/clients/accounts/flag">
+              {% csrf_token %}
+              <input name="account_id" type="text" value="{{ account.id }}" style="display:none;" />
+              <div class="modal-body">
+                <div class="m-portlet__body">
+                  <div class="form-group m-form__group">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label>Basecamp Link:</label>
+                        <input type="text" name="bc_link" class="form-control m-input" required />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <input type="submit" value="Flag Account" class="btn btn-brand">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- End Flag account modal -->
+
 {% endblock %}
 
 {% block extraJs %}
@@ -1189,34 +1253,34 @@ $(document).ready(function () {
    ]
   });
 
-  var starAccount = function (flagOn) {
-    $.ajax({
-        url: '/clients/accounts/flag',
-        data: {
-          'account_id': {{ account.id }},
-          'star_flag': flagOn
-        },
-        headers: {'X-CSRFToken': csrftoken},
-        type: 'POST',
-        success: function (data) {
-          console.log(data);
-        }
-    });
-  };
+  // var starAccount = function (flagOn) {
+  //   $.ajax({
+  //       url: '/clients/accounts/flag',
+  //       data: {
+  //         'account_id': {{ account.id }},
+  //         'star_flag': flagOn
+  //       },
+  //       headers: {'X-CSRFToken': csrftoken},
+  //       type: 'POST',
+  //       success: function (data) {
+  //         console.log(data);
+  //       }
+  //   });
+  // };
 
-  $starIcon.click(function () {
-    if ($starIcon.data('flag') == '1') {
-      // On, so turn it off
-      starAccount(1);
-      $starIcon.data('flag', '0')
-      $starIcon.css('color', '');
-    } else {
-      // Off, so turn it on
-      starAccount(0);
-      $starIcon.data('flag', '1')
-      $starIcon.css('color', '#ff5733');
-    }
-  });
+  // $starIcon.click(function () {
+  //   if ($starIcon.data('flag') == '1') {
+  //     // On, so turn it off
+  //     starAccount(1);
+  //     $starIcon.data('flag', '0')
+  //     $starIcon.css('color', '');
+  //   } else {
+  //     // Off, so turn it on
+  //     starAccount(0);
+  //     $starIcon.data('flag', '1')
+  //     $starIcon.css('color', '#ff5733');
+  //   }
+  // });
 
   $('.m_datepicker').datepicker({
       todayHighlight: !0,

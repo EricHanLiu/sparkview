@@ -48,11 +48,11 @@ def new_member(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
     if (request.method == 'GET'):
-        teams         = Team.objects.all()
-        roles         = Role.objects.all()
-        skills        = Skill.objects.all()
+        teams = Team.objects.all()
+        roles = Role.objects.all()
+        skills = Skill.objects.all()
         existingUsers = User.objects.filter(member__isnull=True)
-        skillOptions  = [0, 1, 2, 3]
+        skillOptions = [0, 1, 2, 3]
 
         context = {
             'teams'         : teams,
@@ -123,7 +123,7 @@ def new_member(request):
         buffer_sales_percentage     = request.POST.get('buffer_sales_percentage') #if request.POST.get('buffer_sales_percentage') not None else 0
         buffer_planning_percentage  = request.POST.get('buffer_planning_percentage') #if request.POST.get('buffer_planning_percentage') not None else 0
         buffer_internal_percentage  = request.POST.get('buffer_internal_percentage') #if request.POST.get('buffer_internal_percentage') not None else 0
-        buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')# if request.POST.get('buffer_seniority_percentage') not None else 0
+        buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage') # if request.POST.get('buffer_seniority_percentage') not None else 0
 
         user.save()
 
@@ -288,7 +288,7 @@ def edit_team(request):
 
 @login_required
 def members_single(request, id=0):
-    if (not request.user.is_staff and id != 0):
+    if not request.user.is_staff and id != 0:
         return HttpResponse('You do not have permission to view this page')
 
     if id == 0: # This is a profile page
@@ -347,7 +347,12 @@ def members_single(request, id=0):
     """
     Trainer and trainee hours
     """
-    #trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=now.month, year=now.year)
+    trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=now.month, year=now.year)
+    trainee_hours_this_month = TrainingHoursRecord.objects.filter(trainee=member, month=now.month, year=now.year)
+
+    trainee_hour_total = 0.0
+    for trainee_hour in trainee_hours_this_month:
+        trainee_hour_total += trainee_hour.hours
 
     # Reports
     if reporting_period:
@@ -357,7 +362,7 @@ def members_single(request, id=0):
             last_month = 12
         for account in active_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
-            if (created):
+            if created:
                 if account.tier == 1:
                     report.report_type = 2 # Advanced
                 else:
@@ -377,6 +382,9 @@ def members_single(request, id=0):
         'memberSkills' : memberSkills,
         'accounts' : accounts,
         'backups' : backups,
+        'trainer_hours_this_month': trainer_hours_this_month,
+        'trainee_hours_this_month': trainee_hours_this_month,
+        'trainee_hour_total': trainee_hour_total,
         'backing_me' : backing_me,
         'scoreBadges' : scoreBadges,
         'incidents' : incidents,
@@ -517,10 +525,23 @@ def backups(request):
             b.approved = True
             b.approved_by = approved_by
             b.save()
-
-            return HttpResponse('Approved')
         elif form_type == 'delete':
-            pass
+            bu_id = request.POST.get('bu_id')
+            Backup.objects.get(id=bu_id).delete()
+        elif form_type == 'edit':
+            bu_id = request.POST.get('edit-bu-id')
+            bu_member_id = request.POST.get('member')
+            bu_account_id = request.POST.get('account')
+            bu_bc_link = request.POST.get('bc_link')
+            bu = Backup.objects.get(id=bu_id)
+            member = Member.objects.get(id=bu_member_id)
+            account = Client.objects.get(id=bu_account_id)
+
+            bu.member = member
+            bu.account = account
+            bu.bc_link = bu_bc_link
+
+            bu.save()
 
         return redirect('/user_management/backups')
 

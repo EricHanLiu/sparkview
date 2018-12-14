@@ -57,7 +57,7 @@
                   Language
                 </th>
                 <th>
-                  Client Type
+                  Services
                 </th>
                 <th>
                   Tier
@@ -95,7 +95,7 @@
                   {% for language in account.language.all %}{{ language.name }}{% if not forloop.last %},{% endif %}{% endfor %}
                 </td>
                 <td>
-                  {{ account.clientType.name }}
+                  {{ account.service_str }}
                 </td>
                 <td>
                   {{ account.tier }}

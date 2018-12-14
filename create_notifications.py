@@ -11,46 +11,50 @@ from user_management.models import Team, Member, Role
 from notifications.models import Notification, ScheduledNotification
 import datetime, calendar
 
-"""
-First, get the notifications that need to be made from the notification schedule
-"""
-now = datetime.datetime.now()
-day_of_month = now.day
-first_weekday, num_in_month = calendar.monthrange(now.year, now.month)
-negative_day_of_month = num_in_month - now.day + 1 # Gives 1 for last day of month, 2 for second to last day, etc
-day_of_week = now.weekday()
+def main():
+    """
+    First, get the notifications that need to be made from the notification schedule
+    """
+    now = datetime.datetime.now()
+    day_of_month = now.day
+    first_weekday, num_in_month = calendar.monthrange(now.year, now.month)
+    negative_day_of_month = num_in_month - now.day + 1 # Gives 1 for last day of month, 2 for second to last day, etc
+    day_of_week = now.weekday()
 
-scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week=day_of_week))
+    if day_of_week < 5: #weekday
+        scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week=day_of_week) | Q(every_day=True) | Q(every_week_day=True))
+    else: #weekend
+        scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week=day_of_week) | Q(every_day=True))
 
-for scheduled_notification in scheduled_notifications:
-    """
-    Loop through each notification type and get all of the members that need to be notified
-    """
-    members = Member.objects.none()
-
-    """
-    Get members based on roles
-    """
-    members = members | Member.objects.filter(role__in=scheduled_notification.roles.all())
-
-    """
-    Get members based on teams
-    """
-    members = members | Member.objects.filter(team__in=scheduled_notification.teams.all())
-
-    """
-    Add other members explicitly
-    """
-    members = members | scheduled_notification.members.all()
-
-    for member in members.distinct():
+    for scheduled_notification in scheduled_notifications:
         """
-        Now go through each member and make the notification
+        Loop through each notification type and get all of the members that need to be notified
         """
-        notification = Notification()
-        notification.member = member
-        notification.message = scheduled_notification.message
-        if scheduled_notification.link != None:
-            notification.link = scheduled_notification.link
-        print('Created notification for ' + str(member.user.get_full_name()))
-        notification.save()
+        members = Member.objects.none()
+
+        """
+        Get members based on roles
+        """
+        members = members | Member.objects.filter(role__in=scheduled_notification.roles.all())
+
+        """
+        Get members based on teams
+        """
+        members = members | Member.objects.filter(team__in=scheduled_notification.teams.all())
+
+        """
+        Add other members explicitly
+        """
+        members = members | scheduled_notification.members.all()
+
+        for member in members.distinct():
+            """
+            Now go through each member and make the notification
+            """
+            notification = Notification()
+            notification.member = member
+            notification.message = scheduled_notification.message
+            if scheduled_notification.link != None:
+                notification.link = scheduled_notification.link
+            print('Created notification for ' + str(member.user.get_full_name()))
+            notification.save()
