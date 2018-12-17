@@ -47,7 +47,7 @@ def new_member(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         teams = Team.objects.all()
         roles = Role.objects.all()
         skills = Skill.objects.all()
@@ -63,16 +63,16 @@ def new_member(request):
         }
 
         return render(request, 'user_management/new_member.html', context)
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
 
         # Check if we are creating a new user or using an existing one
         useExistingUser = True
 
         # This should be improved
-        if (int(request.POST.get('existing_user')) == 0):
+        if int(request.POST.get('existing_user')) == 0:
             useExistingUser = False
 
-        if (useExistingUser):
+        if useExistingUser:
             user_id = request.POST.get('existing_user')
             user    = User.objects.get(id=user_id)
         else:
@@ -166,7 +166,7 @@ def edit_member(request, id):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    if (request.method == 'POST'):
+    if request.method == 'POST':
 
         # Member to update
         member = get_object_or_404(Member, id=id)
@@ -233,9 +233,9 @@ def edit_member(request, id):
 
         return redirect('/user_management/members')
     else:
-        member       = Member.objects.get(id=id)
-        teams        = Team.objects.all()
-        roles        = Role.objects.all()
+        member = Member.objects.get(id=id)
+        teams = Team.objects.all()
+        roles = Role.objects.all()
         memberSkills = SkillEntry.objects.filter(member=member)
         skillOptions = [0, 1, 2, 3]
 
@@ -265,7 +265,7 @@ def teams(request):
 def new_team(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         # Information about the team
         teamname = request.POST.get('teamname')
 
@@ -280,7 +280,7 @@ def new_team(request):
 
 @login_required
 def edit_team(request):
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         pass
     else:
         return HttpResponse('You are at the wrong place')
@@ -363,7 +363,7 @@ def members_single(request, id=0):
         for account in active_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
-                if account.tier == 1:
+                if account.tier == 1 or account.advanced_reporting:
                     report.report_type = 2 # Advanced
                 else:
                     report.report_type = 1 # Standard
