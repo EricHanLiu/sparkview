@@ -350,7 +350,7 @@ def promos(request):
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
 
     promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lte=seven_days_future) #this is really this week
-    promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=seven_days_future)
+    promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=seven_days_future) # really this week as well
 
     context = {
         'promos' : promos,
@@ -787,7 +787,5 @@ def new_incident(request):
     """
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
-
-    
 
     return render(request, 'reports/new_incident.html')

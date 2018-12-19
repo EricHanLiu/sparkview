@@ -810,7 +810,6 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
         )
         cmp.campaign_yesterday_cost = helper.mcv(c['cost'])
         cmp.save()
-
     for campaign in campaign_this_month:
         cmp, created = Campaign.objects.get_or_create(
             account=account,
@@ -831,9 +830,9 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     if client_id is not None:
         cl_acc = Client.objects.get(id=client_id)
         groupings = CampaignGrouping.objects.filter(client=cl_acc)
-
         if groupings:
             for gr in groupings:
+                just_added = []
                 for c in cmps:
                     if gr.group_by == 'manual':
                         continue
@@ -847,9 +846,10 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                                 if keyword.strip('+').lower() in c.campaign_name.lower() \
                                         and c not in gr.aw_campaigns.all():
                                     gr.aw_campaigns.add(c)
+                                    just_added.append(c.id)
 
                                 if keyword.strip('+').lower() not in c.campaign_name.lower() \
-                                        and c in gr.aw_campaigns.all():
+                                        and c in gr.aw_campaigns.all() and c.id not in just_added:
                                     gr.aw_campaigns.remove(c)
 
                             if '-' in keyword:

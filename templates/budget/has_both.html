@@ -399,7 +399,7 @@
                                      aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
-                            <a href="#" onclick="toggleCampaigns({{ gr.id }})">Campaigns in
+                            <a href="#" onclick="toggleCampaigns(event, {{ gr.id }})">Campaigns in
                                 group</a>
                             <div id="campaigns_{{ gr.id }}" style="display: none">
                                 {% if gr.aw_campaigns.all %}

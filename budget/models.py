@@ -744,10 +744,6 @@ class Client(models.Model):
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percenage'] = self.cm3percent
-        # if (self.cmb != None):
-        #     members['CM Backup'] = {}
-        #     members['CM Backup']['member'] = self.cmb
-        #     members['CM Backup']['allocated_percenage'] = self.cmbpercent
 
         if self.am1 != None:
             members['AM'] = {}
@@ -761,10 +757,6 @@ class Client(models.Model):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percenage'] = self.am3percent
-        # if (self.amb != None):
-        #     members['AM Backup'] = {}
-        #     members['AM Backup']['member'] = self.amb
-        #     members['AM Backup']['allocated_percenage'] = self.ambpercent
 
         if self.seo1 != None:
             members['SEO'] = {}
@@ -778,10 +770,6 @@ class Client(models.Model):
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percenage'] = self.seo3percent
-        # if (self.seob != None):
-        #     members['SEO Backup'] = {}
-        #     members['SEO Backup']['member'] = self.seob
-        #     members['SEO Backup']['allocated_percenage'] = self.seobpercent
 
         if self.strat1 != None:
             members['Strat'] = {}
@@ -795,10 +783,6 @@ class Client(models.Model):
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percenage'] = self.strat3percent
-        # if (self.stratb != None):
-        #     members['Strat Backup'] = {}
-        #     members['Strat Backup']['member'] = self.stratb
-        #     members['Strat Backup']['allocated_percenage'] = self.stratbpercent
 
         return members
 

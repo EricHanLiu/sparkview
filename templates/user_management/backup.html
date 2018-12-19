@@ -48,6 +48,11 @@
               <div class="m-portlet__head-tools">
                 <ul class="m-portlet__nav">
                   <li class="m-portlet__nav-item">
+                    <button type="button" class="btn btn-sm load-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}">
+                            Load this event
+                    </button>
                     <button type="button" class="btn btn-sm btn-info add-bk-btn"
                             data-toggle="modal"
                             data-period="{{ backup_period.id }}"
@@ -58,31 +63,7 @@
               </div>
             </div>
             <div class="m-portlet__body">
-              <div class="row">
-                {% for backup in backup_period.backup_set.all %}
-                <div class="col-2">
-                  <div class="card">
-                    <div class="card-body">
-                      <a href="/user_management/members/{{ backup.member.id }}"><h5 class="card-title">{{ backup.member.user.get_full_name }}</h5></a>
-                      <a href="/clients/accounts/{{ backup.account.id }}"><p class="card-text">{{ backup.account.client_name }}</p></a>
-                      {% if backup.bc_link != None %}
-                      <p class="card-text"><a href="{{ backup.bc_link }}">Basecamp link</a></p>
-                      {% else %}
-                      <p style="color:red;">
-                        Warning: no Basecamp link!
-                      </p>
-                      {% endif %}
-                      {% if backup.approved %}
-                      <button type="button" class="btn btn-sm btn-success approved-btn" data-backup-id="{{ backup.id }}" disabled>Approved</button>
-                      {% else %}
-                      <button type="button" class="btn btn-sm approve" data-backup-id="{{ backup.id }}">Approve</button>
-                      {% endif %}
-                      <button type="button" class="btn btn-sm"  data-toggle="modal" data-target="#modal_edit_backup" data-backup-id="{{ backup.id }}" data-backup-member="{{ backup.member.id }}" data-backup-account="{{ backup.account.id }}" data-backup-bc="{{ backup.bc_link }}">Edit</button>
-                      <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_delete_backup" data-backup-id="{{ backup.id }}">Delete</button>
-                    </div>
-                  </div>
-                </div>
-                {% endfor %}
+              <div class="row" id="bp-{{ backup_period.id }}">
               </div>
             </div>
           </div>
@@ -123,6 +104,11 @@
               <div class="m-portlet__head-tools">
                 <ul class="m-portlet__nav">
                   <li class="m-portlet__nav-item">
+                    <button type="button" class="btn btn-sm load-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}">
+                            Load this event
+                    </button>
                     <button type="button" class="btn btn-sm btn-info add-bk-btn"
                             data-toggle="modal"
                             data-period="{{ backup_period.id }}"
@@ -133,31 +119,8 @@
               </div>
             </div>
             <div class="m-portlet__body">
-              <div class="row">
-                {% for backup in backup_period.backup_set.all %}
-                <div class="col-2">
-                  <div class="card">
-                    <div class="card-body">
-                      <a href="/user_management/members/{{ backup.member.id }}"><h5 class="card-title">{{ backup.member.user.get_full_name }}</h5></a>
-                      <a href="/clients/accounts/{{ backup.account.id }}"><p class="card-text">{{ backup.account.client_name }}</p></a>
-                      {% if backup.bc_link != None %}
-                      <p class="card-text"><a href="{{ backup.bc_link }}">Basecamp link</a></p>
-                      {% else %}
-                      <p style="color:red;">
-                        Warning: no Basecamp link!
-                      </p>
-                      {% endif %}
-                      {% if backup.approved %}
-                      <button type="button" class="btn btn-sm btn-success approved-btn" data-backup-id="{{ backup.id }}" disabled>Approved</button>
-                      {% else %}
-                      <button type="button" class="btn btn-sm approve" data-backup-id="{{ backup.id }}">Approve</button>
-                      {% endif %}
-                      <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#modal_edit_backup" data-backup-id="{{ backup.id }}" data-backup-member="{{ backup.member.id }}" data-backup-account="{{ backup.account.id }}" data-backup-bc="{{ backup.bc_link }}">Edit</button>
-                      <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#modal_delete_backup" data-backup-str="{{ backup }}" data-backup-id="{{ backup.id }}">Delete</button>
-                    </div>
-                  </div>
-                </div>
-                {% endfor %}
+              <div class="row" id="bp-{{ backup_period.id }}">
+
               </div>
             </div>
           </div>
@@ -364,6 +327,23 @@
     </div>
 </div>
 <!-- End delete backup -->
+
+<!-- Template backup -->
+<template id="backup_template">
+  <div class="col-2">
+    <div class="card">
+      <div class="card-body">
+        <a href="" class="member-link"><h5 class="card-title member-name"></h5></a>
+        <a href="" class="account-id"><p class="card-text account-name"></p></a>
+        <p class="card-text bc-link"></p>
+        <button type="button" class="btn btn-sm approve-btn" data-backup-id="{{ backup.id }}"></button>
+        <button type="button" class="btn btn-sm edit-modal-btn" data-toggle="modal" data-target="#modal_edit_backup" data-backup-id="{{ backup.id }}" data-backup-member="{{ backup.member.id }}" data-backup-account="{{ backup.account.id }}" data-backup-bc="{{ backup.bc_link }}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger delete-btn" data-toggle="modal" data-target="#modal_delete_backup" data-backup-str="{{ backup }}" data-backup-id="{{ backup.id }}">Delete</button>
+      </div>
+    </div>
+  </div>
+</template>
+<!-- end template backup -->
 {% endblock %}
 
 {% block extraJs %}
@@ -377,75 +357,148 @@ $(document).ready(function () {
   let $approval = $('.approve');
   let $buIdDel = $('#bu_id_del');
   let $delBuStr = $('#delete_backup_str');
+  let $load = $('.load-btn');
 
   /**
    * DOM elements for editing backups
    */
-   let $editBuId = $('#edit_bu_id');
-   let $editBuMember = $('#edit_bu_member');
-   let $editBuAccount = $('#edit_bu_account');
-   let $editBuBc = $('#edit_bu_bc');
-   let $editModal = $('#modal_edit_backup');
+  let $editBuId = $('#edit_bu_id');
+  let $editBuMember = $('#edit_bu_member');
+  let $editBuAccount = $('#edit_bu_account');
+  let $editBuBc = $('#edit_bu_bc');
+  let $editModal = $('#modal_edit_backup');
+
+  const spawnBackupTemplate = function (backupJson) {
+      const template = document.getElementById('backup_template').content;
+      const parentRow = document.getElementById('bp-' + backupJson['row_id']);
+      const buId = backupJson['bu_id'];
+
+      $(template.querySelector('.member-link')).attr('href', '/user_management/members/' + backupJson['member_id']);
+      template.querySelector('.member-name').innerHTML = backupJson['member_name'];
+      $(template.querySelector('.account-link')).attr('href', '/clients/accounts/' + backupJson['account_id']);
+      template.querySelector('.account-name').innerHTML = backupJson['account_name'];
+
+      // Handle basecamp link
+      let bcLinkEl = template.querySelector('.bc-link');
+      if (backupJson['bc_link'] == 'None') {
+        bcLinkEl.innerHTML = 'Warning: no Basecamp link!';
+      } else {
+        bcLinkEl.innerHTML = '<a href="' + backupJson['bc_link']  + '">Basecamp link</a>';
+      }
+
+      // handle approve button
+      let apprBtn = template.querySelector('.approve-btn');
+      apprBtn.setAttribute('data-backup-id', buId);
+      if (backupJson['approved']) {
+        apprBtn.innerHTML = 'Approved';
+        apprBtn.disabled = true
+        apprBtn.classList.add('btn-success');
+        apprBtn.classList.add('approved-btn');
+      } else {
+        apprBtn.innerHTML = 'Approve';
+        apprBtn.classList.add('approve');
+      }
+
+      // handle edit button
+      let editBtn = template.querySelector('.edit-modal-btn');
+      editBtn.setAttribute('data-backup-id', buId);
+      editBtn.setAttribute('data-backup-member', backupJson['member_id']);
+      editBtn.setAttribute('data-backup-account', backupJson['account_id']);
+      editBtn.setAttribute('data-backup-bc', backupJson['bc_link']);
+
+      //handle delete btn
+      let delBtn = template.querySelector('.delete-btn');
+      delBtn.setAttribute('data-backup-id', buId);
+      delBtn.setAttribute('data-backup-str', backupJson['bu_str']);
+
+      const clone = document.importNode(template, true);
+      parentRow.appendChild(clone);
+  };
 
   $dueDatePickers.datepicker({
       todayHighlight: !0,
       autoclose: !0,
       format: 'yyyy-mm-dd',
       orientation: "bottom left",
-      templates: {leftArrow: '<i class="la la-angle-left"></i>', rightArrow: '<i class="la la-angle-right"></i>'}
+      templates: {
+          leftArrow: '<i class="la la-angle-left"></i>',
+          rightArrow: '<i class="la la-angle-right"></i>'
+      }
   }).on('show.bs.modal', function (event) {
-     event.stopPropagation();
+      event.stopPropagation();
   });
 
   $editModal.on('show.bs.modal', function (e) {
-    let buId = $(e.relatedTarget).data('backup-id');
-    let buMember = $(e.relatedTarget).data('backup-member');
-    let buAccount = $(e.relatedTarget).data('backup-account');
-    let buBc = $(e.relatedTarget).data('backup-bc');
+      let buId = $(e.relatedTarget).data('backup-id');
+      let buMember = $(e.relatedTarget).data('backup-member');
+      let buAccount = $(e.relatedTarget).data('backup-account');
+      let buBc = $(e.relatedTarget).data('backup-bc');
 
-    console.log(buMember);
+      console.log(buMember);
 
-    $editBuId.attr('value', buId);
-    $editBuMember.val(buMember);
-    $editBuAccount.val(buAccount);
-    $editBuBc.attr('value', buBc);
-    // $periodInput.attr('value', period_id);
+      $editBuId.attr('value', buId);
+      $editBuMember.val(buMember);
+      $editBuAccount.val(buAccount);
+      $editBuBc.attr('value', buBc);
+      // $periodInput.attr('value', period_id);
   });
 
   $modalAddBackup.on('show.bs.modal', function (e) {
-    let period_id = $(e.relatedTarget).data('period');
-    $periodInput.attr('value', period_id);
+      let period_id = $(e.relatedTarget).data('period');
+      $periodInput.attr('value', period_id);
   });
 
   $modalDeleteBackup.on('show.bs.modal', function (e) {
-    let buId = $(e.relatedTarget).data('backup-id');
-    $buIdDel.attr('value', buId);
-    $delBuStr.html($(e.relatedTarget).data('backup-str'));
+      let buId = $(e.relatedTarget).data('backup-id');
+      $buIdDel.attr('value', buId);
+      $delBuStr.html($(e.relatedTarget).data('backup-str'));
   });
 
   $approval.click(function () {
-    let buId = $(this).data('backup-id');
-    let $this = $(this);
+      let buId = $(this).data('backup-id');
+      let $this = $(this);
+      $.ajax({
+          url: '/user_management/backups',
+          data: {
+              'bu_id': buId,
+              'type': 'approval'
+          },
+          headers: {
+              'X-CSRFToken': csrftoken
+          },
+          type: 'POST',
+          success: function (data) {
+              console.log(data);
+              $this.removeClass('approve');
+              $this.addClass('btn-success');
+              $this.addClass('approved-btn');
+              $this.html('Approved');
+              $this.prop('disabled', 'disabled');
+          }
+      });
+  });
+
+  $load.click(function () {
+    let bpId = $(this).data('period');
+    console.log(bpId);
     $.ajax({
         url: '/user_management/backups',
         data: {
-          'bu_id': buId,
-          'type': 'approval'
+            'period': bpId,
+            'type': 'expand'
         },
-        headers: {'X-CSRFToken': csrftoken},
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
         type: 'POST',
         success: function (data) {
-          console.log(data);
-          console.log()
-          $this.removeClass('approve');
-          $this.addClass('btn-success');
-          $this.addClass('approved-btn');
-          $this.html('Approved');
-          $this.prop('disabled', 'disabled');
+            console.log(data);
+            for (id in data) {
+              spawnBackupTemplate(data[id]);
+            }
         }
     });
   });
-
 
 });
 </script>

@@ -199,7 +199,7 @@ def edit_member(request, id):
         # Update skills
         skills = Skill.objects.all()
         for skill in skills:
-            skillScore = request.POST.get('skill_' + skill.name) #if request.POST.get('skill_{{ skill.name }}') not None else 0
+            skillScore = request.POST.get('skill_' + skill.name)
             try:
                 skillEntry = SkillEntry.objects.get(skill=skill, member=member)
             except SkillEntry.DoesNotExist:
@@ -316,11 +316,11 @@ def members_single(request, id=0):
 
     backing_me = backup_periods.filter(member=member)
 
-    starAccounts = Client.objects.none()
-    if request.user.is_staff:
-        starAccounts = Client.objects.filter(star_flag=True)
+    starAccounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
 
-    promos = Promo.objects.filter(account__in=accounts)
+    seven_days_ago = now - datetime.timedelta(7)
+
+    promos = Promo.objects.filter(account__in=accounts, end_date__gte=seven_days_ago)
 
     value_added_hours = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=True)
 
@@ -465,7 +465,7 @@ def skills_new(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         skill_name = request.POST.get('skillname')
         newSkill = Skill.objects.create(name=skill_name)
 
@@ -542,6 +542,47 @@ def backups(request):
             bu.bc_link = bu_bc_link
 
             bu.save()
+        elif form_type == 'expand':
+            bp_id = request.POST.get('period')
+            bp = BackupPeriod.objects.get(id=bp_id)
+
+            bs = bp.backup_set.all()
+
+            bsj = {}
+            count = 0
+
+            for b in bs:
+                bsj[count] = {}
+                bsj[count]['bu_id'] = b.id
+                bsj[count]['bu_str'] = str(b)
+                bsj[count]['member_id'] = b.member.id
+                bsj[count]['member_name'] = b.member.user.get_full_name()
+                bsj[count]['account_id'] = b.account.id
+                bsj[count]['account_name'] = b.account.client_name
+                if b.bc_link == None or b.bc_link == '':
+                    bsj[count]['bc_link'] = 'None'
+                else:
+                    bsj[count]['bc_link'] = b.bc_link
+                bsj[count]['approved'] = b.approved
+                bsj[count]['row_id'] = bp.id
+                count += 1
+
+            return JsonResponse(bsj)
+
+            # fsj = {}
+            # fsj['initial_fee'] = fee_structure.initialFee
+            # fsj['fee_intervals'] = {}
+            #
+            # count = 0
+            # for fee_interval in fee_structure.feeStructure.all():
+            #     fsj['fee_intervals'][count] = {}
+            #     fsj['fee_intervals'][count]['style'] = fee_interval.feeStyle
+            #     fsj['fee_intervals'][count]['lowerBound'] = fee_interval.lowerBound
+            #     fsj['fee_intervals'][count]['upperBound'] = fee_interval.upperBound
+            #     fsj['fee_intervals'][count]['fee'] = fee_interval.fee
+            #     count += 1
+            #
+            # return JsonResponse(fsj)
 
         return redirect('/user_management/backups')
 
@@ -554,7 +595,7 @@ def backups(request):
     #backup_periods = BackupPeriod.objects.filter(start_date__gte=seven_days_ago, end_date__lte=seven_days_future)
     backup_periods = BackupPeriod.objects.all()
     active_backups = backup_periods.filter(start_date__lte=now, end_date__gte=now)
-    non_active_backup_periods = backup_periods.exclude(start_date__lte=now, end_date__gte=now)
+    non_active_backup_periods = backup_periods.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now, end_date__gte=now)
 
     context = {
         'members' : members,

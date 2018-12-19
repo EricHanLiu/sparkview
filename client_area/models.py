@@ -153,14 +153,23 @@ class Promo(models.Model):
     has_bing = models.BooleanField(default=False)
     has_other = models.BooleanField(default=False)
     start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(blank=True)
     confirmed_started = models.DateTimeField(default=None, null=True)
     confirmed_ended = models.DateTimeField(default=None, null=True)
+    is_indefinite = models.BooleanField(default=False)
 
     @property
     def is_active(self):
         now = datetime.datetime.now(self.start_date.tzinfo)
-        return (now >= self.start_date and now <= self.end_date)
+        return now >= self.start_date and now <= self.end_date
+
+    @property
+    def true_end(self): #This property should be called to handle the possibility of an indefinite promo
+        if is_indefinite:
+            one_year_from_now = datetime.datetime.now() + datetime.timedelta(365)
+            return one_year_from_now
+
+        return self.end_date
 
     @property
     def formatted_start(self):

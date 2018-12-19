@@ -275,6 +275,10 @@ def account_edit_temp(request, id):
                 account.management_fee_override = float(fee_override)
             if hours_override != 'None':
                 account.allocated_ppc_override = float(hours_override)
+            if 'advanced_reporting' in request.POST:
+                account.advanced_reporting = True
+            else:
+                account.advanced_reporting = False
 
         # Make management fee structure
         if request.user.is_staff and 'mf_check' in request.POST:
@@ -315,7 +319,7 @@ def account_edit(request, id):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         account      = Client.objects.get(id=id)
         teams        = Team.objects.all()
         client_types = ClientType.objects.all()
@@ -339,7 +343,7 @@ def account_edit(request, id):
         }
 
         return render(request, 'client_area/account_edit.html', context)
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
         account = get_object_or_404(Client, id=id)
 
         member = Member.objects.get(user=request.user)
@@ -367,23 +371,23 @@ def account_edit(request, id):
 
             # Bad boilerplate
             # Change this eventually
-            if (account.client_name != cleanedInputs['account_name']):
+            if account.client_name != cleanedInputs['account_name']:
                 AccountChanges.objects.create(account=account, member=member, changeField='account_name', changedFrom=account.client_name, changedTo=cleanedInputs['account_name'])
                 account.client_name = cleanedInputs['account_name']
 
-            if (account.clientType != cleanedInputs['client_type']):
+            if account.clientType != cleanedInputs['client_type']:
                 AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType.name, changedTo=cleanedInputs['client_type'])
                 account.clientType = cleanedInputs['client_type']
 
-            if (account.industry != cleanedInputs['industry']):
+            if account.industry != cleanedInputs['industry']:
                 AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry.name, changedTo=cleanedInputs['industry'])
                 account.industry = cleanedInputs['industry']
 
-            if (account.soldBy != cleanedInputs['sold_by']):
+            if account.soldBy != cleanedInputs['sold_by']:
                 AccountChanges.objects.create(account=account, member=member, changeField='sold_by', changedFrom=account.soldBy.user.first_name + ' ' + account.soldBy.user.last_name, changedTo=cleanedInputs['sold_by'])
                 account.soldBy = cleanedInputs['sold_by']
 
-            if (account.status != cleanedInputs['status']):
+            if account.status != cleanedInputs['status']:
                 AccountChanges.objects.create(account=account, member=member, changeField='status', changedFrom=account.status, changedTo=cleanedInputs['status'])
                 account.status = cleanedInputs['status']
 
@@ -413,8 +417,11 @@ def account_edit(request, id):
 @login_required
 def account_single(request, id):
     member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
-        return HttpResponse('You do not have permission to view this page')
+    """
+    The following flag needs to be turned off for now
+    """
+    # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
+    #     return HttpResponse('You do not have permission to view this page')
 
     account = Client.objects.get(id=id)
     members = Member.objects.all()
@@ -445,14 +452,14 @@ def account_single(request, id):
     statusBadges = ['info', 'success', 'warning', 'danger']
 
     context = {
-        'account'               : account,
-        'members'               : members,
+        'account' : account,
+        'members' : members,
         'backups' : backups,
-        'accountHoursMember'    : accountsHoursThisMonthByMember,
+        'accountHoursMember' : accountsHoursThisMonthByMember,
         'value_hours_member' : accountsValueHoursThisMonthByMember,
-        'changes'               : changes,
+        'changes' : changes,
         'accountHoursThisMonth' : accountHoursThisMonth,
-        'statusBadges'          : statusBadges,
+        'statusBadges' : statusBadges,
         'kpid' : account.kpi_info,
         'promos' : promos
     }

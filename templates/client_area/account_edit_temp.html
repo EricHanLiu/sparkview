@@ -61,14 +61,28 @@
 
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="client_name">Management Fee:</label>
+                    <label>Management Fee:</label>
                     <input type="text" name="fee_override" class="form-control m-input"
                     placeholder="Management fee for this client" value="{{ account.management_fee_override }}">
                   </div>
                   <div class="col-md-6">
-                    <label for="client_name">Allocated PPC Hours OVERRIDE:</label>
+                    <label>Allocated PPC Hours OVERRIDE:</label>
                     <input type="text" name="hours_override" class="form-control m-input"
                     placeholder="WARNING: This will override the management hours calculation" value="{{ account.allocated_ppc_override }}">
+                  </div>
+                </div>
+                <br />
+                <div class="row">
+                  <div class="col-2">
+                    <label>Advanced Reporting:</label>
+                  </div>
+                  <div class="col-1">
+                    <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                      <label>
+                        <input name="advanced_reporting" type="checkbox" {% if account.advanced_reporting %}checked{% endif %} />
+                        <span></span>
+                      </label>
+                    </span>
                   </div>
                 </div>
               </div>
