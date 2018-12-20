@@ -24,6 +24,19 @@ def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
+
+    if request.method == 'POST':
+        members_resp = {}
+        count = 0
+
+        members = Member.objects.all()
+        for member in members:
+            members_resp[count]['id'] = member.id
+            members_resp[count]['name'] = member.user.get_full_name()
+            count += 1
+
+        return JsonResponse(members_resp)
+
     members = Member.objects.only('team',
                                   'role',
                                   'buffer_total_percentage',
@@ -569,21 +582,6 @@ def backups(request):
 
             return JsonResponse(bsj)
 
-            # fsj = {}
-            # fsj['initial_fee'] = fee_structure.initialFee
-            # fsj['fee_intervals'] = {}
-            #
-            # count = 0
-            # for fee_interval in fee_structure.feeStructure.all():
-            #     fsj['fee_intervals'][count] = {}
-            #     fsj['fee_intervals'][count]['style'] = fee_interval.feeStyle
-            #     fsj['fee_intervals'][count]['lowerBound'] = fee_interval.lowerBound
-            #     fsj['fee_intervals'][count]['upperBound'] = fee_interval.upperBound
-            #     fsj['fee_intervals'][count]['fee'] = fee_interval.fee
-            #     count += 1
-            #
-            # return JsonResponse(fsj)
-
         return redirect('/user_management/backups')
 
     now = datetime.datetime.now()
@@ -592,10 +590,8 @@ def backups(request):
     members = Member.objects.all()
     accounts = Client.objects.filter(status=1)
 
-    #backup_periods = BackupPeriod.objects.filter(start_date__gte=seven_days_ago, end_date__lte=seven_days_future)
-    backup_periods = BackupPeriod.objects.all()
-    active_backups = backup_periods.filter(start_date__lte=now, end_date__gte=now)
-    non_active_backup_periods = backup_periods.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now, end_date__gte=now)
+    active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now, end_date__gte=now)
 
     context = {
         'members' : members,

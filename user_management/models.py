@@ -125,7 +125,7 @@ class Member(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
-    image = models.CharField(max_length=255, null=True, default=None)
+    image = models.CharField(max_length=255, null=True, default=None, blank=True)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage     = models.FloatField(null=True, blank=True, default=100)

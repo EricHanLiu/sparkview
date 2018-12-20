@@ -454,7 +454,7 @@ $(document).ready(function () {
       $delBuStr.html($(e.relatedTarget).data('backup-str'));
   });
 
-  $approval.click(function () {
+  $approval.on('click', function () {
       let buId = $(this).data('backup-id');
       let $this = $(this);
       $.ajax({
@@ -499,6 +499,11 @@ $(document).ready(function () {
         }
     });
   });
+
+  /**
+   * Load members
+   */
+
 
 });
 </script>
