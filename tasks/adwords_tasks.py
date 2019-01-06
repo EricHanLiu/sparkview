@@ -534,8 +534,6 @@ def adwords_cron_ovu(self, customer_id):
 
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
-    print(account)
-
     helper = AdwordsReportingService(get_client())
     this_month = helper.get_this_month_daterange()
 
@@ -790,12 +788,13 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    daterange = helper.get_this_month_daterange()
+    #daterange = helper.get_this_month_daterange()
 
     campaign_this_month = helper.get_campaign_performance(
         customer_id=account.dependent_account_id,
-        dateRangeType="CUSTOM_DATE",
-        **daterange
+        dateRangeType="THIS_MONTH"
+        #dateRangeType="CUSTOM_DATE",
+        #**daterange
     )
 
     campaigns_yesterday = helper.get_campaign_performance(

@@ -59,10 +59,10 @@ class Client(models.Model):
     currency = models.CharField(max_length=255, default='', blank=True)
 
     # Parent Client (aka Client, this model should be Account)
-    parentClient = models.ForeignKey(ParentClient, models.DO_NOTHING, null=True, blank=True)
+    parentClient = models.ForeignKey(ParentClient, models.SET_NULL, null=True, blank=True)
 
     # Management Fee Structure lets you calculate the actual fee of that client
-    managementFee = models.ForeignKey(ManagementFeesStructure, models.DO_NOTHING, null=True, blank=True)
+    managementFee = models.ForeignKey(ManagementFeesStructure, models.SET_NULL, null=True, blank=True)
 
     # MRR or one time
     payment_schedule = models.IntegerField(default=0, choices=PAYMENT_SCHEDULE_CHOICES)
@@ -76,13 +76,13 @@ class Client(models.Model):
 
     # The following attributes are for the client management implementation
     team = models.ManyToManyField(Team, blank=True, related_name='team')
-    industry = models.ForeignKey(Industry, models.DO_NOTHING, null=True, related_name='industry', blank=True)
+    industry = models.ForeignKey(Industry, models.SET_NULL, null=True, related_name='industry', blank=True)
     language = models.ManyToManyField(Language, related_name='language')
     contactInfo = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url = models.URLField(max_length=300, null=True, blank=True)
-    #clientType = models.ForeignKey(ClientType, models.DO_NOTHING, null=True, related_name='client_type', blank=True)
+    #clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
     tier = models.IntegerField(default=1)
-    soldBy = models.ForeignKey(Member, models.DO_NOTHING, null=True, related_name='sold_by')
+    soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
     # maybe do services another way?
     services = models.ManyToManyField(Service, blank=True, related_name='services')
     has_seo = models.BooleanField(default=False)
@@ -96,7 +96,7 @@ class Client(models.Model):
     actualHours = models.IntegerField(default=0)
     star_flag = models.BooleanField(default=False)
     flagged_bc_link = models.CharField(max_length=255, default=None, null=True, blank=True)
-    flagged_assigned_member = models.ForeignKey(Member, models.DO_NOTHING, null=True, default=None, blank=True, related_name='flagged_assigned_member')
+    flagged_assigned_member = models.ForeignKey(Member, models.SET_NULL, null=True, default=None, blank=True, related_name='flagged_assigned_member')
     flagged_datetime = models.DateTimeField(default=None, blank=True, null=True)
     target_cpa = models.FloatField(default=0)
     target_roas = models.FloatField(default=0)
@@ -106,22 +106,18 @@ class Client(models.Model):
     cm1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm1')
     cm2    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm2')
     cm3    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm3')
-    cmb    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cmb')
 
     am1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am1')
     am2    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am2')
     am3    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am3')
-    amb    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='amb')
 
     seo1   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo1')
     seo2   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo2')
     seo3   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo3')
-    seob   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seob')
 
     strat1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat1')
     strat2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat2')
     strat3 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat3')
-    stratb = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='stratb')
 
     # Allocation % of total hours
     cm1percent = models.FloatField(default=75.0)
@@ -539,6 +535,23 @@ class Client(models.Model):
 
         return ', '.join(services)
 
+    @property
+    def has_blacklisted_accounts(self):
+        """
+        Checks if this account is attached to any blacklisted ad network accounts
+        """
+        print('here')
+        for aa in self.adwords.all():
+            if aa.blacklisted:
+                return True
+        for ba in self.bing.all():
+            if ba.blacklisted:
+                return True
+        for fa in self.facebook.all():
+            if fa.blacklisted:
+                return True
+        return False
+
 
     @property
     def bing_budget_this_month(self):
@@ -644,15 +657,15 @@ class Client(models.Model):
         if self.am1 != None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
-            members['AM']['allocated_percenage'] = self.am1percent
+            members['AM']['allocated_percentage'] = self.am1percent
         if self.am2 != None:
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
-            members['AM2']['allocated_percenage'] = self.am2percent
+            members['AM2']['allocated_percentage'] = self.am2percent
         if self.am3 != None:
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
-            members['AM3']['allocated_percenage'] = self.am3percent
+            members['AM3']['allocated_percentage'] = self.am3percent
 
         return members
 
@@ -667,15 +680,15 @@ class Client(models.Model):
         if self.cm1 != None:
             members['CM'] = {}
             members['CM']['member'] = self.cm1
-            members['CM']['allocated_percenage'] = self.cm1percent
+            members['CM']['allocated_percentage'] = self.cm1percent
         if self.cm2 != None:
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
-            members['CM2']['allocated_percenage'] = self.cm2percent
+            members['CM2']['allocated_percentage'] = self.cm2percent
         if self.cm3 != None:
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
-            members['CM3']['allocated_percenage'] = self.cm3percent
+            members['CM3']['allocated_percentage'] = self.cm3percent
 
         return members
 
@@ -690,15 +703,15 @@ class Client(models.Model):
         if self.seo1 != None:
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
-            members['SEO']['allocated_percenage'] = self.seo1percent
+            members['SEO']['allocated_percentage'] = self.seo1percent
         if self.seo2 != None:
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
-            members['SEO 2']['allocated_percenage'] = self.seo2percent
+            members['SEO 2']['allocated_percentage'] = self.seo2percent
         if self.seo3 != None:
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
-            members['SEO 3']['allocated_percenage'] = self.seo3percent
+            members['SEO 3']['allocated_percentage'] = self.seo3percent
         return members
 
 
@@ -712,15 +725,15 @@ class Client(models.Model):
         if self.strat1 != None:
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
-            members['Strat']['allocated_percenage'] = self.strat1percent
+            members['Strat']['allocated_percentage'] = self.strat1percent
         if self.strat2 != None:
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
-            members['Strat 2']['allocated_percenage'] = self.strat2percent
+            members['Strat 2']['allocated_percentage'] = self.strat2percent
         if self.strat3 != None:
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
-            members['Strat 3']['allocated_percenage'] = self.strat3percent
+            members['Strat 3']['allocated_percentage'] = self.strat3percent
 
         return members
 
@@ -735,54 +748,54 @@ class Client(models.Model):
         if self.cm1 != None:
             members['CM'] = {}
             members['CM']['member'] = self.cm1
-            members['CM']['allocated_percenage'] = self.cm1percent
+            members['CM']['allocated_percentage'] = self.cm1percent
         if self.cm2 != None:
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
-            members['CM2']['allocated_percenage'] = self.cm2percent
+            members['CM2']['allocated_percentage'] = self.cm2percent
         if self.cm3 != None:
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
-            members['CM3']['allocated_percenage'] = self.cm3percent
+            members['CM3']['allocated_percentage'] = self.cm3percent
 
         if self.am1 != None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
-            members['AM']['allocated_percenage'] = self.am1percent
+            members['AM']['allocated_percentage'] = self.am1percent
         if self.am2 != None:
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
-            members['AM2']['allocated_percenage'] = self.am2percent
+            members['AM2']['allocated_percentage'] = self.am2percent
         if self.am3 != None:
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
-            members['AM3']['allocated_percenage'] = self.am3percent
+            members['AM3']['allocated_percentage'] = self.am3percent
 
         if self.seo1 != None:
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
-            members['SEO']['allocated_percenage'] = self.seo1percent
+            members['SEO']['allocated_percentage'] = self.seo1percent
         if self.seo2 != None:
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
-            members['SEO 2']['allocated_percenage'] = self.seo2percent
+            members['SEO 2']['allocated_percentage'] = self.seo2percent
         if self.seo3 != None:
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
-            members['SEO 3']['allocated_percenage'] = self.seo3percent
+            members['SEO 3']['allocated_percentage'] = self.seo3percent
 
         if self.strat1 != None:
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
-            members['Strat']['allocated_percenage'] = self.strat1percent
+            members['Strat']['allocated_percentage'] = self.strat1percent
         if self.strat2 != None:
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
-            members['Strat 2']['allocated_percenage'] = self.strat2percent
+            members['Strat 2']['allocated_percentage'] = self.strat2percent
         if self.strat3 != None:
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
-            members['Strat 3']['allocated_percenage'] = self.strat3percent
+            members['Strat 3']['allocated_percentage'] = self.strat3percent
 
         return members
 
@@ -812,9 +825,9 @@ class Client(models.Model):
         # day_of_month = now.day - 1
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
-        if (method == 0): # Project based on yesterday
+        if method == 0: # Project based on yesterday
             projection += (self.yesterday_spend * days_remaining)
-        elif (method == 1):
+        elif method == 1:
             projection += ((self.current_spend / day_of_month) * days_remaining)
 
         return projection
@@ -867,7 +880,7 @@ class AccountBudgetSpendHistory(models.Model):
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
 
-    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
+    account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     management_fee = models.FloatField(default=0.0)
@@ -895,7 +908,7 @@ class BudgetUpdate(models.Model):
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
 
-    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
+    account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     updated = models.BooleanField(default=False)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -904,7 +917,7 @@ class BudgetUpdate(models.Model):
 
 class ClientCData(models.Model):
 
-    client = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
+    client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     aw_budget = JSONField(default=dict)
     aw_projected = JSONField(default=dict)
     aw_spend = JSONField(default=dict)
@@ -939,17 +952,17 @@ class FlightBudget(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     current_spend = models.FloatField(default=0)
-    adwords_account = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
-    bing_account = models.ForeignKey(bing_a.BingAccounts, models.DO_NOTHING, blank=True, null=True)
-    facebook_account = models.ForeignKey(fb.FacebookAccount, models.DO_NOTHING, blank=True, null=True)
+    adwords_account = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
+    bing_account = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
+    facebook_account = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
 
 
 class CampaignGrouping(models.Model):
 
-    client = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True)
+    client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
-    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='aw_campaigns')
     aw_spend = models.FloatField(default=0)
     aw_yspend = models.FloatField(default=0)
@@ -960,9 +973,9 @@ class CampaignGrouping(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
-    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
-    bing = models.ForeignKey(bing_a.BingAccounts, models.DO_NOTHING, blank=True, null=True)
-    facebook = models.ForeignKey(fb.FacebookAccount, models.DO_NOTHING, blank=True, null=True)
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
+    bing = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
+    facebook = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
@@ -1019,7 +1032,7 @@ class CampaignGrouping(models.Model):
 
 class Budget(models.Model):
 
-    adwords = models.ForeignKey(adwords_a.DependentAccount, models.DO_NOTHING, blank=True, null=True)
+    adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')
     network_type = models.CharField(max_length=255, default='ALL')
@@ -1031,12 +1044,12 @@ class TierChangeProposal(models.Model):
     """
     Tier change proposed by budget or management fee change
     """
-    account = models.ForeignKey(Client, models.DO_NOTHING, blank=True, null=True, default=None)
+    account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, default=None)
     tier_from = models.IntegerField(default=0)
     tier_to = models.IntegerField(default=0)
     fee_from = models.FloatField(default=0.0)
     fee_to = models.FloatField(default=0.0)
     changed = models.BooleanField(default=False)
-    changed_by = models.ForeignKey('user_management.Member', models.DO_NOTHING, blank=True, null=True, default=None)
+    changed_by = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)

@@ -37,7 +37,8 @@ def main():
 
             record, created = AccountAllocatedHoursHistory.objects.get_or_create(account=account, member=member, month=month, year=year)
 
-            if created:
+            if True:
+                print('working')
                 record.allocated_hours = allocated_hours_month
                 record.save()
             else:
@@ -48,7 +49,8 @@ def main():
         """
         account_budget_history, created = AccountBudgetSpendHistory.objects.get_or_create(account=account, month=month, year=year)
 
-        if created:
+        if True:
+            print('working')
             account_budget_history.aw_budget = account.aw_budget
             account_budget_history.bing_budget = account.bing_budget
             account_budget_history.fb_budget = account.fb_budget
@@ -62,3 +64,4 @@ def main():
             print('Account ' + account.client_name + ' month ' + str(month) + ' year ' + str(year) + ' budget history was already created, needs manual intervention')
 
     #     allocated_hours = models.FloatField(default=0)
+main()

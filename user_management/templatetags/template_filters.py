@@ -6,7 +6,10 @@ register = template.Library()
 
 @register.filter
 def get_item_from_list(dictionary, key):
+    if key == None or len(dictionary) == 0:
+        return 0
     return dictionary[key]
+
 
 @register.filter
 def get_hours_per_member_and_account(member, account_id):

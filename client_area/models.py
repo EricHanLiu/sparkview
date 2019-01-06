@@ -62,8 +62,8 @@ class ClientContact(models.Model):
 class AccountHourRecord(models.Model):
     MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1,13)]
 
-    member  = models.ForeignKey(Member, models.DO_NOTHING, blank=True, null=True, related_name='member')
-    account = models.ForeignKey('budget.Client', models.DO_NOTHING, blank=True, null=True, related_name='client')
+    member  = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='member')
+    account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True, related_name='client')
     hours = models.FloatField(default=0)
     month = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
     year = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -156,7 +156,7 @@ class Promo(models.Model):
     end_date = models.DateTimeField(blank=True)
     confirmed_started = models.DateTimeField(default=None, null=True)
     confirmed_ended = models.DateTimeField(default=None, null=True)
-    is_indefinite = models.BooleanField(default=False)
+    is_indefinite = models.BooleanField(default=False, null=True)
 
     @property
     def is_active(self):

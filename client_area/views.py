@@ -18,7 +18,11 @@ def accounts(request):
     member  = Member.objects.get(user=request.user)
     accounts = member.accounts
 
-    backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=1) | Q(status=0))
+    now = datetime.datetime.now()
+
+    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    backupAccounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    #backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=1) | Q(status=0))
 
     statusBadges = ['info', 'success', 'warning', 'danger']
 
@@ -480,21 +484,21 @@ def account_assign_members(request):
     # This is terrible boilerplate
     # CMS
     cm1_id = request.POST.get('cm1-assign')
-    if (cm1_id == '0'):
+    if cm1_id == '0':
         member = None
     else:
         member = Member.objects.get(id=cm1_id)
     account.cm1 = member
 
     cm2_id = request.POST.get('cm2-assign')
-    if (cm2_id == '0'):
+    if cm2_id == '0':
         member = None
     else:
         member = Member.objects.get(id=cm2_id)
     account.cm2 = member
 
     cm3_id = request.POST.get('cm3-assign')
-    if (cm3_id == '0'):
+    if cm3_id == '0':
         member = None
     else:
         member = Member.objects.get(id=cm3_id)
@@ -502,21 +506,21 @@ def account_assign_members(request):
 
     # AMs
     am1_id = request.POST.get('am1-assign')
-    if (am1_id == '0'):
+    if am1_id == '0':
         member = None
     else:
         member = Member.objects.get(id=am1_id)
     account.am1 = member
 
     am2_id = request.POST.get('am2-assign')
-    if (am2_id == '0'):
+    if am2_id == '0':
         member = None
     else:
         member = Member.objects.get(id=am2_id)
     account.am2 = member
 
     am3_id = request.POST.get('am3-assign')
-    if (am3_id == '0'):
+    if am3_id == '0':
         member = None
     else:
         member = Member.objects.get(id=am3_id)
@@ -524,21 +528,21 @@ def account_assign_members(request):
 
     # SEO
     seo1_id = request.POST.get('seo1-assign')
-    if (seo1_id == '0'):
+    if seo1_id == '0':
         member = None
     else:
         member = Member.objects.get(id=seo1_id)
     account.seo1 = member
 
     seo2_id = request.POST.get('seo2-assign')
-    if (seo2_id == '0'):
+    if seo2_id == '0':
         member = None
     else:
         member = Member.objects.get(id=seo2_id)
     account.seo2 = member
 
     seo3_id = request.POST.get('seo3-assign')
-    if (seo3_id == '0'):
+    if seo3_id == '0':
         member = None
     else:
         member = Member.objects.get(id=seo3_id)
@@ -546,21 +550,21 @@ def account_assign_members(request):
 
     # Strat
     srtat1_id = request.POST.get('strat1-assign')
-    if (srtat1_id == '0'):
+    if srtat1_id == '0':
         member = None
     else:
         member = Member.objects.get(id=srtat1_id)
     account.strat1 = member
 
     srtat2_id = request.POST.get('strat2-assign')
-    if (srtat2_id == '0'):
+    if srtat2_id == '0':
         member = None
     else:
         member = Member.objects.get(id=srtat2_id)
     account.strat2 = member
 
     srtat3_id = request.POST.get('strat3-assign')
-    if (srtat3_id == '0'):
+    if srtat3_id == '0':
         member = None
     else:
         member = Member.objects.get(id=srtat3_id)
@@ -577,19 +581,20 @@ def add_hours_to_account(request):
     if request.method == 'GET':
         member   = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
-                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
-                      Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
-                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
-                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+                      Q(am1=member) | Q(am2=member) | Q(am3=member) |
+                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member) |
                   ).order_by('client_name')
 
         all_accounts = Client.objects.all().order_by('client_name')
 
         months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
-        years  = [2018, 2019]
+        years  = [2018, 2019, 2020, 2021]
 
         now = datetime.datetime.now()
         monthnow = now.month
+        current_year = now.year
 
         members = Member.objects.none
         if request.user.is_staff:
@@ -603,7 +608,8 @@ def add_hours_to_account(request):
             'months'   : months,
             'monthnow' : monthnow,
             'years'    : years,
-            'members' : members
+            'members' : members,
+            'current_year': current_year
         }
 
         return render(request, 'client_area/insert_hours.html', context)
@@ -611,10 +617,10 @@ def add_hours_to_account(request):
     elif request.method == 'POST':
         member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
-                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) | Q(cmb=member) |
-                      Q(am1=member) | Q(am2=member) | Q(am3=member) | Q(amb=member) |
-                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) | Q(seob=member) |
-                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member) | Q(stratb=member)
+                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+                      Q(am1=member) | Q(am2=member) | Q(am3=member) |
+                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member) |
                   ).order_by('client_name')
         accounts_count = accounts.count()
 
@@ -838,12 +844,12 @@ def new_promo(request):
     """
     Creates a new promo
     """
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('Invalid request')
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     promo_name = request.POST.get('promo-name')
@@ -870,6 +876,7 @@ def new_promo(request):
         promo.has_bing = True
     if promo_has_other:
         promo.has_other = True
+    promo.is_indefinite = False #change eventually
     promo.save()
 
     return redirect('/clients/accounts/' + str(account_id))
@@ -880,12 +887,12 @@ def confirm_promo(request):
     """
     Confirms the beginning or end of a promo (done by CM or AM)
     """
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('Invalid request')
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     promo = get_object_or_404(Promo, id=int(request.POST.get('promo_id')))
@@ -955,7 +962,9 @@ def edit_promos(request):
     member = Member.objects.get(user=request.user)
 
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
-    backup_accounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
+    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    backup_accounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    #backup_accounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
 
     scoreBadges = ['secondary', 'danger', 'warning', 'success']
 
@@ -964,7 +973,7 @@ def edit_promos(request):
     if (request.method == 'POST'):
         promo_id = request.POST.get('promo_id')
         member = Member.objects.get(user=request.user)
-        if (not request.user.is_staff and not promos.filter(id=promo_id).exists()):
+        if not request.user.is_staff and not promos.filter(id=promo_id).exists():
             return HttpResponse('You do not have permission to view this page')
 
         promo_name = request.POST.get('promo-name')
@@ -991,7 +1000,7 @@ def set_kpis(request):
     """
     member = Member.objects.get(user=request.user)
     account_id = int(request.POST.get('account_id'))
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     account = Client.objects.get(id=account_id)

@@ -340,8 +340,8 @@ def promos(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    seven_days_ago = datetime.datetime.now() - datetime.timedelta(7)
-    seven_days_future = datetime.datetime.now() + datetime.timedelta(7)
+    three_days_ago = datetime.datetime.now() - datetime.timedelta(3)
+    three_days_future = datetime.datetime.now() + datetime.timedelta(3)
     promos = Promo.objects.filter(end_date__gte=seven_days_ago)
 
     today = datetime.datetime.now().date()
@@ -349,8 +349,8 @@ def promos(request):
     today_start = datetime.datetime.combine(today, datetime.time())
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
 
-    promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lte=seven_days_future) #this is really this week
-    promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=seven_days_future) # really this week as well
+    promos_start_today = Promo.objects.filter(start_date__gte=three_days_ago, start_date__lte=three_days_future) #this is really this week
+    promos_end_today = Promo.objects.filter(end_date__gte=three_days_ago, end_date__lte=three_days_future) # really this week as well
 
     context = {
         'promos' : promos,
@@ -381,9 +381,9 @@ def actual_hours(request):
     selected['month'] = 'all'
     selected['year'] = now.year
 
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).values('member', 'account', 'year', 'month').annotate(sum_hours=Sum('hours'))
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
         year = request.POST.get('year')
         month = request.POST.get('month')
         member = request.POST.get('member')
@@ -391,16 +391,16 @@ def actual_hours(request):
 
         hours = AccountHourRecord.objects.filter()
 
-        if (year != 'all'):
+        if year != 'all':
             hours = hours.filter(year=year)
             selected['year'] = year
-        if (month != 'all'):
+        if month != 'all':
             hours = hours.filter(month=month)
             selected['month'] = month
-        if (member != 'all'):
+        if member != 'all':
             hours = hours.filter(member=member)
             selected['member'] = int(member)
-        if (account != 'all'):
+        if account != 'all':
             hours = hours.filter(account=account)
             selected['account'] = int(account)
 
@@ -445,9 +445,9 @@ def monthly_reporting(request):
     selected['year'] = now.year
     selected['team'] = 'all'
 
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         reports = MonthlyReport.objects.filter(year=now.year, month=now.month)
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
         year = request.POST.get('year')
         month = request.POST.get('month')
         account_id = request.POST.get('account')
@@ -560,11 +560,7 @@ def backup_report(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    accounts = Client.objects.exclude(cmb=None, amb=None, seob=None, stratb=None)
-
-    context = {
-        'accounts' : accounts
-    }
+    context = {}
 
     return render(request, 'reports/backup_report.html', context)
 

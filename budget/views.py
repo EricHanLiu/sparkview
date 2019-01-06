@@ -271,7 +271,7 @@ def client_details(request, client_id):
 
     today = datetime.today() - relativedelta(days=1) # This is actually yesterday
     next_month_int = today.month + 1
-    if (next_month_int == 13):
+    if next_month_int == 13:
         next_month_int = 1
     next_month = datetime(
         year=today.year,
@@ -422,7 +422,7 @@ def hist_client_details(request, client_id):
 
     today = datetime.today() - relativedelta(days=1)
     next_month_int = today.month + 1
-    if (next_month_int == 13):
+    if next_month_int == 13:
         next_month_int = 1
     next_month = datetime(
         year=today.year,

@@ -89,10 +89,10 @@ class DependentAccount(models.Model):
     hist_qs = JSONField(default=dict, blank=True, null=True)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    assigned_to = models.ForeignKey(User,models.DO_NOTHING, null=True, blank=True)
-    assigned_cm2 = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='aw_cm2')
-    assigned_cm3 = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='aw_cm3')
-    assigned_am = models.ForeignKey(User, models.DO_NOTHING, null=True, blank=True, related_name='aw_am')
+    assigned_to = models.ForeignKey(User,models.SET_NULL, null=True, blank=True)
+    assigned_cm2 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_cm2')
+    assigned_cm3 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_cm3')
+    assigned_am = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_am')
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
@@ -178,7 +178,7 @@ class DependentAccount(models.Model):
 
 class Performance(models.Model):
 
-    account = models.ForeignKey(DependentAccount, models.DO_NOTHING)
+    account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True)
     performance_type = models.CharField(max_length=255)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
@@ -296,7 +296,7 @@ class Alert(models.Model):
 
 class Campaign(models.Model):
 
-    account = models.ForeignKey(DependentAccount, models.DO_NOTHING)
+    account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
@@ -319,8 +319,8 @@ class Campaign(models.Model):
 
 class Adgroup(models.Model):
 
-    account = models.ForeignKey(DependentAccount, models.DO_NOTHING, null=True, blank=True)
-    campaign = models.ForeignKey(Campaign,models.DO_NOTHING, null=True, blank=True)
+    account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True, blank=True)
+    campaign = models.ForeignKey(Campaign,models.SET_NULL, null=True, blank=True)
     adgroup_id = models.CharField(max_length=255, default='None')
     adgroup_name = models.CharField(max_length=255, default='None')
     adgroup_cost = models.FloatField(default=0)
@@ -339,7 +339,7 @@ class Adgroup(models.Model):
 class Label(models.Model):
 
     # used for filtering text labels
-    account = models.ForeignKey(DependentAccount,models.DO_NOTHING, blank=True, null=True)
+    account = models.ForeignKey(DependentAccount,models.SET_NULL, blank=True, null=True)
     # used for account labels
     accounts = models.ManyToManyField(DependentAccount, blank=True, related_name='lbl_assigned_aw')
     campaigns = models.ManyToManyField(Campaign, blank=True, related_name='lbl_assigned_cmp')

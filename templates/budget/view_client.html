@@ -4,22 +4,26 @@
     <div class="m-content">
         <div class="row">
             <div class="col-xl-12">
-                <div class="m-portlet m-portlet--creative m-portlet--first m-portlet--bordered-semi">
-                    <div class="m-portlet__head">
-                        <div class="m-portlet__head-caption">
-
-                            <div class="m-portlet__head-title">
-                                <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                                    <span>Client Details</span>
-                                </h2>
-                            </div>
-                        </div>
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                  <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                      <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                          Temporary Hour Insert Page
+                        </h3>
+                      </div>
                     </div>
-                    <div class="m-portlet__body">
-                        <div class="m-portlet__body">
-                            {% include 'budget/has_both.html' %}
-                        </div>
-                    </div>
+                  </div>
+                  <div class="m-portlet__body">
+                    {% if client_data.has_blacklisted_accounts %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          						</button>
+          					  	<strong>Warning!</strong> One or more of the ad accounts associated with this account are blacklisted. They are not retrieving any new spend information.
+          					</div>
+                    {% endif %}
+                    {% include 'budget/has_both.html' %}
+                  </div>
                 </div>
             </div>
         </div>

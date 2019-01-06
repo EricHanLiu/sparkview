@@ -18,7 +18,7 @@ class RoleGroup(models.Model):
 # Role at the company (example, Campaign Manager)
 class Role(models.Model):
     name  = models.CharField(max_length=255)
-    group = models.ForeignKey(RoleGroup, models.DO_NOTHING, blank=True, null=True)
+    group = models.ForeignKey(RoleGroup, models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -54,7 +54,7 @@ class Incident(models.Model):
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing')]
 
     members = models.ManyToManyField('Member', default=None)
-    account = models.ForeignKey('budget.Client', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+    account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
     description = models.CharField(max_length=355, default='')
     client_aware = models.BooleanField(default=False)
@@ -340,7 +340,7 @@ class Member(models.Model):
         """
         Percentage that describes member efficiency. Actual / allocated
         """
-        if (self.allocatedHoursMonth == 0.0):
+        if self.allocatedHoursMonth == 0.0:
             return 0.0
         return 100.0 * (self.actualHoursThisMonth / self.allocatedHoursMonth)
 
@@ -350,7 +350,7 @@ class Member(models.Model):
         """
         Percentage of total available hours (after buffer) that are allocated
         """
-        if (self.total_hours_minus_buffer == 0.0):
+        if self.total_hours_minus_buffer == 0.0:
             return 0.0
         return 100 * (self.allocatedHoursMonth / self.total_hours_minus_buffer)
 
@@ -385,7 +385,7 @@ class BackupPeriod(models.Model):
     """
     Represents a period of time where a member will need a backup or backups
     """
-    member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True)
+    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
 
@@ -397,12 +397,12 @@ class Backup(models.Model):
     """
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
-    member = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='backup_member')
-    account = models.ForeignKey('budget.Client', on_delete=models.DO_NOTHING, null=True)
-    period = models.ForeignKey(BackupPeriod, on_delete=models.DO_NOTHING, null=True)
+    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='backup_member')
+    account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
+    period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)
     approved = models.BooleanField(default=False)
-    approved_by = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='approved_by')
+    approved_by = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='approved_by')
     approved_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -415,8 +415,8 @@ class TrainingHoursRecord(models.Model):
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
 
-    trainer = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='trainer')
-    trainee = models.ForeignKey(Member, on_delete=models.DO_NOTHING, null=True, related_name='trainee')
+    trainer = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='trainer')
+    trainee = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='trainee')
     hours = models.FloatField(default=0.0)
     month = models.IntegerField(default=1, choices=MONTH_CHOICES)
     year = models.PositiveSmallIntegerField(blank=True, null=True)

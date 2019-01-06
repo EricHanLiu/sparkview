@@ -21,8 +21,8 @@ class Notification(models.Model):
 
     NOTIFICATION_COLOUR_CLASSES = ['brand', 'primary', 'success', 'warning', 'danger']
 
-    member = models.ForeignKey('user_management.Member', models.DO_NOTHING, default=None, null=True, blank=True)
-    account = models.ForeignKey('budget.Client', models.DO_NOTHING, default=None, null=True, blank=True)
+    member = models.ForeignKey('user_management.Member', models.SET_NULL, default=None, null=True, blank=True)
+    account = models.ForeignKey('budget.Client', models.SET_NULL, default=None, null=True, blank=True)
     message = models.CharField(max_length=999)
     link = models.URLField(max_length=499, blank=True)
     type = models.IntegerField(choices=NOTIFICATION_TYPES, default=4, blank=True)

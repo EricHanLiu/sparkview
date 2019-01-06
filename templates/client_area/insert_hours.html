@@ -53,7 +53,7 @@
                             name="year-{{ forloop.counter0 }}"
                             style="width: 100%;" required>
                         {% for year in years %}
-                            <option value="{{ year }}">{{ year }}</option>
+                            <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -115,7 +115,7 @@
                             name="year"
                             style="width: 100%;" required>
                         {% for year in years %}
-                            <option value="{{ year }}">{{ year }}</option>
+                            <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select>
                   </div>
@@ -176,7 +176,7 @@
                             name="year"
                             style="width: 100%;" required>
                         {% for year in years %}
-                            <option value="{{ year }}">{{ year }}</option>
+                            <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select>
                   </div>
