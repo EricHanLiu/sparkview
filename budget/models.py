@@ -80,7 +80,7 @@ class Client(models.Model):
     language = models.ManyToManyField(Language, related_name='language')
     contactInfo = models.ManyToManyField(ClientContact, related_name='client_contact', blank=True)
     url = models.URLField(max_length=300, null=True, blank=True)
-    #clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
+    clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
     tier = models.IntegerField(default=1)
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
     # maybe do services another way?

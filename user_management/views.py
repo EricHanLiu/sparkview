@@ -188,7 +188,7 @@ def edit_member(request, id):
         first_name      = request.POST.get('first_name')
         last_name       = request.POST.get('last_name')
         email           = request.POST.get('email')
-        is_staff        = (request.POST.get('is_staff') == 'on')
+        is_staff        = request.POST.get('is_staff') == 'on'
 
         # Member parameters
         # Now make the member
@@ -367,12 +367,16 @@ def members_single(request, id=0):
     for trainee_hour in trainee_hours_this_month:
         trainee_hour_total += trainee_hour.hours
 
+    first_weekday, days_in_month = calendar.monthrange(now.year, now.month)
+
     # Reports
     if reporting_period:
         active_accounts = accounts.filter(status=1)
         last_month = month - 1
         if last_month == 0:
             last_month = 12
+        if now.day == days_in_month:
+            last_month = month # Last day of month, show the current month so we can set stuff
         for account in active_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
