@@ -342,6 +342,7 @@ def promos(request):
 
     three_days_ago = datetime.datetime.now() - datetime.timedelta(3)
     three_days_future = datetime.datetime.now() + datetime.timedelta(3)
+    seven_days_ago = datetime.datetime.now() - datetime.timedelta(7)
     promos = Promo.objects.filter(end_date__gte=seven_days_ago)
 
     today = datetime.datetime.now().date()
