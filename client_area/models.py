@@ -1,5 +1,6 @@
 from django.db import models
-import calendar, datetime
+import calendar
+import datetime
 
 from user_management.models import Member
 
@@ -17,12 +18,12 @@ class ParentClient(models.Model):
 # Keep a changelog of changes to the client model
 # To complete later, not a priority
 class AccountChanges(models.Model):
-    account     = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True)
-    member      = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True)
+    account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True)
+    member = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True)
     changeField = models.CharField(max_length=255, default='None')
     changedFrom = models.CharField(max_length=255, default='None')
-    changedTo   = models.CharField(max_length=255, default='None')
-    datetime    = models.DateTimeField(auto_now_add=True)
+    changedTo = models.CharField(max_length=255, default='None')
+    datetime = models.DateTimeField(auto_now_add=True)
 
 
 class Service(models.Model):
@@ -54,9 +55,9 @@ class ClientType(models.Model):
 
 
 class ClientContact(models.Model):
-     name  = models.CharField(max_length=255, default='None')
-     email = models.EmailField(max_length=255, default='None')
-     phone = models.CharField(max_length=255, default='None')
+    name = models.CharField(max_length=255, default='None', null=True)
+    email = models.EmailField(max_length=255, default='None', null=True)
+    phone = models.CharField(max_length=255, default='None', null=True)
 
 
 class AccountHourRecord(models.Model):
@@ -71,7 +72,8 @@ class AccountHourRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.member.user.first_name + ' ' + str(self.hours) + ' hours on ' + self.account.client_name + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
+        return self.member.user.first_name + ' ' + str(self.hours) + ' hours on ' + self.account.client_name \
+               + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
 
 
 class ManagementFeeInterval(models.Model):
@@ -80,11 +82,11 @@ class ManagementFeeInterval(models.Model):
         (1, '$')
     ]
 
-    feeStyle    = models.IntegerField(default=0, choices=FEE_CHOICES)
-    fee         = models.FloatField(default=0) # % or $ value
-    lowerBound  = models.FloatField(default=0)
-    upperBound  = models.FloatField(default=0)
-    created_at  = models.DateTimeField(auto_now_add=True)
+    feeStyle = models.IntegerField(default=0, choices=FEE_CHOICES)
+    fee = models.FloatField(default=0)  # % or $ value
+    lowerBound = models.FloatField(default=0)
+    upperBound = models.FloatField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.lowerBound) + '-' + str(self.upperBound) + ' ' + str(self.fee)
@@ -92,9 +94,9 @@ class ManagementFeeInterval(models.Model):
 
 class ManagementFeesStructure(models.Model):
     name = models.CharField(max_length=255, default='No Name Fee Structure')
-    initialFee   = models.FloatField(default=0)
+    initialFee = models.FloatField(default=0)
     feeStructure = models.ManyToManyField(ManagementFeeInterval, blank=True)
-    created_at   = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -104,7 +106,7 @@ class MonthlyReport(models.Model):
     """
     Monthly report that is made for a client. This class contains meta data for operational purposes (ie: is the report complete, what type of report is it)
     """
-    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
     REPORT_TYPE_CHOICES = [(1, 'Standard'), (2, 'Advanced')]
     REPORT_SERVICES = [(0, 'None'), (1, 'PPC'), (2, 'SEO'), (3, 'Both')]
 
@@ -126,20 +128,21 @@ class MonthlyReport(models.Model):
 
     @property
     def received_by_am(self):
-        return self.date_sent_to_am != None
+        return self.date_sent_to_am is not None
 
     @property
     def sent_by_am(self):
-        return self.date_sent_by_am != None
+        return self.date_sent_by_am is not None
 
     @property
     def complete_ontime(self):
-        if self.date_sent_by_am == None or self.due_date == None:
+        if self.date_sent_by_am is None or self.due_date is None:
             return False
         return self.date_sent_by_am <= self.due_date
 
     def __str__(self):
         return self.report_name
+
 
 class Promo(models.Model):
     """
@@ -164,8 +167,8 @@ class Promo(models.Model):
         return now >= self.start_date and now <= self.end_date
 
     @property
-    def true_end(self): #This property should be called to handle the possibility of an indefinite promo
-        if is_indefinite:
+    def true_end(self):  # This property should be called to handle the possibility of an indefinite promo
+        if self.is_indefinite:
             one_year_from_now = datetime.datetime.now() + datetime.timedelta(365)
             return one_year_from_now
 
@@ -192,7 +195,6 @@ class Promo(models.Model):
             services_arr.append('Other')
 
         return ', '.join(services_arr)
-
 
     def __str__(self):
         return self.account.client_name + ': ' + self.name

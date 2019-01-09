@@ -102,17 +102,17 @@
                   {{ account.tier }}
                 </td>
                 <td>
-                  <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"><span style="display:none;">{{ account.get_status_display }}</span></span>
+                  <span class="m-badge m-badge--{{ status_badges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"><span style="display:none;">{{ account.get_status_display }}</span></span>
                 </td>
                 <td>
-                  {{ account.totalFee }}
+                  {{ account.total_fee }}
                 </td>
                 <td>
                   <!-- Actual hours -->
                   {{ account.hoursWorkedThisMonth }}
                 </td>
                 <td>
-                  {{ account.allHours }}
+                  {{ account.all_hours }}
                 </td>
               </tr>
               {% endfor %}
@@ -121,7 +121,7 @@
         </div>
       </div>
       {% endif %}
-      {% if backupAccounts.count > 0 %}
+      {% if backup_accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -170,7 +170,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for backup in backupAccounts %}
+              {% for backup in backup_accounts %}
               <tr>
                 <td>
                   {{ backup.account.parentClient.name }}
@@ -194,17 +194,17 @@
                   {{ backup.account.tier }}
                 </td>
                 <td>
-                  <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:backup.account.status }}" data-toggle="m-tooltip" data-original-title="{{ backup.account.get_status_display }}"></span>
+                  <span class="m-badge m-badge--{{ status_badges|get_item_from_list:backup.account.status }}" data-toggle="m-tooltip" data-original-title="{{ backup.account.get_status_display }}"></span>
                 </td>
                 <td>
-                  {{ backup.account.totalFee }}
+                  {{ backup.account.total_fee }}
                 </td>
                 <td>
                   <!-- Actual hours -->
                   {{ backup.account.hoursWorkedThisMonth }}
                 </td>
                 <td>
-                  {{ backup.account.allHours }}
+                  {{ backup.account.all_hours }}
                 </td>
               </tr>
               {% endfor %}

@@ -21,6 +21,12 @@ class Client(models.Model):
                       (2, 'Inactive'),
                       (3, 'Lost')]
 
+    OBJECTIVE_CHOICES = [(0, 'Leads'),
+                         (1, 'Sales'),
+                         (2, 'Awareness'),
+                         (3, 'Store Visits'),
+                         (4, 'Multiple')]
+
     PAYMENT_SCHEDULE_CHOICES = [(0, 'MRR'),
                                 (1, 'One Time')]
 
@@ -53,7 +59,7 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
     flex_budget = models.FloatField(default=0)
-    flex_budget_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the flex budget. Default should be this month.
+    flex_budget_start_date = models.DateTimeField(default=None, null=True, blank=True)  # These are the start dates and end dates for the flex budget. Default should be this month.
     flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
@@ -70,7 +76,7 @@ class Client(models.Model):
     # override ppc hours
     allocated_ppc_override = models.FloatField(default=None, null=True, blank=True)
     # % buffer
-    allocated_ppc_buffer   = models.FloatField(default=0.0)
+    allocated_ppc_buffer = models.FloatField(default=0.0)
     # management fee override
     management_fee_override = models.FloatField(default=None, null=True, blank=True)
 
@@ -85,6 +91,8 @@ class Client(models.Model):
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
     # maybe do services another way?
     services = models.ManyToManyField(Service, blank=True, related_name='services')
+    sold_budget = models.FloatField(default=0.0)
+    objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
     has_seo = models.BooleanField(default=False)
     seo_hours = models.FloatField(default=0)
     seo_hourly_fee = models.FloatField(default=125)
@@ -96,24 +104,25 @@ class Client(models.Model):
     actualHours = models.IntegerField(default=0)
     star_flag = models.BooleanField(default=False)
     flagged_bc_link = models.CharField(max_length=255, default=None, null=True, blank=True)
-    flagged_assigned_member = models.ForeignKey(Member, models.SET_NULL, null=True, default=None, blank=True, related_name='flagged_assigned_member')
+    flagged_assigned_member = models.ForeignKey(Member, models.SET_NULL, null=True, default=None,
+                                                blank=True, related_name='flagged_assigned_member')
     flagged_datetime = models.DateTimeField(default=None, blank=True, null=True)
     target_cpa = models.FloatField(default=0)
     target_roas = models.FloatField(default=0)
     advanced_reporting = models.BooleanField(default=False)
 
     # Member attributes (we'll see if there's a better way to do this)
-    cm1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm1')
-    cm2    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm2')
-    cm3    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm3')
+    cm1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm1')
+    cm2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm2')
+    cm3 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm3')
 
-    am1    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am1')
-    am2    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am2')
-    am3    = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am3')
+    am1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am1')
+    am2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am2')
+    am3 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='am3')
 
-    seo1   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo1')
-    seo2   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo2')
-    seo3   = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo3')
+    seo1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo1')
+    seo2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo2')
+    seo3 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='seo3')
 
     strat1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat1')
     strat2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat2')
@@ -138,7 +147,7 @@ class Client(models.Model):
 
     @property
     def calculated_tier(self):
-        proj_management_fee = self.totalFee
+        proj_management_fee = self.total_fee
         if proj_management_fee < 1500:
             return 3
         elif proj_management_fee < 4000:
@@ -146,37 +155,36 @@ class Client(models.Model):
         else:
             return 1
 
-    def getRemainingBudget(self):
+    def get_remaining_budget(self):
         return self.current_budget - self.current_spend
 
-    def getYesterdaySpend(self):
+    def get_yesterday_spend(self):
         return self.aw_yesterday + self.bing_yesterday + self.fb_yesterday
 
-    def getHoursWorkedThisMonth(self):
+    def get_hours_worked_this_month(self):
         if not hasattr(self, '_hours_worked_this_month'):
-            now   = datetime.datetime.now()
+            now = datetime.datetime.now()
             month = now.month
-            year  = now.year
+            year = now.year
             hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
-            self._hours_worked_this_month = hours if hours != None else 0
+            self._hours_worked_this_month = hours if hours is not None else 0
         return self._hours_worked_this_month
 
     def actual_hours_month_year(self, month, year):
         hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
-        return hours if hours != None else 0
+        return hours if hours is not None else 0
 
-    def getHoursRemainingThisMonth(self):
-        # Cache this because its calls DB stuff
+    def get_hours_remaining_this_month(self):
         if not hasattr(self, '_hoursRemainingMonth'):
-            self._hoursRemainingMonth = round(self.getAllocatedHours() - self.getHoursWorkedThisMonth(), 2)
+            self._hoursRemainingMonth = round(self.get_allocated_hours() - self.get_hours_worked_this_month(), 2)
         return self._hoursRemainingMonth
 
-    def getHoursWorkedThisMonthMember(self, member):
-        now   = datetime.datetime.now()
+    def get_hours_worked_this_month_member(self, member):
+        now = datetime.datetime.now()
         month = now.month
-        year  = now.year
+        year = now.year
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
-        return hours if hours != None else 0
+        return hours if hours is not None else 0
 
     @property
     def google_kpi_month(self):
@@ -329,7 +337,6 @@ class Client(models.Model):
             except:
                 kpid['roas'] = 0.0
 
-
             if len(kpid) == 0:
                 self._kpi_info = kpid
                 return self._kpi_info
@@ -362,19 +369,17 @@ class Client(models.Model):
     @property
     def value_added_hours_this_month(self):
         if not hasattr(self, '_value_added_hours_this_month'):
-            now   = datetime.datetime.now()
+            now = datetime.datetime.now()
             hours = AccountHourRecord.objects.filter(account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
-            self._value_added_hours_this_month = hours if hours != None else 0
+            self._value_added_hours_this_month = hours if hours is not None else 0
         return self._value_added_hours_this_month
 
-
     def value_added_hours_month_member(self, member):
-        now   = datetime.datetime.now()
+        now = datetime.datetime.now()
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
-        return hours if hours != None else 0
+        return hours if hours is not None else 0
 
-
-    def getAllocationThisMonthMember(self, member):
+    def get_allocation_this_month_member(self, member):
         percentage = 0.0
         # Boilerplate incoming
         if self.cm1 == member:
@@ -402,10 +407,9 @@ class Client(models.Model):
         if self.strat3 == member:
             percentage += self.strat3percent
 
-        return round(self.getAllocatedHours() * percentage / 100.0, 2)
+        return round(self.get_allocated_hours() * percentage / 100.0, 2)
 
-
-    def getSeoFee(self):
+    def get_seo_fee(self):
         """
         Get's the SEO fee
         """
@@ -414,7 +418,7 @@ class Client(models.Model):
             fee += self.seo_hours * self.seo_hourly_fee
         return fee
 
-    def getCroFee(self):
+    def get_cro_fee(self):
         """
         Get's the CRO fee
         """
@@ -423,16 +427,17 @@ class Client(models.Model):
             fee += self.cro_hours * self.cro_hourly_fee
         return fee
 
-    def getPpcFee(self):
+    def get_ppc_fee(self):
         """
         Loops through every interval in the management fee structure, determines
         """
-        if not hasattr(self, '_ppcFee'):
-            fee = self.get_fee_by_spend(self.current_budget)
-            if self.status == 0 and self.managementFee != None:
-                fee += self.managementFee.initialFee
-            self._ppcFee = round(fee, 2)
-        return self._ppcFee
+        if not hasattr(self, '_ppc_fee'):
+            if self.status == 1:
+                fee = self.get_fee_by_spend(self.current_budget)
+                self._ppc_fee = round(fee, 2)
+            else:
+                self._ppc_fee = 0
+        return self._ppc_fee
 
     def get_fee_by_spend(self, spend):
         """
@@ -440,12 +445,12 @@ class Client(models.Model):
         It is calculated by budget for anticipated fee, but actual fee or projected fee can be calculated using this as well
         """
         fee = 0.0
-        if self.management_fee_override != None and self.management_fee_override != 0.0:
+        if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
-        elif self.managementFee != None:
+        elif self.managementFee is not None:
             for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
                 if spend >= feeInterval.lowerBound and spend <= feeInterval.upperBound:
-                    if feeInterval.feeStyle == 0: # %
+                    if feeInterval.feeStyle == 0:  # %
                         fee = spend * (feeInterval.fee / 100.0)
                         break
                     elif feeInterval.feeStyle == 1:
@@ -453,28 +458,33 @@ class Client(models.Model):
                         break
         return fee
 
-    def getFee(self):
-        if self.management_fee_override != None and self.management_fee_override != 0.0:
+    def get_fee(self):
+        initial_fee = 0
+        # If status is lost or inactive, just return 0
+        if self.status == 2 or self.status == 3:
+            return 0
+        if self.status == 0 and self.managementFee is not None:
+            initial_fee = self.managementFee.initialFee
+        if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.getPpcFee() + self.getCroFee() + self.getSeoFee()
+            fee = self.get_ppc_fee() + self.get_cro_fee() + self.get_seo_fee() + initial_fee
         return fee
 
-    def getPpcAllocatedHours(self):
-        if self.allocated_ppc_override != None and self.allocated_ppc_override != 0.0:
+    def get_ppc_allocated_hours(self):
+        if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
             unrounded = self.allocated_ppc_override
         else:
-            unrounded = (self.getPpcFee() / 125.0)  * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+            unrounded = (self.get_ppc_fee() / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         return round(unrounded, 2)
 
-    def getAllocatedHours(self):
-        hours = self.getPpcAllocatedHours()
+    def get_allocated_hours(self):
+        hours = self.get_ppc_allocated_hours()
         if self.has_seo:
             hours += self.seo_hours
         if self.has_cro:
             hours += self.cro_hours
         return round(hours, 2)
-
 
     def days_in_month_in_daterange(self, start, end, month):
         """
@@ -492,12 +502,12 @@ class Client(models.Model):
 
         return date_counter
 
-
     @property
     def adwords_budget_this_month(self):
         if not hasattr(self, '_adwords_budget_this_month'):
             budget = 0.0
-            yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
+            # We should really be getting yesterday's budget
+            yesterday = datetime.datetime.now() - datetime.timedelta(1)
             for aa in self.adwords.all():
                 if aa.has_custom_dates:
                     """
@@ -506,10 +516,9 @@ class Client(models.Model):
                     portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date, aa.desired_spend_end_date, yesterday.month) / (aa.desired_spend_end_date - aa.desired_spend_start_date).days
                     budget += round(portion_of_spend * aa.desired_spend, 2)
                 else:
-                    budget += aa.desired_spend # this would be monthly budget
+                    budget += aa.desired_spend  # this would be monthly budget
             self._adwords_budget_this_month = budget
         return self._adwords_budget_this_month
-
 
     @property
     def one_contact(self):
@@ -540,7 +549,6 @@ class Client(models.Model):
         """
         Checks if this account is attached to any blacklisted ad network accounts
         """
-        print('here')
         for aa in self.adwords.all():
             if aa.blacklisted:
                 return True
@@ -551,7 +559,6 @@ class Client(models.Model):
             if fa.blacklisted:
                 return True
         return False
-
 
     @property
     def bing_budget_this_month(self):
@@ -566,10 +573,9 @@ class Client(models.Model):
                     portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date, ba.desired_spend_end_date, yesterday.month) / (ba.desired_spend_end_date - ba.desired_spend_start_date).days
                     budget += round(portion_of_spend * ba.desired_spend, 2)
                 else:
-                    budget += ba.desired_spend # this would be monthly budget
+                    budget += ba.desired_spend  # this would be monthly budget
             self._bing_budget_this_month = budget
         return self._bing_budget_this_month
-
 
     @property
     def facebook_budget_this_month(self):
@@ -584,12 +590,11 @@ class Client(models.Model):
                     portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date, fa.desired_spend_end_date, yesterday.month) / (fa.desired_spend_end_date - fa.desired_spend_start_date).days
                     budget += round(portion_of_spend * fa.desired_spend, 2)
                 else:
-                    budget += fa.desired_spend # this would be monthly budget
+                    budget += fa.desired_spend  # this would be monthly budget
             self._facebook_budget_this_month = budget
         return self._facebook_budget_this_month
 
-
-    def getCurrentBudget(self):
+    def get_current_budget(self):
         if not hasattr(self, '_current_budget'):
             budget = 0.0
             budget += self.adwords_budget_this_month
@@ -601,10 +606,10 @@ class Client(models.Model):
 
         return self._current_budget
 
-    def getCurrentFullBudget(self):
-        return self.getCurrentBudget() + self.other_budget
+    def get_current_full_budget(self):
+        return self.get_current_budget() + self.other_budget
 
-    def getFlexSpendThisMonth(self):
+    def get_flex_spend_this_month(self):
         flex_spend = 0.0
         if self.aw_spend > self.aw_budget:
             flex_spend += (self.aw_spend - self.aw_budget)
@@ -615,37 +620,32 @@ class Client(models.Model):
 
         return flex_spend
 
-
     @property
     def utilization_rate_this_month(self):
         """
         Gets the utilization rate this month as percentage (100 * actual / allocated)
         """
-        if self.allHours == 0:
+        if self.all_hours == 0:
             return 0.0
-        return 100 * self.hoursWorkedThisMonth / self.allHours
+        return 100 * self.hoursWorkedThisMonth / self.all_hours
 
     @property
     def projected_loss(self):
-        fee_if_budget_spent = self.ppcFee
+        fee_if_budget_spent = self.ppc_fee
         fee_if_projected_spent = self.get_fee_by_spend(self.project_yesterday)
         return round(fee_if_budget_spent - fee_if_projected_spent, 2)
 
-
     @property
     def has_adwords(self):
-        return self.adwords != None
-
+        return self.adwords is not None
 
     @property
     def has_bing(self):
-        return self.bing != None
-
+        return self.bing is not None
 
     @property
     def has_fb(self):
-        return self.facebook != None
-
+        return self.facebook is not None
 
     @property
     def assigned_ams(self):
@@ -654,21 +654,20 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.am1 != None:
+        if self.am1 is not None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
             members['AM']['allocated_percentage'] = self.am1percent
-        if self.am2 != None:
+        if self.am2 is not None:
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
             members['AM2']['allocated_percentage'] = self.am2percent
-        if self.am3 != None:
+        if self.am3 is not None:
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percentage'] = self.am3percent
 
         return members
-
 
     @property
     def assigned_cms(self):
@@ -677,21 +676,20 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.cm1 != None:
+        if self.cm1 is not None:
             members['CM'] = {}
             members['CM']['member'] = self.cm1
             members['CM']['allocated_percentage'] = self.cm1percent
-        if self.cm2 != None:
+        if self.cm2 is not None:
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
             members['CM2']['allocated_percentage'] = self.cm2percent
-        if self.cm3 != None:
+        if self.cm3 is not None:
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percentage'] = self.cm3percent
 
         return members
-
 
     @property
     def assigned_seos(self):
@@ -700,20 +698,19 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.seo1 != None:
+        if self.seo1 is not None:
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
             members['SEO']['allocated_percentage'] = self.seo1percent
-        if self.seo2 != None:
+        if self.seo2 is not None:
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
             members['SEO 2']['allocated_percentage'] = self.seo2percent
-        if self.seo3 != None:
+        if self.seo3 is not None:
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percentage'] = self.seo3percent
         return members
-
 
     @property
     def assigned_strats(self):
@@ -722,21 +719,20 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.strat1 != None:
+        if self.strat1 is not None:
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
             members['Strat']['allocated_percentage'] = self.strat1percent
-        if self.strat2 != None:
+        if self.strat2 is not None:
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
             members['Strat 2']['allocated_percentage'] = self.strat2percent
-        if self.strat3 != None:
+        if self.strat3 is not None:
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percentage'] = self.strat3percent
 
         return members
-
 
     @property
     def assigned_members(self):
@@ -745,60 +741,59 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.cm1 != None:
+        if self.cm1 is not None:
             members['CM'] = {}
             members['CM']['member'] = self.cm1
             members['CM']['allocated_percentage'] = self.cm1percent
-        if self.cm2 != None:
+        if self.cm2 is not None:
             members['CM2'] = {}
             members['CM2']['member'] = self.cm2
             members['CM2']['allocated_percentage'] = self.cm2percent
-        if self.cm3 != None:
+        if self.cm3 is not None:
             members['CM3'] = {}
             members['CM3']['member'] = self.cm3
             members['CM3']['allocated_percentage'] = self.cm3percent
 
-        if self.am1 != None:
+        if self.am1 is not None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
             members['AM']['allocated_percentage'] = self.am1percent
-        if self.am2 != None:
+        if self.am2 is not None:
             members['AM2'] = {}
             members['AM2']['member'] = self.am2
             members['AM2']['allocated_percentage'] = self.am2percent
-        if self.am3 != None:
+        if self.am3 is not None:
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percentage'] = self.am3percent
 
-        if self.seo1 != None:
+        if self.seo1 is not None:
             members['SEO'] = {}
             members['SEO']['member'] = self.seo1
             members['SEO']['allocated_percentage'] = self.seo1percent
-        if self.seo2 != None:
+        if self.seo2 is not None:
             members['SEO 2'] = {}
             members['SEO 2']['member'] = self.seo2
             members['SEO 2']['allocated_percentage'] = self.seo2percent
-        if self.seo3 != None:
+        if self.seo3 is not None:
             members['SEO 3'] = {}
             members['SEO 3']['member'] = self.seo3
             members['SEO 3']['allocated_percentage'] = self.seo3percent
 
-        if self.strat1 != None:
+        if self.strat1 is not None:
             members['Strat'] = {}
             members['Strat']['member'] = self.strat1
             members['Strat']['allocated_percentage'] = self.strat1percent
-        if self.strat2 != None:
+        if self.strat2 is not None:
             members['Strat 2'] = {}
             members['Strat 2']['member'] = self.strat2
             members['Strat 2']['allocated_percentage'] = self.strat2percent
-        if self.strat3 != None:
+        if self.strat3 is not None:
             members['Strat 3'] = {}
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percentage'] = self.strat3percent
 
         return members
-
 
     @property
     def team_leads(self):
@@ -807,16 +802,13 @@ class Client(models.Model):
             team_leads = team_leads | team.team_lead
         return team_leads
 
-
     @property
     def project_average(self):
         return self.hybrid_projection(1)
 
-
     @property
     def project_yesterday(self):
         return self.hybrid_projection(0)
-
 
     def hybrid_projection(self, method):
         projection = self.current_spend
@@ -849,26 +841,26 @@ class Client(models.Model):
 
         return rec_ds
 
-    remainingBudget = property(getRemainingBudget)
+    remainingBudget = property(get_remaining_budget)
 
-    yesterday_spend = property(getYesterdaySpend)
+    yesterday_spend = property(get_yesterday_spend)
     # recommended daily spend
-    rec_ds          = property(rec_ds)
+    rec_ds = property(rec_ds)
 
-    hoursWorkedThisMonth = property(getHoursWorkedThisMonth)
-    hoursRemainingMonth  = property(getHoursRemainingThisMonth)
+    hoursWorkedThisMonth = property(get_hours_worked_this_month)
+    hoursRemainingMonth = property(get_hours_remaining_this_month)
 
-    seoFee   = property(getSeoFee)
-    croFee   = property(getCroFee)
-    ppcFee   = property(getPpcFee)
-    totalFee = property(getFee)
-    ppcHours = property(getPpcAllocatedHours)
-    allHours = property(getAllocatedHours)
+    seo_fee = property(get_seo_fee)
+    cro_fee = property(get_cro_fee)
+    ppc_fee = property(get_ppc_fee)
+    total_fee = property(get_fee)
+    ppc_hours = property(get_ppc_allocated_hours)
+    all_hours = property(get_allocated_hours)
 
-    current_budget = property(getCurrentBudget)
-    current_full_budget = property(getCurrentFullBudget)
+    current_budget = property(get_current_budget)
+    current_full_budget = property(get_current_full_budget)
 
-    flex_spend = property(getFlexSpendThisMonth)
+    flex_spend = property(get_flex_spend_this_month)
 
     def __str__(self):
         return self.client_name

@@ -1,23 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
-from django.db.models.functions import Now
-from django.core import serializers
 from django.db.models import Q
-from django.utils import timezone
-import datetime, calendar
+import datetime
+import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo
-from .forms import NewMemberForm, NewTeamForm
+
 
 @login_required
 def index(request):
     return redirect('/user_management/members')
+
 
 @login_required
 def members(request):
@@ -49,7 +47,7 @@ def members(request):
                                   )
 
     context = {
-        'members' : members,
+        'members': members,
     }
 
     return render(request, 'user_management/members.html', context)
@@ -64,43 +62,43 @@ def new_member(request):
         teams = Team.objects.all()
         roles = Role.objects.all()
         skills = Skill.objects.all()
-        existingUsers = User.objects.filter(member__isnull=True)
-        skillOptions = [0, 1, 2, 3]
+        existing_users = User.objects.filter(member__isnull=True)
+        skill_options = [0, 1, 2, 3]
 
         context = {
-            'teams'         : teams,
-            'roles'         : roles,
-            'skills'        : skills,
-            'existingUsers' : existingUsers,
-            'skillOptions'  : skillOptions
+            'teams': teams,
+            'roles': roles,
+            'skills': skills,
+            'existingUsers': existing_users,
+            'skillOptions': skill_options
         }
 
         return render(request, 'user_management/new_member.html', context)
     elif request.method == 'POST':
 
         # Check if we are creating a new user or using an existing one
-        useExistingUser = True
+        use_existing_user = True
 
         # This should be improved
         if int(request.POST.get('existing_user')) == 0:
-            useExistingUser = False
+            use_existing_user = False
 
-        if useExistingUser:
+        if use_existing_user:
             user_id = request.POST.get('existing_user')
-            user    = User.objects.get(id=user_id)
+            user = User.objects.get(id=user_id)
         else:
             # First we make a user, then we make a member
-            username        = request.POST.get('username')
-            password        = request.POST.get('password')
+            username = request.POST.get('username')
+            password = request.POST.get('password')
             hashed_password = make_password(password)
-            first_name      = request.POST.get('first_name')
-            last_name       = request.POST.get('last_name')
-            email           = request.POST.get('email')
-            is_staff        = request.POST.get('is_staff')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            is_staff = request.POST.get('is_staff')
 
             # Check if that username is already in use
             is_username_taken = User.objects.filter(username__iexact=username).exists()
-            is_email_taken    = User.objects.filter(email__iexact=email).exists()
+            is_email_taken = User.objects.filter(email__iexact=email).exists()
 
             if is_username_taken:
                 response = {
@@ -115,7 +113,8 @@ def new_member(request):
 
                 return JsonResponse(response)
             else:
-                user = User(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
+                user = User(username=username, password=hashed_password, first_name=first_name,
+                            last_name=last_name, email=email)
 
                 if is_staff == 'on':
                     user.is_staff = True
@@ -127,15 +126,15 @@ def new_member(request):
             teams.append(Team.objects.get(id=team_id))
 
         role_id = request.POST.get('role')
-        role    = Role.objects.get(id=role_id)
+        role = Role.objects.get(id=role_id)
 
         # Hours
-        buffer_total_percentage     = request.POST.get('buffer_total_percentage') #if not request.POST.get('buffer_total_percentage') None else 0
-        buffer_learning_percentage  = request.POST.get('buffer_learning_percentage') #if not request.POST.get('buffer_learning_percentage') None else 0
-        buffer_trainers_percentage  = request.POST.get('buffer_trainers_percentage') #if not request.POST.get('buffer_trainers_percentage') not None else 0
-        buffer_sales_percentage     = request.POST.get('buffer_sales_percentage') #if request.POST.get('buffer_sales_percentage') not None else 0
-        buffer_planning_percentage  = request.POST.get('buffer_planning_percentage') #if request.POST.get('buffer_planning_percentage') not None else 0
-        buffer_internal_percentage  = request.POST.get('buffer_internal_percentage') #if request.POST.get('buffer_internal_percentage') not None else 0
+        buffer_total_percentage = request.POST.get('buffer_total_percentage') #if not request.POST.get('buffer_total_percentage') None else 0
+        buffer_learning_percentage = request.POST.get('buffer_learning_percentage') #if not request.POST.get('buffer_learning_percentage') None else 0
+        buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage') #if not request.POST.get('buffer_trainers_percentage') not None else 0
+        buffer_sales_percentage = request.POST.get('buffer_sales_percentage') #if request.POST.get('buffer_sales_percentage') not None else 0
+        buffer_planning_percentage = request.POST.get('buffer_planning_percentage') #if request.POST.get('buffer_planning_percentage') not None else 0
+        buffer_internal_percentage = request.POST.get('buffer_internal_percentage') #if request.POST.get('buffer_internal_percentage') not None else 0
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage') # if request.POST.get('buffer_seniority_percentage') not None else 0
 
         user.save()
@@ -163,7 +162,7 @@ def new_member(request):
 
         for skill in skills:
             skillValue = request.POST.get('skill_' + skill.name)
-            if skillValue == None:
+            if skillValue is None:
                 skillValue = 0
 
             SkillEntry.objects.create(skill=skill, member=member, score=skillValue)
@@ -185,10 +184,10 @@ def edit_member(request, id):
         member = get_object_or_404(Member, id=id)
 
         # User parameters
-        first_name      = request.POST.get('first_name')
-        last_name       = request.POST.get('last_name')
-        email           = request.POST.get('email')
-        is_staff        = request.POST.get('is_staff') == 'on'
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        is_staff = request.POST.get('is_staff') == 'on'
 
         # Member parameters
         # Now make the member
@@ -198,15 +197,15 @@ def edit_member(request, id):
             teams.append(Team.objects.get(id=team_id))
 
         role_id = request.POST.get('role')
-        role    = Role.objects.get(id=role_id)
+        role = Role.objects.get(id=role_id)
 
         # Hours
-        buffer_total_percentage     = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage  = request.POST.get('buffer_learning_percentage')
-        buffer_trainers_percentage  = request.POST.get('buffer_trainers_percentage')
-        buffer_sales_percentage     = request.POST.get('buffer_sales_percentage')
-        buffer_planning_percentage  = request.POST.get('buffer_planning_percentage')
-        buffer_internal_percentage  = request.POST.get('buffer_internal_percentage')
+        buffer_total_percentage = request.POST.get('buffer_total_percentage')
+        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
+        buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
+        buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
+        buffer_planning_percentage = request.POST.get('buffer_planning_percentage')
+        buffer_internal_percentage = request.POST.get('buffer_internal_percentage')
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
 
         # Update skills
@@ -224,21 +223,21 @@ def edit_member(request, id):
         # Set all of the member skills with the edited variables
         # User parameters
         member.user.first_name = first_name
-        member.user.last_name  = last_name
-        member.user.email      = email
-        member.user.is_staff   = is_staff
+        member.user.last_name = last_name
+        member.user.email = email
+        member.user.is_staff = is_staff
 
         # Member parameters
         member.team.set(teams)
         member.role = role
 
         # Hours
-        member.buffer_total_percentage     = buffer_total_percentage
-        member.buffer_learning_percentage  = buffer_learning_percentage
-        member.buffer_trainers_percentage  = buffer_trainers_percentage
-        member.buffer_sales_percentage     = buffer_sales_percentage
-        member.buffer_planning_percentage  = buffer_planning_percentage
-        member.buffer_internal_percentage  = buffer_internal_percentage
+        member.buffer_total_percentage = buffer_total_percentage
+        member.buffer_learning_percentage = buffer_learning_percentage
+        member.buffer_trainers_percentage = buffer_trainers_percentage
+        member.buffer_sales_percentage = buffer_sales_percentage
+        member.buffer_planning_percentage = buffer_planning_percentage
+        member.buffer_internal_percentage = buffer_internal_percentage
         member.buffer_seniority_percentage = buffer_seniority_percentage
 
         member.user.save()
@@ -253,11 +252,11 @@ def edit_member(request, id):
         skillOptions = [0, 1, 2, 3]
 
         context = {
-            'member'       : member,
-            'teams'        : teams,
-            'roles'        : roles,
-            'memberSkills' : memberSkills,
-            'skillOptions' : skillOptions
+            'member': member,
+            'teams': teams,
+            'roles': roles,
+            'memberSkills': memberSkills,
+            'skillOptions': skillOptions
         }
 
         return render(request, 'user_management/edit_member.html', context)
@@ -268,7 +267,7 @@ def teams(request):
     teams = Team.objects.all()
 
     context = {
-        'teams' : teams,
+        'teams': teams,
     }
 
     return render(request, 'user_management/teams.html', context)
@@ -279,12 +278,6 @@ def new_team(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
     if request.method == 'POST':
-        # Information about the team
-        teamname = request.POST.get('teamname')
-
-        # Create the team
-        team = Team.objects.create(name=teamname)
-
         context = {}
         return JsonResponse(context)
     else:
@@ -309,12 +302,12 @@ def members_single(request, id=0):
     else:
         member = Member.objects.get(id=id)
 
-    incidents    = Incident.objects.filter(members=member)
+    incidents = Incident.objects.filter(members=member)
     memberSkills = SkillEntry.objects.filter(member=member)
 
-    now   = datetime.datetime.now()
+    now = datetime.datetime.now()
     month = now.month
-    year  = now.year
+    year = now.year
     memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
 
     accounts = Client.objects.filter(
@@ -343,10 +336,10 @@ def members_single(request, id=0):
     accountHours = {}
     accountAllocation = {}
     for account in accounts:
-        hours  = account.getHoursWorkedThisMonthMember(member)
+        hours  = account.get_hours_worked_this_month_member(member)
         va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
-        accountAllocation[account.id] = account.getAllocationThisMonthMember(member)
+        accountAllocation[account.id] = account.get_allocation_this_month_member(member)
 
     backupAccountHours = {}
     backupAccountAllocation = {}
@@ -387,33 +380,33 @@ def members_single(request, id=0):
                 report.save()
             reports.append(report)
 
-    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+    score_badges = ['secondary', 'danger', 'warning', 'success']
 
     context = {
-        'hoursThisMonth' : memberHoursThisMonth,
-        'accountHours' : accountHours,
-        'backupHours' : backupAccountHours,
-        'accountAllocation' : accountAllocation,
-        'backupAccountAllocation' : backupAccountAllocation,
-        'member' : member,
-        'memberSkills' : memberSkills,
-        'accounts' : accounts,
-        'backups' : backups,
+        'hoursThisMonth': memberHoursThisMonth,
+        'accountHours': accountHours,
+        'backupHours': backupAccountHours,
+        'accountAllocation': accountAllocation,
+        'backupAccountAllocation': backupAccountAllocation,
+        'member': member,
+        'memberSkills': memberSkills,
+        'accounts': accounts,
+        'backups': backups,
         'trainer_hours_this_month': trainer_hours_this_month,
         'trainee_hours_this_month': trainee_hours_this_month,
         'trainee_hour_total': trainee_hour_total,
-        'backing_me' : backing_me,
-        'scoreBadges' : scoreBadges,
-        'incidents' : incidents,
-        'reporting_period' : reporting_period,
-        'reports' : reports,
-        'promos' : promos,
-        'value_added_hours' : value_added_hours,
-        'month_str' : now.strftime("%B"),
-        'last_month_str' : calendar.month_name[last_month],
-        'starAccounts' : starAccounts,
-        'starAccountHours' : starAccountHours,
-        'starAccountAllocation' : starAccountAllocation
+        'backing_me': backing_me,
+        'score_badges': score_badges,
+        'incidents': incidents,
+        'reporting_period': reporting_period,
+        'reports': reports,
+        'promos': promos,
+        'value_added_hours': value_added_hours,
+        'month_str': now.strftime("%B"),
+        'last_month_str': calendar.month_name[last_month],
+        'starAccounts': starAccounts,
+        'starAccountHours': starAccountHours,
+        'starAccountAllocation': starAccountAllocation
     }
 
     return render(request, 'user_management/profile.html', context)
@@ -421,20 +414,20 @@ def members_single(request, id=0):
 
 @login_required
 def training_members(request):
-    members      = Member.objects.only('team', 'role')
+    members = Member.objects.only('team', 'role')
     memberSkills = SkillEntry.objects.all()
 
-    roleBadges  = ['info', 'primary', 'accent', 'focus']
-    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+    roleBadges = ['info', 'primary', 'accent', 'focus']
+    score_badges = ['secondary', 'danger', 'warning', 'success']
 
     scoreDescs = ['None', 'Below Average', 'Average', 'Excellent']
-    roles      = ['CM', 'AM', 'SEO', 'Strat']
+    roles = ['CM', 'AM', 'SEO', 'Strat']
 
     context = {
-        'members'     : members,
+        'members': members,
         'memberSkills': memberSkills,
-        'scoreBadges' : scoreBadges,
-        'scoreDescs'  : scoreDescs
+        'score_badges': score_badges,
+        'scoreDescs': scoreDescs
     }
 
     return render(request, 'user_management/training.html', context)
@@ -457,7 +450,7 @@ def skills(request):
     skills = Skill.objects.all()
 
     context = {
-        'skills' : skills
+        'skills': skills
     }
 
     return render(request, 'user_management/skills.html', context)
@@ -471,7 +464,7 @@ def skills_single(request, id):
     skill = Skill.objects.get(id=id)
 
     context = {
-        'skill' : skill
+        'skill': skill
     }
 
     return render(request, 'user_management/skills_single.html', context)
@@ -576,7 +569,7 @@ def backups(request):
                 bsj[count]['member_name'] = b.member.user.get_full_name()
                 bsj[count]['account_id'] = b.account.id
                 bsj[count]['account_name'] = b.account.client_name
-                if b.bc_link == None or b.bc_link == '':
+                if b.bc_link is None or b.bc_link == '':
                     bsj[count]['bc_link'] = 'None'
                 else:
                     bsj[count]['bc_link'] = b.bc_link
@@ -598,9 +591,9 @@ def backups(request):
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now, end_date__gte=now)
 
     context = {
-        'members' : members,
-        'accounts' : accounts,
-        'active_backups' : active_backups,
+        'members': members,
+        'accounts': accounts,
+        'active_backups': active_backups,
         'non_active_backup_periods': non_active_backup_periods
     }
 
@@ -615,7 +608,7 @@ def add_training_hours(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    #trainer_id = request.POST.get('trainer_id')
+    # trainer_id = request.POST.get('trainer_id')
     trainer = Member.objects.get(user=request.user)
 
     trainee_id = request.POST.get('trainee_id')

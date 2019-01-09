@@ -51,7 +51,7 @@
                     <div class="col-md-12">
                       <label for="client_name">Client Name:</label>
                       <input type="text" name="client_name" class="form-control m-input"
-                      placeholder="Please enter the client name">
+                      placeholder="Please enter the client name" required>
                     </div>
                   </div>
                 </div>
@@ -62,7 +62,7 @@
                   <div class="col-md-12">
                     <label for="client_name">Account Name:</label>
                     <input type="text" name="account_name" class="form-control m-input"
-                    placeholder="Please enter the client name">
+                    placeholder="Please enter the client name" required>
                   </div>
                 </div>
               </div>
@@ -72,7 +72,7 @@
                     <label for="industry">Industry:</label>
                     <select class="form-control m-input"
                             name="industry"
-                            style="width: 100%;">
+                            style="width: 100%;" required>
                             {% for industry in industries %}
                                 <option value="{{ industry.id }}">{{ industry.name }}</option>
                             {% endfor %}
@@ -82,7 +82,7 @@
                     <label for="client_type">Client Type:</label>
                     <select class="form-control m-input"
                             name="client_type"
-                            style="width: 100%;">
+                            style="width: 100%;" required>
                         {% for client_type in client_types %}
                             <option value="{{ client_type.id }}">{{ client_type.name }}</option>
                         {% endfor %}
@@ -93,28 +93,14 @@
               <div class="form-group m-form__group">
                 <div class="row">
                   <div class="col-md-6">
-                    <label for="contact_name">Contact Name:</label>
-                    <input type="text" name="contact_name"
-                    class="form-control m-input">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="contact_email">Contact Email:</label>
-                    <input type="text" name="contact_email"
-                    class="form-control m-input">
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="contact_name">Contact Phone Number:</label>
-                    <input type="text" name="contact_phone_number"
-                    class="form-control m-input">
+                    <label for="sold_budget">Sold Budget:</label>
+                    <input type="text" name="sold_budget"
+                    class="form-control m-input" required>
                   </div>
                   <div class="col-md-6">
                     <label for="contact_email">Account URL:</label>
                     <input type="text" name="account_url"
-                    class="form-control m-input">
+                    class="form-control m-input" required>
                   </div>
                 </div>
               </div>
@@ -124,7 +110,7 @@
                     <label for="soldby">Sold by:</label>
                     <select class="form-control m-input"
                             name="soldby"
-                            style="width: 100%;">
+                            style="width: 100%;" required>
                         {% for member in members %}
                             <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
                         {% endfor %}
@@ -134,7 +120,7 @@
                     <label for="language">Language:</label>
                     <select class="form-control m-input"
                             name="language"
-                            style="width: 100%;" multiple>
+                            style="width: 100%;" multiple required>
                         {% for language in languages %}
                             <option value="{{ language.id }}">{{ language.name }}</option>
                         {% endfor %}
@@ -145,44 +131,45 @@
             </div>
         </div>
       </div>
-      <!-- <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+      <!-- Contact info portlet -->
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
             <div class="m-portlet__head-title">
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                PPC Services
+                Contact Info
               </h3>
             </div>
           </div>
         </div>
         <div class="m-portlet__body">
-            <div class="m-portlet__body">
-              <div class="form-group m-form__group">
+            <div class="form-group m-form__group" id="contact_form">
+                <input style="display:none;" value="1" id="contact_num_input" name="contact_num_input" />
                 <div class="row">
-                  <label class="col-1 col-form-label">PPC</label>
-                  <div class="col-1">
-                    <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
-                      <label>
-                        <input checked="checked" name="" type="checkbox">
-                        <span></span>
-                      </label>
-                    </span>
+                  <div class="col-md-4">
+                    <label for="contact_name1">Contact Name:</label>
+                    <input type="text" name="contact_name1"
+                    class="form-control m-input" required>
                   </div>
-                  <div class="col-md-6">
-                    <label for="service">Services:</label>
-                    <select class="form-control m-input"
-                            name="services"
-                            style="width: 100%;" multiple>
-                        {% for service in services %}
-                            <option value="{{ service.id }}">{{ service.name }}</option>
-                        {% endfor %}
-                    </select>
+                  <div class="col-md-4">
+                    <label for="contact_email1">Contact Email:</label>
+                    <input type="text" name="contact_email1"
+                    class="form-control m-input" required>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="contact_name1">Contact Phone Number:</label>
+                    <input type="text" name="contact_phone_number1"
+                    class="form-control m-input" required>
+                  </div>
+                  <div class="col-md-1">
+                    <label>More Contacts</label>
+                    <button type="button" name="button" class="btn btn-sm btn-outline-info add-contact-level">+</button>
                   </div>
                 </div>
-              </div>
             </div>
         </div>
-      </div> -->
+      </div>
+      <!-- End contact info portlet -->
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
           <div class="m-portlet__head-caption">
@@ -202,35 +189,35 @@
               <div class="row">
                 <div class="col-md-6">
                   <label>Name:</label>
-                  <input class="form-control m-input" name="fee_structure_name" />
+                  <input class="form-control m-input" name="fee_structure_name" required />
                 </div>
                 <div class="col-md-6">
                   <label>Setup Fee:</label>
-                  <input class="form-control m-input" name="setup_fee" />
+                  <input class="form-control m-input" name="setup_fee" required />
                 </div>
               </div>
               <hr />
               <div class="row">
                 <div class="col-md-3">
                   <label>Low Budget Bound ($):</label>
-                  <input class="form-control m-input" name="low-bound1" />
+                  <input class="form-control m-input" name="low-bound1" required />
                 </div>
                 <div class="col-md-3">
                   <label>High Budget Bound ($):</label>
-                  <input class="form-control m-input" name="high-bound1" />
+                  <input class="form-control m-input" name="high-bound1" required />
                 </div>
                 <div class="col-md-2">
                   <label>Fee type:</label>
                   <select class="form-control m-input"
                           name="fee-type1"
-                          style="width: 100%;">
+                          style="width: 100%;" required>
                           <option value="0">%</option>
                           <option value="1">$</option>
                   </select>
                 </div>
                 <div class="col-md-3">
                   <label>Fee:</label>
-                  <input class="form-control m-input" name="fee1" />
+                  <input class="form-control m-input" name="fee1" required />
                 </div>
                 <div class="col-md-1">
                   <label>Add Level</label>
@@ -317,10 +304,10 @@
 {% block extraJs %}
 <script>
 $(document).ready(function () {
-  var $createNewBtn   = $('#create_new_btn');
-  var $useExistingBtn = $('#use_existing_btn');
-  var $existingForm   = $('#existing_client_form');
-  var $newForm        = $('#new_client_form');
+  const $createNewBtn   = $('#create_new_btn');
+  const $useExistingBtn = $('#use_existing_btn');
+  const $existingForm   = $('#existing_client_form');
+  const $newForm        = $('#new_client_form');
 
   $createNewBtn.click(function () {
     $existingForm.hide();
@@ -335,11 +322,11 @@ $(document).ready(function () {
   /**
    * Management fees
    */
-  var $createNewFeeBtn   = $('#create_new_structure_btn');
-  var $useExistingFeeBtn = $('#use_existing_structure_btn');
-  var $createNewFeeDiv   = $('#create_new_structure');
-  var $useExistingFeeDiv = $('#use_existing_structure');
-  var $feeStructureType  = $('#fee_structure_type');
+  const $createNewFeeBtn   = $('#create_new_structure_btn');
+  const $useExistingFeeBtn = $('#use_existing_structure_btn');
+  const $createNewFeeDiv   = $('#create_new_structure');
+  const $useExistingFeeDiv = $('#use_existing_structure');
+  const $feeStructureType  = $('#fee_structure_type');
 
   $createNewFeeBtn.click(function () {
     $feeStructureType.val('1');
@@ -353,12 +340,12 @@ $(document).ready(function () {
     $useExistingFeeDiv.show();
   });
 
-  var $addFeeBtn = $('.add-fee-level-btn');
-  var $feeForm   = $('#management_fee_form');
-  var $rowNum    = $('#rowNumInput');
+  const $addFeeBtn = $('.add-fee-level-btn');
+  const $feeForm   = $('#management_fee_form');
+  const $rowNum    = $('#rowNumInput');
 
-  var feeRows = 1;
-  var feeRowHtml = `
+  let feeRows = 1;
+  let feeRowHtml = `
                   <div class="row">
                     <div class="col-md-3">
                       <label>Low Budget Bound ($):</label>
@@ -387,18 +374,50 @@ $(document).ready(function () {
   $addFeeBtn.click(function () {
     feeRows++;
     $rowNum.val(feeRows);
-    var feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+    let feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
                            .replace('high-bound1', 'high-bound' + feeRows)
                            .replace('fee-type1', 'fee-type' + feeRows)
                            .replace('fee1', 'fee' + feeRows);
     $feeForm.append(feeRowHtmlTmp);
   });
 
+  const $addContactBtn = $('.add-contact-level');
+  const $contactForm = $('#contact_form');
+  const $contactNumberInput = $('#contact_num_input');
+
+  let contactRows = 1;
+  let contactRowHtml = `<div class="row">
+                          <div class="col-md-4">
+                            <label for="contact_name1">Contact Name:</label>
+                            <input type="text" name="contact_name1"
+                            class="form-control m-input">
+                          </div>
+                          <div class="col-md-4">
+                            <label for="contact_email1">Contact Email:</label>
+                            <input type="text" name="contact_email1"
+                            class="form-control m-input">
+                          </div>
+                          <div class="col-md-3">
+                            <label for="contact_name1">Contact Phone Number:</label>
+                            <input type="text" name="contact_phone_number1"
+                            class="form-control m-input">
+                          </div>
+                        </div>`;
+
+  $addContactBtn.click(function () {
+    contactRows++;
+    $contactNumberInput.val(contactRows);
+    let contactRowHtmlTmp = contactRowHtml.replace('contact_name1', 'contact_name' + contactRows)
+                           .replace('contact_email1', 'contact_email' + contactRows)
+                           .replace('contact_phone_number1', 'contact_phone_number' + contactRows);
+    $contactForm.append(contactRowHtmlTmp);
+  });
+
   // SEO and CRO toggles
-  $seoCheck = $('#seo_check');
-  $croCheck = $('#cro_check');
-  $seoHours  = $('#seo_hours');
-  $croHours  = $('#cro_hours');
+  const $seoCheck = $('#seo_check');
+  const $croCheck = $('#cro_check');
+  const $seoHours  = $('#seo_hours');
+  const $croHours  = $('#cro_hours');
 
   $seoCheck.change(function () {
     if ($(this).is(':checked')) {

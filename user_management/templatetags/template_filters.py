@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.filter
 def get_item_from_list(dictionary, key):
-    if key == None or len(dictionary) == 0:
+    if key is None or len(dictionary) == 0:
         return 0
     return dictionary[key]
 
@@ -23,7 +23,7 @@ def get_allocation_this_month_member(account, member):
     """
     Called from template by an account, it fetches how many allocated hours a member has this month
     """
-    return account.getAllocationThisMonthMember(member)
+    return account.get_allocation_this_month_member(member)
 
 @register.filter
 def get_fee_by_spend(account, spend):

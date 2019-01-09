@@ -45,7 +45,7 @@
               <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
                 {{ account.client_name }} Team
                 &nbsp;
-                <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
+                <span class="m-badge m-badge--{{ status_badges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"></span>
                 &nbsp;
                 <i class="fa fa-flag" {% if not account.star_flag %}data-toggle="modal" data-target="#flag_account_modal"{% endif %} data-flag="{% if account.star_flag %}1{% else %}0{% endif %}" {% if account.star_flag %}style="color:#ff5733;"{% endif %}></i>
                 &nbsp;
@@ -628,7 +628,7 @@
                       <span class="m-widget1__desc">All hours allocated this month</span>
                     </div>
                     <div class="col m--align-right">
-                      <span class="m-widget1__number m--font-info">{{ account.allHours|floatformat }}</span>
+                      <span class="m-widget1__number m--font-info">{{ account.all_hours|floatformat }}</span>
                     </div>
                   </div>
                 </div>
@@ -1307,8 +1307,8 @@ $(document).ready(function () {
     var seoHours = {{ account.seo_hours|escapejs }};
     var hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
     var croHours = {{ account.cro_hours|escapejs }};
-    var totalHours = {{ account.allHours|escapejs }};
-    var ppcHours = {{ account.ppcHours|escapejs }};
+    var totalHours = {{ account.all_hours|escapejs }};
+    var ppc_hours = {{ account.ppc_hours|escapejs }};
 
     // Cms
     var cms = [];

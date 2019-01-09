@@ -6,7 +6,6 @@ from django.http import JsonResponse
 import json
 
 
-
 def index(request):
     if request.user.is_authenticated:
         return redirect('/user_management/profile')
@@ -33,7 +32,6 @@ def bloom_login(request):
             else:
                 response['error'] = 'Invalid username or password.'
                 return JsonResponse(response)
-
 
     return redirect("/")
 

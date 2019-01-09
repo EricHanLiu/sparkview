@@ -16,7 +16,7 @@ def center(request):
     notifications = member.unread_notifications
 
     context = {
-        'notifications' : notifications
+        'notifications': notifications
     }
 
     return render(request, 'notifications/center.html', context)

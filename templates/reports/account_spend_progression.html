@@ -90,14 +90,14 @@
                   ${{ account.project_yesterday|format_money }}
                 </td>
                 <td>
-                  ${{ account.ppcFee|format_money }}
+                  ${{ account.ppc_fee|format_money }}
                 </td>
                 <td class="proj-yest">
                   ${{ account|get_fee_by_spend:account.project_yesterday|format_money }}
                 </td>
                 <td class="proj-yest">
                   {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
-                  ${{ account.ppcFee|subtract:projected_fee|format_money }}
+                  ${{ account.ppc_fee|subtract:projected_fee|format_money }}
                   {% endwith %}
                 </td>
               </tr>

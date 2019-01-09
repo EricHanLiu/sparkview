@@ -6,7 +6,9 @@ from user_management.models import Member, Team, Incident, Role
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal
 from notifications.models import Notification
-import datetime, calendar
+import datetime
+import calendar
+
 
 # Create your views here.
 @login_required
@@ -35,32 +37,34 @@ def agency_overview(request):
     total_allocated_hours = 0.0
 
     for aa in total_active_accounts:
-        # total_management_fee += aa.totalFee
-        total_allocated_hours += aa.allHours
+        # total_management_fee += aa.total_fee
+        total_allocated_hours += aa.all_hours
 
     # hours worked this month
-    now   = datetime.datetime.now()
+    now = datetime.datetime.now()
     month = now.month
-    year  = now.year
+    year = now.year
     total_hours_worked = AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
-    if (total_hours_worked == None):
+    if total_hours_worked is None:
         total_hours_worked = 0.0
 
-    allocation_ratio = total_hours_worked / total_allocated_hours
+    try:
+        allocation_ratio = total_hours_worked / total_allocated_hours
+    except ZeroDivisionError:
+        allocation_ratio = 0.0
 
     context = {
-        'total_active_accounts' : total_active_accounts.count(),
-        'total_active_seo' : total_active_seo,
-        'total_active_cro' : total_active_cro,
-        'total_onboarding' : total_onboarding,
+        'total_active_accounts': total_active_accounts.count(),
+        'total_active_seo': total_active_seo,
+        'total_active_cro': total_active_cro,
+        'total_onboarding': total_onboarding,
         'total_inactive': total_inactive,
         'total_lost': total_lost,
-        # 'total_fee' : total_management_fee,
         'incident_count': incident_count,
         'top_offenders': sorted_members_by_count,
-        'allocation_ratio' : allocation_ratio,
-        'total_allocated_hours' : total_allocated_hours,
-        'total_hours_worked' : total_hours_worked
+        'allocation_ratio': allocation_ratio,
+        'total_allocated_hours': total_allocated_hours,
+        'total_hours_worked': total_hours_worked
     }
 
     return render(request, 'reports/agency_overview.html', context)
@@ -79,13 +83,13 @@ def account_spend_progression(request):
     total_projected_overspend = 0.0
     for account in accounts:
         total_projected_loss += account.projected_loss
-        if (account.projected_loss < 0): # we will overspend
+        if account.projected_loss < 0:  # we will overspend
             total_projected_overspend += account.project_yesterday - account.current_budget
 
     context = {
-        'accounts' : accounts,
-        'total_projected_loss' : total_projected_loss,
-        'total_projected_overspend' : total_projected_overspend
+        'accounts': accounts,
+        'total_projected_loss': total_projected_loss,
+        'total_projected_overspend': total_projected_overspend
     }
 
     return render(request, 'reports/account_spend_progression.html', context)
@@ -127,13 +131,13 @@ def cm_capacity(request):
     report_type = 'Paid Media Member Capacity Report'
 
     context = {
-        'members' : members,
-        'actual_aggregate' : actual_aggregate,
-        'capacity_rate' : capacity_rate,
+        'members': members,
+        'actual_aggregate': actual_aggregate,
+        'capacity_rate': capacity_rate,
         'utilization_rate': utilization_rate,
-        'allocated_aggregate' : allocated_aggregate,
-        'available_aggregate' : available_aggregate,
-        'report_type' : report_type
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'report_type': report_type
     }
 
     return render(request, 'reports/member_capacity_report.html', context)
@@ -165,11 +169,10 @@ def am_capacity(request):
     else:
         capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
 
-    if (allocated_aggregate == 0):
+    if allocated_aggregate == 0:
         utilization_rate = 0
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
-
 
     report_type = 'AM Member Capacity Report'
 
@@ -205,7 +208,7 @@ def seo_capacity(request):
     total_seo_hours = 0.0
     total_cro_hours = 0.0
 
-    statusBadges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
     seo_accounts = Client.objects.filter(Q(has_seo=True) | Q(has_cro=True)).filter(Q(status=0) | Q(status=1))
 
     for member in members:
@@ -224,7 +227,7 @@ def seo_capacity(request):
     else:
         capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
 
-    if (allocated_aggregate == 0):
+    if allocated_aggregate == 0:
         utilization_rate = 0
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
@@ -232,17 +235,17 @@ def seo_capacity(request):
     report_type = 'SEO Member Capacity Report'
 
     context = {
-        'members' : members,
-        'actual_aggregate' : actual_aggregate,
-        'capacity_rate' : capacity_rate,
+        'members': members,
+        'actual_aggregate': actual_aggregate,
+        'capacity_rate': capacity_rate,
         'utilization_rate': utilization_rate,
-        'allocated_aggregate' : allocated_aggregate,
-        'available_aggregate' : available_aggregate,
-        'report_type' : report_type,
-        'seo_accounts' : seo_accounts,
-        'statusBadges' : statusBadges,
-        'total_seo_hours' : total_seo_hours,
-        'total_cro_hours' : total_cro_hours
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'report_type': report_type,
+        'seo_accounts': seo_accounts,
+        'status_badges': status_badges,
+        'total_seo_hours': total_seo_hours,
+        'total_cro_hours': total_cro_hours
     }
 
     return render(request, 'reports/seo_member_capacity_report.html', context)
@@ -274,7 +277,7 @@ def strat_capacity(request):
         else:
             capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
 
-        if (allocated_aggregate == 0):
+        if allocated_aggregate == 0:
             utilization_rate = 0
         else:
             utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
@@ -282,13 +285,13 @@ def strat_capacity(request):
         report_type = 'Strategy Capacity Report'
 
         context = {
-            'members' : members,
-            'actual_aggregate' : actual_aggregate,
-            'capacity_rate' : capacity_rate,
+            'members': members,
+            'actual_aggregate': actual_aggregate,
+            'capacity_rate': capacity_rate,
             'utilization_rate': utilization_rate,
-            'allocated_aggregate' : allocated_aggregate,
-            'available_aggregate' : available_aggregate,
-            'report_type' : report_type
+            'allocated_aggregate': allocated_aggregate,
+            'available_aggregate': available_aggregate,
+            'report_type': report_type
         }
 
         return render(request, 'reports/member_capacity_report.html', context)
@@ -302,14 +305,14 @@ def hour_log(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    now   = datetime.datetime.now()
+    now = datetime.datetime.now()
     month = now.month
-    year  = now.year
+    year = now.year
 
     members = Member.objects.all()
 
     context = {
-        'members':members
+        'members': members
     }
 
     return render(request, 'reports/hour_log.html', context)
@@ -326,7 +329,7 @@ def facebook(request):
     accounts = Client.objects.exclude(facebook=None).filter(status=1)
 
     context = {
-        'accounts' : accounts
+        'accounts': accounts
     }
 
     return render(request, 'reports/facebook.html', context)
@@ -350,13 +353,13 @@ def promos(request):
     today_start = datetime.datetime.combine(today, datetime.time())
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
 
-    promos_start_today = Promo.objects.filter(start_date__gte=three_days_ago, start_date__lte=three_days_future) #this is really this week
-    promos_end_today = Promo.objects.filter(end_date__gte=three_days_ago, end_date__lte=three_days_future) # really this week as well
+    promos_start_today = Promo.objects.filter(start_date__gte=three_days_ago, start_date__lte=three_days_future)  # this is really this week
+    promos_end_today = Promo.objects.filter(end_date__gte=three_days_ago, end_date__lte=three_days_future)  # really this week as well
 
     context = {
-        'promos' : promos,
-        'promos_start_today' : promos_start_today,
-        'promos_end_today' : promos_end_today
+        'promos': promos,
+        'promos_start_today': promos_start_today,
+        'promos_end_today': promos_end_today
     }
 
     return render(request, 'reports/promos.html', context)
@@ -373,14 +376,15 @@ def actual_hours(request):
     now = datetime.datetime.now()
     accounts = Client.objects.all()
     members = Member.objects.all()
-    months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = ['2018', '2019', '2020']
 
-    selected = {}
-    selected['account'] = 'all'
-    selected['member'] = 'all'
-    selected['month'] = 'all'
-    selected['year'] = now.year
+    selected = {
+        'account': 'all',
+        'member': 'all',
+        'month': 'all',
+        'year': now.year
+    }
 
     if request.method == 'GET':
         hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).values('member', 'account', 'year', 'month').annotate(sum_hours=Sum('hours'))
@@ -415,12 +419,12 @@ def actual_hours(request):
         hour['account'] = accounts.get(id=hour['account'])
 
     context = {
-        'hours' : hours,
-        'accounts' : accounts,
-        'members' : members,
-        'months' : months,
-        'years' : years,
-        'selected' : selected
+        'hours': hours,
+        'accounts': accounts,
+        'members': members,
+        'months': months,
+        'years': years,
+        'selected': selected
     }
 
     return render(request, 'reports/actual_hours.html', context)
@@ -440,11 +444,12 @@ def monthly_reporting(request):
     months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
     years = ['2018', '2019', '2020']
 
-    selected = {}
-    selected['account'] = 'all'
-    selected['month'] = 'all'
-    selected['year'] = now.year
-    selected['team'] = 'all'
+    selected = {
+        'account': 'all',
+        'team': 'all',
+        'month': 'all',
+        'year': now.year
+    }
 
     if request.method == 'GET':
         reports = MonthlyReport.objects.filter(year=now.year, month=now.month)
@@ -456,25 +461,24 @@ def monthly_reporting(request):
 
         reports = MonthlyReport.objects.filter()
 
-        if (year != 'all'):
+        if year != 'all':
             reports = reports.filter(year=year)
             selected['year'] = year
-        if (month != 'all'):
+        if month != 'all':
             reports = reports.filter(month=month)
             selected['month'] = month
-        if (team_id != 'all'):
+        if team_id != 'all':
             team = Team.objects.get(id=team_id)
             team_accounts = accounts.filter(team=team)
             reports = reports.filter(account__in=team_accounts)
             selected['team'] = int(team_id)
-        if (account_id != 'all'):
+        if account_id != 'all':
             account = Client.objects.get(id=account_id)
             reports = reports.filter(account=account)
             selected['account'] = int(account_id)
 
     else:
         return HttpResponse('Invalid request type')
-
 
     complete_reports = reports.exclude(date_sent_by_am=None).count()
     report_count = reports.count()
@@ -495,14 +499,14 @@ def monthly_reporting(request):
         ontime_rate = 100.0 * ontime_numer / ontime_denom
 
     context = {
-        'reports' : reports,
-        'accounts' : accounts,
-        'ontime_pct' : ontime_rate,
-        'completion_pct' : completion_rate,
-        'teams' : teams,
-        'months' : months,
-        'years' : years,
-        'selected' : selected
+        'reports': reports,
+        'accounts': accounts,
+        'ontime_pct': ontime_rate,
+        'completion_pct': completion_rate,
+        'teams': teams,
+        'months': months,
+        'years': years,
+        'selected': selected
     }
 
     return render(request, 'reports/monthly_reports.html', context)
@@ -516,7 +520,7 @@ def account_capacity(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(status=1) # active accounts only
+    accounts = Client.objects.filter(status=1)  # active accounts only
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -524,7 +528,7 @@ def account_capacity(request):
 
     for account in accounts:
         actual_aggregate += account.hoursWorkedThisMonth
-        allocated_aggregate += account.allHours
+        allocated_aggregate += account.all_hours
         # available_aggregate += member.hours_available
 
     # if allocated_aggregate + available_aggregate == 0:
@@ -532,22 +536,21 @@ def account_capacity(request):
     # else:
     #     capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
 
-    if (allocated_aggregate == 0):
+    if allocated_aggregate == 0:
         utilization_rate = 0
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-
     report_type = 'Account Capacity Report'
 
     context = {
-        'accounts' : accounts,
-        'actual_aggregate' : actual_aggregate,
+        'accounts': accounts,
+        'actual_aggregate': actual_aggregate,
         # 'capacity_rate' : capacity_rate,
         'utilization_rate': utilization_rate,
-        'allocated_aggregate' : allocated_aggregate,
+        'allocated_aggregate': allocated_aggregate,
         # 'available_aggregate' : available_aggregate,
-        'report_type' : report_type
+        'report_type': report_type
     }
 
     return render(request, 'reports/account_capacity_report.html', context)
@@ -578,7 +581,7 @@ def flagged_accounts(request):
     members = Member.objects.all()
 
     context = {
-        'accounts' : accounts,
+        'accounts': accounts,
         'members': members
     }
 
@@ -624,10 +627,10 @@ def performance_anomalies(request):
                 bad_accounts.append(account)
 
     context = {
-        'excellent_accounts' : excellent_accounts,
-        'good_accounts' : good_accounts,
-        'fair_accounts' : fair_accounts,
-        'bad_accounts' : bad_accounts
+        'excellent_accounts': excellent_accounts,
+        'good_accounts': good_accounts,
+        'fair_accounts': fair_accounts,
+        'bad_accounts': bad_accounts
     }
 
     return render(request, 'reports/performance_anomalies.html', context)
@@ -648,10 +651,11 @@ def account_history(request):
     months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
     years = ['2018', '2019', '2020']
 
-    selected = {}
-    selected['account'] = 'all'
-    selected['month'] = 'all'
-    selected['year'] = now.year
+    selected = {
+        'account': 'all',
+        'month': 'all',
+        'year': now.year
+    }
 
     # TODO fix
     month = default_month
@@ -690,21 +694,22 @@ def account_history(request):
             actual_hours_ratio = 'N/A'
 
         tmpa = []
-        tmpa.append(account) #0
-        tmpa.append(bh) #1
-        tmpa.append(allocated_hours) #2
-        tmpa.append(actual_hours) #3
-        tmpa.append(actual_hours_ratio) #4
+        tmpa.append(account)  # 0
+        tmpa.append(bh)  # 1
+        tmpa.append(allocated_hours)  # 2
+        tmpa.append(actual_hours)  # 3
+        tmpa.append(actual_hours_ratio)  # 4
         accounts_array.append(tmpa)
 
     context = {
-        'months' : months,
-        'years' : years,
-        'all_accounts' : all_accounts,
-        'accounts_array' : accounts_array
+        'months': months,
+        'years': years,
+        'all_accounts': all_accounts,
+        'accounts_array': accounts_array
     }
 
     return render(request, 'reports/account_history.html', context)
+
 
 @login_required
 def tier_overview(request):
@@ -718,8 +723,8 @@ def tier_overview(request):
     changed_proposals = TierChangeProposal.objects.exclude(changed_by=None)
 
     context = {
-        'proposals' : proposals,
-        'changed_proposals' : changed_proposals
+        'proposals': proposals,
+        'changed_proposals': changed_proposals
     }
 
     return render(request, 'reports/tier_center.html', context)
@@ -762,10 +767,11 @@ def outstanding_notifications(request):
     outstanding = Notification.objects.filter(confirmed=False).order_by('created')
 
     context = {
-        'rnotifications' : outstanding
+        'rnotifications': outstanding
     }
 
     return render(request, 'reports/outstanding_notifications.html', context)
+
 
 @login_required
 def incidents(request):
@@ -776,6 +782,7 @@ def incidents(request):
         return HttpResponse('You do not have permission to view this page')
 
     return render(request, 'reports/incidents.html')
+
 
 @login_required
 def new_incident(request):
