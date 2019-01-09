@@ -135,7 +135,7 @@ def add_client(request):
         context['remaining'] = remaining
         context['no_of_days'] = lastday_month.day
         context['blackmarker'] = round(black_marker, 2)
-        context['statusBadges'] = ['info', 'success', 'warning', 'danger']
+        context['status_badges'] = ['info', 'success', 'warning', 'danger']
 
 
         return render(request, 'budget/clients.html', context)
@@ -292,7 +292,7 @@ def client_details(request, client_id):
 
         budget_updated_for_month, created = BudgetUpdate.objects.get_or_create(account=client, month=today.month, year=today.year)
 
-        statusBadges = ['info', 'success', 'warning', 'danger']
+        status_badges = ['info', 'success', 'warning', 'danger']
 
         context = {
             'client_data': client,
@@ -307,7 +307,7 @@ def client_details(request, client_id):
             'budgets': budgets,
             'chdata': chdata_json[0]['fields'] if chdata_json else {},
             'fbudgets': fbudgets,
-            'statusBadges': statusBadges,
+            'status_badges': status_badges,
             'groupings': cmp_groupings,
             'budget_updated_for_month' : budget_updated_for_month
         }

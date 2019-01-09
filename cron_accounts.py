@@ -1,11 +1,12 @@
 import os
 from googleads import adwords
-os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 django.setup()
 from django.conf import settings
 from adwords_dashboard import models
 from adwords_dashboard.cron_scripts import get_accounts
+
 
 def add_accounts(client):
 
@@ -24,10 +25,12 @@ def add_accounts(client):
                                                    channel='adwords')
             print('Added to DB - ' + str(acc_id) + ' - ' + name)
 
+
 def main():
 
     adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
     add_accounts(adwords_client)
+
 
 if __name__ == '__main__':
     main()

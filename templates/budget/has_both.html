@@ -21,7 +21,7 @@
          href="#m_accordion_1_item_1_body">
         <h3 class="m-accordion__item-title">
             <a href="/clients/accounts/{{ client_data.id }}">{{ client_data.client_name }}</a>
-            <span class="m-badge m-badge--{{ statusBadges|get_item_from_list:client_data.status }}"
+            <span class="m-badge m-badge--{{ status_badges|get_item_from_list:client_data.status }}"
                   data-toggle="m-tooltip" data-original-title="{{ client_data.get_status_display }}"></span>
             <span class="la 	la-edit"
                   data-toggle="modal"

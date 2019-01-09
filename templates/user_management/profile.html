@@ -514,7 +514,7 @@
                   {{ account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.allHours|floatformat:2 }}
+                  {{ account.all_hours|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}
@@ -571,7 +571,7 @@
                   {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ backup.account.allHours|floatformat:2 }}
+                  {{ backup.account.all_hours|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}
@@ -622,7 +622,7 @@
                   {{ account.hoursWorkedThisMonth|floatformat:2 }}
                 </td>
                 <td>
-                  {{ account.allHours|floatformat:2 }}
+                  {{ account.all_hours|floatformat:2 }}
                 </td>
               </tr>
               {% endfor %}
@@ -891,7 +891,7 @@
               <tr>
                 {% for memberSkill in memberSkills %}
                 <td>
-                  <span class="m-badge m-badge--{{ scoreBadges|get_item_from_list:memberSkill.score }}"></span>
+                  <span class="m-badge m-badge--{{ score_badges|get_item_from_list:memberSkill.score }}"></span>
                 </td>
                 {% endfor %}
               </tr>

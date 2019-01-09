@@ -3,9 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 from django.db.models import Q
-from django.db.models.functions import Now
 from django.utils import timezone
-import calendar, datetime
+import calendar
+import datetime
 
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
@@ -15,22 +15,21 @@ from .forms import NewClientForm
 
 @login_required
 def accounts(request):
-    member  = Member.objects.get(user=request.user)
+    member = Member.objects.get(user=request.user)
     accounts = member.accounts
 
     now = datetime.datetime.now()
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backupAccounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
-    #backupAccounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=1) | Q(status=0))
+    backup_accounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
 
-    statusBadges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
-        'member'         : member,
-        'backupAccounts' : backupAccounts,
-        'statusBadges' : statusBadges,
-        'accounts'       : accounts
+        'member': member,
+        'backup_accounts': backup_accounts,
+        'status_badges': status_badges,
+        'accounts': accounts
     }
 
     return render(request, 'client_area/accounts.html', context)
@@ -38,20 +37,20 @@ def accounts(request):
 
 @login_required
 def accounts_team(request):
-    member   = Member.objects.get(user=request.user)
-    teams    = member.team
+    member = Member.objects.get(user=request.user)
+    teams = member.team
 
     accounts = {}
     for team in teams.all():
         accounts[team.id] = Client.objects.filter(team=team).filter(Q(status=1) | Q(status=0))
 
-    statusBadges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
-        'member'   : member,
-        'statusBadges' : statusBadges,
-        'teams'    : teams,
-        'accounts' : accounts
+        'member': member,
+        'status_badges': status_badges,
+        'teams': teams,
+        'accounts': accounts
     }
 
     return render(request, 'client_area/accounts_team.html', context)
@@ -64,11 +63,11 @@ def accounts_all(request):
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0))
 
-    statusBadges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
-        'statusBadges' : statusBadges,
-        'accounts'     : accounts
+        'status_badges': status_badges,
+        'accounts': accounts
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -80,53 +79,49 @@ def account_new(request):
         return HttpResponse('You do not have permission to view this page')
 
     if request.method == 'GET':
-        teams        = Team.objects.all()
+        teams = Team.objects.all()
         client_types = ClientType.objects.all()
-        clients      = ParentClient.objects.all()
-        industries   = Industry.objects.all()
-        languages    = Language.objects.all()
-        members      = Member.objects.all()
-        services     = Service.objects.all()
+        clients = ParentClient.objects.all()
+        industries = Industry.objects.all()
+        languages = Language.objects.all()
+        members = Member.objects.all()
+        services = Service.objects.all()
         fee_structures = ManagementFeesStructure.objects.all()
-        tiers        = [1, 2, 3]
+        tiers = [1, 2, 3]
 
         context = {
-            'teams'        : teams,
-            'client_types' : client_types,
-            'clients'      : clients,
-            'industries'   : industries,
-            'languages'    : languages,
-            'members'      : members,
-            'services'     : services,
-            'tiers'        : tiers,
-            'fee_structures' : fee_structures
+            'teams': teams,
+            'client_types': client_types,
+            'clients': clients,
+            'industries': industries,
+            'languages': languages,
+            'members': members,
+            'services': services,
+            'tiers': tiers,
+            'fee_structures': fee_structures
         }
 
         return render(request, 'client_area/account_new.html', context)
     elif request.method == 'POST':
 
-        formData = {
-            'account_name'   : request.POST.get('account_name'),
-            'team'          : request.POST.get('team'),
-            'client_type'   : request.POST.get('client_type'),
-            'industry'      : request.POST.get('industry'),
-            'language'      : request.POST.get('language'),
-            'contact_email' : request.POST.get('contact_email'),
-            'contact_name'  : request.POST.get('contact_name'),
-            'tier'          : request.POST.get('tier'),
-            'sold_by'       : request.POST.get('sold_by'),
-            'status'        : request.POST.get('status'),
+        form_data = {
+            'account_name': request.POST.get('account_name'),
+            'team': request.POST.get('team'),
+            'client_type': request.POST.get('client_type'),
+            'industry': request.POST.get('industry'),
+            'language': request.POST.get('language'),
+            'tier': request.POST.get('tier'),
+            'sold_by': request.POST.get('sold_by'),
+            'status': request.POST.get('status'),
         }
 
-        form = NewClientForm(formData)
+        form = NewClientForm(form_data)
 
         if form.is_valid():
-            cleanedInputs = form.clean()
+            cleaned_inputs = form.clean()
 
             # Make a contact object
-            contactInfo = ClientContact(name=cleanedInputs['contact_name'], email=cleanedInputs['contact_email'])
-
-            print(cleanedInputs)
+            # contactInfo = ClientContact(name=cleaned_inputs['contact_name'], email=cleaned_inputs['contact_email'])
 
             # Get existing client
             if not int(request.POST.get('existing_client')) == 0:
@@ -134,37 +129,46 @@ def account_new(request):
             else:
                 client = ParentClient.objects.create(name=request.POST.get('client_name'))
 
-            account = Client.objects.create(
-                        client_name=cleanedInputs['account_name'],
-                        # clientType=cleanedInputs['client_type'],
-                        industry=cleanedInputs['industry'],
-                        soldBy=cleanedInputs['sold_by']
-                    )
+            account = Client()
+            account.client_name = cleaned_inputs['account_name']
+            account.industry = cleaned_inputs['industry']
+            account.soldBy = cleaned_inputs['sold_by']
 
-            contactInfo.save()
+            # contactInfo.save()
+            # Handle contact info
+            number_of_contacts = request.POST.get('contact_num_input')
+            contact_array = []
+            for i in range(1, int(number_of_contacts) + 1):
+                contact = ClientContact()
+                contact.name = request.POST.get('contact_name' + str(i))
+                contact.email = request.POST.get('contact_email' + str(i))
+                contact.phone = request.POST.get('contact_phone_number1' + str(i))
+                contact.save()
+                contact_array.append(contact)
+
+            account.contactInfo.set(contact_array)
 
             # set parent client
             account.parentClient = client
 
             # set teams
-            # teams = [cleanedInputs['team']]
+            # teams = [cleaned_inputs['team']]
             # account.team.set(teams)
 
             # set languages
-            languages = [cleanedInputs['language']]
+            languages = [cleaned_inputs['language']]
             account.language.set(languages)
 
             # set PPC services
-            # services = [cleanedInputs['services']]
+            # services = [cleaned_inputs['services']]
             # account.services.set(services)
 
             # set contact info
-            contacts = [contactInfo]
-            account.contactInfo.set(contacts)
+            # contacts = [contactInfo]
 
             # Make management fee structure
             fee_create_or_existing = request.POST.get('fee_structure_type')
-            if (fee_create_or_existing == '1'):
+            if fee_create_or_existing == '1':
                 # Create new management fee
                 number_of_tiers = request.POST.get('rowNumInput')
                 fee_structure_name = request.POST.get('fee_structure_name')
@@ -174,35 +178,21 @@ def account_new(request):
                 management_fee_structure.initialFee = init_fee
                 management_fee_structure.save()
                 for i in range(1, int(number_of_tiers) + 1):
-                    feeType = request.POST.get('fee-type' + str(i))
+                    fee_type = request.POST.get('fee-type' + str(i))
                     fee = request.POST.get('fee' + str(i))
-                    lowerBound = request.POST.get('low-bound' + str(i))
-                    highBound = request.POST.get('high-bound' + str(i))
-                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=lowerBound, upperBound=highBound)
+                    lower_bound = request.POST.get('low-bound' + str(i))
+                    high_bound = request.POST.get('high-bound' + str(i))
+                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee, lowerBound=lower_bound, upperBound=high_bound)
                     management_fee_structure.feeStructure.add(feeInterval)
                 management_fee_structure.save()
                 account.managementFee = management_fee_structure
-            elif (fee_create_or_existing == '2'):
+            elif fee_create_or_existing == '2':
                 # Use existing
                 existing_fee_id = request.POST.get('existing_structure')
                 management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
                 account.managementFee = management_fee_structure
             else:
                 pass
-
-            # This is temporary
-            # feeType = request.POST.get('fee-type1')
-            # fee     = request.POST.get('fee1')
-            # initFee = request.POST.get('setup-fee')
-            #
-            # feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=0, upperBound=99999999)
-            # feeInterval.save()
-            # feeStructure = ManagementFeesStructure.objects.create(initialFee=initFee)
-            # feeStructure.feeStructure.set([feeInterval])
-            #
-            # feeStructure.save()
-            #
-            # account.managementFee = feeStructure
 
             # Check if we sold SEO and/or CRO
             if request.POST.get('seo_check'):
@@ -230,20 +220,20 @@ def account_edit_temp(request, id):
     Temporary account edit page. Would not be surprised if this ends up being a permanent page as we add more stuff to it
     """
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id)):
+    if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
         return HttpResponse('You do not have permission to view this page')
 
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         account = Client.objects.get(id=id)
         management_fee_structures = ManagementFeesStructure.objects.all()
 
         context = {
-            'account' : account,
+            'account': account,
             'management_fee_structures': management_fee_structures
         }
 
         return render(request, 'client_area/account_edit_temp.html', context)
-    elif (request.method == 'POST'):
+    elif request.method == 'POST':
         account = get_object_or_404(Client, id=id)
 
         account_name = request.POST.get('account_name')
@@ -297,12 +287,12 @@ def account_edit_temp(request, id):
                 management_fee_structure.initFee = init_fee
                 management_fee_structure.save()
                 for i in range(1, int(number_of_tiers) + 1):
-                    feeType = request.POST.get('fee-type' + str(i))
+                    fee_type = request.POST.get('fee-type' + str(i))
                     fee = request.POST.get('fee' + str(i))
-                    lowerBound = request.POST.get('low-bound' + str(i))
-                    highBound = request.POST.get('high-bound' + str(i))
-                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=feeType, fee=fee, lowerBound=lowerBound, upperBound=highBound)
-                    management_fee_structure.feeStructure.add(feeInterval)
+                    lower_bound = request.POST.get('low-bound' + str(i))
+                    high_bound = request.POST.get('high-bound' + str(i))
+                    fee_interval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee, lowerBound=lower_bound, upperBound=high_bound)
+                    management_fee_structure.feeStructure.add(fee_interval)
                 management_fee_structure.save()
                 account.managementFee = management_fee_structure
             elif fee_create_or_existing == '2':
@@ -324,26 +314,26 @@ def account_edit(request, id):
         return HttpResponse('You do not have permission to view this page')
 
     if request.method == 'GET':
-        account      = Client.objects.get(id=id)
-        teams        = Team.objects.all()
+        account = Client.objects.get(id=id)
+        teams = Team.objects.all()
         client_types = ClientType.objects.all()
-        industries   = Industry.objects.all()
-        languages    = Language.objects.all()
-        members      = Member.objects.all()
-        services     = Service.objects.all()
-        statuses     = Client._meta.get_field('status').choices
-        tiers        = [1, 2, 3]
+        industries = Industry.objects.all()
+        languages = Language.objects.all()
+        members = Member.objects.all()
+        services = Service.objects.all()
+        statuses = Client._meta.get_field('status').choices
+        tiers = [1, 2, 3]
 
         context = {
-            'account'      : account,
-            'teams'        : teams,
-            'client_types' : client_types,
-            'industries'   : industries,
-            'languages'    : languages,
-            'members'      : members,
-            'statuses'     : statuses,
-            'services'     : services,
-            'tiers'        : tiers
+            'account': account,
+            'teams': teams,
+            'client_types': client_types,
+            'industries': industries,
+            'languages': languages,
+            'members': members,
+            'statuses': statuses,
+            'services': services,
+            'tiers': tiers
         }
 
         return render(request, 'client_area/account_edit.html', context)
@@ -352,57 +342,57 @@ def account_edit(request, id):
 
         member = Member.objects.get(user=request.user)
 
-        formData = {
-            'account_name'  : request.POST.get('account_name'),
-            'team'          : request.POST.get('team'),
-            'client_type'   : request.POST.get('client_type'),
-            'industry'      : request.POST.get('industry'),
-            'language'      : request.POST.get('language'),
-            'contact_email' : request.POST.get('contact_email'),
-            'contact_name'  : request.POST.get('contact_name'),
-            'sold_by'       : request.POST.get('soldby'),
-            'services'      : request.POST.get('services'),
-            'status'        : request.POST.get('status'),
+        form_data = {
+            'account_name': request.POST.get('account_name'),
+            'team': request.POST.get('team'),
+            'client_type': request.POST.get('client_type'),
+            'industry': request.POST.get('industry'),
+            'language': request.POST.get('language'),
+            'contact_email': request.POST.get('contact_email'),
+            'contact_name': request.POST.get('contact_name'),
+            'sold_by': request.POST.get('soldby'),
+            'services': request.POST.get('services'),
+            'status': request.POST.get('status'),
         }
 
-        form = NewClientForm(formData)
+        form = NewClientForm(form_data)
 
         if form.is_valid():
-            cleanedInputs = form.clean()
+            cleaned_inputs = form.clean()
 
             # Make a contact object
-            contactInfo = ClientContact(name=cleanedInputs['contact_name'], email=cleanedInputs['contact_email'])
+            contactInfo = ClientContact(name=cleaned_inputs['contact_name'], email=cleaned_inputs['contact_email'])
 
             # Bad boilerplate
             # Change this eventually
-            if account.client_name != cleanedInputs['account_name']:
-                AccountChanges.objects.create(account=account, member=member, changeField='account_name', changedFrom=account.client_name, changedTo=cleanedInputs['account_name'])
-                account.client_name = cleanedInputs['account_name']
+            if account.client_name != cleaned_inputs['account_name']:
+                AccountChanges.objects.create(account=account, member=member, changeField='account_name', changedFrom=account.client_name, changedTo=cleaned_inputs['account_name'])
+                account.client_name = cleaned_inputs['account_name']
 
-            if account.clientType != cleanedInputs['client_type']:
-                AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType.name, changedTo=cleanedInputs['client_type'])
-                account.clientType = cleanedInputs['client_type']
+            if account.clientType != cleaned_inputs['client_type']:
+                AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType.name, changedTo=cleaned_inputs['client_type'])
+                account.clientType = cleaned_inputs['client_type']
 
-            if account.industry != cleanedInputs['industry']:
-                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry.name, changedTo=cleanedInputs['industry'])
-                account.industry = cleanedInputs['industry']
+            if account.industry != cleaned_inputs['industry']:
+                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry.name, changedTo=cleaned_inputs['industry'])
+                account.industry = cleaned_inputs['industry']
 
-            if account.soldBy != cleanedInputs['sold_by']:
-                AccountChanges.objects.create(account=account, member=member, changeField='sold_by', changedFrom=account.soldBy.user.first_name + ' ' + account.soldBy.user.last_name, changedTo=cleanedInputs['sold_by'])
-                account.soldBy = cleanedInputs['sold_by']
+            if account.soldBy != cleaned_inputs['sold_by']:
+                AccountChanges.objects.create(account=account, member=member, changeField='sold_by', changedFrom=account.soldBy.user.first_name + ' ' + account.soldBy.user.last_name, changedTo=cleaned_inputs['sold_by'])
+                account.soldBy = cleaned_inputs['sold_by']
 
-            if account.status != cleanedInputs['status']:
-                AccountChanges.objects.create(account=account, member=member, changeField='status', changedFrom=account.status, changedTo=cleanedInputs['status'])
-                account.status = cleanedInputs['status']
+            if account.status != cleaned_inputs['status']:
+                AccountChanges.objects.create(account=account, member=member, changeField='status', changedFrom=account.status, changedTo=cleaned_inputs['status'])
+                account.status = cleaned_inputs['status']
 
             contactInfo.save()
 
             # set teams
-            teams = [cleanedInputs['team']]
+            teams = [cleaned_inputs['team']]
             account.team.set(teams)
 
             # set languages
-            languages = [cleanedInputs['language']]
+            languages = [cleaned_inputs['language']]
             account.language.set(languages)
 
             # set contact info
@@ -420,7 +410,7 @@ def account_edit(request, id):
 
 @login_required
 def account_single(request, id):
-    member = Member.objects.get(user=request.user)
+    # member = Member.objects.get(user=request.user)
     """
     The following flag needs to be turned off for now
     """
@@ -432,9 +422,9 @@ def account_single(request, id):
     changes = AccountChanges.objects.filter(account=account)
 
     # Get hours this month for this account
-    now   = datetime.datetime.now()
+    now = datetime.datetime.now()
     month = now.month
-    year  = now.year
+    year = now.year
     accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
 
     accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False).values('member', 'month', 'year').annotate(Sum('hours'))
@@ -453,19 +443,19 @@ def account_single(request, id):
 
     promos = Promo.objects.filter(account=account, end_date__gte=seven_days_ago)
 
-    statusBadges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
-        'account' : account,
-        'members' : members,
-        'backups' : backups,
-        'accountHoursMember' : accountsHoursThisMonthByMember,
-        'value_hours_member' : accountsValueHoursThisMonthByMember,
-        'changes' : changes,
-        'accountHoursThisMonth' : accountHoursThisMonth,
-        'statusBadges' : statusBadges,
-        'kpid' : account.kpi_info,
-        'promos' : promos
+        'account': account,
+        'members': members,
+        'backups': backups,
+        'accountHoursMember': accountsHoursThisMonthByMember,
+        'value_hours_member': accountsValueHoursThisMonthByMember,
+        'changes': changes,
+        'accountHoursThisMonth': accountHoursThisMonth,
+        'status_badges': status_badges,
+        'kpid': account.kpi_info,
+        'promos': promos
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -473,12 +463,11 @@ def account_single(request, id):
 
 @login_required
 def account_assign_members(request):
-    member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page. Only admins can assign members now.')
 
-    account    = Client.objects.get(id=account_id)
+    account = Client.objects.get(id=account_id)
 
     # There may be a better way to handle this form
     # This is terrible boilerplate
@@ -579,7 +568,7 @@ def account_assign_members(request):
 def add_hours_to_account(request):
 
     if request.method == 'GET':
-        member   = Member.objects.get(user=request.user)
+        member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
                       Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
                       Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -590,7 +579,7 @@ def add_hours_to_account(request):
         all_accounts = Client.objects.all().order_by('client_name')
 
         months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
-        years  = [2018, 2019, 2020, 2021]
+        years = [2018, 2019, 2020, 2021]
 
         now = datetime.datetime.now()
         monthnow = now.month
@@ -602,13 +591,13 @@ def add_hours_to_account(request):
             members = Member.objects.all()
 
         context = {
-            'member'   : member,
-            'all_accounts' : all_accounts,
-            'accounts' : accounts,
-            'months'   : months,
-            'monthnow' : monthnow,
-            'years'    : years,
-            'members' : members,
+            'member': member,
+            'all_accounts': all_accounts,
+            'accounts': accounts,
+            'months': months,
+            'monthnow': monthnow,
+            'years': years,
+            'members': members,
             'current_year': current_year
         }
 
@@ -629,16 +618,16 @@ def add_hours_to_account(request):
             account_id = request.POST.get('account-id-' + i)
             account = Client.objects.get(id=account_id)
 
-            if (not request.user.is_staff and not member.has_account(account_id)):
+            if not request.user.is_staff and not member.has_account(account_id):
                 return HttpResponse('You do not have permission to add hours to this account')
-            member     = Member.objects.get(user=request.user)
-            hours      = request.POST.get('hours-' + i)
+            member = Member.objects.get(user=request.user)
+            hours = request.POST.get('hours-' + i)
             try:
                 hours = float(hours)
             except:
                 continue
-            month      = request.POST.get('month-' + i)
-            year       = request.POST.get('year-' + i)
+            month = request.POST.get('month-' + i)
+            year = request.POST.get('year-' + i)
 
             AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
 
@@ -677,62 +666,62 @@ def account_allocate_percentages(request):
     # This is boilerplate
     # CMs
     cm1percent = request.POST.get('cm1-percent')
-    if (cm1percent == None or cm1percent == ''):
+    if cm1percent is None or cm1percent == '':
         cm1percent = 0
     account.cm1percent = cm1percent
 
     cm2percent = request.POST.get('cm2-percent')
-    if cm2percent == None or cm2percent == '':
+    if cm2percent is None or cm2percent == '':
         cm2percent = 0
     account.cm2percent = cm2percent
 
     cm3percent = request.POST.get('cm3-percent')
-    if cm3percent == None or cm3percent == '':
+    if cm3percent is None or cm3percent == '':
         cm3percent = 0
     account.cm3percent = cm3percent
 
     am1percent = request.POST.get('am1-percent')
-    if am1percent == None or am1percent == '':
+    if am1percent is None or am1percent == '':
         am1percent = 0
     account.am1percent = am1percent
 
     am2percent = request.POST.get('am2-percent')
-    if am2percent == None or am2percent == '':
+    if am2percent is None or am2percent == '':
         am2percent = 0
     account.am2percent = am2percent
 
     am3percent = request.POST.get('am3-percent')
-    if am3percent == None or am3percent == '':
+    if am3percent is None or am3percent == '':
         am3percent = 0
     account.am3percent = am3percent
 
     seo1percent = request.POST.get('seo1-percent')
-    if seo1percent == None or seo1percent == '':
+    if seo1percent is None or seo1percent == '':
         seo1percent = 0
     account.seo1percent = seo1percent
 
     seo2percent = request.POST.get('seo2-percent')
-    if seo2percent == None or seo2percent == '':
+    if seo2percent is None or seo2percent == '':
         seo2percent = 0
     account.seo2percent = seo2percent
 
     seo3percent = request.POST.get('seo3-percent')
-    if seo3percent == None or seo3percent == '':
+    if seo3percent is None or seo3percent == '':
         seo3percent = 0
     account.seo3percent = seo3percent
 
     strat1percent = request.POST.get('strat1-percent')
-    if strat1percent == None or strat1percent == '':
+    if strat1percent is None or strat1percent == '':
         strat1percent = 0
     account.strat1percent = strat1percent
 
     strat2percent = request.POST.get('strat2-percent')
-    if strat2percent == None or strat2percent == '':
+    if strat2percent is None or strat2percent == '':
         strat2percent = 0
     account.strat2percent = strat2percent
 
     strat3percent = request.POST.get('strat3-percent')
-    if strat3percent == None or strat3percent == '':
+    if strat3percent is None or strat3percent == '':
         strat3percent = 0
     account.strat3percent = strat3percent
 
@@ -751,9 +740,10 @@ def get_management_fee_details(request, id):
 
     fee_structure = get_object_or_404(ManagementFeesStructure, id=id)
 
-    fsj = {}
-    fsj['initial_fee'] = fee_structure.initialFee
-    fsj['fee_intervals'] = {}
+    fsj = {
+        'initial_fee': fee_structure.initialFee,
+        'fee_intervals': {}
+    }
 
     count = 0
     for fee_interval in fee_structure.feeStructure.all():
@@ -772,12 +762,12 @@ def confirm_sent_am(request):
     """
     Sets a report's 'sent to am' date
     """
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('Invalid request')
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
@@ -785,8 +775,9 @@ def confirm_sent_am(request):
     report.date_sent_to_am = timezone.now()
     report.save()
 
-    resp = {}
-    resp['response'] = report.date_sent_to_am
+    resp = {
+        'response': report.date_sent_to_am
+    }
 
     return JsonResponse(resp)
 
@@ -796,12 +787,12 @@ def confirm_sent_client(request):
     """
     Sets a report's 'sent to client' date
     """
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('Invalid request')
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
@@ -809,8 +800,9 @@ def confirm_sent_client(request):
     report.date_sent_by_am = timezone.now()
     report.save()
 
-    resp = {}
-    resp['response'] = report.date_sent_by_am
+    resp = {
+        'response': report.date_sent_by_am
+    }
 
     return JsonResponse(resp)
 
@@ -820,12 +812,12 @@ def set_due_date(request):
     """
     Sets a report's due date
     """
-    if (request.method == 'GET'):
+    if request.method == 'GET':
         return HttpResponse('Invalid request')
     member = Member.objects.get(user=request.user)
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
@@ -833,8 +825,9 @@ def set_due_date(request):
     report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%Y-%m-%d")
     report.save()
 
-    resp = {}
-    resp['response'] = report.due_date
+    resp = {
+        'response': report.due_date
+    }
 
     return JsonResponse(resp)
 
@@ -876,7 +869,7 @@ def new_promo(request):
         promo.has_bing = True
     if promo_has_other:
         promo.has_other = True
-    promo.is_indefinite = False #change eventually
+    promo.is_indefinite = False  # change eventually
     promo.save()
 
     return redirect('/clients/accounts/' + str(account_id))
@@ -890,7 +883,6 @@ def confirm_promo(request):
     if request.method == 'GET':
         return HttpResponse('Invalid request')
     account_id = request.POST.get('account_id')
-    account = Client.objects.get(id=account_id)
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
@@ -899,9 +891,9 @@ def confirm_promo(request):
 
     type_of_confirmation = int(request.POST.get('confirmation_type'))
 
-    if type_of_confirmation == 0: # This means we are confirming the promo started
+    if type_of_confirmation == 0:  # This means we are confirming the promo started
         promo.confirmed_started = datetime.datetime.now()
-    elif type_of_confirmation == 1: # This means we are confirming the promo ended
+    elif type_of_confirmation == 1:  # This means we are confirming the promo ended
         promo.confirmed_ended = datetime.datetime.now()
 
     promo.save()
@@ -922,11 +914,11 @@ def star_account(request):
         return HttpResponse('You do not have permission to view this page')
 
     bc_link = request.POST.get('bc_link')
-    if bc_link == None or bc_link == '':
+    if bc_link is None or bc_link == '':
         return HttpResponse('You need to enter a basecamp link to flag an account')
 
     account = Client.objects.get(id=account_id)
-    #set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
+    # set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
 
     now = datetime.datetime.now()
     account.flagged_bc_link = bc_link
@@ -960,17 +952,18 @@ def edit_promos(request):
     Page that lets you edit promos
     """
     member = Member.objects.get(user=request.user)
-
+    now = datetime.datetime.now()
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backup_accounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
-    #backup_accounts = Client.objects.filter(Q(cmb=member) | Q(amb=member) | Q(seob=member) | Q(stratb=member)).filter(Q(status=0) | Q(status=1))
+    backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    backup_accounts = Client.objects.none()
 
-    scoreBadges = ['secondary', 'danger', 'warning', 'success']
+    for backup in backups:
+        backup_accounts = backup_accounts | backup.account
 
     promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=backup_accounts))
 
-    if (request.method == 'POST'):
+    if request.method == 'POST':
         promo_id = request.POST.get('promo_id')
         member = Member.objects.get(user=request.user)
         if not request.user.is_staff and not promos.filter(id=promo_id).exists():
@@ -987,7 +980,7 @@ def edit_promos(request):
         promo.save()
 
     context = {
-        'promos' : promos
+        'promos': promos
     }
 
     return render(request, 'client_area/edit_promos.html', context)
@@ -1007,10 +1000,10 @@ def set_kpis(request):
     roas = request.POST.get('set-roas')
     cpa = request.POST.get('set-cpa')
 
-    if (roas != None and roas != '' and float(roas) != 0):
+    if roas is not None and roas != '' and float(roas) != 0:
         account.target_roas = roas
 
-    if (cpa != None and cpa != '' and float(cpa) != 0):
+    if cpa is not None and cpa != '' and float(cpa) != 0:
         account.target_cpa = cpa
 
     account.save()

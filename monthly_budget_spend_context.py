@@ -33,7 +33,7 @@ def main():
             tup = members[key]
             member = tup['member']
             percentage = tup['allocated_percentage']
-            allocated_hours_month = account.allHours * (percentage / 100.0)
+            allocated_hours_month = account.all_hours * (percentage / 100.0)
 
             record, created = AccountAllocatedHoursHistory.objects.get_or_create(account=account, member=member, month=month, year=year)
 

@@ -25,7 +25,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 
@@ -37,7 +37,6 @@ ALLOWED_HOSTS = [
     "*"
 ]
 ADMINS = [
-    ('Octavian','octavian@hdigital.io'),
     ('Bloom Dev', 'dev@makeitbloom.com')
 ]
 # Application definition
@@ -113,10 +112,10 @@ WSGI_APPLICATION = 'bloom.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('PSQL_NAME', 'postgres'),
-        'USER': os.environ.get('PSQL_USER', 'postgres'),
-        'PASSWORD': os.environ.get("PSQL_PASSWORD", 'postgres'),
-        'HOST': os.environ.get('PSQL_HOST', 'psql'),
+        'NAME': os.environ.get('PSQL_NAME', 'bloom'),
+        'USER': os.environ.get('PSQL_USER', 'bloom'),
+        'PASSWORD': os.environ.get("PSQL_PASSWORD", 'bloom123'),
+        'HOST': os.environ.get('PSQL_HOST', 'localhost'),
         'PORT': 5432,
     }
 }
@@ -291,7 +290,6 @@ else:
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
-        'octavian@hdigital.io',
 ]
 
 CELERY_RESULT_BACKEND = 'django-db'
