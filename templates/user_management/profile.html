@@ -506,16 +506,40 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                                   id="my_clients_datatable">
-                                <thead class="thead-inverse">
-                                <tr class="main-table-header">
-                                </tr>
-                                </thead>
-                                <tbody>
+                            {% for account in onboarding_accounts %}
+                                <div class="onboard-account">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>
+                                        </div>
+                                        <div class="col-11">
+                                            <a href="#">PPC</a>,
+                                            <a href="#">SEO</a>
+                                        </div>
+                                    </div>
+                                    <div class="row onboard-account">
+                                        <div class="col-1">
+{#                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>#}
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="row">
+                                                <div class="col-6">Outstanding Day: 3<br />Status: On pace</div>
+                                                <div class="col-6">Stage: Interval review</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <div class="onboard-steps" data-id="{{ account.id }}">
+                                                <div class="row">
 
-                                </tbody>
-                            </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                     <!-- end Onboarding accounts -->

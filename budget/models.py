@@ -101,6 +101,8 @@ class Client(models.Model):
     has_cro = models.BooleanField(default=False)
     cro_hours = models.FloatField(default=0)
     cro_hourly_fee = models.FloatField(default=125)
+    has_ppc = models.BooleanField(default=False)  # may use these for onboarding
+    has_strat = models.BooleanField(default=False)  # may use these for onboarding
     status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     clientGrade = models.IntegerField(default=0)
     actualHours = models.IntegerField(default=0)

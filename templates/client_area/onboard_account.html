@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block content %}
+<div class="m-content">
+  <div class="row">
+    <div class="col-xl-12">
+      {% if accounts.count > 0 %}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+      		<div class="m-portlet__head-caption">
+      			<div class="m-portlet__head-title">
+      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+      					Onboard {{ account.client_name }}
+      				</h3>
+      			</div>
+      		</div>
+        </div>
+        <div class="m-portlet__body">
+            {% if account.has_ppc %}
+                <h2>PPC Steps</h2>
+                {% for service in ac_ppc_steps %}
+
+                {% endfor% %}
+            {% endif %}
+            {% if account.has_seo %}
+                <h2>SEO Steps</h2>
+                {% for service in ac_seo_steps %}
+
+                {% endfor% %}
+            {% endif %}
+            {% if account.has_cro %}
+                <h2>CRO Steps</h2>
+                {% for service in ac_cro_steps %}
+
+                {% endfor% %}
+            {% endif %}
+            {% if account.has_strat %}
+                <h2>Strategy Steps</h2>
+                {% for service in ac_strat_steps %}
+
+                {% endfor% %}
+            {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  <!--End::Main Portlet-->
+</div>
+{% endblock %}

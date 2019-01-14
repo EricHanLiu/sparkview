@@ -12,7 +12,9 @@ from pytz import timezone
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
-from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
+from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
+    AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
+    OnboardingStep, OnboardingTaskAssignment
 from .forms import NewClientForm
 
 
@@ -1029,3 +1031,60 @@ def set_kpis(request):
     account.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def onboard_account(request, account_id):
+    """
+    Client onboarding page
+    :param request:
+    :param account_id:
+    :return:
+    """
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponse('You do not have permission to view this page')
+
+    account = Client.objects.get(id=account_id)
+
+    if request.method == 'GET':
+        ac_ppc_steps = None
+        ac_seo_steps = None
+        ac_cro_steps = None
+        ac_strat_steps = None
+
+        if account.has_ppc:
+            ppc_step = OnboardingStep.objects.get(service=0)
+            ac_ppc_steps = OnboardingStepAssignment.objects.filter(step=ppc_step, account=account)
+        if account.has_seo:
+            seo_step = OnboardingStep.objects.get(service=1)
+            ac_seo_steps = OnboardingStepAssignment.objects.filter(step=seo_step, account=account)
+        if account.has_cro:
+            cro_step = OnboardingStep.objects.get(service=2)
+            ac_cro_steps = OnboardingStepAssignment.objects.filter(step=cro_step, account=account)
+        if account.has_strat:
+            strat_step = OnboardingStep.objects.get(service=3)
+            ac_strat_steps = OnboardingStepAssignment.objects.filter(step=strat_step, account=account)
+
+        context = {
+            'ac_ppc_steps': ac_ppc_steps,
+            'ac_seo_steps': ac_seo_steps,
+            'ac_cro_steps': ac_cro_steps,
+            'ac_strat_steps': ac_strat_steps,
+        }
+
+        return render(request, 'client_area/onboard_account.html', context)
+
+    elif request.method == 'POST':
+        task_id = request.POST.get('task_id')
+        task = OnboardingTaskAssignment.objects.get(id=task_id)
+        checked = request.POST.get('checked') == 1
+
+        if checked:
+            task.complete = True
+        else:
+            task.complete = False
+        task.save()
+        return JsonResponse('Task ' + str(task.id) + ' successfully update')
+    else:
+        return HttpResponse('Invalid request type')
