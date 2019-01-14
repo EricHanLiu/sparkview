@@ -639,7 +639,7 @@ def add_hours_to_account(request):
             hours = request.POST.get('hours-' + i)
             try:
                 hours = float(hours)
-            except TypeError:
+            except (TypeError, ValueError):
                 continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
