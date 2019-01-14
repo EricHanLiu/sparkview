@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.utils import timezone
 import calendar
 import datetime
-from pytz import timezone
 
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
@@ -789,7 +788,7 @@ def confirm_sent_am(request):
         return HttpResponse('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
-    print(report.report_name)
+
     report.date_sent_to_am = timezone.now()
     report.save()
 
@@ -863,8 +862,6 @@ def new_promo(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
-    eastern = timezone('US/Eastern')
-
     promo_name = request.POST.get('promo-name')
     promo_start_date = request.POST.get('start-date')
     promo_end_date = request.POST.get('end-date')
@@ -878,8 +875,8 @@ def new_promo(request):
     promo = Promo()
     promo.name = promo_name
     promo.account = account
-    promo.start_date = eastern.localize(datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M"))
-    promo.end_date = eastern.localize(datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M"))
+    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
+    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
     promo.desc = promo_desc
     if promo_has_aw:
         promo.has_aw = True
@@ -989,16 +986,14 @@ def edit_promos(request):
         if not request.user.is_staff and not promos.filter(id=promo_id).exists():
             return HttpResponse('You do not have permission to view this page')
 
-        eastern = timezone('US/Eastern')
-
         promo_name = request.POST.get('promo-name')
         promo_start_date = request.POST.get('start-date')
         promo_end_date = request.POST.get('end-date')
 
         promo = Promo.objects.get(id=promo_id)
         promo.name = promo_name
-        promo.start_date = eastern.localize(datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M"))
-        promo.end_date = eastern.localize(datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M"))
+        promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
+        promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
         promo.save()
 
     context = {
