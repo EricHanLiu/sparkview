@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Sum
 from django.db.models import Q
 from django.utils import timezone
 import calendar
 import datetime
+from pytz import timezone
 
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
+from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
 from .forms import NewClientForm
 
@@ -129,10 +132,13 @@ def account_new(request):
             else:
                 client = ParentClient.objects.create(name=request.POST.get('client_name'))
 
-            account = Client()
-            account.client_name = cleaned_inputs['account_name']
+            account = Client.objects.create(client_name=cleaned_inputs['account_name'])
+            # account.client_name = cleaned_inputs['account_name']
             account.industry = cleaned_inputs['industry']
             account.soldBy = cleaned_inputs['sold_by']
+
+            account.objective = request.POST.get('objective')
+            account.sold_budget = request.POST.get('sold_budget')
 
             # contactInfo.save()
             # Handle contact info
@@ -206,6 +212,16 @@ def account_new(request):
             account.has_budget = True
 
             account.save()
+
+            # Account is created, send out notifications to all necessary members
+            staff_users = User.objects.filter(is_staff=True)
+            staff_members = Member.objects.filter(user__in=staff_users)
+            for staff_member in staff_members:
+                Notification.objects.create(member=staff_member,
+                                            message='New account won! Operations please assign members to new account ' + str(account),
+                                            link='/clients/accounts/' + str(account.id),
+                                            type=0,
+                                            severity=2)
 
             return redirect('/clients/accounts/all')
         else:
@@ -624,7 +640,7 @@ def add_hours_to_account(request):
             hours = request.POST.get('hours-' + i)
             try:
                 hours = float(hours)
-            except:
+            except TypeError:
                 continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
@@ -641,7 +657,6 @@ def value_added_hours(request):
     elif request.method == 'POST':
         account_id = request.POST.get('account_id')
         account = Client.objects.get(id=account_id)
-        member = Member.objects.get(user=request.user)
         # if (not request.user.is_staff and not member.has_account(account_id)):
         #     return HttpResponse('You do not have permission to add hours to this account')
         member = Member.objects.get(user=request.user)
@@ -649,7 +664,8 @@ def value_added_hours(request):
         month = request.POST.get('month')
         year = request.POST.get('year')
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year, is_unpaid=True)
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_unpaid=True)
 
         return redirect('/clients/accounts/report_hours')
 
@@ -845,6 +861,8 @@ def new_promo(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
+    eastern = timezone('US/Eastern')
+
     promo_name = request.POST.get('promo-name')
     promo_start_date = request.POST.get('start-date')
     promo_end_date = request.POST.get('end-date')
@@ -858,8 +876,8 @@ def new_promo(request):
     promo = Promo()
     promo.name = promo_name
     promo.account = account
-    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
-    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+    promo.start_date = eastern.localize(datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M"))
+    promo.end_date = eastern.localize(datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M"))
     promo.desc = promo_desc
     if promo_has_aw:
         promo.has_aw = True
@@ -969,14 +987,16 @@ def edit_promos(request):
         if not request.user.is_staff and not promos.filter(id=promo_id).exists():
             return HttpResponse('You do not have permission to view this page')
 
+        eastern = timezone('US/Eastern')
+
         promo_name = request.POST.get('promo-name')
         promo_start_date = request.POST.get('start-date')
         promo_end_date = request.POST.get('end-date')
 
         promo = Promo.objects.get(id=promo_id)
         promo.name = promo_name
-        promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
-        promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+        promo.start_date = eastern.localize(datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M"))
+        promo.end_date = eastern.localize(datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M"))
         promo.save()
 
     context = {

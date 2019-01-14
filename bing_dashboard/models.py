@@ -61,7 +61,8 @@ class BingAccounts(models.Model):
         """
         Boolean. Checks if custom dates are set or the desired spend on the account
         """
-        return (self.desired_spend_start_date != None and self.desired_spend_end_date != None)
+        # return self.desired_spend_start_date != None and self.desired_spend_end_date != None
+        return False  # Temporarily disabling this feature
 
     class Meta:
         ordering = ['created_time','updated_time']

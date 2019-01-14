@@ -269,7 +269,7 @@ def add_client(request):
 @xframe_options_exempt
 def client_details(request, client_id):
 
-    today = datetime.today() - relativedelta(days=1) # This is actually yesterday
+    today = datetime.today() - relativedelta(days=1)  # This is actually yesterday
     next_month_int = today.month + 1
     if next_month_int == 13:
         next_month_int = 1
@@ -309,7 +309,7 @@ def client_details(request, client_id):
             'fbudgets': fbudgets,
             'status_badges': status_badges,
             'groupings': cmp_groupings,
-            'budget_updated_for_month' : budget_updated_for_month
+            'budget_updated_for_month': budget_updated_for_month
         }
 
         return render(request, 'budget/view_client.html', context)
@@ -322,7 +322,6 @@ def client_details(request, client_id):
         budget = request.POST.get('budget')
         target_spend = request.POST.get('target_spend')
         channel = request.POST.get('channel')
-
 
         if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=aid)
@@ -378,7 +377,6 @@ def delete_clients(request):
     deleted_clients = []
 
     if request.method == 'POST':
-
         client_ids = request.POST.getlist('client_ids')
 
         if client_ids:
@@ -407,11 +405,12 @@ def last_month(request):
 
     if request.method == 'GET':
 
-        context = {}
-        context['clients'] = ClientHist.objects.all()
-        context['adwords'] = DependentAccount.objects.filter(blacklisted=False)
-        context['bing'] = BingAccounts.objects.filter(blacklisted=False)
-        context['facebook'] = FacebookAccount.objects.filter(blacklisted=False)
+        context = {
+            'clients': ClientHist.objects.all(),
+            'adwords': DependentAccount.objects.filter(blacklisted=False),
+            'bing': BingAccounts.objects.filter(blacklisted=False),
+            'facebook': FacebookAccount.objects.filter(blacklisted=False)
+        }
 
         return render(request, 'budget/last_month.html', context)
 
@@ -443,6 +442,7 @@ def hist_client_details(request, client_id):
         }
 
         return render(request, 'budget/view_client_hist.html', context)
+
 
 def gen_6_months():
 
@@ -577,7 +577,7 @@ def detailed_flight_dates(request):
 def campaign_groupings(request):
 
     account_id = request.GET.get('account_id')
-    channel =  request.GET.get('channel')
+    channel = request.GET.get('channel')
 
     if request.method == 'GET':
 
@@ -609,7 +609,6 @@ def campaign_groupings(request):
         return render(request, 'budget/campaign_groupings.html', context)
 
     elif request.method == 'POST':
-
         cmps = []
         campaigns = request.POST.getlist('campaigns')
         campaigns = set(campaigns)
@@ -682,6 +681,7 @@ def campaign_groupings(request):
 
         return JsonResponse(context)
 
+
 @login_required
 def add_groupings(request):
 
@@ -705,14 +705,37 @@ def add_groupings(request):
 
         if group_by == 'text':
             group_by_text = request.POST.get('cgr_group_by_text')
-
+            if group_by_text is None:
+                group_by_text = ''
             new_group = CampaignGrouping.objects.create(
                 group_name=group_name,
                 group_by=group_by_text,
                 budget=budget,
                 client=client
             )
-
+        elif group_by == 'all':
+            new_group = CampaignGrouping.objects.create(
+                group_name=group_name,
+                group_by=group_by,
+                budget=budget,
+                client=client
+            )
+            # Add all the campaigns
+            for aa in client.adwords.all():
+                campaigns = Campaign.objects.filter(account=aa)
+                for cmp in campaigns:
+                    new_group.aw_campaigns.add(cmp)
+                new_group.save()
+            for fa in client.facebook.all():
+                campaigns = FacebookCampaign.objects.filter(account=fa)
+                for cmp in campaigns:
+                    new_group.fb_campaigns.add(cmp)
+                new_group.save()
+            for ba in client.bing.all():
+                campaigns = BingCampaign.objects.filter(account=ba)
+                for cmp in campaigns:
+                    new_group.bing_campaigns.add(cmp)
+                new_group.save()
         elif group_by == 'manual':
 
             new_group = CampaignGrouping.objects.create(
@@ -744,7 +767,6 @@ def add_groupings(request):
                 except ObjectDoesNotExist:
                     pass
 
-
         if flight_date == 'yes':
             start_date = request.POST.get('cgr_sdate')
             end_date = request.POST.get('cgr_edate')
@@ -774,6 +796,7 @@ def add_groupings(request):
                 pass
 
         return JsonResponse(response)
+
 
 @login_required
 def update_groupings(request):
@@ -934,6 +957,7 @@ def get_campaigns(request):
 
     return JsonResponse(response)
 
+
 # Update client budgets
 @login_required
 def update_budget(request):
@@ -1023,6 +1047,7 @@ def delete_fbudget(request):
 
         return JsonResponse(context)
 
+
 @login_required
 def gts_or_budget(request):
 
@@ -1054,6 +1079,7 @@ def gts_or_budget(request):
         context['budgetoff'] = '1'
 
     return JsonResponse(context)
+
 
 @login_required
 def assign_client_accounts(request):
@@ -1090,6 +1116,7 @@ def assign_client_accounts(request):
 
     adwords_tasks.cron_clients.delay()
     return JsonResponse(response)
+
 
 @login_required
 def disconnect_client_account(request):
@@ -1134,6 +1161,7 @@ def disconnect_client_account(request):
 
     return JsonResponse(response)
 
+
 @login_required
 def edit_client_name(request):
 
@@ -1150,6 +1178,7 @@ def edit_client_name(request):
     }
     return JsonResponse(response)
 
+
 @login_required
 def add_kpi(request):
 
@@ -1165,6 +1194,7 @@ def add_kpi(request):
         'account': account.dependent_account_name
     }
     return JsonResponse(response)
+
 
 @login_required
 def delete_kpi(request):
@@ -1183,7 +1213,7 @@ def delete_kpi(request):
 @login_required
 def edit_flex_budget(request):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id')))):
+    if not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id'))):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
@@ -1199,7 +1229,7 @@ def edit_flex_budget(request):
 @login_required
 def edit_other_budget(request):
     member = Member.objects.get(user=request.user)
-    if (not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id')))):
+    if not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id'))):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
@@ -1214,19 +1244,19 @@ def edit_other_budget(request):
 
 @login_required
 def confirm_budget(request):
-    if (request.method != 'POST'):
+    if request.method != 'POST':
         return HttpResponse('Invalid request type')
 
     member = Member.objects.get(user=request.user)
     account_id = int(request.POST.get('account_id'))
-    if (not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id)):
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponse('You do not have permission to view this page')
 
     now = datetime.now()
     account = Client.objects.get(id=account_id)
 
     budget_update, created = BudgetUpdate.objects.get_or_create(account=account, month=now.month, year=now.year)
-    if budget_update.updated == True:
+    if budget_update.updated:
         return HttpResponse('Makes no difference')
 
     budget_update.updated = True

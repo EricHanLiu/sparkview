@@ -51,7 +51,7 @@
                     <div class="col-md-12">
                       <label for="client_name">Client Name:</label>
                       <input type="text" name="client_name" class="form-control m-input"
-                      placeholder="Please enter the client name" required>
+                      placeholder="Please enter the client name">
                     </div>
                   </div>
                 </div>
@@ -128,6 +128,22 @@
                   </div>
                 </div>
               </div>
+              <div class="form-group m-form__group">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="objective">Objective:</label>
+                    <select class="form-control m-input"
+                            name="objective"
+                            style="width: 100%;" required>
+                        <option value="0">Leads</option>
+                        <option value="1">Sales</option>
+                        <option value="2">Awareness</option>
+                        <option value="3">Store Visits</option>
+                        <option value="4">Multiple</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
         </div>
       </div>
@@ -149,17 +165,17 @@
                   <div class="col-md-4">
                     <label for="contact_name1">Contact Name:</label>
                     <input type="text" name="contact_name1"
-                    class="form-control m-input" required>
+                    class="form-control m-input">
                   </div>
                   <div class="col-md-4">
                     <label for="contact_email1">Contact Email:</label>
                     <input type="text" name="contact_email1"
-                    class="form-control m-input" required>
+                    class="form-control m-input">
                   </div>
                   <div class="col-md-3">
                     <label for="contact_name1">Contact Phone Number:</label>
                     <input type="text" name="contact_phone_number1"
-                    class="form-control m-input" required>
+                    class="form-control m-input">
                   </div>
                   <div class="col-md-1">
                     <label>More Contacts</label>
@@ -189,22 +205,22 @@
               <div class="row">
                 <div class="col-md-6">
                   <label>Name:</label>
-                  <input class="form-control m-input" name="fee_structure_name" required />
+                  <input class="form-control m-input" name="fee_structure_name" />
                 </div>
                 <div class="col-md-6">
                   <label>Setup Fee:</label>
-                  <input class="form-control m-input" name="setup_fee" required />
+                  <input class="form-control m-input" name="setup_fee" />
                 </div>
               </div>
               <hr />
               <div class="row">
                 <div class="col-md-3">
                   <label>Low Budget Bound ($):</label>
-                  <input class="form-control m-input" name="low-bound1" required />
+                  <input class="form-control m-input" name="low-bound1" />
                 </div>
                 <div class="col-md-3">
                   <label>High Budget Bound ($):</label>
-                  <input class="form-control m-input" name="high-bound1" required />
+                  <input class="form-control m-input" name="high-bound1" />
                 </div>
                 <div class="col-md-2">
                   <label>Fee type:</label>
@@ -217,7 +233,7 @@
                 </div>
                 <div class="col-md-3">
                   <label>Fee:</label>
-                  <input class="form-control m-input" name="fee1" required />
+                  <input class="form-control m-input" name="fee1" />
                 </div>
                 <div class="col-md-1">
                   <label>Add Level</label>
@@ -234,7 +250,7 @@
                   <label for="existing_structure">Management Fee Structure:</label>
                   <select class="form-control m-input"
                           name="existing_structure"
-                          style="width: 100%;" required>
+                          style="width: 100%;">
                           <option value="0">
                             None
                           </option>

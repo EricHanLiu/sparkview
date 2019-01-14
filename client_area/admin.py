@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Promo, MonthlyReport, Service, Language, ClientType, Industry, ManagementFeesStructure, ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord
+from .models import Promo, MonthlyReport, Service, Language, ClientType, Industry, ManagementFeesStructure, \
+    ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord, OnboardingTask, OnboardingTaskAssignment, \
+    OnboardingStep, OnboardingStepAssignment
 
 
 @admin.register(Service)
@@ -54,4 +56,24 @@ class MonthlyReportAdmin(admin.ModelAdmin):
 
 @admin.register(Promo)
 class PromoAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(OnboardingTask)
+class OnboardingTaskAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(OnboardingTaskAssignment)
+class OnboardingTaskAssignmentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(OnboardingStep)
+class OnboardingStepAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(OnboardingStepAssignment)
+class OnboardingStepAssignmentAdmin(admin.ModelAdmin):
     pass

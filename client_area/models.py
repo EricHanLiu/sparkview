@@ -1,7 +1,6 @@
 from django.db import models
 import calendar
 import datetime
-
 from user_management.models import Member
 
 
@@ -63,7 +62,7 @@ class ClientContact(models.Model):
 class AccountHourRecord(models.Model):
     MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1,13)]
 
-    member  = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='member')
+    member = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='member')
     account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True, related_name='client')
     hours = models.FloatField(default=0)
     month = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
@@ -72,8 +71,12 @@ class AccountHourRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.member.user.first_name + ' ' + str(self.hours) + ' hours on ' + self.account.client_name \
-               + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
+        if self.member is None:
+            name = 'No name '
+        else:
+            name = self.member.user.first_name
+        return name + ' ' + str(self.hours) + ' hours on ' + self.account.client_name \
+            + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
 
 
 class ManagementFeeInterval(models.Model):
@@ -204,10 +207,73 @@ class AccountAllocatedHoursHistory(models.Model):
     """
     Backs up account history allocation by account and member
     """
-    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     member = models.ForeignKey('user_management.Member', on_delete=models.SET_NULL, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     allocated_hours = models.FloatField(default=0)
+
+
+class OnboardingStep(models.Model):
+    """
+    Step in the onboarding process for a service. Only complete when all subtasks are complete
+    """
+    SERVICES_CHOICES = [(0, 'PPC'),
+                        (1, 'SEO'),
+                        (2, 'CRO'),
+                        (3, 'Strategy')]
+
+    service = models.IntegerField(default=0, choices=SERVICES_CHOICES)
+    name = models.CharField(max_length=255, default='', blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class OnboardingTask(models.Model):
+    """
+    This is an onboarding task that can be assigned to an onboarding account
+    """
+    step = models.ForeignKey(OnboardingStep, on_delete=models.SET_NULL, default=None, null=True)
+    name = models.CharField(max_length=255, blank=True, default='')
+
+    def __str__(self):
+        return self.name
+
+
+class OnboardingStepAssignment(models.Model):
+    """
+    Onboarding step, assignment to an account
+    """
+    account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, default=None, null=True)
+    step = models.ForeignKey(OnboardingStep, on_delete=models.SET_NULL, default=None, null=True)
+
+    @property
+    def complete(self):
+        for task in self.onboardingtaskassignment_set:
+            if not task.complete:
+                return False
+        return True
+
+    def __str__(self):
+        if self.account is None or self.step is None:
+            return 'No name step'
+        return self.account.client_name + ' ' + self.step.name
+
+
+class OnboardingTaskAssignment(models.Model):
+    """
+    Assignment of an onboarding task, need to be checked off that it is completed
+    """
+    step = models.ForeignKey(OnboardingStepAssignment, on_delete=models.SET_NULL, default=None, null=True)
+    task = models.ForeignKey(OnboardingTask, on_delete=models.SET_NULL, default=None, null=True)
+    complete = models.BooleanField(default=False)
+    completed = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.step.account is None or self.task is None:
+            return 'No name task'
+        return self.step.account.client_name + ' ' + self.task.name

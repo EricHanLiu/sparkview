@@ -27,7 +27,7 @@ SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-SITE_ID=1
+SITE_ID = 1
 
 ALLOWED_HOSTS = [
     '35.203.133.58',
@@ -218,14 +218,14 @@ CRONJOBS = [
     ('00 * * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('00 * * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('00 * * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
-    ('15 12 * * *', 'cron_adgroups.main', '> ' + BASE_DIR + '/logs/adwords_adgroups.log'),
+    # ('15 12 * * *', 'cron_adgroups.main', '> ' + BASE_DIR + '/logs/adwords_adgroups.log'),
     ('20 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
-    ('30 12 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
-    ('30 12 * * *', 'facebook_anomalies.main', '> ' + BASE_DIR + '/logs/facebook_anomalies.log'),
-    ('45 12 * * *', 'cron_flight_dates.main', '> ' + BASE_DIR + '/logs/aw_flight_dates.log'),
-    ('45 12 * * *', 'bing_flight_dates.main', '> ' + BASE_DIR + '/logs/bing_flight_dates.log'),
-    ('45 12 * * *', 'facebook_flight_dates.main', '> ' + BASE_DIR + '/logs/fb_flight_dates.log'),
-    ('*/5 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
+    # ('30 12 * * *', 'bing_anomalies.main', '> ' + BASE_DIR + '/logs/bing_anomalies.log'),
+    # ('30 12 * * *', 'facebook_anomalies.main', '> ' + BASE_DIR + '/logs/facebook_anomalies.log'),
+    # ('45 12 * * *', 'cron_flight_dates.main', '> ' + BASE_DIR + '/logs/aw_flight_dates.log'),
+    # ('45 12 * * *', 'bing_flight_dates.main', '> ' + BASE_DIR + '/logs/bing_flight_dates.log'),
+    # ('45 12 * * *', 'facebook_flight_dates.main', '> ' + BASE_DIR + '/logs/fb_flight_dates.log'),
+    # ('*/5 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
     ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
     ('00 13 * * *', 'cron_trends.main', '> ' + BASE_DIR + '/logs/trends_report.log'),
     ('00 13 * * *', 'bing_trends.main', '> ' + BASE_DIR + '/logs/bing_trends_report.log'),

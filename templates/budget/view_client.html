@@ -9,7 +9,7 @@
                     <div class="m-portlet__head-caption">
                       <div class="m-portlet__head-title">
                         <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                          Temporary Hour Insert Page
+                          Monthly Budget Recap - {{ current_month }}
                         </h3>
                       </div>
                     </div>
@@ -17,10 +17,10 @@
                   <div class="m-portlet__body">
                     {% if client_data.has_blacklisted_accounts %}
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          						</button>
-          					  	<strong>Warning!</strong> One or more of the ad accounts associated with this account are blacklisted. They are not retrieving any new spend information.
-          					</div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        </button>
+                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are blacklisted. They are not retrieving any new spend information.
+                    </div>
                     {% endif %}
                     {% include 'budget/has_both.html' %}
                   </div>
@@ -405,6 +405,12 @@
                                             <input type="radio" name="cgr_group_by" value="manual"
                                                    id="gr_manual_across">
                                             Manual
+                                            <span></span>
+                                        </label>
+                                        <label class="m-radio">
+                                            <input type="radio" name="cgr_group_by" value="all"
+                                                   id="gr_all_across">
+                                            All
                                             <span></span>
                                         </label>
                                         <label class="m-checkbox m-checkbox--check-bold">

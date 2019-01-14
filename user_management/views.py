@@ -129,13 +129,13 @@ def new_member(request):
         role = Role.objects.get(id=role_id)
 
         # Hours
-        buffer_total_percentage = request.POST.get('buffer_total_percentage') #if not request.POST.get('buffer_total_percentage') None else 0
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage') #if not request.POST.get('buffer_learning_percentage') None else 0
-        buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage') #if not request.POST.get('buffer_trainers_percentage') not None else 0
-        buffer_sales_percentage = request.POST.get('buffer_sales_percentage') #if request.POST.get('buffer_sales_percentage') not None else 0
-        buffer_planning_percentage = request.POST.get('buffer_planning_percentage') #if request.POST.get('buffer_planning_percentage') not None else 0
-        buffer_internal_percentage = request.POST.get('buffer_internal_percentage') #if request.POST.get('buffer_internal_percentage') not None else 0
-        buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage') # if request.POST.get('buffer_seniority_percentage') not None else 0
+        buffer_total_percentage = request.POST.get('buffer_total_percentage')
+        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
+        buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
+        buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
+        buffer_planning_percentage = request.POST.get('buffer_planning_percentage')
+        buffer_internal_percentage = request.POST.get('buffer_internal_percentage')
+        buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
 
         user.save()
 

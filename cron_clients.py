@@ -40,7 +40,6 @@ def main():
     last_day = date(today.year, today.month, monthrange(today.year, today.month)[1])
 
     remaining = last_day.day - today.day
-
     pdays = []
     bdays = []
 
@@ -50,12 +49,9 @@ def main():
     for result in perdelta(first_day, last_day, timedelta(days=1)):
         bdays.append(result)
 
-
-
     clients = Client.objects.all()
 
     for client in clients:
-
         # S - Spend, P - Projected, B - Budget
         aw_s_final, aw_p_final, aw_b_final, gts_final = {}, {}, {}, {}
         bing_b_final, bing_p_final, bing_s_final = {}, {}, {}
@@ -152,7 +148,8 @@ def main():
                         client.aw_rec_ds += client.target_spend - a.current_spend
 
                 # Both options active
-                elif client.has_gts and client.has_budget:
+                # elif client.has_gts and client.has_budget:
+                else:
                     gts_per_day = round(client.target_spend / last_day.day, 2)
                     for index, val in enumerate(bdays, start=1):
                         gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
@@ -174,7 +171,6 @@ def main():
                         else:
                             client.aw_rec_ds += a.desired_spend - a.current_spend
 
-
         else:
             aw_s_final = {}
             aw_b_final = {}
@@ -186,7 +182,6 @@ def main():
                 for index, val in enumerate(bdays, start=1):
                     gts_values[val.strftime("%Y-%m-%d")] = round(gts_per_day * index, 2)
                 gts_final['Global Target Spend'] = gts_values
-
 
         bing = client.bing.all()
         if len(bing) > 0:
@@ -257,7 +252,6 @@ def main():
             bing_s_final = {}
             bing_p_final = {}
             bing_b_final = {}
-
 
         facebook = client.facebook.all()
         if len(facebook) > 0:
@@ -344,6 +338,7 @@ def main():
         client.save()
 
         # print('Updated current spend and chart data for client ' + client.client_name)
+
 
 if __name__ == '__main__':
     main()

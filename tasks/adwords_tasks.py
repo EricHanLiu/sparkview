@@ -10,7 +10,7 @@ from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from adwords_dashboard.cron_scripts import get_accounts
-from budget.models import FlightBudget, Budget, CampaignGrouping, Client
+from budget.models import FlightBudget, Budget, CampaignGrouping, Client, ClientCData
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault
 from bloom.settings import ADWORDS_YAML, EMAIL_HOST_USER, TEMPLATE_DIR, API_VERSION
@@ -38,6 +38,7 @@ def perdelta(start, end, delta):
     while curr <= end:
         yield curr
         curr += delta
+
 
 def projected(spend, yspend):
 
@@ -75,6 +76,7 @@ def month_converter(month):
 
 def get_client():
     return AdWordsClient.LoadFromStorage(ADWORDS_YAML)
+
 
 def check_spend_acc(account):
 
@@ -258,6 +260,7 @@ def check_spend_acc(account):
                 }
                 on_pace.append(details)
 
+
 def check_spend_members(member):
 
     flex = []
@@ -383,7 +386,6 @@ def adwords_accounts(self):
             DependentAccount.objects.create(dependent_account_id=acc_id, dependent_account_name=name,
                                                    channel='adwords')
             print('Added to DB - ' + str(acc_id) + ' - ' + name)
-
 
 
 @celery_app.task(bind=True)
@@ -595,7 +597,7 @@ def adwords_cron_ovu(self, customer_id):
     try:
         day_spend = last_7_days_cost / 7
 
-    except ZeroDivisionError:
+    except ZeroDivisionError:  # How is this possible?
 
         day_spend = 0
 
@@ -788,7 +790,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     client = AdWordsClient.LoadFromStorage(ADWORDS_YAML)
     helper = AdwordsReportingService(client)
 
-    #daterange = helper.get_this_month_daterange()
+    # daterange = helper.get_this_month_daterange()
 
     campaign_this_month = helper.get_campaign_performance(
         customer_id=account.dependent_account_id,
@@ -886,7 +888,9 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                         )
 
                         for cmp in campaign_this_period:
+                            campaign = Campaign.objects.get(campaign_id=cmp['campaign_id'])
                             gr.aw_spend += helper.mcv(cmp['cost'])
+                            gr.aw_yspend += campaign.campaign_yesterday_cost
                             gr.save()
                     else:
                         continue
@@ -895,6 +899,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
                         gr.aw_spend += cmp.campaign_cost
                         gr.aw_yspend += cmp.campaign_yesterday_cost
                         gr.save()
+
 
 @celery_app.task(bind=True)
 def adwords_campaign_groups(self, client_id):
@@ -909,6 +914,7 @@ def adwords_adgroups(self):
 
     for account in accounts:
         adwords_cron_adgroup_stats.delay(account.dependent_account_id)
+
 
 @celery_app.task(bind=True)
 def adwords_cron_adgroup_stats(self, customer_id):
@@ -951,6 +957,7 @@ def adwords_flight_dates(self):
     for a in aw:
         adwords_cron_flight_dates.delay(a.dependent_account_id)
 
+
 @celery_app.task(bind=True)
 def adwords_cron_flight_dates(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
@@ -978,6 +985,7 @@ def adwords_networks_spend(self):
 
     for account in accounts:
         adwords_cron_budgets.delay(account.dependent_account_id)
+
 
 @celery_app.task(bind=True)
 def adwords_cron_budgets(self, customer_id):
@@ -1070,6 +1078,7 @@ def adwords_trends(self):
 
     for account in accounts:
         adwords_result_trends.delay(account.dependent_account_id)
+
 
 @celery_app.task(bind=True)
 def adwords_result_trends(self, customer_id):
@@ -1205,6 +1214,7 @@ def adwords_quality_score(self):
 
     for account in accounts:
         adwords_account_quality_score.delay(account.dependent_account_id)
+
 
 @celery_app.task(bind=True)
 def adwords_account_quality_score(self, customer_id):
@@ -1469,7 +1479,6 @@ def adwords_no_changes_5(self):
         'No changes for more than 5 days', msg_html,
         EMAIL_HOST_USER, MAIL_ADS, fail_silently=False, html_message=msg_html)
     mail_list.clear()
-
 
 
 @celery_app.task(bind=True)
