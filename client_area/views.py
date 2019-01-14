@@ -595,7 +595,7 @@ def add_hours_to_account(request):
 
         all_accounts = Client.objects.all().order_by('client_name')
 
-        months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+        months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
         years = [2018, 2019, 2020, 2021]
 
         now = datetime.datetime.now()
@@ -641,7 +641,7 @@ def add_hours_to_account(request):
             hours = request.POST.get('hours-' + i)
             try:
                 hours = float(hours)
-            except TypeError:
+            except (TypeError, ValueError):
                 continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
