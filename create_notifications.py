@@ -1,7 +1,9 @@
 import os
 import csv
-os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
+
 django.setup()
 from bloom import settings
 from django.shortcuts import get_object_or_404
@@ -9,7 +11,9 @@ from django.db.models import Q
 from budget.models import Client
 from user_management.models import Team, Member, Role
 from notifications.models import Notification, ScheduledNotification
-import datetime, calendar
+import datetime
+import calendar
+
 
 def main():
     """
@@ -18,13 +22,21 @@ def main():
     now = datetime.datetime.now()
     day_of_month = now.day
     first_weekday, num_in_month = calendar.monthrange(now.year, now.month)
-    negative_day_of_month = num_in_month - now.day + 1 # Gives 1 for last day of month, 2 for second to last day, etc
+    negative_day_of_month = num_in_month - now.day + 1  # Gives 1 for last day of month, 2 for second to last day, etc
     day_of_week = now.weekday()
 
-    if day_of_week < 5: #weekday
-        scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week=day_of_week) | Q(every_day=True) | Q(every_week_day=True))
-    else: #weekend
-        scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) | Q(days_negative__contains=[negative_day_of_month]) | Q(day_of_week=day_of_week) | Q(every_day=True))
+    if day_of_week < 5:  # weekday
+        scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) |
+                                                                       Q(days_negative__contains=[
+                                                                           negative_day_of_month]) |
+                                                                       Q(day_of_week=day_of_week) | Q(every_day=True) |
+                                                                       Q(every_week_day=True))
+    else:  # weekend
+        scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) |
+                                                                       Q(days_negative__contains=[
+                                                                           negative_day_of_month]) |
+                                                                       Q(day_of_week=day_of_week) |
+                                                                       Q(every_day=True))
 
     for scheduled_notification in scheduled_notifications:
         """
@@ -54,7 +66,7 @@ def main():
             notification = Notification()
             notification.member = member
             notification.message = scheduled_notification.message
-            if scheduled_notification.link != None:
+            if scheduled_notification.link is not None:
                 notification.link = scheduled_notification.link
             print('Created notification for ' + str(member.user.get_full_name()))
             notification.save()

@@ -1,4 +1,5 @@
-import datetime, calendar
+import datetime
+import calendar
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db.models import Sum
@@ -6,9 +7,9 @@ from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
-from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, ParentClient, ManagementFeesStructure
+from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, ParentClient, \
+    ManagementFeesStructure
 from dateutil.relativedelta import relativedelta
-# Create your models here.
 
 
 class Client(models.Model):
@@ -59,7 +60,8 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
     flex_budget = models.FloatField(default=0)
-    flex_budget_start_date = models.DateTimeField(default=None, null=True, blank=True)  # These are the start dates and end dates for the flex budget. Default should be this month.
+    flex_budget_start_date = models.DateTimeField(default=None, null=True,
+                                                  blank=True)  # These are the start dates and end dates for the flex budget. Default should be this month.
     flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
@@ -166,12 +168,15 @@ class Client(models.Model):
             now = datetime.datetime.now()
             month = now.month
             year = now.year
-            hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+            hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(
+                Sum('hours'))['hours__sum']
             self._hours_worked_this_month = hours if hours is not None else 0
         return self._hours_worked_this_month
 
     def actual_hours_month_year(self, month, year):
-        hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+        hours = \
+        AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))[
+            'hours__sum']
         return hours if hours is not None else 0
 
     def get_hours_remaining_this_month(self):
@@ -183,7 +188,8 @@ class Client(models.Model):
         now = datetime.datetime.now()
         month = now.month
         year = now.year
-        hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+        hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year,
+                                                 is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
 
     @property
@@ -200,7 +206,7 @@ class Client(models.Model):
             for aa in self.adwords.all():
                 aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
                 recent_perf = aw_perf[0].metadata if aw_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']: # We have CPA info
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']:  # We have CPA info
                     conversions += float(recent_perf['vals']['conversions'][1])
                     cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
                 kpid['roas'] = 0.0
@@ -238,12 +244,13 @@ class Client(models.Model):
             for fa in self.facebook.all():
                 fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
                 recent_perf = fb_perf[0].metadata if fb_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']: # We have CPA info
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']:  # We have CPA info
                     conversions += float(recent_perf['vals']['conversions'][1])
                     cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
                 kpid['roas'] = 0.0
-                if 'vals' in recent_perf and 'all_conv_value' in recent_perf['vals']: # we have conversion value info
-                    conversion_value += float(recent_perf['vals']['all_conv_value'][1]) # TODO: it's not called this in facebook ads
+                if 'vals' in recent_perf and 'all_conv_value' in recent_perf['vals']:  # we have conversion value info
+                    conversion_value += float(
+                        recent_perf['vals']['all_conv_value'][1])  # TODO: it's not called this in facebook ads
 
             kpid['conversions'] = conversions
             kpid['cost'] = cost
@@ -370,13 +377,16 @@ class Client(models.Model):
     def value_added_hours_this_month(self):
         if not hasattr(self, '_value_added_hours_this_month'):
             now = datetime.datetime.now()
-            hours = AccountHourRecord.objects.filter(account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+            hours = \
+            AccountHourRecord.objects.filter(account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(
+                Sum('hours'))['hours__sum']
             self._value_added_hours_this_month = hours if hours is not None else 0
         return self._value_added_hours_this_month
 
     def value_added_hours_month_member(self, member):
         now = datetime.datetime.now()
-        hours = AccountHourRecord.objects.filter(member=member, account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+        hours = AccountHourRecord.objects.filter(member=member, account=self, month=now.month, year=now.year,
+                                                 is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
 
     def get_allocation_this_month_member(self, member):
@@ -513,7 +523,9 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date, aa.desired_spend_end_date, yesterday.month) / (aa.desired_spend_end_date - aa.desired_spend_start_date).days
+                    portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date,
+                                                                       aa.desired_spend_end_date, yesterday.month) / (
+                                                   aa.desired_spend_end_date - aa.desired_spend_start_date).days
                     budget += round(portion_of_spend * aa.desired_spend, 2)
                 else:
                     budget += aa.desired_spend  # this would be monthly budget
@@ -564,13 +576,16 @@ class Client(models.Model):
     def bing_budget_this_month(self):
         if not hasattr(self, '_bing_budget_this_month'):
             budget = 0.0
-            yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
+            yesterday = datetime.datetime.now() - datetime.timedelta(
+                1)  # We should really be getting yesterday's budget
             for ba in self.bing.all():
                 if ba.has_custom_dates:
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date, ba.desired_spend_end_date, yesterday.month) / (ba.desired_spend_end_date - ba.desired_spend_start_date).days
+                    portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date,
+                                                                       ba.desired_spend_end_date, yesterday.month) / (
+                                                   ba.desired_spend_end_date - ba.desired_spend_start_date).days
                     budget += round(portion_of_spend * ba.desired_spend, 2)
                 else:
                     budget += ba.desired_spend  # this would be monthly budget
@@ -581,13 +596,16 @@ class Client(models.Model):
     def facebook_budget_this_month(self):
         if not hasattr(self, '_facebook_budget_this_month'):
             budget = 0.0
-            yesterday = datetime.datetime.now() - datetime.timedelta(1)  # We should really be getting yesterday's budget
+            yesterday = datetime.datetime.now() - datetime.timedelta(
+                1)  # We should really be getting yesterday's budget
             for fa in self.facebook.all():
                 if fa.has_custom_dates:
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date, fa.desired_spend_end_date, yesterday.month) / (fa.desired_spend_end_date - fa.desired_spend_start_date).days
+                    portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date,
+                                                                       fa.desired_spend_end_date, yesterday.month) / (
+                                                   fa.desired_spend_end_date - fa.desired_spend_start_date).days
                     budget += round(portion_of_spend * fa.desired_spend, 2)
                 else:
                     budget += fa.desired_spend  # this would be monthly budget
@@ -817,7 +835,7 @@ class Client(models.Model):
         # day_of_month = now.day - 1
         f, days_in_month = calendar.monthrange(now.year, now.month)
         days_remaining = days_in_month - day_of_month
-        if method == 0: # Project based on yesterday
+        if method == 0:  # Project based on yesterday
             projection += (self.yesterday_spend * days_remaining)
         elif method == 1:
             projection += ((self.current_spend / day_of_month) * days_remaining)
@@ -870,7 +888,7 @@ class AccountBudgetSpendHistory(models.Model):
     """
     Keeps historical data for client budget and spend
     """
-    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
     account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
@@ -898,7 +916,7 @@ class BudgetUpdate(models.Model):
     """
     TEMPORARY SOLUTION: Record of if a budget has been updated this month
     """
-    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
     account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     updated = models.BooleanField(default=False)
@@ -906,9 +924,7 @@ class BudgetUpdate(models.Model):
     year = models.PositiveSmallIntegerField(blank=True, null=True)
 
 
-
 class ClientCData(models.Model):
-
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     aw_budget = JSONField(default=dict)
     aw_projected = JSONField(default=dict)
@@ -921,9 +937,11 @@ class ClientCData(models.Model):
     fb_spend = JSONField(default=dict)
     global_target_spend = JSONField(default=dict)
 
+    def __str__(self):
+        return self.client.client_name
+
 
 class ClientHist(models.Model):
-
     client_name = models.CharField(max_length=255, default='None')
     hist_adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='hist_adwords')
     hist_bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='hist_bing')
@@ -939,7 +957,6 @@ class ClientHist(models.Model):
 
 
 class FlightBudget(models.Model):
-
     budget = models.FloatField(default=0)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -950,7 +967,6 @@ class FlightBudget(models.Model):
 
 
 class CampaignGrouping(models.Model):
-
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
@@ -965,7 +981,6 @@ class CampaignGrouping(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     budget = models.FloatField(default=0)
-    adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
     bing = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
     facebook = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
@@ -979,20 +994,36 @@ class CampaignGrouping(models.Model):
 
     def rec_daily_spend(self):
         now = datetime.datetime.today()
-        day_of_month = now.day - 1
-        f, days_in_month = calendar.monthrange(now.year, now.month)
-        days_remaining = days_in_month - day_of_month
+        if self.start_date:
+            spend_remaining = self.budget - self.current_spend
+            days_remaining = (datetime.datetime.combine(self.end_date, datetime.datetime.min.time()) -
+                              (now - datetime.timedelta(1))).days + 1
+            try:
+                answer = spend_remaining / days_remaining
+            except ZeroDivisionError:
+                answer = spend_remaining
+        else:
+            day_of_month = now.day - 1
+            f, days_in_month = calendar.monthrange(now.year, now.month)
+            days_remaining = days_in_month - day_of_month
 
-        answer = 0
-        if days_remaining != 0:
-            answer = (self.budget - self.current_spend) / days_remaining
+            answer = 0
+            if days_remaining != 0:
+                answer = (self.budget - self.current_spend) / days_remaining
 
         return answer
 
     def avg_daily_spend(self):
         now = datetime.datetime.today() - datetime.timedelta(1)
-        day_of_month = now.day
-        return self.current_spend / day_of_month
+        if self.start_date:
+            try:
+                number_of_days = (now - datetime.datetime.combine(self.start_date, datetime.datetime.min.time())).days
+                return self.current_spend / number_of_days
+            except ZeroDivisionError:
+                return self.yesterday_spend
+        else:
+            day_of_month = now.day
+            return self.current_spend / day_of_month
 
     @property
     def project_average(self):
@@ -1002,17 +1033,24 @@ class CampaignGrouping(models.Model):
     def project_yesterday(self):
         return self.hybrid_projection(0)
 
-
     def hybrid_projection(self, method):
         projection = self.current_spend
         now = datetime.datetime.today() - datetime.timedelta(1)
-        day_of_month = now.day
-        f, days_in_month = calendar.monthrange(now.year, now.month)
-        days_remaining = days_in_month - day_of_month
-        if (method == 0): # Project based on yesterday
-            projection += (self.yesterday_spend * days_remaining)
-        elif (method == 1):
-            projection += ((self.current_spend / day_of_month) * days_remaining)
+        if self.start_date:
+            days_remaining = (datetime.datetime.combine(self.end_date, datetime.datetime.min.time()) -
+                              (now - datetime.timedelta(1))).days + 1
+            if method == 0:
+                projection += (self.yesterday_spend * days_remaining)
+            elif method == 1:
+                projection += (self.avg_daily_spend * days_remaining)
+        else:
+            day_of_month = now.day
+            f, days_in_month = calendar.monthrange(now.year, now.month)
+            days_remaining = days_in_month - day_of_month
+            if method == 0:  # Project based on yesterday
+                projection += (self.yesterday_spend * days_remaining)
+            elif method == 1:
+                projection += ((self.current_spend / day_of_month) * days_remaining)
 
         return projection
 
@@ -1023,7 +1061,6 @@ class CampaignGrouping(models.Model):
 
 
 class Budget(models.Model):
-
     adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
     budget = models.FloatField(default=0)
     # client = models.ForeignKey(Client, related_name='client')

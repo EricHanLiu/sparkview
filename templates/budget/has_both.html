@@ -289,7 +289,7 @@
                  id="m_accordion_4_item_2_head" data-toggle="collapse"
                  href="#m_accordion_4_item_2_body" aria-expanded="    false">
                 <span class="m-accordion__item-icon"></span>
-                <span class="m-accordion__item-title">Campaign Groups</span>
+                <span class="m-accordion__item-title">Campaign Groups & Flights</span>
 
                 <span class="m-accordion__item-mode"></span>
             </div>
@@ -361,14 +361,14 @@
                                                id="cgr_ys_{{ gr.id }}">Projected(yesterday
                                             spend): {{ gr.project_yesterday|floatformat:2|intcomma }}</label>
                                         <div class="col-3">
-                                                            <span class="m-switch m-switch--sm m-switch--outline m-switch--icon m-switch--success">
-                                                                <label>
-                                                                <input type="checkbox" checked="checked" name=""
-                                                                       id="cgr_proj_{{ gr.id }}"
-                                                                       onclick="toggleCgrProjection({{ gr.id }})">
-                                                                <span></span>
-                                                                </label>
-                                                            </span>
+                                            <span class="m-switch m-switch--sm m-switch--outline m-switch--icon m-switch--success">
+                                                <label>
+                                                <input type="checkbox" checked="checked" name=""
+                                                       id="cgr_proj_{{ gr.id }}"
+                                                       onclick="toggleCgrProjection({{ gr.id }})">
+                                                <span></span>
+                                                </label>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -377,7 +377,7 @@
                             {% if gr.start_date %}
                                 <div class="row">
                                     <div class="col-md-6">Start: {{ gr.start_date }}</div>
-                                    <div class="col-md-6">End: {{ gr.end_date }}</div>
+                                    <div class="col-md-6"><span style="float:right;">End: {{ gr.end_date }}</span></div>
                                 </div>
                             {% endif %}
 
@@ -524,13 +524,6 @@
                         </div>
 
                         </p>
-                        <div class="m-separator"></div>
-                        <small>Spend by network <span
-                                class="m-badge m-badge--metal m-badge--dot"></span>
-                            <a href="#" data-toggle="modal" data-target="#m_add_kpi"
-                               data-acc_id="{{ a.dependent_account_id }}"
-                               data-acc_name="{{ a.dependent_account_name }}"> Add KPI</a>
-                        </small>
 
                         {% for budget in budgets %}
                             {% if budget.adwords == a %}
@@ -580,18 +573,6 @@
                                 </p>
                             {% endif %}
                         {% endfor %}
-                        <div class="m-separator"></div>
-                        <small>Flight dates <span
-                                class="m-badge m-badge--metal m-badge--dot"></span>
-                            <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
-                               data-acc_id="{{ a.dependent_account_id }}"
-                               data-channel="adwords"
-                               data-acc_name="{{ a.dependent_account_name }}"> Add</a></small>
-
-                        {% if client_data.adwords.all.0.has_custom_dates %}
-                        <br />
-                        <small>Current flight: {{ client_data.adwords.all.0.desired_spend_start_date }} -  {{ client_data.adwords.all.0.desired_spend_end_date }}</small>
-                        {% endif %}
 
                         {% for fbudget in fbudgets %}
                             {% if fbudget.adwords_account == a %}
@@ -743,18 +724,6 @@
                         </div>
                         <div style="margin-top: 10px;">
                         </div>
-                        <div class="m-separator"></div>
-                        <small>Flight dates <span
-                                class="m-badge m-badge--metal m-badge--dot"></span>
-                            <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
-                               data-acc_id="{{ b.account_id }}"
-                               data-channel="bing"
-                               data-acc_name="{{ b.account_name }}"> Add</a></small>
-
-                       {% if client_data.bing.all.0.has_custom_dates %}
-                       <br />
-                       <small>Current flight: {{ client_data.bing.all.0.desired_spend_start_date }} -  {{ client_data.bing.all.0.desired_spend_end_date }}</small>
-                       {% endif %}
 
                         {% for fbudget in fbudgets %}
                             {% if fbudget.bing_account == b %}
@@ -904,18 +873,6 @@
                         </div>
                         <div style="margin-top: 10px;">
                         </div>
-                        <div class="m-separator"></div>
-                        <small>Flight dates <span
-                                class="m-badge m-badge--metal m-badge--dot"></span>
-                            <a href="#" data-toggle="modal" data-target="#m_add_flight_dates"
-                               data-acc_id="{{ f.account_id }}"
-                               data-channel="facebook"
-                               data-acc_name="{{ f.account_name }}"> Add</a></small>
-
-                       {% if client_data.facebook.all.0.has_custom_dates %}
-                       <br />
-                       <small>Current flight: {{ client_data.facebook.all.0.desired_spend_start_date }} -  {{ client_data.facebook.all.0.desired_spend_end_date }}</small>
-                       {% endif %}
 
                         {% for fbudget in fbudgets %}
                             {% if fbudget.facebook_account == f %}

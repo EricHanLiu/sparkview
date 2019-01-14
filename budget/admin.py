@@ -1,20 +1,31 @@
 from django.contrib import admin
-from budget.models import Client, ClientHist, TierChangeProposal
+from budget.models import ClientCData, Client, ClientHist, TierChangeProposal, CampaignGrouping
 
 # Register your models here.
 
 
 class ClientAdmin(admin.ModelAdmin):
-    # fields = ('client_name', 'adwords', 'bing', 'budget', 'current_spend', 'aw_spend', 'bing_spend', 'aw_budget', 'bing_budget')
     # list_filter = ('id', 'client_name')
     pass
+
+
+@admin.register(CampaignGrouping)
+class CampaignGroupingAdmin(admin.ModelAdmin):
+    pass
+
 
 class ClientHistAdmin(admin.ModelAdmin):
     fields = ('client_name', 'hist_adwords', 'hist_bing', 'hist_spend', 'hist_aw_spend', 'hist_bing_spend',
               'hist_budget', 'hist_aw_budget', 'hist_bing_budget')
 
+
 @admin.register(TierChangeProposal)
 class TierChangeProposalAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ClientCData)
+class ClientCDataAdmin(admin.ModelAdmin):
     pass
 
 

@@ -8,11 +8,9 @@ from django.dispatch import receiver
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.serializers import serialize
 import json
-# Create your models here.
 
 
 class ManagerAccount(models.Model):
-
     manager_account_id = models.CharField(max_length=255)
     manager_account_name = models.CharField(max_length=255)
     updated_time = models.DateTimeField(auto_now=True)
@@ -34,7 +32,6 @@ class ManagerAccount(models.Model):
 
 
 class DependentAccount(models.Model):
-
     manager_account = models.CharField(max_length=255, default='None')
     # TODO:
     # The fields above should be called account_id, account_name and ovu
@@ -43,8 +40,9 @@ class DependentAccount(models.Model):
     dependent_account_id = models.CharField(max_length=255)
     dependent_account_name = models.CharField(max_length=255, default="None")
     dependent_OVU = models.IntegerField(default=0)
-    desired_spend = models.IntegerField(default=0) # same as budget?
-    desired_spend_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend = models.IntegerField(default=0)  # same as budget?
+    desired_spend_start_date = models.DateTimeField(default=None, null=True,
+                                                    blank=True)  # These are the start dates and end dates for the desired spend. Default should be this month.
     desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
     current_spend = models.FloatField(default=0)
     segmented_spend = JSONField(default=dict)
@@ -89,7 +87,7 @@ class DependentAccount(models.Model):
     hist_qs = JSONField(default=dict, blank=True, null=True)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    assigned_to = models.ForeignKey(User,models.SET_NULL, null=True, blank=True)
+    assigned_to = models.ForeignKey(User, models.SET_NULL, null=True, blank=True)
     assigned_cm2 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_cm2')
     assigned_cm3 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_cm3')
     assigned_am = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_am')
@@ -99,14 +97,13 @@ class DependentAccount(models.Model):
     currency = models.CharField(max_length=255, default='')
     ch_flag = models.BooleanField(default=False)
 
-
     @property
     def has_custom_dates(self):
         """
         Boolean. Checks if custom dates are set or the desired spend on the account
         """
-        return self.desired_spend_start_date != None and self.desired_spend_end_date != None
-
+        # return self.desired_spend_start_date != None and self.desired_spend_end_date != None
+        return False  # Temporarily disabling this feature
 
     @property
     def get_start_date(self):
@@ -116,7 +113,6 @@ class DependentAccount(models.Model):
         if self.has_custom_dates:
             return self.desired_spend_start_date
 
-
     @property
     def get_end_date(self):
         """
@@ -124,7 +120,6 @@ class DependentAccount(models.Model):
         """
         if self.has_custom_dates:
             return self.desired_spend_end_date
-
 
     @property
     def json(self):
@@ -175,9 +170,7 @@ class DependentAccount(models.Model):
         return self.dependent_account_name
 
 
-
 class Performance(models.Model):
-
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True)
     performance_type = models.CharField(max_length=255)
     campaign_id = models.CharField(max_length=255, default='None')
@@ -211,7 +204,7 @@ class Performance(models.Model):
             impressions=self.impressions,
             search_impr_share=self.search_impr_share,
             updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time = self.created_time.strftime("%Y%m%d"),
+            created_time=self.created_time.strftime("%Y%m%d"),
             metadata=self.metadata
         )
 
@@ -220,7 +213,6 @@ class Performance(models.Model):
 
 
 class CampaignStat(models.Model):
-
     dependent_account_id = models.CharField(max_length=255)
     campaign_id = models.CharField(max_length=255, default="None")
     campaign_name = models.CharField(max_length=255)
@@ -231,7 +223,6 @@ class CampaignStat(models.Model):
     ad_url_code = models.TextField()
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-
 
     @property
     def json(self):
@@ -256,7 +247,6 @@ class CampaignStat(models.Model):
 
 
 class Alert(models.Model):
-
     dependent_account_id = models.CharField(max_length=255)
     alert_type = models.CharField(max_length=255)
     alert_reason = models.CharField(max_length=255)
@@ -269,7 +259,6 @@ class Alert(models.Model):
     keyword_match_type = models.CharField(max_length=255, default="None")
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-
 
     @property
     def json(self):
@@ -294,8 +283,8 @@ class Alert(models.Model):
     def __str__(self):
         return self.dependent_account_id
 
-class Campaign(models.Model):
 
+class Campaign(models.Model):
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
@@ -317,10 +306,10 @@ class Campaign(models.Model):
             campaign_serving_status=self.campaign_serving_status
         )
 
-class Adgroup(models.Model):
 
+class Adgroup(models.Model):
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True, blank=True)
-    campaign = models.ForeignKey(Campaign,models.SET_NULL, null=True, blank=True)
+    campaign = models.ForeignKey(Campaign, models.SET_NULL, null=True, blank=True)
     adgroup_id = models.CharField(max_length=255, default='None')
     adgroup_name = models.CharField(max_length=255, default='None')
     adgroup_cost = models.FloatField(default=0)
@@ -336,10 +325,10 @@ class Adgroup(models.Model):
             campaign_budget=self.adgroup_budget
         )
 
-class Label(models.Model):
 
+class Label(models.Model):
     # used for filtering text labels
-    account = models.ForeignKey(DependentAccount,models.SET_NULL, blank=True, null=True)
+    account = models.ForeignKey(DependentAccount, models.SET_NULL, blank=True, null=True)
     # used for account labels
     accounts = models.ManyToManyField(DependentAccount, blank=True, related_name='lbl_assigned_aw')
     campaigns = models.ManyToManyField(Campaign, blank=True, related_name='lbl_assigned_cmp')
@@ -364,8 +353,8 @@ class Label(models.Model):
     class Meta:
         ordering = ['created_time', 'updated_time']
 
-class Profile(models.Model):
 
+class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     adwords = models.ManyToManyField(DependentAccount, blank=True, related_name='aw_accs')
     bing = models.ManyToManyField(BingAccounts, blank=True, related_name='bing_accs')
@@ -378,10 +367,12 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):

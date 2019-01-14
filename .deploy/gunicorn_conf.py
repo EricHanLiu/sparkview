@@ -1,8 +1,8 @@
-##Configuration for gunicorn,
-#this file is read from dir /var/run/gunicorn/
+## Configuration for gunicorn,
+# this file is read from dir /var/run/gunicorn/
 # more at http://docs.gunicorn.org/en/stable/settings.html
 
-#CPU_CORES * 2 + 1
+# CPU_CORES * 2 + 1
 workers = 1
 
 # user = "gunicorn"
@@ -17,10 +17,10 @@ worker_class = "aiohttp.worker.GunicornWebWorker"
 
 threads = 6
 
-#Maximum concurrent connections
+# Maximum concurrent connections
 worker_connections = 1000
 
-#If set to 0 automatic restart is disabled
+# If set to 0 automatic restart is disabled
 max_requests = 0
 
 timeout = 60
