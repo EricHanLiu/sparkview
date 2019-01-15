@@ -117,7 +117,7 @@ class SkillHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + self.created_at
+        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + str(self.created_at)
 
 
 class Member(models.Model):
@@ -400,7 +400,7 @@ class TrainingHoursRecord(models.Model):
     """
     Training hour record represents a period of time where a trainer trained a trainee
     """
-    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1,13)]
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
     trainer = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='trainer')
     trainee = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='trainee')

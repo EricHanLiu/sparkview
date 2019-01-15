@@ -103,6 +103,24 @@ class AccountTestCase(TestCase):
 
         self.assertEqual(account2.total_fee, 0.0)
 
+    def test_allocated_hours(self):
+        """Tests hour allocation"""
+        account = Client.objects.get(client_name='test client')
+
+        account.status = 0
+        account.has_seo = False
+        account.has_cro = False
+        account.save()
+
+        self.assertEqual(account.all_hours, 12)
+
+        account.has_seo = True
+        account.seo_hours = 10
+        account.save()
+
+        self.assertEqual(account.all_hours, 22)
+
+
 
 
 

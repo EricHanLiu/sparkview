@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client
-from client_area.models import Promo
+from client_area.models import Promo, MonthlyReport
 import datetime
 
 
@@ -21,6 +21,9 @@ class UserTestCase(TestCase):
         test_account.cm1 = test_member_super
 
         test_account.save()
+
+        now = datetime.datetime.now()
+        test_report = MonthlyReport.objects.create(account=test_account, month=now.month)
 
         if self.client is None:
             self.client = Client()

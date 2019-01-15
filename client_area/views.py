@@ -219,7 +219,7 @@ def account_new(request):
             staff_members = Member.objects.filter(user__in=staff_users)
             for staff_member in staff_members:
                 Notification.objects.create(member=staff_member,
-                                            message='New account won! Operations please assign members to new account ' + str(account),
+                                            message='New account won! Please assign members to new account ' + str(account),
                                             link='/clients/accounts/' + str(account.id),
                                             type=0,
                                             severity=2)
@@ -1062,6 +1062,7 @@ def onboard_account(request, account_id):
             ac_strat_steps = OnboardingStepAssignment.objects.filter(step=strat_step, account=account)
 
         context = {
+            'account': account,
             'ac_ppc_steps': ac_ppc_steps,
             'ac_seo_steps': ac_seo_steps,
             'ac_cro_steps': ac_cro_steps,

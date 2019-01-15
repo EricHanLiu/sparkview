@@ -8,7 +8,6 @@
 <div class="m-content">
   <div class="row">
     <div class="col-xl-12">
-      {% if accounts.count > 0 %}
       <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
         <div class="m-portlet__head">
       		<div class="m-portlet__head-caption">
@@ -20,33 +19,95 @@
       		</div>
         </div>
         <div class="m-portlet__body">
-            {% if account.has_ppc %}
-                <h2>PPC Steps</h2>
-                {% for service in ac_ppc_steps %}
-
-                {% endfor% %}
-            {% endif %}
-            {% if account.has_seo %}
-                <h2>SEO Steps</h2>
-                {% for service in ac_seo_steps %}
-
-                {% endfor% %}
-            {% endif %}
-            {% if account.has_cro %}
-                <h2>CRO Steps</h2>
-                {% for service in ac_cro_steps %}
-
-                {% endfor% %}
-            {% endif %}
-            {% if account.has_strat %}
-                <h2>Strategy Steps</h2>
-                {% for service in ac_strat_steps %}
-
-                {% endfor% %}
-            {% endif %}
+        {% if account.has_ppc %}
+            <h5>PPC</h5>
+{#            <label class="m-checkbox">#}
+{#                <input type="checkbox" disabled> PPC#}
+{#                <span></span>#}
+{#            </label>#}
+            {% for assigned_step in ac_ppc_steps %}
+                <div>
+                    <label class="m-checkbox">
+                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <span></span>
+                    </label>
+                </div>
+                {% for assigned_task in assigned_step.onboardingtaskassignment_set.all %}
+                    <div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="m-checkbox">
+                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <span></span>
+                        </label>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            <hr />
+        {% endif %}
+        {% if account.has_seo %}
+            <h5>SEO Steps</h5>
+            {% for assigned_step in ac_seo_steps %}
+                <div>
+                    <label class="m-checkbox">
+                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <span></span>
+                    </label>
+                </div>
+                {% for assigned_task in assigned_step.onboardingtaskassignment_set.all %}
+                    <div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="m-checkbox">
+                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <span></span>
+                        </label>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            <hr />
+        {% endif %}
+        {% if account.has_cro %}
+            <h5>CRO Steps</h5>
+            {% for assigned_step in ac_cro_steps %}
+                <div>
+                    <label class="m-checkbox">
+                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <span></span>
+                    </label>
+                </div>
+                {% for assigned_task in assigned_step.onboardingtaskassignment_set.all %}
+                    <div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="m-checkbox">
+                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <span></span>
+                        </label>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            <hr />
+        {% endif %}
+        {% if account.has_strat %}
+            <h5>Strategy Steps</h5>
+            {% for assigned_step in ac_strat_steps %}
+                <div>
+                    <label class="m-checkbox">
+                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <span></span>
+                    </label>
+                </div>
+                {% for assigned_task in assigned_step.onboardingtaskassignment_set.all %}
+                    <div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="m-checkbox">
+                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <span></span>
+                        </label>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
         </div>
       </div>
-      {% endif %}
     </div>
   </div>
   <!--End::Main Portlet-->
