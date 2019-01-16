@@ -105,7 +105,6 @@ def account_new(request):
 
         return render(request, 'client_area/account_new.html', context)
     elif request.method == 'POST':
-
         form_data = {
             'account_name': request.POST.get('account_name'),
             'team': request.POST.get('team'),
@@ -135,6 +134,7 @@ def account_new(request):
             # account.client_name = cleaned_inputs['account_name']
             account.industry = cleaned_inputs['industry']
             account.soldBy = cleaned_inputs['sold_by']
+            account.clientType = cleaned_inputs['client_type']
 
             account.objective = request.POST.get('objective')
             account.sold_budget = request.POST.get('sold_budget')
