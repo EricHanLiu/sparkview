@@ -330,9 +330,9 @@
           <div class="form-group m-form__group">
             <div class="row">
               <div class="col-md-6">
-                <label for="team">Team:</label>
-                {% for team in account.team.all %}
-                <input type="text" class="form-control m-input" value="{{ team.name }}" disabled>
+                <label>Contact Name:</label>
+                {% for clientContact in account.contactInfo.all %}
+                <input type="text" class="form-control m-input" value="{{ clientContact.phone }}" disabled>
                 {% endfor %}
               </div>
               <div class="col-md-6">
@@ -360,6 +360,12 @@
                 {% if account.has_cro %}
                 <input type="text" class="form-control m-input" value="CRO" disabled>
                 {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label for="team">Team:</label>
+                {% for team in account.team.all %}
+                <input type="text" class="form-control m-input" value="{{ team.name }}" disabled>
+                {% endfor %}
               </div>
             </div>
           </div>

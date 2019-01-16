@@ -486,6 +486,8 @@ class Client(models.Model):
             unrounded = self.allocated_ppc_override
         else:
             unrounded = (self.get_ppc_fee() / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+        if self.status == 0 and self.managementFee is not None:
+            unrounded += (self.managementFee.initialFee / 125.0)
         return round(unrounded, 2)
 
     def get_allocated_hours(self):
