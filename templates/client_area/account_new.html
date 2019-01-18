@@ -109,7 +109,7 @@
                   <div class="col-md-6">
                     <label for="soldby">Sold by:</label>
                     <select class="form-control m-input"
-                            name="soldby"
+                            name="sold_by"
                             style="width: 100%;" required>
                         {% for member in members %}
                             <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>

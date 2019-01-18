@@ -1,19 +1,18 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from user_management.models import Member
-from budget.models import Client
+from budget.models import Client as BloomClient
 from client_area.models import Promo, MonthlyReport
 import datetime
 
 
 class UserTestCase(TestCase):
-
     client = None
 
     def setUp(self):
         test_user = User.objects.create_user(username='test2', password='123456')
         test_super = User.objects.create_user(username='test3', password='123456', is_staff=True, is_superuser=True)
-        test_account = Client.objects.create(client_name='ctest')
+        test_account = BloomClient.objects.create(client_name='ctest')
 
         test_member = Member.objects.create(user=test_user)
         test_member_super = Member.objects.create(user=test_super)
@@ -164,7 +163,7 @@ class UserTestCase(TestCase):
     def test_regular_post_view(self):
         """ Check post views for regular users """
         self.client.login(username='test2', password='123456')
-        test_account = Client.objects.get(client_name='ctest')
+        test_account = BloomClient.objects.get(client_name='ctest')
 
         promo_dict = {
             'account_id': test_account.id,

@@ -252,7 +252,7 @@ class OnboardingStepAssignment(models.Model):
 
     @property
     def complete(self):
-        for task in self.onboardingtaskassignment_set:
+        for task in self.onboardingtaskassignment_set.all():
             if not task.complete:
                 return False
         return True
@@ -270,7 +270,7 @@ class OnboardingTaskAssignment(models.Model):
     step = models.ForeignKey(OnboardingStepAssignment, on_delete=models.SET_NULL, default=None, null=True)
     task = models.ForeignKey(OnboardingTask, on_delete=models.SET_NULL, default=None, null=True)
     complete = models.BooleanField(default=False)
-    completed = models.DateTimeField(default=None, null=True)
+    completed = models.DateTimeField(default=None, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

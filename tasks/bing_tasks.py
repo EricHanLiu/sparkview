@@ -521,12 +521,11 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
             print('Matched in DB - [' + cmp.campaign_name + '].')
 
     if client_id is not None:
-
         client = Client.objects.get(id=client_id)
         groupings = CampaignGrouping.objects.filter(client=client)
-
         if groupings:
             for gr in groupings:
+                just_added = []
                 for c in cmps:
                     if gr.group_by == 'manual':
                         continue
@@ -540,9 +539,10 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                                 if keyword.strip('+').lower() in c.campaign_name.lower() \
                                         and c not in gr.bing_campaigns.all():
                                     gr.bing_campaigns.add(c)
+                                    just_added.append(c.id)
 
                                 if keyword.strip('+').lower() not in c.campaign_name.lower() \
-                                        and c in gr.bing_campaigns.all():
+                                        and c in gr.bing_campaigns.all() and c.id not in just_added:
                                     gr.bing_campaigns.remove(c)
 
                             if '-' in keyword:
@@ -551,6 +551,35 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                                     gr.bing_campaigns.remove(c)
                                 else:
                                     gr.bing_campaigns.add(c)
+        # client = Client.objects.get(id=client_id)
+        # groupings = CampaignGrouping.objects.filter(client=client)
+        #
+        # if groupings:
+        #     for gr in groupings:
+        #         for c in cmps:
+        #             if gr.group_by == 'manual':
+        #                 continue
+        #             else:
+        #                 # Retrieve keywords to group by as a list
+        #                 group_by = gr.group_by.split(',')
+        #
+        #                 # Loop through kws and add campaigns to the group
+        #                 for keyword in group_by:
+        #                     if '+' in keyword:
+        #                         if keyword.strip('+').lower() in c.campaign_name.lower() \
+        #                                 and c not in gr.bing_campaigns.all():
+        #                             gr.bing_campaigns.add(c)
+        #
+        #                         if keyword.strip('+').lower() not in c.campaign_name.lower() \
+        #                                 and c in gr.bing_campaigns.all():
+        #                             gr.bing_campaigns.remove(c)
+        #
+        #                     if '-' in keyword:
+        #                         if keyword.strip('-').lower() in c.campaign_name.lower() \
+        #                                 and c in gr.bing_campaigns.all():
+        #                             gr.bing_campaigns.remove(c)
+        #                         else:
+        #                             gr.bing_campaigns.add(c)
 
                     gr.save()
 

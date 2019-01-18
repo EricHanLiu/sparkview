@@ -13,22 +13,21 @@
       		<div class="m-portlet__head-caption">
       			<div class="m-portlet__head-title">
       				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					Onboard {{ account.client_name }}
+                        Onboard <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
       				</h3>
       			</div>
       		</div>
         </div>
         <div class="m-portlet__body">
+        <div class="alert alert-success" role="alert" {% if account.status == 0 %}style="display:none;"{% endif %}>
+            {{ account.client_name }} is now <strong>active</strong>.
+        </div>
         {% if account.has_ppc %}
             <h5>PPC</h5>
-{#            <label class="m-checkbox">#}
-{#                <input type="checkbox" disabled> PPC#}
-{#                <span></span>#}
-{#            </label>#}
             {% for assigned_step in ac_ppc_steps %}
                 <div>
                     <label class="m-checkbox">
-                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <input type="checkbox" id="step_{{ assigned_step.id }}_check" disabled {% if assigned_step.complete %}checked{% endif %}> {{ assigned_step.step.name }}
                         <span></span>
                     </label>
                 </div>
@@ -36,7 +35,7 @@
                     <div>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <label class="m-checkbox">
-                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <input type="checkbox" class="task-check step_{{ assigned_step.id }}_task" data-task-id="{{ assigned_task.id }}" {% if assigned_task.complete %}checked{% endif %} {% if assigned_step.complete %}disabled{% endif %}> {{ assigned_task.task.name }}
                         <span></span>
                         </label>
                     </div>
@@ -49,7 +48,7 @@
             {% for assigned_step in ac_seo_steps %}
                 <div>
                     <label class="m-checkbox">
-                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <input type="checkbox" id="step_{{ assigned_step.id }}_check" disabled {% if assigned_step.complete %}checked{% endif %}> {{ assigned_step.step.name }}
                         <span></span>
                     </label>
                 </div>
@@ -57,7 +56,7 @@
                     <div>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <label class="m-checkbox">
-                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <input type="checkbox" class="task-check step_{{ assigned_step.id }}_task" data-task-id="{{ assigned_task.id }}" {% if assigned_task.complete %}checked{% endif %} {% if assigned_step.complete %}disabled{% endif %}> {{ assigned_task.task.name }}
                         <span></span>
                         </label>
                     </div>
@@ -70,7 +69,7 @@
             {% for assigned_step in ac_cro_steps %}
                 <div>
                     <label class="m-checkbox">
-                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <input type="checkbox" id="step_{{ assigned_step.id }}_check" disabled {% if assigned_step.complete %}checked{% endif %}> {{ assigned_step.step.name }}
                         <span></span>
                     </label>
                 </div>
@@ -78,7 +77,7 @@
                     <div>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <label class="m-checkbox">
-                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <input type="checkbox" class="task-check step_{{ assigned_step.id }}_task" data-task-id="{{ assigned_task.id }}" {% if assigned_task.complete %}checked{% endif %} {% if assigned_step.complete %}disabled{% endif %}> {{ assigned_task.task.name }}
                         <span></span>
                         </label>
                     </div>
@@ -91,7 +90,7 @@
             {% for assigned_step in ac_strat_steps %}
                 <div>
                     <label class="m-checkbox">
-                        <input type="checkbox" disabled> {{ assigned_step.step.name }}
+                        <input type="checkbox" id="step_{{ assigned_step.id }}_check" disabled {% if assigned_step.complete %}checked{% endif %}> {{ assigned_step.step.name }}
                         <span></span>
                     </label>
                 </div>
@@ -99,7 +98,7 @@
                     <div>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <label class="m-checkbox">
-                        <input type="checkbox"> {{ assigned_task.task.name }}
+                        <input type="checkbox" class="task-check step_{{ assigned_step.id }}_task" data-task-id="{{ assigned_task.id }}" {% if assigned_task.complete %}checked{% endif %} {% if assigned_step.complete %}disabled{% endif %}> {{ assigned_task.task.name }}
                         <span></span>
                         </label>
                     </div>
@@ -112,4 +111,46 @@
   </div>
   <!--End::Main Portlet-->
 </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+    $(document).ready(function () {
+        const $taskCheck = $('.task-check');
+
+        let checkBox = function (checkedTask, taskId) {
+            $.ajax({
+                data: {
+                  'checked': checkedTask,
+                  'task_id': taskId
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: function (data) {
+                    console.log(data);
+                    let $stepCheck = $('#step_' + data.step_id + '_check');
+                    let $taskChecks = $('.step_' + data.step_id + '_task');
+                    if (data.step_complete) {
+                        $stepCheck.prop('checked', true);
+                        $taskChecks.prop('disabled', true);
+                    } else {
+                        $stepCheck.prop('checked', false);
+                    }
+                    if (data.acc_active) {
+                        $('.alert').show();
+                    }
+                }
+            });
+        };
+
+        $taskCheck.click(function () {
+            let taskId = $(this).data('task-id');
+            if ($(this).is(':checked')) {
+                checkBox(1, taskId);
+            } else {
+                checkBox(0, taskId);
+            }
+        });
+    });
+    </script>
 {% endblock %}
