@@ -297,7 +297,7 @@ def members_single(request, id=0):
     if not request.user.is_staff and id != 0:
         return HttpResponse('You do not have permission to view this page')
 
-    if id == 0: # This is a profile page
+    if id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
     else:
         member = Member.objects.get(id=id)
@@ -311,11 +311,18 @@ def members_single(request, id=0):
     memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
 
     accounts = Client.objects.filter(
-                  Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
-                  Q(am1=member) | Q(am2=member) | Q(am3=member) |
-                  Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-                  Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-              ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
+        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+        Q(am1=member) | Q(am2=member) | Q(am3=member) |
+        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+    ).filter(status=1).order_by('client_name')
+
+    onboarding_accounts = Client.objects.filter(
+        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+        Q(am1=member) | Q(am2=member) | Q(am3=member) |
+        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+    ).filter(status=0).order_by('client_name')
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
@@ -336,7 +343,7 @@ def members_single(request, id=0):
     accountHours = {}
     accountAllocation = {}
     for account in accounts:
-        hours  = account.get_hours_worked_this_month_member(member)
+        hours = account.get_hours_worked_this_month_member(member)
         va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
@@ -369,14 +376,14 @@ def members_single(request, id=0):
         if last_month == 0:
             last_month = 12
         if now.day == days_in_month:
-            last_month = month # Last day of month, show the current month so we can set stuff
+            last_month = month  # Last day of month, show the current month so we can set stuff
         for account in active_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
                 if account.tier == 1 or account.advanced_reporting:
-                    report.report_type = 2 # Advanced
+                    report.report_type = 2  # Advanced
                 else:
-                    report.report_type = 1 # Standard
+                    report.report_type = 1  # Standard
                 report.save()
             reports.append(report)
 
@@ -391,6 +398,7 @@ def members_single(request, id=0):
         'member': member,
         'memberSkills': memberSkills,
         'accounts': accounts,
+        'onboarding_accounts': onboarding_accounts,
         'backups': backups,
         'trainer_hours_this_month': trainer_hours_this_month,
         'trainee_hours_this_month': trainee_hours_this_month,
@@ -588,7 +596,8 @@ def backups(request):
     accounts = Client.objects.filter(status=1)
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now, end_date__gte=now)
+    non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
+                                                                                                   end_date__gte=now)
 
     context = {
         'members': members,

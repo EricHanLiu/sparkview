@@ -30,7 +30,26 @@ def agency_overview(request):
     # Members
     members = Member.objects.all()
 
-    sorted_members_by_count = sorted(members, key=lambda t: t.incidents)
+    actual_aggregate = 0.0
+    allocated_aggregate = 0.0
+    available_aggregate = 0.0
+
+    for member in members:
+        actual_aggregate += member.actualHoursThisMonth
+        allocated_aggregate += member.allocated_hours_month()
+        available_aggregate += member.hours_available
+
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
+    if allocated_aggregate == 0:
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
+    # sorted_members_by_count = sorted(members, key=lambda t: t.incidents)
 
     # Total management fee
     # total_management_fee = 0.0
@@ -60,11 +79,17 @@ def agency_overview(request):
         'total_onboarding': total_onboarding,
         'total_inactive': total_inactive,
         'total_lost': total_lost,
+        'capacity_rate': capacity_rate,
+        'utilization_rate': utilization_rate,
         'incident_count': incident_count,
-        'top_offenders': sorted_members_by_count,
+        # 'top_offenders': sorted_members_by_count,
         'allocation_ratio': allocation_ratio,
         'total_allocated_hours': total_allocated_hours,
-        'total_hours_worked': total_hours_worked
+        'total_hours_worked': total_hours_worked,
+        'actual_aggregate': actual_aggregate,
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'members': members
     }
 
     return render(request, 'reports/agency_overview.html', context)
@@ -648,7 +673,7 @@ def account_history(request):
     default_month = now.month
     default_year = now.year
 
-    months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = ['2018', '2019', '2020']
 
     selected = {

@@ -1445,8 +1445,7 @@ def adwords_no_changes_5(self):
         'jeff@makeitbloom.com',
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
-        'lexi@makeitbloom.com',
-        'octavian@hdigital.io'
+        'lexi@makeitbloom.com'
     ]
 
     accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
@@ -1828,7 +1827,6 @@ def cron_clients(self):
         client.save()
 
 
-
 @celery_app.task(bind=True)
 def adwords_not_running(self):
 
@@ -1894,6 +1892,7 @@ def adwords_account_not_running(self, customer_id):
 def adwords_no_changes(self):
     # I don't think we need a new task for this - REVIEW
     adwords_cron_no_changes.delay()
+
 
 @celery_app.task(bind=True)
 def adwords_cron_no_changes(self):
@@ -2034,6 +2033,7 @@ def adwords_nlc(self):
 
     for account in accounts:
         adwords_nlc_attr_model.delay(account.dependent_account_id)
+
 
 @celery_app.task(bind=True)
 def adwords_nlc_attr_model(self, customer_id):

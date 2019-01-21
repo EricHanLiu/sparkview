@@ -5,8 +5,7 @@ from budget.models import ClientCData, Client, ClientHist, TierChangeProposal, C
 
 
 class ClientAdmin(admin.ModelAdmin):
-    # list_filter = ('id', 'client_name')
-    pass
+    list_filter = ('language', 'has_seo', 'has_cro', 'status')
 
 
 @admin.register(CampaignGrouping)

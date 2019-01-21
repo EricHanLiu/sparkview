@@ -11,7 +11,9 @@ import datetime
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
-from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure
+from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
+    AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
+    OnboardingStep, OnboardingTaskAssignment, OnboardingTask
 from .forms import NewClientForm
 
 
@@ -147,7 +149,7 @@ def account_new(request):
                 contact = ClientContact()
                 contact.name = request.POST.get('contact_name' + str(i))
                 contact.email = request.POST.get('contact_email' + str(i))
-                contact.phone = request.POST.get('contact_phone_number1' + str(i))
+                contact.phone = request.POST.get('contact_phone_number' + str(i))
                 contact.save()
                 contact_array.append(contact)
 
@@ -187,7 +189,8 @@ def account_new(request):
                     fee = request.POST.get('fee' + str(i))
                     lower_bound = request.POST.get('low-bound' + str(i))
                     high_bound = request.POST.get('high-bound' + str(i))
-                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee, lowerBound=lower_bound, upperBound=high_bound)
+                    feeInterval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee,
+                                                                       lowerBound=lower_bound, upperBound=high_bound)
                     management_fee_structure.feeStructure.add(feeInterval)
                 management_fee_structure.save()
                 account.managementFee = management_fee_structure
@@ -209,6 +212,7 @@ def account_new(request):
 
             account.has_gts = True
             account.has_budget = True
+            account.has_ppc = True
 
             account.save()
 
@@ -217,10 +221,41 @@ def account_new(request):
             staff_members = Member.objects.filter(user__in=staff_users)
             for staff_member in staff_members:
                 Notification.objects.create(member=staff_member,
-                                            message='New account won! Operations please assign members to new account ' + str(account),
+                                            message='New account won! Please assign members to new account ' + str(
+                                                account),
                                             link='/clients/accounts/' + str(account.id),
                                             type=0,
                                             severity=2)
+
+            # Create onboarding steps for this client
+            if account.has_ppc:
+                ppc_steps = OnboardingStep.objects.filter(service=0)
+                for ppc_step in ppc_steps:
+                    ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
+                    ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
+                    for ppc_task in ppc_tasks:
+                        ppc_task_assignment = OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
+            if account.has_seo:
+                seo_steps = OnboardingStep.objects.filter(service=1)
+                for seo_step in seo_steps:
+                    seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
+                    seo_tasks = OnboardingTask.objects.filter(step=seo_step)
+                    for seo_task in seo_tasks:
+                        seo_tasks_assignment = OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
+            if account.has_cro:
+                cro_steps = OnboardingStep.objects.filter(service=2)
+                for cro_step in cro_steps:
+                    cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
+                    cro_tasks = OnboardingTask.objects.filter(step=cro_step)
+                    for cro_task in cro_tasks:
+                        cro_task_assignment = OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
+            # if account.has_strat:
+            #     ppc_steps = OnboardingStep.objects.filter(service=3)
+            #     for ppc_step in ppc_steps:
+            #         ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
+            #         ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
+            #         for ppc_task in ppc_tasks:
+            #             ppc_task_assignment = OnboardingTaskAssignment.objects.create(step=ppc_step, task=ppc_task)
 
             return redirect('/clients/accounts/all')
         else:
@@ -306,7 +341,8 @@ def account_edit_temp(request, id):
                     fee = request.POST.get('fee' + str(i))
                     lower_bound = request.POST.get('low-bound' + str(i))
                     high_bound = request.POST.get('high-bound' + str(i))
-                    fee_interval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee, lowerBound=lower_bound, upperBound=high_bound)
+                    fee_interval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee,
+                                                                        lowerBound=lower_bound, upperBound=high_bound)
                     management_fee_structure.feeStructure.add(fee_interval)
                 management_fee_structure.save()
                 account.managementFee = management_fee_structure
@@ -381,23 +417,30 @@ def account_edit(request, id):
             # Bad boilerplate
             # Change this eventually
             if account.client_name != cleaned_inputs['account_name']:
-                AccountChanges.objects.create(account=account, member=member, changeField='account_name', changedFrom=account.client_name, changedTo=cleaned_inputs['account_name'])
+                AccountChanges.objects.create(account=account, member=member, changeField='account_name',
+                                              changedFrom=account.client_name, changedTo=cleaned_inputs['account_name'])
                 account.client_name = cleaned_inputs['account_name']
 
             if account.clientType != cleaned_inputs['client_type']:
-                AccountChanges.objects.create(account=account, member=member, changeField='client_type', changedFrom=account.clientType.name, changedTo=cleaned_inputs['client_type'])
+                AccountChanges.objects.create(account=account, member=member, changeField='client_type',
+                                              changedFrom=account.clientType.name,
+                                              changedTo=cleaned_inputs['client_type'])
                 account.clientType = cleaned_inputs['client_type']
 
             if account.industry != cleaned_inputs['industry']:
-                AccountChanges.objects.create(account=account, member=member, changeField='industry', changedFrom=account.industry.name, changedTo=cleaned_inputs['industry'])
+                AccountChanges.objects.create(account=account, member=member, changeField='industry',
+                                              changedFrom=account.industry.name, changedTo=cleaned_inputs['industry'])
                 account.industry = cleaned_inputs['industry']
 
             if account.soldBy != cleaned_inputs['sold_by']:
-                AccountChanges.objects.create(account=account, member=member, changeField='sold_by', changedFrom=account.soldBy.user.first_name + ' ' + account.soldBy.user.last_name, changedTo=cleaned_inputs['sold_by'])
+                AccountChanges.objects.create(account=account, member=member, changeField='sold_by',
+                                              changedFrom=account.soldBy.user.first_name + ' ' + account.soldBy.user.last_name,
+                                              changedTo=cleaned_inputs['sold_by'])
                 account.soldBy = cleaned_inputs['sold_by']
 
             if account.status != cleaned_inputs['status']:
-                AccountChanges.objects.create(account=account, member=member, changeField='status', changedFrom=account.status, changedTo=cleaned_inputs['status'])
+                AccountChanges.objects.create(account=account, member=member, changeField='status',
+                                              changedFrom=account.status, changedTo=cleaned_inputs['status'])
                 account.status = cleaned_inputs['status']
 
             contactInfo.save()
@@ -442,8 +485,14 @@ def account_single(request, id):
     year = now.year
     accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
 
-    accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False).values('member', 'month', 'year').annotate(Sum('hours'))
-    accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=True).values('member', 'month', 'year').annotate(Sum('hours'))
+    accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                      is_unpaid=False).values('member', 'month',
+                                                                                              'year').annotate(
+        Sum('hours'))
+    accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                           is_unpaid=True).values('member', 'month',
+                                                                                                  'year').annotate(
+        Sum('hours'))
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backups = Backup.objects.filter(account=account, period__in=backup_periods, approved=True)
@@ -581,19 +630,18 @@ def account_assign_members(request):
 
 @login_required
 def add_hours_to_account(request):
-
     if request.method == 'GET':
         member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
-                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
-                      Q(am1=member) | Q(am2=member) | Q(am3=member) |
-                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-                  ).order_by('client_name')
+            Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+            Q(am1=member) | Q(am2=member) | Q(am3=member) |
+            Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+            Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+        ).order_by('client_name')
 
         all_accounts = Client.objects.all().order_by('client_name')
 
-        months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+        months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
         years = [2018, 2019, 2020, 2021]
 
         now = datetime.datetime.now()
@@ -621,11 +669,11 @@ def add_hours_to_account(request):
     elif request.method == 'POST':
         member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
-                      Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
-                      Q(am1=member) | Q(am2=member) | Q(am3=member) |
-                      Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-                      Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-                  ).order_by('client_name')
+            Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+            Q(am1=member) | Q(am2=member) | Q(am3=member) |
+            Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+            Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+        ).order_by('client_name')
         accounts_count = accounts.count()
 
         for i in range(accounts_count):
@@ -1024,3 +1072,81 @@ def set_kpis(request):
     account.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def onboard_account(request, account_id):
+    """
+    Client onboarding page
+    :param request:
+    :param account_id:
+    :return:
+    """
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponse('You do not have permission to view this page')
+
+    account = Client.objects.get(id=account_id)
+
+    if request.method == 'GET':
+        ac_ppc_steps = None
+        ac_seo_steps = None
+        ac_cro_steps = None
+        ac_strat_steps = None
+
+        if account.has_ppc:
+            ppc_step = OnboardingStep.objects.filter(service=0)
+            ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
+        if account.has_seo:
+            seo_step = OnboardingStep.objects.filter(service=1)
+            ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
+        if account.has_cro:
+            cro_step = OnboardingStep.objects.filter(service=2)
+            ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
+        if account.has_strat:
+            strat_step = OnboardingStep.objects.filter(service=3)
+            ac_strat_steps = OnboardingStepAssignment.objects.filter(step__in=strat_step, account=account)
+
+        context = {
+            'account': account,
+            'ac_ppc_steps': ac_ppc_steps,
+            'ac_seo_steps': ac_seo_steps,
+            'ac_cro_steps': ac_cro_steps,
+            'ac_strat_steps': ac_strat_steps,
+        }
+
+        return render(request, 'client_area/onboard_account.html', context)
+    elif request.method == 'POST':
+        task_id = request.POST.get('task_id')
+        task = OnboardingTaskAssignment.objects.get(id=task_id)
+        account = task.step.account
+        checked = request.POST.get('checked') == '1'
+        if checked:
+            task.complete = True
+        else:
+            task.complete = False
+        task.save()
+
+        step_complete = 0
+        if task.step.complete:
+            step_complete = 1
+
+        acc_active = 1
+        for step in account.onboardingstepassignment_set.all():
+            if not step.complete:
+                acc_active = 0
+                break
+
+        if acc_active == 1:
+            account.status = 1
+            account.save()
+
+        resp = {
+            'step_complete': step_complete,
+            'step_id': task.step.id,
+            'acc_active': acc_active
+        }
+
+        return JsonResponse(resp)
+    else:
+        return HttpResponse('Invalid request type')

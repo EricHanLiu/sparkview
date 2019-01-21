@@ -70,5 +70,4 @@ class AdTasksTestCase(TestCase):
         }
 
         change_number = Reporting.get_change_no(change_data)
-        print(change_number)
-        self.assertEqual(3, change_number)
+        self.assertEqual(4, change_number)

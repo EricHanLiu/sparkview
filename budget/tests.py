@@ -108,6 +108,23 @@ class AccountTestCase(TestCase):
 
         self.assertEqual(account2.total_fee, 0.0)
 
+    def test_allocated_hours(self):
+        """Tests hour allocation"""
+        account = BloomClient.objects.get(client_name='test client')
+
+        account.status = 0
+        account.has_seo = False
+        account.has_cro = False
+        account.save()
+
+        self.assertEqual(account.all_hours, 12)
+
+        account.has_seo = True
+        account.seo_hours = 10
+        account.save()
+
+        self.assertEqual(account.all_hours, 22)
+
     def test_create_new_account(self):
         """Tests new account creation"""
         c = Client()
@@ -116,8 +133,8 @@ class AccountTestCase(TestCase):
         # Create account through the create account page
         client = ParentClient.objects.get(name='test parent')
         language = Language.objects.get(name='test language')
-        industry = Industry.objects.get('test industry')
-        client_type = ClientType.objects.get('test ct')
+        industry = Industry.objects.get(name='test industry')
+        client_type = ClientType.objects.get(name='test ct')
         reg_user = User.objects.get(username='test')
         reg_member = Member.objects.get(user=reg_user)
 

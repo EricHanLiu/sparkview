@@ -3,12 +3,13 @@ import calendar
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db.models import Sum
+from django.utils import timezone
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
-from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, ParentClient, \
-    ManagementFeesStructure
+from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
+    ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment
 from dateutil.relativedelta import relativedelta
 
 
@@ -60,8 +61,9 @@ class Client(models.Model):
     bing_budget = models.FloatField(default=0)
     fb_budget = models.FloatField(default=0)
     flex_budget = models.FloatField(default=0)
+    # These are the start dates and end dates for the flex budget. Default should be this month.
     flex_budget_start_date = models.DateTimeField(default=None, null=True,
-                                                  blank=True)  # These are the start dates and end dates for the flex budget. Default should be this month.
+                                                  blank=True)
     flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
     other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
@@ -97,10 +99,12 @@ class Client(models.Model):
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
     has_seo = models.BooleanField(default=False)
     seo_hours = models.FloatField(default=0)
-    seo_hourly_fee = models.FloatField(default=125)
+    seo_hourly_fee = models.FloatField(default=125.0)
     has_cro = models.BooleanField(default=False)
     cro_hours = models.FloatField(default=0)
-    cro_hourly_fee = models.FloatField(default=125)
+    cro_hourly_fee = models.FloatField(default=125.0)
+    has_ppc = models.BooleanField(default=False)  # may use these for onboarding
+    has_strat = models.BooleanField(default=False)  # may use these for onboarding
     status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     clientGrade = models.IntegerField(default=0)
     actualHours = models.IntegerField(default=0)
@@ -112,6 +116,7 @@ class Client(models.Model):
     target_cpa = models.FloatField(default=0)
     target_roas = models.FloatField(default=0)
     advanced_reporting = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)
     cm1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='cm1')
@@ -860,6 +865,50 @@ class Client(models.Model):
                 rec_ds = (self.flex_budget - self.flex_spend) / remaining
 
         return rec_ds
+
+    @property
+    def ppc_steps(self):
+        """
+        Returns PPC onboarding steps
+        :return:
+        """
+        if self.status != 0:
+            return None
+        step = OnboardingStep.objects.filter(service=0)
+        assigned_steps = self.onboardingstepassignment_set.filter(step__in=step)
+        return assigned_steps
+
+    @property
+    def seo_steps(self):
+        """
+        Returns SEO onboarding steps
+        :return:
+        """
+        if self.status != 0:
+            return None
+        step = OnboardingStep.objects.filter(service=1)
+        assigned_steps = self.onboardingstepassignment_set.filter(step__in=step)
+        return assigned_steps
+
+    @property
+    def cro_steps(self):
+        """
+        Returns CRO onboarding steps
+        :return:
+        """
+        if self.status != 0:
+            return None
+        step = OnboardingStep.objects.filter(service=2)
+        assigned_steps = self.onboardingstepassignment_set.filter(step__in=step)
+        return assigned_steps
+
+    @property
+    def onboarding_duration_elapsed(self):
+        if self.status != 0:
+            return None
+        else:
+            now = timezone.now()
+            return (now - self.created_at).days + 1
 
     remainingBudget = property(get_remaining_budget)
 

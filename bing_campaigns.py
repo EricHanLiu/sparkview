@@ -10,7 +10,11 @@ def main():
 
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for acc in accounts:
-        bing_cron_campaign_stats.delay(acc.account_id)
+        try:
+            client_id = acc.bing.all()[0].id
+        except:
+            client_id = None
+        bing_cron_campaign_stats.delay(acc.account_id, client_id)
 
 
 if __name__ == '__main__':

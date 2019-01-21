@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client as BloomClient
-from client_area.models import Promo
+from client_area.models import Promo, MonthlyReport
 import datetime
 
 
@@ -20,6 +20,9 @@ class UserTestCase(TestCase):
         test_account.cm1 = test_member_super
 
         test_account.save()
+
+        now = datetime.datetime.now()
+        test_report = MonthlyReport.objects.create(account=test_account, month=now.month)
 
         if self.client is None:
             self.client = Client()
@@ -186,6 +189,14 @@ class UserTestCase(TestCase):
 
         now = datetime.datetime.now()
 
+        report_confirm_sent_am_dict = {
+            'account_id': test_account.id,
+            'month': now.month
+        }
+
+        response = self.client.post('/clients/reports/confirm_sent_am', report_confirm_sent_am_dict)
+        self.assertEqual(response.status_code, 200)
+
         report_hours_dict = {
             'account-id-0': test_account.id,
             'hours-0': 10.0,
@@ -203,3 +214,12 @@ class UserTestCase(TestCase):
         hours_this_month = test_member.actualHoursThisMonth
         self.assertEqual(hours_this_month, 10.0)
 
+        report_hours_dict = {
+            'account-id-0': test_account.id,
+            'hours-0': '',
+            'month-0': now.month,
+            'year-0': now.year
+        }
+
+        response = self.client.post('/clients/accounts/report_hours', report_hours_dict)
+        self.assertRedirects(response, '/clients/accounts/report_hours', 302)
