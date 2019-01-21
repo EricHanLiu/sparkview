@@ -226,7 +226,7 @@ CRONJOBS = [
     # ('45 12 * * *', 'bing_flight_dates.main', '> ' + BASE_DIR + '/logs/bing_flight_dates.log'),
     # ('45 12 * * *', 'facebook_flight_dates.main', '> ' + BASE_DIR + '/logs/fb_flight_dates.log'),
     # ('*/5 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/client_spend.log'),
-    ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
+    # ('30 12 * * *', 'cron_budget_alert.main', '> ' + BASE_DIR + '/logs/budget_breakfast.log'),
     # ('00 13 * * *', 'cron_trends.main', '> ' + BASE_DIR + '/logs/trends_report.log'),
     # ('00 13 * * *', 'bing_trends.main', '> ' + BASE_DIR + '/logs/bing_trends_report.log'),
     # ('05 13 * * *', 'cron_qualityscore.main', '> ' + BASE_DIR + '/logs/cron_qualityscore_report.log'),
