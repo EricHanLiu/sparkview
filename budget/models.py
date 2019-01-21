@@ -3,6 +3,7 @@ import calendar
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db.models import Sum
+from django.utils import timezone
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
@@ -906,7 +907,8 @@ class Client(models.Model):
         if self.status != 0:
             return None
         else:
-            return
+            now = timezone.now()
+            return (now - self.created_at).days + 1
 
     remainingBudget = property(get_remaining_budget)
 
