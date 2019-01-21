@@ -187,7 +187,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 
 ADWORDS_YAML     = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
-API_VERSION      = 'v201802'
+API_VERSION      = 'v201809'
 BING_API_VERSION = 12
 
 LOGIN_URL                   = "login"
