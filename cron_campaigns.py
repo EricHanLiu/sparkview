@@ -10,17 +10,15 @@ from tasks.adwords_tasks import adwords_cron_campaign_stats
 def main():
     accounts = DependentAccount.objects.filter(blacklisted=False)
     for account in accounts:
-        if account.dependent_account_name == 'Laura Canada':
-            print('found laura')
-            try:
-                client_id = account.adwords.all()[0].id
-            except:
-                client_id = None
-            print(client_id)
-            try:
-                adwords_cron_campaign_stats(account.dependent_account_id, client_id)
-            except:
-                print('failed')
+        try:
+            client_id = account.adwords.all()[0].id
+        except:
+            client_id = None
+
+        try:
+            adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
+        except:
+            print('failed')
 
 
 if __name__ == '__main__':
