@@ -485,12 +485,7 @@ def skills_new(request):
 
     if request.method == 'POST':
         skill_name = request.POST.get('skillname')
-        newSkill = Skill.objects.create(name=skill_name)
-
-        # Assign a default value to every member
-        members = Member.objects.all()
-        for member in members:
-            SkillEntry.objects.create(skill=newSkill, member=member, score=0)
+        Skill.objects.create(name=skill_name)
 
         return redirect('/user_management/skills')
     else:

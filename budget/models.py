@@ -32,6 +32,22 @@ class Client(models.Model):
     PAYMENT_SCHEDULE_CHOICES = [(0, 'MRR'),
                                 (1, 'One Time')]
 
+    INACTIVE_CHOICES = [(0, 'PO pending from client'),
+                        (1, 'Website being worked on'),
+                        (2, 'New budget pending from client'),
+                        (3, 'Other')]
+
+    LOST_CHOICES = [(0, 'Poor Performance'),
+                    (1, 'Mandate Over'),
+                    (2, 'Repeated Account Errors'),
+                    (3, 'Not a Good Fit (Mutual)'),
+                    (4, 'Internalized'),
+                    (5, 'Budget Issue'),
+                    (6, 'Changing Website'),
+                    (7, 'Changing Agency'),
+                    (8, 'Campaigns Never Started'),
+                    (9, 'Other (see Basecamp for details)]')]
+
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
@@ -116,6 +132,11 @@ class Client(models.Model):
     target_cpa = models.FloatField(default=0)
     target_roas = models.FloatField(default=0)
     advanced_reporting = models.BooleanField(default=False)
+    inactive_reason = models.IntegerField(default=None, null=True, choices=INACTIVE_CHOICES)
+    inactive_bc_link = models.CharField(max_length=300, null=True, blank=True, default=None)
+    inactive_return_date = models.DateTimeField(default=None, null=True, blank=True)
+    lost_reason = models.IntegerField(default=None, null=True, choices=LOST_CHOICES)
+    lost_bc_link = models.CharField(max_length=300, null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)

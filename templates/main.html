@@ -86,37 +86,6 @@ License: You must have a valid license purchased only from themeforest(the above
     <header class="m-grid__item    m-header " data-minimize-offset="200" data-minimize-mobile-offset="200">
         <div class="m-container m-container--fluid m-container--full-height">
             <div class="m-stack m-stack--ver m-stack--desktop">
-                <!-- BEGIN: Brand -->
-                <div class="m-stack__item m-brand  m-brand--skin-light ">
-                    <div class="m-stack m-stack--ver m-stack--general">
-                        <div class="m-stack__item m-stack__item--middle m-brand__logo" style="background:#fff;">
-                          <a href="{% url 'index' %}" class="m-brand__logo-wrapper">
-                            <img src="{% static 'assets/app/media/img/logos/sparkview.png' %}" height="60" />
-                          </a>
-                        </div>
-                        <div class="m-stack__item m-stack__item--middle m-brand__tools">
-                            <!-- BEGIN: Responsive Aside Left Menu Toggler -->
-                            <a href="javascript:;" id="m_aside_left_offcanvas_toggle"
-                               class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-tablet-and-mobile-inline-block">
-                                <span></span>
-                            </a>
-                            <!-- END -->
-                            <!-- BEGIN: Responsive Header Menu Toggler -->
-                            <a id="m_aside_header_menu_mobile_toggle" href="javascript:;"
-                               class="m-brand__icon m-brand__toggler m--visible-tablet-and-mobile-inline-block">
-                                <span></span>
-                            </a>
-                            <!-- END -->
-                            <!-- BEGIN: Topbar Toggler -->
-                            <a id="m_aside_header_topbar_mobile_toggle" href="javascript:;"
-                               class="m-brand__icon m--visible-tablet-and-mobile-inline-block">
-                                <i class="flaticon-more"></i>
-                            </a>
-                            <!-- BEGIN: Topbar Toggler -->
-                        </div>
-                    </div>
-                </div>
-                <!-- END: Brand -->
                 <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav" style="padding-left:1.5rem;">
                     <!-- BEGIN: Horizontal Menu -->
                     <button class="m-aside-header-menu-mobile-close  m-aside-header-menu-mobile-close--skin-light "
@@ -126,6 +95,12 @@ License: You must have a valid license purchased only from themeforest(the above
                     <div id="m_header_menu"
                          class="m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light ">
                         <ul class="m-menu__nav  m-menu__nav--submenu-arrow ">
+                            <li class="m-menu__item"
+                                data-menu-submenu-toggle="click">
+                                <a href="{% url 'index' %}" class="m-brand__logo-wrapper">
+                                    <img src="{% static 'img/bloom-logo.png' %}" height="60" />
+                                </a>
+                            </li>
                             <li class="m-menu__item"
                                 data-menu-submenu-toggle="click">
                                 <a href="{% url 'index' %}" class="m-brand__logo-wrapper logo-text-custom">
