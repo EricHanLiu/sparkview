@@ -139,13 +139,21 @@ class AccountTestCase(TestCase):
         reg_member = Member.objects.get(user=reg_user)
 
         new_account_dict = {
-            'existing_client': [client.id], 'client_name': ['1234zzz'], 'account_name': ['test'], 'industry': [industry.id],
-            'client_type': [client_type.id], 'sold_budget': ['123'], 'account_url': ['123'], 'sold_by': [reg_member.id], 'language': [language.id],
-            'objective': ['0'], 'contact_num_input': ['1'], 'contact_name1': ['test'], 'contact_email1': ['test'],
-            'contact_phone_number1': ['test'], 'fee_structure_type': ['2'], 'rowNumInput': ['1'],
-            'fee_structure_name': ['test'], 'setup_fee': ['1234'], 'low-bound1': ['0'], 'high-bound1': ['100000000'],
-            'fee-type1': ['0'], 'fee1': ['5'], 'existing_structure': ['1']
+            'existing_client': client.id, 'client_name': '1234zzz', 'account_name': 'test',
+            'industry': industry.id, 'client_type': client_type.id, 'sold_budget': '123', 'account_url': '123',
+            'sold_by': reg_member.id, 'language': language.id,
+            'objective': '0', 'contact_num_input': '1', 'contact_name1': 'test', 'contact_email1': 'test',
+            'contact_phone_number1': 'test', 'fee_structure_type': '1', 'rowNumInput': '1',
+            'fee_structure_name': 'test', 'setup_fee': '1234', 'low-bound1': '0', 'high-bound1': '100000000',
+            'fee-type1': '0', 'fee1': '5', 'existing_structure': '1'
         }
 
         response = c.post('/clients/accounts/new', new_account_dict)
         self.assertRedirects(response, '/clients/accounts/all', 302)
+
+        new_acc = BloomClient.objects.get(client_name='1234zzz')
+        self.assertIsInstance(new_acc, BloomClient)
+
+    def test_edit_account(self):
+        """Tests editing account"""
+        pass

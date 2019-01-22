@@ -39,7 +39,8 @@ adwords:
 
 
 # DfpClient configurations
-dfp:
+# This key was switched from 'dfp' to 'ad_manager' to migrate to version v201809
+ad_manager:
   #############################################################################
   # Required Fields                                                           #
   #############################################################################

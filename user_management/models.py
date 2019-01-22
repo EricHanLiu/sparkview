@@ -93,6 +93,16 @@ class Skill(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            members = Member.objects.all()
+            for member in members:
+                SkillEntry.objects.create(skill=self, member=member, score=0)
+
 
 class SkillEntry(models.Model):
     """ Actually sets a score to the skill for a member """

@@ -38,6 +38,7 @@ over = []
 nods = []
 on_pace = []
 
+
 def check_spend_acc(account):
 
     spend = account.current_spend
@@ -214,6 +215,7 @@ def check_spend_acc(account):
                     'ys_projected': round(ys_projected, 2)
                 }
                 on_pace.append(details)
+
 
 def check_spend_members(member):
 
