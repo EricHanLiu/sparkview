@@ -299,32 +299,36 @@ def account_edit_temp(request, id):
             """
             Account is now inactive
             """
-            inactive_reason = request.POST.get('inactive_reason')
-            inactive_bc = request.POST.get('inactive_bc')
-            account.inactive_reason = inactive_reason
-            if inactive_bc != '':
-                account.inactive_bc_link = inactive_bc
+            # TODO: following 5 lines
+            # inactive_reason = request.POST.get('inactive_reason')
+            # inactive_bc = request.POST.get('inactive_bc')
+            # account.inactive_reason = inactive_reason
+            # if inactive_bc != '':
+            #     account.inactive_bc_link = inactive_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                message = str(account.client_name) + ' is now inactive (paused). The reason is ' + account.get_inactive_reason_display() + '.'
+                # TODO: message = str(account.client_name) + ' is now inactive (paused). The reason is ' + account.get_inactive_reason_display() + '.'
+                message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
         if old_status != 3 and account.status == 3:
             """
             Account is now lost
             """
-            lost_reason = request.POST.get('lost_reason')
-            account.lost_reason = lost_reason
-            lost_bc = request.POST.get('lost_bc')
-            if lost_bc != '':
-                account.lost_bc_link = lost_bc
+            # TODO: following 5 lines
+            # lost_reason = request.POST.get('lost_reason')
+            # account.lost_reason = lost_reason
+            # lost_bc = request.POST.get('lost_bc')
+            # if lost_bc != '':
+            #     account.lost_bc_link = lost_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                message = str(account.client_name) + ' has been lost. The reason is ' + account.get_lost_reason_display() + '.'
+                # TODO: message = str(account.client_name) + ' has been lost. The reason is ' + account.get_lost_reason_display() + '.'
+                message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
         fee_override = request.POST.get('fee_override')
@@ -368,7 +372,7 @@ def account_edit_temp(request, id):
                 init_fee = request.POST.get('setup_fee')
                 management_fee_structure = ManagementFeesStructure()
                 management_fee_structure.name = fee_structure_name
-                management_fee_structure.initFee = init_fee
+                management_fee_structure.initialFee = init_fee
                 management_fee_structure.save()
                 for i in range(1, int(number_of_tiers) + 1):
                     fee_type = request.POST.get('fee-type' + str(i))
