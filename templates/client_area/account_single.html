@@ -214,8 +214,8 @@
                                     <div class="m-card-profile">
                                         <div class="m-card-profile__pic">
                                             <div class="m-card-profile__pic-wrapper">
-                                                {% if assigned_member.member.image != None %}
-                                                    <img src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                                {% if assigned_member.image != None %}
+                                                    <img src="{% static 'img/bloomers/'|add:assigned_member.image %}"/>
                                                 {% else %}
                                                     <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
                                                 {% endif %}
