@@ -25,7 +25,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID = 1
 
@@ -114,7 +114,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('PSQL_NAME', 'bloom'),
         'USER': os.environ.get('PSQL_USER', 'bloom'),
-        'PASSWORD': os.environ.get("PSQL_PASSWORD", 'bloom123'),
+        'PASSWORD': os.environ.get('PSQL_PASSWORD', 'bloom123'),
         'HOST': os.environ.get('PSQL_HOST', 'localhost'),
         'PORT': 5432,
     }

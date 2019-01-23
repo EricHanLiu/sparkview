@@ -227,6 +227,7 @@ class OnboardingStep(models.Model):
 
     service = models.IntegerField(default=0, choices=SERVICES_CHOICES)
     name = models.CharField(max_length=255, default='', blank=True)
+    order = models.IntegerField(default=0)  # This is for the order of the steps for onboarding
 
     def __str__(self):
         return self.name
@@ -271,9 +272,15 @@ class OnboardingTaskAssignment(models.Model):
     task = models.ForeignKey(OnboardingTask, on_delete=models.SET_NULL, default=None, null=True)
     complete = models.BooleanField(default=False)
     completed = models.DateTimeField(default=None, null=True, blank=True)
+    order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         if self.step.account is None or self.task is None:
             return 'No name task'
         return self.step.account.client_name + ' ' + self.task.name
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.order = self.step.order
+        super().save(*args, **kwargs)
