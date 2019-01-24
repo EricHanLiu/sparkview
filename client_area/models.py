@@ -230,7 +230,7 @@ class OnboardingStep(models.Model):
     order = models.IntegerField(default=0)  # This is for the order of the steps for onboarding
 
     def __str__(self):
-        return self.name
+        return self.get_service_display() + ' ' + self.name
 
 
 class OnboardingTask(models.Model):
