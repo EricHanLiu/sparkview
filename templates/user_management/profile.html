@@ -507,41 +507,100 @@
                         </div>
                         <div class="m-portlet__body">
                             {% for account in onboarding_accounts %}
+{#                                <div class="onboard-account">#}
+{#                                    <div class="row">#}
+{#                                        <div class="col-1">#}
+{#                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>#}
+{#                                        </div>#}
+{#                                        <div class="col-11">#}
+{#                                            <a href="#">PPC</a>#}
+{#                                            <a href="#">SEO</a>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                    <div class="row onboard-account">#}
+{#                                        <div class="col-1">#}
+                                            {# <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>#}
+{#                                        </div>#}
+{#                                        <div class="col-3">#}
+{#                                            <div class="row">#}
+{#                                                <div class="col-10">Onboarding Day: {{ account.onboarding_duration_elapsed }}<br />Status: N/A</div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="col-6">#}
+{#                                            <div class="onboard-steps" data-id="{{ account.id }}" style="border: #aaa solid 0.3px; height: 100%">#}
+{#                                                <div class="row" style="width:100%; height:100%; margin:0;">#}
+{#                                                    {% for step in account.ppc_steps %}#}
+{#                                                        <div class="col text-center" {% if step.complete %}style="background: #5ADB56;"{% endif %}>#}
+{#                                                            {{ step.step.name }}#}
+{#                                                        </div>#}
+{#                                                    {% endfor %}#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="col-2">#}
+{#                                            <p>My hrs: #/#</p>#}
+{#                                            <p>Team hrs: #/#</p>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
                                 <div class="onboard-account">
                                     <div class="row">
-                                        <div class="col-1">
-                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>
-                                        </div>
-                                        <div class="col-11">
-                                            <a href="#">PPC</a>
-{#                                            <a href="#">SEO</a>#}
+                                        <div class="col-12">
+                                            <h4 style="display:inline;">{{ account.client_name }}</h4>&nbsp;&nbsp;<span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}success{% else %}danger{% endif %}" style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
                                         </div>
                                     </div>
-                                    <div class="row onboard-account">
+                                    <br />
+                                    {% if account.has_ppc %}
+                                    <div class="row">
                                         <div class="col-1">
-                                            {# <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>#}
+                                            <span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}info{% else %}danger{% endif %} m-badge--wide m-badge--rounded" style="width:100%;">{% if account.onboarding_duration_elapsed < 10 %}On pace{% else %}Late{% endif %}</span>
                                         </div>
-                                        <div class="col-3">
-                                            <div class="row">
-                                                <div class="col-10">Onboarding Day: {{ account.onboarding_duration_elapsed }}<br />Status: N/A</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="onboard-steps" data-id="{{ account.id }}" style="border: #aaa solid 0.3px; height: 100%">
-                                                <div class="row" style="width:100%; height:100%; margin:0;">
+                                        <div class="col-11">
+                                            <div class="m-list-badge m--margin-bottom-20">
+                                                <div class="m-list-badge__label m--font-info">PPC</div>
+                                                <div class="m-list-badge__items">
                                                     {% for step in account.ppc_steps %}
-                                                        <div class="col text-center" {% if step.complete %}style="background: #5ADB56;"{% endif %}>
-                                                            {{ step.step.name }}
-                                                        </div>
+                                                        <a href="/clients/accounts/onboard/{{ account.id }}" class="m-list-badge__item m-list-badge__item--{% if step.complete %}success{% else %}metal{% endif %}">{{ step.step.name }}</a>
                                                     {% endfor %}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
-                                            <p>My hrs: #/#</p>
-                                            <p>Team hrs: #/#</p>
+                                    </div>
+                                    {% endif %}
+                                    {% if account.has_seo %}
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}info{% else %}danger{% endif %} m-badge--wide m-badge--rounded">{% if account.onboarding_duration_elapsed < 10 %}On pace{% else %}Late{% endif %}</span>
+                                        </div>
+                                        <div class="col-11">
+                                            <div class="m-list-badge m--margin-bottom-20">
+                                                <div class="m-list-badge__label m--font-info">SEO</div>
+                                                <div class="m-list-badge__items">
+                                                    {% for step in account.seo_steps %}
+                                                        <a href="/clients/accounts/onboard/{{ account.id }}" class="m-list-badge__item m-list-badge__item--{% if step.complete %}success{% else %}metal{% endif %}">{{ step.step.name }}</a>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                    {% endif %}
+                                    {% if account.has_cro %}
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}info{% else %}danger{% endif %} m-badge--wide m-badge--rounded" style="width:100%;">{% if account.onboarding_duration_elapsed < 10 %}On pace{% else %}Late{% endif %}</span>
+                                        </div>
+                                        <div class="col-11">
+                                            <div class="m-list-badge m--margin-bottom-20">
+                                                <div class="m-list-badge__label m--font-info">CRO</div>
+                                                <div class="m-list-badge__items">
+                                                    {% for step in account.cro_steps %}
+                                                        <a href="/clients/accounts/onboard/{{ account.id }}" class="m-list-badge__item m-list-badge__item--{% if step.complete %}success{% else %}metal{% endif %}">{{ step.step.name }}</a>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             {% endfor %}
                         </div>

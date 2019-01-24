@@ -1355,8 +1355,7 @@
                             description: "{{ promo.desc }}",
                             start: moment("{{ promo.formatted_start }}"),
                             end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--success{% else %}
-                                m-fc-event--warning{% endif %}"
+                            className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 ]
