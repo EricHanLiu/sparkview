@@ -628,3 +628,20 @@ def add_training_hours(request):
     TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
 
     return redirect('/clients/accounts/report_hours')
+
+
+@login_required
+def late_onboard(request):
+    """
+    Records reason for late onboarding
+    :param request:
+    :return:
+    """
+    account_id = request.POST.get('account_id')
+    account = Client.objects.get(id=account_id)
+
+    message = request.POST.get('late_reason')
+    account.late_onboard_reason = message
+    account.save()
+
+    return redirect('/user_management/profile')

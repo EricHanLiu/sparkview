@@ -47,11 +47,36 @@
                     <label for="status">Status:</label>
                     <select class="form-control m-input"
                             name="status"
+                            id="status_select"
                             style="width: 100%;">
                             <option value="0" {% if account.status == 0 %}selected{% endif %}>Onboarding</option>
                             <option value="1" {% if account.status == 1 %}selected{% endif %}>Active</option>
                             <option value="2" {% if account.status == 2 %}selected{% endif %}>Inactive</option>
                             <option value="3" {% if account.status == 3 %}selected{% endif %}>Lost</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row" id="account_status_row" style="display:none;">
+                  <div class="col-md-4">
+                    <label for="client_name">Reason Inactive:</label>
+                    <select class="form-control m-input"
+                            name="account_inactive_reason"
+                            id="account_inactive_reason"
+                            style="width: 100%;" disabled>
+                            {% for num, name in inactive_reasons %}
+                                <option value="{{ num }}">{{ name }}</option>
+                            {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="client_name">Reason Lost:</label>
+                    <select class="form-control m-input"
+                            name="account_lost_reason"
+                            id="account_lost_reason"
+                            style="width: 100%;" disabled>
+                            {% for num, name in lost_reasons %}
+                                <option value="{{ num }}">{{ name }}</option>
+                            {% endfor %}
                     </select>
                   </div>
                 </div>
@@ -204,10 +229,10 @@
 {% block extraJs %}
 <script>
 $(document).ready(function () {
-  var $createNewBtn   = $('#create_new_btn');
-  var $useExistingBtn = $('#use_existing_btn');
-  var $existingForm   = $('#existing_client_form');
-  var $newForm        = $('#new_client_form');
+  let $createNewBtn   = $('#create_new_btn');
+  let $useExistingBtn = $('#use_existing_btn');
+  let $existingForm   = $('#existing_client_form');
+  let $newForm        = $('#new_client_form');
 
   $createNewBtn.click(function () {
     $existingForm.hide();
@@ -222,11 +247,31 @@ $(document).ready(function () {
   /**
    * Management fees
    */
-  var $createNewFeeBtn   = $('#create_new_structure_btn');
-  var $useExistingFeeBtn = $('#use_existing_structure_btn');
-  var $createNewFeeDiv   = $('#create_new_structure');
-  var $useExistingFeeDiv = $('#use_existing_structure');
-  var $feeStructureType  = $('#fee_structure_type');
+  let $createNewFeeBtn   = $('#create_new_structure_btn');
+  let $useExistingFeeBtn = $('#use_existing_structure_btn');
+  let $createNewFeeDiv   = $('#create_new_structure');
+  let $useExistingFeeDiv = $('#use_existing_structure');
+  let $feeStructureType  = $('#fee_structure_type');
+  let $statusSelect = $('#status_select');
+  let $statusRow = $('#account_status_row');
+  let $inactiveReason = $('#account_inactive_reason');
+  let $lostReason = $('#account_lost_reason');
+
+  $statusSelect.change(function () {
+     let status = $(this).val();
+     console.log(status);
+     if (status == 2) {
+        $inactiveReason.prop('disabled', false);
+        $lostReason.prop('disabled', true);
+        $statusRow.show();
+     } else if (status == 3) {
+        $inactiveReason.prop('disabled', true);
+        $lostReason.prop('disabled', false);
+        $statusRow.show();
+     } else {
+         $statusRow.hide();
+     }
+  });
 
   $createNewFeeBtn.click(function () {
     $feeStructureType.val('1');
@@ -240,12 +285,12 @@ $(document).ready(function () {
     $useExistingFeeDiv.show();
   });
 
-  var $addFeeBtn = $('.add-fee-level-btn');
-  var $feeForm   = $('#management_fee_form');
-  var $rowNum    = $('#rowNumInput');
+  let $addFeeBtn = $('.add-fee-level-btn');
+  let $feeForm   = $('#management_fee_form');
+  let $rowNum    = $('#rowNumInput');
 
-  var feeRows = 1;
-  var feeRowHtml = `
+  let feeRows = 1;
+  let feeRowHtml = `
                   <div class="row">
                     <div class="col-md-3">
                       <label>Low Budget Bound ($):</label>
@@ -274,15 +319,15 @@ $(document).ready(function () {
   $addFeeBtn.click(function () {
     feeRows++;
     $rowNum.val(feeRows);
-    var feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+    let feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
                            .replace('high-bound1', 'high-bound' + feeRows)
                            .replace('fee-type1', 'fee-type' + feeRows)
                            .replace('fee1', 'fee' + feeRows);
     $feeForm.append(feeRowHtmlTmp);
   });
 
-  $mfCheck = $('#mf_check');
-  $mfForm = $('#mf_form');
+  let $mfCheck = $('#mf_check');
+  let $mfForm = $('#mf_form');
 
   $mfCheck.change(function () {
     if ($(this).is(':checked')) {
@@ -292,10 +337,10 @@ $(document).ready(function () {
     }
   });
 
-  var $mfSelect = $('#existing_structure');
-  var $presetMf = $('#preset_mf');
-  var $presetMfTbody = $('#preset_mf_tbody');
-  var $presetSetupFee = $('#setup_fee_preset');
+  let $mfSelect = $('#existing_structure');
+  let $presetMf = $('#preset_mf');
+  let $presetMfTbody = $('#preset_mf_tbody');
+  let $presetSetupFee = $('#setup_fee_preset');
 
   $mfSelect.change(function () {
     if ($mfSelect.val() == '0') {
@@ -314,9 +359,9 @@ $(document).ready(function () {
          success: function (data) {
            $presetMfTbody.html('');
            $presetSetupFee.html(data.initial_fee);
-           for (var key in data.fee_intervals) {
-             var fee_interval = data.fee_intervals[key];
-             var inner_html = '';
+           for (let key in data.fee_intervals) {
+             let fee_interval = data.fee_intervals[key];
+             let inner_html = '';
              inner_html += '<tr>';
              inner_html += '<td>';
              inner_html += '$' + fee_interval.lowerBound + ' - $' + fee_interval.upperBound;

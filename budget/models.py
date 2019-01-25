@@ -9,7 +9,7 @@ from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
-    ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment
+    ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment
 from dateutil.relativedelta import relativedelta
 
 
@@ -137,6 +137,7 @@ class Client(models.Model):
     inactive_return_date = models.DateTimeField(default=None, null=True, blank=True)
     lost_reason = models.IntegerField(default=None, null=True, choices=LOST_CHOICES)
     lost_bc_link = models.CharField(max_length=300, null=True, blank=True, default=None)
+    late_onboard_reason = models.CharField(max_length=140, null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)
@@ -855,6 +856,62 @@ class Client(models.Model):
     @property
     def project_yesterday(self):
         return self.hybrid_projection(0)
+
+    @property
+    def is_late_to_onboard(self):
+        """
+        If late to onboard returns true
+        :return:
+        """
+        return self.onboarding_duration_elapsed > 11
+
+    @property
+    def ppc_onboarding_steps_complete(self):
+        """
+        Checks if the ppc steps are complete for this account
+        :return:
+        """
+        if self.status != 0:
+            return True
+        ppc_steps = OnboardingStep.objects.filter(service=0)
+        account_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_steps, account=self)
+        account_ppc_tasks = OnboardingTaskAssignment.objects.filter(step__in=account_ppc_steps)
+        for task in account_ppc_tasks:
+            if not task.complete:
+                return False
+        return True
+
+    @property
+    def seo_onboarding_steps_complete(self):
+        """
+        Checks if the seo steps are complete for this account
+        :return:
+        """
+        if self.status != 0:
+            return True
+        seo_steps = OnboardingStep.objects.filter(service=2)
+        account_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_steps, account=self)
+        account_seo_tasks = OnboardingTaskAssignment.objects.filter(step__in=account_seo_steps)
+        for task in account_seo_tasks:
+            if not task.complete:
+                return False
+        return True
+
+    @property
+    def cro_onboarding_steps_complete(self):
+        """
+        Checks if the seo steps are complete for this account
+        :return:
+        """
+        if self.status != 0:
+            return True
+        cro_steps = OnboardingStep.objects.filter(service=3)
+        account_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_steps, account=self)
+        account_cro_tasks = OnboardingTaskAssignment.objects.filter(step__in=account_cro_steps)
+        for task in account_cro_tasks:
+            if not task.complete:
+                return False
+        return True
 
     def hybrid_projection(self, method):
         projection = self.current_spend

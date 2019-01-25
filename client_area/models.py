@@ -60,7 +60,7 @@ class ClientContact(models.Model):
 
 
 class AccountHourRecord(models.Model):
-    MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
 
     member = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='member')
     account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True, related_name='client')
@@ -281,6 +281,6 @@ class OnboardingTaskAssignment(models.Model):
         return self.step.account.client_name + ' ' + self.task.name
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
-            self.order = self.step.order
+        # if self.pk is None:
+        #     self.order = self.step.order
         super().save(*args, **kwargs)
