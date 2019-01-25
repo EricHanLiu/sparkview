@@ -729,6 +729,7 @@ License: You must have a valid license purchased only from themeforest(the above
                 return $.map(response, function (elem) {
                     return {
                         username: elem.username,
+                        member_url: elem.member_url
                     };
                 });
             }
@@ -748,7 +749,7 @@ License: You must have a valid license purchased only from themeforest(the above
             source: clients,
             templates:
                 {
-                    header: '<h6 class="search-heading">Clients</h5>',
+                    header: '<h6 class="search-heading">Clients</h6>',
                     suggestion: function (data) {
                         if ("cname" in data) {
                             return "<a href=" + data.url + ">" + data.cname + "</a>";
@@ -766,11 +767,10 @@ License: You must have a valid license purchased only from themeforest(the above
             source: users,
             templates:
                 {
-                    header: '<h6 class="search-heading">Users</h5>',
+                    header: '<h6 class="search-heading">Members</h6>',
                     suggestion: function (data) {
-                        console.log(data)
                         if ("username" in data) {
-                            return "<div>" + data.username + "</div>";
+                            return "<a href=" + data.member_url + ">" + data.username + "</a>";
                         } else {
                             return "<div></div>"
                         }

@@ -223,7 +223,6 @@ class Member(models.Model):
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)
-            return hours
             self._allocatedHoursMonth = round(hours, 2)
         return self._allocatedHoursMonth
 

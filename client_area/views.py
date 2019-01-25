@@ -276,10 +276,14 @@ def account_edit_temp(request, id):
     if request.method == 'GET':
         account = Client.objects.get(id=id)
         management_fee_structures = ManagementFeesStructure.objects.all()
+        inactive_reasons = account._meta.get_field('inactive_reason').choices
+        lost_reasons = account._meta.get_field('lost_reason').choices
 
         context = {
             'account': account,
-            'management_fee_structures': management_fee_structures
+            'management_fee_structures': management_fee_structures,
+            'inactive_reasons': inactive_reasons,
+            'lost_reasons': lost_reasons
         }
 
         return render(request, 'client_area/account_edit_temp.html', context)
@@ -293,23 +297,24 @@ def account_edit_temp(request, id):
         old_status = account.status
 
         status = request.POST.get('status')
-        account.status = status
+        account.status = int(status)
 
         if old_status != 2 and account.status == 2:
             """
             Account is now inactive
             """
-            # TODO: following 5 lines
-            # inactive_reason = request.POST.get('inactive_reason')
-            # inactive_bc = request.POST.get('inactive_bc')
-            # account.inactive_reason = inactive_reason
-            # if inactive_bc != '':
-            #     account.inactive_bc_link = inactive_bc
+            inactive_reason = request.POST.get('account_inactive_reason')
+            inactive_bc = request.POST.get('inactive_bc')
+            account.inactive_reason = inactive_reason
+
+            if inactive_bc != '':
+                account.inactive_bc_link = inactive_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users)
+            print(staff_members)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                # TODO: message = str(account.client_name) + ' is now inactive (paused). The reason is ' + account.get_inactive_reason_display() + '.'
+                # message = str(account.client_name) + ' is now inactive (paused). The reason is ' + account.get_inactive_reason_display() + '.'
                 message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
@@ -317,17 +322,17 @@ def account_edit_temp(request, id):
             """
             Account is now lost
             """
-            # TODO: following 5 lines
-            # lost_reason = request.POST.get('lost_reason')
-            # account.lost_reason = lost_reason
-            # lost_bc = request.POST.get('lost_bc')
-            # if lost_bc != '':
-            #     account.lost_bc_link = lost_bc
+            lost_reason = request.POST.get('account_lost_reason')
+            account.lost_reason = lost_reason
+            lost_bc = request.POST.get('lost_bc')
+            if lost_bc != '':
+                account.lost_bc_link = lost_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users)
+            print(staff_members)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                # TODO: message = str(account.client_name) + ' has been lost. The reason is ' + account.get_lost_reason_display() + '.'
+                # message = str(account.client_name) + ' has been lost. The reason is ' + account.get_lost_reason_display() + '.'
                 message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 

@@ -15,12 +15,12 @@ from adwords_dashboard.models import DependentAccount, Profile
 from bing_dashboard.models import BingAccounts
 from facebook_dashboard.models import FacebookAccount
 from budget.models import Client
+from user_management.models import Member
 from social_django.models import UserSocialAuth
 import json
 
 
 def view_profile(request):
-
     user = request.user
 
     if request.method == 'GET':
@@ -81,8 +81,8 @@ def view_profile(request):
         }
         return JsonResponse(context)
 
-def remove_acc_profile(request):
 
+def remove_acc_profile(request):
     user = request.user
     profile = Profile.objects.get(user=user)
 
@@ -165,8 +165,8 @@ def remove_acc_profile(request):
 
         return JsonResponse(context)
 
-def change_password(request):
 
+def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -182,9 +182,9 @@ def change_password(request):
         'form': form
     })
 
+
 @staff_member_required
 def user_list(request):
-
     if request.method == 'GET':
 
         details = []
@@ -194,7 +194,7 @@ def user_list(request):
         facebook = FacebookAccount.objects.all()
 
         for user in users:
-            detail ={
+            detail = {
                 'user': user,
                 'aw_to': DependentAccount.objects.filter(assigned_to=user),
                 'aw_cm2': DependentAccount.objects.filter(assigned_cm2=user),
@@ -260,7 +260,6 @@ def user_list(request):
                 aw_acc.assigned_am = user
                 aw_acc.save()
 
-
         if bing:
             for b in bing:
                 bing_acc = BingAccounts.objects.get(account_id=b)
@@ -314,8 +313,8 @@ def user_list(request):
         }
         return JsonResponse(context)
 
-def remove_user_accounts(request):
 
+def remove_user_accounts(request):
     data = json.loads(request.body.decode('utf-8'))
     acc_id = data['acc_id']
     level = data['cm']
@@ -392,7 +391,6 @@ def remove_user_accounts(request):
 
 
 def create_user(request):
-
     username = request.POST.get('username')
     password = request.POST.get('password')
     hashed_password = make_password(password)
@@ -409,7 +407,8 @@ def create_user(request):
         }
 
     else:
-        u = User.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email)
+        u = User.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name,
+                                email=email)
 
         if is_staff == 'on':
             u.is_staff = True
@@ -419,12 +418,10 @@ def create_user(request):
             'username': username
         }
 
-
     return JsonResponse(response)
 
 
 def delete_user(request):
-
     data = json.loads(request.body.decode('utf-8'))
 
     user = User.objects.get(id=data['user_id'])
@@ -436,9 +433,9 @@ def delete_user(request):
 
     return JsonResponse(response)
 
+
 @login_required
 def search(request):
-
     res = []
     query = request.GET.get('query')
 
@@ -450,6 +447,9 @@ def search(request):
         Q(username__icontains=query)
     )
 
+    members = None
+    if users.count() > 0:
+        members = Member.objects.filter(user__in=users)
 
     for r in clients:
         item = {
@@ -458,9 +458,10 @@ def search(request):
         }
         res.append(item)
 
-    for u in users:
+    for u in members:
         item = {
-            'username': u.username
+            'username': u.user.get_full_name(),
+            'member_url': '/user_management/members/' + str(u.id)
         }
         res.append(item)
     print(res)

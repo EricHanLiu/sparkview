@@ -14,6 +14,10 @@
         #reports_datatable {
             text-align: center;
         }
+        .late-onboard:hover {
+            cursor:pointer;
+        }
+
     </style>
 {% endblock %}
 
@@ -507,53 +511,21 @@
                         </div>
                         <div class="m-portlet__body">
                             {% for account in onboarding_accounts %}
-{#                                <div class="onboard-account">#}
-{#                                    <div class="row">#}
-{#                                        <div class="col-1">#}
-{#                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>#}
-{#                                        </div>#}
-{#                                        <div class="col-11">#}
-{#                                            <a href="#">PPC</a>#}
-{#                                            <a href="#">SEO</a>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="row onboard-account">#}
-{#                                        <div class="col-1">#}
-                                            {# <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.client_name }}</a>#}
-{#                                        </div>#}
-{#                                        <div class="col-3">#}
-{#                                            <div class="row">#}
-{#                                                <div class="col-10">Onboarding Day: {{ account.onboarding_duration_elapsed }}<br />Status: N/A</div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                        <div class="col-6">#}
-{#                                            <div class="onboard-steps" data-id="{{ account.id }}" style="border: #aaa solid 0.3px; height: 100%">#}
-{#                                                <div class="row" style="width:100%; height:100%; margin:0;">#}
-{#                                                    {% for step in account.ppc_steps %}#}
-{#                                                        <div class="col text-center" {% if step.complete %}style="background: #5ADB56;"{% endif %}>#}
-{#                                                            {{ step.step.name }}#}
-{#                                                        </div>#}
-{#                                                    {% endfor %}#}
-{#                                                </div>#}
-{#                                            </div>#}
-{#                                        </div>#}
-{#                                        <div class="col-2">#}
-{#                                            <p>My hrs: #/#</p>#}
-{#                                            <p>Team hrs: #/#</p>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </div>#}
                                 <div class="onboard-account">
                                     <div class="row">
                                         <div class="col-12">
-                                            <h4 style="display:inline;">{{ account.client_name }}</h4>&nbsp;&nbsp;<span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}success{% else %}danger{% endif %}" style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
+                                            <h4 style="display:inline;" {% if account.late_onboard_reason != None %}data-toggle="m-tooltip" data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4>&nbsp;&nbsp;<span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}" style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
                                         </div>
                                     </div>
                                     <br />
                                     {% if account.has_ppc %}
                                     <div class="row">
                                         <div class="col-1">
-                                            <span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}info{% else %}danger{% endif %} m-badge--wide m-badge--rounded" style="width:100%;">{% if account.onboarding_duration_elapsed < 10 %}On pace{% else %}Late{% endif %}</span>
+                                            <span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger late-onboard{% else %}info{% endif %} m-badge--wide m-badge--rounded"
+                                                  data-account-id="{{ account.id }}" {% if account.is_late_to_onboard %}data-toggle="modal" data-target="#late_onboard_modal"{% endif %}
+                                                  style="width:100%; {% if account.ppc_onboarding_steps_complete %}background:#34bfa3;{% endif %}">
+                                                {% if account.ppc_onboarding_steps_complete %}Complete{% else %}{% if not account.is_late_to_onboard %}On pace{% else %}Late{% endif %}{% endif %}
+                                            </span>
                                         </div>
                                         <div class="col-11">
                                             <div class="m-list-badge m--margin-bottom-20">
@@ -570,7 +542,10 @@
                                     {% if account.has_seo %}
                                     <div class="row">
                                         <div class="col-1">
-                                            <span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}info{% else %}danger{% endif %} m-badge--wide m-badge--rounded">{% if account.onboarding_duration_elapsed < 10 %}On pace{% else %}Late{% endif %}</span>
+                                            <span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger late-onboard{% else %}info{% endif %} m-badge--wide m-badge--rounded"
+                                                  data-account-id="{{ account.id }}" {% if account.is_late_to_onboard %}data-toggle="modal" data-target="#late_onboard_modal"{% endif %}
+                                                  style="width:100%; {% if account.seo_onboarding_steps_complete %}background:#34bfa3;{% endif %}">
+                                                {% if account.seo_onboarding_steps_complete %}Complete{% else %}{% if not account.is_late_to_onboard %}On pace{% else %}Late{% endif %}{% endif %}</span>
                                         </div>
                                         <div class="col-11">
                                             <div class="m-list-badge m--margin-bottom-20">
@@ -587,7 +562,10 @@
                                     {% if account.has_cro %}
                                     <div class="row">
                                         <div class="col-1">
-                                            <span class="m-badge m-badge--{% if account.onboarding_duration_elapsed < 10 %}info{% else %}danger{% endif %} m-badge--wide m-badge--rounded" style="width:100%;">{% if account.onboarding_duration_elapsed < 10 %}On pace{% else %}Late{% endif %}</span>
+                                            <span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger late-onboard{% else %}info{% endif %} m-badge--wide m-badge--rounded"
+                                                  data-account-id="{{ account.id }}" {% if account.is_late_to_onboard %}data-toggle="modal" data-target="#late_onboard_modal"{% endif %}
+                                                  style="width:100%; {% if account.cro_onboarding_steps_complete %}background:#34bfa3;{% endif %}">
+                                                {% if account.cro_onboarding_steps_complete %}Complete{% else %}{% if not account.is_late_to_onboard %}On pace{% else %}Late{% endif %}{% endif %}</span>
                                         </div>
                                         <div class="col-11">
                                             <div class="m-list-badge m--margin-bottom-20">
@@ -1127,6 +1105,41 @@
 
         <!--End::Main Portlet-->
     </div>
+
+    <!-- Flag account -->
+    <div class="modal fade" id="late_onboard_modal" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reason for late onboarding</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/user_management/late_onboard">
+                    {% csrf_token %}
+                    <input name="account_id" id="m_account_id" type="text" value="" style="display:none;"/>
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Reason:</label>
+                                        <input type="text" name="late_reason" class="form-control m-input" maxlength="140" required/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End Flag account modal -->
 {% endblock %}
 
 {% block extraJs %}
@@ -1161,6 +1174,11 @@
                     });
                 }
 
+            });
+
+            $('#late_onboard_modal').on('show.bs.modal', function (e) {
+                let account_id = $(e.relatedTarget).data('account-id');
+                $('#m_account_id').attr('value', account_id);
             });
 
             $dueDatePickers.datepicker({
