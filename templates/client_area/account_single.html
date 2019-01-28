@@ -50,7 +50,7 @@
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         </button>
-                        <strong>Heads Up!</strong> This account is inactive. The reason is {{ account.get_inactive_reason_display }}.
+                        <strong>Heads Up!</strong> This account is inactive. The reason is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
                     </div>
                 {% endif %}
                 {% if account.status == 3 %}

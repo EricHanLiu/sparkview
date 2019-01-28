@@ -234,28 +234,21 @@ def account_new(request):
                     ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
                     ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
                     for ppc_task in ppc_tasks:
-                        ppc_task_assignment = OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
+                        OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
             if account.has_seo:
                 seo_steps = OnboardingStep.objects.filter(service=1)
                 for seo_step in seo_steps:
                     seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
                     seo_tasks = OnboardingTask.objects.filter(step=seo_step)
                     for seo_task in seo_tasks:
-                        seo_tasks_assignment = OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
+                        OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
             if account.has_cro:
                 cro_steps = OnboardingStep.objects.filter(service=2)
                 for cro_step in cro_steps:
                     cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
                     cro_tasks = OnboardingTask.objects.filter(step=cro_step)
                     for cro_task in cro_tasks:
-                        cro_task_assignment = OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
-            # if account.has_strat:
-            #     ppc_steps = OnboardingStep.objects.filter(service=3)
-            #     for ppc_step in ppc_steps:
-            #         ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
-            #         ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
-            #         for ppc_task in ppc_tasks:
-            #             ppc_task_assignment = OnboardingTaskAssignment.objects.create(step=ppc_step, task=ppc_task)
+                        OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
 
             return redirect('/clients/accounts/all')
         else:
@@ -305,13 +298,15 @@ def account_edit_temp(request, id):
             """
             inactive_reason = request.POST.get('account_inactive_reason')
             inactive_bc = request.POST.get('inactive_bc')
+            inactive_return = request.POST.get('account_inactive_return')
             account.inactive_reason = inactive_reason
 
             if inactive_bc != '':
                 account.inactive_bc_link = inactive_bc
+            if inactive_return != '':
+                account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%Y-%m-%d')
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users)
-            print(staff_members)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
                 # message = str(account.client_name) + ' is now inactive (paused). The reason is ' + account.get_inactive_reason_display() + '.'
@@ -329,7 +324,6 @@ def account_edit_temp(request, id):
                 account.lost_bc_link = lost_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users)
-            print(staff_members)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
                 # message = str(account.client_name) + ' has been lost. The reason is ' + account.get_lost_reason_display() + '.'

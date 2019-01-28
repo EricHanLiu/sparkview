@@ -48,6 +48,10 @@ class Client(models.Model):
                     (8, 'Campaigns Never Started'),
                     (9, 'Other (see Basecamp for details)]')]
 
+    PHASE_CHOICES = [(1, 'One'),
+                     (2, 'Two'),
+                     (3, 'Three')]
+
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
@@ -138,6 +142,8 @@ class Client(models.Model):
     lost_reason = models.IntegerField(default=None, null=True, choices=LOST_CHOICES)
     lost_bc_link = models.CharField(max_length=300, null=True, blank=True, default=None)
     late_onboard_reason = models.CharField(max_length=140, null=True, blank=True, default=None)
+    phase = models.IntegerField(default=1, choices=PHASE_CHOICES)
+    phase_day = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)
@@ -851,11 +857,33 @@ class Client(models.Model):
 
     @property
     def project_average(self):
-        return self.hybrid_projection(1)
+        if not hasattr(self, '_project_average'):
+            self._project_average = self.hybrid_projection(1)
+        return self._project_average
 
     @property
     def project_yesterday(self):
-        return self.hybrid_projection(0)
+        if not hasattr(self, '_project_yesterday'):
+            self._project_yesterday = self.hybrid_projection(0)
+        return self._project_yesterday
+
+    @property
+    def underpacing_yesterday(self):
+        if self.current_budget == 0.0:
+            return 0.0
+        return self.project_yesterday / self.current_budget < 0.95
+
+    @property
+    def underpacing_average(self):
+        if self.current_budget == 0.0:
+            return 0.0
+        return self.project_average / self.current_budget < 0.95
+
+    @property
+    def spend_percentage(self):
+        if self.current_budget == 0.0:
+            return 0.0
+        return 100.0 * self.current_spend / self.current_budget
 
     @property
     def is_late_to_onboard(self):

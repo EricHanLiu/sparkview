@@ -69,6 +69,10 @@
                     </select>
                   </div>
                   <div class="col-md-4">
+                    <label for="client_name">Returning from Inactive (if applicable):</label>
+                    <input type="text" class="form-control m-datepicker" placeholder="Set return date here" name="account_inactive_return" id="account_inactive_return" disabled>
+                  </div>
+                  <div class="col-md-4">
                     <label for="client_name">Reason Lost:</label>
                     <select class="form-control m-input"
                             name="account_lost_reason"
@@ -256,16 +260,19 @@ $(document).ready(function () {
   let $statusRow = $('#account_status_row');
   let $inactiveReason = $('#account_inactive_reason');
   let $lostReason = $('#account_lost_reason');
+  let $inactiveReturn = $('#account_inactive_return');
 
   $statusSelect.change(function () {
      let status = $(this).val();
      console.log(status);
      if (status == 2) {
         $inactiveReason.prop('disabled', false);
+        $inactiveReturn.prop('disabled', false);
         $lostReason.prop('disabled', true);
         $statusRow.show();
      } else if (status == 3) {
         $inactiveReason.prop('disabled', true);
+        $inactiveReturn.prop('disabled', true);
         $lostReason.prop('disabled', false);
         $statusRow.show();
      } else {
@@ -325,6 +332,19 @@ $(document).ready(function () {
                            .replace('fee1', 'fee' + feeRows);
     $feeForm.append(feeRowHtmlTmp);
   });
+
+  $('.m-datepicker').datepicker({
+        todayHighlight: !0,
+        autoclose: !0,
+        format: 'yyyy-mm-dd',
+        orientation: "bottom left",
+        templates: {
+            leftArrow: '<i class="la la-angle-left"></i>',
+            rightArrow: '<i class="la la-angle-right"></i>'
+        }
+    }).on('show.bs.modal', function (event) {
+        event.stopPropagation();
+    });
 
   let $mfCheck = $('#mf_check');
   let $mfForm = $('#mf_form');

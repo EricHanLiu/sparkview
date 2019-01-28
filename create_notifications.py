@@ -1,15 +1,13 @@
 import os
-import csv
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 
 django.setup()
-from bloom import settings
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from budget.models import Client
-from user_management.models import Team, Member, Role
+from django.contrib.auth.models import User
+from user_management.models import Member
 from notifications.models import Notification, ScheduledNotification
 import datetime
 import calendar
@@ -70,3 +68,37 @@ def main():
                 notification.link = scheduled_notification.link
             print('Created notification for ' + str(member.user.get_full_name()))
             notification.save()
+
+    """
+    Checks for inactive accounts returning from 
+    """
+    one_week_future = datetime.date.today() + datetime.timedelta(7)
+    returning_accounts = Client.objects.filter(inactive_return_date__date=one_week_future)
+
+    for account in returning_accounts:
+        ams = account.assigned_ams
+        for key, val in ams.items():
+            member = val['member']
+            message = account.client_name + ' is inactive but is set to return in one week. Please look into this.'
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=member, message=message, link=link)
+
+    """
+    Alerts account is late
+    """
+    onboarding_accounts = Client.objects.filter(status=0)
+
+    staff_users = User.objects.filter(is_staff=True)
+    staff_members = Member.objects.filter(user__in=staff_users)
+
+    for account in onboarding_accounts:
+        if account.onboarding_duration_elapsed == 12:  # TODO: Change this to be a variable
+            ams = account.assigned_ams
+            message = account.client_name + ' is late to onboard.'
+            link = '/clients/accounts/' + str(account.id)
+            for key, val in ams.items():
+                member = val['member']
+                Notification.objects.get_or_create(member=member, message=message, link=link)
+            for member in staff_members:
+                Notification.objects.get_or_create(member=member, message=message, link=link)
+
