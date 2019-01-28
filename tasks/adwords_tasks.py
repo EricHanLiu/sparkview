@@ -656,8 +656,8 @@ def adwords_cron_disapproved_alert(self, customer_id):
 
     if len(cmp_ids) == 0:
         print('No active campaigns found.')
-        account.blacklisted = True
-        account.save()
+        # account.blacklisted = True
+        # account.save()
     else:
         predicates = [
             {
@@ -765,8 +765,8 @@ def adwords_cron_disapproved_alert(self, customer_id):
                 print('Account ' + account.dependent_account_name + ' unlinked from MCC')
 
             elif e.type == 'AuthorizationError.CUSTOMER_NOT_ACTIVE':
-                account.blacklisted = True
-                account.save()
+                # account.blacklisted = True
+                # account.save()
                 print('Account ' + account.dependent_account_name + ' NOT ACTIVE - BLACKLISTED.')
 
 

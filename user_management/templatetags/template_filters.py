@@ -4,6 +4,7 @@ import calendar
 
 register = template.Library()
 
+
 @register.filter
 def get_item_from_list(dictionary, key):
     if key is None or len(dictionary) == 0:
@@ -18,12 +19,14 @@ def get_hours_per_member_and_account(member, account_id):
     """
     return member.actual_hours_month_by_account(account_id)
 
+
 @register.filter
 def get_allocation_this_month_member(account, member):
     """
     Called from template by an account, it fetches how many allocated hours a member has this month
     """
     return account.get_allocation_this_month_member(member)
+
 
 @register.filter
 def get_fee_by_spend(account, spend):
@@ -32,12 +35,14 @@ def get_fee_by_spend(account, spend):
     """
     return account.get_fee_by_spend(spend)
 
+
 @register.filter
 def divide_by(num1, num2):
     """
     Just divides num1 by num2
     """
     return round(num1 / num2, 2)
+
 
 @register.filter
 def subtract(num1, num2):
@@ -46,12 +51,14 @@ def subtract(num1, num2):
     """
     return round(num1 - num2, 2)
 
+
 @register.filter
 def format_money(num):
     """
     Formats 1234.5 like $1,234.50
     """
     return '{:,.2f}'.format(num)
+
 
 @register.filter
 def get_month_name(month_num):
@@ -70,3 +77,8 @@ def mcv(value):
         return float(value) / 1000000
     except ValueError:
         return 0
+
+
+@register.filter
+def just_date(dt):
+    return dt.strftime('%d %B, %Y')

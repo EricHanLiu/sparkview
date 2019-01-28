@@ -48,6 +48,7 @@
                 <th>Budget</th>
                 <th>Spend</th>
                 <th>Yesterday Spend</th>
+                <th>Projected Spend</th>
                 <th>
                   Status
                 </th>
@@ -71,6 +72,7 @@
                 <td>${{ account.current_budget }}</td>
                 <td>${{ account.current_spend }}</td>
                 <td>${{ account.yesterday_spend }}</td>
+                <td style="{% if account.project_average > account.current_budget %}color:#f00;{% elif account.underpacing_average %}{% endif %}">${{ account.project_average }}</td>
                 <td>
                   <span class="m-badge m-badge--{{ status_badges|get_item_from_list:account.status }}" data-toggle="m-tooltip" data-original-title="{{ account.get_status_display }}"><span style="display:none;">{{ account.get_status_display }}</span></span>
                 </td>

@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.db.models import Q
 import datetime
+from dateutil.relativedelta import relativedelta
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
@@ -310,6 +311,17 @@ def members_single(request, id=0):
     year = now.year
     memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
 
+    next_month_int = now.month + 1
+    if next_month_int == 13:
+        next_month_int = 1
+    next_month = datetime.datetime(
+        year=now.year,
+        month=next_month_int,
+        day=1
+    )
+    lastday_month = next_month + relativedelta(days=-1)
+    black_marker = (now.day / lastday_month.day) * 100
+
     accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -414,6 +426,7 @@ def members_single(request, id=0):
         'last_month_str': calendar.month_name[last_month],
         'starAccounts': starAccounts,
         'starAccountHours': starAccountHours,
+        'black_marker': black_marker,
         'starAccountAllocation': starAccountAllocation
     }
 

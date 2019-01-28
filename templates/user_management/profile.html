@@ -4,6 +4,9 @@
 
 {% load template_filters %}
 {% load notification_tags %}
+{% load humanize %}
+{% load custom_filters %}
+{% load template_filters %}
 
 {% block extraCss %}
     <style>
@@ -511,10 +514,10 @@
                         </div>
                         <div class="m-portlet__body">
                             {% for account in onboarding_accounts %}
-                                <div class="onboard-account">
+                                <div class="onboard-account" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 0rem 1rem;">
                                     <div class="row">
                                         <div class="col-12">
-                                            <h4 style="display:inline;" {% if account.late_onboard_reason != None %}data-toggle="m-tooltip" data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4>&nbsp;&nbsp;<span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}" style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
+                                            <a href="/clients/accounts/{{ account.id }}"><h4 style="display:inline;" {% if account.late_onboard_reason != None %}data-toggle="m-tooltip" data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4></a>&nbsp;&nbsp;<span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}" style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
                                         </div>
                                     </div>
                                     <br />
@@ -599,53 +602,128 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                                   id="my_clients_datatable">
-                                <thead class="thead-inverse">
-                                <tr class="main-table-header">
-                                    <th>
-                                        Client
-                                    </th>
-                                    <th>Account</th>
-                                    <th>
-                                        My Actual Hours
-                                    </th>
-                                    <th>
-                                        My Allocated Hours
-                                    </th>
-                                    <th>
-                                        Total Actual Hours
-                                    </th>
-                                    <th>
-                                        Total Allocated Hours
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for account in accounts %}
-                                    <tr>
-                                        <td>
-                                            {{ account.parentClient.name }}
-                                        </td>
-                                        <td>
-                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                        </td>
-                                        <td>
-                                            {{ accountHours|get_item_from_list:account.id }}
-                                        </td>
-                                        <td>
-                                            {{ accountAllocation|get_item_from_list:account.id }}
-                                        </td>
-                                        <td>
-                                            {{ account.hoursWorkedThisMonth|floatformat:2 }}
-                                        </td>
-                                        <td>
-                                            {{ account.all_hours|floatformat:2 }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                            {% for account in accounts %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-3">
+                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                        <p>My hours this month: {{ accountHours|get_item_from_list:account.id  }}/{{ accountAllocation|get_item_from_list:account.id }}</p>
+                                        <div class="m--space-30">
+                                            {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
+                                                <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if aw %}
+                                                            {% for a in aw %}
+                                                                {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No AdWords Account
+                                                        {% endif %}">A</span>
+                                                <span class="m-badge {% if bing %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if bing %}
+                                                            {% for b in bing %}
+                                                                {{ b.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Bing Account
+                                                        {% endif %}">B</span>
+                                                <span class="m-badge {% if fb %}m-badge--info{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if fb %}
+                                                            {% for f in fb %}
+                                                                {{ f.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Facebook Account
+                                                        {% endif %}">F</span>
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="col-9">
+                                        <div class="row">
+                                            <div class="col-md-4"><b>Current</b>:
+                                                {{ account.currency }}{{ account.current_spend|floatformat:2|intcomma }}
+                                            </div>
+                                            <div class="col-md-4"><b>Budget</b>:
+                                                {{ account.currency }}{{ account.current_budget|intcomma }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>Projected</b>:
+                                                {{ account.currency }}{{ account.project_average|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative!important; height:30px !important;">
+                                            <div id="{{ account.id }}_progressbar"
+                                                 class="progress-bar {% if account.underpacing_average %}bg-warning{% elif account.project_average > account.current_budget %}bg-danger{% else %}bg-success{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ account.spend_percentage }}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 aria-valuenow="{{ account.spend_percentage }}"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ account.current_spend }}/{{ account.current_budget }}">
+                                                {{ account.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                            <div class="black-marker"
+                                                 style="width: {{ black_marker }}%"
+                                                 aria-valuenow="{{ black_marker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+{#                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'#}
+{#                                   id="my_clients_datatable">#}
+{#                                <thead class="thead-inverse">#}
+{#                                <tr class="main-table-header">#}
+{#                                    <th>#}
+{#                                        Client#}
+{#                                    </th>#}
+{#                                    <th>Account</th>#}
+{#                                    <th>#}
+{#                                        My Actual Hours#}
+{#                                    </th>#}
+{#                                    <th>#}
+{#                                        My Allocated Hours#}
+{#                                    </th>#}
+{#                                    <th>#}
+{#                                        Total Actual Hours#}
+{#                                    </th>#}
+{#                                    <th>#}
+{#                                        Total Allocated Hours#}
+{#                                    </th>#}
+{#                                </tr>#}
+{#                                </thead>#}
+{#                                <tbody>#}
+{#                                {% for account in accounts %}#}
+{#                                    <tr>#}
+{#                                        <td>#}
+{#                                            {{ account.parentClient.name }}#}
+{#                                        </td>#}
+{#                                        <td>#}
+{#                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>#}
+{#                                        </td>#}
+{#                                        <td>#}
+{#                                            {{ accountHours|get_item_from_list:account.id }}#}
+{#                                        </td>#}
+{#                                        <td>#}
+{#                                            {{ accountAllocation|get_item_from_list:account.id }}#}
+{#                                        </td>#}
+{#                                        <td>#}
+{#                                            {{ account.hoursWorkedThisMonth|floatformat:2 }}#}
+{#                                        </td>#}
+{#                                        <td>#}
+{#                                            {{ account.all_hours|floatformat:2 }}#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                {% endfor %}#}
+{#                                </tbody>#}
+{#                            </table>#}
                         </div>
                     </div>
                 {% endif %}

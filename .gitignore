@@ -16,3 +16,4 @@ response.txt
 dump.rdb
 celerybeat-schedule
 *.pid
+.coverage
