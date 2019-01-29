@@ -35,7 +35,6 @@ class Notification(models.Model):
     def colour(self):
         return self.NOTIFICATION_COLOUR_CLASSES[self.severity]
 
-
     def __str__(self):
         return self.member.user.get_full_name() + ' ' + self.message
 
@@ -49,9 +48,9 @@ class ScheduledNotification(models.Model):
     members = models.ManyToManyField('user_management.Member', default=None, blank=True)
     teams = models.ManyToManyField('user_management.Team', default=None, blank=True)
     roles = models.ManyToManyField('user_management.Role', default=None, blank=True)
-    days_positive = ArrayField(models.IntegerField(), default=None, null=True, blank=True) # ie: [1,2,3,10] would mean first, second, third, and 10th of month
-    days_negative = ArrayField(models.IntegerField(), default=None, null=True, blank=True) # ie: [-1,-5] would mean last and 5th to last day of month
-    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, default=None, blank=True) # can be 0 through 6, corresponds to day of week
+    days_positive = ArrayField(models.IntegerField(), default=None, null=True, blank=True)  # ie: [1,2,3,10] would mean first, second, third, and 10th of month
+    days_negative = ArrayField(models.IntegerField(), default=None, null=True, blank=True)  # ie: [-1,-5] would mean last and 5th to last day of month
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, default=None, blank=True)  # can be 0 through 6, corresponds to day of week
     every_day = models.BooleanField(default=False)
     every_week_day = models.BooleanField(default=False)
     message = models.CharField(max_length=999, default='No message')
