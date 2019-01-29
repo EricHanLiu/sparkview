@@ -941,37 +941,6 @@ class Client(models.Model):
                 return False
         return True
 
-    def hybrid_projection(self, method):
-        projection = self.current_spend
-        now = datetime.datetime.today() - datetime.timedelta(1)
-        day_of_month = now.day
-        # day_of_month = now.day - 1
-        f, days_in_month = calendar.monthrange(now.year, now.month)
-        days_remaining = days_in_month - day_of_month
-        if method == 0:  # Project based on yesterday
-            projection += (self.yesterday_spend * days_remaining)
-        elif method == 1:
-            projection += ((self.current_spend / day_of_month) * days_remaining)
-
-        return projection
-
-    # Recommended daily spend for clients with flex budget
-    # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py
-    def rec_ds(self):
-
-        today = datetime.date.today() - relativedelta(days=1)
-        last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
-
-        remaining = last_day.day - today.day
-
-        rec_ds = 0
-
-        if self.flex_budget > 0:
-            if remaining != 0:
-                rec_ds = (self.flex_budget - self.flex_spend) / remaining
-
-        return rec_ds
-
     @property
     def ppc_steps(self):
         """
@@ -1015,6 +984,53 @@ class Client(models.Model):
         else:
             now = timezone.now()
             return (now - self.created_at).days + 1
+
+    def hybrid_projection(self, method):
+        projection = self.current_spend
+        now = datetime.datetime.today() - datetime.timedelta(1)
+        day_of_month = now.day
+        # day_of_month = now.day - 1
+        f, days_in_month = calendar.monthrange(now.year, now.month)
+        days_remaining = days_in_month - day_of_month
+        if method == 0:  # Project based on yesterday
+            projection += (self.yesterday_spend * days_remaining)
+        elif method == 1:
+            projection += ((self.current_spend / day_of_month) * days_remaining)
+
+        return projection
+
+    # Recommended daily spend for clients with flex budget
+    # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py
+    def rec_ds(self):
+
+        today = datetime.date.today() - relativedelta(days=1)
+        last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+
+        remaining = last_day.day - today.day
+
+        rec_ds = 0
+
+        if self.flex_budget > 0:
+            if remaining != 0:
+                rec_ds = (self.flex_budget - self.flex_spend) / remaining
+
+        return rec_ds
+
+    def members_by_roles(self, roles):
+        """
+        Gets members by admin defined roles (ie: PPC Analyst as opposed to CM1)
+        :param roles:
+        :return:
+        """
+        members = []
+        assigned_members = self.assigned_members
+        for assigned_member in assigned_members:
+            for role in roles:
+                if role == assigned_member.role:
+                    members.append(assigned_member)
+                    break
+
+        return members
 
     remainingBudget = property(get_remaining_budget)
 

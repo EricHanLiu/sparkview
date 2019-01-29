@@ -284,3 +284,33 @@ class OnboardingTaskAssignment(models.Model):
         # if self.pk is None:
         #     self.order = self.step.order
         super().save(*args, **kwargs)
+
+
+class PhaseTask(models.Model):
+    """
+    Task that has to be done during a certain phase
+    """
+    PHASE_CHOICES = [(1, 'One'),
+                     (2, 'Two'),
+                     (3, 'Three')]
+
+    TIER_CHOICES = [(1, 'One'),
+                    (2, 'Two'),
+                    (3, 'Three')]
+
+    roles = models.ManyToManyField('user_management.Role', default=None, blank=True)
+    message = models.CharField(max_length=255)  # maybe use macros in this
+    phase = models.IntegerField(default=1, choices=PHASE_CHOICES)
+    tier = models.IntegerField(default=1, choices=TIER_CHOICES)
+    day = models.IntegerField(default=1)  # must be between 1 and 30
+
+
+class PhaseTaskAssignment(models.Model):
+    """
+    Assignment of a phase task to an account
+    """
+    task = models.ForeignKey(PhaseTask, on_delete=models.CASCADE, null=True, default=None)
+    account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
+    complete = models.BooleanField(default=False)
+    completed = models.DateTimeField(default=None, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)

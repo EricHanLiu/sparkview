@@ -152,6 +152,21 @@ def percentage(spend, budget):
         return 'bg-danger'
 
 
+@register.filter(name='get_bg_class_by_percentage')
+def get_bg_class_by_percentage(spend, budget):
+    try:
+        result = (spend / budget) * 100
+    except ZeroDivisionError:
+        result = 0
+
+    if 95 < result < 100:
+        return 'bg-success'
+    elif 0 < result <= 95:
+        return 'bg-warning'
+    else:
+        return 'bg-danger'
+
+
 @register.filter(name='daily_spend')
 def daily_spend(spend):
 
