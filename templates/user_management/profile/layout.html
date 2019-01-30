@@ -1,0 +1,54 @@
+{% extends 'main.html' %}
+
+{% block leftAside %}
+    <div id="m_aside_left" class="m-grid__item m-aside-left  m-aside-left--skin-light ">
+        <!-- BEGIN: Aside Menu -->
+        <div id="m_ver_menu"
+             class="m-aside-menu m-aside-menu--skin-light m-aside-menu--submenu-skin-light m-scroller ps ps--active-y"
+             data-menu-vertical="true">
+            <ul class="m-menu__nav  m-menu__nav--dropdown-submenu-arrow" style="padding: 15px 0 40px 0;">
+                <li class="m-menu__item " aria-haspopup="true">
+                    <div class="" style="color: #5e6383; padding: 15px 32px;">
+                        <h5>{{ member.user.get_full_name }}</h5>
+                        <span>{{ member.role }}</span>
+                    </div>
+                </li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-light"></i><span
+                        class="m-menu__link-text">Accounts</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/hours" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-interface-7 "></i><span
+                        class="m-menu__link-text">Hours</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/reports" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-grid-menu-v2 "></i><span
+                        class="m-menu__link-text">Reports</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/promos" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-layers"></i><span
+                        class="m-menu__link-text">Promos</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/kpis" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-questions-circular-button"></i><span
+                        class="m-menu__link-text">KPIs</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/timesheet" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-network"></i><span
+                        class="m-menu__link-text">Timesheet</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/skills" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-squares-4"></i><span
+                        class="m-menu__link-text">Skills</span></a></li>
+            </ul>
+            <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
+                <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+            </div>
+            <div class="ps__rail-y" style="top: 0px; height: 467px; right: 4px;">
+                <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 297px;"></div>
+            </div>
+        </div>
+        <!-- END: Aside Menu -->
+    </div>
+{% endblock %}

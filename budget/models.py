@@ -144,6 +144,7 @@ class Client(models.Model):
     late_onboard_reason = models.CharField(max_length=140, null=True, blank=True, default=None)
     phase = models.IntegerField(default=1, choices=PHASE_CHOICES)
     phase_day = models.IntegerField(default=0)
+    ninety_day_cycle = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)
@@ -476,7 +477,7 @@ class Client(models.Model):
         """
         if not hasattr(self, '_ppc_fee'):
             if self.status == 1:
-                fee = self.get_fee_by_spend(self.current_budget)
+                fee = self.get_fee_by_spend(self.current_full_budget)
                 self._ppc_fee = round(fee, 2)
             else:
                 self._ppc_fee = 0
@@ -647,7 +648,8 @@ class Client(models.Model):
             self._facebook_budget_this_month = budget
         return self._facebook_budget_this_month
 
-    def get_current_budget(self):
+    @property
+    def current_budget(self):
         if not hasattr(self, '_current_budget'):
             budget = 0.0
             budget += self.adwords_budget_this_month
@@ -659,8 +661,9 @@ class Client(models.Model):
 
         return self._current_budget
 
-    def get_current_full_budget(self):
-        return self.get_current_budget() + self.other_budget
+    @property
+    def current_full_budget(self):
+        return self.current_budget + self.other_budget
 
     def get_flex_spend_this_month(self):
         flex_spend = 0.0
@@ -1047,9 +1050,6 @@ class Client(models.Model):
     total_fee = property(get_fee)
     ppc_hours = property(get_ppc_allocated_hours)
     all_hours = property(get_allocated_hours)
-
-    current_budget = property(get_current_budget)
-    current_full_budget = property(get_current_full_budget)
 
     flex_spend = property(get_flex_spend_this_month)
 

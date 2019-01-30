@@ -24,7 +24,7 @@ class Notification(models.Model):
     member = models.ForeignKey('user_management.Member', models.SET_NULL, default=None, null=True, blank=True)
     account = models.ForeignKey('budget.Client', models.SET_NULL, default=None, null=True, blank=True)
     message = models.CharField(max_length=999)
-    link = models.URLField(max_length=499, blank=True)
+    link = models.CharField(max_length=499, blank=True)
     type = models.IntegerField(choices=NOTIFICATION_TYPES, default=4, blank=True)
     severity = models.IntegerField(choices=SEVERITY_TYPES, default=0, blank=True)
     confirmed = models.BooleanField(default=False)

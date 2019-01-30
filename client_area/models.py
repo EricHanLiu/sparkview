@@ -1,7 +1,6 @@
 from django.db import models
 import calendar
 import datetime
-from user_management.models import Member
 
 
 class ParentClient(models.Model):
@@ -18,7 +17,7 @@ class ParentClient(models.Model):
 # To complete later, not a priority
 class AccountChanges(models.Model):
     account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True)
-    member = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True)
+    member = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True)
     changeField = models.CharField(max_length=255, default='None')
     changedFrom = models.CharField(max_length=255, default='None')
     changedTo = models.CharField(max_length=255, default='None')
@@ -62,7 +61,7 @@ class ClientContact(models.Model):
 class AccountHourRecord(models.Model):
     MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
 
-    member = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='member')
+    member = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True, related_name='member')
     account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True, related_name='client')
     hours = models.FloatField(default=0)
     month = models.CharField(max_length=9, choices=MONTH_CHOICES, default='1')
@@ -117,7 +116,7 @@ class MonthlyReport(models.Model):
     month = models.IntegerField(default=1, choices=MONTH_CHOICES)
     year = models.IntegerField(default=0)
     tier = models.IntegerField(default=1)
-    cm = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, default=None)
+    cm = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True, default=None)
     report_type = models.IntegerField(default=1, choices=REPORT_TYPE_CHOICES)
     report_services = models.IntegerField(default=0, choices=REPORT_SERVICES)
     due_date = models.DateTimeField(blank=True, null=True)
@@ -149,7 +148,8 @@ class MonthlyReport(models.Model):
 
 class Promo(models.Model):
     """
-    A promo represents a promotion that a client is running. Purpose of this model is to remind members of important budget changes for their clients
+    A promo represents a promotion that a client is running.
+    Purpose of this model is to remind members of important budget changes for their clients
     """
     name = models.CharField(max_length=255)
     account = models.ForeignKey('budget.Client', models.SET_NULL, null=True)
@@ -167,7 +167,7 @@ class Promo(models.Model):
     @property
     def is_active(self):
         now = datetime.datetime.now(self.start_date.tzinfo)
-        return now >= self.start_date and now <= self.end_date
+        return self.start_date <= now <= self.end_date
 
     @property
     def true_end(self):  # This property should be called to handle the possibility of an indefinite promo
@@ -304,6 +304,9 @@ class PhaseTask(models.Model):
     tier = models.IntegerField(default=1, choices=TIER_CHOICES)
     day = models.IntegerField(default=1)  # must be between 1 and 30
 
+    def __str__(self):
+        return self.message
+
 
 class PhaseTaskAssignment(models.Model):
     """
@@ -311,6 +314,10 @@ class PhaseTaskAssignment(models.Model):
     """
     task = models.ForeignKey(PhaseTask, on_delete=models.CASCADE, null=True, default=None)
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
+    bc_link = models.CharField(max_length=355, blank=True, null=True, default=None)
     complete = models.BooleanField(default=False)
     completed = models.DateTimeField(default=None, null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.account.client_name + ': ' + self.task.message

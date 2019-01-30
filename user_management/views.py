@@ -295,7 +295,13 @@ def edit_team(request):
 
 @login_required
 def members_single(request, id=0):
-    if not request.user.is_staff and id != 0:
+    """
+    Main profile page (accounts)
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
         return HttpResponse('You do not have permission to view this page')
 
     if id == 0:  # This is a profile page
@@ -303,13 +309,7 @@ def members_single(request, id=0):
     else:
         member = Member.objects.get(id=id)
 
-    incidents = Incident.objects.filter(members=member)
-    memberSkills = SkillEntry.objects.filter(member=member)
-
     now = datetime.datetime.now()
-    month = now.month
-    year = now.year
-    memberHoursThisMonth = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
 
     next_month_int = now.month + 1
     if next_month_int == 13:
@@ -343,48 +343,78 @@ def members_single(request, id=0):
 
     starAccounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
 
-    seven_days_ago = now - datetime.timedelta(7)
-
-    promos = Promo.objects.filter(account__in=accounts, end_date__gte=seven_days_ago)
-
-    value_added_hours = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=True)
-
-    # for row in value_added_hours:
-    #     row['account'] = Client.objects.get(id=row['account'])
-
     accountHours = {}
     accountAllocation = {}
     for account in accounts:
         hours = account.get_hours_worked_this_month_member(member)
-        va_hours = account.value_added_hours_month_member(member)
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
 
-    backupAccountHours = {}
-    backupAccountAllocation = {}
+    context = {
+        'accountHours': accountHours,
+        'accountAllocation': accountAllocation,
+        'member': member,
+        'accounts': accounts,
+        'onboarding_accounts': onboarding_accounts,
+        'backups': backups,
+        'backing_me': backing_me,
+        'starAccounts': starAccounts,
+        'black_marker': black_marker,
+    }
 
-    starAccountHours = {}
-    starAccountAllocation = {}
+    return render(request, 'user_management/profile/profile.html', context)
 
+
+@login_required
+def members_single_hours(request, id):
+    """
+    Hours page for individual member
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+
+    context = {
+        'member': member
+    }
+
+    return render(request, 'user_management/profile/hours.html', context)
+
+
+@login_required
+def members_single_reports(request, id):
+    """
+    Reports page for individual member
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+    now = datetime.datetime.now()
+    month = now.month
+    last_month = month - 1
+    year = now.year
     reporting_period = now.day <= 31
     reports = []
 
-    """
-    Trainer and trainee hours
-    """
-    trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=now.month, year=now.year)
-    trainee_hours_this_month = TrainingHoursRecord.objects.filter(trainee=member, month=now.month, year=now.year)
-
-    trainee_hour_total = 0.0
-    for trainee_hour in trainee_hours_this_month:
-        trainee_hour_total += trainee_hour.hours
+    accounts = Client.objects.filter(
+        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+        Q(am1=member) | Q(am2=member) | Q(am3=member) |
+        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+    ).filter(status=1).order_by('client_name')
 
     first_weekday, days_in_month = calendar.monthrange(now.year, now.month)
 
-    # Reports
     if reporting_period:
         active_accounts = accounts.filter(status=1)
-        last_month = month - 1
         if last_month == 0:
             last_month = 12
         if now.day == days_in_month:
@@ -399,38 +429,133 @@ def members_single(request, id=0):
                 report.save()
             reports.append(report)
 
-    score_badges = ['secondary', 'danger', 'warning', 'success']
+    context = {
+        'member': member,
+        'reports': reports,
+        'last_month_str': calendar.month_name[last_month]
+    }
+
+    return render(request, 'user_management/profile/reports.html', context)
+
+
+@login_required
+def members_single_promos(request, id):
+    """
+    Promos page for individual member
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+    now = datetime.datetime.now()
+    accounts = Client.objects.filter(
+        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+        Q(am1=member) | Q(am2=member) | Q(am3=member) |
+        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+    ).filter(status=1).order_by('client_name')
+    seven_days_ago = now - datetime.timedelta(7)
+
+    promos = Promo.objects.filter(account__in=accounts, end_date__gte=seven_days_ago)
 
     context = {
-        'hoursThisMonth': memberHoursThisMonth,
-        'accountHours': accountHours,
-        'backupHours': backupAccountHours,
-        'accountAllocation': accountAllocation,
-        'backupAccountAllocation': backupAccountAllocation,
         'member': member,
-        'memberSkills': memberSkills,
-        'accounts': accounts,
-        'onboarding_accounts': onboarding_accounts,
-        'backups': backups,
+        'promos': promos
+    }
+
+    return render(request, 'user_management/profile/promos.html', context)
+
+
+@login_required
+def members_single_kpis(request, id):
+    """
+    KPIs page for individual member
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+    accounts = Client.objects.filter(
+        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+        Q(am1=member) | Q(am2=member) | Q(am3=member) |
+        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+    ).filter(status=1).order_by('client_name')
+
+    context = {
+        'member': member,
+        'accounts': accounts
+    }
+
+    return render(request, 'user_management/profile/kpis.html', context)
+
+
+@login_required
+def members_single_timesheet(request, id):
+    """
+    Timesheet page for individual member
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+    now = datetime.datetime.now()
+    month = now.month
+    year = now.year
+    reg_hours_this_month = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
+    value_added_hours = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=True)
+
+    trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=month, year=year)
+    trainee_hours_this_month = TrainingHoursRecord.objects.filter(trainee=member, month=month, year=year)
+
+    trainee_hour_total = 0.0
+    for trainee_hour in trainee_hours_this_month:
+        trainee_hour_total += trainee_hour.hours
+
+    context = {
+        'member': member,
+        'reg_hours_this_month': reg_hours_this_month,
         'trainer_hours_this_month': trainer_hours_this_month,
         'trainee_hours_this_month': trainee_hours_this_month,
         'trainee_hour_total': trainee_hour_total,
-        'backing_me': backing_me,
-        'score_badges': score_badges,
-        'incidents': incidents,
-        'reporting_period': reporting_period,
-        'reports': reports,
-        'promos': promos,
-        'value_added_hours': value_added_hours,
-        'month_str': now.strftime("%B"),
-        'last_month_str': calendar.month_name[last_month],
-        'starAccounts': starAccounts,
-        'starAccountHours': starAccountHours,
-        'black_marker': black_marker,
-        'starAccountAllocation': starAccountAllocation
+        'value_added_hours': value_added_hours
     }
 
-    return render(request, 'user_management/profile.html', context)
+    return render(request, 'user_management/profile/timesheet.html', context)
+
+
+@login_required
+def members_single_skills(request, id):
+    """
+    Skills page for individual member
+    :param request:
+    :param id:
+    :return:
+    """
+    if not request.user.is_staff and id != request.user.id:
+        return HttpResponse('You do not have permission to view this page')
+
+    member = Member.objects.get(id=id)
+    member_skills = SkillEntry.objects.filter(member=member)
+
+    score_badges = ['secondary', 'danger', 'warning', 'success']
+
+    context = {
+        'member': member,
+        'score_badges': score_badges,
+        'member_skills': member_skills
+    }
+
+    return render(request, 'user_management/profile/skills.html', context)
 
 
 @login_required
