@@ -1,0 +1,594 @@
+{% extends 'user_management/profile/layout.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+{% load notification_tags %}
+{% load humanize %}
+{% load custom_filters %}
+{% load template_filters %}
+
+{% block extraCss %}
+    <style>
+        #my_skills_datatable td, th {
+            text-align: center;
+        }
+
+        #reports_datatable {
+            text-align: center;
+        }
+
+        .late-onboard:hover {
+            cursor: pointer;
+        }
+
+    </style>
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="m-content">
+        {% with notifications=request.user|get_unread_notifications %}
+            {% if notifications.count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    <strong>Heads Up!</strong> You have unread notifications.
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if starAccounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ starAccounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-12">
+                {% if member.phase_tasks.count > 0 %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Account Tasks
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <div class="m-widget2">
+                                {% for task in member.phase_tasks %}
+                                    <div class="m-widget2__item m-widget2__item--info">
+                                        <div class="m-widget2__checkbox">
+                                            <label class="m-checkbox m-checkbox--solid m-checkbox--single m-checkbox--brand">
+                                                <input type="checkbox" class="task-check-page"
+                                                       data-task-id="{{ task.id }}">
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                        <div class="m-widget2__desc">
+                                            <a href="{{ task.link }}" class="m-widget2__text">
+                                                {{ task.account.client_name }}: {{ task.task.message }}
+                                            </a><br>
+                                            <span class="m-widget2__user-name">
+                                              <a href="#" class="m-widget2__link">
+                                                Created {{ task.date_created }}
+                                              </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <!-- Accounts -->
+                {% if accounts.count > 0 %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        My Accounts
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            {% for account in accounts %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-3">
+                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                        <p>My hours this month:
+                                            {{ accountHours|get_item_from_list:account.id  }}/{{ accountAllocation|get_item_from_list:account.id }}</p>
+                                        <div class="m--space-30">
+                                            {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
+                                                <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if aw %}
+                                                            {% for a in aw %}
+
+
+
+
+                                                          {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No AdWords Account
+                                                        {% endif %}">A</span>
+                                                <span class="m-badge {% if bing %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if bing %}
+                                                            {% for b in bing %}
+
+                                                          {{ b.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Bing Account
+                                                        {% endif %}">B</span>
+                                                <span class="m-badge {% if fb %}m-badge--info{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if fb %}
+                                                            {% for f in fb %}
+
+                                                          {{ f.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Facebook Account
+                                                        {% endif %}">F</span>
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                    <div class="col-9">
+                                        <div class="row">
+                                            <div class="col-md-4"><b>Current</b>:
+                                                {{ account.currency }}{{ account.current_spend|floatformat:2|intcomma }}
+                                            </div>
+                                            <div class="col-md-4"><b>Budget</b>:
+                                                {{ account.currency }}{{ account.current_budget|intcomma }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <b>Projected</b>:
+                                                {{ account.currency }}{{ account.project_average|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative!important; height:30px !important;">
+                                            <div id="{{ account.id }}_progressbar"
+                                                 class="progress-bar {% if account.underpacing_average %}bg-warning{% elif account.project_average > account.current_budget %}bg-danger{% else %}bg-success{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ account.spend_percentage }}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 aria-valuenow="{{ account.spend_percentage }}"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ account.current_spend }}/{{ account.current_budget }}">
+                                                {{ account.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                            <div class="black-marker"
+                                                 style="width: {{ black_marker }}%"
+                                                 aria-valuenow="{{ black_marker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                <!-- end accounts -->
+                {% if onboarding_accounts.count > 0 %}
+                    <!-- Onboarding accounts -->
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Onboarding Accounts
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            {% for account in onboarding_accounts %}
+                                <div class="onboard-account"
+                                     style="border: 1px solid #f4f5f8; padding: 1rem 1rem 0rem 1rem;">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <a href="/clients/accounts/{{ account.id }}"><h4 style="display:inline;"
+                                                                                             {% if account.late_onboard_reason != None %}data-toggle="m-tooltip"
+                                                                                             data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4>
+                                            </a>&nbsp;&nbsp;<span
+                                                class="m-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}"
+                                                style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    {% if account.has_ppc %}
+                                        <div class="row">
+                                            <div class="col-1">
+                                            <span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger late-onboard{% else %}info{% endif %} m-badge--wide m-badge--rounded"
+                                                  data-account-id="{{ account.id }}"
+                                                  {% if account.is_late_to_onboard %}data-toggle="modal"
+                                                  data-target="#late_onboard_modal"{% endif %}
+                                                  style="width:100%; {% if account.ppc_onboarding_steps_complete %}background:#34bfa3;{% endif %}">
+                                                {% if account.ppc_onboarding_steps_complete %}Complete
+                                                    {% else %}{% if not account.is_late_to_onboard %}On pace{% else %}
+                                                        Late{% endif %}{% endif %}
+                                            </span>
+                                            </div>
+                                            <div class="col-11">
+                                                <div class="m-list-badge m--margin-bottom-20">
+                                                    <div class="m-list-badge__label m--font-info">PPC</div>
+                                                    <div class="m-list-badge__items">
+                                                        {% for step in account.ppc_steps %}
+                                                            <a href="/clients/accounts/onboard/{{ account.id }}"
+                                                               class="m-list-badge__item m-list-badge__item--{% if step.complete %}success{% else %}metal{% endif %}">{{ step.step.name }}</a>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    {% if account.has_seo %}
+                                        <div class="row">
+                                            <div class="col-1">
+                                            <span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger late-onboard{% else %}info{% endif %} m-badge--wide m-badge--rounded"
+                                                  data-account-id="{{ account.id }}"
+                                                  {% if account.is_late_to_onboard %}data-toggle="modal"
+                                                  data-target="#late_onboard_modal"{% endif %}
+                                                  style="width:100%; {% if account.seo_onboarding_steps_complete %}background:#34bfa3;{% endif %}">
+                                                {% if account.seo_onboarding_steps_complete %}Complete
+                                                    {% else %}{% if not account.is_late_to_onboard %}On pace{% else %}
+                                                        Late{% endif %}{% endif %}</span>
+                                            </div>
+                                            <div class="col-11">
+                                                <div class="m-list-badge m--margin-bottom-20">
+                                                    <div class="m-list-badge__label m--font-info">SEO</div>
+                                                    <div class="m-list-badge__items">
+                                                        {% for step in account.seo_steps %}
+                                                            <a href="/clients/accounts/onboard/{{ account.id }}"
+                                                               class="m-list-badge__item m-list-badge__item--{% if step.complete %}success{% else %}metal{% endif %}">{{ step.step.name }}</a>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    {% if account.has_cro %}
+                                        <div class="row">
+                                            <div class="col-1">
+                                            <span class="m-badge m-badge--{% if account.is_late_to_onboard %}danger late-onboard{% else %}info{% endif %} m-badge--wide m-badge--rounded"
+                                                  data-account-id="{{ account.id }}"
+                                                  {% if account.is_late_to_onboard %}data-toggle="modal"
+                                                  data-target="#late_onboard_modal"{% endif %}
+                                                  style="width:100%; {% if account.cro_onboarding_steps_complete %}background:#34bfa3;{% endif %}">
+                                                {% if account.cro_onboarding_steps_complete %}Complete
+                                                    {% else %}{% if not account.is_late_to_onboard %}On pace{% else %}
+                                                        Late{% endif %}{% endif %}</span>
+                                            </div>
+                                            <div class="col-11">
+                                                <div class="m-list-badge m--margin-bottom-20">
+                                                    <div class="m-list-badge__label m--font-info">CRO</div>
+                                                    <div class="m-list-badge__items">
+                                                        {% for step in account.cro_steps %}
+                                                            <a href="/clients/accounts/onboard/{{ account.id }}"
+                                                               class="m-list-badge__item m-list-badge__item--{% if step.complete %}success{% else %}metal{% endif %}">{{ step.step.name }}</a>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- end Onboarding accounts -->
+                {% endif %}
+                {% if backups.count > 0 %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        My Backup Accounts
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                   id="my_backup_clients_datatable">
+                                <thead class="thead-inverse">
+                                <tr class="main-table-header">
+                                    <th>
+                                        Client
+                                    </th>
+                                    <th>Account</th>
+                                    <th>
+                                        My Actual Hours
+                                    </th>
+                                    <th>
+                                        Total Actual Hours
+                                    </th>
+                                    <th>
+                                        Total Allocated Hours
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for backup in backups %}
+                                    <tr>
+                                        <td>
+                                            {{ backup.account.parentClient.name }}
+                                        </td>
+                                        <td>
+                                            <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                                        </td>
+                                        <td>
+                                            {# backupHours|get_item_from_list:account.id #} 0
+                                        </td>
+                                        <td>
+                                            {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ backup.account.all_hours|floatformat:2 }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if starAccounts.count > 0 %}
+                    <!-- Being starred accounts (admin only) -->
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Flagged Accounts
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                   id="star_clients_datatable">
+                                <thead class="thead-inverse">
+                                <tr class="main-table-header">
+                                    <th>
+                                        Client
+                                    </th>
+                                    <th>Account</th>
+                                    <th>
+                                        Total Actual Hours
+                                    </th>
+                                    <th>
+                                        Total Allocated Hours
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for account in starAccounts %}
+                                    <tr>
+                                        <td>
+                                            {{ account.parentClient.name }}
+                                        </td>
+                                        <td>
+                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                        </td>
+                                        <td>
+                                            {{ account.hoursWorkedThisMonth|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ account.all_hours|floatformat:2 }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- End starred accounts -->
+                {% endif %}
+            </div>
+        </div>
+
+        <!--End::Main Portlet-->
+    </div>
+
+    <!-- Late onboard account -->
+    <div class="modal fade" id="late_onboard_modal" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reason for late onboarding</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/user_management/late_onboard">
+                    {% csrf_token %}
+                    <input name="account_id" id="m_account_id" type="text" value="" style="display:none;"/>
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Reason:</label>
+                                        <input type="text" name="late_reason" class="form-control m-input"
+                                               maxlength="140" required/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End onboard modal -->
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(function () {
+            var $sentToAmCheck = $('.sent-to-am');
+            var $sentToClientCheck = $('.sent-to-client');
+            var $dueDatePickers = $('.m_datepicker');
+
+            var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+            let $promoCheck = $('.confirm-promo');
+
+            $promoCheck.click(function () {
+                let confirmation_type = $(this).data('confirmation-type');
+                let promo_type = $(this).data('promo-id');
+                let account_id = $(this).data('account-id');
+                if ($(this).is(':checked')) {
+                    $.ajax({
+                        url: '/clients/promos/confirm',
+                        data: {
+                            'account_id': account_id,
+                            'promo_id': promo_type,
+                            'confirmation_type': confirmation_type
+                        },
+                        headers: {'X-CSRFToken': csrftoken},
+                        type: 'POST',
+                        success: function (data) {
+                            console.log(data);
+                            $(this).prop('disabled', 'disabled');
+                        }
+                    });
+                }
+
+            });
+
+            $('#late_onboard_modal').on('show.bs.modal', function (e) {
+                let account_id = $(e.relatedTarget).data('account-id');
+                $('#m_account_id').attr('value', account_id);
+            });
+
+            $dueDatePickers.datepicker({
+                todayHighlight: !0,
+                autoclose: !0,
+                format: 'yyyy-mm-dd',
+                orientation: "bottom left",
+                templates: {
+                    leftArrow: '<i class="la la-angle-left"></i>',
+                    rightArrow: '<i class="la la-angle-right"></i>'
+                }
+            }).on('show.bs.modal', function (event) {
+                event.stopPropagation();
+            });
+
+            /**
+             * Calendar
+             */
+            $('#calendar').fullCalendar({
+                header: {
+                    left: "prev, next, today",
+                    center: "title",
+                    right: "month, listWeek"
+                },
+                aspectRatio: 2,
+                defaultDate: moment(),
+                defaultView: 'month',
+                events: [
+                    {% for promo in promos %}
+                        {
+                            title: "{{ promo }}",
+                            description: "{{ promo.desc }}",
+                            start: moment("{{ promo.formatted_start }}"),
+                            end: moment("{{ promo.formatted_end }}"),
+                            className: "{% if promo.is_active %}m-fc-event--solid-success{% else %}
+                                m-fc - event--solid-warning{% endif %}"
+                        }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            });
+
+            /**
+             * Checks off report box
+             * @param  {string} el  jQuery element
+             * @param  {string} url string
+             * @return {}
+             */
+            var checkReportBox = function (el, url) {
+                $.ajax({
+                    url: '/clients/reports/' + url,
+                    data: {
+                        'account_id': el.data('account'),
+                        'month': {{ reports.0.month }}
+                    },
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    success: function (data) {
+                        console.log(data);
+                    }
+                });
+            };
+
+            var setDueDate = function (el) {
+                $.ajax({
+                    url: '/clients/reports/set-due-date',
+                    data: {
+                        'account_id': el.data('account'),
+                        'month': {{ reports.0.month }},
+                        'due_date': el.val()
+                    },
+                    headers: {'X-CSRFToken': csrftoken},
+                    type: 'POST',
+                    success: function (data) {
+                        console.log(data);
+                    }
+                });
+            };
+
+            $dueDatePickers.change(function () {
+                setDueDate($(this));
+                $(this).attr('disabled', 'disabled');
+            });
+
+
+            $sentToAmCheck.click(function () {
+                if ($(this).is(':checked')) {
+                    checkReportBox($(this), 'confirm_sent_am');
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+
+            $sentToClientCheck.click(function () {
+                if ($(this).is(':checked')) {
+                    checkReportBox($(this), 'confirm_sent_client');
+                    $(this).attr('disabled', 'disabled');
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}

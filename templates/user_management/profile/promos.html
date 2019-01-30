@@ -1,0 +1,219 @@
+{% extends 'user_management/profile/layout.html' %}
+
+{% load notification_tags %}
+
+
+{% block content %}
+    <div class="m-content">
+        {% with notifications=request.user|get_unread_notifications %}
+            {% if notifications.count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    <strong>Heads Up!</strong> You have unread notifications.
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if starAccounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ starAccounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        {% if promos.count > 0 %}
+            <!-- Calendar promos -->
+            <div class="m-portlet m-portlet--mobile m-portlet--body-progress">
+                <div class="m-portlet__head">
+                    <div class="m-portlet__head-caption">
+                        <div class="m-portlet__head-title">
+                            <h3 class="m-portlet__head-text">
+                                Promos
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="m-portlet__head-tools">
+                        <ul class="nav nav-tabs m-tabs m-tabs-line  m-tabs-line--right" role="tablist">
+                            <li class="nav-item m-tabs__item">
+                                <a class="nav-link m-tabs__link active show" data-toggle="tab"
+                                   href="#m_tabs_7_1" role="tab" aria-selected="true">
+                                    Calendar
+                                </a>
+                            </li>
+                            <li class="nav-item m-tabs__item">
+                                <a class="nav-link m-tabs__link" data-toggle="tab" href="#m_tabs_7_2" role="tab"
+                                   aria-selected="false">
+                                    Summary
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="m-portlet__body">
+                    <div class="tab-content">
+                        <div class="tab-pane active show" id="m_tabs_7_1" role="tabpanel">
+                            <div id="calendar" class="fc fc-unthemed fc-ltr">
+
+                            </div>
+                        </div>
+                        <div class="tab-pane hide" id="m_tabs_7_2" role="tabpanel">
+                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                   id="account_change_datatable">
+                                <thead class="thead-inverse">
+                                <tr class="main-table-header">
+                                    <th>
+                                        Promo Name
+                                    </th>
+                                    <th>
+                                        Start Date
+                                    </th>
+                                    <th>
+                                        End Date
+                                    </th>
+                                    <th>
+                                        Desc
+                                    </th>
+                                    <th>
+                                        Services
+                                    </th>
+                                    <th>
+                                        Confirmed Started
+                                    </th>
+                                    <th>
+                                        Confirmed Ended
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for promo in promos %}
+                                    <tr>
+                                        <td>
+                                            {{ promo }}
+                                        </td>
+                                        <td>
+                                            {{ promo.start_date }}
+                                        </td>
+                                        <td>
+                                            {{ promo.end_date }}
+                                        </td>
+                                        <td>
+                                            {{ promo.desc }}
+                                        </td>
+                                        <td>
+                                            {{ promo.services_str }}
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="confirm-promo"
+                                                   data-account-id="{{ promo.account.id }}"
+                                                   data-promo-id="{{ promo.id }}"
+                                                   data-account-id="{{ account.id }}" data-confirmation-type="0"
+                                                   {% if promo.confirmed_started != None %}checked
+                                                   disabled{% endif %}/>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" class="confirm-promo"
+                                                   data-account-id="{{ promo.account.id }}"
+                                                   data-promo-id="{{ promo.id }}"
+                                                   data-account-id="{{ account.id }}" data-confirmation-type="1"
+                                                   {% if promo.confirmed_ended != None %}checked
+                                                   disabled{% endif %}/>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end promos -->
+        {% endif %}
+    </div>
+
+
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(function () {
+            let $dueDatePickers = $('.m_datepicker');
+
+            let csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+            let $promoCheck = $('.confirm-promo');
+
+            $promoCheck.click(function () {
+                let confirmation_type = $(this).data('confirmation-type');
+                let promo_type = $(this).data('promo-id');
+                let account_id = $(this).data('account-id');
+                if ($(this).is(':checked')) {
+                    $.ajax({
+                        url: '/clients/promos/confirm',
+                        data: {
+                            'account_id': account_id,
+                            'promo_id': promo_type,
+                            'confirmation_type': confirmation_type
+                        },
+                        headers: {'X-CSRFToken': csrftoken},
+                        type: 'POST',
+                        success: function (data) {
+                            console.log(data);
+                            $(this).prop('disabled', 'disabled');
+                        }
+                    });
+                }
+
+            });
+
+            $dueDatePickers.datepicker({
+                todayHighlight: !0,
+                autoclose: !0,
+                format: 'yyyy-mm-dd',
+                orientation: "bottom left",
+                templates: {
+                    leftArrow: '<i class="la la-angle-left"></i>',
+                    rightArrow: '<i class="la la-angle-right"></i>'
+                }
+            }).on('show.bs.modal', function (event) {
+                event.stopPropagation();
+            });
+
+            /**
+             * Calendar
+             */
+            $('#calendar').fullCalendar({
+                header: {
+                    left: "prev, next, today",
+                    center: "title",
+                    right: "month, listWeek"
+                },
+                aspectRatio: 2,
+                defaultDate: moment(),
+                defaultView: 'month',
+                events: [
+                    {% for promo in promos %}
+                        {
+                            title: "{{ promo }}",
+                            description: "{{ promo.desc }}",
+                            start: moment("{{ promo.formatted_start }}"),
+                            end: moment("{{ promo.formatted_end }}"),
+                            className: "{% if promo.is_active %}m-fc-event--solid-success{% else %}
+                                m-fc - event--solid-warning{% endif %}"
+                        }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            });
+
+
+        });
+    </script>
+{% endblock %}

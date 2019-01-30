@@ -3,6 +3,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
+from client_area.models import PhaseTask, PhaseTaskAssignment
 import datetime
 import calendar
 
@@ -299,7 +300,8 @@ class Member(models.Model):
                 break
         return resp
 
-    def get_accounts(self):
+    @property
+    def accounts(self):
         if not hasattr(self, '_accounts'):
             Client = apps.get_model('budget', 'Client')
             self._accounts = Client.objects.filter(
@@ -317,18 +319,18 @@ class Member(models.Model):
         return self._backupaccounts
 
     def get_accounts_count(self):
-        return self.get_accounts().count()
+        return self.accounts.count()
 
     @property
     def active_accounts_count(self):
         if not hasattr(self, '_active_accounts_count'):
-            self._active_accounts_count = self.get_accounts().filter(status=1).count()
+            self._active_accounts_count = self.accounts.filter(status=1).count()
         return self._active_accounts_count
 
     @property
     def onboarding_accounts_count(self):
         if not hasattr(self, '_onboarding_accounts_count'):
-            self._onboarding_accounts_count = self.get_accounts().filter(status=0).count()
+            self._onboarding_accounts_count = self.accounts.filter(status=0).count()
         return self._onboarding_accounts_count
 
     @property
@@ -358,6 +360,19 @@ class Member(models.Model):
         notifications = Notification.objects.filter(member=self, confirmed=False)
         return notifications
 
+    @property
+    def phase_tasks(self):
+        """
+        Gets 90 days of awesome tasks
+        :return:
+        """
+        if not hasattr(self, '_phase_tasks'):
+            tasks = PhaseTask.objects.filter(roles__in=[self.role])
+            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, account__in=self.accounts,
+                                                                  complete=False)
+            self._phase_tasks = task_assignments
+        return self._phase_tasks
+
     incidents = property(countIncidents)
     mostRecentIncident = property(getMostRecentIncident)
     skills = property(getSkills)
@@ -366,7 +381,6 @@ class Member(models.Model):
     actualHoursThisMonth = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
     hours_available = property(hours_available)
-    accounts = property(get_accounts)
     backup_accounts = property(get_backup_accounts)
     account_count = property(get_accounts_count)
 
