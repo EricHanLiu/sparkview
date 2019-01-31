@@ -55,9 +55,32 @@ class UserTestCase(TestCase):
     def test_staff_get_views(self):
         """ Check all of the admin/superuser get views """
         self.client.login(username='test3', password='123456')
+        user = User.objects.get(username='test3')
+        member = Member.objects.get(user=user)
 
         # Regular pages
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id))
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/hours')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/reports')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/promos')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/kpis')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/timesheet')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/skills')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/')

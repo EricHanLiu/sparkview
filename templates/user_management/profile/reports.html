@@ -129,6 +129,19 @@
             let $sentToClientCheck = $('.sent-to-client');
             let $dueDatePickers = $('.m_datepicker');
 
+            $dueDatePickers.datepicker({
+                todayHighlight: !0,
+                autoclose: !0,
+                format: 'yyyy-mm-dd',
+                orientation: "bottom left",
+                templates: {
+                    leftArrow: '<i class="la la-angle-left"></i>',
+                    rightArrow: '<i class="la la-angle-right"></i>'
+                }
+            }).on('show.bs.modal', function (event) {
+                event.stopPropagation();
+            });
+
             let csrftoken = $("[name=csrfmiddlewaretoken]").val();
 
             /**

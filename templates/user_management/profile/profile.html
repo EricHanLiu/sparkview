@@ -454,141 +454,25 @@
 {% endblock %}
 
 {% block extraJs %}
-    <script>
-        $(document).ready(function () {
-            var $sentToAmCheck = $('.sent-to-am');
-            var $sentToClientCheck = $('.sent-to-client');
-            var $dueDatePickers = $('.m_datepicker');
-
-            var csrftoken = $("[name=csrfmiddlewaretoken]").val();
-
-            let $promoCheck = $('.confirm-promo');
-
-            $promoCheck.click(function () {
-                let confirmation_type = $(this).data('confirmation-type');
-                let promo_type = $(this).data('promo-id');
-                let account_id = $(this).data('account-id');
-                if ($(this).is(':checked')) {
-                    $.ajax({
-                        url: '/clients/promos/confirm',
-                        data: {
-                            'account_id': account_id,
-                            'promo_id': promo_type,
-                            'confirmation_type': confirmation_type
-                        },
-                        headers: {'X-CSRFToken': csrftoken},
-                        type: 'POST',
-                        success: function (data) {
-                            console.log(data);
-                            $(this).prop('disabled', 'disabled');
-                        }
-                    });
-                }
-
-            });
-
-            $('#late_onboard_modal').on('show.bs.modal', function (e) {
-                let account_id = $(e.relatedTarget).data('account-id');
-                $('#m_account_id').attr('value', account_id);
-            });
-
-            $dueDatePickers.datepicker({
-                todayHighlight: !0,
-                autoclose: !0,
-                format: 'yyyy-mm-dd',
-                orientation: "bottom left",
-                templates: {
-                    leftArrow: '<i class="la la-angle-left"></i>',
-                    rightArrow: '<i class="la la-angle-right"></i>'
-                }
-            }).on('show.bs.modal', function (event) {
-                event.stopPropagation();
-            });
-
-            /**
-             * Calendar
-             */
-            $('#calendar').fullCalendar({
-                header: {
-                    left: "prev, next, today",
-                    center: "title",
-                    right: "month, listWeek"
-                },
-                aspectRatio: 2,
-                defaultDate: moment(),
-                defaultView: 'month',
-                events: [
-                    {% for promo in promos %}
-                        {
-                            title: "{{ promo }}",
-                            description: "{{ promo.desc }}",
-                            start: moment("{{ promo.formatted_start }}"),
-                            end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--solid-success{% else %}
-                                m-fc - event--solid-warning{% endif %}"
-                        }{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ]
-            });
-
-            /**
-             * Checks off report box
-             * @param  {string} el  jQuery element
-             * @param  {string} url string
-             * @return {}
-             */
-            var checkReportBox = function (el, url) {
-                $.ajax({
-                    url: '/clients/reports/' + url,
-                    data: {
-                        'account_id': el.data('account'),
-                        'month': {{ reports.0.month }}
-                    },
-                    headers: {'X-CSRFToken': csrftoken},
-                    type: 'POST',
-                    success: function (data) {
-                        console.log(data);
-                    }
-                });
-            };
-
-            var setDueDate = function (el) {
-                $.ajax({
-                    url: '/clients/reports/set-due-date',
-                    data: {
-                        'account_id': el.data('account'),
-                        'month': {{ reports.0.month }},
-                        'due_date': el.val()
-                    },
-                    headers: {'X-CSRFToken': csrftoken},
-                    type: 'POST',
-                    success: function (data) {
-                        console.log(data);
-                    }
-                });
-            };
-
-            $dueDatePickers.change(function () {
-                setDueDate($(this));
-                $(this).attr('disabled', 'disabled');
-            });
-
-
-            $sentToAmCheck.click(function () {
-                if ($(this).is(':checked')) {
-                    checkReportBox($(this), 'confirm_sent_am');
-                    $(this).attr('disabled', 'disabled');
-                }
-            });
-
-            $sentToClientCheck.click(function () {
-                if ($(this).is(':checked')) {
-                    checkReportBox($(this), 'confirm_sent_client');
-                    $(this).attr('disabled', 'disabled');
-                }
-            });
-
-
-        });
-    </script>
+<script>
+$(document).ready(function () {
+  let $notifCheckPage = $('.task-check-page');
+  $notifCheckPage.click(function () {
+    let $el = $(this);
+    let $notif = $(this).closest('.m-widget2__item');
+    $.ajax({
+        url: '/notifications/confirm',
+        data: {
+          'notification_id': $(this).data('notification-id')
+        },
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        type: 'POST',
+        success: function (data) {
+          $el.prop('disabled', 'disabled');
+          $notif.fadeOut();
+        }
+    });
+  });
+});
+</script>
 {% endblock %}
