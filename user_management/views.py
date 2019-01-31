@@ -301,7 +301,8 @@ def members_single(request, id=0):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id and id != 0:
         return HttpResponse('You do not have permission to view this page')
 
     if id == 0:  # This is a profile page
@@ -373,7 +374,8 @@ def members_single_hours(request, id):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
@@ -393,7 +395,8 @@ def members_single_reports(request, id):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
@@ -446,7 +449,8 @@ def members_single_promos(request, id):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
@@ -477,7 +481,8 @@ def members_single_kpis(request, id):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
@@ -504,7 +509,8 @@ def members_single_timesheet(request, id):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
@@ -541,7 +547,8 @@ def members_single_skills(request, id):
     :param id:
     :return:
     """
-    if not request.user.is_staff and id != request.user.id:
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponse('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
