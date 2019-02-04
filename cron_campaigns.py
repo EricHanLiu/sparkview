@@ -15,10 +15,7 @@ def main():
         except:
             client_id = None
 
-        try:
-            adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
-        except:
-            print('failed')
+        adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
 
 
 if __name__ == '__main__':

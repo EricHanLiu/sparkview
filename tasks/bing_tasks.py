@@ -75,10 +75,10 @@ def bing_cron_accounts(self):
 
 @celery_app.task(bind=True)
 def bing_anomalies(self):
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for acc in accounts:
         bing_cron_anomalies_accounts.delay(acc.account_id)
+
 
 @celery_app.task(bind=True)
 def bing_cron_anomalies_accounts(self, customer_id):
@@ -290,7 +290,6 @@ def bing_cron_ovu(self, customer_id):
 
 @celery_app.task(bind=True)
 def bing_alerts(self):
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
 
     for acc in accounts:
@@ -405,7 +404,6 @@ def bing_cron_disapproved_ads(account_id, adgroup):
 
 @celery_app.task(bind=True)
 def bing_campaigns(self):
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for acc in accounts:
         bing_cron_campaign_stats.delay(acc.account_id)
@@ -413,7 +411,6 @@ def bing_campaigns(self):
 
 @celery_app.task(bind=True)
 def bing_flight_dates(self):
-
     bing = BingAccounts.objects.filter(blacklisted=False)
     for b in bing:
         bing_cron_flight_dates.delay(b.account_id)
@@ -444,8 +441,6 @@ def bing_cron_flight_dates(self, customer_id):
         b.save()
 
 
-
-
 @celery_app.task(bind=True)
 def bing_cron_campaign_stats(self, account_id, client_id=None):
     account = BingAccounts.objects.get(account_id=account_id)
@@ -474,7 +469,6 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
     )
 
     ys_stats = helper.map_campaign_stats(ys_report)
-
     for k, v in ys_stats.items():
         campaign_id = v[0]['campaignid']
         campaign_name = v[0]['campaignname']
@@ -522,6 +516,10 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
 
     if client_id is not None:
         client = Client.objects.get(id=client_id)
+        # other_cmps = BingCampaign.objects.filter(account=account)
+        # for other_cmp in other_cmps:
+        #     if other_cmp not in cmps:
+        #         cmps.append(other_cmp)
         groupings = CampaignGrouping.objects.filter(client=client)
         if groupings:
             for gr in groupings:
@@ -551,35 +549,35 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
                                     gr.bing_campaigns.remove(c)
                                 else:
                                     gr.bing_campaigns.add(c)
-        # client = Client.objects.get(id=client_id)
-        # groupings = CampaignGrouping.objects.filter(client=client)
-        #
-        # if groupings:
-        #     for gr in groupings:
-        #         for c in cmps:
-        #             if gr.group_by == 'manual':
-        #                 continue
-        #             else:
-        #                 # Retrieve keywords to group by as a list
-        #                 group_by = gr.group_by.split(',')
-        #
-        #                 # Loop through kws and add campaigns to the group
-        #                 for keyword in group_by:
-        #                     if '+' in keyword:
-        #                         if keyword.strip('+').lower() in c.campaign_name.lower() \
-        #                                 and c not in gr.bing_campaigns.all():
-        #                             gr.bing_campaigns.add(c)
-        #
-        #                         if keyword.strip('+').lower() not in c.campaign_name.lower() \
-        #                                 and c in gr.bing_campaigns.all():
-        #                             gr.bing_campaigns.remove(c)
-        #
-        #                     if '-' in keyword:
-        #                         if keyword.strip('-').lower() in c.campaign_name.lower() \
-        #                                 and c in gr.bing_campaigns.all():
-        #                             gr.bing_campaigns.remove(c)
-        #                         else:
-        #                             gr.bing_campaigns.add(c)
+                    # client = Client.objects.get(id=client_id)
+                    # groupings = CampaignGrouping.objects.filter(client=client)
+                    #
+                    # if groupings:
+                    #     for gr in groupings:
+                    #         for c in cmps:
+                    #             if gr.group_by == 'manual':
+                    #                 continue
+                    #             else:
+                    #                 # Retrieve keywords to group by as a list
+                    #                 group_by = gr.group_by.split(',')
+                    #
+                    #                 # Loop through kws and add campaigns to the group
+                    #                 for keyword in group_by:
+                    #                     if '+' in keyword:
+                    #                         if keyword.strip('+').lower() in c.campaign_name.lower() \
+                    #                                 and c not in gr.bing_campaigns.all():
+                    #                             gr.bing_campaigns.add(c)
+                    #
+                    #                         if keyword.strip('+').lower() not in c.campaign_name.lower() \
+                    #                                 and c in gr.bing_campaigns.all():
+                    #                             gr.bing_campaigns.remove(c)
+                    #
+                    #                     if '-' in keyword:
+                    #                         if keyword.strip('-').lower() in c.campaign_name.lower() \
+                    #                                 and c in gr.bing_campaigns.all():
+                    #                             gr.bing_campaigns.remove(c)
+                    #                         else:
+                    #                             gr.bing_campaigns.add(c)
 
                     gr.save()
 
@@ -620,7 +618,6 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
 
 @celery_app.task(bind=True)
 def bing_trends(self):
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
 
     for account in accounts:
@@ -818,7 +815,6 @@ def bing_cron_accounts_not_running():
         bing_accounts_not_running.delay(account.account_id)
 
 
-
 @celery_app.task(bind=True)
 def bing_accounts_not_running(self, account_id):
     account = BingAccounts.objects.get(account_id=account_id)
@@ -879,7 +875,6 @@ def bing_accounts_not_running(self, account_id):
 
 @celery_app.task(bind=True)
 def bing_wasted_spend(self):
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
 
     for account in accounts:
@@ -956,7 +951,6 @@ def bing_account_wasted_spend(self, account_id):
 
 @celery_app.task(bind=True)
 def bing_kw_wastage(self):
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
 
     for account in accounts:

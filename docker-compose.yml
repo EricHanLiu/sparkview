@@ -63,23 +63,23 @@ services:
     entrypoint: "sh /bloom/.deploy/docker-entrypoint.sh web dev"
     volumes:
       - .:/bloom
-    links:
-      - worker
-      - broker
-      - psql
-    depends_on:
-      - worker
-      - broker
-      - psql
+#    links:
+#      - worker
+#      - broker
+#      - psql
+#    depends_on:
+#      - worker
+#      - broker
+#      - psql
     networks:
       - broker-net
       - app-net
     ports:
       - "8000:8000"
 
-  psql:
-    image: 'postgres'
-    volumes:
-      - psql-data
-    networks:
-      - app-net
+#  psql:
+#    image: 'postgres'
+#    volumes:
+#      - psql-data
+#    networks:
+#      - app-net
