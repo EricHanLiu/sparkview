@@ -10,7 +10,7 @@ def main():
     accounts = DependentAccount.objects.filter(blacklisted=False)
     for account in accounts:
         try:
-            adwords_cron_ovu(account.dependent_account_id)
+            adwords_cron_ovu.delay(account.dependent_account_id)
         except:
             print('exception')
 
