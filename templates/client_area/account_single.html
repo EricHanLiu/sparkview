@@ -17,10 +17,6 @@
             margin: 0;
         }
 
-        .am-profile {
-            background: rgba(66, 134, 244, 0.5);
-        }
-
         .m-card-profile__pic-wrapper img {
             max-height: 80px;
         }
@@ -50,14 +46,17 @@
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         </button>
-                        <strong>Heads Up!</strong> This account is inactive. The reason is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
+                        <strong>Heads Up!</strong> This account is inactive. The reason
+                        is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is
+                        supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
                     </div>
                 {% endif %}
                 {% if account.status == 3 %}
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         </button>
-                        <strong>Warning!</strong> This account is lost. The reason is {{ account.get_lost_reason_display }}.
+                        <strong>Warning!</strong> This account is lost. The reason
+                        is {{ account.get_lost_reason_display }}.
                     </div>
                 {% endif %}
                 {% if account.has_blacklisted_accounts %}
@@ -72,7 +71,9 @@
                     <div class="alert alert-info alert-dismissible fade show" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         </button>
-                        <strong>Notice:</strong> This account is in the onboarding phase. Go <a href="/clients/accounts/onboard/{{ account.id }}" style="color:#fff;">here</a> to view the progress.
+                        <strong>Notice:</strong> This account is in the onboarding phase. Go <a
+                            href="/clients/accounts/onboard/{{ account.id }}" style="color:#fff;">here</a> to view the
+                        progress.
                     </div>
                 {% endif %}
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -256,6 +257,25 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                <div class="m-card-profile">
+                                    <div class="m-card-profile__pic">
+                                        <div class="m-card-profile__pic-wrapper">
+                                            {% if account.soldBy.image != None %}
+                                                <img src="{% static 'img/bloomers/'|add:account.soldBy.image %}"/>
+                                            {% else %}
+                                                <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="m-card-profile__details">
+                                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                            {% if request.user.is_staff %}
+                                                <a href="/user_management/members/{{ account.soldBy.member.id }}">{% endif %}{{ account.soldBy.user.get_full_name }}
+                                            {% if request.user.is_staff %}</a>{% endif %}</h3>
+                                        <span class="m-badge m-badge--wide"
+                                              style="background: rgb(0, 153, 151); color: white;">Sales</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1377,7 +1397,8 @@
                             description: "{{ promo.desc }}",
                             start: moment("{{ promo.formatted_start }}"),
                             end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+                            className: "{% if promo.is_active %}m-fc-event--success{% else %}
+                                m-fc-event--warning{% endif %}"
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 ]

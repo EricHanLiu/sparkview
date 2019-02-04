@@ -25,7 +25,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = '1x^c8ut0-jx0fo4i+cn0(0ev5y&t3d6w8y4ydfr8wb6(ly%7u7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 SITE_ID = 1
 
@@ -243,8 +243,9 @@ CRONJOBS = [
     ('10 15 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
     ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
     ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),  # Midnight, first day of the month
-    ('0 0 1 * *', 'monthly_budget_spend_context.main', '> ' + BASE_DIR + '/logs/budget_spend_context.log'),
-    ('0 0 1 * *', 'set_inactive_lost_budgets.main', '> ' + BASE_DIR + '/logs/set_inactive_lost_budgets.log')
+    # ('0 0 1 * *', 'monthly_budget_spend_context.main', '> ' + BASE_DIR + '/logs/budget_spend_context.log'), # erroneous logic
+    ('0 0 1 * *', 'set_inactive_lost_budgets.main', '> ' + BASE_DIR + '/logs/set_inactive_lost_budgets.log'),
+    ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log')
 ]
 
 # Bing Stuff

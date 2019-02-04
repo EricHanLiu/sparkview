@@ -9,7 +9,10 @@ from tasks.adwords_tasks import adwords_cron_ovu
 def main():
     accounts = DependentAccount.objects.filter(blacklisted=False)
     for account in accounts:
-        adwords_cron_ovu.delay(account.dependent_account_id)
+        try:
+            adwords_cron_ovu(account.dependent_account_id)
+        except:
+            print('exception')
 
 
 if __name__ == '__main__':

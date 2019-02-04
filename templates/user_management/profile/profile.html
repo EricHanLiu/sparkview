@@ -457,6 +457,10 @@
 <script>
 $(document).ready(function () {
   let $notifCheckPage = $('.task-check-page');
+  $('#late_onboard_modal').on('show.bs.modal', function (e) {
+    let account_id = $(e.relatedTarget).data('account-id');
+    $('#m_account_id').attr('value', account_id);
+  });
   $notifCheckPage.click(function () {
     let $el = $(this);
     let $notif = $(this).closest('.m-widget2__item');

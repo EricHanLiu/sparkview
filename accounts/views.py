@@ -14,14 +14,13 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @xframe_options_exempt
 def adwords_accounts(request):
-
     if request.method == 'POST':
         acc_id = request.POST['id']
         try:
             acc = DependentAccount.objects.get(dependent_account_id=acc_id)
             currentStatus = acc.blacklisted
             acc.blacklisted = not currentStatus
-            response = {'status':'active'} if not acc.blacklisted else {'status': 'inactive'}
+            response = {'status': 'active'} if not acc.blacklisted else {'status': 'inactive'}
             acc.save()
             blacklisted = DependentAccount.objects.filter(blacklisted=True).count()
             whitelisted = DependentAccount.objects.filter(blacklisted=False).count()
@@ -30,7 +29,6 @@ def adwords_accounts(request):
             return JsonResponse(response)
         except:
             raise Http404
-
 
     blacklisted = DependentAccount.objects.filter(blacklisted=True).count()
     whitelisted = DependentAccount.objects.filter(blacklisted=False).count()
@@ -44,17 +42,17 @@ def adwords_accounts(request):
     }
     return render(request, "accounts/adwords.html", context)
 
+
 @login_required
 @xframe_options_exempt
 def bing_accounts(request):
-
     if request.method == 'POST':
         acc_id = request.POST['id']
         try:
             acc = BingAccounts.objects.get(account_id=acc_id)
             currentStatus = acc.blacklisted
             acc.blacklisted = not currentStatus
-            response = {'status':'active'} if not acc.blacklisted else {'status': 'inactive'}
+            response = {'status': 'active'} if not acc.blacklisted else {'status': 'inactive'}
             acc.save()
             blacklisted = BingAccounts.objects.filter(blacklisted=True).count()
             whitelisted = BingAccounts.objects.filter(blacklisted=False).count()
@@ -63,7 +61,6 @@ def bing_accounts(request):
             return JsonResponse(response)
         except:
             raise Http404
-
 
     blacklisted = BingAccounts.objects.filter(blacklisted=True).count()
     whitelisted = BingAccounts.objects.filter(blacklisted=False).count()
@@ -77,17 +74,17 @@ def bing_accounts(request):
     }
     return render(request, "accounts/bing.html", context)
 
+
 @login_required
 @xframe_options_exempt
 def facebook_accounts(request):
-
     if request.method == 'POST':
         acc_id = request.POST['id']
         try:
             acc = FacebookAccount.objects.get(account_id=acc_id)
             currentStatus = acc.blacklisted
             acc.blacklisted = not currentStatus
-            response = {'status':'active'} if not acc.blacklisted else {'status': 'inactive'}
+            response = {'status': 'active'} if not acc.blacklisted else {'status': 'inactive'}
             acc.save()
             blacklisted = FacebookAccount.objects.filter(blacklisted=True).count()
             whitelisted = FacebookAccount.objects.filter(blacklisted=False).count()
@@ -96,7 +93,6 @@ def facebook_accounts(request):
             return JsonResponse(response)
         except:
             raise Http404
-
 
     blacklisted = FacebookAccount.objects.filter(blacklisted=True).count()
     whitelisted = FacebookAccount.objects.filter(blacklisted=False).count()
@@ -110,11 +106,11 @@ def facebook_accounts(request):
     }
     return render(request, "accounts/facebook.html", context)
 
+
 # to rewrite
 @login_required
 @xframe_options_exempt
 def change_protected(request):
-
     if request.method == 'POST':
 
         acc_id = request.POST['id']
@@ -152,4 +148,3 @@ def change_protected(request):
             response['protected'] = protected
             response['account'] = acc.account_name
             return JsonResponse(response)
-

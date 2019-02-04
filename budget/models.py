@@ -849,6 +849,10 @@ class Client(models.Model):
             members['Strat 3']['member'] = self.strat3
             members['Strat 3']['allocated_percentage'] = self.strat3percent
 
+        if self.soldBy is not None:
+            members['Sold by'] = {}
+            members['Sold by']['member'] = self.soldBy
+
         return members
 
     @property
@@ -920,7 +924,7 @@ class Client(models.Model):
         """
         if self.status != 0:
             return True
-        seo_steps = OnboardingStep.objects.filter(service=2)
+        seo_steps = OnboardingStep.objects.filter(service=1)
         account_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_steps, account=self)
         account_seo_tasks = OnboardingTaskAssignment.objects.filter(step__in=account_seo_steps)
         for task in account_seo_tasks:
@@ -936,7 +940,7 @@ class Client(models.Model):
         """
         if self.status != 0:
             return True
-        cro_steps = OnboardingStep.objects.filter(service=3)
+        cro_steps = OnboardingStep.objects.filter(service=2)
         account_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_steps, account=self)
         account_cro_tasks = OnboardingTaskAssignment.objects.filter(step__in=account_cro_steps)
         for task in account_cro_tasks:

@@ -2,9 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 
+
 # Create your models here.
 class BingAccounts(models.Model):
-
     account_name = models.CharField(max_length=255)
     account_id = models.CharField(max_length=255)
     blacklisted = models.BooleanField(default=False)
@@ -12,7 +12,8 @@ class BingAccounts(models.Model):
     account_ovu = models.IntegerField(default=0)
     desired_spend = models.IntegerField(default=0)
     current_spend = models.FloatField(default=0)
-    desired_spend_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_start_date = models.DateTimeField(default=None, null=True,
+                                                    blank=True)  # These are the start dates and end dates for the desired spend. Default should be this month.
     desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
     segmented_spend = JSONField(default=dict)
     trends = JSONField(default=dict)
@@ -50,7 +51,7 @@ class BingAccounts(models.Model):
     hist_qs = JSONField(default=dict, null=True, blank=True)
     assigned_to = models.ForeignKey(User, models.SET_NULL, null=True, blank=True)
     assigned_cm2 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='bing_cm2')
-    assigned_cm3 = models.ForeignKey(User,  models.SET_NULL,null=True, blank=True, related_name='bing_cm3')
+    assigned_cm3 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='bing_cm3')
     assigned_am = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='bing_am')
     assigned = models.BooleanField(default=False)
     updated_time = models.DateTimeField(auto_now=True)
@@ -65,13 +66,13 @@ class BingAccounts(models.Model):
         return False  # Temporarily disabling this feature
 
     class Meta:
-        ordering = ['created_time','updated_time']
+        ordering = ['created_time', 'updated_time']
 
     def __str__(self):
         return self.account_name
 
-class BingAnomalies(models.Model):
 
+class BingAnomalies(models.Model):
     account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
     performance_type = models.CharField(max_length=255, default='None')
     campaign_id = models.CharField(max_length=255, default='None')
@@ -89,29 +90,28 @@ class BingAnomalies(models.Model):
     metadata = JSONField(default=dict)
 
     class Meta:
-        ordering = ['created_time','updated_time']
+        ordering = ['created_time', 'updated_time']
 
     def __str__(self):
         return self.account.account_name
 
-class BingAlerts(models.Model):
 
-    account = models.ForeignKey(BingAccounts,models.SET_NULL, default=None, null=True)
+class BingAlerts(models.Model):
+    account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
     alert_type = models.CharField(max_length=255, default='None')
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
     metadata = JSONField(default=dict)
 
     class Meta:
-
         ordering = ['created_time', 'updated_time']
 
     def __str__(self):
         return self.alert_type
 
-class BingCampaign(models.Model):
 
-    account = models.ForeignKey(BingAccounts,models.SET_NULL, default=None, null=True)
+class BingCampaign(models.Model):
+    account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)

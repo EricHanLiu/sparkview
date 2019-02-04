@@ -623,7 +623,7 @@ $(document).ready(function () {
         closeOnSelect: false
     });
 
-    $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
+    // $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
 
     $("#gr_text_across").change(function () {
         $($('#campaigns_gr_across').data('select2').$container).addClass('hidden');
