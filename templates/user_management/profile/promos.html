@@ -147,8 +147,7 @@
         $(document).ready(function () {
             let $dueDatePickers = $('.m_datepicker');
 
-            let csrftoken = $("[name=csrfmiddlewaretoken]").val();
-
+            let csrftoken = '{{ csrf_token }}';
             let $promoCheck = $('.confirm-promo');
 
             $promoCheck.click(function () {

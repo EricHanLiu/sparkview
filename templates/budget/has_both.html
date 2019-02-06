@@ -499,8 +499,9 @@
                                 {{ a.current_spend|daily_spend|floatformat:2|intcomma }}
                             </div>
                             <div class="col-md-2">
-                                <b>Projected Spend EOM</b>:
-                                {{ a.current_spend|projected:a.yesterday_spend|floatformat:2|intcomma }}
+                                <b>Projected Spend</b>:
+                                {{ a.project_average|format_money }}
+{#                                {{ a.current_spend|projected:a.yesterday_spend|floatformat:2|intcomma }}#}
                             </div>
                         </div>
                         </p>
@@ -699,8 +700,8 @@
                                 {{ b.current_spend|daily_spend|floatformat:2|intcomma }}
                             </div>
                             <div class="col-md-2">
-                                <b>Projected Spend EOM</b>:
-                                {{ b.current_spend|projected:b.yesterday_spend|floatformat:2|intcomma }}
+                                <b>Projected Spend</b>:
+                                {{ b.project_average|format_money }}
                             </div>
                         </div>
                         </p>
@@ -848,8 +849,8 @@
                                 {{ f.current_spend|daily_spend|floatformat:2|intcomma }}
                             </div>
                             <div class="col-md-2">
-                                <b>Projected Spend EOM</b>:
-                                {{ f.current_spend|projected:f.yesterday_spend|floatformat:2|intcomma }}
+                                <b>Projected Spend</b>:
+                                {{ f.project_average|format_money }}
                             </div>
                         </div>
                         </p>

@@ -75,7 +75,7 @@ class AccountHourRecord(models.Model):
         else:
             name = self.member.user.first_name
         return name + ' ' + str(self.hours) + ' hours on ' + self.account.client_name \
-            + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
+               + ' added ' + str(self.created_at) + ' ' + self.get_month_display() + '/' + str(self.year)
 
 
 class ManagementFeeInterval(models.Model):
@@ -119,6 +119,7 @@ class MonthlyReport(models.Model):
     cm = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True, default=None)
     report_type = models.IntegerField(default=1, choices=REPORT_TYPE_CHOICES)
     report_services = models.IntegerField(default=0, choices=REPORT_SERVICES)
+    no_report = models.BooleanField(default=False)  # if true, this account has no report this month
     due_date = models.DateTimeField(blank=True, null=True)
     date_sent_to_am = models.DateTimeField(blank=True, null=True)
     date_sent_by_am = models.DateTimeField(blank=True, null=True)

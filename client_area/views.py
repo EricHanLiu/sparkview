@@ -982,6 +982,7 @@ def confirm_promo(request):
     """
     if request.method == 'GET':
         return HttpResponse('Invalid request')
+    print('confirming')
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
@@ -1126,30 +1127,34 @@ def onboard_account(request, account_id):
     account = Client.objects.get(id=account_id)
 
     if request.method == 'GET':
-        ac_ppc_steps = None
-        ac_seo_steps = None
-        ac_cro_steps = None
-        ac_strat_steps = None
+        s_ac_ppc_steps = None
+        s_ac_seo_steps = None
+        s_ac_cro_steps = None
+        s_ac_strat_steps = None
 
         if account.has_ppc:
             ppc_step = OnboardingStep.objects.filter(service=0)
             ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
+            s_ac_ppc_steps = sorted(ac_ppc_steps, key=lambda t: t.step.order)
         if account.has_seo:
             seo_step = OnboardingStep.objects.filter(service=1)
             ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
+            s_ac_seo_steps = sorted(ac_seo_steps, key=lambda t: t.step.order)
         if account.has_cro:
             cro_step = OnboardingStep.objects.filter(service=2)
             ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
+            s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
         if account.has_strat:
             strat_step = OnboardingStep.objects.filter(service=3)
             ac_strat_steps = OnboardingStepAssignment.objects.filter(step__in=strat_step, account=account)
+            s_ac_strat_steps = sorted(ac_strat_steps, key=lambda t: t.step.order)
 
         context = {
             'account': account,
-            'ac_ppc_steps': ac_ppc_steps,
-            'ac_seo_steps': ac_seo_steps,
-            'ac_cro_steps': ac_cro_steps,
-            'ac_strat_steps': ac_strat_steps,
+            'ac_ppc_steps': s_ac_ppc_steps,
+            'ac_seo_steps': s_ac_seo_steps,
+            'ac_cro_steps': s_ac_cro_steps,
+            'ac_strat_steps': s_ac_strat_steps,
         }
 
         return render(request, 'client_area/onboard_account.html', context)

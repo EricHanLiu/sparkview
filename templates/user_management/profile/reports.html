@@ -65,6 +65,7 @@
                         <th>
                             Sent to Client
                         </th>
+                        <th>No Report</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -112,6 +113,13 @@
                                     <span></span>
                                 </label>
                             </td>
+                            <td>
+                                <button type="button" class="btn btn-danger m-btn no-report"
+                                            data-account="{{ report.account.id }}"
+                                            data-toggle="modal" data-target="#m_no_report">
+                                    No report
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -120,6 +128,50 @@
         </div>
         <!-- end reporting portlet -->
     </div>
+
+    <!-- Set KPI modal -->
+    <div class="modal fade" id="m_no_report" tabindex="-1" role="dialog" aria-labelledby="m_no_report">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">This account will have no report for this month. Are you sure?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/clients/accounts/no_report">
+                    {% csrf_token %}
+                    <input name="account_id" id="no_report_acc_id" type="text" value="" style="display:none;"/>
+                    <input name="month" id="no_report_month" type="text" value="{{ reporting_month }}" style="display:none;" />
+                    <input name="year" id="no_report_month" type="text" value="{{ reporting_year }}" style="display:none;" />
+                    <input name="action" type="text" value="no_report" style="display: none;" />
+{#                    <div class="modal-body">#}
+{#                        <div class="m-portlet__body">#}
+{#                            <div class="form-group m-form__group">#}
+{#                                <div class="row">#}
+{#                                    <div class="col-md-6">#}
+{#                                        <label>Target ROAS:</label>#}
+{#                                        <input type="text" name="set-roas" class="form-control m-input"#}
+{#                                               value="{{ account.target_roas }}"/>#}
+{#                                    </div>#}
+{#                                    <div class="col-md-6">#}
+{#                                        <label>Target CPA:</label>#}
+{#                                        <input type="text" name="set-cpa" class="form-control m-input"#}
+{#                                               value="{{ account.target_cpa }}"/>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+                    <div class="modal-footer">
+                        <input type="submit" value="Confirm" class="btn btn-brand" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End set KPIs -->
 {% endblock %}
 
 {% block extraJs %}
@@ -140,6 +192,11 @@
                 }
             }).on('show.bs.modal', function (event) {
                 event.stopPropagation();
+            });
+
+            $('#late_onboard_modal').on('show.bs.modal', function (e) {
+              let account_id = $(e.relatedTarget).data('account');
+              $('#no_report_acc_id').attr('value', account_id);
             });
 
             let csrftoken = $("[name=csrfmiddlewaretoken]").val();

@@ -156,14 +156,14 @@
                                     <div class="col-9">
                                         <div class="row">
                                             <div class="col-md-4"><b>Current</b>:
-                                                {{ account.currency }}{{ account.current_spend|floatformat:2|intcomma }}
+                                                {{ account.currency }}{{ account.current_spend|format_money }}
                                             </div>
                                             <div class="col-md-4"><b>Budget</b>:
-                                                {{ account.currency }}{{ account.current_budget|intcomma }}
+                                                {{ account.currency }}{{ account.current_budget|format_money }}
                                             </div>
                                             <div class="col-md-4">
                                                 <b>Projected</b>:
-                                                {{ account.currency }}{{ account.project_average|floatformat:2|intcomma }}
+                                                {{ account.currency }}{{ account.project_average|format_money }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"

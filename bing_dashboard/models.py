@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
+import datetime
+import calendar
 
 
 # Create your models here.
@@ -64,6 +66,32 @@ class BingAccounts(models.Model):
         """
         # return self.desired_spend_start_date != None and self.desired_spend_end_date != None
         return False  # Temporarily disabling this feature
+
+    @property
+    def project_average(self):
+        if not hasattr(self, '_project_average'):
+            self._project_average = self.hybrid_projection(1)
+        return self._project_average
+
+    @property
+    def project_yesterday(self):
+        if not hasattr(self, '_project_yesterday'):
+            self._project_yesterday = self.hybrid_projection(0)
+        return self._project_yesterday
+
+    def hybrid_projection(self, method):
+        projection = self.current_spend
+        now = datetime.datetime.today() - datetime.timedelta(1)
+        day_of_month = now.day
+        # day_of_month = now.day - 1
+        f, days_in_month = calendar.monthrange(now.year, now.month)
+        days_remaining = days_in_month - day_of_month
+        if method == 0:  # Project based on yesterday
+            projection += (self.yesterday_spend * days_remaining)
+        elif method == 1:
+            projection += ((self.current_spend / day_of_month) * days_remaining)
+
+        return projection
 
     class Meta:
         ordering = ['created_time', 'updated_time']
