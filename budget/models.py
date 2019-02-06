@@ -145,6 +145,7 @@ class Client(models.Model):
     phase = models.IntegerField(default=1, choices=PHASE_CHOICES)
     phase_day = models.IntegerField(default=0)
     ninety_day_cycle = models.IntegerField(default=1)
+    budget_updated = models.BooleanField(default=False)  # should be True if the budget has been updated this month
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)
@@ -163,6 +164,8 @@ class Client(models.Model):
     strat1 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat1')
     strat2 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat2')
     strat3 = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='strat3')
+
+    team_lead_override = models.ForeignKey(Member, models.SET_NULL, blank=True, null=True, related_name='tl_override')
 
     # Allocation % of total hours
     cm1percent = models.FloatField(default=75.0)
@@ -857,6 +860,8 @@ class Client(models.Model):
 
     @property
     def team_leads(self):
+        if self.team_lead_override is not None:
+            return self.team_lead_override
         team_leads = Member.objects.none()
         for team in self.team.all():
             team_leads = team_leads | team.team_lead
@@ -1099,6 +1104,15 @@ class BudgetUpdate(models.Model):
     updated = models.BooleanField(default=False)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        now = datetime.datetime.now()
+        month = now.month
+        year = now.year
+        if self.month == month and self.year == year:
+            self.account.budget_updated = self.updated
+            self.account.save()
 
 
 class ClientCData(models.Model):

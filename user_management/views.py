@@ -430,12 +430,15 @@ def members_single_reports(request, id):
                 else:
                     report.report_type = 1  # Standard
                 report.save()
-            reports.append(report)
+            if not report.no_report:
+                reports.append(report)
 
     context = {
         'member': member,
         'reports': reports,
-        'last_month_str': calendar.month_name[last_month]
+        'last_month_str': calendar.month_name[last_month],
+        'reporting_month': last_month,
+        'reporting_year': year
     }
 
     return render(request, 'user_management/profile/reports.html', context)

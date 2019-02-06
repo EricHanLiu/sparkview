@@ -13,18 +13,6 @@
                         </div>
                     </div>
                     <div class="m-portlet__body">
-                        <div class="row">
-                            <button type="button" class="btn btn-info m-btn add-client"
-                                    data-toggle="modal"
-                                    data-target="#m_modal_clients"> Add a new client
-                            </button>
-                            <form id="delete_clients" method="POST" action="">
-                                {% csrf_token %}
-                                <button type="submit"
-                                        class="btn btn-danger m-btn delete-client"
-                                        id="clients_delete_btn"> Delete client(s)
-                                </button>
-                        </div>
                         <div class="m--space-30"></div>
                         <div class="m-separator m-separator--dashed"></div>
                         <table class='table table-striped m-table m-table--head-separator-bloom dataTable'
@@ -48,7 +36,7 @@
                             </div>
                             <thead class="thead-inverse">
                             <tr>
-                                <th style="width: 5%;"></th>
+                                <th>Budget Updated</th>
                                 <th>Client Name</th>
                                 <th style="text-align: center">Monthly up to Up-to-Date Spend</th>
                                 <th style="text-align: center">Gap</th>
@@ -59,8 +47,7 @@
                                 <tr id="row-{{ client.id }}">
                                     <td style="text-align: center; vertical-align: middle;">
                                         <label class="m-checkbox m-checkbox--solid m-checkbox-primary">
-                                            <input type="checkbox" name="client_ids" id="{{ client.id }}"
-                                                   value="{{ client.id }}" />
+                                            <input type="checkbox" name="budget_updated" {% if client.budget_updated %}checked{% endif %} disabled />
                                             <span></span>
                                         </label>
                                     </td>
@@ -117,7 +104,6 @@
                             </div>
                             </tbody>
                         </table>
-                        </form>
                     </div>
                 </div>
             </div>

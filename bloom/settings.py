@@ -245,7 +245,8 @@ CRONJOBS = [
     ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),  # Midnight, first day of the month
     # ('0 0 1 * *', 'monthly_budget_spend_context.main', '> ' + BASE_DIR + '/logs/budget_spend_context.log'), # erroneous logic
     ('0 0 1 * *', 'set_inactive_lost_budgets.main', '> ' + BASE_DIR + '/logs/set_inactive_lost_budgets.log'),
-    ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log')
+    ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log'),
+    ('0 0 1 * *', 'set_budget_update_false.main', '> ' + BASE_DIR + '/logs/set_budget_update_false.log')
 ]
 
 # Bing Stuff

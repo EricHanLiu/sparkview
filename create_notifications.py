@@ -94,7 +94,7 @@ def main():
     for account in onboarding_accounts:
         if account.onboarding_duration_elapsed == 12:  # TODO: Change this to be a variable
             ams = account.assigned_ams
-            message = account.client_name + ' is late to onboard.'
+            message = account.client_name + ' is late to onboard. Client services to take action.'
             link = '/clients/accounts/' + str(account.id)
             for key, val in ams.items():
                 member = val['member']
