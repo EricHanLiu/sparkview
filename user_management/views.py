@@ -395,11 +395,28 @@ def members_single_reports(request, id):
     :param id:
     :return:
     """
-    request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id:
+    member = Member.objects.get(id=id)
+    if not request.user.is_staff and int(id) != member.id:
         return HttpResponse('You do not have permission to view this page')
 
-    member = Member.objects.get(id=id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'no_report':
+            no_report_acc_id = request.POST.get('account_id')
+            no_report_month = request.POST.get('month')
+            no_report_year = request.POST.get('year')
+
+            account = Client.objects.get(id=no_report_acc_id)
+            if account not in member.accounts and not member.user.is_staff:
+                return HttpResponse('Permission denied m8')
+            report = MonthlyReport.objects.get(account=account, month=no_report_month, year=no_report_year)
+            report.no_report = True
+            report.save()
+
+            # return redirect('')
+        else:
+            return HttpResponse('Invalid action')
+
     now = datetime.datetime.now()
     month = now.month
     last_month = month - 1
