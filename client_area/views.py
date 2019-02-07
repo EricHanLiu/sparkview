@@ -287,6 +287,10 @@ def account_edit_temp(request, id):
         seo_hours = request.POST.get('seo_hours')
         cro_hours = request.POST.get('cro_hours')
 
+        now = datetime.datetime.now()
+        month = now.month
+        year = now.year
+
         old_status = account.status
 
         status = request.POST.get('status')
