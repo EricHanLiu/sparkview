@@ -195,6 +195,8 @@ class DependentAccount(models.Model):
         ordering = ['created_time', 'updated_time']
 
     def __str__(self):
+        if self.dependent_account_name is None:
+            return str(self.dependent_account_id)
         return self.dependent_account_name
 
 

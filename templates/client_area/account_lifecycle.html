@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Account lifecycle: {{ account.client_name }}
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="m-portlet__head-tools">
+{#                            <ul class="m-portlet__nav">#}
+{#                                <li class="m-portlet__nav-item">#}
+{#                                    <button type="button" class="btn btn-info m-btn"#}
+{#                                            data-toggle="modal"#}
+{#                                            data-target="#m_assign_members"> Assign Members#}
+{#                                    </button>#}
+{#                                    <button type="button" class="btn btn-info m-btn"#}
+{#                                            data-toggle="modal"#}
+{#                                            data-target="#m_position_allocation"> Assign %#}
+{#                                    </button>#}
+{#                                </li>#}
+{#                            </ul>#}
+                        </div>
+                    </div>
+                    <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
+                        <div class="row">
+                            <div class="col-xs-12">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+{% endblock %}
+

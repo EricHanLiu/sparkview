@@ -13,7 +13,7 @@ from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
-    OnboardingStep, OnboardingTaskAssignment, OnboardingTask
+    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, PhaseTaskAssignment
 from .forms import NewClientForm
 
 
@@ -1196,3 +1196,21 @@ def onboard_account(request, account_id):
         return JsonResponse(resp)
     else:
         return HttpResponse('Invalid request type')
+
+
+@login_required
+def account_lifecycle(request, account_id):
+    """
+    View for account lifecycle (90 days of awesome)
+    :param request:
+    :return:
+    """
+    account = Client.objects.get(id=account_id)
+    events = PhaseTaskAssignment.objects.filter(account=account).order_by('-completed')
+
+    context = {
+        'account': account,
+        'events': events
+    }
+
+    return render(request, 'client_area/account_lifecycle.html', context)

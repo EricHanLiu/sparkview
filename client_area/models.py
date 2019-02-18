@@ -322,3 +322,4 @@ class PhaseTaskAssignment(models.Model):
 
     def __str__(self):
         return self.account.client_name + ': ' + self.task.message
+
