@@ -9,7 +9,8 @@ from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
-    ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment
+    ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
+    OnboardingTask
 from dateutil.relativedelta import relativedelta
 
 
@@ -228,6 +229,34 @@ class Client(models.Model):
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year,
                                                  is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
+
+    def setup_onboarding_tasks(self):
+        """
+        Sets up onboarding tasks for this client
+        Should not be called unless you know what you're doing
+        :return:
+        """
+        if self.has_ppc:
+            ppc_steps = OnboardingStep.objects.filter(service=0)
+            for ppc_step in ppc_steps:
+                ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=self)
+                ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
+                for ppc_task in ppc_tasks:
+                    OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
+        if self.has_seo:
+            seo_steps = OnboardingStep.objects.filter(service=1)
+            for seo_step in seo_steps:
+                seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=self)
+                seo_tasks = OnboardingTask.objects.filter(step=seo_step)
+                for seo_task in seo_tasks:
+                    OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
+        if self.has_cro:
+            cro_steps = OnboardingStep.objects.filter(service=2)
+            for cro_step in cro_steps:
+                cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=self)
+                cro_tasks = OnboardingTask.objects.filter(step=cro_step)
+                for cro_task in cro_tasks:
+                    OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
 
     @property
     def google_kpi_month(self):
@@ -903,7 +932,7 @@ class Client(models.Model):
         If late to onboard returns true
         :return:
         """
-        return self.onboarding_duration_elapsed > 11
+        return self.onboarding_duration_elapsed > 13
 
     @property
     def ppc_onboarding_steps_complete(self):
