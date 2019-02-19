@@ -156,13 +156,28 @@ def facebook_cron_ovu(self, account_id):
         i['date_stop']: i['spend'] for i in segmented
     }
 
+    # try:
+    #     day_spend = float(last_7_days[0]['spend']) / 7
+    #     current_spend = spend_this_month[0]['spend']
+    #     yesterday_spend = float(yesterday[0]['spend'])
+    # except IndexError:
+    #     day_spend = 0.0
+    #     current_spend = 0.0
+    #     yesterday_spend = 0.0
+
     try:
         day_spend = float(last_7_days[0]['spend']) / 7
-        current_spend = spend_this_month[0]['spend']
-        yesterday_spend = float(yesterday[0]['spend'])
     except IndexError:
         day_spend = 0.0
+
+    try:
+        current_spend = spend_this_month[0]['spend']
+    except IndexError:
         current_spend = 0.0
+
+    try:
+        yesterday_spend = float(yesterday[0]['spend'])
+    except IndexError:
         yesterday_spend = 0.0
 
     estimated_spend = helper.get_estimated_spend(current_spend, day_spend)

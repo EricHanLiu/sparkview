@@ -13,7 +13,7 @@ from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
-    OnboardingStep, OnboardingTaskAssignment, OnboardingTask
+    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent
 from .forms import NewClientForm
 
 
@@ -249,6 +249,10 @@ def account_new(request):
                     cro_tasks = OnboardingTask.objects.filter(step=cro_step)
                     for cro_task in cro_tasks:
                         OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
+
+            event_description = account.client_name + ' was added to SparkView.'
+            LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=account.phase,
+                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle)
 
             return redirect('/clients/accounts/all')
         else:
@@ -1031,6 +1035,10 @@ def star_account(request):
     account.star_flag = True
     account.save()
 
+    event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'
+    LifecycleEvent.objects.create(account=account, type=8, description=event_description, phase=account.phase,
+                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle)
+
     return redirect('/clients/accounts/' + str(account.id))
 
 
@@ -1061,10 +1069,10 @@ def edit_promos(request):
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
-    backup_accounts = Client.objects.none()
+    backup_accounts = []
 
     for backup in backups:
-        backup_accounts = backup_accounts | backup.account
+        backup_accounts.append(backup.account)
 
     promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=backup_accounts))
 
@@ -1196,3 +1204,21 @@ def onboard_account(request, account_id):
         return JsonResponse(resp)
     else:
         return HttpResponse('Invalid request type')
+
+
+@login_required
+def account_lifecycle(request, account_id):
+    """
+    View for account lifecycle (90 days of awesome)
+    :param request:
+    :return:
+    """
+    account = Client.objects.get(id=account_id)
+    events = LifecycleEvent.objects.filter(account=account).order_by('date_created')
+
+    context = {
+        'account': account,
+        'events': events
+    }
+
+    return render(request, 'client_area/account_lifecycle.html', context)

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Account lifecycle: <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="m-portlet__head-tools">
+                            {#                            <ul class="m-portlet__nav">#}
+                            {#                                <li class="m-portlet__nav-item">#}
+                            {#                                    <button type="button" class="btn btn-info m-btn"#}
+                            {#                                            data-toggle="modal"#}
+                            {#                                            data-target="#m_assign_members"> Assign Members#}
+                            {#                                    </button>#}
+                            {#                                    <button type="button" class="btn btn-info m-btn"#}
+                            {#                                            data-toggle="modal"#}
+                            {#                                            data-target="#m_position_allocation"> Assign %#}
+                            {#                                    </button>#}
+                            {#                                </li>#}
+                            {#                            </ul>#}
+                        </div>
+                    </div>
+                    <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="m-timeline-1 m-timeline-1--fixed">
+                                    <div class="m-timeline-1__items">
+                                        <div class="m-timeline-1__marker"></div>
+                                        {% for event in events %}
+                                            <div class="m-timeline-1__item
+                                            m-timeline-1__item--{% if forloop.counter|divisibleby:2 %}right{% else %}left{% endif %}
+                                            {% if forloop.first %}m-timeline-1__item--first{% endif %}">
+                                            <div class="m-timeline-1__item-circle">
+                                                <div class="m--bg-danger"></div>
+                                            </div>
+                                            <div class="m-timeline-1__item-arrow"></div>
+                                            <span class="m-timeline-1__item-time m--font-brand">{{ event.date_created }}</span>
+                                            <div class="m-timeline-1__item-content">
+                                                <div class="m-timeline-1__item-title">
+                                                    {{ event.get_type_display }}
+                                                </div>
+                                                <div class="m-timeline-1__item-body">
+{#                                                    <div class="m-list-pics">#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_4.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_13.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_11.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_14.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_7.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_3.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                    </div>#}
+                                                    <div class="m-timeline-1__item-body m--margin-top-15">
+                                                        {{ event.description }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+{#                                        <div class="m-timeline-1__item m-timeline-1__item--left m-timeline-1__item--first">#}
+{#                                            <div class="m-timeline-1__item-circle">#}
+{#                                                <div class="m--bg-danger"></div>#}
+{#                                            </div>#}
+{#                                            <div class="m-timeline-1__item-arrow"></div>#}
+{#                                            <span class="m-timeline-1__item-time m--font-brand">11:35<span>AM</span></span>#}
+{#                                            <div class="m-timeline-1__item-content">#}
+{#                                                <div class="m-timeline-1__item-title">#}
+{#                                                    Users Joined Today#}
+{#                                                </div>#}
+{#                                                <div class="m-timeline-1__item-body">#}
+{#                                                    <div class="m-list-pics">#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_4.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_13.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_11.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_14.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_7.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                        <a href="#"><img src="assets/app/media/img/users/100_3.jpg"#}
+{#                                                                         title=""></a>#}
+{#                                                    </div>#}
+{#                                                    <div class="m-timeline-1__item-body m--margin-top-15">#}
+{#                                                        Lorem ipsum dolor sit amit,consectetur eiusmdd<br>#}
+{#                                                        tempors labore et dolore.#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="m-timeline-1__item m-timeline-1__item--right">#}
+{#                                            <div class="m-timeline-1__item-circle">#}
+{#                                                <div class="m--bg-danger"></div>#}
+{#                                            </div>#}
+{#                                            <div class="m-timeline-1__item-arrow"></div>#}
+{#                                            <span class="m-timeline-1__item-time m--font-brand">02:50<span>PM</span></span>#}
+{#                                            <div class="m-timeline-1__item-content">#}
+{#                                                <div style="height:170px;">#}
+{#                                                    <div style="height:100%;overflow:hidden;display:block;background: url(http://maps.googleapis.com/maps/api/staticmap?center=48.858271,2.294264&amp;size=640x300&amp;zoom=5&amp;key=AIzaSyBMlTEcPR5QULmk9QUaS7lwUK7qtabunEI) no-repeat 50% 50%;">#}
+{#                                                        <img src="http://maps.googleapis.com/maps/api/staticmap?center=48.858271,2.294264&amp;size=640x300&amp;zoom=16&amp;key=AIzaSyBMlTEcPR5QULmk9QUaS7lwUK7qtabunEI"#}
+{#                                                             style="" alt="">#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="m-timeline-1__item m-timeline-1__item--left">#}
+{#                                            <div class="m-timeline-1__item-circle">#}
+{#                                                <div class="m--bg-danger"></div>#}
+{#                                            </div>#}
+{#                                            <div class="m-timeline-1__item-arrow"></div>#}
+{#                                            <span class="m-timeline-1__item-time m--font-brand">02:58<span>PM</span></span>#}
+{#                                            <div class="m-timeline-1__item-content">#}
+{#                                                <div class="m-timeline-1__item-title">#}
+{#                                                    Latest News#}
+{#                                                </div>#}
+{#                                                <div class="m-timeline-1__item-body">#}
+{#                                                    Lorem ipsum dolor sit amit,consectetur eiusmdd<br>#}
+{#                                                    tempor incididunt ut labore et dolore magna enim<br>#}
+{#                                                    ad minim veniam nostrud.#}
+{#                                                </div>#}
+{#                                                <div class="m-timeline-1__item-actions">#}
+{#                                                    <a href="#"#}
+{#                                                       class="btn btn-sm btn-outline-brand m-btn m-btn--pill m-btn--custom">Read#}
+{#                                                        more...</a>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="m-timeline-1__item m-timeline-1__item--right">#}
+{#                                            <div class="m-timeline-1__item-circle">#}
+{#                                                <div class="m--bg-danger"></div>#}
+{#                                            </div>#}
+{#                                            <div class="m-timeline-1__item-arrow"></div>#}
+{#                                            <span class="m-timeline-1__item-time m--font-brand">04:10<span>PM</span></span>#}
+{#                                            <div class="m-timeline-1__item-content">#}
+{#                                                <div class="m-timeline-1__item-title">#}
+{#                                                    My ToDo#}
+{#                                                </div>#}
+{#                                                <div class="m-list-badge m--margin-top-15">#}
+{#                                                    <div class="m-list-badge__label m--font-success">12:00</div>#}
+{#                                                    <div class="m-list-badge__items">#}
+{#                                                        <a href="#" class="m-list-badge__item">Hiking</a>#}
+{#                                                        <a href="#" class="m-list-badge__item">Lunch</a>#}
+{#                                                        <a href="#" class="m-list-badge__item">Meet John</a>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                                <div class="m-list-badge m--margin-top-15">#}
+{#                                                    <div class="m-list-badge__label m--font-success">13:00</div>#}
+{#                                                    <div class="m-list-badge__items">#}
+{#                                                        <span class="m-list-badge__item">Setup AOL</span>#}
+{#                                                        <span class="m-list-badge__item">Write Code</span>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                                <div class="m-list-badge m--margin-top-15">#}
+{#                                                    <div class="m-list-badge__label m--font-success">14:00</div>#}
+{#                                                    <div class="m-list-badge__items">#}
+{#                                                        <a href="#" class="m-list-badge__item">Just Keep Doing#}
+{#                                                            Something</a>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                        <div class="m-timeline-1__item m-timeline-1__item--left">#}
+{#                                            <div class="m-timeline-1__item-circle">#}
+{#                                                <div class="m--bg-danger"></div>#}
+{#                                            </div>#}
+{#                                            <div class="m-timeline-1__item-arrow"></div>#}
+{#                                            <span class="m-timeline-1__item-time m--font-brand">05:00&nbsp;<span>PM</span></span>#}
+{#                                            <div class="m-timeline-1__item-content">#}
+{#                                                <div class="media">#}
+{#                                                    <img class="m--margin-right-20"#}
+{#                                                         src="assets/app/media/img/products/product1.jpg" title="">#}
+{#                                                    <div class="media-body">#}
+{#                                                        <div class="m-timeline-1__item-title m--margin-top-10  ">#}
+{#                                                            Some Post#}
+{#                                                        </div>#}
+{#                                                        <div class="m-timeline-1__item-body">#}
+{#                                                            Lorem ipsum dolor sit amit<br>#}
+{#                                                            consectetur eiusmdd<br>#}
+{#                                                            tempor incididunt ut labore<br>#}
+{#                                                            et dolore magna.#}
+{#                                                        </div>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </div>#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+{% endblock %}
+

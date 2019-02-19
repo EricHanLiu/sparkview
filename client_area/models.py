@@ -322,3 +322,40 @@ class PhaseTaskAssignment(models.Model):
 
     def __str__(self):
         return self.account.client_name + ': ' + self.task.message
+
+
+class LifecycleEvent(models.Model):
+    """
+    Event to keep track of the account lifecycle
+    """
+    EVENT_TYPE_CHOICES = [(1, 'Account won'),
+                          (2, 'Onboarding complete'),
+                          (3, 'Account inactive'),
+                          (4, 'Account active'),
+                          (5, 'Account lost'),
+                          (6, 'Upsell attempt'),
+                          (7, '90 days task complete'),
+                          (8, 'Account flagged'),
+                          (9, 'Other ')]
+
+    account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
+    related_task = models.ForeignKey(PhaseTaskAssignment, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    type = models.IntegerField(default=1, choices=EVENT_TYPE_CHOICES)
+    description = models.CharField(max_length=240)
+    phase = models.IntegerField(default=1)
+    phase_day = models.IntegerField(default=1)
+    cycle = models.IntegerField(default=1)  # number of times the client has gone through the 90 day cycle
+    bing_active = models.BooleanField(default=False)
+    facebook_active = models.BooleanField(default=False)
+    adwords_active = models.BooleanField(default=False)
+    seo_active = models.BooleanField(default=False)
+    cro_active = models.BooleanField(default=False)
+    monthly_budget = models.FloatField(default=0.0)
+    spend = models.FloatField(default=0.0)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.account is None:
+            return 'No name event'
+        return self.account.client_name + ' ' + ''
+
