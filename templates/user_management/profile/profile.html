@@ -71,11 +71,12 @@
                                 {% for task in member.phase_tasks %}
                                     <div class="m-widget2__item m-widget2__item--info">
                                         <div class="m-widget2__checkbox">
-                                            <label class="m-checkbox m-checkbox--solid m-checkbox--single m-checkbox--brand">
-                                                <input type="checkbox" class="task-check-page"
-                                                       data-task-id="{{ task.id }}">
-                                                <span></span>
-                                            </label>
+                                            <button class="btn btn-info btn-sm" data-task-id="{{ task.id }}" data-toggle="modal" data-target="#resolve_task_modal">Resolve</button>
+{#                                            <label class="m-checkbox m-checkbox--solid m-checkbox--single m-checkbox--brand">#}
+{#                                                <input type="checkbox" class="task-check-page"#}
+{#                                                       data-task-id="{{ task.id }}">#}
+{#                                                <span></span>#}
+{#                                            </label>#}
                                         </div>
                                         <div class="m-widget2__desc">
                                             <a href="{{ task.link }}" class="m-widget2__text">
@@ -451,29 +452,71 @@
         </div>
     </div>
     <!-- End onboard modal -->
+
+    <div class="modal fade" id="resolve_task_modal" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Resolve account task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/notifications/cycle/confirm">
+                    {% csrf_token %}
+                    <input name="task_id" id="m_task_id" type="text" value="" style="display:none;"/>
+                    <input name="flagged" id="flagged" type="text" value="False" style="display:none;"/>
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>BC Link:</label>
+                                        <input type="text" name="bc_link" id="bc_link" class="form-control m-input"
+                                               maxlength="140" required/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Complete Task" class="btn btn-brand">
+                        <button type="button" id="flag_task_btn" class="btn btn-danger">Flag</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extraJs %}
 <script>
 $(document).ready(function () {
-  let $notifCheckPage = $('.task-check-page');
+  let $flagTaskBtn = $('#flag_task_btn');
+
   $('#late_onboard_modal').on('show.bs.modal', function (e) {
     let account_id = $(e.relatedTarget).data('account-id');
     $('#m_account_id').attr('value', account_id);
   });
-  $notifCheckPage.click(function () {
-    let $el = $(this);
-    let $notif = $(this).closest('.m-widget2__item');
+
+  $('#resolve_task_modal').on('show.bs.modal', function (e) {
+    let task_id = $(e.relatedTarget).data('task-id');
+    $('#m_task_id').attr('value', task_id);
+  });
+
+  $flagTaskBtn.click(function () {
     $.ajax({
-        url: '/notifications/confirm',
+        url: '/notifications/cycle/confirm',
         data: {
-          'notification_id': $(this).data('notification-id')
+          'task_id': $('#m_task_id').val(),
+          'bc_link': $('#bc_link').val(),
+          'flagged': 'True'
         },
         headers: {'X-CSRFToken': '{{ csrf_token }}'},
         type: 'POST',
         success: function (data) {
-          $el.prop('disabled', 'disabled');
-          $notif.fadeOut();
+          window.location.href = '/user_management/profile';
         }
     });
   });

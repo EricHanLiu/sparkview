@@ -150,6 +150,8 @@ class Member(models.Model):
     buffer_internal_percentage = models.FloatField(null=True, blank=True, default=0)
     buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
 
+    deactivated = models.BooleanField(default=False)  # Alternative to deleting
+
     @property
     def learning_hours(self):
         return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_learning_percentage / 100.0), 2)

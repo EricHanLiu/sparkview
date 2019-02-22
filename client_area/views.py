@@ -251,12 +251,14 @@ def account_new(request):
                         OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
 
             event_description = account.client_name + ' was added to SparkView.'
-            LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=0,
-                                          phase_day=0, cycle=0,
-                                          bing_active=account.has_bing,
-                                          facebook_active=account.has_fb, adwords_active=account.has_adwords,
-                                          monthly_budget=account.current_budget, spend=account.current_spend,
-                                          members=account.assigned_members_array)
+            lc_event = LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=0,
+                                                     phase_day=0, cycle=0,
+                                                     bing_active=account.has_bing,
+                                                     facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                                     monthly_budget=account.current_budget, spend=account.current_spend)
+
+            lc_event.members.set(account.assigned_members_array)
+            lc_event.save()
 
             return redirect('/clients/accounts/all')
         else:
@@ -326,15 +328,17 @@ def account_edit_temp(request, id):
 
             event_description = account.client_name + ' was set to inactive. The reason is ' + str(
                 inactive_reason) + '.'
-            LifecycleEvent.objects.create(account=account, type=3, description=event_description,
-                                          phase=account.phase,
-                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
-                                          bing_active=account.has_bing,
-                                          facebook_active=account.has_fb,
-                                          adwords_active=account.has_adwords,
-                                          monthly_budget=account.current_budget,
-                                          spend=account.current_spend,
-                                          members=account.assigned_members_array)
+            lc_event = LifecycleEvent.objects.create(account=account, type=3, description=event_description,
+                                                     phase=account.phase,
+                                                     phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                     bing_active=account.has_bing,
+                                                     facebook_active=account.has_fb,
+                                                     adwords_active=account.has_adwords,
+                                                     monthly_budget=account.current_budget,
+                                                     spend=account.current_spend)
+
+            lc_event.members.set(account.assigned_members_array)
+            lc_event.save()
 
         if old_status != 3 and account.status == 3:
             """
@@ -354,15 +358,17 @@ def account_edit_temp(request, id):
 
             event_description = account.client_name + ' was set to lost. The reason is ' + str(
                 lost_reason) + '.'
-            LifecycleEvent.objects.create(account=account, type=5, description=event_description,
-                                          phase=account.phase,
-                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
-                                          bing_active=account.has_bing,
-                                          facebook_active=account.has_fb,
-                                          adwords_active=account.has_adwords,
-                                          monthly_budget=account.current_budget,
-                                          spend=account.current_spend,
-                                          members=account.assigned_members_array)
+            lc_event = LifecycleEvent.objects.create(account=account, type=5, description=event_description,
+                                                     phase=account.phase,
+                                                     phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                     bing_active=account.has_bing,
+                                                     facebook_active=account.has_fb,
+                                                     adwords_active=account.has_adwords,
+                                                     monthly_budget=account.current_budget,
+                                                     spend=account.current_spend)
+
+            lc_event.members.set(account.assigned_members_array)
+            lc_event.save()
 
         fee_override = request.POST.get('fee_override')
         hours_override = request.POST.get('hours_override')
@@ -569,10 +575,16 @@ def account_single(request, id):
     backups = Backup.objects.filter(account=account, period__in=backup_periods, approved=True)
 
     for row in accountsHoursThisMonthByMember:
-        row['member'] = members.get(id=row['member'])
+        try:
+            row['member'] = members.get(id=row['member'])
+        except Member.DoesNotExist:
+            pass
 
     for row in accountsValueHoursThisMonthByMember:
-        row['member'] = members.get(id=row['member'])
+        try:
+            row['member'] = members.get(id=row['member'])
+        except Member.DoesNotExist:
+            pass
 
     seven_days_ago = now - datetime.timedelta(7)
 
@@ -696,6 +708,19 @@ def account_assign_members(request):
 
     account.save()
 
+    event_description = account.client_name + ' members changed.'
+    lc_event = LifecycleEvent.objects.create(account=account, type=11, description=event_description,
+                                             phase=account.phase,
+                                             phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                             bing_active=account.has_bing,
+                                             facebook_active=account.has_fb,
+                                             adwords_active=account.has_adwords,
+                                             monthly_budget=account.current_budget,
+                                             spend=account.current_spend)
+
+    lc_event.members.set(account.assigned_members_array)
+    lc_event.save()
+
     return redirect('/clients/accounts/' + str(account.id))
 
 
@@ -713,7 +738,7 @@ def add_hours_to_account(request):
         all_accounts = Client.objects.all().order_by('client_name')
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
-        years = [2018, 2019, 2020, 2021]
+        years = [2018, 2019, 2020, 2021, 2022, 2023]
 
         now = datetime.datetime.now()
         monthnow = now.month
@@ -1061,12 +1086,17 @@ def star_account(request):
     account.save()
 
     event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'
-    LifecycleEvent.objects.create(account=account, type=8, description=event_description, phase=account.phase,
-                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle,
-                                  bing_active=account.has_bing,
-                                  facebook_active=account.has_fb, adwords_active=account.has_adwords,
-                                  monthly_budget=account.current_budget, spend=account.current_spend,
-                                  members=account.assigned_members_array)
+    notes = 'Basecamp link: ' + account.flagged_bc_link
+    lc_event = LifecycleEvent.objects.create(account=account, type=8, description=event_description,
+                                             phase=account.phase,
+                                             phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                             bing_active=account.has_bing,
+                                             facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                             monthly_budget=account.current_budget, spend=account.current_spend,
+                                             notes=notes)
+
+    lc_event.members.set(account.assigned_members_array)
+    lc_event.save()
 
     return redirect('/clients/accounts/' + str(account.id))
 
@@ -1086,13 +1116,18 @@ def assign_member_flagged_account(request):
     flagged_account.save()
 
     event_description = member.user.get_full_name() + ' was assigned to deal with the flagged account.'
-    LifecycleEvent.objects.create(account=flagged_account, type=10, description=event_description,
-                                  phase=flagged_account.phase,
-                                  phase_day=flagged_account.phase_day, cycle=flagged_account.ninety_day_cycle,
-                                  bing_active=flagged_account.has_bing,
-                                  facebook_active=flagged_account.has_fb, adwords_active=flagged_account.has_adwords,
-                                  monthly_budget=flagged_account.current_budget, spend=flagged_account.current_spend,
-                                  members=flagged_account.assigned_members_array)
+    lc_event = LifecycleEvent.objects.create(account=flagged_account, type=10, description=event_description,
+                                             phase=flagged_account.phase,
+                                             phase_day=flagged_account.phase_day,
+                                             cycle=flagged_account.ninety_day_cycle,
+                                             bing_active=flagged_account.has_bing,
+                                             facebook_active=flagged_account.has_fb,
+                                             adwords_active=flagged_account.has_adwords,
+                                             monthly_budget=flagged_account.current_budget,
+                                             spend=flagged_account.current_spend)
+
+    lc_event.members.set(flagged_account.assigned_members_array)
+    lc_event.save()
 
     return redirect('/reports/flagged_accounts')
 
@@ -1234,26 +1269,30 @@ def onboard_account(request, account_id):
             account.save()
 
             event_description = account.client_name + ' completed onboarding.'
-            LifecycleEvent.objects.create(account=account, type=2, description=event_description,
-                                          phase=account.phase,
-                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
-                                          bing_active=account.has_bing,
-                                          facebook_active=account.has_fb,
-                                          adwords_active=account.has_adwords,
-                                          monthly_budget=account.current_budget,
-                                          spend=account.current_spend,
-                                          members=account.assigned_members_array)
+            lc_event = LifecycleEvent.objects.create(account=account, type=2, description=event_description,
+                                                     phase=account.phase,
+                                                     phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                     bing_active=account.has_bing,
+                                                     facebook_active=account.has_fb,
+                                                     adwords_active=account.has_adwords,
+                                                     monthly_budget=account.current_budget,
+                                                     spend=account.current_spend)
+
+            lc_event.members.set(account.assigned_members_array)
+            lc_event.save()
 
             event_description = account.client_name + ' became active.'
-            LifecycleEvent.objects.create(account=account, type=4, description=event_description,
-                                          phase=account.phase,
-                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
-                                          bing_active=account.has_bing,
-                                          facebook_active=account.has_fb,
-                                          adwords_active=account.has_adwords,
-                                          monthly_budget=account.current_budget,
-                                          spend=account.current_spend,
-                                          members=account.assigned_members_array)
+            lc_event2 = LifecycleEvent.objects.create(account=account, type=4, description=event_description,
+                                                      phase=account.phase,
+                                                      phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                      bing_active=account.has_bing,
+                                                      facebook_active=account.has_fb,
+                                                      adwords_active=account.has_adwords,
+                                                      monthly_budget=account.current_budget,
+                                                      spend=account.current_spend)
+
+            lc_event2.members.set(account.assigned_members_array)
+            lc_event2.save()
 
         resp = {
             'step_complete': step_complete,
@@ -1274,11 +1313,35 @@ def account_lifecycle(request, account_id):
     :return:
     """
     account = Client.objects.get(id=account_id)
-    events = LifecycleEvent.objects.filter(account=account).order_by('date_created')
+    events = LifecycleEvent.objects.filter(account=account).order_by('-date_created')
+
+    last_inactive = events.filter(type=3).order_by('-date_created')
+    last_inactive_date = None
+    last_inactive_reason = None
+    if last_inactive.count() > 0:
+        last_inactive_date = last_inactive[0].date_created
+        last_inactive_reason = last_inactive[0].notes
+
+    last_lost = events.filter(type=5).order_by('-date_created')
+    last_lost_date = None
+    last_lost_reason = None
+    if last_lost.count() > 0:
+        last_lost_date = last_lost[0].date_created
+        last_lost_reason = last_lost[0].notes
+
+    times_flagged = events.filter(type=8).count()
+    transition_number = events.filter(type=11).count()
 
     context = {
         'account': account,
-        'events': events
+        'events': events,
+        'last_inactive_date': last_inactive_date,
+        'last_inactive_reason': last_inactive_reason,
+        'last_lost_date': last_lost_date,
+        'last_lost_reason': last_lost_reason,
+        'times_flagged': times_flagged,
+        'transition_number': transition_number,
+
     }
 
     return render(request, 'client_area/account_lifecycle.html', context)

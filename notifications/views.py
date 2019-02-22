@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from user_management.models import Member
 from .models import Notification
+from client_area.models import PhaseTaskAssignment, LifecycleEvent
 import datetime
 
 
@@ -50,3 +51,52 @@ def confirm(request):
     notification.save()
 
     return HttpResponse('Success')
+
+
+@login_required
+def cycle_confirm(request):
+    """
+    Confirms a "90 days of awesome" task
+    """
+    member = Member.objects.get(user=request.user)
+    task_id = request.POST.get('task_id')
+    task = PhaseTaskAssignment.objects.get(id=task_id)
+    flagged = request.POST.get('flagged') == 'True'
+
+    bc_link = request.POST.get('bc_link')
+    if bc_link == '' or bc_link is None:
+        return HttpResponse('You must enter a basecamp link to flag or confirm a task.')
+
+    if task.complete:
+        return HttpResponse('This task is already confirmed!')
+
+    account = task.account
+
+    if flagged:
+        task.flagged = True
+        if not account.star_flag:
+            account.star_flag = True
+            account.flagged_bc_link = bc_link
+            account.save()
+
+    task.complete = True
+    task.bc_link = bc_link
+    task.completed = datetime.datetime.now()
+    task.completed_by = member
+    task.save()
+
+    event_description = member.user.get_full_name() + ' completed the task: ' + task.task.message + '.'
+    notes = 'Basecamp link: ' + task.bc_link
+    lc_event = LifecycleEvent.objects.create(account=account, type=7, description=event_description,
+                                             phase=account.phase,
+                                             phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                             bing_active=account.has_bing,
+                                             facebook_active=account.has_fb,
+                                             adwords_active=account.has_adwords,
+                                             monthly_budget=account.current_budget,
+                                             spend=account.current_spend, notes=notes)
+
+    lc_event.members.set(account.assigned_members_array)
+    lc_event.save()
+
+    return redirect('/user_management/profile')

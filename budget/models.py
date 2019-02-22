@@ -729,15 +729,15 @@ class Client(models.Model):
 
     @property
     def has_adwords(self):
-        return self.adwords is not None
+        return self.adwords.count() > 0
 
     @property
     def has_bing(self):
-        return self.bing is not None
+        return self.bing.count() > 0
 
     @property
     def has_fb(self):
-        return self.facebook is not None
+        return self.facebook.count() > 0
 
     @property
     def assigned_ams(self):

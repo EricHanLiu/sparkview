@@ -11,7 +11,6 @@ def main():
     accounts = FacebookAccount.objects.filter(blacklisted=False)
 
     for account in accounts:
-
         facebook_cron_ovu.delay(account.account_id)
 
 
