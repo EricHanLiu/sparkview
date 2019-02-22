@@ -251,8 +251,12 @@ def account_new(request):
                         OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
 
             event_description = account.client_name + ' was added to SparkView.'
-            LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=account.phase,
-                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle)
+            LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=0,
+                                          phase_day=0, cycle=0,
+                                          bing_active=account.has_bing,
+                                          facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                          monthly_budget=account.current_budget, spend=account.current_spend,
+                                          members=account.assigned_members_array)
 
             return redirect('/clients/accounts/all')
         else:
@@ -317,9 +321,20 @@ def account_edit_temp(request, id):
             staff_members = Member.objects.filter(user__in=staff_users)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                # message = str(account.client_name) + ' is now inactive (paused). The reason is ' + account.get_inactive_reason_display() + '.'
                 message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            event_description = account.client_name + ' was set to inactive. The reason is ' + str(
+                inactive_reason) + '.'
+            LifecycleEvent.objects.create(account=account, type=3, description=event_description,
+                                          phase=account.phase,
+                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                          bing_active=account.has_bing,
+                                          facebook_active=account.has_fb,
+                                          adwords_active=account.has_adwords,
+                                          monthly_budget=account.current_budget,
+                                          spend=account.current_spend,
+                                          members=account.assigned_members_array)
 
         if old_status != 3 and account.status == 3:
             """
@@ -334,9 +349,20 @@ def account_edit_temp(request, id):
             staff_members = Member.objects.filter(user__in=staff_users)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                # message = str(account.client_name) + ' has been lost. The reason is ' + account.get_lost_reason_display() + '.'
                 message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            event_description = account.client_name + ' was set to lost. The reason is ' + str(
+                lost_reason) + '.'
+            LifecycleEvent.objects.create(account=account, type=5, description=event_description,
+                                          phase=account.phase,
+                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                          bing_active=account.has_bing,
+                                          facebook_active=account.has_fb,
+                                          adwords_active=account.has_adwords,
+                                          monthly_budget=account.current_budget,
+                                          spend=account.current_spend,
+                                          members=account.assigned_members_array)
 
         fee_override = request.POST.get('fee_override')
         hours_override = request.POST.get('hours_override')
@@ -990,7 +1016,6 @@ def confirm_promo(request):
     """
     if request.method == 'GET':
         return HttpResponse('Invalid request')
-    print('confirming')
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
@@ -1037,7 +1062,11 @@ def star_account(request):
 
     event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'
     LifecycleEvent.objects.create(account=account, type=8, description=event_description, phase=account.phase,
-                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle)
+                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                  bing_active=account.has_bing,
+                                  facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                  monthly_budget=account.current_budget, spend=account.current_spend,
+                                  members=account.assigned_members_array)
 
     return redirect('/clients/accounts/' + str(account.id))
 
@@ -1055,6 +1084,15 @@ def assign_member_flagged_account(request):
 
     flagged_account.flagged_assigned_member = member
     flagged_account.save()
+
+    event_description = member.user.get_full_name() + ' was assigned to deal with the flagged account.'
+    LifecycleEvent.objects.create(account=flagged_account, type=10, description=event_description,
+                                  phase=flagged_account.phase,
+                                  phase_day=flagged_account.phase_day, cycle=flagged_account.ninety_day_cycle,
+                                  bing_active=flagged_account.has_bing,
+                                  facebook_active=flagged_account.has_fb, adwords_active=flagged_account.has_adwords,
+                                  monthly_budget=flagged_account.current_budget, spend=flagged_account.current_spend,
+                                  members=flagged_account.assigned_members_array)
 
     return redirect('/reports/flagged_accounts')
 
@@ -1194,6 +1232,28 @@ def onboard_account(request, account_id):
         if acc_active == 1:
             account.status = 1
             account.save()
+
+            event_description = account.client_name + ' completed onboarding.'
+            LifecycleEvent.objects.create(account=account, type=2, description=event_description,
+                                          phase=account.phase,
+                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                          bing_active=account.has_bing,
+                                          facebook_active=account.has_fb,
+                                          adwords_active=account.has_adwords,
+                                          monthly_budget=account.current_budget,
+                                          spend=account.current_spend,
+                                          members=account.assigned_members_array)
+
+            event_description = account.client_name + ' became active.'
+            LifecycleEvent.objects.create(account=account, type=4, description=event_description,
+                                          phase=account.phase,
+                                          phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                          bing_active=account.has_bing,
+                                          facebook_active=account.has_fb,
+                                          adwords_active=account.has_adwords,
+                                          monthly_budget=account.current_budget,
+                                          spend=account.current_spend,
+                                          members=account.assigned_members_array)
 
         resp = {
             'step_complete': step_complete,

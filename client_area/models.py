@@ -336,7 +336,8 @@ class LifecycleEvent(models.Model):
                           (6, 'Upsell attempt'),
                           (7, '90 days task complete'),
                           (8, 'Account flagged'),
-                          (9, 'Other ')]
+                          (9, 'Other '),
+                          (10, 'Member assigned to flagged account')]
 
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
     related_task = models.ForeignKey(PhaseTaskAssignment, on_delete=models.CASCADE, null=True, default=None, blank=True)
@@ -345,6 +346,7 @@ class LifecycleEvent(models.Model):
     phase = models.IntegerField(default=1)
     phase_day = models.IntegerField(default=1)
     cycle = models.IntegerField(default=1)  # number of times the client has gone through the 90 day cycle
+    members = models.ManyToManyField('user_management.Member', blank=True)
     bing_active = models.BooleanField(default=False)
     facebook_active = models.BooleanField(default=False)
     adwords_active = models.BooleanField(default=False)

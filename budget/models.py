@@ -213,8 +213,9 @@ class Client(models.Model):
 
     def actual_hours_month_year(self, month, year):
         hours = \
-        AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))[
-            'hours__sum']
+            AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(
+                Sum('hours'))[
+                'hours__sum']
         return hours if hours is not None else 0
 
     def get_hours_remaining_this_month(self):
@@ -272,7 +273,8 @@ class Client(models.Model):
             for aa in self.adwords.all():
                 aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
                 recent_perf = aw_perf[0].metadata if aw_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']:  # We have CPA info
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf[
+                    'vals']:  # We have CPA info
                     conversions += float(recent_perf['vals']['conversions'][1])
                     cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
                 kpid['roas'] = 0.0
@@ -310,7 +312,8 @@ class Client(models.Model):
             for fa in self.facebook.all():
                 fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
                 recent_perf = fb_perf[0].metadata if fb_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']:  # We have CPA info
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf[
+                    'vals']:  # We have CPA info
                     conversions += float(recent_perf['vals']['conversions'][1])
                     cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
                 kpid['roas'] = 0.0
@@ -444,8 +447,9 @@ class Client(models.Model):
         if not hasattr(self, '_value_added_hours_this_month'):
             now = datetime.datetime.now()
             hours = \
-            AccountHourRecord.objects.filter(account=self, month=now.month, year=now.year, is_unpaid=True).aggregate(
-                Sum('hours'))['hours__sum']
+                AccountHourRecord.objects.filter(account=self, month=now.month, year=now.year,
+                                                 is_unpaid=True).aggregate(
+                    Sum('hours'))['hours__sum']
             self._value_added_hours_this_month = hours if hours is not None else 0
         return self._value_added_hours_this_month
 
@@ -593,7 +597,7 @@ class Client(models.Model):
                     """
                     portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date,
                                                                        aa.desired_spend_end_date, yesterday.month) / (
-                                                   aa.desired_spend_end_date - aa.desired_spend_start_date).days
+                                               aa.desired_spend_end_date - aa.desired_spend_start_date).days
                     budget += round(portion_of_spend * aa.desired_spend, 2)
                 else:
                     budget += aa.desired_spend  # this would be monthly budget
@@ -653,7 +657,7 @@ class Client(models.Model):
                     """
                     portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date,
                                                                        ba.desired_spend_end_date, yesterday.month) / (
-                                                   ba.desired_spend_end_date - ba.desired_spend_start_date).days
+                                               ba.desired_spend_end_date - ba.desired_spend_start_date).days
                     budget += round(portion_of_spend * ba.desired_spend, 2)
                 else:
                     budget += ba.desired_spend  # this would be monthly budget
@@ -673,7 +677,7 @@ class Client(models.Model):
                     """
                     portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date,
                                                                        fa.desired_spend_end_date, yesterday.month) / (
-                                                   fa.desired_spend_end_date - fa.desired_spend_start_date).days
+                                               fa.desired_spend_end_date - fa.desired_spend_start_date).days
                     budget += round(portion_of_spend * fa.desired_spend, 2)
                 else:
                     budget += fa.desired_spend  # this would be monthly budget
@@ -884,6 +888,46 @@ class Client(models.Model):
         if self.soldBy is not None:
             members['Sold by'] = {}
             members['Sold by']['member'] = self.soldBy
+
+        return members
+
+    @property
+    def assigned_members_array(self):
+        """
+        Get's members assigned to the account in an array
+        """
+        members = []
+
+        if self.cm1 is not None:
+            members.append(self.cm1)
+        if self.cm2 is not None:
+            members.append(self.cm2)
+        if self.cm3 is not None:
+            members.append(self.cm3)
+
+        if self.am1 is not None:
+            members.append(self.am1)
+        if self.am2 is not None:
+            members.append(self.am2)
+        if self.am3 is not None:
+            members.append(self.am3)
+
+        if self.seo1 is not None:
+            members.append(self.seo1)
+        if self.seo2 is not None:
+            members.append(self.seo2)
+        if self.seo3 is not None:
+            members.append(self.seo3)
+
+        if self.strat1 is not None:
+            members.append(self.strat1)
+        if self.strat2 is not None:
+            members.append(self.strat2)
+        if self.strat3 is not None:
+            members.append(self.strat3)
+
+        if self.soldBy is not None:
+            members.append(self.soldBy)
 
         return members
 

@@ -12,7 +12,7 @@ from dateutil.relativedelta import relativedelta
 
 
 def facebook_init():
-    return FacebookAdsApi.init(app_id, app_secret, w_access_token)
+    return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.1')
 
 
 def account_anomalies(account_id, helper, daterange1, daterange2):
@@ -86,7 +86,7 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 @celery_app.task(bind=True)
 def facebook_accounts(self):
 
-    FacebookAdsApi.init(app_id, app_secret, w_access_token)
+    FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.1')
 
     me = AdUser(fbid='me')
     accounts = list(me.get_ad_accounts())

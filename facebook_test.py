@@ -75,7 +75,7 @@ def get_spend(time_range=None, date_preset=None, **kwargs):
 
 def main():
 
-    init = FacebookAdsApi.init(settings.app_id, settings.app_secret, settings.access_token)
+    init = FacebookAdsApi.init(settings.app_id, settings.app_secret, settings.access_token, api_version='v3.1')
     helper = FacebookReportingService(init)
     # this_month = helper.get_this_month_daterange()
     # print(this_month)
