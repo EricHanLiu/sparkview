@@ -318,6 +318,8 @@ class PhaseTaskAssignment(models.Model):
     bc_link = models.CharField(max_length=355, blank=True, null=True, default=None)
     complete = models.BooleanField(default=False)
     completed = models.DateTimeField(default=None, null=True, blank=True)
+    flagged = models.BooleanField(default=False)  # if this phase resulted in account being flagged
+    completed_by = models.ForeignKey('user_management.Member', on_delete=models.CASCADE, null=True, default=None, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -336,13 +338,16 @@ class LifecycleEvent(models.Model):
                           (6, 'Upsell attempt'),
                           (7, '90 days task complete'),
                           (8, 'Account flagged'),
-                          (9, 'Other '),
-                          (10, 'Member assigned to flagged account')]
+                          (9, 'Other'),
+                          (10, 'Member assigned to flagged account'),
+                          (11, 'Changed assigned members'),
+                          (12, 'Late to onboard')]
 
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
     related_task = models.ForeignKey(PhaseTaskAssignment, on_delete=models.CASCADE, null=True, default=None, blank=True)
     type = models.IntegerField(default=1, choices=EVENT_TYPE_CHOICES)
     description = models.CharField(max_length=240)
+    notes = models.CharField(max_length=999, default='', blank=True)
     phase = models.IntegerField(default=1)
     phase_day = models.IntegerField(default=1)
     cycle = models.IntegerField(default=1)  # number of times the client has gone through the 90 day cycle

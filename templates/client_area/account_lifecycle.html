@@ -20,22 +20,122 @@
                                 </h3>
                             </div>
                         </div>
-                        <div class="m-portlet__head-tools">
-                            {#                            <ul class="m-portlet__nav">#}
-                            {#                                <li class="m-portlet__nav-item">#}
-                            {#                                    <button type="button" class="btn btn-info m-btn"#}
-                            {#                                            data-toggle="modal"#}
-                            {#                                            data-target="#m_assign_members"> Assign Members#}
-                            {#                                    </button>#}
-                            {#                                    <button type="button" class="btn btn-info m-btn"#}
-                            {#                                            data-toggle="modal"#}
-                            {#                                            data-target="#m_position_allocation"> Assign %#}
-                            {#                                    </button>#}
-                            {#                                </li>#}
-                            {#                            </ul>#}
-                        </div>
                     </div>
                     <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
+                        <div class="row m-row--no-padding m-row--col-separator-xl">
+                            <div class="col-md-12 col-lg-12 col-xl-4">
+                                <div class="m-widget1">
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Won Date and Status</h3>
+                                                <span class="m-widget1__desc">{{ account.created_at }}</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-brand">{{ account.get_status_display }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Last Inactive Date and Reason</h3>
+                                                <span class="m-widget1__desc">{{ last_inactive_date }}</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-danger">{{ last_inactive_reason }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Last Lost Date and Reason</h3>
+                                                <span class="m-widget1__desc">{{ last_lost_date }}</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-danger">{{ last_lost_reason }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-12 col-xl-4">
+                                <div class="m-widget1">
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Flagged Status</h3>
+                                                <span class="m-widget1__desc">Been flagged {{ times_flagged }} times</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-info">{{ account.star_flag }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Account Transitions</h3>
+                                                <span class="m-widget1__desc">This account has {{ transition_number }} total transitions</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-warning">{{ transition_number }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Last Upsell</h3>
+                                                <span class="m-widget1__desc">N/A</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-accent">N/A</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-12 col-xl-4">
+                                <div class="m-widget1">
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Current Phase</h3>
+                                                <span class="m-widget1__desc">Cycle: {{ account.ninety_day_cycle }}</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-success">{{ account.phase }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Mid Month Checkin Review</h3>
+                                                <span class="m-widget1__desc">N/A</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-success">N/A</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-widget1__item">
+                                        <div class="row m-row--no-padding align-items-center">
+                                            <div class="col">
+                                                <h3 class="m-widget1__title">Performance Checkin Review</h3>
+                                                <span class="m-widget1__desc">N/A</span>
+                                            </div>
+                                            <div class="col m--align-right">
+                                                <span class="m-widget1__number m--font-success">N/A</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-12">
                                 <div class="m-timeline-1 m-timeline-1--fixed">
@@ -52,7 +152,14 @@
                                             <span class="m-timeline-1__item-time m--font-brand">{{ event.date_created }}</span>
                                             <div class="m-timeline-1__item-content">
                                                 <div class="m-timeline-1__item-title">
-                                                    {{ event.get_type_display }}
+                                                    <div class="row">
+                                                        <div class="col-lg-8">
+                                                            {{ event.get_type_display }}
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <span style="float:right; font-size:1rem;">Cycle {{ event.cycle }}, Phase {{ event.phase }}, Day {{ event.phase_day }}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="m-timeline-1__item-body">
 {#                                                    <div class="m-list-pics">#}
@@ -70,7 +177,28 @@
 {#                                                                         title=""></a>#}
 {#                                                    </div>#}
                                                     <div class="m-timeline-1__item-body m--margin-top-15">
-                                                        {{ event.description }}
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <span class="m-badge {% if event.adwords_active %}m-badge--primary{% endif %}">A</span>
+                                                                <span class="m-badge {% if event.bing_active %}m-badge--success{% endif %}">B</span>
+                                                                <span class="m-badge {% if event.facebook_active %}m-badge--info{% endif %}">F</span>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                {% for member in event.members.all %}
+                                                                    {% if member.image != None %}
+                                                                        <img src="{% static 'img/bloomers/'|add:member.image %}" style="height:25px;float:right;" />
+                                                                    {% else %}
+                                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" style="height:25px;float:right;" alt=""/>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                        <hr />
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                {{ event.description }}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

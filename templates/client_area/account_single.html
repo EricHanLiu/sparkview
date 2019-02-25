@@ -270,7 +270,7 @@
                                     <div class="m-card-profile__details">
                                         <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
                                             {% if request.user.is_staff %}
-                                                <a href="/user_management/members/{{ account.soldBy.member.id }}">{% endif %}{{ account.soldBy.user.get_full_name }}
+                                                <a href="/user_management/members/{{ account.soldBy.id }}">{% endif %}{{ account.soldBy.user.get_full_name }}
                                             {% if request.user.is_staff %}</a>{% endif %}</h3>
                                         <span class="m-badge m-badge--wide"
                                               style="background: rgb(0, 153, 151); color: white;">Sales</span>

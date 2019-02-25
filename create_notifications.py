@@ -9,6 +9,7 @@ from budget.models import Client
 from django.contrib.auth.models import User
 from user_management.models import Member
 from notifications.models import Notification, ScheduledNotification
+from client_area.models import LifecycleEvent
 import datetime
 import calendar
 
@@ -92,7 +93,7 @@ def main():
     staff_members = Member.objects.filter(user__in=staff_users)
 
     for account in onboarding_accounts:
-        if account.onboarding_duration_elapsed == 12:  # TODO: Change this to be a variable
+        if account.onboarding_duration_elapsed == 14:  # TODO: Change this to be a variable
             ams = account.assigned_ams
             message = account.client_name + ' is late to onboard. Client services to take action.'
             link = '/clients/accounts/' + str(account.id)
@@ -101,4 +102,17 @@ def main():
                 Notification.objects.get_or_create(member=member, message=message, link=link)
             for member in staff_members:
                 Notification.objects.get_or_create(member=member, message=message, link=link)
+
+            event_description = account.client_name + ' is late to onboard.'
+            lc_event = LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=account.phase,
+                                                     phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                     bing_active=account.has_bing,
+                                                     facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                                     monthly_budget=account.current_budget, spend=account.current_spend)
+
+            if account.late_onboard_reason is not None and account.late_onboard_reason != '':
+                lc_event.notes = 'Reason for late onboard is: ' + account.late_onboard_reason
+
+            lc_event.members.set(account.assigned_members_array)
+            lc_event.save()
 

@@ -440,7 +440,10 @@ def actual_hours(request):
         return HttpResponse('Invalid request type')
 
     for hour in hours:
-        hour['member'] = members.get(id=hour['member'])
+        try:
+            hour['member'] = members.get(id=hour['member'])
+        except Member.DoesNotExist:
+            hour['member'] = 'Member does not exist'
         hour['account'] = accounts.get(id=hour['account'])
 
     context = {

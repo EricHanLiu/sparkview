@@ -6,15 +6,16 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.auth.decorators import login_required
 from .auth import BingAuth
 
+
 # Create your views here.
 @login_required
 def index(request):
     return request(bing_dashboard)
 
+
 @login_required
 @xframe_options_exempt
 def bing_dashboard(request):
-
     items = []
     accounts = BingAccounts.objects.filter(blacklisted=False)
 
@@ -37,11 +38,10 @@ def bing_dashboard(request):
 
 
 def campaign_anomalies(request, account_id):
-
     account = BingAccounts.objects.get(account_id=account_id)
 
     anomalies = BingAnomalies.objects.filter(account=account,
-                                           performance_type='CAMPAIGN')
+                                             performance_type='CAMPAIGN')
 
     campaigns = []
 
@@ -67,6 +67,7 @@ def campaign_anomalies(request, account_id):
 
     return render(request, 'bing/campaign_anomalies.html', context)
 
+
 @login_required
 def account_alerts(request, account_id):
     # alert_types = ['DISAPPROVED_AD']
@@ -84,7 +85,6 @@ def account_alerts(request, account_id):
 class BingSingin(View):
 
     def get(self, request, *args, **kwargs):
-
         current_user = request.user
 
         if current_user.is_authenticated:
@@ -119,10 +119,8 @@ class AuthenticateBing(View):
     def get(self, request, *args, **kwargs):
         current_user = request.user
         if current_user.is_authenticated:
-
             bing_auth = BingAuth(username=current_user.username)
             creds = bing_auth.get_creds()
-
 
             return JsonResponse({
                 'refresh_token': creds.refresh_token,
