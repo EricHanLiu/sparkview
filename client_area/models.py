@@ -300,6 +300,7 @@ class PhaseTask(models.Model):
                     (3, 'Three')]
 
     roles = models.ManyToManyField('user_management.Role', default=None, blank=True)
+    members = models.ManyToManyField('user_management.Member', default=None, blank=True)
     message = models.CharField(max_length=255)  # maybe use macros in this
     phase = models.IntegerField(default=1, choices=PHASE_CHOICES)
     tier = models.IntegerField(default=1, choices=TIER_CHOICES)

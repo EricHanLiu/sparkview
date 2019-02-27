@@ -17,7 +17,7 @@ def main():
     for account in accounts:
         phase = account.phase
         phase_day = account.phase_day
-        tier = account.tier
+        tier = account.tie
 
         tasks = PhaseTask.objects.filter(phase=phase, day=phase_day, tier=tier)
         for task in tasks:
@@ -25,6 +25,9 @@ def main():
             roles = task.roles
             members_by_roles = account.members_by_roles(roles)
             for member in members_by_roles:
+                link = '/clients/accounts/' + int(account.id)
+                Notification.objects.create(message=task.message, link=link, member=member, severity=0, type=0)
+            for member in task.members:
                 link = '/clients/accounts/' + int(account.id)
                 Notification.objects.create(message=task.message, link=link, member=member, severity=0, type=0)
 

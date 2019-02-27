@@ -399,7 +399,10 @@ class BackupPeriod(models.Model):
     end_date = models.DateField()
 
     def __str__(self):
-        return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(self.end_date)
+        try:
+            return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(self.end_date)
+        except:
+            return 'No name backup period'
 
 
 class Backup(models.Model):

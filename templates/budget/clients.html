@@ -74,20 +74,21 @@
                                                 {{ client.currency }}{{ client.project_average|floatformat:2|intcomma }}
                                             </div>
                                         </div>
-                                        <div class="progress m-progress--lg bloom-progress"
-                                             style="position: relative!important;">
-                                            <div id="{{ client.id }}_progressbar"
-                                                 class="progress-bar {{ client.project_average|get_bg_class_by_percentage:client.current_budget }} bloom-progress"
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative!important; height:30px !important;">
+                                            <div id="{{ account.id }}_progressbar"
+                                                 class="progress-bar {% if client.underpacing_average %}bg-warning{% elif client.project_average > client.current_budget %}bg-danger{% else %}bg-success{% endif %}"
                                                  role="progressbar"
-                                                 style="width: {% widthratio client.current_spend client.current_budget 100 %}%;"
+                                                 style="width: {{ client.spend_percentage }}%;"
                                                  aria-valuemin="0" aria-valuemax="100"
+                                                 aria-valuenow="{{ client.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ client.project_average }}/{{ client.current_budget }}">
-                                                {% widthratio client.project_average client.current_budget 100 %}%
+                                                 data-original-title="{{ client.current_spend }}/{{ client.current_budget }}">
+                                                {{ client.spend_percentage|floatformat:2 }}%
                                             </div>
                                             <div class="black-marker"
-                                                 style="width: {{ blackmarker }}%"
-                                                 aria-valuenow="{{ blackmarker }}"
+                                                 style="width: {{ black_marker }}%"
+                                                 aria-valuenow="{{ black_marker }}"
                                                  aria-valuemin="0" aria-valuemax="100">
                                             </div>
                                         </div>
