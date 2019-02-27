@@ -753,7 +753,7 @@ def backups(request):
     seven_days_ago = now - datetime.timedelta(7)
     seven_days_future = now + datetime.timedelta(7)
     members = Member.objects.all()
-    accounts = Client.objects.filter(status=1)
+    accounts = Client.objects.filter(Q(status=0) | Q(status=1))
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,

@@ -315,6 +315,8 @@ class PhaseTaskAssignment(models.Model):
     Assignment of a phase task to an account
     """
     task = models.ForeignKey(PhaseTask, on_delete=models.CASCADE, null=True, default=None)
+    phase = models.IntegerField(default=0)
+    cycle = models.IntegerField(default=0)
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
     bc_link = models.CharField(max_length=355, blank=True, null=True, default=None)
     complete = models.BooleanField(default=False)

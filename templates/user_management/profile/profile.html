@@ -153,6 +153,14 @@
                                                         {% endif %}">F</span>
                                             {% endwith %}
                                         </div>
+                                        <div class="m--space-30">
+                                            Phase {{ account.phase }}, Day {{ account.phase_day }}:
+                                            {% for task in account.current_phase_tasks %}
+                                                <span class="m-badge {% if task.complete %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="{{ task.task.message }}"></span>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                     <div class="col-9">
                                         <div class="row">
