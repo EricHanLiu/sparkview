@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^skills$', views.skills, name='skills'),
     url(r'^skills/new$', views.skills_new, name='skills_new'),
     url(r'^backups$', views.backups, name='backups'),
+    url(r'^backups/(\d*)$', views.backup_event, name='backup_event'),
     url(r'^add_training_hours$', views.add_training_hours, name='add_training_hours'),
     url(r'^late_onboard$', views.late_onboard, name='late_onboard')
 ]

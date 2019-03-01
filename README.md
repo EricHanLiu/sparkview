@@ -48,3 +48,9 @@
 
 #### Things to check if SparkView is giving 500 errors
  - Check if the action can be done in the admin backend
+ 
+
+## What to do if Bing auth expires
+ - Go to the path `/bing/auth/authenticate` and follow the link
+ - Login with the dev@makeitbloom.com account
+ 

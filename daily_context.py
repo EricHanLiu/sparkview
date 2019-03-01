@@ -25,6 +25,8 @@ def main():
         year = now.year
 
         for key in members:
+            if key == 'Sold by':
+                continue
             tup = members[key]
             member = tup['member']
             percentage = tup['allocated_percentage']
