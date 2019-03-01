@@ -19,81 +19,50 @@
       		<div class="m-portlet__head-caption">
       			<div class="m-portlet__head-title">
       				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					Active Backups
+      					{{ backup_period }}
       				</h3>
       			</div>
       		</div>
-          <div class="m-portlet__head-tools">
-            <ul class="m-portlet__nav">
-              <li class="m-portlet__nav-item">
-                <button type="button" class="btn btn-info m-btn"
-                        data-toggle="modal"
-                        data-target="#modal_add_backup_event"> Add Backup Event
-                </button>
-              </li>
-            </ul>
-          </div>
         </div>
         <div class="m-portlet__body">
-          {% for backup_period in active_backups %}
-          <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-            <div class="m-portlet__head">
-              <div class="m-portlet__head-caption">
-                <div class="m-portlet__head-title">
-                  <h3 class="m-portlet__head-text" style="font-size: 1.2rem;">
-                      <a href="/user_management/backups/{{ backup_period.id }}">{{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}</a>
-                  </h3>
-                </div>
-              </div>
-{#              <div class="m-portlet__head-tools">#}
-{#                <ul class="m-portlet__nav">#}
-{#                  <li class="m-portlet__nav-item">#}
-{#                    <button type="button" class="btn btn-sm load-btn"#}
-{#                            data-toggle="modal"#}
-{#                            data-period="{{ backup_period.id }}">#}
-{#                            Load this event#}
-{#                    </button>#}
-{#                    <button type="button" class="btn btn-sm btn-info add-bk-btn"#}
-{#                            data-toggle="modal"#}
-{#                            data-period="{{ backup_period.id }}"#}
-{#                            data-target="#modal_add_backup"> Add Backup#}
-{#                    </button>#}
-{#                  </li>#}
-{#                </ul>#}
-{#              </div>#}
-            </div>
-            <div class="m-portlet__body">
-              <div class="row" id="bp-{{ backup_period.id }}">
-              </div>
-            </div>
-          </div>
-          {% endfor %}
+            <table class="table table-striped m-table m-table--head-separator-bloom dataTable">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Similar</th>
+                        <th>Backup</th>
+                        <th>Basecamp link</th>
+                        <th>Assign</th>
+                        <th>Approved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for backup in backup_period.backup_set.all %}
+                    <tr>
+                        <td>
+                            {{ backup.account }}
+                        </td>
+                        <td>
+                            Coming soon
+                        </td>
+                        <td>
+                            {{ backup.member }}
+                        </td>
+                        <td>
+                            {{ backup.bc_link }}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup">Assign</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm">Approve</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
       </div>
-{#      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
-{#        <div class="m-portlet__head">#}
-{#          <div class="m-portlet__head-caption">#}
-{#            <div class="m-portlet__head-title">#}
-{#              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
-{#                Non Active Backups#}
-{#              </h3>#}
-{#            </div>#}
-{#          </div>#}
-{#          <div class="m-portlet__head-tools">#}
-{#            <ul class="m-portlet__nav">#}
-{#              <li class="m-portlet__nav-item">#}
-{#                <button type="button" class="btn btn-info m-btn"#}
-{#                        data-toggle="modal"#}
-{#                        data-target="#modal_add_backup_event"> Add Backup Event#}
-{#                </button>#}
-{#              </li>#}
-{#            </ul>#}
-{#          </div>#}
-{#        </div>#}
-{#        <div class="m-portlet__body">#}
-{##}
-{#        </div>#}
-{#      </div>#}
     </div>
   </div>
   <!--End::Main Portlet-->
@@ -122,9 +91,7 @@
                         <select class="form-control m-input"
                                 name="member"
                                 style="width: 100%;">
-                                {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
-                                {% endfor %}
+
                         </select>
                       </div>
                     </div>
@@ -166,6 +133,7 @@
               {% csrf_token %}
               <input name="type" type="text" value="backup" style="display:none;" />
               <input name="period" id="period_input" type="text" value="" style="display:none;" />
+              <input name="account" id="account_input" type="text" value="" style="display:none;" />
               <div class="modal-body">
                 <div class="m-portlet__body">
                   <div class="form-group m-form__group">
@@ -178,15 +146,6 @@
                         </select>
                       </div>
                       <div class="col-md-6">
-                        <label>Account:</label>
-                        <select class="form-control m-input"
-                                name="account"
-                                style="width: 100%;">
-                        </select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
                         <label>Basecamp link:</label>
                         <input type="text" name="bc_link" class="form-control" placeholder="Basecamp link">
                       </div>

@@ -300,6 +300,7 @@ class PhaseTask(models.Model):
                     (3, 'Three')]
 
     roles = models.ManyToManyField('user_management.Role', default=None, blank=True)
+    members = models.ManyToManyField('user_management.Member', default=None, blank=True)
     message = models.CharField(max_length=255)  # maybe use macros in this
     phase = models.IntegerField(default=1, choices=PHASE_CHOICES)
     tier = models.IntegerField(default=1, choices=TIER_CHOICES)
@@ -314,6 +315,8 @@ class PhaseTaskAssignment(models.Model):
     Assignment of a phase task to an account
     """
     task = models.ForeignKey(PhaseTask, on_delete=models.CASCADE, null=True, default=None)
+    phase = models.IntegerField(default=0)
+    cycle = models.IntegerField(default=0)
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
     bc_link = models.CharField(max_length=355, blank=True, null=True, default=None)
     complete = models.BooleanField(default=False)

@@ -41,26 +41,26 @@
               <div class="m-portlet__head-caption">
                 <div class="m-portlet__head-title">
                   <h3 class="m-portlet__head-text" style="font-size: 1.2rem;">
-                      <a href="/user_management/backups/{{ backup_period.id }}">{{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}</a>
+                    {{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}
                   </h3>
                 </div>
               </div>
-{#              <div class="m-portlet__head-tools">#}
-{#                <ul class="m-portlet__nav">#}
-{#                  <li class="m-portlet__nav-item">#}
-{#                    <button type="button" class="btn btn-sm load-btn"#}
-{#                            data-toggle="modal"#}
-{#                            data-period="{{ backup_period.id }}">#}
-{#                            Load this event#}
-{#                    </button>#}
-{#                    <button type="button" class="btn btn-sm btn-info add-bk-btn"#}
-{#                            data-toggle="modal"#}
-{#                            data-period="{{ backup_period.id }}"#}
-{#                            data-target="#modal_add_backup"> Add Backup#}
-{#                    </button>#}
-{#                  </li>#}
-{#                </ul>#}
-{#              </div>#}
+              <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                  <li class="m-portlet__nav-item">
+                    <button type="button" class="btn btn-sm load-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}">
+                            Load this event
+                    </button>
+                    <button type="button" class="btn btn-sm btn-info add-bk-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}"
+                            data-target="#modal_add_backup"> Add Backup
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
             <div class="m-portlet__body">
               <div class="row" id="bp-{{ backup_period.id }}">
@@ -70,30 +70,63 @@
           {% endfor %}
         </div>
       </div>
-{#      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
-{#        <div class="m-portlet__head">#}
-{#          <div class="m-portlet__head-caption">#}
-{#            <div class="m-portlet__head-title">#}
-{#              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
-{#                Non Active Backups#}
-{#              </h3>#}
-{#            </div>#}
-{#          </div>#}
-{#          <div class="m-portlet__head-tools">#}
-{#            <ul class="m-portlet__nav">#}
-{#              <li class="m-portlet__nav-item">#}
-{#                <button type="button" class="btn btn-info m-btn"#}
-{#                        data-toggle="modal"#}
-{#                        data-target="#modal_add_backup_event"> Add Backup Event#}
-{#                </button>#}
-{#              </li>#}
-{#            </ul>#}
-{#          </div>#}
-{#        </div>#}
-{#        <div class="m-portlet__body">#}
-{##}
-{#        </div>#}
-{#      </div>#}
+      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+        <div class="m-portlet__head">
+          <div class="m-portlet__head-caption">
+            <div class="m-portlet__head-title">
+              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                Non Active Backups
+              </h3>
+            </div>
+          </div>
+          <div class="m-portlet__head-tools">
+            <ul class="m-portlet__nav">
+              <li class="m-portlet__nav-item">
+                <button type="button" class="btn btn-info m-btn"
+                        data-toggle="modal"
+                        data-target="#modal_add_backup_event"> Add Backup Event
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="m-portlet__body">
+          {% for backup_period in non_active_backup_periods %}
+          <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+              <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                  <h3 class="m-portlet__head-text" style="font-size: 1.2rem;">
+                    {{ backup_period.member.user.get_full_name }} Backup Event: {{ backup_period.start_date }} - {{ backup_period.end_date }}
+                  </h3>
+                </div>
+              </div>
+              <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                  <li class="m-portlet__nav-item">
+                    <button type="button" class="btn btn-sm load-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}">
+                            Load this event
+                    </button>
+                    <button type="button" class="btn btn-sm btn-info add-bk-btn"
+                            data-toggle="modal"
+                            data-period="{{ backup_period.id }}"
+                            data-target="#modal_add_backup"> Add Backup
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="m-portlet__body">
+              <div class="row" id="bp-{{ backup_period.id }}">
+
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
   </div>
   <!--End::Main Portlet-->
@@ -122,9 +155,9 @@
                         <select class="form-control m-input"
                                 name="member"
                                 style="width: 100%;">
-                                {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
-                                {% endfor %}
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                            {% endfor %}
                         </select>
                       </div>
                     </div>
@@ -175,6 +208,9 @@
                         <select class="form-control m-input"
                                 name="member"
                                 style="width: 100%;">
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
+                            {% endfor %}
                         </select>
                       </div>
                       <div class="col-md-6">
@@ -182,6 +218,9 @@
                         <select class="form-control m-input"
                                 name="account"
                                 style="width: 100%;">
+                            {% for account in accounts %}
+                                <option value="{{ account.id }}">{{ account.client_name }}</option>
+                            {% endfor %}
                         </select>
                       </div>
                     </div>
@@ -228,6 +267,9 @@
                                 id="edit_bu_member"
                                 name="member"
                                 style="width: 100%;">
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
+                            {% endfor %}
                         </select>
                       </div>
                       <div class="col-md-6">
@@ -236,6 +278,9 @@
                                 id="edit_bu_account"
                                 name="account"
                                 style="width: 100%;">
+                            {% for account in accounts %}
+                                <option value="{{ account.id }}">{{ account.client_name }}</option>
+                            {% endfor %}
                         </select>
                       </div>
                     </div>

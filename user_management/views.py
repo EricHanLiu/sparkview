@@ -659,6 +659,11 @@ def skills_new(request):
 
 @login_required
 def backups(request):
+    """
+    This will be the active backup page. It can have a sidebar to go to non active backups
+    :param request:
+    :return:
+    """
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
@@ -669,7 +674,10 @@ def backups(request):
         form_type = request.POST.get('type')
         if form_type == 'period':
             member_id = request.POST.get('member')
-            member = Member.objects.get(id=member_id)
+            try:
+                member = Member.objects.get(id=member_id)
+            except Member.DoesNotExist:
+                return HttpResponse('Member does not exist')
 
             start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
             end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
@@ -679,6 +687,15 @@ def backups(request):
             bp.start_date = start_date
             bp.end_date = end_date
             bp.save()
+
+            accounts = member.onboard_active_accounts
+            for account in accounts:
+                b = Backup()
+                b.account = account
+                b.period = bp
+                b.save()
+                print(b)
+
         elif form_type == 'backup':
             member_id = request.POST.get('member')
             member = Member.objects.get(id=member_id)
@@ -750,23 +767,47 @@ def backups(request):
         return redirect('/user_management/backups')
 
     now = datetime.datetime.now()
-    seven_days_ago = now - datetime.timedelta(7)
-    seven_days_future = now + datetime.timedelta(7)
+    # seven_days_ago = now - datetime.timedelta(7)
+    # seven_days_future = now + datetime.timedelta(7)
     members = Member.objects.all()
-    accounts = Client.objects.filter(status=1)
+    accounts = Client.objects.filter(Q(status=0) | Q(status=1))
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
-                                                                                                   end_date__gte=now)
+    # non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
+    #                                                                                                end_date__gte=now)
 
     context = {
         'members': members,
         'accounts': accounts,
         'active_backups': active_backups,
-        'non_active_backup_periods': non_active_backup_periods
+        # 'non_active_backup_periods': non_active_backup_periods
     }
 
     return render(request, 'user_management/backup.html', context)
+
+
+@login_required
+def backup_event(request, backup_period_id):
+    """
+    Specific backup event page
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    try:
+        backup_period = BackupPeriod.objects.get(id=backup_period_id)
+    except BackupPeriod.DoesNotExist:
+        return HttpResponse('That backup period does not exist')
+
+    # print(backup_period.account)
+
+    context = {
+        'backup_period': backup_period
+    }
+
+    return render(request, 'user_management/backup_event.html', context)
 
 
 @login_required

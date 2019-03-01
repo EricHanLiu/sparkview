@@ -236,27 +236,49 @@
                                         </div>
                                     </div>
                                 {% endfor %}
-                                {% for assigned_member in account.team_leads %}
+                                {% if account.team_lead_override != None and account.team_lead_override != '' %}
                                     <div class="m-card-profile">
-                                        <div class="m-card-profile__pic">
-                                            <div class="m-card-profile__pic-wrapper">
-                                                {% if assigned_member.image != None %}
-                                                    <img src="{% static 'img/bloomers/'|add:assigned_member.image %}"/>
-                                                {% else %}
-                                                    <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
-                                                {% endif %}
+                                            <div class="m-card-profile__pic">
+                                                <div class="m-card-profile__pic-wrapper">
+                                                    {% if account.team_lead_override.image != None %}
+                                                        <img src="{% static 'img/bloomers/'|add:account.team_lead_override.image %}"/>
+                                                    {% else %}
+                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="m-card-profile__details">
+                                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                                    {% if request.user.is_staff %}
+                                                        <a href="/user_management/members/{{ account.team_lead_override.id }}">{% endif %}{{ account.team_lead_override.user.get_full_name }}
+                                                    {% if request.user.is_staff %}</a>{% endif %}</h3>
+                                                <span class="m-badge m-badge--wide"
+                                                      style="background: rgb(255, 153, 51); color: white;">Team Lead</span>
                                             </div>
                                         </div>
-                                        <div class="m-card-profile__details">
-                                            <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                                                {% if request.user.is_staff %}
-                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.user.get_full_name }}
-                                                {% if request.user.is_staff %}</a>{% endif %}</h3>
-                                            <span class="m-badge m-badge--wide"
-                                                  style="background: rgb(255, 153, 51); color: white;">Team Lead</span>
+                                {% else %}
+                                    {% for assigned_member in account.team_leads %}
+                                        <div class="m-card-profile">
+                                            <div class="m-card-profile__pic">
+                                                <div class="m-card-profile__pic-wrapper">
+                                                    {% if assigned_member.image != None %}
+                                                        <img src="{% static 'img/bloomers/'|add:assigned_member.image %}"/>
+                                                    {% else %}
+                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="m-card-profile__details">
+                                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                                    {% if request.user.is_staff %}
+                                                        <a href="/user_management/members/{{ assigned_member.member.id }}">{% endif %}{{ assigned_member.user.get_full_name }}
+                                                    {% if request.user.is_staff %}</a>{% endif %}</h3>
+                                                <span class="m-badge m-badge--wide"
+                                                      style="background: rgb(255, 153, 51); color: white;">Team Lead</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
                                 <div class="m-card-profile">
                                     <div class="m-card-profile__pic">
                                         <div class="m-card-profile__pic-wrapper">
@@ -1397,8 +1419,7 @@
                             description: "{{ promo.desc }}",
                             start: moment("{{ promo.formatted_start }}"),
                             end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--success{% else %}
-                                m-fc-event--warning{% endif %}"
+                            className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 ]

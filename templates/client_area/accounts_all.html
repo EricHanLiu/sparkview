@@ -74,6 +74,9 @@
                 <th>
                   Total Allocated Hours
                 </th>
+              <th>
+                  Current Budget
+              </th>
               </tr>
             </thead>
             <tbody>
@@ -113,6 +116,9 @@
                 <td>
                   {{ account.all_hours }}
                 </td>
+              <td>
+                  {{ account.current_budget }}
+              </td>
               </tr>
               {% endfor %}
             </tbody>

@@ -314,7 +314,19 @@ class Member(models.Model):
                   )
         return self._accounts
 
+    @property
+    def onboard_active_accounts(self):
+        """
+        Only onboarding and active accounts
+        :return:
+        """
+        return self.accounts.filter(Q(status=0) | Q(status=1))
+
     def get_backup_accounts(self):
+        """
+        Deprecated, will not work
+        :return:
+        """
         if not hasattr(self, '_backupaccounts'):
             Client = apps.get_model('budget', 'Client')
             self._backupaccounts = Client.objects.filter(Q(cmb=self) | Q(amb=self) | Q(seob=self) | Q(stratb=self))
@@ -399,7 +411,10 @@ class BackupPeriod(models.Model):
     end_date = models.DateField()
 
     def __str__(self):
-        return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(self.end_date)
+        try:
+            return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(self.end_date)
+        except AttributeError:
+            return 'No name backup period'
 
 
 class Backup(models.Model):
@@ -407,6 +422,7 @@ class Backup(models.Model):
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='backup_member')
+    similar = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='similar_member')
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)

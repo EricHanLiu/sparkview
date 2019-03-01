@@ -10,7 +10,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask
+    OnboardingTask, PhaseTaskAssignment
 from dateutil.relativedelta import relativedelta
 
 
@@ -488,6 +488,15 @@ class Client(models.Model):
             percentage += self.strat3percent
 
         return round(self.get_allocated_hours() * percentage / 100.0, 2)
+
+    @property
+    def current_phase_tasks(self):
+        """
+        Returns the phase tasks that are part of the current phase and cycle of this account
+        :return:
+        """
+        tasks = PhaseTaskAssignment.objects.filter(account=self, phase=self.phase, cycle=self.ninety_day_cycle)
+        return tasks
 
     def get_seo_fee(self):
         """
