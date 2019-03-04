@@ -1117,9 +1117,9 @@ class Client(models.Model):
         :return:
         """
         members = []
-        assigned_members = self.assigned_members
+        assigned_members = self.assigned_members_array
         for assigned_member in assigned_members:
-            for role in roles:
+            for role in roles.all():
                 if role == assigned_member.role:
                     members.append(assigned_member)
                     break

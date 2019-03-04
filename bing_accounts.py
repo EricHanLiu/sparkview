@@ -23,7 +23,7 @@ def get_accounts():
       service='CustomerManagementService',
       authorization_data=authentication,
       environment='production',
-      version=11,
+      version=12,
   )
 
   user = customer_service.GetUser(UserId=None).User
@@ -53,7 +53,7 @@ def get_accounts():
       Predicates=predicates
   )
   
-  return accounts['Account']
+  return accounts['AdvertiserAccount']
 
 
 def main():

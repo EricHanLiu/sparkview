@@ -3,6 +3,7 @@ from bloom.settings import BING_API_VERSION, ENVIRONMENT
 from bing_dashboard import auth
 from bloom import celery_app
 
+
 class Service(object):
 
     def __init__(self):
@@ -10,7 +11,7 @@ class Service(object):
         authorization = auth.BingAuth().get_auth()
         self.campaign_service = ServiceClient(
             "CampaignManagementService",
-            version=11,
+            version=12,
             authorization_data=authorization,
             environment=ENVIRONMENT
         )
@@ -37,8 +38,6 @@ class Service(object):
             item[k] = str(item[k])
 
         return item
-
-
 
 
 class BingService(Service):

@@ -13,7 +13,7 @@ from dateutil.relativedelta import relativedelta
 from functools import partial
 from facebook_business.adobjects.adaccount import AdAccount
 from bing_dashboard.auth import BingAuth
-from bingads.v11.reporting import (
+from bingads.v12.reporting import (
     ReportingDownloadParameters, ReportingServiceManager, ServiceClient
 )
 
@@ -356,7 +356,7 @@ class BingReporting(Reporting):
             'ReportingService',
             authorization_data=auth_method,
             environment=settings.ENVIRONMENT,
-            version=11,
+            version=12,
         )
 
     def parse_report_name(self, rid, report_name):
