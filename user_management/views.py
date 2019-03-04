@@ -688,13 +688,13 @@ def backups(request):
             bp.end_date = end_date
             bp.save()
 
-            accounts = member.onboard_active_accounts
-            for account in accounts:
-                b = Backup()
-                b.account = account
-                b.period = bp
-                b.save()
-                print(b)
+            # accounts = member.onboard_active_accounts
+            # for account in accounts:
+            #     b = Backup()
+            #     b.account = account
+            #     b.period = bp
+            #     b.save()
+            #     print(b)
 
         elif form_type == 'backup':
             member_id = request.POST.get('member')
@@ -767,20 +767,20 @@ def backups(request):
         return redirect('/user_management/backups')
 
     now = datetime.datetime.now()
-    # seven_days_ago = now - datetime.timedelta(7)
-    # seven_days_future = now + datetime.timedelta(7)
+    seven_days_ago = now - datetime.timedelta(7)
+    seven_days_future = now + datetime.timedelta(7)
     members = Member.objects.all()
     accounts = Client.objects.filter(Q(status=0) | Q(status=1))
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    # non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
-    #                                                                                                end_date__gte=now)
+    non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
+                                                                                                   end_date__gte=now)
 
     context = {
         'members': members,
         'accounts': accounts,
         'active_backups': active_backups,
-        # 'non_active_backup_periods': non_active_backup_periods
+        'non_active_backup_periods': non_active_backup_periods
     }
 
     return render(request, 'user_management/backup.html', context)

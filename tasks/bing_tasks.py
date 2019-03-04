@@ -26,7 +26,7 @@ def get_accounts():
         service='CustomerManagementService',
         authorization_data=authentication,
         environment='production',
-        version=11,
+        version=12,
     )
 
     user = customer_service.GetUser(UserId=None).User
@@ -261,7 +261,7 @@ def bing_cron_ovu(self, customer_id):
     try:
         report_this_month = helper.get_report(query_this_month.ReportName)
         segmented_data = {
-            i["gregoriandate"]: i for i in report_this_month
+            i["timeperiod"]: i for i in report_this_month
         }
         current_spend = sum([float(item['spend']) for item in report_this_month])
 
@@ -270,7 +270,7 @@ def bing_cron_ovu(self, customer_id):
         segmented_data = {}
     try:
         report_last_7 = helper.get_report(query_last_7.ReportName)
-        yesterday_spend = helper.sort_by_date(report_last_7, key="gregoriandate")[-1]['spend']
+        yesterday_spend = helper.sort_by_date(report_last_7, key="timeperiod")[-1]['spend']
         day_spend = sum([float(item['spend']) for item in report_last_7]) / 7
         estimated_spend = helper.get_estimated_spend(current_spend, day_spend)
     except FileNotFoundError:
