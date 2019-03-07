@@ -52,7 +52,7 @@
                             {{ backup.bc_link }}
                         </td>
                         <td>
-                            <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup">Assign</button>
+                            <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup" data-account="{{ backup.account.id }}">Assign</button>
                         </td>
                         <td>
                             <button class="btn btn-sm">Approve</button>
@@ -68,57 +68,6 @@
   <!--End::Main Portlet-->
 </div>
 
-
-<!-- Add backup event modal -->
-<div class="modal fade" id="modal_add_backup_event" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" >Add Backup Event</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <form class="m-form" method="POST">
-              {% csrf_token %}
-              <input name="type" type="text" value="period" style="display:none;" />
-              <div class="modal-body">
-                <div class="m-portlet__body">
-                  <div class="form-group m-form__group">
-                    <div class="row">
-                      <div class="col-md-12">
-                        <label>Member:</label>
-                        <select class="form-control m-input"
-                                name="member"
-                                style="width: 100%;">
-
-                        </select>
-                      </div>
-                    </div>
-                    <hr />
-                    <div class="row">
-                      <div class="col-md-6">
-                        <label>Start date:</label>
-                        <input type="text" name="start_date" class="form-control m_datepicker" placeholder="Set start date">
-                      </div>
-                      <div class="col-md-6">
-                        <label>End date:</label>
-                        <input type="text" name="end_date" class="form-control m_datepicker" placeholder="Set start date">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="modal-footer">
-                  <input type="submit" value="Add Backup Event" class="btn btn-brand">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- End Add backup event -->
-
 <!-- Add backup modal -->
 <div class="modal fade" id="modal_add_backup" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -132,7 +81,7 @@
             <form class="m-form" method="POST">
               {% csrf_token %}
               <input name="type" type="text" value="backup" style="display:none;" />
-              <input name="period" id="period_input" type="text" value="" style="display:none;" />
+              <input name="period" id="period_input" type="text" value="{{ backup_period.id }}" style="display:none;" />
               <input name="account" id="account_input" type="text" value="" style="display:none;" />
               <div class="modal-body">
                 <div class="m-portlet__body">
@@ -143,6 +92,9 @@
                         <select class="form-control m-input"
                                 name="member"
                                 style="width: 100%;">
+                                {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
+                                {% endfor %}
                         </select>
                       </div>
                       <div class="col-md-6">
@@ -263,6 +215,15 @@
 {% block extraJs %}
 <script>
 $(document).ready(function () {
+    let $assignBtn = $('.assign-btn');
+    $assignBtn.on('show.bs.modal', function (e) {
+        let period_id = $(e.relatedTarget).data('period');
+        let account_id = $(e.relatedTarget).data('account');
+        $periodInput.attr('value', period_id);
+    });
+
+
+  // Old
   let $dueDatePickers = $('.m_datepicker');
   let $addBackupBtn = $('.add-bk-btn');
   let $modalAddBackup = $('#modal_add_backup');
