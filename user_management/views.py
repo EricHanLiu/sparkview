@@ -435,11 +435,12 @@ def members_single_reports(request, id):
 
     if reporting_period:
         active_accounts = accounts.filter(status=1)
+        reporting_accounts = active_accounts | member.inactive_lost_accounts_last_month
         if last_month == 0:
             last_month = 12
         if now.day == days_in_month:
             last_month = month  # Last day of month, show the current month so we can set stuff
-        for account in active_accounts:
+        for account in reporting_accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
                 if account.tier == 1 or account.advanced_reporting:
@@ -801,10 +802,42 @@ def backup_event(request, backup_period_id):
     except BackupPeriod.DoesNotExist:
         return HttpResponse('That backup period does not exist')
 
+    if request.method == 'POST':
+        form_type = request.POST.get('type')
+        if form_type == 'backup':
+            member_id = request.POST.get('member')
+            member = Member.objects.get(id=member_id)
+            account_id = request.POST.get('account')
+            account = Client.objects.get(id=account_id)
+            bp_id = request.POST.get('period')
+            bp = BackupPeriod.objects.get(id=bp_id)
+            bc_link = request.POST.get('bc_link')
+
+            b = Backup()
+            b.account = account
+            b.member = member
+            b.period = bp
+            b.bc_link = bc_link
+            b.save()
+        if form_type == 'approve':
+            bu_id = request.POST.get('bu_id')
+
+            approved_by = Member.objects.get(user=request.user)
+
+            b = Backup.objects.get(id=bu_id)
+            b.approved = True
+            b.approved_by = approved_by
+            b.save()
+
+            return HttpResponse('success')
+
+    members = Member.objects.all()
+
     # print(backup_period.account)
 
     context = {
-        'backup_period': backup_period
+        'backup_period': backup_period,
+        'members': members
     }
 
     return render(request, 'user_management/backup_event.html', context)

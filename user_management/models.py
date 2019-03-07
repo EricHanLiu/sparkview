@@ -3,7 +3,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent
 import datetime
 import calendar
 
@@ -128,7 +128,8 @@ class SkillHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + str(self.created_at)
+        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + str(
+            self.created_at)
 
 
 class Member(models.Model):
@@ -189,7 +190,10 @@ class Member(models.Model):
         now = datetime.datetime.now()
         month = now.month
         year = now.year
-        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+        hours = \
+            AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(
+                Sum('hours'))[
+                'hours__sum']
         return hours if hours is not None else 0
 
     @property
@@ -202,7 +206,10 @@ class Member(models.Model):
         now = datetime.datetime.now()
         month = now.month
         year = now.year
-        hours = AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+        hours = \
+            AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(
+                Sum('hours'))[
+                'hours__sum']
         return hours if hours is not None else 0
 
     @property
@@ -212,10 +219,13 @@ class Member(models.Model):
         month = now.month
         year = now.year
         hours = 0.0
-        hours_qs = AccountHourRecord.objects.filter(member=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        hours_qs = AccountHourRecord.objects.filter(member=self, month=month, year=year).aggregate(Sum('hours'))[
+            'hours__sum']
         if hours_qs is not None:
             hours += hours_qs
-        trainer_hours_qs = TrainingHoursRecord.objects.filter(trainer=self, month=month, year=year).aggregate(Sum('hours'))['hours__sum']
+        trainer_hours_qs = \
+            TrainingHoursRecord.objects.filter(trainer=self, month=month, year=year).aggregate(Sum('hours'))[
+                'hours__sum']
         if trainer_hours_qs is not None:
             hours += trainer_hours_qs
         return hours
@@ -231,21 +241,28 @@ class Member(models.Model):
 
     def actual_hours_month_by_account(self, account_id):
         account = apps.get_model('budget', 'Client').objects.get(id=account_id)
-        now   = datetime.datetime.now()
-        memberHoursThisMonth = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year, account=account, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+        now = datetime.datetime.now()
+        memberHoursThisMonth = \
+            apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month,
+                                                                              year=now.year,
+                                                                              account=account,
+                                                                              is_unpaid=False).aggregate(
+                Sum('hours'))['hours__sum']
         return memberHoursThisMonth if memberHoursThisMonth != None else 0
 
     @property
     def allocated_hours_percentage(self):
         if not hasattr(self, '_allocated_hours_percentage'):
-            self._allocated_hours_percentage = 100.0 * (self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
+            self._allocated_hours_percentage = 100.0 * (
+                    self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
         return self._allocated_hours_percentage
 
     def buffer_percentage(self):
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage
 
     def hours_available(self):
-        return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
+        return round((140.0 * (self.buffer_total_percentage / 100.0) * (
+                (100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
 
     @property
     def total_hours_minus_buffer(self):
@@ -258,7 +275,8 @@ class Member(models.Model):
     @property
     def most_recent_hour_log(self):
         now = datetime.datetime.now()
-        hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month, year=now.year)
+        hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month,
+                                                                                  year=now.year)
         trainer_hours = TrainingHoursRecord.objects.filter(trainer=self, month=now.month, year=now.year)
         hours_count = hours.count()
         trainer_hours_count = trainer_hours.count()
@@ -307,11 +325,11 @@ class Member(models.Model):
         if not hasattr(self, '_accounts'):
             Client = apps.get_model('budget', 'Client')
             self._accounts = Client.objects.filter(
-                          Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
-                          Q(am1=self) | Q(am2=self) | Q(am3=self) |
-                          Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
-                          Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
-                  )
+                Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
+                Q(am1=self) | Q(am2=self) | Q(am3=self) |
+                Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
+                Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
+            )
         return self._accounts
 
     @property
@@ -387,6 +405,26 @@ class Member(models.Model):
             self._phase_tasks = task_assignments
         return self._phase_tasks
 
+    @property
+    def inactive_lost_accounts_last_month(self):
+        """
+        Gets accounts that became lost or inactive in the last 30 days
+        :return:
+        """
+        if not hasattr(self, '_inactive_lost_accounts_last_month'):
+            accounts = []
+            thirty_one_days_ago = datetime.datetime.now() - datetime.timedelta(31)
+            events = LifecycleEvent.objects.filter(
+                Q(account__in=self.accounts, type=3, date_created__gte=thirty_one_days_ago) | Q(
+                    account__in=self.accounts, type=5, date_created__gte=thirty_one_days_ago))
+
+            for event in events:
+                if event.account not in accounts and event.account.status != 1:
+                    accounts.append(event.account)
+            self._inactive_lost_accounts_last_month = accounts
+
+        return self._inactive_lost_accounts_last_month
+
     incidents = property(countIncidents)
     mostRecentIncident = property(getMostRecentIncident)
     skills = property(getSkills)
@@ -412,7 +450,8 @@ class BackupPeriod(models.Model):
 
     def __str__(self):
         try:
-            return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(self.end_date)
+            return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(
+                self.end_date)
         except AttributeError:
             return 'No name backup period'
 
@@ -422,17 +461,19 @@ class Backup(models.Model):
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='backup_member')
-    similar = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='similar_member')
+    similar = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='similar_member', blank=True)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)
     approved = models.BooleanField(default=False)
-    approved_by = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='approved_by')
+    approved_by = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='approved_by',
+                                    blank=True)
     approved_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         try:
-            return self.member.user.get_full_name() + ' backing up ' + self.period.member.user.get_full_name() + ' on ' + self.account.client_name + ' ' + str(self.period.start_date) + ' to ' + str(self.period.end_date)
+            return self.member.user.get_full_name() + ' backing up ' + self.period.member.user.get_full_name() + ' on ' + self.account.client_name + ' ' + str(
+                self.period.start_date) + ' to ' + str(self.period.end_date)
         except AttributeError:
             return 'No name backup'
 
