@@ -26,12 +26,12 @@ def main():
             PhaseTaskAssignment.objects.create(task=task, account=account)
             roles = task.roles
             members_by_roles = account.members_by_roles(roles)
-            for member in members_by_roles:
-                link = '/clients/accounts/' + int(account.id)
+            members_to_assign = members_by_roles
+            for member in task.members.all():
+                members_to_assign.append(member)
+            for member in set(members_to_assign):
+                link = '/clients/accounts/' + str(account.id)
                 Notification.objects.create(message=task.message, link=link, member=member, severity=0, type=0)
-            # for member in task.members.all(): # Needs fixing
-            #     link = '/clients/accounts/' + int(account.id)
-            #     Notification.objects.create(message=task.message, link=link, member=member, severity=0, type=0)
 
 
 main()

@@ -63,7 +63,8 @@ def agency_overview(request):
     now = datetime.datetime.now()
     month = now.month
     year = now.year
-    total_hours_worked = AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    total_hours_worked = \
+    AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
     if total_hours_worked is None:
         total_hours_worked = 0.0
 
@@ -131,7 +132,9 @@ def cm_capacity(request):
     # Probably has to be changed before production
     # This badly has to be fixed when we implement proper roles
     # TODO: Make this reasonable
-    role = Role.objects.filter(Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(name='PPC Team Lead'))
+    role = Role.objects.filter(
+        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
+            name='PPC Team Lead'))
     members = Member.objects.filter(role__in=role)
 
     actual_aggregate = 0.0
@@ -202,13 +205,13 @@ def am_capacity(request):
     report_type = 'AM Member Capacity Report'
 
     context = {
-        'members' : members,
-        'actual_aggregate' : actual_aggregate,
-        'capacity_rate' : capacity_rate,
+        'members': members,
+        'actual_aggregate': actual_aggregate,
+        'capacity_rate': capacity_rate,
         'utilization_rate': utilization_rate,
-        'allocated_aggregate' : allocated_aggregate,
-        'available_aggregate' : available_aggregate,
-        'report_type' : report_type
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'report_type': report_type
     }
 
     return render(request, 'reports/member_capacity_report.html', context)
@@ -278,48 +281,48 @@ def seo_capacity(request):
 
 @login_required
 def strat_capacity(request):
-        """
-        Creates report that shows the capacity of the strats on an aggregated and individual basis
-        """
-        if not request.user.is_staff:
-            return HttpResponse('You do not have permission to view this page')
+    """
+    Creates report that shows the capacity of the strats on an aggregated and individual basis
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
 
-        # Probably has to be changed before production
-        role = Role.objects.filter(Q(name='Strategist'))
-        members = Member.objects.filter(role__in=role)
+    # Probably has to be changed before production
+    role = Role.objects.filter(Q(name='Strategist'))
+    members = Member.objects.filter(role__in=role)
 
-        actual_aggregate = 0.0
-        allocated_aggregate = 0.0
-        available_aggregate = 0.0
+    actual_aggregate = 0.0
+    allocated_aggregate = 0.0
+    available_aggregate = 0.0
 
-        for member in members:
-            actual_aggregate += member.actualHoursThisMonth
-            allocated_aggregate += member.allocated_hours_month()
-            available_aggregate += member.hours_available
+    for member in members:
+        actual_aggregate += member.actualHoursThisMonth
+        allocated_aggregate += member.allocated_hours_month()
+        available_aggregate += member.hours_available
 
-        if allocated_aggregate + available_aggregate == 0:
-            capacity_rate = 0
-        else:
-            capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
 
-        if allocated_aggregate == 0:
-            utilization_rate = 0
-        else:
-            utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+    if allocated_aggregate == 0:
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-        report_type = 'Strategy Capacity Report'
+    report_type = 'Strategy Capacity Report'
 
-        context = {
-            'members': members,
-            'actual_aggregate': actual_aggregate,
-            'capacity_rate': capacity_rate,
-            'utilization_rate': utilization_rate,
-            'allocated_aggregate': allocated_aggregate,
-            'available_aggregate': available_aggregate,
-            'report_type': report_type
-        }
+    context = {
+        'members': members,
+        'actual_aggregate': actual_aggregate,
+        'capacity_rate': capacity_rate,
+        'utilization_rate': utilization_rate,
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'report_type': report_type
+    }
 
-        return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report.html', context)
 
 
 @login_required
@@ -378,8 +381,10 @@ def promos(request):
     today_start = datetime.datetime.combine(today, datetime.time())
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
 
-    promos_start_today = Promo.objects.filter(start_date__gte=three_days_ago, start_date__lte=three_days_future)  # this is really this week
-    promos_end_today = Promo.objects.filter(end_date__gte=three_days_ago, end_date__lte=three_days_future)  # really this week as well
+    promos_start_today = Promo.objects.filter(start_date__gte=three_days_ago,
+                                              start_date__lte=three_days_future)  # this is really this week
+    promos_end_today = Promo.objects.filter(end_date__gte=three_days_ago,
+                                            end_date__lte=three_days_future)  # really this week as well
 
     context = {
         'promos': promos,
@@ -412,7 +417,11 @@ def actual_hours(request):
     }
 
     if request.method == 'GET':
-        hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).values('member', 'account', 'year', 'month').annotate(sum_hours=Sum('hours'))
+        hours = AccountHourRecord.objects.filter(year=now.year, month=now.month, is_unpaid=False).values('member',
+                                                                                                         'account',
+                                                                                                         'year',
+                                                                                                         'month').annotate(
+            sum_hours=Sum('hours'))
     elif request.method == 'POST':
         year = request.POST.get('year')
         month = request.POST.get('month')
@@ -469,7 +478,7 @@ def monthly_reporting(request):
     now = datetime.datetime.now()
     accounts = Client.objects.all()
     teams = Team.objects.all()
-    months = [(str(i), calendar.month_name[i]) for i in range(1,13)]
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = ['2018', '2019', '2020']
 
     selected = {
@@ -480,14 +489,14 @@ def monthly_reporting(request):
     }
 
     if request.method == 'GET':
-        reports = MonthlyReport.objects.filter(year=now.year, month=now.month)
+        reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False)
     elif request.method == 'POST':
         year = request.POST.get('year')
         month = request.POST.get('month')
         account_id = request.POST.get('account')
         team_id = request.POST.get('team')
 
-        reports = MonthlyReport.objects.filter()
+        reports = MonthlyReport.objects.filter(no_report=False)
 
         if year != 'all':
             reports = reports.filter(year=year)
@@ -710,7 +719,8 @@ def account_history(request):
         except:
             continue
 
-        allocated_history = AccountAllocatedHoursHistory.objects.filter(month=month, year=year, account=account).values('account', 'year', 'month').annotate(sum_hours=Sum('allocated_hours'))
+        allocated_history = AccountAllocatedHoursHistory.objects.filter(month=month, year=year, account=account).values(
+            'account', 'year', 'month').annotate(sum_hours=Sum('allocated_hours'))
         allocated_hours = 0.0
         if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
             allocated_hours = allocated_history[0]['sum_hours']
