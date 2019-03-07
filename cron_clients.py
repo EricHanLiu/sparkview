@@ -196,9 +196,9 @@ def main():
                 client.bing_budget += b.desired_spend
                 client.bing_current_ds += b.current_spend / today.day
 
-                for k, v in sorted(b.segmented_spend.items()):
-                    b_temp = b_temp + float(v['spend'])
-                    bing_spend[v['gregoriandate']] = round(b_temp, 2)
+                #for k, v in sorted(b.segmented_spend.items()):
+                #    b_temp = b_temp + float(v['spend'])
+                #    bing_spend[v['timeperiod']] = round(b_temp, 2)
                 bing_s_final['B - ' + remove_accents(b.account_name) + ' Spend'] = bing_spend
 
                 bing_projected_val = projected(b.current_spend, b.yesterday_spend)
