@@ -43,7 +43,7 @@
                     <form id="new_budget">
                         <div class="form-group">
                             <label for="budget" class="form-control-label">New Budget:</label>
-                            <input class="form-control text-center" name="budget" id="budget" type="number">
+                            <input class="form-control text-center" name="budget" id="budget">
                             <input type="hidden" id="aid">
                             <input type="hidden" id="channel">
                         </div>
@@ -926,6 +926,8 @@
             var aid = $('#aid').val();
             var channel = $('#channel').val();
 
+            console.log(channel);
+
             data.push(
                 {name: 'aid', value: aid},
                 {name: 'channel', value: channel});
@@ -945,11 +947,7 @@
                     },
                     success: function (data) {
                         modal.modal('hide');
-                        toastr.success("Budget updated for " + data['aname'])
-
-                    },
-                    error: function (ajaxContext) {
-                        toastr.error(ajaxContext.statusText);
+                        toastr.success("Budget updated for " + data['aname']);
                     }
                 });
             }

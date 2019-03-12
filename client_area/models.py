@@ -154,15 +154,15 @@ class Promo(models.Model):
     """
     name = models.CharField(max_length=255)
     account = models.ForeignKey('budget.Client', models.SET_NULL, null=True)
-    desc = models.CharField(max_length=140, default='No description', null=True)
+    desc = models.CharField(max_length=140, default='No description', null=True, blank=True)
     has_fb = models.BooleanField(default=False)
     has_aw = models.BooleanField(default=False)
     has_bing = models.BooleanField(default=False)
     has_other = models.BooleanField(default=False)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField(blank=True)
-    confirmed_started = models.DateTimeField(default=None, null=True)
-    confirmed_ended = models.DateTimeField(default=None, null=True)
+    confirmed_started = models.DateTimeField(default=None, null=True, blank=True)
+    confirmed_ended = models.DateTimeField(default=None, null=True, blank=True)
     is_indefinite = models.BooleanField(default=False, null=True)
 
     @property

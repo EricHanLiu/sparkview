@@ -75,6 +75,17 @@
                             href="/clients/accounts/onboard/{{ account.id }}" style="color:#fff;">here</a> to view the
                         progress.
                     </div>
+                    {% if account.is_late_to_onboard %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        </button>
+                        <strong>Warning!</strong> This account is late to onboard.
+                            It has been in the onboarding phase for {{ account.onboarding_duration_elapsed }} days.
+                            {% if account.late_onboard_reason != None and account.late_onboard_reason != '' %}
+                                The reason is {{ account.late_onboard_reason }}.
+                            {% endif %}
+                    </div>
+                    {% endif %}
                 {% endif %}
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">

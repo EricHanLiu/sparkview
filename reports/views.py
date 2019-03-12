@@ -831,3 +831,20 @@ def new_incident(request):
         return HttpResponse('You do not have permission to view this page')
 
     return render(request, 'reports/new_incident.html')
+
+
+@login_required
+def onboarding(request):
+    """
+    Onboarding report
+    """
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    onboarding_accounts = Client.objects.filter(status=0)
+
+    context = {
+        'onboarding_accounts': onboarding_accounts
+    }
+
+    return render(request, 'reports/onboarding.html', context)

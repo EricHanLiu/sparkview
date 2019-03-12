@@ -39,6 +39,7 @@
  - The crons run scripts that spawn celery tasks
  - These tasks are queued up in a redis server
  
+ 
 #### Things to check if SparkView is giving 502 errors
  ##### Check if the server is full
   - ssh into the server (log into GCP to give someone access, a dev should be able to figure this out, also we only have one server running so that's the one they need to ssh into), type `df` (mainly check if the `var` folder or `tmp` folders are overflowing)
@@ -46,11 +47,22 @@
   - First things to look for are `/tmp/suds` files or similar. These should be able to be deleted without consequence.
   - Another option is to delete some old docker images with  `sudo docker rmi <IMAGE_ID>`. You can see image IDs with `sudo docker images`. Maybe delete an old one from the `hyperdigitalteam/bloom` repository.
 
+
 #### Things to check if SparkView is giving 500 errors
  - Check if the action can be done in the admin backend
  
-
+ 
+## Bing auth
+ - Bing gives us a file that seems to be used like a private key for auth
+ - That file is located at `/bing_dashboards/bing_creds`
+ - If that file doesn't exist, you can do `$ cp bing_dashboards/bing_creds_prod bing_dashboards/bing_creds` in production
+ 
+ 
 ## What to do if Bing auth expires
  - Go to the path `/bing/auth/authenticate` and follow the link
  - Login with the dev@makeitbloom.com account
+ - This will make/update the file `/bing_dashboards/bing_creds`
  
+ 
+##  When updating cron tasks
+ - Restart celery `sudo sh /etc/init.d/celeryd restart`

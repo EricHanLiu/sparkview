@@ -808,7 +808,10 @@ def backup_event(request, backup_period_id):
             member_id = request.POST.get('member')
             member = Member.objects.get(id=member_id)
             account_id = request.POST.get('account')
-            account = Client.objects.get(id=account_id)
+            try:
+                account = Client.objects.get(id=account_id)
+            except Client.DoesNotExist:
+                return HttpResponse('This client has not exist (this might be a bug, please report to Sam or Lexi)')
             bp_id = request.POST.get('period')
             bp = BackupPeriod.objects.get(id=bp_id)
             bc_link = request.POST.get('bc_link')
@@ -831,9 +834,8 @@ def backup_event(request, backup_period_id):
 
             return HttpResponse('success')
 
-    members = Member.objects.all()
-
-    # print(backup_period.account)
+    role = backup_period.member.role
+    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id)
 
     context = {
         'backup_period': backup_period,

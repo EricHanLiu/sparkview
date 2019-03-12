@@ -498,7 +498,8 @@ class Client(models.Model):
         tasks = PhaseTaskAssignment.objects.filter(account=self, phase=self.phase, cycle=self.ninety_day_cycle)
         return tasks
 
-    def get_seo_fee(self):
+    @property
+    def seo_fee(self):
         """
         Get's the SEO fee
         """
@@ -507,7 +508,8 @@ class Client(models.Model):
             fee += self.seo_hours * self.seo_hourly_fee
         return fee
 
-    def get_cro_fee(self):
+    @property
+    def cro_fee(self):
         """
         Get's the CRO fee
         """
@@ -516,7 +518,8 @@ class Client(models.Model):
             fee += self.cro_hours * self.cro_hourly_fee
         return fee
 
-    def get_ppc_fee(self):
+    @property
+    def ppc_fee(self):
         """
         Loops through every interval in the management fee structure, determines
         """
@@ -557,14 +560,14 @@ class Client(models.Model):
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.get_ppc_fee() + self.get_cro_fee() + self.get_seo_fee() + initial_fee
+            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee
         return fee
 
     def get_ppc_allocated_hours(self):
         if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
             unrounded = self.allocated_ppc_override
         else:
-            unrounded = (self.get_ppc_fee() / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+            unrounded = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         if self.status == 0 and self.managementFee is not None:
             unrounded += (self.managementFee.initialFee / 125.0)
         return round(unrounded, 2)
@@ -1079,6 +1082,27 @@ class Client(models.Model):
             now = timezone.now()
             return (now - self.created_at).days + 1
 
+    @property
+    def projected_ppc_fee(self):
+        """
+        The projected PPC management fee for when the client is in the onboarding phase
+        :return:
+        """
+        if not hasattr(self, '_projected_ppc_fee'):
+            self._projected_ppc_fee = self.get_fee_by_spend(self.sold_budget)
+        return self._projected_ppc_fee
+
+    @property
+    def projected_management_fee(self):
+        """
+        The projected management fee for when the client is in the onboarding phase
+        :return:
+        """
+        if self.status != 0:
+            return None
+
+        return self.projected_ppc_fee + self.seo_fee + self.cro_fee
+
     def hybrid_projection(self, method):
         projection = self.current_spend
         now = datetime.datetime.today() - datetime.timedelta(1)
@@ -1126,6 +1150,20 @@ class Client(models.Model):
 
         return members
 
+    def members_by_role(self, role):
+        """
+        Same as above but for one singular role object
+        :param role:
+        :return:
+        """
+        members = []
+        assigned_members = self.assigned_members_array
+        for assigned_member in assigned_members:
+            if role == assigned_member.role:
+                members.append(assigned_member)
+
+        return members
+
     remainingBudget = property(get_remaining_budget)
 
     yesterday_spend = property(get_yesterday_spend)
@@ -1135,9 +1173,6 @@ class Client(models.Model):
     hoursWorkedThisMonth = property(get_hours_worked_this_month)
     hoursRemainingMonth = property(get_hours_remaining_this_month)
 
-    seo_fee = property(get_seo_fee)
-    cro_fee = property(get_cro_fee)
-    ppc_fee = property(get_ppc_fee)
     total_fee = property(get_fee)
     ppc_hours = property(get_ppc_allocated_hours)
     all_hours = property(get_allocated_hours)
