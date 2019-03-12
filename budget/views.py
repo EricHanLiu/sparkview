@@ -35,7 +35,6 @@ def index():
 @login_required
 @xframe_options_exempt
 def index_budget(request):
-
     if request.method == 'GET':
         accounts = DependentAccount.objects.filter(blacklisted='False')
         return render(request, 'budget/adwords_budget.html', {'items': accounts})
@@ -55,7 +54,6 @@ def index_budget(request):
 @login_required
 @xframe_options_exempt
 def bing_budget(request):
-
     if request.method == 'GET':
         try:
             accounts = BingAccounts.objects.filter(blacklisted='False')
@@ -76,10 +74,10 @@ def bing_budget(request):
         except ValueError:
             raise Http404
 
+
 @login_required
 @xframe_options_exempt
 def facebook_budget(request):
-
     if request.method == 'GET':
         try:
             accounts = FacebookAccount.objects.filter(blacklisted='False')
@@ -104,7 +102,6 @@ def facebook_budget(request):
 @login_required
 @xframe_options_exempt
 def add_client(request):
-
     aw = []
     bng = []
     fb = []
@@ -137,7 +134,6 @@ def add_client(request):
         context['blackmarker'] = round(black_marker, 2)
         context['status_badges'] = ['info', 'success', 'warning', 'danger']
 
-
         return render(request, 'budget/clients.html', context)
 
     elif request.method == 'POST':
@@ -167,7 +163,6 @@ def add_client(request):
         for i in range(len(facebook_accounts)):
             tmp_val = facebook_accounts[i].split('|')
             new_fb.append(tmp_val[0])
-
 
         new_client = Client.objects.create(client_name=name)
 
@@ -268,7 +263,6 @@ def add_client(request):
 @login_required
 @xframe_options_exempt
 def client_details(request, client_id):
-
     today = datetime.today() - relativedelta(days=1)  # This is actually yesterday
     next_month_int = today.month + 1
     if next_month_int == 13:
@@ -290,7 +284,8 @@ def client_details(request, client_id):
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
 
-        budget_updated_for_month, created = BudgetUpdate.objects.get_or_create(account=client, month=today.month, year=today.year)
+        budget_updated_for_month, created = BudgetUpdate.objects.get_or_create(account=client, month=today.month,
+                                                                               year=today.year)
 
         status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -325,7 +320,7 @@ def client_details(request, client_id):
 
         if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=aid)
-            account.desired_spend = budget
+            account.desired_spend = int(float(budget))
             account.save()
             context = {
                 'aid': account.dependent_account_id,
@@ -335,7 +330,7 @@ def client_details(request, client_id):
 
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=aid)
-            account.desired_spend = budget
+            account.desired_spend = int(float(budget))
             account.save()
             context = {
                 'aid': account.account_id,
@@ -345,7 +340,7 @@ def client_details(request, client_id):
 
         elif channel == 'facebook':
             account = FacebookAccount.objects.get(account_id=aid)
-            account.desired_spend = budget
+            account.desired_spend = int(float(budget))
             account.save()
             context = {
                 'aid': account.account_id,
@@ -365,7 +360,7 @@ def client_details(request, client_id):
                 'error_message': 'Please enter a value greater than 0(zero).',
             }
 
-        adwords_tasks.cron_clients.delay()
+        # adwords_tasks.cron_clients.delay()
 
         return JsonResponse(context)
 
@@ -373,7 +368,6 @@ def client_details(request, client_id):
 @login_required
 @xframe_options_exempt
 def delete_clients(request):
-
     deleted_clients = []
 
     if request.method == 'POST':
@@ -402,9 +396,7 @@ def delete_clients(request):
 @login_required
 @xframe_options_exempt
 def last_month(request):
-
     if request.method == 'GET':
-
         context = {
             'clients': ClientHist.objects.all(),
             'adwords': DependentAccount.objects.filter(blacklisted=False),
@@ -418,7 +410,6 @@ def last_month(request):
 @login_required
 @xframe_options_exempt
 def hist_client_details(request, client_id):
-
     today = datetime.today() - relativedelta(days=1)
     next_month_int = today.month + 1
     if next_month_int == 13:
@@ -445,7 +436,6 @@ def hist_client_details(request, client_id):
 
 
 def gen_6_months():
-
     months = []
 
     for i in range(6):
@@ -460,7 +450,6 @@ def gen_6_months():
 @login_required
 @xframe_options_exempt
 def sixm_budget(request, client_id):
-
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
 
@@ -501,7 +490,6 @@ def sixm_budget(request, client_id):
 
 @login_required
 def flight_dates(request):
-
     if request.method == 'POST':
         """
         Temporary overriding this with a new approach to flight dates in an attempt to simplify the concept for the members
@@ -546,7 +534,6 @@ def flight_dates(request):
 
 @login_required
 def detailed_flight_dates(request):
-
     account_id = request.GET.get('account_id')
     channel = request.GET.get('channel')
     context = {}
@@ -575,7 +562,6 @@ def detailed_flight_dates(request):
 
 @login_required
 def campaign_groupings(request):
-
     account_id = request.GET.get('account_id')
     channel = request.GET.get('channel')
 
@@ -623,7 +609,7 @@ def campaign_groupings(request):
                     cmp = cmp.split("|")
                     cmp_obj = Campaign.objects.get(campaign_id=cmp[0])
                     budget = request.POST.get('grouping-budget')
-                    cmp_obj.campaign_budget = int(budget)/len(campaigns)
+                    cmp_obj.campaign_budget = int(budget) / len(campaigns)
                     cmp_obj.groupped = True
                     cmp_obj.save()
                     cmps.append(cmp_obj)
@@ -644,7 +630,7 @@ def campaign_groupings(request):
                     cmp = cmp.split("|")
                     cmp_obj = BingCampaign.objects.get(campaign_id=cmp[0])
                     budget = request.POST.get('grouping-budget')
-                    cmp_obj.campaign_budget = int(budget)/len(campaigns)
+                    cmp_obj.campaign_budget = int(budget) / len(campaigns)
                     cmp_obj.groupped = True
                     cmp_obj.save()
                     cmps.append(cmp_obj)
@@ -665,7 +651,7 @@ def campaign_groupings(request):
                     cmp = cmp.split("|")
                     cmp_obj = FacebookCampaign.objects.get(campaign_id=cmp[0])
                     budget = request.POST.get('grouping-budget')
-                    cmp_obj.campaign_budget = int(budget)/len(campaigns)
+                    cmp_obj.campaign_budget = int(budget) / len(campaigns)
                     cmp_obj.groupped = True
                     cmp_obj.save()
                     cmps.append(cmp_obj)
@@ -684,7 +670,6 @@ def campaign_groupings(request):
 
 @login_required
 def add_groupings(request):
-
     if request.method == 'POST':
 
         # channel = request.POST.get('cgr_channel')
@@ -800,7 +785,6 @@ def add_groupings(request):
 
 @login_required
 def update_groupings(request):
-
     if request.method == 'POST':
 
         data = request.POST
@@ -890,9 +874,7 @@ def update_groupings(request):
 
 @login_required
 def delete_groupings(request):
-
     if request.method == 'POST':
-
         data = json.loads(request.body.decode('utf-8'))
         group = CampaignGrouping.objects.get(id=data['gr_id'])
         context = {
@@ -900,12 +882,10 @@ def delete_groupings(request):
         }
         group.delete()
 
-
         return JsonResponse(context)
 
 
 def get_campaigns(request):
-
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')
     gr_id = request.POST.get('gr_id')
@@ -961,7 +941,6 @@ def get_campaigns(request):
 # Update client budgets
 @login_required
 def update_budget(request):
-
     if request.method == 'POST':
 
         data = request.POST
@@ -992,21 +971,20 @@ def update_budget(request):
             pb_color = 'bg-danger'
 
         context = {
-            'width':  round(width, 2),
+            'width': round(width, 2),
             'client_id': client_id,
             'client_name': client.client_name,
             'pb_color': pb_color,
             'gts_budget': gts_budget
         }
 
-        adwords_tasks.cron_clients.delay()
+        # adwords_tasks.cron_clients.delay()
         return JsonResponse(context)
 
 
 # Update flight budgets
 @login_required
 def update_fbudget(request):
-
     context = {}
 
     if request.method == 'POST':
@@ -1029,16 +1007,13 @@ def update_fbudget(request):
         elif fbudget.facebook_account is not None:
             facebook_tasks.facebook_cron_flight_dates.delay(fbudget.facebook_account.account_id)
 
-
         return JsonResponse(context)
 
 
 # Delete flight budgets
 @login_required
 def delete_fbudget(request):
-
     if request.method == 'POST':
-
         data = json.loads(request.body.decode('utf-8'))
         fbudget = FlightBudget.objects.get(id=data['budget_id'])
         fbudget.delete()
@@ -1050,7 +1025,6 @@ def delete_fbudget(request):
 
 @login_required
 def gts_or_budget(request):
-
     data = request.POST
     client = Client.objects.get(id=data['cid'])
 
@@ -1083,7 +1057,6 @@ def gts_or_budget(request):
 
 @login_required
 def assign_client_accounts(request):
-
     adwords = request.POST.getlist('adwords')
     bing = request.POST.getlist('bing')
     facebook = request.POST.getlist('facebook')
@@ -1109,7 +1082,6 @@ def assign_client_accounts(request):
             client.facebook.add(acc)
             client.save()
 
-
     response = {
         'client': client.client_name
     }
@@ -1120,7 +1092,6 @@ def assign_client_accounts(request):
 
 @login_required
 def disconnect_client_account(request):
-
     data = request.POST
 
     channel = data['channel']
@@ -1164,7 +1135,6 @@ def disconnect_client_account(request):
 
 @login_required
 def edit_client_name(request):
-
     data = request.POST
     client_id = data['cid']
     new_name = data['client_name']
@@ -1181,7 +1151,6 @@ def edit_client_name(request):
 
 @login_required
 def add_kpi(request):
-
     data = request.POST
     networks = request.POST.getlist('network_type')
     budget = request.POST.get('kpi_budget')
@@ -1198,7 +1167,6 @@ def add_kpi(request):
 
 @login_required
 def delete_kpi(request):
-
     budget_id = request.POST.get('bid')
     budget = Budget.objects.get(id=budget_id)
 
@@ -1213,7 +1181,9 @@ def delete_kpi(request):
 @login_required
 def edit_flex_budget(request):
     member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id'))):
+    if not request.user.is_staff and not member.has_account(
+            int(request.POST.get('account_id'))) and not member.teams_have_accounts(
+            int(request.POST.get('account_id'))):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
@@ -1229,7 +1199,9 @@ def edit_flex_budget(request):
 @login_required
 def edit_other_budget(request):
     member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and not member.has_account(int(request.POST.get('account_id'))) and not member.teams_have_accounts(int(request.POST.get('account_id'))):
+    if not request.user.is_staff and not member.has_account(
+            int(request.POST.get('account_id'))) and not member.teams_have_accounts(
+            int(request.POST.get('account_id'))):
         return HttpResponse('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))

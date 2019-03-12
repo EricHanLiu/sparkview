@@ -461,7 +461,6 @@ class Backup(models.Model):
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
     member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='backup_member')
-    similar = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='similar_member', blank=True)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)
@@ -469,6 +468,27 @@ class Backup(models.Model):
     approved_by = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='approved_by',
                                     blank=True)
     approved_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def similar_members(self):
+        """
+        Get's similar members as suggestions
+        :return:
+        """
+        if not hasattr(self, '_similar_members'):
+            role = self.period.member.role
+            similar = list(filter(self.period.member.__ne__, self.account.members_by_role(role)))
+            self._similar_members = similar
+
+        return self._similar_members
+
+    @property
+    def similar_members_str(self):
+        """
+        String of similar members
+        :return:
+        """
+        return ', '.join(member.user.get_full_name() for member in self.similar_members)
 
     def __str__(self):
         try:

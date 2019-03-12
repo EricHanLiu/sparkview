@@ -26,5 +26,6 @@ urlpatterns = [
     url(r'^update_tier$', views.update_tier, name='update_tier'),
     url(r'^outstanding_notifications$', views.outstanding_notifications, name='outstanding_notifications'),
     url(r'^incidents$', views.incidents, name='incidents'),
-    url(r'^incidents/new$', views.new_incident, name='new_incident')
+    url(r'^incidents/new$', views.new_incident, name='new_incident'),
+    url(r'^onboarding$', views.onboarding, name='onboarding')
 ]
