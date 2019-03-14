@@ -823,82 +823,10 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
         cmp.save()
 
         cmps.append(cmp)
-        # if created:
-        #     print('Added to DB - [' + cmp.campaign_name + '].')
-        # else:
-        #     print('Matched in DB - [' + cmp.campaign_name + '].')
-
-    if client_id is not None:
-        cl_acc = Client.objects.get(id=client_id)
-        groupings = CampaignGrouping.objects.filter(client=cl_acc)
-        if groupings:
-            for gr in groupings:
-                just_added = []
-                for c in cmps:
-                    if gr.group_by == 'manual':
-                        continue
-                    else:
-                        # Retrieve keywords to group by as a list
-                        group_by = gr.group_by.split(',')
-
-                        # Loop through kws and add campaigns to the group
-                        for keyword in group_by:
-                            if '+' in keyword:
-                                if keyword.strip('+').lower() in c.campaign_name.lower() \
-                                        and c not in gr.aw_campaigns.all():
-                                    gr.aw_campaigns.add(c)
-                                    just_added.append(c.id)
-
-                                if keyword.strip('+').lower() not in c.campaign_name.lower() \
-                                        and c in gr.aw_campaigns.all() and c.id not in just_added:
-                                    gr.aw_campaigns.remove(c)
-
-                            if '-' in keyword:
-                                if keyword.strip('-').lower() in c.campaign_name.lower() \
-                                        and c in gr.aw_campaigns.all():
-                                    gr.aw_campaigns.remove(c)
-                                else:
-                                    gr.aw_campaigns.add(c)
-
-                gr.save()
-
-                gr.aw_spend = 0
-                gr.aw_yspend = 0
-
-                if gr.start_date:
-                    campaigns = []
-
-                    for c in gr.aw_campaigns.all():
-                        campaigns.append(c.campaign_id)
-
-                    if len(campaigns) > 0:
-
-                        predicate = {
-                            "field": "CampaignId",
-                            "operator": "IN",
-                            "values": campaigns,
-                        }
-
-                        daterange = helper.create_daterange(gr.start_date, gr.end_date)
-                        campaign_this_period = helper.get_campaign_performance(
-                            customer_id=account.dependent_account_id,
-                            dateRangeType="CUSTOM_DATE",
-                            extra_predicates=predicate,
-                            **daterange
-                        )
-
-                        for cmp in campaign_this_period:
-                            campaign = Campaign.objects.get(campaign_id=cmp['campaign_id'])
-                            gr.aw_spend += helper.mcv(cmp['cost'])
-                            gr.aw_yspend += campaign.campaign_yesterday_cost
-                            gr.save()
-                    else:
-                        continue
-                else:
-                    for cmp in gr.aw_campaigns.all():
-                        gr.aw_spend += cmp.campaign_cost
-                        gr.aw_yspend += cmp.campaign_yesterday_cost
-                        gr.save()
+        if created:
+            print('Added to DB - [' + cmp.campaign_name + '].')
+        else:
+            print('Matched in DB - [' + cmp.campaign_name + '].')
 
 
 @celery_app.task(bind=True)

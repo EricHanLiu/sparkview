@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^accounts/set_kpis$', views.set_kpis, name='set_kpis'),
     url(r'^accounts/flag/member$', views.assign_member_flagged_account, name='assign_member_flagged_account'),
     url(r'^accounts/(\d*)/lifecycle$', views.account_lifecycle, name='account_lifecycle'),
+    url(r'^campaigns/(\d*)$', views.campaigns, name='campaigns')
 ]

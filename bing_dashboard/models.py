@@ -79,6 +79,15 @@ class BingAccounts(models.Model):
             self._project_yesterday = self.hybrid_projection(0)
         return self._project_yesterday
 
+    @property
+    def campaigns(self):
+        """
+        Get's the campaigns that belong to this ad account
+        Returns campaigns that are greater than 0 spend only
+        :return:
+        """
+        return BingCampaign.objects.filter(account=self, campaign_cost__gt=0).order_by('-campaign_cost')
+
     def hybrid_projection(self, method):
         projection = self.current_spend
         now = datetime.datetime.today() - datetime.timedelta(1)

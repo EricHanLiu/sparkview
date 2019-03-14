@@ -698,6 +698,7 @@ def add_groupings(request):
                 budget=budget,
                 client=client
             )
+            new_group.update_text_grouping()
         elif group_by == 'all':
             new_group = CampaignGrouping.objects.create(
                 group_name=group_name,
@@ -854,18 +855,18 @@ def update_groupings(request):
         else:
             grouping.group_by = group_by_edit
         grouping.save()
-
-        if grouping.client.adwords:
-            for a in grouping.client.adwords.all():
-                adwords_tasks.adwords_cron_campaign_stats.delay(a.dependent_account_id, grouping.client.id)
-        if grouping.client.bing:
-            time.sleep(0.5)
-            for b in grouping.client.bing.all():
-                bing_tasks.bing_cron_campaign_stats.delay(b.account_id, grouping.client.id)
-        if grouping.client.facebook:
-            time.sleep(0.5)
-            for f in grouping.client.facebook.all():
-                facebook_tasks.facebook_cron_campaign_stats.delay(f.account_id, grouping.client.id)
+        grouping.update_text_grouping()
+        # if grouping.client.adwords:
+        #     for a in grouping.client.adwords.all():
+        #         adwords_tasks.adwords_cron_campaign_stats.delay(a.dependent_account_id, grouping.client.id)
+        # if grouping.client.bing:
+        #     time.sleep(0.5)
+        #     for b in grouping.client.bing.all():
+        #         bing_tasks.bing_cron_campaign_stats.delay(b.account_id, grouping.client.id)
+        # if grouping.client.facebook:
+        #     time.sleep(0.5)
+        #     for f in grouping.client.facebook.all():
+        #         facebook_tasks.facebook_cron_campaign_stats.delay(f.account_id, grouping.client.id)
 
         context = {}
 
