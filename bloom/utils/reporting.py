@@ -532,7 +532,7 @@ class BingReporting(Reporting):
         filters = self.reporting_service.factory.create(
             "CampaignPerformanceReportFilter"
         )
-        filters.Status = ["Active"]
+        #filters.Status = ["Active"]
 
         return filters
 

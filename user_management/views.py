@@ -435,12 +435,23 @@ def members_single_reports(request, id):
 
     if reporting_period:
         active_accounts = accounts.filter(status=1)
-        reporting_accounts = active_accounts | member.inactive_lost_accounts_last_month
+        # reporting_accounts = active_accounts | member.inactive_lost_accounts_last_month
         if last_month == 0:
             last_month = 12
         if now.day == days_in_month:
             last_month = month  # Last day of month, show the current month so we can set stuff
-        for account in reporting_accounts:
+        # TODO: Fix the following boiler plate
+        for account in active_accounts:
+            report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
+            if created:
+                if account.tier == 1 or account.advanced_reporting:
+                    report.report_type = 2  # Advanced
+                else:
+                    report.report_type = 1  # Standard
+                report.save()
+            if not report.no_report:
+                reports.append(report)
+        for account in member.inactive_lost_accounts_last_month:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
                 if account.tier == 1 or account.advanced_reporting:
@@ -689,13 +700,13 @@ def backups(request):
             bp.end_date = end_date
             bp.save()
 
-            # accounts = member.onboard_active_accounts
-            # for account in accounts:
-            #     b = Backup()
-            #     b.account = account
-            #     b.period = bp
-            #     b.save()
-            #     print(b)
+            accounts = member.onboard_active_accounts
+            for account in accounts:
+                b = Backup()
+                b.account = account
+                b.period = bp
+                b.save()
+                print(b)
 
         elif form_type == 'backup':
             member_id = request.POST.get('member')

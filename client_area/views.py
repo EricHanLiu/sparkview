@@ -1310,6 +1310,7 @@ def account_lifecycle(request, account_id):
     """
     View for account lifecycle (90 days of awesome)
     :param request:
+    :param account_id:
     :return:
     """
     account = Client.objects.get(id=account_id)
@@ -1341,7 +1342,26 @@ def account_lifecycle(request, account_id):
         'last_lost_reason': last_lost_reason,
         'times_flagged': times_flagged,
         'transition_number': transition_number,
-
     }
 
     return render(request, 'client_area/account_lifecycle.html', context)
+
+
+@login_required
+def campaigns(request, account_id):
+    """
+    Shows campaigns of an account
+    :param request:
+    :param account_id:
+    :return:
+    """
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponse('Invalid client')
+
+    context = {
+        'account': account
+    }
+
+    return render(request, 'client_area/campaigns.html', context)

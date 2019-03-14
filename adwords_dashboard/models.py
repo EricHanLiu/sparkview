@@ -130,6 +130,15 @@ class DependentAccount(models.Model):
         return self._project_average
 
     @property
+    def campaigns(self):
+        """
+        Get's the campaigns that belong to this ad account
+        Returns campaigns that are greater than 0 spend only
+        :return:
+        """
+        return Campaign.objects.filter(account=self, campaign_cost__gt=0).order_by('-campaign_cost')
+
+    @property
     def project_yesterday(self):
         if not hasattr(self, '_project_yesterday'):
             self._project_yesterday = self.hybrid_projection(0)

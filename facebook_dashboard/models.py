@@ -5,14 +5,15 @@ import json
 import datetime
 import calendar
 
+
 # Create your models here.
 class FacebookAccount(models.Model):
-
     account_id = models.CharField(max_length=355)
     account_name = models.CharField(max_length=255, default="None")
     desired_spend = models.IntegerField(default=0)
     current_spend = models.FloatField(default=0)
-    desired_spend_start_date = models.DateTimeField(default=None, null=True, blank=True) # These are the start dates and end dates for the desired spend. Default should be this month.
+    desired_spend_start_date = models.DateTimeField(default=None, null=True,
+                                                    blank=True)  # These are the start dates and end dates for the desired spend. Default should be this month.
     desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
     segmented_spend = JSONField(default=dict)
     channel = models.CharField(max_length=255, default='None')
@@ -49,6 +50,15 @@ class FacebookAccount(models.Model):
         """
         # return self.desired_spend_start_date != None and self.desired_spend_end_date != None
         return False  # Temporarily disabling this feature
+
+    @property
+    def campaigns(self):
+        """
+        Get's the campaigns that belong to this ad account
+        Returns campaigns that are greater than 0 spend only
+        :return:
+        """
+        return FacebookCampaign.objects.filter(account=self, campaign_cost__gt=0).order_by('-campaign_cost')
 
     @property
     def json(self):
@@ -125,8 +135,8 @@ class FacebookAccount(models.Model):
     def __str__(self):
         return self.account_name
 
-class FacebookPerformance(models.Model):
 
+class FacebookPerformance(models.Model):
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
     performance_type = models.CharField(max_length=255)
     campaign_id = models.CharField(max_length=255, default='None')
@@ -169,7 +179,6 @@ class FacebookPerformance(models.Model):
 
 
 class FacebookCampaign(models.Model):
-
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=455, default='None')
@@ -191,7 +200,6 @@ class FacebookCampaign(models.Model):
 
 
 class FacebookAlert(models.Model):
-
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
     alert_type = models.CharField(max_length=255)
     alert_reason = models.CharField(max_length=255)
@@ -203,7 +211,6 @@ class FacebookAlert(models.Model):
     campaign_name = models.CharField(max_length=255, default="None")
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-
 
     @property
     def json(self):

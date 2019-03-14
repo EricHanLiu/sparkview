@@ -1294,12 +1294,59 @@ class CampaignGrouping(models.Model):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
 
+    @property
+    def current_aw_spend(self):
+        spend = 0.0
+        for acc in self.aw_campaigns.all():
+            spend += acc.campaign_cost
+        return spend
+
+    @property
+    def current_fb_spend(self):
+        spend = 0.0
+        for acc in self.fb_campaigns.all():
+            spend += acc.campaign_cost
+        return spend
+
+    @property
+    def current_bing_spend(self):
+        spend = 0.0
+        for acc in self.bing_campaigns.all():
+            spend += acc.campaign_cost
+        return spend
+
+    @property
     def current_spend(self):
-        return self.aw_spend + self.bing_spend + self.fb_spend
+        # return self.aw_spend + self.bing_spend + self.fb_spend
+        return self.current_aw_spend + self.current_fb_spend + self.current_bing_spend
 
+    @property
+    def current_aw_yspend(self):
+        spend = 0.0
+        for acc in self.aw_campaigns.all():
+            spend += acc.campaign_yesterday_cost
+        return spend
+
+    @property
+    def current_fb_yspend(self):
+        spend = 0.0
+        for acc in self.fb_campaigns.all():
+            spend += acc.campaign_yesterday_cost
+        return spend
+
+    @property
+    def current_bing_yspend(self):
+        spend = 0.0
+        for acc in self.bing_campaigns.all():
+            spend += acc.campaign_yesterday_cost
+        return spend
+
+    @property
     def yesterday_spend(self):
-        return self.aw_yspend + self.bing_yspend + self.fb_yspend
 
+        return self.current_aw_yspend + self.current_fb_yspend + self.current_bing_yspend
+
+    @property
     def rec_daily_spend(self):
         now = datetime.datetime.today()
         if self.start_date:
@@ -1321,6 +1368,7 @@ class CampaignGrouping(models.Model):
 
         return answer
 
+    @property
     def avg_daily_spend(self):
         now = datetime.datetime.today() - datetime.timedelta(1)
         if self.start_date:
@@ -1362,10 +1410,56 @@ class CampaignGrouping(models.Model):
 
         return projection
 
-    yesterday_spend = property(yesterday_spend)
-    avg_daily_spend = property(avg_daily_spend)
-    rec_daily_spend = property(rec_daily_spend)
-    current_spend = property(current_spend)
+    def update_text_grouping(self):
+        """
+        Updates the accounts of the group if this does text parsing
+        :return:
+        """
+        if self.group_by == 'manual':
+            return
+
+        account = self.client
+        adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
+        facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
+        bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
+
+        keywords = self.group_by.split(',')
+
+        aw_campaigns_in_group = []
+        for adwords_campaign in adwords_campaigns:
+            for keyword in keywords:
+                if adwords_campaign in aw_campaigns_in_group:
+                    break
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
+                        aw_campaigns_in_group.append(adwords_campaign)
+
+        self.aw_campaigns.set(aw_campaigns_in_group)
+
+        fb_campaigns_in_group = []
+        for facebook_campaign in facebook_campaigns:
+            for keyword in keywords:
+                if facebook_campaign in fb_campaigns_in_group:
+                    break
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
+                        fb_campaigns_in_group.append(facebook_campaign)
+
+        self.fb_campaigns.set(fb_campaigns_in_group)
+
+        bing_campaigns_in_group = []
+        for bing_campaign in bing_campaigns:
+            for keyword in keywords:
+                if bing_campaign in bing_campaigns_in_group:
+                    break
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
+                        bing_campaigns_in_group.append(bing_campaign)
+
+        self.bing_campaigns.set(bing_campaigns_in_group)
+
+    def __str__(self):
+        return self.client.client_name + str(self.id)
 
 
 class Budget(models.Model):
