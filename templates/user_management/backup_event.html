@@ -56,7 +56,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup" data-account="{{ backup.account.id }}">Assign</button>
+                            <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup" data-account="{{ backup.account.id }}" data-bu-id="{{ backup.id }}">Assign</button>
                         </td>
                         <td>
                             {% if backup.approved %}
@@ -95,6 +95,7 @@
               <input name="type" type="text" value="backup" style="display:none;" />
               <input name="period" id="period_input" type="text" value="{{ backup_period.id }}" style="display:none;" />
               <input name="account" id="account_input" type="text" value="" style="display:none;" />
+              <input name="bu_id_add" id="bu_id_add" type="text" value="" style="display:none;" />
               <div class="modal-body">
                 <div class="m-portlet__body">
                   <div class="form-group m-form__group">
@@ -217,7 +218,9 @@ $(document).ready(function () {
 
   $modalAddBackup.on('show.bs.modal', function (e) {
     let account_id = $(e.relatedTarget).data('account');
+    let bu_id = $(e.relatedTarget).data('bu-id');
     $('#account_input').attr('value', account_id);
+    $('#bu_id_add').attr('value', bu_id);
   });
 
   /**
