@@ -824,15 +824,19 @@ def backup_event(request, backup_period_id):
             except Client.DoesNotExist:
                 return HttpResponse('This client has not exist (this might be a bug, please report to Sam or Lexi)')
             bp_id = request.POST.get('period')
-            bp = BackupPeriod.objects.get(id=bp_id)
+            # bp = BackupPeriod.objects.get(id=bp_id)
             bc_link = request.POST.get('bc_link')
 
-            b = Backup()
+            bu_id = request.POST.get('bu_id_add')
+            try:
+                b = Backup.objects.get(id=bu_id)
+            except Backup.DoesNotExist:
+                return HttpResponse('That backup does not exist')
             b.account = account
             b.member = member
-            b.period = bp
             b.bc_link = bc_link
             b.save()
+
         if form_type == 'approve':
             bu_id = request.POST.get('bu_id')
 
