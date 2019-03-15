@@ -15,4 +15,4 @@ def main():
         update_campaigns_in_campaign_group(group)
 
 
-main()
+# main()

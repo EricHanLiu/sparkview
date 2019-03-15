@@ -248,7 +248,8 @@ CRONJOBS = [
     ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log'),
     ('0 0 1 * *', 'set_budget_update_false.main', '> ' + BASE_DIR + '/logs/set_budget_update_false.log'),
     ('0 12 * * *', 'ninety_days_update.main', '> ' + BASE_DIR + '/logs/ninety_days_update.log'),
-    ('15 12 * * *', 'ninety_days_notifications.main', '> ' + BASE_DIR + '/logs/ninety_days_notifications.log'),
+    # ('15 12 * * *', 'ninety_days_notifications.main', '> ' + BASE_DIR + '/logs/ninety_days_notifications.log'),
+    ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
 ]
 
 # Bing Stuff
