@@ -18,7 +18,7 @@ reader = csv.reader(file, delimiter=',')
 counter = 0
 for row in reader:
     counter += 1
-    if (counter <= 2):
+    if counter <= 2:
         continue
 
     # Add account
