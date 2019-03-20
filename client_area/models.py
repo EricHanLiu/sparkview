@@ -398,16 +398,46 @@ class SalesProfile(models.Model):
     """
     Outlines the
     """
-    STATUS_CHOICES = [(0, 'onboarding'), (1, 'active'), (2, 'inactive'), (3, 'lost'), (4, 'opportunity'),
-                      (5, 'pitched')]
+    STATUS_CHOICES = [(0, 'Onboarding'), (1, 'Active'), (2, 'Inactive'), (3, 'Lost'), (4, 'Opportunity'),
+                      (5, 'Pitched'), (6, 'None')]
 
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
-    ppc_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
-    seo_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
-    cro_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
-    strat_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
-    feed_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
-    email_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
+    ppc_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    seo_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    cro_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    strat_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    feed_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    email_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+
+    def save(self, *args, **kwargs):
+        old_ppc = self.ppc_status
+        old_seo = self.seo_status
+        old_cro = self.cro_status
+        old_strat = self.strat_status
+        old_feed = self.feed_status
+        old_email = self.email_status
+
+        super().save(*args, **kwargs)
+
+        if self.ppc_status != old_ppc:
+            SalesProfileChange.objects.create(profile=self, service=0, from_status=old_ppc, to_status=self.ppc_status)
+
+        if self.seo_status != old_seo:
+            SalesProfileChange.objects.create(profile=self, service=1, from_status=old_seo, to_status=self.seo_status)
+
+        if self.cro_status != old_cro:
+            SalesProfileChange.objects.create(profile=self, service=2, from_status=old_cro, to_status=self.cro_status)
+
+        if self.strat_status != old_strat:
+            SalesProfileChange.objects.create(profile=self, service=3, from_status=old_strat,
+                                              to_status=self.strat_status)
+
+        if self.feed_status != old_feed:
+            SalesProfileChange.objects.create(profile=self, service=4, from_status=old_feed, to_status=self.feed_status)
+
+        if self.email_status != old_email:
+            SalesProfileChange.objects.create(profile=self, service=5, from_status=old_email,
+                                              to_status=self.email_status)
 
     def __str__(self):
         return self.account.client_name + ' sales profile'
@@ -419,10 +449,11 @@ class SalesProfileChange(models.Model):
     """
     SERVICE_CHOICES = [(0, 'ppc'), (1, 'seo'), (2, 'cro'), (3, 'strat'), (4, 'feed'), (5, 'email')]
 
-    STATUS_CHOICES = [(0, 'onboarding'), (1, 'active'), (2, 'inactive'), (3, 'lost'), (4, 'opportunity'),
-                      (5, 'pitched')]
+    STATUS_CHOICES = [(0, 'Onboarding'), (1, 'Active'), (2, 'Inactive'), (3, 'Lost'), (4, 'Opportunity'),
+                      (5, 'Pitched'), (6, 'None')]
 
     profile = models.ForeignKey(SalesProfile, models.CASCADE, null=True, default=None)
+    member = models.ForeignKey('user_management.Member', models.CASCADE, null=True, default=None)
     service = models.IntegerField(default=0, choices=SERVICE_CHOICES)
     from_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     to_status = models.IntegerField(default=0, choices=STATUS_CHOICES)

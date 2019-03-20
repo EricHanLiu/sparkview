@@ -451,6 +451,14 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
         else:
             print('Matched in DB - [' + cmp.campaign_name + '].')
 
+    # Loop through the campaigns in this account, if they're not actively being pulled, set their spend to 0
+    all_cmps_this_account = FacebookCampaign.objects.filter(account=account)
+    for acc_cmp in all_cmps_this_account:
+        if acc_cmp not in cmps:
+            print('Cant find ' + acc_cmp.campaign_name + ', setting cost to $0.0')
+            acc_cmp.campaign_cost = 0
+            acc_cmp.save()
+
 
 @celery_app.task(bind=True)
 def facebook_flight_dates(self):
