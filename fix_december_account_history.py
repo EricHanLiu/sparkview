@@ -13,8 +13,8 @@ from client_area.models import AccountAllocatedHoursHistory
 
 
 def main():
-    month = 12
-    year = 2018
+    month = 2
+    year = 2019
     accounts = Client.objects.all()
     for account in accounts:
         members = account.assigned_members
@@ -43,4 +43,4 @@ def main():
         account_budget_history.save()
 
 
-# main()
+main()

@@ -10,7 +10,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment
+    OnboardingTask, PhaseTaskAssignment, SalesProfile
 from dateutil.relativedelta import relativedelta
 
 
@@ -900,6 +900,7 @@ class Client(models.Model):
         if self.soldBy is not None:
             members['Sold by'] = {}
             members['Sold by']['member'] = self.soldBy
+            members['Sold by']['allocated_percentage'] = 0.0
 
         return members
 
@@ -1102,6 +1103,23 @@ class Client(models.Model):
             return None
 
         return self.projected_ppc_fee + self.seo_fee + self.cro_fee
+
+    @property
+    def sales_profile(self):
+        try:
+            profile = SalesProfile.objects.get(account=self)
+        except SalesProfile.DoesNotExist:
+            profile = None
+        return profile
+
+    @property
+    def services(self):
+        profile = self.sales_profile
+        if profile is None:
+            return {}
+
+        services = {}
+        return services
 
     def hybrid_projection(self, method):
         projection = self.current_spend

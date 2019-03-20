@@ -322,11 +322,34 @@ class PhaseTaskAssignment(models.Model):
     complete = models.BooleanField(default=False)
     completed = models.DateTimeField(default=None, null=True, blank=True)
     flagged = models.BooleanField(default=False)  # if this phase resulted in account being flagged
-    completed_by = models.ForeignKey('user_management.Member', on_delete=models.CASCADE, null=True, default=None, blank=True)
+    completed_by = models.ForeignKey('user_management.Member', on_delete=models.CASCADE, null=True, default=None,
+                                     blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.account.client_name + ': ' + self.task.message
+
+
+class UpsellAttempt(models.Model):
+    SERVICE_CHOICES = [(1, 'PPC'),
+                       (2, 'SEO'),
+                       (3, 'CRO'),
+                       (4, 'Strategy'),
+                       (5, 'Feed Management'),
+                       (6, 'Email Marketing')]
+
+    RESULT_CHOICES = [(1, 'Pending'),
+                      (2, 'Unsuccessful'),
+                      (3, 'Success')]
+
+    account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
+    service = models.IntegerField(default=1, choices=SERVICE_CHOICES)
+    result = models.IntegerField(default=1, choices=RESULT_CHOICES)
+    attempted_by = models.ForeignKey('user_management.Member', on_delete=models.CASCADE, null=True, default=None)
+    datetime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.get_service_display() + ' upsell attempt for ' + self.account.client_name + ': ' + self.result
 
 
 class LifecycleEvent(models.Model):
@@ -348,6 +371,7 @@ class LifecycleEvent(models.Model):
 
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
     related_task = models.ForeignKey(PhaseTaskAssignment, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    related_upsell = models.ForeignKey(UpsellAttempt, on_delete=models.CASCADE, null=True, default=None, blank=True)
     type = models.IntegerField(default=1, choices=EVENT_TYPE_CHOICES)
     description = models.CharField(max_length=240)
     notes = models.CharField(max_length=999, default='', blank=True)
@@ -369,3 +393,72 @@ class LifecycleEvent(models.Model):
             return 'No name event'
         return self.account.client_name + ' ' + ''
 
+
+class SalesProfile(models.Model):
+    """
+    Outlines the
+    """
+    STATUS_CHOICES = [(0, 'Onboarding'), (1, 'Active'), (2, 'Inactive'), (3, 'Lost'), (4, 'Opportunity'),
+                      (5, 'Pitched'), (6, 'None')]
+
+    account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+    ppc_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    seo_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    cro_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    strat_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    feed_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    email_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+
+    def save(self, *args, **kwargs):
+        old_ppc = self.ppc_status
+        old_seo = self.seo_status
+        old_cro = self.cro_status
+        old_strat = self.strat_status
+        old_feed = self.feed_status
+        old_email = self.email_status
+
+        super().save(*args, **kwargs)
+
+        if self.ppc_status != old_ppc:
+            SalesProfileChange.objects.create(profile=self, service=0, from_status=old_ppc, to_status=self.ppc_status)
+
+        if self.seo_status != old_seo:
+            SalesProfileChange.objects.create(profile=self, service=1, from_status=old_seo, to_status=self.seo_status)
+
+        if self.cro_status != old_cro:
+            SalesProfileChange.objects.create(profile=self, service=2, from_status=old_cro, to_status=self.cro_status)
+
+        if self.strat_status != old_strat:
+            SalesProfileChange.objects.create(profile=self, service=3, from_status=old_strat,
+                                              to_status=self.strat_status)
+
+        if self.feed_status != old_feed:
+            SalesProfileChange.objects.create(profile=self, service=4, from_status=old_feed, to_status=self.feed_status)
+
+        if self.email_status != old_email:
+            SalesProfileChange.objects.create(profile=self, service=5, from_status=old_email,
+                                              to_status=self.email_status)
+
+    def __str__(self):
+        return self.account.client_name + ' sales profile'
+
+
+class SalesProfileChange(models.Model):
+    """
+    Logs a change in the sales profile
+    """
+    SERVICE_CHOICES = [(0, 'ppc'), (1, 'seo'), (2, 'cro'), (3, 'strat'), (4, 'feed'), (5, 'email')]
+
+    STATUS_CHOICES = [(0, 'Onboarding'), (1, 'Active'), (2, 'Inactive'), (3, 'Lost'), (4, 'Opportunity'),
+                      (5, 'Pitched'), (6, 'None')]
+
+    profile = models.ForeignKey(SalesProfile, models.CASCADE, null=True, default=None)
+    member = models.ForeignKey('user_management.Member', models.CASCADE, null=True, default=None)
+    service = models.IntegerField(default=0, choices=SERVICE_CHOICES)
+    from_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
+    to_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.profile.account.client_name + ' ' + self.get_service_display() + ' from ' + \
+               self.get_from_status_display() + ' to ' + self.get_to_status_display()
