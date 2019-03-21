@@ -1436,45 +1436,64 @@ class CampaignGrouping(models.Model):
         if self.group_by == 'manual':
             return
 
-        account = self.client
-        adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
-        facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
-        bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
+        if self.group_by == 'text':  # Just to double check
+            account = self.client
+            adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
+            facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
+            bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
 
-        keywords = self.group_by.split(',')
+            keywords = self.group_by.split(',')
 
-        aw_campaigns_in_group = []
-        for adwords_campaign in adwords_campaigns:
-            for keyword in keywords:
-                if adwords_campaign in aw_campaigns_in_group:
-                    break
-                if '+' in keyword:
-                    if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
-                        aw_campaigns_in_group.append(adwords_campaign)
+            aw_campaigns_in_group = []
+            for adwords_campaign in adwords_campaigns:
+                for keyword in keywords:
+                    if adwords_campaign in aw_campaigns_in_group:
+                        break
+                    if '+' in keyword:
+                        if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
+                            aw_campaigns_in_group.append(adwords_campaign)
 
-        self.aw_campaigns.set(aw_campaigns_in_group)
+            self.aw_campaigns.set(aw_campaigns_in_group)
 
-        fb_campaigns_in_group = []
-        for facebook_campaign in facebook_campaigns:
-            for keyword in keywords:
-                if facebook_campaign in fb_campaigns_in_group:
-                    break
-                if '+' in keyword:
-                    if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
-                        fb_campaigns_in_group.append(facebook_campaign)
+            fb_campaigns_in_group = []
+            for facebook_campaign in facebook_campaigns:
+                for keyword in keywords:
+                    if facebook_campaign in fb_campaigns_in_group:
+                        break
+                    if '+' in keyword:
+                        if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
+                            fb_campaigns_in_group.append(facebook_campaign)
 
-        self.fb_campaigns.set(fb_campaigns_in_group)
+            self.fb_campaigns.set(fb_campaigns_in_group)
 
-        bing_campaigns_in_group = []
-        for bing_campaign in bing_campaigns:
-            for keyword in keywords:
-                if bing_campaign in bing_campaigns_in_group:
-                    break
-                if '+' in keyword:
-                    if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
-                        bing_campaigns_in_group.append(bing_campaign)
+            bing_campaigns_in_group = []
+            for bing_campaign in bing_campaigns:
+                for keyword in keywords:
+                    if bing_campaign in bing_campaigns_in_group:
+                        break
+                    if '+' in keyword:
+                        if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
+                            bing_campaigns_in_group.append(bing_campaign)
 
-        self.bing_campaigns.set(bing_campaigns_in_group)
+            self.bing_campaigns.set(bing_campaigns_in_group)
+
+    def update_all_grouping(self):
+        """
+        Updates the accounts of the group if this does text parsing
+        :return:
+        """
+        if self.group_by == 'manual':
+            return
+
+        if self.group_by == 'all':  # Just to double check
+            account = self.client
+            adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
+            facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
+            bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
+
+            self.aw_campaigns.set(adwords_campaigns)
+            self.fb_campaigns.set(facebook_campaigns)
+            self.bing_campaigns.set(bing_campaigns)
 
     def __str__(self):
         return self.client.client_name + str(self.id)
