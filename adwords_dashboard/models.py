@@ -345,6 +345,9 @@ class Campaign(models.Model):
             campaign_serving_status=self.campaign_serving_status
         )
 
+    def __str__(self):
+        return self.account.dependent_account_name + ' ' + str(self.campaign_name)
+
 
 class Adgroup(models.Model):
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True, blank=True)
