@@ -1453,13 +1453,14 @@
                                 </div>
                                 <div class="col-6">
                                     <select class="form-control" name="set-ppc">
-                                        <option value="0">Onboarding</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="3">Lost</option>
-                                        <option value="4">Opportunity</option>
-                                        <option value="5">Pitched</option>
-                                        <option value="6">None</option>
+                                        {%  for service in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service.0 }}"
+                                                    {% if account.sales_profile.ppc_status == service.0 %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service.1 }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
@@ -1469,13 +1470,14 @@
                                 </div>
                                 <div class="col-6">
                                     <select class="form-control" name="set-seo">
-                                        <option value="0">Onboarding</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="3">Lost</option>
-                                        <option value="4">Opportunity</option>
-                                        <option value="5">Pitched</option>
-                                        <option value="6">None</option>
+                                        {%  for service in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service.0 }}"
+                                                    {% if account.sales_profile.seo_status == service.0 %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service.1 }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                              </div>
@@ -1485,13 +1487,14 @@
                                 </div>
                                 <div class="col-6">
                                     <select class="form-control" name="set-cro">
-                                        <option value="0">Onboarding</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="3">Lost</option>
-                                        <option value="4">Opportunity</option>
-                                        <option value="5">Pitched</option>
-                                        <option value="6">None</option>
+                                        {%  for service in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service.0 }}"
+                                                    {% if account.sales_profile.cro_status == service.0 %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service.1 }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
@@ -1501,13 +1504,14 @@
                                 </div>
                                 <div class="col-6">
                                     <select class="form-control" name="set-strat">
-                                        <option value="0">Onboarding</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="3">Lost</option>
-                                        <option value="4">Opportunity</option>
-                                        <option value="5">Pitched</option>
-                                        <option value="6">None</option>
+                                        {%  for service in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service.0 }}"
+                                                    {% if account.sales_profile.strat_status == service.0 %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service.1 }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
@@ -1517,13 +1521,14 @@
                                 </div>
                                 <div class="col-6">
                                     <select class="form-control" name="set-email-marketing">
-                                        <option value="0">Onboarding</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="3">Lost</option>
-                                        <option value="4">Opportunity</option>
-                                        <option value="5">Pitched</option>
-                                        <option value="6">None</option>
+                                        {%  for service in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service.0 }}"
+                                                    {% if account.sales_profile.email_status == service.0 %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service.1 }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
@@ -1533,13 +1538,14 @@
                                 </div>
                                 <div class="col-6">
                                     <select class="form-control" name="set-feed-management">
-                                        <option value="0">Onboarding</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="3">Lost</option>
-                                        <option value="4">Opportunity</option>
-                                        <option value="5">Pitched</option>
-                                        <option value="6">None</option>
+                                        {%  for service in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service.0 }}"
+                                                    {% if account.sales_profile.form_status == service.0 %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service.1 }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
