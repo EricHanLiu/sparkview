@@ -13,7 +13,7 @@ from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
-    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent
+    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile
 from .forms import NewClientForm
 
 
@@ -551,7 +551,6 @@ def account_single(request, id):
     """
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponse('You do not have permission to view this page')
-
     account = Client.objects.get(id=id)
     members = Member.objects.all()
     changes = AccountChanges.objects.filter(account=account)
@@ -1193,6 +1192,45 @@ def set_kpis(request):
         account.target_cpa = cpa
 
     account.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def set_services(request):
+    """
+    Sets the services for an account
+    """
+    member = Member.objects.get(user=request.user)
+    account_id = int(request.POST.get('account_id'))
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponse('You do not have permission to view this page')
+
+    account = Client.objects.get(id=account_id)
+    sales_profile = SalesProfile.objects.get(account=account)
+
+    # update service statuses
+    ppc = int(request.POST.get('set-ppc'))
+    seo = int(request.POST.get('set-seo'))
+    cro = int(request.POST.get('set-cro'))
+    strat = int(request.POST.get('set-strat'))
+    email_marketing = int(request.POST.get('set-email-marketing'))
+    feed_management = int(request.POST.get('set-feed-management'))
+
+    if 0 <= ppc <= 6:
+        sales_profile.ppc_status = ppc
+    if 0 <= seo <= 6:
+        sales_profile.seo_status = seo
+    if 0 <= cro <= 6:
+        sales_profile.cro_status = cro
+    if 0 <= strat <= 6:
+        sales_profile.strat_status = strat
+    if 0 <= email_marketing <= 6:
+        sales_profile.email_status = email_marketing
+    if 0 <= feed_management <= 6:
+        sales_profile.feed_status = feed_management
+
+    sales_profile.save()
 
     return redirect('/clients/accounts/' + str(account.id))
 

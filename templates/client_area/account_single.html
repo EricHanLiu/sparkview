@@ -1443,40 +1443,105 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form class="m-form" method="POST" action="/clients/accounts/set_kpis">
+                <form class="m-form" method="POST" action="/clients/accounts/set_services">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="m-portlet__body">
                             <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                            <div class="row">
-                                <div class="col-2">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
                                     PPC
                                 </div>
-                                <div class="col-5">
-                                    <select>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-ppc">
                                         <option value="0">Onboarding</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="3">Lost</option>
+                                        <option value="4">Opportunity</option>
+                                        <option value="5">Pitched</option>
+                                        <option value="6">None</option>
                                     </select>
                                 </div>
-                                <div class="col-5">
-
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    SEO
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-seo">
+                                        <option value="0">Onboarding</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="3">Lost</option>
+                                        <option value="4">Opportunity</option>
+                                        <option value="5">Pitched</option>
+                                        <option value="6">None</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="modal-body">
-                        <div class="m-portlet__body">
-                            <div class="form-group m-form__group">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label>Target ROAS:</label>
-                                        <input type="text" name="set-roas" class="form-control m-input"
-                                               value="{{ account.target_roas }}"/>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label>Target CPA:</label>
-                                        <input type="text" name="set-cpa" class="form-control m-input"
-                                               value="{{ account.target_cpa }}"/>
-                                    </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    CRO
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-cro">
+                                        <option value="0">Onboarding</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="3">Lost</option>
+                                        <option value="4">Opportunity</option>
+                                        <option value="5">Pitched</option>
+                                        <option value="6">None</option>
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    Strat
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-strat">
+                                        <option value="0">Onboarding</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="3">Lost</option>
+                                        <option value="4">Opportunity</option>
+                                        <option value="5">Pitched</option>
+                                        <option value="6">None</option>
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    Email Marketing
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-email-marketing">
+                                        <option value="0">Onboarding</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="3">Lost</option>
+                                        <option value="4">Opportunity</option>
+                                        <option value="5">Pitched</option>
+                                        <option value="6">None</option>
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    Feed Management
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-feed-management">
+                                        <option value="0">Onboarding</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="3">Lost</option>
+                                        <option value="4">Opportunity</option>
+                                        <option value="5">Pitched</option>
+                                        <option value="6">None</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
