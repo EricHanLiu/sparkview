@@ -106,7 +106,8 @@ class ManagementFeesStructure(models.Model):
 
 class MonthlyReport(models.Model):
     """
-    Monthly report that is made for a client. This class contains meta data for operational purposes (ie: is the report complete, what type of report is it)
+    Monthly report that is made for a client. This class contains meta data for operational purposes
+    (ie: is the report complete, what type of report is it)
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
     REPORT_TYPE_CHOICES = [(1, 'Standard'), (2, 'Advanced')]
@@ -409,35 +410,41 @@ class SalesProfile(models.Model):
     feed_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     email_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
 
+    def __init__(self, *args, **kwargs):
+        super(SalesProfile, self).__init__(*args, **kwargs)
+        self.__ppc_status = self.ppc_status
+        self.__seo_status = self.seo_status
+        self.__cro_status = self.cro_status
+        self.__strat_status = self.strat_status
+        self.__feed_status = self.feed_status
+        self.__email_status = self.email_status
+
     def save(self, *args, **kwargs):
-        old_ppc = self.ppc_status
-        old_seo = self.seo_status
-        old_cro = self.cro_status
-        old_strat = self.strat_status
-        old_feed = self.feed_status
-        old_email = self.email_status
-
         super().save(*args, **kwargs)
-
-        if self.ppc_status != old_ppc:
-            SalesProfileChange.objects.create(profile=self, service=0, from_status=old_ppc, to_status=self.ppc_status)
-
-        if self.seo_status != old_seo:
-            SalesProfileChange.objects.create(profile=self, service=1, from_status=old_seo, to_status=self.seo_status)
-
-        if self.cro_status != old_cro:
-            SalesProfileChange.objects.create(profile=self, service=2, from_status=old_cro, to_status=self.cro_status)
-
-        if self.strat_status != old_strat:
-            SalesProfileChange.objects.create(profile=self, service=3, from_status=old_strat,
+        if self.ppc_status != self.__ppc_status:
+            SalesProfileChange.objects.create(profile=self, service=0, from_status=self.__ppc_status,
+                                              to_status=self.ppc_status)
+        if self.seo_status != self.__seo_status:
+            SalesProfileChange.objects.create(profile=self, service=1, from_status=self.__seo_status,
+                                              to_status=self.seo_status)
+        if self.cro_status != self.__cro_status:
+            SalesProfileChange.objects.create(profile=self, service=2, from_status=self.__cro_status,
+                                              to_status=self.cro_status)
+        if self.strat_status != self.__strat_status:
+            SalesProfileChange.objects.create(profile=self, service=3, from_status=self.__strat_status,
                                               to_status=self.strat_status)
-
-        if self.feed_status != old_feed:
-            SalesProfileChange.objects.create(profile=self, service=4, from_status=old_feed, to_status=self.feed_status)
-
-        if self.email_status != old_email:
-            SalesProfileChange.objects.create(profile=self, service=5, from_status=old_email,
+        if self.feed_status != self.__feed_status:
+            SalesProfileChange.objects.create(profile=self, service=4, from_status=self.__feed_status,
+                                              to_status=self.feed_status)
+        if self.email_status != self.__email_status:
+            SalesProfileChange.objects.create(profile=self, service=5, from_status=self.__email_status,
                                               to_status=self.email_status)
+        self.__ppc_status = self.ppc_status
+        self.__seo_status = self.seo_status
+        self.__cro_status = self.cro_status
+        self.__strat_status = self.strat_status
+        self.__feed_status = self.feed_status
+        self.__email_status = self.email_status
 
     def __str__(self):
         return self.account.client_name + ' sales profile'
