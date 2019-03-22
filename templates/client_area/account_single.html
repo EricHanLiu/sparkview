@@ -316,6 +316,91 @@
                 </div>
             </div>
             <div class="col-xl-4">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Services
+                                </h3>
+                            </div>
+                        </div>
+{#                        <div class="m-portlet__head-tools">#}
+{#                            <ul class="m-portlet__nav">#}
+{#                                <li class="m-portlet__nav-item">#}
+{#                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_update_services" id="kpi_btn">#}
+{#                                        Update#}
+{#                                    </button>#}
+{#                                </li>#}
+{#                            </ul>#}
+{#                        </div>#}
+                    </div>
+                    <div class="m-portlet__body">
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                               id="account_change_datatable">
+                            <thead class="thead-inverse">
+                            <tr class="main-table-header">
+                                <th>
+                                    Service
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    PPC
+                                </td>
+                                <td>
+                                    {{ account.sales_profile.get_ppc_status_display }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    SEO
+                                </td>
+                                <td>
+                                    {{ account.sales_profile.get_seo_status_display }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    CRO
+                                </td>
+                                <td>
+                                    {{ account.sales_profile.get_cro_status_display }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Strat
+                                </td>
+                                <td>
+                                    {{ account.sales_profile.get_strat_status_display }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Email Marketing
+                                </td>
+                                <td>
+                                    {{ account.sales_profile.get_email_status_display }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Feed Management
+                                </td>
+                                <td>
+                                    {{ account.sales_profile.get_feed_status_display }}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 <!-- KPI -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
@@ -642,92 +727,6 @@
 {#                    </div>#}
 {#                </div>#}
                 <!-- end account history -->
-
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-                    <div class="m-portlet__head">
-                        <div class="m-portlet__head-caption">
-                            <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                                    Services
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="m-portlet__head-tools">
-                            <ul class="m-portlet__nav">
-                                <li class="m-portlet__nav-item">
-                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_update_services" id="kpi_btn">
-                                        Update
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="m-portlet__body">
-                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                               id="account_change_datatable">
-                            <thead class="thead-inverse">
-                            <tr class="main-table-header">
-                                <th>
-                                    Service
-                                </th>
-                                <th>
-                                    Status
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>
-                                    PPC
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_ppc_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    SEO
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_seo_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    CRO
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_cro_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Strat
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_strat_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Email Marketing
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_email_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Feed Management
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_feed_status_display }}
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
                 <!-- Management fee structure -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -1459,24 +1458,6 @@
                                 </div>
                                 <div class="col-5">
 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-body">
-                        <div class="m-portlet__body">
-                            <div class="form-group m-form__group">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label>Target ROAS:</label>
-                                        <input type="text" name="set-roas" class="form-control m-input"
-                                               value="{{ account.target_roas }}"/>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label>Target CPA:</label>
-                                        <input type="text" name="set-cpa" class="form-control m-input"
-                                               value="{{ account.target_cpa }}"/>
-                                    </div>
                                 </div>
                             </div>
                         </div>
