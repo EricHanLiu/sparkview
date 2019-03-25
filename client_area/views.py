@@ -1210,24 +1210,43 @@ def set_services(request):
     sales_profile = SalesProfile.objects.get(account=account)
 
     # update service statuses
-    ppc = int(request.POST.get('set-ppc'))
-    seo = int(request.POST.get('set-seo'))
-    cro = int(request.POST.get('set-cro'))
-    strat = int(request.POST.get('set-strat'))
-    email_marketing = int(request.POST.get('set-email-marketing'))
-    feed_management = int(request.POST.get('set-feed-management'))
+    try:
+        ppc = int(request.POST.get('set-ppc'))
+    except ValueError:
+        ppc = 6  # set to None by default
+    try:
+        seo = int(request.POST.get('set-seo'))
+    except ValueError:
+        seo = 6
+    try:
+        cro = int(request.POST.get('set-cro'))
+    except ValueError:
+        cro = 6
+    try:
+        strat = int(request.POST.get('set-strat'))
+    except ValueError:
+        strat = 6
+    try:
+        email_marketing = int(request.POST.get('set-email-marketing'))
+    except ValueError:
+        email_marketing = 6
+    try:
+        feed_management = int(request.POST.get('set-feed-management'))
+    except ValueError:
+        feed_management = 6
 
-    if 0 <= ppc <= 6:
+    status_range = range(0, len(sales_profile.STATUS_CHOICES))
+    if ppc is not None and ppc in status_range:
         sales_profile.ppc_status = ppc
-    if 0 <= seo <= 6:
+    if seo is not None and seo in status_range:
         sales_profile.seo_status = seo
-    if 0 <= cro <= 6:
+    if cro is not None and cro in status_range:
         sales_profile.cro_status = cro
-    if 0 <= strat <= 6:
+    if strat is not None and strat in status_range:
         sales_profile.strat_status = strat
-    if 0 <= email_marketing <= 6:
+    if email_marketing is not None and email_marketing in status_range:
         sales_profile.email_status = email_marketing
-    if 0 <= feed_management <= 6:
+    if feed_management is not None and feed_management in status_range:
         sales_profile.feed_status = feed_management
 
     sales_profile.save()
