@@ -325,15 +325,15 @@
                                 </h3>
                             </div>
                         </div>
-{#                        <div class="m-portlet__head-tools">#}
-{#                            <ul class="m-portlet__nav">#}
-{#                                <li class="m-portlet__nav-item">#}
-{#                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_update_services" id="kpi_btn">#}
-{#                                        Update#}
-{#                                    </button>#}
-{#                                </li>#}
-{#                            </ul>#}
-{#                        </div>#}
+                        <div class="m-portlet__head-tools">
+                            <ul class="m-portlet__nav">
+                                <li class="m-portlet__nav-item">
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_update_services" id="kpi_btn">
+                                        Update
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="m-portlet__body">
                         <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
@@ -1442,22 +1442,111 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form class="m-form" method="POST" action="/clients/accounts/set_kpis">
+                <form class="m-form" method="POST" action="/clients/accounts/set_services">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="m-portlet__body">
                             <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                            <div class="row">
-                                <div class="col-2">
+                            <div class="row justify-content-between">
+                                <div class="col-4">
                                     PPC
                                 </div>
-                                <div class="col-5">
-                                    <select>
-                                        <option value="0">Onboarding</option>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-ppc">
+                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.ppc_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service_str }}
+                                            </option>
+                                        {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-5">
-
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    SEO
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-seo">
+                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.seo_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                             </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    CRO
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-cro">
+                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.cro_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    Strat
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-strat">
+                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.strat_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    Email Marketing
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-email-marketing">
+                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.email_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="row justify-content-between">
+                                <div class="col-4">
+                                    Feed Management
+                                </div>
+                                <div class="col-6">
+                                    <select class="form-control" name="set-feed-management">
+                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.feed_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                            {{ service_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                         </div>

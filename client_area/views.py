@@ -13,7 +13,7 @@ from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
-    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent
+    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile
 from .forms import NewClientForm
 
 
@@ -551,7 +551,6 @@ def account_single(request, id):
     """
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponse('You do not have permission to view this page')
-
     account = Client.objects.get(id=id)
     members = Member.objects.all()
     changes = AccountChanges.objects.filter(account=account)
@@ -1193,6 +1192,64 @@ def set_kpis(request):
         account.target_cpa = cpa
 
     account.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def set_services(request):
+    """
+    Sets the services for an account
+    """
+    member = Member.objects.get(user=request.user)
+    account_id = int(request.POST.get('account_id'))
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponse('You do not have permission to view this page')
+
+    account = Client.objects.get(id=account_id)
+    sales_profile = SalesProfile.objects.get(account=account)
+
+    # update service statuses
+    try:
+        ppc = int(request.POST.get('set-ppc'))
+    except ValueError:
+        ppc = 6  # set to None by default
+    try:
+        seo = int(request.POST.get('set-seo'))
+    except ValueError:
+        seo = 6
+    try:
+        cro = int(request.POST.get('set-cro'))
+    except ValueError:
+        cro = 6
+    try:
+        strat = int(request.POST.get('set-strat'))
+    except ValueError:
+        strat = 6
+    try:
+        email_marketing = int(request.POST.get('set-email-marketing'))
+    except ValueError:
+        email_marketing = 6
+    try:
+        feed_management = int(request.POST.get('set-feed-management'))
+    except ValueError:
+        feed_management = 6
+
+    status_range = range(0, len(sales_profile.STATUS_CHOICES))
+    if ppc is not None and ppc in status_range:
+        sales_profile.ppc_status = ppc
+    if seo is not None and seo in status_range:
+        sales_profile.seo_status = seo
+    if cro is not None and cro in status_range:
+        sales_profile.cro_status = cro
+    if strat is not None and strat in status_range:
+        sales_profile.strat_status = strat
+    if email_marketing is not None and email_marketing in status_range:
+        sales_profile.email_status = email_marketing
+    if feed_management is not None and feed_management in status_range:
+        sales_profile.feed_status = feed_management
+
+    sales_profile.save()
 
     return redirect('/clients/accounts/' + str(account.id))
 
