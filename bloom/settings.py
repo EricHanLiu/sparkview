@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import sys
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
@@ -88,7 +87,7 @@ ROOT_URLCONF = 'bloom.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR,],
+        'DIRS': [TEMPLATE_DIR, ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,7 +103,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'bloom.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -138,21 +136,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE     = 'EST'
+TIME_ZONE = 'EST'
 
-USE_I18N      = True
+USE_I18N = True
 
-USE_L10N      = False
+USE_L10N = False
 
-USE_TZ        = True
+USE_TZ = True
 
-DATE_FORMAT   = 'Y-m-d'
+DATE_FORMAT = 'Y-m-d'
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
@@ -169,30 +166,29 @@ SOCIAL_AUTH_PIPELINE = (
 
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
-    'hd'          : 'makeitbloom.com',
-    'access_type' : 'online',
+    'hd': 'makeitbloom.com',
+    'access_type': 'online',
 }
 SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['makeitbloom.com', 'hdigital.io']
-SOCIAL_AUTH_RAISE_EXCEPTIONS                  = False
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY                 = '967183304564-54i17l22sad6f9dt28eos6bjaohf1frh.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET              = 'AFQ5EqzWXICEFMwLfEumz9C5'
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '967183304564-54i17l22sad6f9dt28eos6bjaohf1frh.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'AFQ5EqzWXICEFMwLfEumz9C5'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL  = '/static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = "/var/www/bloom/static"
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
-
-ADWORDS_YAML     = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
-API_VERSION      = 'v201809'
+ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
+API_VERSION = 'v201809'
 BING_API_VERSION = 12
 
-LOGIN_URL                   = "login"
-LOGIN_REDIRECT_URL          = 'index'
-LOGIN_ERROR_URL             = 'login'
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = 'index'
+LOGIN_ERROR_URL = 'login'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
@@ -242,12 +238,14 @@ CRONJOBS = [
     ('00 15 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
     ('10 15 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
     ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
-    ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),  # Midnight, first day of the month
-    # ('0 0 1 * *', 'monthly_budget_spend_context.main', '> ' + BASE_DIR + '/logs/budget_spend_context.log'), # erroneous logic
+    ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),
+    # Midnight, first day of the month
+    # erroneous logic
+    # ('0 0 1 * *', 'monthly_budget_spend_context.main', '> ' + BASE_DIR + '/logs/budget_spend_context.log'),
     ('0 0 1 * *', 'set_inactive_lost_budgets.main', '> ' + BASE_DIR + '/logs/set_inactive_lost_budgets.log'),
     ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log'),
     ('0 0 1 * *', 'set_budget_update_false.main', '> ' + BASE_DIR + '/logs/set_budget_update_false.log'),
-    ('0 12 * * *', 'ninety_days_update.main', '> ' + BASE_DIR + '/logs/ninety_days_update.log'),
+    ('0 10 * * *', 'ninety_days_update.main', '> ' + BASE_DIR + '/logs/ninety_days_update.log'),
     # ('15 12 * * *', 'ninety_days_notifications.main', '> ' + BASE_DIR + '/logs/ninety_days_notifications.log'),
     ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
 ]
@@ -260,31 +258,31 @@ else:
     REDIRECT_URI = "https://app.mibhub.com/dashboards/bing/auth/exchange"
 
 # Bing Auth
-CLIENT_ID               = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
-CLIENT_SECRET           = "hspjJNTY4]-udkLBM3045*~"
-DEVELOPER_TOKEN         = "1215QQ0H16176244"
+CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
+CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"
+DEVELOPER_TOKEN = "1215QQ0H16176244"
 DEVELOPER_TOKEN_SANDBOX = "BBD37VB98"
-ENVIRONMENT             = "production"
-BINGADS_REPORTS         = os.path.join(BASE_DIR, 'bing_reports/')
+ENVIRONMENT = "production"
+BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
 
 # Facebook Auth
 
-bloomworker    = '100025980313978'
-app_id         = '582921108716849'
-business_id    = '10154654586810511'
-app_secret     = '17bc991966f6895650068fe41bc87aa0'
-access_token   = "EAAISKeWdZCTEBAGyyF5cheVZAGbr546TflaDJ4BhThFKigmetLZAW3SB0YHIGoZAoGGI0wZAYlPZBvV2hHUv6wtO8gD3is8eQGNIqKZAyBkVO5H8FnCTG6lRvV4TSLDpovlAgUrCYqA34I5zWBHrlOKALg8vo8dBqAZD"
+bloomworker = '100025980313978'
+app_id = '582921108716849'
+business_id = '10154654586810511'
+app_secret = '17bc991966f6895650068fe41bc87aa0'
+access_token = "EAAISKeWdZCTEBAGyyF5cheVZAGbr546TflaDJ4BhThFKigmetLZAW3SB0YHIGoZAoGGI0wZAYlPZBvV2hHUv6wtO8gD3is8eQGNIqKZAyBkVO5H8FnCTG6lRvV4TSLDpovlAgUrCYqA34I5zWBHrlOKALg8vo8dBqAZD"
 w_access_token = "EAAISKeWdZCTEBANbBD1ZA4igkrUYzdacd02E0IggsEfbrKvwvMZBlXvdZCPOgwEycpHTnrmsZCkFFNG7ehPDeo8Ez3PXQlMi6Kz3QWwhMFdqBMXKZCMZAvrAeOIExRdnw0tUNo4VVphEPhRhlD7epvYiwny80W6HlrZCccAXC3cDJduysrZBdmZBMU"
 
 # E-mail settings
 
-EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST          = 'smtp.gmail.com'
-EMAIL_HOST_USER     = 'dev@makeitbloom.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'dev@makeitbloom.com'
 EMAIL_HOST_PASSWORD = 'ujfgvsieuwptnrgp'
-EMAIL_PORT          = 587
-EMAIL_USE_TLS       = True
-DEFAULT_EMAIL_FROM  = 'dev@makeitbloom.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_EMAIL_FROM = 'dev@makeitbloom.com'
 
 if DEBUG:
     MAIL_ADS = ['lexi@makeitbloom.com', 'sam@makeitbloom.com']
@@ -295,15 +293,13 @@ else:
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
-]
+    ]
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_BROKER_URL = "amqp://bloom:bloombrokerpass@broker:5672/celeryhost"
 CELERY_TIMEZONE = "UTC"
-
-
 
 LOGGING = {
     'version': 1,
@@ -347,7 +343,6 @@ LOGGING = {
         'level': 'DEBUG',
     }
 }
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

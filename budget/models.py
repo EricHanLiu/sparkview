@@ -118,14 +118,14 @@ class Client(models.Model):
     services = models.ManyToManyField(Service, blank=True, related_name='services')
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
-    has_seo = models.BooleanField(default=False)
+    # has_seo = models.BooleanField(default=False)
     seo_hours = models.FloatField(default=0)
     seo_hourly_fee = models.FloatField(default=125.0)
-    has_cro = models.BooleanField(default=False)
+    # has_cro = models.BooleanField(default=False)
     cro_hours = models.FloatField(default=0)
     cro_hourly_fee = models.FloatField(default=125.0)
-    has_ppc = models.BooleanField(default=False)  # may use these for onboarding
-    has_strat = models.BooleanField(default=False)  # may use these for onboarding
+    # has_ppc = models.BooleanField(default=False)  # may use these for onboarding
+    # has_strat = models.BooleanField(default=False)  # may use these for onboarding
     status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     clientGrade = models.IntegerField(default=0)
     actualHours = models.IntegerField(default=0)
@@ -184,6 +184,46 @@ class Client(models.Model):
     strat1percent = models.FloatField(default=0)
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
+
+    @property
+    def has_ppc(self):
+        """
+        Check the sales profile (service list) of this client to see if ppc is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.ppc_status == 1
+        else:
+            return False
+
+    @property
+    def has_seo(self):
+        """
+        Check the sales profile (service list) of this client to see if seo is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.seo_status == 1
+        else:
+            return False
+
+    @property
+    def has_cro(self):
+        """
+        Check the sales profile (service list) of this client to see if cro is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.cro_status == 1
+        else:
+            return False
+
+    @property
+    def is_onboarding_ppc(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.ppc_status == 0
+        else:
+            return False
 
     @property
     def calculated_tier(self):
@@ -524,7 +564,7 @@ class Client(models.Model):
         Loops through every interval in the management fee structure, determines
         """
         if not hasattr(self, '_ppc_fee'):
-            if self.status == 1:
+            if self.has_ppc:
                 fee = self.get_fee_by_spend(self.current_full_budget)
                 self._ppc_fee = round(fee, 2)
             else:
@@ -555,7 +595,7 @@ class Client(models.Model):
         # If status is lost or inactive, just return 0
         if self.status == 2 or self.status == 3:
             return 0
-        if self.status == 0 and self.managementFee is not None:
+        if self.is_onboarding_ppc and self.managementFee is not None:
             initial_fee = self.managementFee.initialFee
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
@@ -1106,11 +1146,13 @@ class Client(models.Model):
 
     @property
     def sales_profile(self):
-        try:
-            profile = SalesProfile.objects.get(account=self)
-        except SalesProfile.DoesNotExist:
-            profile = None
-        return profile
+        if not hasattr(self, '_sales_profile'):
+            try:
+                profile = SalesProfile.objects.get(account=self)
+            except SalesProfile.DoesNotExist:
+                profile = None
+            self._sales_profile = profile
+        return self._sales_profile
 
     @property
     def services(self):

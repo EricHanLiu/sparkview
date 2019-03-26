@@ -202,12 +202,21 @@ def account_new(request):
             else:
                 pass
 
+            # Set up the sales profile (services) of the account
+            # TODO: Eric, please fill this section out with corresponding front end components
+            sp = SalesProfile.objects.create(account=account)
+
             # Check if we sold SEO and/or CRO
+            # Repeat this process for every type of service (PPC doesn't have hours explicitly)
             if request.POST.get('seo_check'):
-                account.has_seo = True
+                # account.has_seo = True
+                sp.seo_status = 1
+                sp.save()
                 account.seo_hours = request.POST.get('seo_hours')
             if request.POST.get('cro_check'):
-                account.has_cro = True
+                # account.has_cro = True
+                sp.cro_status = 1
+                sp.save()
                 account.cro_hours = request.POST.get('cro_hours')
 
             account.has_gts = True

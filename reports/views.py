@@ -18,8 +18,8 @@ def agency_overview(request):
 
     # Get account related metrics
     total_active_accounts = Client.objects.filter(status=1)
-    total_active_seo = Client.objects.filter(status=1).filter(has_seo=True).count()
-    total_active_cro = Client.objects.filter(status=1).filter(has_cro=True).count()
+    total_active_seo = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
+    total_active_cro = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
 
     total_onboarding = Client.objects.filter(status=0).count()
     total_inactive = Client.objects.filter(status=2).count()
@@ -64,7 +64,7 @@ def agency_overview(request):
     month = now.month
     year = now.year
     total_hours_worked = \
-    AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+        AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
     if total_hours_worked is None:
         total_hours_worked = 0.0
 
@@ -237,7 +237,7 @@ def seo_capacity(request):
     total_cro_hours = 0.0
 
     status_badges = ['info', 'success', 'warning', 'danger']
-    seo_accounts = Client.objects.filter(Q(has_seo=True) | Q(has_cro=True)).filter(Q(status=0) | Q(status=1))
+    seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(Q(status=0) | Q(status=1))
 
     for member in members:
         actual_aggregate += member.actualHoursThisMonth

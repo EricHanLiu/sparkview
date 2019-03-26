@@ -395,6 +395,26 @@ class LifecycleEvent(models.Model):
         return self.account.client_name + ' ' + ''
 
 
+class OpportunityDescription(models.Model):
+    """
+    Description of an opportunity
+    """
+    name = models.CharField(max_length=255, default='', blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class PitchedDescription(models.Model):
+    """
+    Description of a pitched status
+    """
+    name = models.CharField(max_length=255, default='', blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class SalesProfile(models.Model):
     """
     Outlines the
@@ -403,12 +423,63 @@ class SalesProfile(models.Model):
                       (5, 'Pitched'), (6, 'None')]
 
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+
     ppc_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    ppc_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
+                                     related_name='ppc_opp')
+    ppc_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+                                         related_name='ppc_pitch')
+
     seo_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    seo_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
+                                     related_name='seo_opp')
+    seo_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+                                         related_name='seo_pitch')
+
     cro_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    cro_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
+                                     related_name='cro_opp')
+    cro_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+                                         related_name='cro_pitch')
+
     strat_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    strat_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
+                                       related_name='strat_opp')
+    strat_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+                                           related_name='strat_opp')
+
     feed_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    feed_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
+                                      related_name='feed_opp')
+    feed_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+                                          related_name='feed_opp')
+
     email_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
+    email_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
+                                       related_name='email_opp')
+    email_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+                                           related_name='email_opp')
+
+    @property
+    def overall_active(self):
+        """
+        Returns true if at least one of the fields here is active
+        :return:
+        """
+        if self.ppc_status == 1:
+            return True
+        if self.seo_status == 1:
+            return True
+        if self.cro_status == 1:
+            return True
+        if self.strat_status == 1:
+            return True
+        if self.feed_status == 1:
+            return True
+        if self.email_status == 1:
+            return True
+
+        return False
 
     def __init__(self, *args, **kwargs):
         super(SalesProfile, self).__init__(*args, **kwargs)
@@ -445,6 +516,10 @@ class SalesProfile(models.Model):
         self.__strat_status = self.strat_status
         self.__feed_status = self.feed_status
         self.__email_status = self.email_status
+
+        if self.overall_active:
+            self.account.status = 1  # Set account to active if at least one service is active
+            self.account.save()
 
     def __str__(self):
         return self.account.client_name + ' sales profile'

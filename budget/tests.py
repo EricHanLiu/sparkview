@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from budget.models import Client as BloomClient
 from adwords_dashboard.models import DependentAccount
 from client_area.models import Industry, ClientContact, ParentClient, Language, \
-                               ManagementFeesStructure, ManagementFeeInterval, ClientType
+    ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile
 from user_management.models import Member, Team
 
 
@@ -32,6 +32,8 @@ class AccountTestCase(TestCase):
         test_fee_structure.save()
 
         account = BloomClient.objects.create(client_name='test client', industry=test_industry, soldBy=test_member)
+        SalesProfile.objects.create(account=account, ppc_status=0, seo_status=0, cro_status=0)
+
         account.managementFee = test_fee_structure
 
         account.clientType = test_client_type
@@ -50,8 +52,9 @@ class AccountTestCase(TestCase):
         languages = [test_language]
         account.language.set(languages)
 
-        account.has_seo = False
-        account.has_cro = False
+        account.sales_profile.seo_status = 6
+        account.sales_profile.cro_status = 6
+        # account.has_cro = False
         account.seo_hours = 5.0  # For test purposes only. Usually there would be no hours if seo and cro are turned off
         account.cro_hours = 3.0
         account.has_gts = True  # These are totally useless now
@@ -68,20 +71,20 @@ class AccountTestCase(TestCase):
         """Tests all things related to management fee"""
         account = BloomClient.objects.get(client_name='test client')
 
-        account.status = 0
-        account.save()
+        account.sales_profile.ppc_status = 0
+        account.sales_profile.save()
 
         self.assertEqual(account.total_fee, account.managementFee.initialFee + account.seo_fee + account.cro_fee)
         self.assertEqual(account.total_fee, 1500.0)  # Should be the same as the initial fee + seo fee + cro_fee
 
-        account.has_seo = True
-        account.save()
+        account.sales_profile.seo_status = 1
+        account.sales_profile.save()
 
         self.assertEqual(account.total_fee, account.managementFee.initialFee + account.seo_fee + account.cro_fee)
         self.assertEqual(account.total_fee, 2125.0)
 
-        account.has_cro = True
-        account.save()
+        account.sales_profile.cro_status = 1
+        account.sales_profile.save()
 
         self.assertEqual(account.total_fee, account.managementFee.initialFee + account.seo_fee + account.cro_fee)
         self.assertEqual(account.total_fee, 2500.0)
@@ -95,10 +98,11 @@ class AccountTestCase(TestCase):
 
         account.seo_hourly_fee = 125.0
         account.cro_hourly_fee = 125.0
-        account.status = 1
-        account.save()
+        account.sales_profile.ppc_status = 1
+        account.sales_profile.save()
 
-        account2 = BloomClient.objects.get(client_name='test client')  # Same object but need to reload because of caching
+        account2 = BloomClient.objects.get(
+            client_name='test client')  # Same object but need to reload because of caching
 
         self.assertEqual(account2.total_fee, account2.ppc_fee + account2.seo_fee + account2.cro_fee)
         self.assertEqual(account2.total_fee, 1050.0)
@@ -113,13 +117,15 @@ class AccountTestCase(TestCase):
         account = BloomClient.objects.get(client_name='test client')
 
         account.status = 0
-        account.has_seo = False
-        account.has_cro = False
+        account.sales_profile.seo_status = 3
+        account.sales_profile.cro_status = 3
         account.save()
+        account.sales_profile.save()
 
         self.assertEqual(account.all_hours, 12)
 
-        account.has_seo = True
+        account.sales_profile.seo_status = 1
+        account.sales_profile.save()
         account.seo_hours = 10
         account.save()
 
