@@ -493,23 +493,65 @@ class SalesProfile(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.ppc_status != self.__ppc_status:
-            SalesProfileChange.objects.create(profile=self, service=0, from_status=self.__ppc_status,
-                                              to_status=self.ppc_status)
+            spc = SalesProfileChange.objects.create(profile=self, service=0, from_status=self.__ppc_status,
+                                                    to_status=self.ppc_status)
+            if self.ppc_status == 4:
+                spc.opp_desc = self.ppc_opp_desc
+                spc.save()
+            if self.ppc_status == 5:
+                spc.pithced_desc = self.ppc_pithced_desc
+                spc.save()
+
         if self.seo_status != self.__seo_status:
-            SalesProfileChange.objects.create(profile=self, service=1, from_status=self.__seo_status,
-                                              to_status=self.seo_status)
+            spc = SalesProfileChange.objects.create(profile=self, service=1, from_status=self.__seo_status,
+                                                    to_status=self.seo_status)
+            if self.seo_status == 4:
+                spc.opp_desc = self.seo_opp_desc
+                spc.save()
+            if self.seo_status == 5:
+                spc.pithced_desc = self.seo_pithced_desc
+                spc.save()
+
         if self.cro_status != self.__cro_status:
-            SalesProfileChange.objects.create(profile=self, service=2, from_status=self.__cro_status,
-                                              to_status=self.cro_status)
+            spc = SalesProfileChange.objects.create(profile=self, service=2, from_status=self.__cro_status,
+                                                    to_status=self.cro_status)
+            if self.cro_status == 4:
+                spc.opp_desc = self.cro_opp_desc
+                spc.save()
+            if self.cro_status == 5:
+                spc.pithced_desc = self.cro_pithced_desc
+                spc.save()
+
         if self.strat_status != self.__strat_status:
-            SalesProfileChange.objects.create(profile=self, service=3, from_status=self.__strat_status,
-                                              to_status=self.strat_status)
+            spc = SalesProfileChange.objects.create(profile=self, service=3, from_status=self.__strat_status,
+                                                    to_status=self.strat_status)
+            if self.strat_status == 4:
+                spc.opp_desc = self.strat_opp_desc
+                spc.save()
+            if self.strat_status == 5:
+                spc.pithced_desc = self.strat_pithced_desc
+                spc.save()
+
         if self.feed_status != self.__feed_status:
-            SalesProfileChange.objects.create(profile=self, service=4, from_status=self.__feed_status,
-                                              to_status=self.feed_status)
+            spc = SalesProfileChange.objects.create(profile=self, service=4, from_status=self.__feed_status,
+                                                    to_status=self.feed_status)
+            if self.feed_status == 4:
+                spc.opp_desc = self.feed_opp_desc
+                spc.save()
+            if self.feed_status == 5:
+                spc.pithced_desc = self.feed_pithced_desc
+                spc.save()
+
         if self.email_status != self.__email_status:
-            SalesProfileChange.objects.create(profile=self, service=5, from_status=self.__email_status,
-                                              to_status=self.email_status)
+            spc = SalesProfileChange.objects.create(profile=self, service=5, from_status=self.__email_status,
+                                                    to_status=self.email_status)
+            if self.email_status == 4:
+                spc.opp_desc = self.email_opp_desc
+                spc.save()
+            if self.email_status == 5:
+                spc.pithced_desc = self.email_pithced_desc
+                spc.save()
+
         self.__ppc_status = self.ppc_status
         self.__seo_status = self.seo_status
         self.__cro_status = self.cro_status
@@ -537,6 +579,8 @@ class SalesProfileChange(models.Model):
     profile = models.ForeignKey(SalesProfile, models.CASCADE, null=True, default=None)
     member = models.ForeignKey('user_management.Member', models.CASCADE, null=True, default=None)
     service = models.IntegerField(default=0, choices=SERVICE_CHOICES)
+    opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True)
+    pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True)
     from_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     to_status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)

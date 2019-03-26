@@ -741,7 +741,7 @@ def add_hours_to_account(request):
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-        ).order_by('client_name')
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
         all_accounts = Client.objects.all().order_by('client_name')
 
