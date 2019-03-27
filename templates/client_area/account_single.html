@@ -1447,12 +1447,12 @@
                     <div class="modal-body">
                         <div class="m-portlet__body">
                             <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                            <div class="row justify-content-between">
+                            <div class="row ">
                                 <div class="col-4">
                                     PPC
                                 </div>
-                                <div class="col-6">
-                                    <select class="form-control" name="set-ppc">
+                                <div class="col-4">
+                                    <select class="form-control update-service" name="set-ppc">
                                         {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.ppc_status == service_num %}
@@ -1463,13 +1463,37 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-ppc-opp">
+                                        {% for opp in opps %}
+                                            <option value="{{ opp.id }}"
+                                                    {% if opp == account.sales_profile.ppc_opp_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ opp }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-ppc-pitched">
+                                        {% for pitch in pitches %}
+                                            <option value="{{ pitch.id }}"
+                                                    {% if pitch == account.sales_profile.ppc_pitched_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ pitch }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
-                             <div class="row justify-content-between">
+                             <div class="row ">
                                 <div class="col-4">
                                     SEO
                                 </div>
-                                <div class="col-6">
-                                    <select class="form-control" name="set-seo">
+                                <div class="col-4">
+                                    <select class="form-control update-service" name="set-seo">
                                         {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.seo_status == service_num %}
@@ -1480,13 +1504,37 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                 <div style="display:none;">
+                                    <select class="form-control" name="set-seo-opp">
+                                        {% for opp in opps %}
+                                            <option value="{{ opp.id }}"
+                                                    {% if opp == account.sales_profile.seo_opp_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ opp }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-seo-pitched">
+                                        {% for pitch in pitches %}
+                                            <option value="{{ pitch.id }}"
+                                                    {% if pitch == account.sales_profile.seo_pitched_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ pitch }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                              </div>
-                             <div class="row justify-content-between">
+                             <div class="row ">
                                 <div class="col-4">
                                     CRO
                                 </div>
-                                <div class="col-6">
-                                    <select class="form-control" name="set-cro">
+                                <div class="col-4">
+                                    <select class="form-control update-service" name="set-cro">
                                         {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.cro_status == service_num %}
@@ -1497,13 +1545,37 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-cro-opp">
+                                        {% for opp in opps %}
+                                            <option value="{{ opp.id }}"
+                                                    {% if opp == account.sales_profile.cro_opp_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ opp }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-cro-pitched">
+                                        {% for pitch in pitches %}
+                                            <option value="{{ pitch.id }}"
+                                                    {% if pitch == account.sales_profile.cro_pitched_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ pitch }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
-                             <div class="row justify-content-between">
+                             <div class="row ">
                                 <div class="col-4">
                                     Strat
                                 </div>
-                                <div class="col-6">
-                                    <select class="form-control" name="set-strat">
+                                <div class="col-4">
+                                    <select class="form-control update-service" name="set-strat">
                                         {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.strat_status == service_num %}
@@ -1514,13 +1586,37 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-strat-opp">
+                                        {% for opp in opps %}
+                                            <option value="{{ opp.id }}"
+                                                    {% if opp == account.sales_profile.strat_opp_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ opp }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-strat-pitched">
+                                        {% for pitch in pitches %}
+                                            <option value="{{ pitch.id }}"
+                                                    {% if pitch == account.sales_profile.strat_pitched_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ pitch }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
-                             <div class="row justify-content-between">
+                             <div class="row ">
                                 <div class="col-4">
                                     Email Marketing
                                 </div>
-                                <div class="col-6">
-                                    <select class="form-control" name="set-email-marketing">
+                                <div class="col-4">
+                                    <select class="form-control update-service" name="set-email-marketing">
                                         {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.email_status == service_num %}
@@ -1531,19 +1627,67 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-email-opp">
+                                        {% for opp in opps %}
+                                            <option value="{{ opp.id }}"
+                                                    {% if opp == account.sales_profile.email_opp_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ opp }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-email-pitched">
+                                        {% for pitch in pitches %}
+                                            <option value="{{ pitch.id }}"
+                                                    {% if pitch == account.sales_profile.email_pitched_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ pitch }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
-                             <div class="row justify-content-between">
+                             <div class="row ">
                                 <div class="col-4">
                                     Feed Management
                                 </div>
-                                <div class="col-6">
-                                    <select class="form-control" name="set-feed-management">
+                                <div class="col-4">
+                                    <select class="form-control update-service" name="set-feed-management">
                                         {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.feed_status == service_num %}
                                                     selected
                                                     {% endif %}>
                                             {{ service_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-feed-opp">
+                                        {% for opp in opps %}
+                                            <option value="{{ opp.id }}"
+                                                    {% if opp == account.sales_profile.feed_opp_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ opp }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:none;">
+                                    <select class="form-control" name="set-feed-pitched">
+                                        {% for pitch in pitches %}
+                                            <option value="{{ pitch.id }}"
+                                                    {% if pitch == account.sales_profile.feed_pitched_desc %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ pitch }}
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -1600,6 +1744,30 @@
 
 {% block extraJs %}
     <script>
+        // Handles update services functionality
+        let $updateServiceSelects = $('.update-service');
+        $updateServiceSelects.change(displayMore);
+        $.each($updateServiceSelects, displayMore);
+
+        function displayMore() {
+            // get the two siblings
+            let status = $(this).val();
+            let $oppSelect = $(this).parent().next();
+            let $pitchSelect = $oppSelect.next();
+            if (status == 4) { // opportunity selected
+                $oppSelect.show();
+                $pitchSelect.hide();
+            } else if (status == 5) { // pitched selected
+                $oppSelect.hide();
+                $pitchSelect.show();
+            } else {
+                $oppSelect.hide();
+                $pitchSelect.hide();
+            }
+        }
+
+
+
         $(document).ready(function () {
             var $distrubteHoursBtn = $('#distribute_hours_btn');
             var $starIcon = $('.fa-flag');
