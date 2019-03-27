@@ -427,37 +427,37 @@ class SalesProfile(models.Model):
     ppc_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     ppc_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
                                      related_name='ppc_opp')
-    ppc_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+    ppc_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
                                          related_name='ppc_pitch')
 
     seo_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     seo_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
                                      related_name='seo_opp')
-    seo_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+    seo_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
                                          related_name='seo_pitch')
 
     cro_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     cro_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
                                      related_name='cro_opp')
-    cro_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+    cro_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
                                          related_name='cro_pitch')
 
     strat_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     strat_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
                                        related_name='strat_opp')
-    strat_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+    strat_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
                                            related_name='strat_opp')
 
     feed_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     feed_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
                                       related_name='feed_opp')
-    feed_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+    feed_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
                                           related_name='feed_opp')
 
     email_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
     email_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
                                        related_name='email_opp')
-    email_pithced_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
+    email_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
                                            related_name='email_opp')
 
     @property
