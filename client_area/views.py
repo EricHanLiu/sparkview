@@ -13,7 +13,8 @@ from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
-    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile
+    OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
+    PitchedDescription
 from .forms import NewClientForm
 
 
@@ -600,6 +601,9 @@ def account_single(request, id):
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
+    opps = OpportunityDescription.objects.all()
+    pitches = PitchedDescription.objects.all()
+
     context = {
         'account': account,
         'members': members,
@@ -610,7 +614,9 @@ def account_single(request, id):
         'accountHoursThisMonth': accountHoursThisMonth,
         'status_badges': status_badges,
         'kpid': account.kpi_info,
-        'promos': promos
+        'promos': promos,
+        "opps": opps,
+        "pitches": pitches
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -1243,6 +1249,80 @@ def set_services(request):
         feed_management = int(request.POST.get('set-feed-management'))
     except ValueError:
         feed_management = 6
+
+    # get opp or pitch status if applicable
+    if ppc == 4:
+        try:
+            opp = OpportunityDescription.objects.get(id=request.POST.get('set-ppc-opp'))
+        except OpportunityDescription.DoesNotExist:
+            opp = None
+        sales_profile.ppc_opp_desc = opp
+    elif ppc == 5:
+        try:
+            pitch = PitchedDescription.objects.get(id=request.POST.get('set-ppc-pitched'))
+        except PitchedDescription.DoesNotExist:
+            pitch = None
+        sales_profile.ppc_pitched_desc = pitch
+    if seo == 4:
+        try:
+            opp = OpportunityDescription.objects.get(id=request.POST.get('set-seo-opp'))
+        except OpportunityDescription.DoesNotExist:
+            opp = None
+        sales_profile.seo_opp_desc = opp
+    elif seo == 5:
+        try:
+            pitch = PitchedDescription.objects.get(id=request.POST.get('set-seo-pitched'))
+        except PitchedDescription.DoesNotExist:
+            pitch = None
+        sales_profile.seo_pitched_desc = pitch
+    if cro == 4:
+        try:
+            opp = OpportunityDescription.objects.get(id=request.POST.get('set-cro-opp'))
+        except OpportunityDescription.DoesNotExist:
+            opp = None
+        sales_profile.cro_opp_desc = opp
+    elif cro == 5:
+        try:
+            pitch = PitchedDescription.objects.get(id=request.POST.get('set-cro-pitched'))
+        except PitchedDescription.DoesNotExist:
+            pitch = None
+        sales_profile.cro_pitched_desc = pitch
+    if strat == 4:
+        try:
+            opp = OpportunityDescription.objects.get(id=request.POST.get('set-strat-opp'))
+        except OpportunityDescription.DoesNotExist:
+            opp = None
+        sales_profile.strat_opp_desc = opp
+    elif strat == 5:
+        try:
+            pitch = PitchedDescription.objects.get(id=request.POST.get('set-strat-pitched'))
+        except PitchedDescription.DoesNotExist:
+            pitch = None
+        sales_profile.strat_pitched_desc = pitch
+    if email_marketing == 4:
+        try:
+            opp = OpportunityDescription.objects.get(id=request.POST.get('set-email-opp'))
+        except OpportunityDescription.DoesNotExist:
+            opp = None
+        sales_profile.email_opp_desc = opp
+    elif email_marketing == 5:
+        try:
+            pitch = PitchedDescription.objects.get(id=request.POST.get('set-email-pitched'))
+        except PitchedDescription.DoesNotExist:
+            pitch = None
+        sales_profile.email_pitched_desc = pitch
+    if feed_management == 4:
+        try:
+            opp = OpportunityDescription.objects.get(id=request.POST.get('set-feed-opp'))
+        except OpportunityDescription.DoesNotExist:
+            opp = None
+        sales_profile.feed_opp_desc = opp
+    elif ppc == 5:
+        try:
+            pitch = PitchedDescription.objects.get(id=request.POST.get('set-feed-pitched'))
+        except PitchedDescription.DoesNotExist:
+            pitch = None
+        sales_profile.feed_pitched_desc = pitch
 
     status_range = range(0, len(sales_profile.STATUS_CHOICES))
     if ppc is not None and ppc in status_range:
