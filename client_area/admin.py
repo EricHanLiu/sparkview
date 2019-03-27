@@ -2,7 +2,17 @@ from django.contrib import admin
 from .models import Promo, MonthlyReport, Service, Language, ClientType, Industry, ManagementFeesStructure, \
     ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord, OnboardingTask, OnboardingTaskAssignment, \
     OnboardingStep, OnboardingStepAssignment, PhaseTaskAssignment, PhaseTask, LifecycleEvent, SalesProfile, \
-    SalesProfileChange
+    SalesProfileChange, OpportunityDescription, PitchedDescription
+
+
+@admin.register(OpportunityDescription)
+class OpportunityDescriptionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(PitchedDescription)
+class PitchedDescriptionAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Service)

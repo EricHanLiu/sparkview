@@ -481,6 +481,69 @@ class SalesProfile(models.Model):
 
         return False
 
+    @property
+    def active_services_str(self):
+        """
+        Returns active services
+        :return:
+        """
+        active = []
+        if self.account.has_ppc:
+            active.append('PPC')
+        if self.account.has_seo:
+            active.append('SEO')
+        if self.account.has_cro:
+            active.append('CRO')
+        if self.strat_status == 1:
+            active.append('Strat')
+        if self.feed_status == 1:
+            active.append('Feed Management')
+        if self.email_status == 1:
+            active.append('Email Marketing')
+        return ', '.join(active)
+
+    @property
+    def pitched_services_str(self):
+        """
+        Returns pitched services
+        :return:
+        """
+        pitched = []
+        if self.ppc_status == 5:
+            pitched.append('PPC')
+        if self.seo_status == 5:
+            pitched.append('SEO')
+        if self.cro_status == 5:
+            pitched.append('CRO')
+        if self.strat_status == 5:
+            pitched.append('Strat')
+        if self.feed_status == 5:
+            pitched.append('Feed Management')
+        if self.email_status == 5:
+            pitched.append('Email Marketing')
+        return ', '.join(pitched)
+
+    @property
+    def opp_services_str(self):
+        """
+        Returns opportunity services
+        :return:
+        """
+        opp = []
+        if self.ppc_status == 4:
+            opp.append('PPC')
+        if self.seo_status == 4:
+            opp.append('SEO')
+        if self.cro_status == 4:
+            opp.append('CRO')
+        if self.strat_status == 4:
+            opp.append('Strat')
+        if self.feed_status == 4:
+            opp.append('Feed Management')
+        if self.email_status == 4:
+            opp.append('Email Marketing')
+        return ', '.join(opp)
+
     def __init__(self, *args, **kwargs):
         super(SalesProfile, self).__init__(*args, **kwargs)
         self.__ppc_status = self.ppc_status
