@@ -66,3 +66,18 @@
  
 ##  When updating cron tasks
  - Restart celery `sudo sh /etc/init.d/celeryd restart`
+ 
+## Deployment Checklist
+
+ - Pull latest version
+ - Make sure `DEBUG = False` in `bloom/settings.py`
+ - Set DB settings to prod values in `bloom/settings.py`
+ - Build docker container with `sudo docker image build .`
+ - Restart celery `sudo sh /etc/init.d/celeryd restart`
+ - Make sure bing credentials are in place `cp bing_dashboards/bing_creds_prod bing_dashboards/bing_creds`
+ - Update crontab `python manage.py crontab add` (Must be from `sam` user, you may have to run this multiple times until there is no error)
+ - Tag the newest version's container
+   * Get the container id with `sudo docker images` (should look something like `1d2846775d6b`)
+   * Set the docker version with `sudo docker tag {{ id }} makeitbloom/sparkview:{{ v }}` where `{{ id }}` is the id from the previous step, and `{{ v }}` is the next number (just increment previous build number). Note this is different from the SparkView version.
+   * Push the latest version to docker repo with `sudo docker push makeitbloom/sparkview:{{ v }}`
+ - Update the software to the newest container with `sudo docker service update --image makeitbloom/sparkview:{{ v }} bloom_web`
