@@ -387,19 +387,23 @@ def account_edit_temp(request, id):
             # Audit log There
             account.client_name = account_name
 
+        sp, created = SalesProfile.objects.get_or_create(account=account)
+
         if seo_hours != '' and float(seo_hours) != 0.0:
-            account.has_seo = True
+            sp.seo_status = 1
             account.seo_hours = seo_hours
         else:
-            account.has_seo = False
+            sp.seo_status = 6
             account.seo_hours = 0.0
 
         if cro_hours != '' and float(cro_hours) != 0.0:
-            account.has_cro = True
+            sp.cro_status = 1
             account.cro_hours = cro_hours
         else:
-            account.has_cro = False
+            sp.cro_status = 6
             account.cro_hours = 0.0
+
+        sp.save()
 
         if request.user.is_staff:
             if fee_override != 'None':
@@ -615,8 +619,8 @@ def account_single(request, id):
         'status_badges': status_badges,
         'kpid': account.kpi_info,
         'promos': promos,
-        "opps": opps,
-        "pitches": pitches
+        'opps': opps,
+        'pitches': pitches
     }
 
     return render(request, 'client_area/account_single.html', context)
