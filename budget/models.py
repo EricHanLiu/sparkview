@@ -1224,11 +1224,6 @@ class Client(models.Model):
 
         return members
 
-    def save(self, *args, **kwargs):
-        if self._state.adding:
-            SalesProfile.objects.get_or_create(account=self)
-        super().save(*args, **kwargs)
-
     remainingBudget = property(get_remaining_budget)
 
     yesterday_spend = property(get_yesterday_spend)
