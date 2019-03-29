@@ -56,6 +56,11 @@ def members(request):
 
 @login_required
 def member_dashboard(request, id):
+    # Authenticate if staff or not
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    # HOURS REPORT INFO
     # Get account related metrics
     member = Member.objects.get(id=id)
 
@@ -73,6 +78,15 @@ def member_dashboard(request, id):
     members = Member.objects.all()
     teams = Team.objects.all()
     roles = Role.objects.all()
+
+    # If filter request was made, then narrow the member/teams objects
+    filtered_teams = request.GET.get('filter-team')
+    filtered_roles = request.GET.get('filter-role')
+
+    if filtered_teams is not None:
+        members = members.filter(team__in=filtered_teams)
+    if filtered_roles is not None:
+        members = members.filter(role__in=filtered_roles)
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -109,6 +123,11 @@ def member_dashboard(request, id):
     year = now.year
     total_hours_worked = \
         AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    team_value_added_hours = \
+        AccountHourRecord.objects.filter(member__in=members, month=month, year=year, is_unpaid=True).aggregate(
+            Sum('hours'))['hours__sum']
+    if team_value_added_hours is None:
+        team_value_added_hours = 0
     if total_hours_worked is None:
         total_hours_worked = 0.0
 
@@ -135,6 +154,7 @@ def member_dashboard(request, id):
         'actual_aggregate': actual_aggregate,
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
+        'team_value_added_hours': team_value_added_hours,
         'members': members,
         'teams': teams,
         'roles': roles

@@ -185,6 +185,15 @@ class Member(models.Model):
     def onAllTeams(self):
         return self.team.all().count() == Team.objects.all().count()
 
+    @property
+    def training_hours_month(self):
+        now = datetime.datetime.now()
+        month = now.month
+        year = now.year
+        hours = TrainingHoursRecord.objects.filter(trainee=self, month=month, year=year).aggregate(Sum('hours'))[
+                'hours__sum']
+        return hours if hours is not None else 0
+
     def actual_hours_month(self):
         AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         now = datetime.datetime.now()
