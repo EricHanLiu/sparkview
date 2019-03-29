@@ -51,7 +51,7 @@
                                     <select class="form-control" name="filter-role" multiple id="filter-role">
                                         {% for role in roles %}
                                             <option value="{{ role.id }}"
-                                            {% if role in filtered_roles %} selected {% endif %}>
+                                                    {% if role in filtered_roles %} selected {% endif %}>
                                                 {{ role }}
                                             </option>
                                         {% endfor %}
@@ -61,7 +61,7 @@
                                     <select class="form-control" name="filter-team" multiple id="filter-team">
                                         {% for team in teams %}
                                             <option value="{{ team.id }}"
-                                            {% if team in filtered_teams %} selected {% endif %}>
+                                                    {% if team in filtered_teams %} selected {% endif %}>
                                                 {{ team }}
                                             </option>
                                         {% endfor %}
@@ -101,6 +101,22 @@
                                         {{ capacity_rate|floatformat:2 }}%
                                     </h2>
                                     <canvas id="capacity-chart" width="200" height="200"></canvas>
+                                    <div class="row mt-4">
+                                        <h5 class="col-md-6 text-center text-info">
+                                            {{ allocated_aggregate }}
+                                        </h5>
+                                        <h5 class="col-md-6 text-center text-info">
+                                            {{ allocated_aggregate|add:available_aggregate }}
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <h5 class="col-md-6 text-center text-info">
+                                            Actual Hours
+                                        </h5>
+                                        <h5 class="col-md-6 text-center text-info">
+                                            Allocated Hours
+                                        </h5>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -114,6 +130,22 @@
                                         {{ utilization_rate|floatformat:2 }}%
                                     </h2>
                                     <canvas id="utilization-chart" width="200" height="200"></canvas>
+                                    <div class="row mt-4">
+                                        <h5 class="col-md-6 text-center text-danger">
+                                            {{ actual_aggregate }}
+                                        </h5>
+                                        <h5 class="col-md-6 text-center text-danger">
+                                            {{ allocated_aggregate }}
+                                        </h5>
+                                    </div>
+                                    <div class="row">
+                                        <h5 class="col-md-6 text-center text-danger">
+                                            Allocated Hours
+                                        </h5>
+                                        <h5 class="col-md-6 text-center text-danger">
+                                            Total Hours Available
+                                        </h5>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -225,7 +257,7 @@
                         'rgba(241, 233, 231, 0.5)'
                     ],
                     borderColor: [
-                        'black',
+                        'rgba(27, 135, 205, 0.5)',
                         'rgba(241, 233, 231, 0.5)'
                     ],
                     borderWidth: 1
@@ -258,7 +290,7 @@
                         'rgba(241, 233, 231, 0.5)'
                     ],
                     borderColor: [
-                        'black',
+                        'rgba(220, 41, 41, 0.5)',
                         'rgba(241, 233, 231, 0.5)'
                     ],
                     borderWidth: 1
