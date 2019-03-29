@@ -1,0 +1,192 @@
+{% extends 'user_management/profile/layout.html' %}
+
+{% load notification_tags %}
+
+
+{% block content %}
+    <div class="m-content">
+        {# Notification stuff #}
+        {% with notifications=request.user|get_unread_notifications %}
+            {% if notifications.count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    <strong>Heads Up!</strong> You have unread notifications.
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if starAccounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ starAccounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        {#  Main content #}
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.5rem;">
+                                    Filter
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <form class="m-form" method="GET" action="/user_management/members/{{ member.id }}/dashboard">
+                            <div class="row">
+                                <div class="col-5">
+                                    <h4>Teams</h4>
+                                </div>
+                                <div class="col-5">
+                                    <h4>Roles</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5">
+                                    <select class="form-control" name="filter-team" multiple>
+                                        {% for team in teams %}
+                                            <option value="">{{ team }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-5">
+                                    <select class="form-control" name="filter-role" multiple>
+                                        {% for role in roles %}
+                                            <option value="">{{ role }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <input type="submit" class="btn btn-info m-btn" value="Filter">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.5rem;">
+                                    Hours Report
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="bbox shadow p-3 bg-white rounded">
+                                    <h4 class="m--padding-10">
+                                        Team Capacity %
+                                    </h4>
+                                    <h1 class="text-center inner-text text-info">
+                                        {{ capacity_rate|floatformat:2 }}%
+                                    </h1>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bbox shadow p-3 bg-white rounded">
+                                    <h4 class="m--padding-10 justify-content-center">
+                                        Team Utilization %
+                                    </h4>
+                                    <h1 class="text-center inner-text text-info">
+                                        {{ utilization_rate|floatformat:2 }}%
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="bbox shadow p-3 bg-white rounded">
+                                    <h4 class="m--padding-10 justify-content-center">
+                                        Team Value Added
+                                    </h4>
+                                    <h1 class="text-center inner-text text-info">
+                                        60%
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row m-row--no-padding m-row--col-separator-xl">
+                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                   id="my_clients_datatable">
+                                <thead class="thead-inverse">
+                                <tr class="main-table-header">
+                                    <th>Member</th>
+                                    <th>Role</th>
+                                    <th>
+                                        Actual Hours
+                                    </th>
+                                    <th>
+                                        Allocated Hours
+                                    </th>
+                                    <th>
+                                        Available Hours
+                                    </th>
+                                    <th>
+                                        Utilization Rate
+                                    </th>
+                                    <th>
+                                        Capacity Rate
+                                    </th>
+                                    <th>
+                                        Value Added Hours
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for member in members %}
+                                    <tr>
+                                        <td>
+                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                        </td>
+                                        <td>
+                                            {{ member.role.name }}
+                                        </td>
+                                        <td>
+                                            {{ member.actualHoursThisMonth|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ member.allocated_hours_month|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ member.hours_available|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ member.utilization_rate|floatformat:2 }}%
+                                        </td>
+                                        <td>
+                                            {{ member.capacity_rate|floatformat:2 }}%
+                                        </td>
+                                        <td>
+                                            {{ member.value_added_hours_this_month|floatformat:2 }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

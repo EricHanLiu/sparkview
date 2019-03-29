@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Sum, Q
 import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
@@ -52,6 +52,95 @@ def members(request):
     }
 
     return render(request, 'user_management/members.html', context)
+
+
+@login_required
+def member_dashboard(request, id):
+    # Get account related metrics
+    member = Member.objects.get(id=id)
+
+    total_active_accounts = Client.objects.filter(status=1)
+    total_active_seo = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
+    total_active_cro = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
+
+    total_onboarding = Client.objects.filter(status=0).count()
+    total_inactive = Client.objects.filter(status=2).count()
+    total_lost = Client.objects.filter(status=3).count()
+
+    incident_count = Incident.objects.all().count()
+
+    # Members, Teams, Roles
+    members = Member.objects.all()
+    teams = Team.objects.all()
+    roles = Role.objects.all()
+
+    actual_aggregate = 0.0
+    allocated_aggregate = 0.0
+    available_aggregate = 0.0
+
+    for member in members:
+        actual_aggregate += member.actualHoursThisMonth
+        allocated_aggregate += member.allocated_hours_month()
+        available_aggregate += member.hours_available
+
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
+    if allocated_aggregate == 0:
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
+    # sorted_members_by_count = sorted(members, key=lambda t: t.incidents)
+
+    # Total management fee
+    # total_management_fee = 0.0
+    total_allocated_hours = 0.0
+
+    for aa in total_active_accounts:
+        # total_management_fee += aa.total_fee
+        total_allocated_hours += aa.all_hours
+
+    # hours worked this month
+    now = datetime.datetime.now()
+    month = now.month
+    year = now.year
+    total_hours_worked = \
+        AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    if total_hours_worked is None:
+        total_hours_worked = 0.0
+
+    try:
+        allocation_ratio = total_hours_worked / total_allocated_hours
+    except ZeroDivisionError:
+        allocation_ratio = 0.0
+
+    context = {
+        'member': member,
+        'total_active_accounts': total_active_accounts.count(),
+        'total_active_seo': total_active_seo,
+        'total_active_cro': total_active_cro,
+        'total_onboarding': total_onboarding,
+        'total_inactive': total_inactive,
+        'total_lost': total_lost,
+        'capacity_rate': capacity_rate,
+        'utilization_rate': utilization_rate,
+        'incident_count': incident_count,
+        # 'top_offenders': sorted_members_by_count,
+        'allocation_ratio': allocation_ratio,
+        'total_allocated_hours': total_allocated_hours,
+        'total_hours_worked': total_hours_worked,
+        'actual_aggregate': actual_aggregate,
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'members': members,
+        'teams': teams,
+        'roles': roles
+    }
+
+    return render(request, 'user_management/profile/dashboard.html', context)
 
 
 @login_required
