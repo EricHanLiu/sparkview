@@ -54,9 +54,9 @@ class Client(models.Model):
                      (3, 'Three')]
 
     client_name = models.CharField(max_length=255, default='None')
-    adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
-    bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
-    facebook = models.ManyToManyField(fb.FacebookAccount, blank=True, related_name='facebook')
+    adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True)
+    bing = models.ManyToManyField(bing_a.BingAccounts, blank=True)
+    facebook = models.ManyToManyField(fb.FacebookAccount, blank=True)
     current_spend = models.FloatField(default=0)
     # yesterday_spend = models.FloatField(default=0)
     aw_yesterday = models.FloatField(default=0)
@@ -1335,7 +1335,10 @@ class FlightBudget(models.Model):
 
 
 class CampaignGrouping(models.Model):
+    TYPE_CHOICES = [(0, 'all'), (1, 'manual'), (2, 'text')]
+
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
+    group_type = models.IntegerField(default=0, choices=TYPE_CHOICES)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
     adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
@@ -1351,8 +1354,8 @@ class CampaignGrouping(models.Model):
     budget = models.FloatField(default=0)
     bing = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
     facebook = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True)
-    end_date = models.DateField(blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True, default=None)
+    end_date = models.DateField(blank=True, null=True, default=None)
 
     @property
     def current_aw_spend(self):
@@ -1475,49 +1478,64 @@ class CampaignGrouping(models.Model):
         Updates the accounts of the group if this does text parsing
         :return:
         """
-        if self.group_by == 'manual':
+        if self.group_by == 'manual' or self.group_by == 'all':
             return
 
-        if self.group_by == 'text':  # Just to double check
-            account = self.client
-            adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
-            facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
-            bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
+        # If it get's here, the grouping must be done by keywords
 
-            keywords = self.group_by.split(',')
+        account = self.client
+        accs = account.adwords.all()
+        adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
+        facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
+        bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
 
-            aw_campaigns_in_group = []
-            for adwords_campaign in adwords_campaigns:
-                for keyword in keywords:
-                    if adwords_campaign in aw_campaigns_in_group:
+        keywords = self.group_by.split(',')
+
+        aw_campaigns_in_group = []
+        for adwords_campaign in adwords_campaigns:
+            for keyword in keywords:
+                # In this case, we want to remove the campaign if its in the group and then break
+                if '-' in keyword:
+                    if keyword.strip().strip('-').lower().strip() in adwords_campaign.campaign_name.lower():
+                        if adwords_campaign in aw_campaigns_in_group:
+                            aw_campaigns_in_group.remove(adwords_campaign)
                         break
-                    if '+' in keyword:
-                        if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
+                        if adwords_campaign not in aw_campaigns_in_group:
                             aw_campaigns_in_group.append(adwords_campaign)
 
-            self.aw_campaigns.set(aw_campaigns_in_group)
+        self.aw_campaigns.set(aw_campaigns_in_group)
 
-            fb_campaigns_in_group = []
-            for facebook_campaign in facebook_campaigns:
-                for keyword in keywords:
-                    if facebook_campaign in fb_campaigns_in_group:
+        fb_campaigns_in_group = []
+        for facebook_campaign in facebook_campaigns:
+            for keyword in keywords:
+                if '-' in keyword:
+                    if keyword.strip().strip('-').lower().strip() in facebook_campaign.campaign_name.lower():
+                        if facebook_campaign in fb_campaigns_in_group:
+                            fb_campaigns_in_group.remove(facebook_campaign)
                         break
-                    if '+' in keyword:
-                        if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
+                        if facebook_campaign not in fb_campaigns_in_group:
                             fb_campaigns_in_group.append(facebook_campaign)
 
-            self.fb_campaigns.set(fb_campaigns_in_group)
+        self.fb_campaigns.set(fb_campaigns_in_group)
 
-            bing_campaigns_in_group = []
-            for bing_campaign in bing_campaigns:
-                for keyword in keywords:
-                    if bing_campaign in bing_campaigns_in_group:
+        bing_campaigns_in_group = []
+        for bing_campaign in bing_campaigns:
+            for keyword in keywords:
+                if '-' in keyword:
+                    if keyword.strip().strip('-').lower().strip() in bing_campaign.campaign_name.lower():
+                        if bing_campaign in bing_campaigns_in_group:
+                            bing_campaigns_in_group.remove(bing_campaign)
                         break
-                    if '+' in keyword:
-                        if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
+                        if bing_campaign not in bing_campaigns_in_group:
                             bing_campaigns_in_group.append(bing_campaign)
 
-            self.bing_campaigns.set(bing_campaigns_in_group)
+        self.bing_campaigns.set(bing_campaigns_in_group)
 
     def update_all_grouping(self):
         """
