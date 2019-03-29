@@ -80,12 +80,17 @@ def member_dashboard(request, id):
     roles = Role.objects.all()
 
     # If filter request was made, then narrow the member/teams objects
-    filtered_teams = request.GET.get('filter-team')
-    filtered_roles = request.GET.get('filter-role')
+    teams_request = request.GET.getlist('filter-team')
+    roles_request = request.GET.getlist('filter-role')
 
-    if filtered_teams is not None:
+    # Convert to role objects
+    filtered_roles = None
+    filtered_teams = None
+    if teams_request:
+        filtered_teams = teams.filter(id__in=teams_request)
         members = members.filter(team__in=filtered_teams)
-    if filtered_roles is not None:
+    if roles_request:
+        filtered_roles = roles.filter(id__in=roles_request)
         members = members.filter(role__in=filtered_roles)
 
     actual_aggregate = 0.0
@@ -152,6 +157,8 @@ def member_dashboard(request, id):
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
         'total_hours_trained': training_aggregate,
+        'filtered_teams': filtered_teams,
+        'filtered_roles': filtered_roles,
         'members': members,
         'teams': teams,
         'roles': roles
