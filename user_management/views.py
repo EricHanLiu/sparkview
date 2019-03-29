@@ -91,11 +91,13 @@ def member_dashboard(request, id):
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
+    training_aggregate = 0.0
 
     for member in members:
         actual_aggregate += member.actualHoursThisMonth
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
+        training_aggregate += member.training_hours_month
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -123,11 +125,6 @@ def member_dashboard(request, id):
     year = now.year
     total_hours_worked = \
         AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
-    team_value_added_hours = \
-        AccountHourRecord.objects.filter(member__in=members, month=month, year=year, is_unpaid=True).aggregate(
-            Sum('hours'))['hours__sum']
-    if team_value_added_hours is None:
-        team_value_added_hours = 0
     if total_hours_worked is None:
         total_hours_worked = 0.0
 
@@ -154,7 +151,7 @@ def member_dashboard(request, id):
         'actual_aggregate': actual_aggregate,
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
-        'team_value_added_hours': team_value_added_hours,
+        'total_hours_trained': training_aggregate,
         'members': members,
         'teams': teams,
         'roles': roles
