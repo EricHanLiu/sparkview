@@ -150,6 +150,20 @@ def member_dashboard(request, id):
     if ontime_denom != 0:
         ontime_rate = 100.0 * ontime_numer / ontime_denom
 
+    # PROMO INFO
+    today = datetime.datetime.now().date()
+    tomorrow = today + datetime.timedelta(1)
+    today_start = datetime.datetime.combine(today, datetime.time())
+    today_end = datetime.datetime.combine(tomorrow, datetime.time())
+    three_days_ago = now - datetime.timedelta(3)
+    three_days_future = now + datetime.timedelta(3)
+    promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
+                                       end_date__lte=three_days_future)
+    promos_start_today = Promo.objects.filter(start_date__gte=today_start,
+                                              start_date__lte=today_end)
+    promos_end_today = Promo.objects.filter(end_date__gte=today_start,
+                                            end_date__lte=today_end)
+
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = Client.objects.filter(status=0)
     num_onboarding = onboarding_accounts.count()
@@ -181,6 +195,9 @@ def member_dashboard(request, id):
         'completion_rate': completion_rate,
         'ontime_rate': ontime_rate,
         'outstanding_reports': outstanding_reports,
+        'promos_start_today': promos_start_today,
+        'promos_end_today': promos_end_today,
+        'promos_week': promos_week,
         'onboarding_accounts': onboarding_accounts,
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,

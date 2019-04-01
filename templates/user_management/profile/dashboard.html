@@ -319,6 +319,136 @@
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
                                 <h3 class="m-portlet__head-text">
+                                    Promos
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="bbox shadow p-4 bg-white rounded">
+                                    <h3 class="text-info p-2">
+                                        Promos Launching Today
+                                    </h3>
+                                    {% if promos_start_today.count > 0 %}
+                                        <div class="table-wrapper">
+                                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline promo-dt'>
+                                                <thead class="thead-inverse">
+                                                <tr class="main-table-header">
+                                                    <th>Account</th>
+                                                    <th>
+                                                        Promo
+                                                    </th>
+                                                    <th>
+                                                        Launch Date
+                                                    </th>
+                                                    <th>
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for promo in promos_start_today %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {{ promo.name }}
+                                                        </td>
+                                                        <td>
+                                                            {{ promo.start_date }}
+                                                        </td>
+                                                        <td>
+                                                            {% if promo.confirmed_started %}
+                                                                Launched
+                                                            {% else %}
+                                                                Pending
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <h4 class="p-2">No promos starting today</h4>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bbox shadow p-4 bg-white rounded">
+                                    <h3 class="text-danger p-2">
+                                        Promos Ending Today
+                                    </h3>
+                                    {% if promos_end_today.count > 0 %}
+                                        <div class="table-wrapper">
+                                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline promo-dt'>
+                                                <thead class="thead-inverse">
+                                                <tr class="main-table-header">
+                                                    <th>Account</th>
+                                                    <th>
+                                                        Promo
+                                                    </th>
+                                                    <th>
+                                                        End Date
+                                                    </th>
+                                                    <th>
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for promo in promos_end_today %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {{ promo.name }}
+                                                        </td>
+                                                        <td>
+                                                            {{ promo.end_date }}
+                                                        </td>
+                                                        <td>
+                                                            {% if promo.confirmed_ended %}
+                                                                Ended
+                                                            {% else %}
+                                                                Pending
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <h4 class="p-2">No promos ending today</h4>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pt-5">
+                            <div class="col-12">
+                                <h3>
+                                    Promos This Week
+                                </h3>
+                                <hr/>
+                                <div id="calendar-view"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
                                     Onboarding Reports
                                 </h3>
                             </div>
@@ -411,155 +541,183 @@
 {% endblock %}
 
 {% block extraJs %}
-    <script>
-        $('#filter-team').select2({
-            closeOnSelect: false,
-            placeholder: "Filter Teams"
-        });
+<script>
+    $('#filter-team').select2({
+        closeOnSelect: false,
+        placeholder: "Filter Teams"
+    });
 
-        $('#filter-role').select2({
-            closeOnSelect: false,
-            placeholder: "Filter Roles"
-        });
+    $('#filter-role').select2({
+        closeOnSelect: false,
+        placeholder: "Filter Roles"
+    });
 
-        // capacity percentage pie chart
-        let capacityPercentage = parseInt($('#capacity-display').text());
-        capacityPercentage > 100 ? capacityPercentage = 100 : null; // display 100 if greater than
-        let ctx1 = $('#capacity-chart')[0].getContext('2d');
-        let capacityChart = new Chart(ctx1, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [capacityPercentage, 100 - capacityPercentage],
-                    backgroundColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
+    // capacity percentage pie chart
+    let capacityPercentage = parseInt($('#capacity-display').text());
+    capacityPercentage > 100 ? capacityPercentage = 100 : null; // display 100 if greater than
+    let ctx1 = $('#capacity-chart')[0].getContext('2d');
+    let capacityChart = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [capacityPercentage, 100 - capacityPercentage],
+                backgroundColor: [
+                    'rgba(27, 135, 205, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(27, 135, 205, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            tooltips: {
+                enabled: false
             },
-            options: {
-                tooltips: {
-                    enabled: false
-                },
-                rotation: 0.5 * Math.PI
-            }
-        });
+            rotation: 0.5 * Math.PI
+        }
+    });
 
-        // utilization percentage pie chart
-        let utilizationPercentage = parseInt($('#utilization-display').text());
-        utilizationPercentage > 100 ? utilizationPercentage = 100 : null; // display 100 if greater than
-        let ctx2 = $('#utilization-chart')[0].getContext('2d');
-        let utilizationChart = new Chart(ctx2, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [utilizationPercentage, 100 - utilizationPercentage],
-                    backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
+    // utilization percentage pie chart
+    let utilizationPercentage = parseInt($('#utilization-display').text());
+    utilizationPercentage > 100 ? utilizationPercentage = 100 : null; // display 100 if greater than
+    let ctx2 = $('#utilization-chart')[0].getContext('2d');
+    let utilizationChart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [utilizationPercentage, 100 - utilizationPercentage],
+                backgroundColor: [
+                    'rgba(220, 41, 41, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(220, 41, 41, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            tooltips: {
+                enabled: false
             },
-            options: {
-                tooltips: {
-                    enabled: false
-                },
-                rotation: 0.5 * Math.PI
-            }
-        });
+            rotation: 0.5 * Math.PI
+        }
+    });
 
-        // ontime percentage pie chart
-        let ontimePercentage = parseInt($('#ontime-display').text());
-        ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
-        let ctx3 = $('#ontime-chart')[0].getContext('2d');
-        let ontimeChart = new Chart(ctx3, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [ontimePercentage, 100 - ontimePercentage],
-                    backgroundColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
+    // ontime percentage pie chart
+    let ontimePercentage = parseInt($('#ontime-display').text());
+    ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
+    let ctx3 = $('#ontime-chart')[0].getContext('2d');
+    let ontimeChart = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [ontimePercentage, 100 - ontimePercentage],
+                backgroundColor: [
+                    'rgba(27, 135, 205, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(27, 135, 205, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            tooltips: {
+                enabled: false
             },
-            options: {
-                tooltips: {
-                    enabled: false
-                },
-                rotation: 0.5 * Math.PI
-            }
-        });
+            rotation: 0.5 * Math.PI
+        }
+    });
 
-        // completion percentage pie chart
-        let completionPercentage = parseInt($('#completion-display').text());
-        completionPercentage > 100 ? completionPercentage = 100 : null;
-        let ctx4 = $('#completion-chart')[0].getContext('2d');
-        let completionChart = new Chart(ctx4, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [completionPercentage, 100 - completionPercentage],
-                    backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
+    // completion percentage pie chart
+    let completionPercentage = parseInt($('#completion-display').text());
+    completionPercentage > 100 ? completionPercentage = 100 : null;
+    let ctx4 = $('#completion-chart')[0].getContext('2d');
+    let completionChart = new Chart(ctx4, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [completionPercentage, 100 - completionPercentage],
+                backgroundColor: [
+                    'rgba(220, 41, 41, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(220, 41, 41, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            tooltips: {
+                enabled: false
             },
-            options: {
-                tooltips: {
-                    enabled: false
-                },
-                rotation: 0.5 * Math.PI
-            }
-        });
+            rotation: 0.5 * Math.PI
+        }
+    });
 
-        // completion percentage pie chart
-        let onboardingLatePercentage = parseInt($('#onboarding-late-percentage').text());
-        onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
-        let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
-        let onboardingLateChart = new Chart(ctx5, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [completionPercentage, 100 - completionPercentage],
-                    backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
+    // completion percentage pie chart
+    let onboardingLatePercentage = parseInt($('#onboarding-late-percentage').text());
+    onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
+    let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
+    let onboardingLateChart = new Chart(ctx5, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [completionPercentage, 100 - completionPercentage],
+                backgroundColor: [
+                    'rgba(220, 41, 41, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(220, 41, 41, 0.5)',
+                    'rgba(241, 233, 231, 0.5)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            tooltips: {
+                enabled: false
             },
-            options: {
-                tooltips: {
-                    enabled: false
-                },
-                rotation: 0.5 * Math.PI
-            }
+            rotation: 0.5 * Math.PI
+        }
+    });
+
+    // calendar view of promos
+    $(document).ready(() => {
+        /**
+         * Calendar
+         */
+        $('#calendar-view').fullCalendar({
+            header: {
+                left: "prev, next",
+                center: "title",
+                right: "today"
+            },
+            aspectRatio: 2.5,
+            defaultDate: moment(),
+            defaultView: 'month',
+            events: [
+                {% for promo in promos_week %}
+                    {
+                        title: "{{ promo }}",
+                        description: "{{ promo.desc }}",
+                        start: moment("{{ promo.formatted_start }}"),
+                        end: moment("{{ promo.formatted_end }}"),
+                        className: "{% if promo.is_active %}m-fc-event--success{% else %} m-fc-event--warning{% endif %}"
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
         });
-    </script>
+    });
+</script>
 {% endblock %}
