@@ -65,14 +65,6 @@ def member_dashboard(request, id):
     member = Member.objects.get(id=id)
 
     total_active_accounts = Client.objects.filter(status=1)
-    total_active_seo = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
-    total_active_cro = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
-
-    total_onboarding = Client.objects.filter(status=0).count()
-    total_inactive = Client.objects.filter(status=2).count()
-    total_lost = Client.objects.filter(status=3).count()
-
-    incident_count = Incident.objects.all().count()
 
     # Members, Teams, Roles
     members = Member.objects.all()
@@ -114,8 +106,6 @@ def member_dashboard(request, id):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    # sorted_members_by_count = sorted(members, key=lambda t: t.incidents)
-
     # Total management fee
     # total_management_fee = 0.0
     total_allocated_hours = 0.0
@@ -138,18 +128,47 @@ def member_dashboard(request, id):
     except ZeroDivisionError:
         allocation_ratio = 0.0
 
+    # MONTHLY REPORTS INFO
+    reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False)
+    outstanding_reports = MonthlyReport.objects.filter(year=now.year, month=now.month, date_sent_by_am=None)
+
+    complete_reports = reports.exclude(date_sent_by_am=None).count()
+    report_count = reports.count()
+
+    completion_rate = 0.0
+    if report_count != 0.0:
+        completion_rate = 100.0 * complete_reports / report_count
+
+    ontime_numer = 0.0
+    ontime_denom = 0.0
+    for report in reports:
+        if report.complete_ontime:
+            ontime_numer += 1
+        ontime_denom += 1
+
+    ontime_rate = 0.0
+    if ontime_denom != 0:
+        ontime_rate = 100.0 * ontime_numer / ontime_denom
+
+    # ONBOARDING ACCOUNTS INFO
+    onboarding_accounts = Client.objects.filter(status=0)
+    num_onboarding = onboarding_accounts.count()
+
+    avg_onboarding_days = 0
+    for acc in onboarding_accounts:
+        avg_onboarding_days += acc.onboarding_duration_elapsed
+    if num_onboarding != 0:
+        avg_onboarding_days /= num_onboarding
+
+    late_accounts = len([account for account in onboarding_accounts if account.is_late_to_onboard])
+    late_percentage = 0
+    if num_onboarding != 0:
+        late_percentage = late_accounts / num_onboarding
+
     context = {
         'member': member,
-        'total_active_accounts': total_active_accounts.count(),
-        'total_active_seo': total_active_seo,
-        'total_active_cro': total_active_cro,
-        'total_onboarding': total_onboarding,
-        'total_inactive': total_inactive,
-        'total_lost': total_lost,
         'capacity_rate': capacity_rate,
         'utilization_rate': utilization_rate,
-        'incident_count': incident_count,
-        # 'top_offenders': sorted_members_by_count,
         'allocation_ratio': allocation_ratio,
         'total_allocated_hours': total_allocated_hours,
         'total_hours_worked': total_hours_worked,
@@ -159,6 +178,13 @@ def member_dashboard(request, id):
         'total_hours_trained': training_aggregate,
         'filtered_teams': filtered_teams,
         'filtered_roles': filtered_roles,
+        'completion_rate': completion_rate,
+        'ontime_rate': ontime_rate,
+        'outstanding_reports': outstanding_reports,
+        'onboarding_accounts': onboarding_accounts,
+        'num_onboarding': num_onboarding,
+        'average_onboarding_days': avg_onboarding_days,
+        'onboarding_late_percentage': late_percentage,
         'members': members,
         'teams': teams,
         'roles': roles

@@ -1,5 +1,14 @@
 {% extends 'user_management/profile/layout.html' %}
 
+{% block extraCss %}
+<style>
+    .table-wrapper {
+        max-height: 300px;
+        overflow: auto;
+    }
+</style>
+{% endblock %}
+
 {% load notification_tags %}
 
 
@@ -38,7 +47,7 @@
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text" style="font-size: 1.5rem;">
+                                <h3 class="m-portlet__head-text">
                                     Filter
                                 </h3>
                             </div>
@@ -77,35 +86,35 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-8">
+            <div class="col-xl-12">
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text" style="font-size: 1.5rem;">
+                                <h3 class="m-portlet__head-text">
                                     Hours Report
                                 </h3>
                             </div>
                         </div>
                     </div>
                     <div class="m-portlet__body">
-                        <div class="row justify-content-center">
-                            <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-3">
                                 <div class="bbox shadow p-4 bg-white rounded"
                                      data-toggle="m-tooltip"
-                                     data-original-title="This metric identifies how many hours the team has invested into the time they were assigned.">
+                                     data-original-title="How many hours the team has invested into the time they were assigned">
                                     <h3 class="text-center text-info p-2">
                                         Team Capacity
                                     </h3>
-                                    <h2 class="text-center text-info" id="capacity-display">
+                                    <h1 class="text-center text-info" id="capacity-display">
                                         {{ capacity_rate|floatformat:2 }}%
-                                    </h2>
-                                    <canvas id="capacity-chart" width="200" height="200"></canvas>
+                                    </h1>
+                                    <canvas id="capacity-chart"></canvas>
                                     <div class="row mt-4">
                                         <h5 class="col-md-6 text-center text-info">
                                             {{ allocated_aggregate }}
                                         </h5>
-                                        <h5 class="col-md-6 text-center text-info">
+                                        <h5 class="col-md-6 text-center text-muted">
                                             {{ allocated_aggregate|add:available_aggregate }}
                                         </h5>
                                     </div>
@@ -113,28 +122,28 @@
                                         <h5 class="col-md-6 text-center text-info">
                                             Actual Hours
                                         </h5>
-                                        <h5 class="col-md-6 text-center text-info">
+                                        <h5 class="col-md-6 text-center text-muted">
                                             Allocated Hours
                                         </h5>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="bbox shadow p-4 bg-white rounded"
                                      data-toggle="m-tooltip"
-                                     data-original-title="This metric identifies the capacity of a member determined by the hours assigned to them compared to the total number of hours they have available for the month.">
+                                     data-original-title="The hours assigned compared to total number of hours available for the month">
                                     <h3 class="text-center text-danger p-2">
                                         Team Utilization
                                     </h3>
-                                    <h2 class="text-center text-danger" id="utilization-display">
+                                    <h1 class="text-center text-danger" id="utilization-display">
                                         {{ utilization_rate|floatformat:2 }}%
-                                    </h2>
-                                    <canvas id="utilization-chart" width="200" height="200"></canvas>
+                                    </h1>
+                                    <canvas id="utilization-chart"></canvas>
                                     <div class="row mt-4">
                                         <h5 class="col-md-6 text-center text-danger">
                                             {{ actual_aggregate }}
                                         </h5>
-                                        <h5 class="col-md-6 text-center text-danger">
+                                        <h5 class="col-md-6 text-center text-muted">
                                             {{ allocated_aggregate }}
                                         </h5>
                                     </div>
@@ -142,17 +151,18 @@
                                         <h5 class="col-md-6 text-center text-danger">
                                             Allocated Hours
                                         </h5>
-                                        <h5 class="col-md-6 text-center text-danger">
+                                        <h5 class="col-md-6 text-center text-muted">
                                             Total Hours Available
                                         </h5>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row m-row--no-padding m-row--col-separator-xl pt-5">
-                            <div class="col-md-12">
+                        <div class="row pt-5">
+                            <div class="col-md-12 table-wrapper">
                                 <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                                       id="my_clients_datatable" style="table-layout: fixed;">
+                                       id="my_clients_datatable"
+                                       style="table-layout: fixed;">
                                     <thead class="thead-inverse">
                                     <tr class="main-table-header">
                                         <th>Member</th>
@@ -226,6 +236,180 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Monthly Reports
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="bbox shadow p-4 bg-white rounded">
+                                    <h3 class="text-center text-info` p-2">
+                                        On Time Percentage
+                                    </h3>
+                                    <h1 class="text-center text-info" id="ontime-display">
+                                        {{ ontime_rate|floatformat:2 }}%
+                                    </h1>
+                                    <canvas id="ontime-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bbox shadow p-4 bg-white rounded">
+                                    <h3 class="text-center text-danger p-2">
+                                        Completion Percentage
+                                    </h3>
+                                    <h1 class="text-center text-danger" id="completion-display">
+                                        {{ completion_rate|floatformat:2 }}%
+                                    </h1>
+                                    <canvas id="completion-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pt-5">
+                            <div class="col-md-12 table-wrapper">
+                                <h5>
+                                    Outstanding Monthly Reports
+                                </h5>
+                                <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                       id="my_clients_datatable"
+                                       style="table-layout: fixed;">
+                                    <thead class="thead-inverse">
+                                    <tr class="main-table-header">
+                                        <th>Report Name</th>
+                                        <th>Due Date</th>
+                                        <th>Date Sent to AM</th>
+                                        <th>Date Sent to Client</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for report in outstanding_reports %}
+                                        <tr>
+                                            <td>
+                                                {{ report }}
+                                            </td>
+                                            <td>
+                                                {{ report.due_date }}
+                                            </td>
+                                            <td>
+                                                {{ report.date_sent_to_am }}
+                                            </td>
+                                            <td>
+                                                {{ report.date_sent_by_am }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Onboarding Reports
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="row">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-info p-2">
+                                            Onboarding Accounts
+                                        </h3>
+                                        <h1 class="text-center text-info">
+                                            {{ num_onboarding }}
+                                        </h1>
+                                    </div>
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Average Onboarding Days
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            {{ average_onboarding_days|floatformat:2 }}
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="bbox shadow p-4 bg-white rounded">
+                                    <h3 class="text-center text-danger p-2">
+                                        Late Percentage
+                                    </h3>
+                                    <h1 class="text-center text-danger" id="onboarding-late-display">
+                                        {{ onboarding_late_percentage|floatformat:2 }}%
+                                    </h1>
+                                    <canvas id="onboarding-late-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pt-5">
+                            <div class="col-md-12 table-wrapper">
+                                <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                       id="my_clients_datatable"
+                                       style="table-layout: fixed;">
+                                    <thead class="thead-inverse">
+                                    <tr class="main-table-header">
+                                        <th>Account</th>
+                                        <th>
+                                            Onboarding Since
+                                        </th>
+                                        <th>
+                                            Days of Onboarding
+                                        </th>
+                                        <th>
+                                            Late
+                                        </th>
+                                        <th>
+                                            Reason for lateness
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for account in onboarding_accounts %}
+                                        <tr>
+                                            <td>
+                                                <a href="/clients/accounts/{{ account.id }}">{{ account }}</a>
+                                            </td>
+                                            <td>
+                                                {{ account.created_at }}
+                                            </td>
+                                            <td>
+                                                {{ account.onboarding_duration_elapsed }}
+                                            </td>
+                                            <td>
+                                                {{ account.is_late_to_onboard }}
+                                            </td>
+                                            <td>
+                                                {{ account.late_onboard_reason }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -243,9 +427,7 @@
 
         // capacity percentage pie chart
         let capacityPercentage = parseInt($('#capacity-display').text());
-        if (capacityPercentage > 100) {
-            capacityPercentage = 100; // display 100 on the chart if greater than 100
-        }
+        capacityPercentage > 100 ? capacityPercentage = 100 : null; // display 100 if greater than
         let ctx1 = $('#capacity-chart')[0].getContext('2d');
         let capacityChart = new Chart(ctx1, {
             type: 'doughnut',
@@ -267,18 +449,13 @@
                 tooltips: {
                     enabled: false
                 },
-                rotation: 0.5 * Math.PI,
-                animation: {
-                    animateRotate: true
-                }
+                rotation: 0.5 * Math.PI
             }
         });
 
         // utilization percentage pie chart
         let utilizationPercentage = parseInt($('#utilization-display').text());
-        if (utilizationPercentage > 100) {
-            utilizationPercentage = 100; // display 100 on the chart if greater than 100
-        }
+        utilizationPercentage > 100 ? utilizationPercentage = 100 : null; // display 100 if greater than
         let ctx2 = $('#utilization-chart')[0].getContext('2d');
         let utilizationChart = new Chart(ctx2, {
             type: 'doughnut',
@@ -300,10 +477,91 @@
                 tooltips: {
                     enabled: false
                 },
-                rotation: 0.5 * Math.PI,
-                animation: {
-                    animateRotate: true
-                }
+                rotation: 0.5 * Math.PI
+            }
+        });
+
+        // ontime percentage pie chart
+        let ontimePercentage = parseInt($('#ontime-display').text());
+        ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
+        let ctx3 = $('#ontime-chart')[0].getContext('2d');
+        let ontimeChart = new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [ontimePercentage, 100 - ontimePercentage],
+                    backgroundColor: [
+                        'rgba(27, 135, 205, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(27, 135, 205, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                tooltips: {
+                    enabled: false
+                },
+                rotation: 0.5 * Math.PI
+            }
+        });
+
+        // completion percentage pie chart
+        let completionPercentage = parseInt($('#completion-display').text());
+        completionPercentage > 100 ? completionPercentage = 100 : null;
+        let ctx4 = $('#completion-chart')[0].getContext('2d');
+        let completionChart = new Chart(ctx4, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [completionPercentage, 100 - completionPercentage],
+                    backgroundColor: [
+                        'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                tooltips: {
+                    enabled: false
+                },
+                rotation: 0.5 * Math.PI
+            }
+        });
+
+        // completion percentage pie chart
+        let onboardingLatePercentage = parseInt($('#onboarding-late-percentage').text());
+        onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
+        let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
+        let onboardingLateChart = new Chart(ctx5, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [completionPercentage, 100 - completionPercentage],
+                    backgroundColor: [
+                        'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                tooltips: {
+                    enabled: false
+                },
+                rotation: 0.5 * Math.PI
             }
         });
     </script>
