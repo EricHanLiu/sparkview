@@ -1484,7 +1484,6 @@ class CampaignGrouping(models.Model):
         # If it get's here, the grouping must be done by keywords
 
         account = self.client
-        accs = account.adwords.all()
         adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
         facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
         bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())

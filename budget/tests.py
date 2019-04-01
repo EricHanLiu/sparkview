@@ -63,24 +63,6 @@ class AccountTestCase(TestCase):
 
         account.save()
 
-        # Ad account stuff
-        fb_account = FacebookAccount.objects.create(account_id='456', account_name='test fb acc')
-        bing_account = BingAccounts.objects.create(account_id='789', account_name='test bing acc')
-
-        fb_accounts = [fb_account]
-        bing_accounts = [bing_account]
-
-        account.facebook.set(fb_accounts)
-        account.bing.set(bing_accounts)
-        account.save()
-
-        Campaign.objects.create(campaign_id='123', campaign_name='foo hello', account=test_aw_account)
-        FacebookCampaign.objects.create(campaign_id='456', campaign_name='foo test sup', account=fb_account)
-        BingCampaign.objects.create(campaign_id='789', campaign_name='hello sup', account=bing_account)
-
-        cg1 = CampaignGrouping.objects.create(client=account, group_by='+foo,+hello,-test')
-        cg2 = CampaignGrouping.objects.create(client=account, group_by='+sup,-hello')
-
     def test_budget(self):
         """Makes sure the budget calculating feature is working correctly"""
         account = BloomClient.objects.get(client_name='test client')
@@ -183,27 +165,48 @@ class AccountTestCase(TestCase):
         """Tests editing account"""
         pass
 
-    # def test_campaign_groups(self):
-    #     """
-    #     Tests campaign group functionality
-    #     TODO: I have no idea why this test doesn't work properly
-    #     :return:
-    #     """
-    #     account = BloomClient.objects.get(client_name='test client')
-    #     cg1, created = CampaignGrouping.objects.get_or_create(client=account, group_by='+foo,+hello,-test')
-    #     cg2, created = CampaignGrouping.objects.get_or_create(client=account, group_by='+sup,-hello')
-    #     cg1.update_text_grouping()
-    #     cg2.update_text_grouping()
-    #
-    #     cmp1 = Campaign.objects.get(campaign_id='123')
-    #     cmp2 = FacebookCampaign.objects.get(campaign_id='456')
-    #     cmp3 = BingCampaign.objects.get(campaign_id='789')
-    #
-    #     self.assertIn(cmp1, cg1.aw_campaigns.all())
-    #     self.assertIn(cmp2, cg1.fb_campaigns.all())
-    #     self.assertNotIn(cmp3, cg1.bing_campaigns.all())
-    #
-    #     self.assertNotIn(cmp1, cg2.aw_campaigns.all())
-    #     self.assertIn(cmp2, cg2.fb_campaigns.all())
-    #     self.assertNotIn(cmp3, cg2.bing_campaigns.all())
+    def test_campaign_groups(self):
+        """
+        Tests campaign group functionality
+        :return:
+        """
+        account = BloomClient.objects.create(client_name='test client 2')
+        fb_account = FacebookAccount.objects.create(account_id='4566', account_name='test fb acc')
+        bing_account = BingAccounts.objects.create(account_id='7891', account_name='test bing acc')
+        test_aw_account = DependentAccount.objects.create(dependent_account_id='1234', dependent_account_name='test aw',
+                                                          desired_spend=1000.0)
 
+        Campaign.objects.create(campaign_id='123', campaign_name='foo hello', account=test_aw_account)
+        Campaign.objects.create(campaign_id='101112', campaign_name='sam123', account=test_aw_account)
+        FacebookCampaign.objects.create(campaign_id='456', campaign_name='foo test sup', account=fb_account)
+        BingCampaign.objects.create(campaign_id='789', campaign_name='hello sup', account=bing_account)
+
+        aw_accounts = [test_aw_account]
+        fb_accounts = [fb_account]
+        bing_accounts = [bing_account]
+
+        account.adwords.set(aw_accounts)
+        account.facebook.set(fb_accounts)
+        account.bing.set(bing_accounts)
+        account.save()
+
+        cg1 = CampaignGrouping.objects.create(client=account, group_by='+foo,+hello,-test')
+
+        cg2, created = CampaignGrouping.objects.get_or_create(client=account, group_by='+sup,-hello')
+        cg1.update_text_grouping()
+        cg2.update_text_grouping()
+
+        cmp1 = Campaign.objects.get(campaign_id='123')
+        cmp2 = FacebookCampaign.objects.get(campaign_id='456')
+        cmp3 = BingCampaign.objects.get(campaign_id='789')
+        cmp4 = Campaign.objects.get(campaign_id='101112')
+
+        self.assertIn(cmp1, cg1.aw_campaigns.all())
+        self.assertNotIn(cmp2, cg1.fb_campaigns.all())
+        self.assertIn(cmp3, cg1.bing_campaigns.all())
+        self.assertNotIn(cmp4, cg1.aw_campaigns.all())
+
+        self.assertNotIn(cmp1, cg2.aw_campaigns.all())
+        self.assertIn(cmp2, cg2.fb_campaigns.all())
+        self.assertNotIn(cmp3, cg2.bing_campaigns.all())
+        self.assertNotIn(cmp4, cg2.aw_campaigns.all())
