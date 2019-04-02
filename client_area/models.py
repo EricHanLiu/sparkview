@@ -487,20 +487,22 @@ class SalesProfile(models.Model):
         Returns active services
         :return:
         """
-        active = []
-        if self.account.has_ppc:
-            active.append('PPC')
-        if self.account.has_seo:
-            active.append('SEO')
-        if self.account.has_cro:
-            active.append('CRO')
-        if self.strat_status == 1:
-            active.append('Strat')
-        if self.feed_status == 1:
-            active.append('Feed Management')
-        if self.email_status == 1:
-            active.append('Email Marketing')
-        return ', '.join(active)
+        if not hasattr(self, '_active_services_str'):
+            active = []
+            if self.account.has_ppc:
+                active.append('PPC')
+            if self.account.has_seo:
+                active.append('SEO')
+            if self.account.has_cro:
+                active.append('CRO')
+            if self.strat_status == 1:
+                active.append('Strat')
+            if self.feed_status == 1:
+                active.append('Feed Management')
+            if self.email_status == 1:
+                active.append('Email Marketing')
+            self._active_services_str = ', '.join(active)
+        return self._active_services_str
 
     @property
     def pitched_services_str(self):
@@ -508,20 +510,22 @@ class SalesProfile(models.Model):
         Returns pitched services
         :return:
         """
-        pitched = []
-        if self.ppc_status == 5:
-            pitched.append('PPC')
-        if self.seo_status == 5:
-            pitched.append('SEO')
-        if self.cro_status == 5:
-            pitched.append('CRO')
-        if self.strat_status == 5:
-            pitched.append('Strat')
-        if self.feed_status == 5:
-            pitched.append('Feed Management')
-        if self.email_status == 5:
-            pitched.append('Email Marketing')
-        return ', '.join(pitched)
+        if not hasattr(self, '_pitched_services_str'):
+            pitched = []
+            if self.ppc_status == 5:
+                pitched.append('PPC')
+            if self.seo_status == 5:
+                pitched.append('SEO')
+            if self.cro_status == 5:
+                pitched.append('CRO')
+            if self.strat_status == 5:
+                pitched.append('Strat')
+            if self.feed_status == 5:
+                pitched.append('Feed Management')
+            if self.email_status == 5:
+                pitched.append('Email Marketing')
+            self._pitched_services_str = ', '.join(pitched)
+        return self._pitched_services_str
 
     @property
     def opp_services_str(self):
@@ -529,20 +533,22 @@ class SalesProfile(models.Model):
         Returns opportunity services
         :return:
         """
-        opp = []
-        if self.ppc_status == 4:
-            opp.append('PPC')
-        if self.seo_status == 4:
-            opp.append('SEO')
-        if self.cro_status == 4:
-            opp.append('CRO')
-        if self.strat_status == 4:
-            opp.append('Strat')
-        if self.feed_status == 4:
-            opp.append('Feed Management')
-        if self.email_status == 4:
-            opp.append('Email Marketing')
-        return ', '.join(opp)
+        if not hasattr(self, '_opp_services_str'):
+            opp = []
+            if self.ppc_status == 4:
+                opp.append('PPC')
+            if self.seo_status == 4:
+                opp.append('SEO')
+            if self.cro_status == 4:
+                opp.append('CRO')
+            if self.strat_status == 4:
+                opp.append('Strat')
+            if self.feed_status == 4:
+                opp.append('Feed Management')
+            if self.email_status == 4:
+                opp.append('Email Marketing')
+            self._opp_services_str = ', '.join(opp)
+        return self._opp_services_str
 
     def __init__(self, *args, **kwargs):
         super(SalesProfile, self).__init__(*args, **kwargs)

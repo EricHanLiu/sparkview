@@ -37,10 +37,14 @@
             <tbody>
               {% for sp in sps %}
               <tr>
-                <td>{{ sp.account }}</td>
+                <td><a href="/clients/accounts/{{ sp.account.id }}">{{ sp.account }}</a></td>
                 <td>{{ sp.active_services_str }}</td>
-                <td>{{ sp.pitched_services_str }}</td>
-                <td>{{ sp.opp_services_str }}</td>
+                <td>
+                    {{ sp.pitched_services_str }}
+                </td>
+                <td>
+                    {{ sp.opp_services_str }}
+                </td>
               </tr>
               {% endfor %}
             </tbody>
