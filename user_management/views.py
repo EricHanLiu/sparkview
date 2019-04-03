@@ -175,9 +175,31 @@ def member_dashboard(request, id):
         avg_onboarding_days /= num_onboarding
 
     late_accounts = len([account for account in onboarding_accounts if account.is_late_to_onboard])
-    late_percentage = 0
+    print(late_accounts, num_onboarding)
+    late_percentage = 0.0
     if num_onboarding != 0:
-        late_percentage = late_accounts / num_onboarding
+        late_percentage = 100.0 * late_accounts / num_onboarding
+
+    # BUDGETS INFO
+    # Monthly budget updates
+    budget_updated_accounts = total_active_accounts.filter(budget_updated=True)
+    budget_not_updated_accounts = total_active_accounts.filter(budget_updated=False)
+    budget_updated_percentage = 0.0
+    if total_active_accounts.count() != 0:
+        budget_updated_percentage = 100.0 * budget_updated_accounts.count() / total_active_accounts.count()
+
+    # Overspend projection - get top 5 overspending and underspending accounts
+    overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, total_active_accounts),
+                                key=lambda a: a.projected_refund)[0:5]
+    underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, total_active_accounts),
+                                 key=lambda a: a.projected_loss)[0:5]
+
+    total_projected_loss = 0.0
+    total_projected_overspend = 0.0
+    for account in overspend_accounts:
+        total_projected_overspend += account.project_yesterday - account.current_budget
+    for account in underspend_accounts:
+        total_projected_loss += account.projected_loss
 
     context = {
         'member': member,
@@ -202,6 +224,12 @@ def member_dashboard(request, id):
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,
         'onboarding_late_percentage': late_percentage,
+        'budget_notupdated_clients': budget_not_updated_accounts,
+        'budget_updated_percentage': budget_updated_percentage,
+        'overspend_accounts': overspend_accounts,
+        'total_overspend_risk': total_projected_overspend,
+        'underspend_accounts': underspend_accounts,
+        'total_projected_loss': total_projected_loss,
         'members': members,
         'teams': teams,
         'roles': roles

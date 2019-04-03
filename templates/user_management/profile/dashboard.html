@@ -262,7 +262,7 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="bbox shadow p-4 bg-white rounded">
-                                        <h3 class="text-center text-info` p-2">
+                                        <h3 class="text-center text-info p-2">
                                             On Time Percentage
                                         </h3>
                                         <h1 class="text-center text-info" id="ontime-display">
@@ -472,23 +472,21 @@
                         <div class="m-portlet__body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <div class="row">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-info p-2">
-                                                Onboarding Accounts
-                                            </h3>
-                                            <h1 class="text-center text-info">
-                                                {{ num_onboarding }}
-                                            </h1>
-                                        </div>
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-warning p-2">
-                                                Average Onboarding Days
-                                            </h3>
-                                            <h1 class="text-center text-warning">
-                                                {{ average_onboarding_days|floatformat:2 }}
-                                            </h1>
-                                        </div>
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-info p-2">
+                                            Onboarding Accounts
+                                        </h3>
+                                        <h1 class="text-center text-info">
+                                            {{ num_onboarding }}
+                                        </h1>
+                                    </div>
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Average Onboarding Days
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            {{ average_onboarding_days|floatformat:2 }}
+                                        </h1>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -546,6 +544,174 @@
                                         {% endfor %}
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#budget-body">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Budget Reports
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse show" id="budget-body">
+                        <div class="m-portlet__body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-info p-2">
+                                            Updated Budgets Percentage
+                                        </h3>
+                                        <h1 class="text-center text-info" id="budget-updated-display">
+                                            {{ budget_updated_percentage|floatformat:2 }}%
+                                        </h1>
+                                        <canvas id="budget-updated-chart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="bbox shadow p-4 bg-white rounded">
+                                        <h3 class="text-center text-info">
+                                            Unconfirmed Accounts
+                                        </h3>
+                                    </div>
+                                    <div class="bbox shadow p-4 bg-white rounded table-wrapper">
+                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-inverse">
+                                            <tr class="main-table-header">
+                                                <th>Account</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for account in budget_not_updated_accounts %}
+                                                <tr>
+                                                    <td>
+                                                        {{ client }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-danger p-2">
+                                            Number of Overspend Accounts
+                                        </h3>
+                                        <h1 class="text-center text-danger">
+                                            {{ overspend_accounts|length }}
+                                        </h1>
+                                    </div>
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-danger p-2">
+                                            Total Refund Amount
+                                        </h3>
+                                        <h1 class="text-center text-danger">
+                                            ${{ total_overspend_risk|floatformat:2 }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="bbox shadow p-4 bg-white rounded table-wrapper">
+                                        <h3 class="text-center text-danger">
+                                            Projected Overspend Accounts
+                                        </h3>
+                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-inverse">
+                                            <tr class="main-table-header">
+                                                <th>Account</th>
+                                                <th>Budget</th>
+                                                <th>Spend</th>
+                                                <th>Projected Spend</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for account in overspend_accounts %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.current_budget|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.current_spend|floatformat:2 }}
+                                                    </td>
+                                                    <td style="color: #f4516c;">
+                                                        ${{ account.project_yesterday|floatformat:2 }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Number of Underspend Accounts
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            {{ underspend_accounts|length }}
+                                        </h1>
+                                    </div>
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Total Projected Opportunity Lost
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            ${{ total_projected_loss|floatformat:2 }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="bbox shadow p-4 bg-white rounded table-wrapper">
+                                        <h3 class="text-center text-warning">
+                                            Projected Underspend Accounts
+                                        </h3>
+                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-inverse">
+                                            <tr class="main-table-header">
+                                                <th>Account</th>
+                                                <th>Budget</th>
+                                                <th>Spend</th>
+                                                <th>Projected Loss</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for account in underspend_accounts %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.current_budget|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.current_spend|floatformat:2 }}
+                                                    </td>
+                                                    <td style="color: #ffb822;">
+                                                        ${{ account.projected_loss|floatformat:2 }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -681,20 +847,48 @@
         });
 
         // completion percentage pie chart
-        let onboardingLatePercentage = parseInt($('#onboarding-late-percentage').text());
+        let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
         onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
         let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
         let onboardingLateChart = new Chart(ctx5, {
             type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [completionPercentage, 100 - completionPercentage],
+                    data: [onboardingLatePercentage, 100 - onboardingLatePercentage],
                     backgroundColor: [
                         'rgba(220, 41, 41, 0.5)',
                         'rgba(241, 233, 231, 0.5)'
                     ],
                     borderColor: [
                         'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                tooltips: {
+                    enabled: false
+                },
+                rotation: 0.5 * Math.PI
+            }
+        });
+
+        // ontime percentage pie chart
+        let budgetUpdatedPercentage = parseInt($('#budget-updated-display').text());
+        budgetUpdatedPercentage > 100 ? budgetUpdatedPercentage = 100 : null; // display 100 if greater than
+        let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
+        let budgetUpdatedChart = new Chart(ctx6, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [budgetUpdatedPercentage, 100 - budgetUpdatedPercentage],
+                    backgroundColor: [
+                        'rgba(27, 135, 205, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(27, 135, 205, 0.5)',
                         'rgba(241, 233, 231, 0.5)'
                     ],
                     borderWidth: 1
