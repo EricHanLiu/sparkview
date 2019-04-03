@@ -169,7 +169,7 @@
                             </div>
                             <div class="row pt-5">
                                 <div class="col-md-12 table-wrapper">
-                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                    <table class='table order-column table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
                                         <thead class="thead-inverse">
                                         <tr class="main-table-header">
@@ -268,7 +268,7 @@
                                         <h1 class="text-center text-info" id="ontime-display">
                                             {{ ontime_rate|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="ontime-chart"></canvas>
+                                        <canvas id="ontime-chart" height="100px"></canvas>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -279,7 +279,7 @@
                                         <h1 class="text-center text-danger" id="completion-display">
                                             {{ completion_rate|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="completion-chart"></canvas>
+                                        <canvas id="completion-chart" height="100px"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -288,7 +288,7 @@
                                     <h5>
                                         Outstanding Monthly Reports
                                     </h5>
-                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                    <table class='table table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
                                         <thead class="thead-inverse">
                                         <tr class="main-table-header">
@@ -347,10 +347,10 @@
                                         </h1>
                                     </div>
                                     <div class="bbox shadow p-4 bg-white rounded w-100">
-                                        <h3 class="text-center text-warning p-2">
+                                        <h3 class="text-center text-info p-2">
                                             Average Onboarding Days
                                         </h3>
-                                        <h1 class="text-center text-warning">
+                                        <h1 class="text-center text-info">
                                             {{ average_onboarding_days|floatformat:2 }}
                                         </h1>
                                     </div>
@@ -363,13 +363,13 @@
                                         <h1 class="text-center text-danger" id="onboarding-late-display">
                                             {{ onboarding_late_percentage|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="onboarding-late-chart"></canvas>
+                                        <canvas id="onboarding-late-chart" height="100px"></canvas>
                                     </div>
                                 </div>
                             </div>
                             <div class="row pt-5">
                                 <div class="col-md-12 table-wrapper">
-                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                    <table class='table table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
                                         <thead class="thead-inverse">
                                         <tr class="main-table-header">
@@ -439,7 +439,7 @@
                                         </h3>
                                         {% if promos_start_today.count > 0 %}
                                             <div class="table-wrapper">
-                                                <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline promo-dt'>
+                                                <table class='table table-hover dataTable my_clients_datatable'>
                                                     <thead class="thead-inverse">
                                                     <tr class="main-table-header">
                                                         <th>Account</th>
@@ -490,7 +490,7 @@
                                         </h3>
                                         {% if promos_end_today.count > 0 %}
                                             <div class="table-wrapper">
-                                                <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline promo-dt'>
+                                                <table class='table table-hover dataTable my_clients_datatable'>
                                                     <thead class="thead-inverse">
                                                     <tr class="main-table-header">
                                                         <th>Account</th>
@@ -572,7 +572,7 @@
                                         <h1 class="text-center text-info" id="budget-updated-display">
                                             {{ budget_updated_percentage|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="budget-updated-chart"></canvas>
+                                        <canvas id="budget-updated-chart" height="100px"></canvas>
                                     </div>
                                 </div>
                                 <div class="col-md-9">
@@ -580,7 +580,7 @@
                                         <h3 class="text-center text-info">
                                             Unconfirmed Accounts
                                         </h3>
-                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                        <table class='table table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -624,7 +624,7 @@
                                         <h3 class="text-center text-danger">
                                             Projected Overspend Accounts
                                         </h3>
-                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                        <table class='table table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -678,7 +678,7 @@
                                         <h3 class="text-center text-warning">
                                             Projected Underspend Accounts
                                         </h3>
-                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                        <table class='table table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -742,7 +742,7 @@
                                 </div>
                                 <div class="col-md-8 table-wrapper">
                                     <div class="row">
-                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                        <table class='table table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -779,7 +779,7 @@
                                 </div>
                                 <div class="col-md-8 table-wrapper">
                                     <div class="row">
-                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                        <table class='table table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -833,7 +833,7 @@
                                 </div>
                                 <div class="col-md-8 table-wrapper">
                                     <div class="row">
-                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                        <table class='table table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -930,11 +930,7 @@
                     xAxes: [{
                         ticks: {
                             min: 0,
-                            max: totalHours,
-                            display: false
-                        },
-                        gridLines: {
-                            display: false
+                            max: totalHours += 50 - totalHours % 50
                         }
                     }]
                 },
@@ -956,7 +952,6 @@
             data: {
                 datasets: [{
                     data: [actualHours, allocatedHours2],
-                    label: '',
                     backgroundColor: [
                         'rgb(244, 81, 108, 0.7)'
                     ],
@@ -974,11 +969,7 @@
                     xAxes: [{
                         ticks: {
                             min: 0,
-                            max: allocatedHours2,
-                            display: false
-                        },
-                        gridLines: {
-                            display: false
+                            max: allocatedHours2 += 50 - allocatedHours % 50,
                         }
                     }]
                 },
@@ -996,26 +987,37 @@
         ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
         let ctx3 = $('#ontime-chart')[0].getContext('2d');
         new Chart(ctx3, {
-            type: 'doughnut',
+            type: 'horizontalBar',
             data: {
                 datasets: [{
-                    data: [ontimePercentage, 100 - ontimePercentage],
+                    data: [ontimePercentage],
                     backgroundColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(54, 163, 247, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(54, 163, 247, 0.7)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.5
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: 100
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
                 tooltips: {
                     enabled: false
-                },
-                rotation: 0.5 * Math.PI
+                }
             }
         });
 
@@ -1024,26 +1026,37 @@
         completionPercentage > 100 ? completionPercentage = 100 : null;
         let ctx4 = $('#completion-chart')[0].getContext('2d');
         new Chart(ctx4, {
-            type: 'doughnut',
+            type: 'horizontalBar',
             data: {
                 datasets: [{
-                    data: [completionPercentage, 100 - completionPercentage],
+                    data: [completionPercentage],
                     backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(244, 81, 108, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(244, 81, 108, 0.7)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.5
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: 100
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
                 tooltips: {
                     enabled: false
-                },
-                rotation: 0.5 * Math.PI
+                }
             }
         });
 
@@ -1052,26 +1065,37 @@
         onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
         let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
         new Chart(ctx5, {
-            type: 'doughnut',
+            type: 'horizontalBar',
             data: {
                 datasets: [{
-                    data: [onboardingLatePercentage, 100 - onboardingLatePercentage],
+                    data: [onboardingLatePercentage],
                     backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(244, 81, 108, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(244, 81, 108, 0.7)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.5
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: 100
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
                 tooltips: {
                     enabled: false
-                },
-                rotation: 0.5 * Math.PI
+                }
             }
         });
 
@@ -1080,26 +1104,37 @@
         budgetUpdatedPercentage > 100 ? budgetUpdatedPercentage = 100 : null; // display 100 if greater than
         let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
         new Chart(ctx6, {
-            type: 'doughnut',
+            type: 'horizontalBar',
             data: {
                 datasets: [{
-                    data: [budgetUpdatedPercentage, 100 - budgetUpdatedPercentage],
+                    data: [budgetUpdatedPercentage],
                     backgroundColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(54, 163, 247, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(54, 163, 247, 0.7)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.5
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: 100
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
                 tooltips: {
                     enabled: false
-                },
-                rotation: 0.5 * Math.PI
+                }
             }
         });
 
