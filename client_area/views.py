@@ -71,6 +71,43 @@ def accounts_all(request):
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
+        'page_type': 'Active',
+        'status_badges': status_badges,
+        'accounts': accounts
+    }
+
+    return render(request, 'client_area/accounts_all.html', context)
+
+
+@login_required
+def accounts_inactive(request):
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(status=2)
+
+    status_badges = ['info', 'success', 'warning', 'danger']
+
+    context = {
+        'page_type': 'Inactive',
+        'status_badges': status_badges,
+        'accounts': accounts
+    }
+
+    return render(request, 'client_area/accounts_all.html', context)
+
+
+@login_required
+def accounts_lost(request):
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(status=3)
+
+    status_badges = ['info', 'success', 'warning', 'danger']
+
+    context = {
+        'page_type': 'Lost',
         'status_badges': status_badges,
         'accounts': accounts
     }
@@ -787,9 +824,8 @@ def add_hours_to_account(request):
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-        ).order_by('client_name')
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
         accounts_count = accounts.count()
-
         for i in range(accounts_count):
             i = str(i)
             account_id = request.POST.get('account-id-' + i)
@@ -1406,6 +1442,7 @@ def onboard_account(request, account_id):
 
         step_complete = 0
         if task.step.complete:
+            # TODO: Change sales profile statuses here I believe
             step_complete = 1
 
         acc_active = 1
