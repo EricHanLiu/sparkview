@@ -1,7 +1,18 @@
 from django.contrib import admin
 from .models import Promo, MonthlyReport, Service, Language, ClientType, Industry, ManagementFeesStructure, \
     ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord, OnboardingTask, OnboardingTaskAssignment, \
-    OnboardingStep, OnboardingStepAssignment, PhaseTaskAssignment, PhaseTask, LifecycleEvent
+    OnboardingStep, OnboardingStepAssignment, PhaseTaskAssignment, PhaseTask, LifecycleEvent, SalesProfile, \
+    SalesProfileChange, OpportunityDescription, PitchedDescription
+
+
+@admin.register(OpportunityDescription)
+class OpportunityDescriptionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(PitchedDescription)
+class PitchedDescriptionAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Service)
@@ -91,4 +102,14 @@ class PhaseTaskAssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(LifecycleEvent)
 class LifecycleEventAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(SalesProfile)
+class SalesProfileAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(SalesProfileChange)
+class SalesProfileChangeAdmin(admin.ModelAdmin):
     pass

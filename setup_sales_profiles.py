@@ -20,7 +20,7 @@ def main():
                 profile.seo_status = 1
             if account.has_cro:
                 profile.cro_status = 1
-            if account.has_ppc:
+            if account.has_ppc or account.has_adwords or account.has_fb or account.has_bing:
                 profile.ppc_status = 1
         profile.save()
 
