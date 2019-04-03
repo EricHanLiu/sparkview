@@ -232,7 +232,7 @@ class Member(models.Model):
 
     def allocated_hours_month(self):
         if not hasattr(self, '_allocatedHoursMonth'):
-            accounts = self.accounts
+            accounts = self.active_accounts
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)
@@ -337,6 +337,10 @@ class Member(models.Model):
         return self._accounts
 
     @property
+    def active_accounts(self):
+        return self.accounts.filter(status=1)
+
+    @property
     def onboard_active_accounts(self):
         """
         Only onboarding and active accounts
@@ -359,9 +363,7 @@ class Member(models.Model):
 
     @property
     def active_accounts_count(self):
-        if not hasattr(self, '_active_accounts_count'):
-            self._active_accounts_count = self.accounts.filter(status=1).count()
-        return self._active_accounts_count
+        return self.active_accounts.count()
 
     @property
     def onboarding_accounts_count(self):

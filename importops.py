@@ -110,14 +110,14 @@ for row in reader:
     seo_hours = row[33]
     cro_hours = row[34]
 
-    # SEO first
-    if (seo_hours != '' and float(seo_hours) != 0.0):
-        account.has_seo = True
-        account.seo_hours = float(seo_hours)
-    # CRO
-    if (cro_hours != '' and float(cro_hours) != 0.0):
-        account.has_cro = True
-        account.cro_hours = float(cro_hours)
+    # # SEO first
+    # if (seo_hours != '' and float(seo_hours) != 0.0):
+    #     account.has_seo = True
+    #     account.seo_hours = float(seo_hours)
+    # # CRO
+    # if (cro_hours != '' and float(cro_hours) != 0.0):
+    #     account.has_cro = True
+    #     account.cro_hours = float(cro_hours)
 
     am1 = row[42]
     cm1 = row[43]

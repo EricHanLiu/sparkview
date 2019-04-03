@@ -17,6 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from . import registration_views as lviews
 from . import profile_views as profile
+from . import other_views as other_views
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import (
@@ -54,6 +55,7 @@ urlpatterns = [
     url(r'^notifications/', include('notifications.urls', namespace='notifications')),
     url(r'^reports/', include('reports.urls', namespace='reports')),
     url(r'^admin/', admin.site.urls),
+    url(r'^release_notes$', other_views.release_notes)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 admin.site.site_header = 'Bloom Admin'

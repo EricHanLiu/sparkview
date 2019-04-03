@@ -54,9 +54,9 @@ class Client(models.Model):
                      (3, 'Three')]
 
     client_name = models.CharField(max_length=255, default='None')
-    adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True, related_name='adwords')
-    bing = models.ManyToManyField(bing_a.BingAccounts, blank=True, related_name='bing')
-    facebook = models.ManyToManyField(fb.FacebookAccount, blank=True, related_name='facebook')
+    adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True)
+    bing = models.ManyToManyField(bing_a.BingAccounts, blank=True)
+    facebook = models.ManyToManyField(fb.FacebookAccount, blank=True)
     current_spend = models.FloatField(default=0)
     # yesterday_spend = models.FloatField(default=0)
     aw_yesterday = models.FloatField(default=0)
@@ -118,14 +118,10 @@ class Client(models.Model):
     services = models.ManyToManyField(Service, blank=True, related_name='services')
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
-    has_seo = models.BooleanField(default=False)
     seo_hours = models.FloatField(default=0)
     seo_hourly_fee = models.FloatField(default=125.0)
-    has_cro = models.BooleanField(default=False)
     cro_hours = models.FloatField(default=0)
     cro_hourly_fee = models.FloatField(default=125.0)
-    has_ppc = models.BooleanField(default=False)  # may use these for onboarding
-    has_strat = models.BooleanField(default=False)  # may use these for onboarding
     status = models.IntegerField(default=0, choices=STATUS_CHOICES)
     clientGrade = models.IntegerField(default=0)
     actualHours = models.IntegerField(default=0)
@@ -184,6 +180,46 @@ class Client(models.Model):
     strat1percent = models.FloatField(default=0)
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
+
+    @property
+    def has_ppc(self):
+        """
+        Check the sales profile (service list) of this client to see if ppc is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.ppc_status == 1
+        else:
+            return False
+
+    @property
+    def has_seo(self):
+        """
+        Check the sales profile (service list) of this client to see if seo is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.seo_status == 1
+        else:
+            return False
+
+    @property
+    def has_cro(self):
+        """
+        Check the sales profile (service list) of this client to see if cro is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.cro_status == 1
+        else:
+            return False
+
+    @property
+    def is_onboarding_ppc(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.ppc_status == 0
+        else:
+            return False
 
     @property
     def calculated_tier(self):
@@ -524,7 +560,7 @@ class Client(models.Model):
         Loops through every interval in the management fee structure, determines
         """
         if not hasattr(self, '_ppc_fee'):
-            if self.status == 1:
+            if self.has_ppc:
                 fee = self.get_fee_by_spend(self.current_full_budget)
                 self._ppc_fee = round(fee, 2)
             else:
@@ -555,7 +591,7 @@ class Client(models.Model):
         # If status is lost or inactive, just return 0
         if self.status == 2 or self.status == 3:
             return 0
-        if self.status == 0 and self.managementFee is not None:
+        if self.is_onboarding_ppc and self.managementFee is not None:
             initial_fee = self.managementFee.initialFee
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
@@ -1106,11 +1142,13 @@ class Client(models.Model):
 
     @property
     def sales_profile(self):
-        try:
-            profile = SalesProfile.objects.get(account=self)
-        except SalesProfile.DoesNotExist:
-            profile = None
-        return profile
+        if not hasattr(self, '_sales_profile'):
+            try:
+                profile = SalesProfile.objects.get(account=self)
+            except SalesProfile.DoesNotExist:
+                profile = None
+            self._sales_profile = profile
+        return self._sales_profile
 
     @property
     def services(self):
@@ -1293,7 +1331,10 @@ class FlightBudget(models.Model):
 
 
 class CampaignGrouping(models.Model):
+    TYPE_CHOICES = [(0, 'all'), (1, 'manual'), (2, 'text')]
+
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
+    group_type = models.IntegerField(default=0, choices=TYPE_CHOICES)
     group_name = models.CharField(max_length=255, default='')
     group_by = models.CharField(max_length=255, default='')
     adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
@@ -1309,8 +1350,8 @@ class CampaignGrouping(models.Model):
     budget = models.FloatField(default=0)
     bing = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
     facebook = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True)
-    end_date = models.DateField(blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True, default=None)
+    end_date = models.DateField(blank=True, null=True, default=None)
 
     @property
     def current_aw_spend(self):
@@ -1433,49 +1474,63 @@ class CampaignGrouping(models.Model):
         Updates the accounts of the group if this does text parsing
         :return:
         """
-        if self.group_by == 'manual':
+        if self.group_by == 'manual' or self.group_by == 'all':
             return
 
-        if self.group_by == 'text':  # Just to double check
-            account = self.client
-            adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
-            facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
-            bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
+        # If it get's here, the grouping must be done by keywords
 
-            keywords = self.group_by.split(',')
+        account = self.client
+        adwords_campaigns = adwords_a.Campaign.objects.filter(account__in=account.adwords.all())
+        facebook_campaigns = fb.FacebookCampaign.objects.filter(account__in=account.facebook.all())
+        bing_campaigns = bing_a.BingCampaign.objects.filter(account__in=account.bing.all())
 
-            aw_campaigns_in_group = []
-            for adwords_campaign in adwords_campaigns:
-                for keyword in keywords:
-                    if adwords_campaign in aw_campaigns_in_group:
+        keywords = self.group_by.split(',')
+
+        aw_campaigns_in_group = []
+        for adwords_campaign in adwords_campaigns:
+            for keyword in keywords:
+                # In this case, we want to remove the campaign if its in the group and then break
+                if '-' in keyword:
+                    if keyword.strip().strip('-').lower().strip() in adwords_campaign.campaign_name.lower():
+                        if adwords_campaign in aw_campaigns_in_group:
+                            aw_campaigns_in_group.remove(adwords_campaign)
                         break
-                    if '+' in keyword:
-                        if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in adwords_campaign.campaign_name.lower():
+                        if adwords_campaign not in aw_campaigns_in_group:
                             aw_campaigns_in_group.append(adwords_campaign)
 
-            self.aw_campaigns.set(aw_campaigns_in_group)
+        self.aw_campaigns.set(aw_campaigns_in_group)
 
-            fb_campaigns_in_group = []
-            for facebook_campaign in facebook_campaigns:
-                for keyword in keywords:
-                    if facebook_campaign in fb_campaigns_in_group:
+        fb_campaigns_in_group = []
+        for facebook_campaign in facebook_campaigns:
+            for keyword in keywords:
+                if '-' in keyword:
+                    if keyword.strip().strip('-').lower().strip() in facebook_campaign.campaign_name.lower():
+                        if facebook_campaign in fb_campaigns_in_group:
+                            fb_campaigns_in_group.remove(facebook_campaign)
                         break
-                    if '+' in keyword:
-                        if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in facebook_campaign.campaign_name.lower():
+                        if facebook_campaign not in fb_campaigns_in_group:
                             fb_campaigns_in_group.append(facebook_campaign)
 
-            self.fb_campaigns.set(fb_campaigns_in_group)
+        self.fb_campaigns.set(fb_campaigns_in_group)
 
-            bing_campaigns_in_group = []
-            for bing_campaign in bing_campaigns:
-                for keyword in keywords:
-                    if bing_campaign in bing_campaigns_in_group:
+        bing_campaigns_in_group = []
+        for bing_campaign in bing_campaigns:
+            for keyword in keywords:
+                if '-' in keyword:
+                    if keyword.strip().strip('-').lower().strip() in bing_campaign.campaign_name.lower():
+                        if bing_campaign in bing_campaigns_in_group:
+                            bing_campaigns_in_group.remove(bing_campaign)
                         break
-                    if '+' in keyword:
-                        if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
+                if '+' in keyword:
+                    if keyword.strip().strip('+').lower().strip() in bing_campaign.campaign_name.lower():
+                        if bing_campaign not in bing_campaigns_in_group:
                             bing_campaigns_in_group.append(bing_campaign)
 
-            self.bing_campaigns.set(bing_campaigns_in_group)
+        self.bing_campaigns.set(bing_campaigns_in_group)
 
     def update_all_grouping(self):
         """
