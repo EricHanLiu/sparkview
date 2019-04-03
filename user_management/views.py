@@ -238,7 +238,7 @@ def member_dashboard(request, id):
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,
         'onboarding_late_percentage': late_percentage,
-        'budget_notupdated_clients': budget_not_updated_accounts,
+        'budget_not_updated_accounts': budget_not_updated_accounts,
         'budget_updated_percentage': budget_updated_percentage,
         'overspend_accounts': overspend_accounts,
         'total_overspend_risk': total_projected_overspend,
