@@ -10,7 +10,8 @@ import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
 from budget.models import Client
-from client_area.models import AccountHourRecord, MonthlyReport, Promo
+from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment
+from notifications.models import Notification
 
 
 @login_required
@@ -208,6 +209,11 @@ def member_dashboard(request, id):
         total_projected_loss += account.projected_loss
 
     # NOTIFICATIONS INFO
+    num_outstanding_notifs = Notification.objects.filter(confirmed=False, member__in=members).count()
+    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False, account__in=accounts).count()
+
+    # FLAGGED ACCOUNTS INFO
+    flagged_accounts = accounts.filter(star_flag=True)
 
     context = {
         'member': member,
@@ -238,6 +244,9 @@ def member_dashboard(request, id):
         'total_overspend_risk': total_projected_overspend,
         'underspend_accounts': underspend_accounts,
         'total_projected_loss': total_projected_loss,
+        'num_outstanding_notifs': num_outstanding_notifs,
+        'num_outstanding_90_days': num_outstanding_90_days,
+        'flagged_accounts': flagged_accounts,
         'members': members,
         'teams': teams,
         'roles': roles

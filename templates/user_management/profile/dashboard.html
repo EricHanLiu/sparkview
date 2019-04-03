@@ -108,36 +108,36 @@
                     <div class="collapse show" id="hours-body">
                         <div class="m-portlet__body">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded"
                                          data-toggle="m-tooltip"
                                          data-original-title="How many hours the team has invested into the time they were assigned">
                                         <h3 class="text-center text-info p-2">
                                             Team Capacity
                                         </h3>
-                                        <h1 class="text-center text-info" id="capacity-display">
+                                        <h1 class="text-center text-info">
                                             {{ capacity_rate|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="capacity-chart"></canvas>
+                                        <canvas id="capacity-chart" height="50px"></canvas>
                                         <div class="row mt-4">
-                                            <h5 class="col-md-6 text-center text-info">
+                                            <h5 class="col-md-6 text-center text-info" id="allocated-hours-display">
                                                 {{ allocated_aggregate }}
                                             </h5>
-                                            <h5 class="col-md-6 text-center text-muted">
+                                            <h5 class="col-md-6 text-center text-muted" id="total-hours-display">
                                                 {{ allocated_aggregate|add:available_aggregate }}
                                             </h5>
                                         </div>
                                         <div class="row">
                                             <h5 class="col-md-6 text-center text-info">
-                                                Actual Hours
+                                                Allocated Hours
                                             </h5>
                                             <h5 class="col-md-6 text-center text-muted">
-                                                Allocated Hours
+                                                Total Hours Available
                                             </h5>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded"
                                          data-toggle="m-tooltip"
                                          data-original-title="The hours assigned compared to total number of hours available for the month">
@@ -147,21 +147,21 @@
                                         <h1 class="text-center text-danger" id="utilization-display">
                                             {{ utilization_rate|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="utilization-chart"></canvas>
+                                        <canvas id="utilization-chart" height="50px"></canvas>
                                         <div class="row mt-4">
-                                            <h5 class="col-md-6 text-center text-danger">
+                                            <h5 class="col-md-6 text-center text-danger" id="actual-hours-display">
                                                 {{ actual_aggregate }}
                                             </h5>
-                                            <h5 class="col-md-6 text-center text-muted">
+                                            <h5 class="col-md-6 text-center text-muted" id="allocated-hours-display-2">
                                                 {{ allocated_aggregate }}
                                             </h5>
                                         </div>
                                         <div class="row">
                                             <h5 class="col-md-6 text-center text-danger">
-                                                Allocated Hours
+                                                Actual Hours
                                             </h5>
                                             <h5 class="col-md-6 text-center text-muted">
-                                                Total Hours Available
+                                                Allocated Hours
                                             </h5>
                                         </div>
                                     </div>
@@ -246,7 +246,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-12">
+            <div class="col-xl-6">
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#monthly-body">
                         <div class="m-portlet__head-caption">
@@ -260,7 +260,7 @@
                     <div class="collapse show" id="monthly-body">
                         <div class="m-portlet__body">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded">
                                         <h3 class="text-center text-info p-2">
                                             On Time Percentage
@@ -271,7 +271,7 @@
                                         <canvas id="ontime-chart"></canvas>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded">
                                         <h3 class="text-center text-danger p-2">
                                             Completion Percentage
@@ -312,6 +312,99 @@
                                                 </td>
                                                 <td>
                                                     {{ report.date_sent_by_am }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#onboarding-body">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Onboarding Reports
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse show" id="onboarding-body">
+                        <div class="m-portlet__body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-info p-2">
+                                            Onboarding Accounts
+                                        </h3>
+                                        <h1 class="text-center text-info">
+                                            {{ num_onboarding }}
+                                        </h1>
+                                    </div>
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Average Onboarding Days
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            {{ average_onboarding_days|floatformat:2 }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bbox shadow p-4 bg-white rounded">
+                                        <h3 class="text-center text-danger p-2">
+                                            Late Percentage
+                                        </h3>
+                                        <h1 class="text-center text-danger" id="onboarding-late-display">
+                                            {{ onboarding_late_percentage|floatformat:2 }}%
+                                        </h1>
+                                        <canvas id="onboarding-late-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-5">
+                                <div class="col-md-12 table-wrapper">
+                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                           style="table-layout: fixed;">
+                                        <thead class="thead-inverse">
+                                        <tr class="main-table-header">
+                                            <th>Account</th>
+                                            <th>
+                                                Onboarding Since
+                                            </th>
+                                            <th>
+                                                Days of Onboarding
+                                            </th>
+                                            <th>
+                                                Late
+                                            </th>
+                                            <th>
+                                                Reason for lateness
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for account in onboarding_accounts %}
+                                            <tr>
+                                                <td>
+                                                    <a href="/clients/accounts/{{ account.id }}">{{ account }}</a>
+                                                </td>
+                                                <td>
+                                                    {{ account.created_at }}
+                                                </td>
+                                                <td>
+                                                    {{ account.onboarding_duration_elapsed }}
+                                                </td>
+                                                <td>
+                                                    {{ account.is_late_to_onboard }}
+                                                </td>
+                                                <td>
+                                                    {{ account.late_onboard_reason }}
                                                 </td>
                                             </tr>
                                         {% endfor %}
@@ -459,101 +552,6 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#onboarding-body">
-                        <div class="m-portlet__head-caption">
-                            <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text">
-                                    Onboarding Reports
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="collapse show" id="onboarding-body">
-                        <div class="m-portlet__body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="bbox shadow p-4 bg-white rounded w-100">
-                                        <h3 class="text-center text-info p-2">
-                                            Onboarding Accounts
-                                        </h3>
-                                        <h1 class="text-center text-info">
-                                            {{ num_onboarding }}
-                                        </h1>
-                                    </div>
-                                    <div class="bbox shadow p-4 bg-white rounded w-100">
-                                        <h3 class="text-center text-warning p-2">
-                                            Average Onboarding Days
-                                        </h3>
-                                        <h1 class="text-center text-warning">
-                                            {{ average_onboarding_days|floatformat:2 }}
-                                        </h1>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="bbox shadow p-4 bg-white rounded">
-                                        <h3 class="text-center text-danger p-2">
-                                            Late Percentage
-                                        </h3>
-                                        <h1 class="text-center text-danger" id="onboarding-late-display">
-                                            {{ onboarding_late_percentage|floatformat:2 }}%
-                                        </h1>
-                                        <canvas id="onboarding-late-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row pt-5">
-                                <div class="col-md-12 table-wrapper">
-                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
-                                           style="table-layout: fixed;">
-                                        <thead class="thead-inverse">
-                                        <tr class="main-table-header">
-                                            <th>Account</th>
-                                            <th>
-                                                Onboarding Since
-                                            </th>
-                                            <th>
-                                                Days of Onboarding
-                                            </th>
-                                            <th>
-                                                Late
-                                            </th>
-                                            <th>
-                                                Reason for lateness
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for account in onboarding_accounts %}
-                                            <tr>
-                                                <td>
-                                                    <a href="/clients/accounts/{{ account.id }}">{{ account }}</a>
-                                                </td>
-                                                <td>
-                                                    {{ account.created_at }}
-                                                </td>
-                                                <td>
-                                                    {{ account.onboarding_duration_elapsed }}
-                                                </td>
-                                                <td>
-                                                    {{ account.is_late_to_onboard }}
-                                                </td>
-                                                <td>
-                                                    {{ account.late_onboard_reason }}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#budget-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -595,7 +593,7 @@
                                             {% for account in budget_not_updated_accounts %}
                                                 <tr>
                                                     <td>
-                                                        {{ client }}
+                                                        {{ account.client_name }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -719,6 +717,180 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#notifs-body">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Notifications
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse show" id="notifs-body">
+                        <div class="m-portlet__body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-info p-2">
+                                            Outstanding Notifications
+                                        </h3>
+                                        <h1 class="text-center text-info">
+                                            {{ num_outstanding_notifs }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 table-wrapper">
+                                    <div class="row">
+                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-inverse">
+                                            <tr class="main-table-header">
+                                                <th>Member</th>
+                                                <th>Outstanding Notifications</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for member in members %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                                    </td>
+                                                    <td>
+                                                        {{ member.unread_notifications|length }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-5">
+                                <div class="col-md-4">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-danger p-2">
+                                            Outstanding 90 Days
+                                        </h3>
+                                        <h1 class="text-center text-danger">
+                                            {{ num_outstanding_90_days }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 table-wrapper">
+                                    <div class="row">
+                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-inverse">
+                                            <tr class="main-table-header">
+                                                <th>Member</th>
+                                                <th>Outstanding 90 Days</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for member in members %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                                    </td>
+                                                    <td>
+                                                        {{ member.phase_tasks|length }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#flagged-body">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Flags
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse show" id="flagged-body">
+                        <div class="m-portlet__body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-info p-2">
+                                            Flagged Accounts
+                                        </h3>
+                                        <h1 class="text-center text-info">
+                                            {{ flagged_accounts|length }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 table-wrapper">
+                                    <div class="row">
+                                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-inverse">
+                                            <tr class="main-table-header">
+                                                <th>
+                                                    Client
+                                                </th>
+                                                <th>
+                                                    Account
+                                                </th>
+                                                <th>
+                                                    Assigned Member
+                                                </th>
+                                                <th>
+                                                    Basecamp link
+                                                </th>
+                                                <th>
+                                                    Date Flagged
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for account in flagged_accounts %}
+                                                <tr>
+                                                    <td>
+                                                        {{ account.parentClient.name }}
+                                                    </td>
+                                                    <td>
+                                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                    </td>
+                                                    <td>
+                                                        {# not necessary to check if assigned exists #}
+                                                        {{ account.flagged_assigned_member.user.get_full_name }}
+                                                    </td>
+                                                    <td>
+                                                        {% if account.flagged_bc_link != None %}
+                                                            <a href="{{ account.flagged_bc_link }}">Basecamp</a>
+                                                        {% else %}
+                                                            None
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {{ account.flagged_datetime }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -735,58 +907,89 @@
         });
 
         // capacity percentage pie chart
-        let capacityPercentage = parseInt($('#capacity-display').text());
-        capacityPercentage > 100 ? capacityPercentage = 100 : null; // display 100 if greater than
+        let allocatedHours = parseInt($('#allocated-hours-display').text());
+        let totalHours = parseInt($('#total-hours-display').text());
         let ctx1 = $('#capacity-chart')[0].getContext('2d');
-        let capacityChart = new Chart(ctx1, {
-            type: 'doughnut',
+        new Chart(ctx1, {
+            type: 'horizontalBar',
             data: {
                 datasets: [{
-                    data: [capacityPercentage, 100 - capacityPercentage],
+                    data: [allocatedHours, totalHours],
                     backgroundColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(54, 163, 247, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(27, 135, 205, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(54, 163, 247, 0.7)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.5
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: totalHours,
+                            display: false
+                        },
+                        gridLines: {
+                            display: false
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
                 tooltips: {
                     enabled: false
-                },
-                rotation: 0.5 * Math.PI
+                }
             }
         });
 
         // utilization percentage pie chart
-        let utilizationPercentage = parseInt($('#utilization-display').text());
-        utilizationPercentage > 100 ? utilizationPercentage = 100 : null; // display 100 if greater than
+        let actualHours = parseInt($('#actual-hours-display').text());
+        let allocatedHours2 = parseInt($('#allocated-hours-display-2').text());
         let ctx2 = $('#utilization-chart')[0].getContext('2d');
-        let utilizationChart = new Chart(ctx2, {
-            type: 'doughnut',
+        new Chart(ctx2, {
+            type: 'horizontalBar',
             data: {
                 datasets: [{
-                    data: [utilizationPercentage, 100 - utilizationPercentage],
+                    data: [actualHours, allocatedHours2],
+                    label: '',
                     backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(244, 81, 108, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
+                        'rgb(244, 81, 108, 0.7)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        barPercentage: 0.5
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: allocatedHours2,
+                            display: false
+                        },
+                        gridLines: {
+                            display: false
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                },
                 tooltips: {
                     enabled: false
-                },
-                rotation: 0.5 * Math.PI
+                }
             }
         });
 
@@ -794,7 +997,7 @@
         let ontimePercentage = parseInt($('#ontime-display').text());
         ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
         let ctx3 = $('#ontime-chart')[0].getContext('2d');
-        let ontimeChart = new Chart(ctx3, {
+        new Chart(ctx3, {
             type: 'doughnut',
             data: {
                 datasets: [{
@@ -822,7 +1025,7 @@
         let completionPercentage = parseInt($('#completion-display').text());
         completionPercentage > 100 ? completionPercentage = 100 : null;
         let ctx4 = $('#completion-chart')[0].getContext('2d');
-        let completionChart = new Chart(ctx4, {
+        new Chart(ctx4, {
             type: 'doughnut',
             data: {
                 datasets: [{
@@ -850,7 +1053,7 @@
         let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
         onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
         let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
-        let onboardingLateChart = new Chart(ctx5, {
+        new Chart(ctx5, {
             type: 'doughnut',
             data: {
                 datasets: [{
@@ -878,7 +1081,7 @@
         let budgetUpdatedPercentage = parseInt($('#budget-updated-display').text());
         budgetUpdatedPercentage > 100 ? budgetUpdatedPercentage = 100 : null; // display 100 if greater than
         let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
-        let budgetUpdatedChart = new Chart(ctx6, {
+        new Chart(ctx6, {
             type: 'doughnut',
             data: {
                 datasets: [{
@@ -922,9 +1125,7 @@
                             title: "{{ promo }}",
                             description: "{{ promo.desc }}",
                             start: moment("{{ promo.formatted_start }}"),
-                            end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--success{% else %}
-                                m-fc - event--warning{% endif %}"
+                            end: moment("{{ promo.formatted_end }}")
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 ]
