@@ -64,8 +64,6 @@ def member_dashboard(request, id):
     # Get account related metrics
     member = Member.objects.get(id=id)
 
-    total_active_accounts = Client.objects.filter(status=1)
-
     # Members, Teams, Roles
     members = Member.objects.all()
     teams = Team.objects.all()
@@ -84,6 +82,13 @@ def member_dashboard(request, id):
     if roles_request:
         filtered_roles = roles.filter(id__in=roles_request)
         members = members.filter(role__in=filtered_roles)
+
+    # get accounts of filtered members
+    accounts = Client.objects.filter(
+        Q(cm1__in=members) | Q(cm2__in=members) | Q(cm3__in=members) | Q(am1__in=members) | Q(am2__in=members) | Q(
+            am3__in=members) | Q(seo1__in=members) | Q(seo2__in=members) | Q(seo3__in=members) | Q(
+            strat1__in=members) | Q(
+            strat2__in=members) | Q(strat3__in=members))
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -110,9 +115,9 @@ def member_dashboard(request, id):
     # total_management_fee = 0.0
     total_allocated_hours = 0.0
 
-    for aa in total_active_accounts:
+    for acc in accounts:
         # total_management_fee += aa.total_fee
-        total_allocated_hours += aa.all_hours
+        total_allocated_hours += acc.all_hours
 
     # hours worked this month
     now = datetime.datetime.now()
@@ -129,8 +134,8 @@ def member_dashboard(request, id):
         allocation_ratio = 0.0
 
     # MONTHLY REPORTS INFO
-    reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False)
-    outstanding_reports = MonthlyReport.objects.filter(year=now.year, month=now.month, date_sent_by_am=None)
+    reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False, cm__in=members)
+    outstanding_reports = reports.filter(year=now.year, month=now.month, date_sent_by_am=None)
 
     complete_reports = reports.exclude(date_sent_by_am=None).count()
     report_count = reports.count()
@@ -157,15 +162,16 @@ def member_dashboard(request, id):
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
     three_days_ago = now - datetime.timedelta(3)
     three_days_future = now + datetime.timedelta(3)
+
     promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
-                                       end_date__lte=three_days_future)
-    promos_start_today = Promo.objects.filter(start_date__gte=today_start,
-                                              start_date__lte=today_end)
-    promos_end_today = Promo.objects.filter(end_date__gte=today_start,
-                                            end_date__lte=today_end)
+                                       end_date__lte=three_days_future, account__in=accounts)
+    promos_start_today = promos_week.filter(start_date__gte=today_start,
+                                            start_date__lte=today_end)
+    promos_end_today = promos_week.filter(end_date__gte=today_start,
+                                          end_date__lte=today_end)
 
     # ONBOARDING ACCOUNTS INFO
-    onboarding_accounts = Client.objects.filter(status=0)
+    onboarding_accounts = accounts.filter(status=0)
     num_onboarding = onboarding_accounts.count()
 
     avg_onboarding_days = 0
@@ -175,23 +181,23 @@ def member_dashboard(request, id):
         avg_onboarding_days /= num_onboarding
 
     late_accounts = len([account for account in onboarding_accounts if account.is_late_to_onboard])
-    print(late_accounts, num_onboarding)
     late_percentage = 0.0
     if num_onboarding != 0:
         late_percentage = 100.0 * late_accounts / num_onboarding
 
     # BUDGETS INFO
     # Monthly budget updates
-    budget_updated_accounts = total_active_accounts.filter(budget_updated=True)
-    budget_not_updated_accounts = total_active_accounts.filter(budget_updated=False)
+    active_accounts = accounts.filter(status=1)
+    budget_updated_accounts = active_accounts.filter(budget_updated=True)
+    budget_not_updated_accounts = active_accounts.filter(budget_updated=False)
     budget_updated_percentage = 0.0
-    if total_active_accounts.count() != 0:
-        budget_updated_percentage = 100.0 * budget_updated_accounts.count() / total_active_accounts.count()
+    if active_accounts.count() != 0:
+        budget_updated_percentage = 100.0 * budget_updated_accounts.count() / active_accounts.count()
 
     # Overspend projection - get top 5 overspending and underspending accounts
-    overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, total_active_accounts),
+    overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, active_accounts),
                                 key=lambda a: a.projected_refund)[0:5]
-    underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, total_active_accounts),
+    underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
                                  key=lambda a: a.projected_loss)[0:5]
 
     total_projected_loss = 0.0
@@ -200,6 +206,8 @@ def member_dashboard(request, id):
         total_projected_overspend += account.project_yesterday - account.current_budget
     for account in underspend_accounts:
         total_projected_loss += account.projected_loss
+
+    # NOTIFICATIONS INFO
 
     context = {
         'member': member,
