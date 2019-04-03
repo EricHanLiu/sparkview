@@ -1442,7 +1442,6 @@ def onboard_account(request, account_id):
 
         step_complete = 0
         if task.step.complete:
-            # TODO: Change sales profile statuses here I believe
             step_complete = 1
 
         acc_active = 1
@@ -1452,6 +1451,21 @@ def onboard_account(request, account_id):
                 break
 
         if acc_active == 1:
+            for step in account.onboardingstepassignment_set.all():
+                sp = account.sales_profile
+                if step.step.service == 0:
+                    sp.ppc_status = 1
+                    sp.save()
+                elif step.step.service == 1:
+                    sp.seo_status = 1
+                    sp.save()
+                elif step.step.service == 2:
+                    sp.cro_status = 1
+                    sp.save()
+                elif step.step.service == 3:
+                    sp.strat_status = 1
+                    sp.save()
+
             account.status = 1
             account.save()
 
