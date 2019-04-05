@@ -925,213 +925,257 @@
         let allocatedHours = parseInt($('#allocated-hours-display').text());
         let totalHours = parseInt($('#total-hours-display').text());
         let ctx1 = $('#capacity-chart')[0].getContext('2d');
-        new Chart(ctx1, {
-            type: 'horizontalBar',
-            data: {
-                datasets: [{
-                    data: [allocatedHours, totalHours],
-                    backgroundColor: [
-                        'rgb(54, 163, 247, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgb(54, 163, 247, 0.7)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        barPercentage: 0.5
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: totalHours += 50 - totalHours % 50
-                        }
+
+        function buildChart1() {
+            new Chart(ctx1, {
+                type: 'horizontalBar',
+                data: {
+                    datasets: [{
+                        data: [allocatedHours, totalHours],
+                        backgroundColor: [
+                            'rgb(54, 163, 247, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(54, 163, 247, 0.7)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
-                legend: {
-                    display: false
-                },
-                tooltips: {
-                    enabled: false
+                options: {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.5
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: totalHours += 50 - totalHours % 50
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // utilization percentage bar chart
         let actualHours = parseInt($('#actual-hours-display').text());
         let allocatedHours2 = parseInt($('#allocated-hours-display-2').text());
         let ctx2 = $('#utilization-chart')[0].getContext('2d');
-        new Chart(ctx2, {
-            type: 'horizontalBar',
-            data: {
-                datasets: [{
-                    data: [actualHours, allocatedHours2],
-                    backgroundColor: [
-                        'rgb(244, 81, 108, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgb(244, 81, 108, 0.7)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        barPercentage: 0.5
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: allocatedHours2 += 50 - allocatedHours % 50,
-                        }
+
+        function buildChart2() {
+            new Chart(ctx2, {
+                type: 'horizontalBar',
+                data: {
+                    datasets: [{
+                        data: [actualHours, allocatedHours2],
+                        backgroundColor: [
+                            'rgb(244, 81, 108, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(244, 81, 108, 0.7)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
-                legend: {
-                    display: false
-                },
-                tooltips: {
-                    enabled: false
+                options: {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.5
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: allocatedHours2 += 50 - allocatedHours % 50,
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // ontime percentage bar chart
         let ontimePercentage = parseInt($('#ontime-display').text());
         ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
         let ctx3 = $('#ontime-chart')[0].getContext('2d');
-        new Chart(ctx3, {
-            type: 'horizontalBar',
-            data: {
-                datasets: [{
-                    data: [ontimePercentage],
-                    backgroundColor: [
-                        'rgb(54, 163, 247, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgb(54, 163, 247, 0.7)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        barPercentage: 0.5
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: 100
-                        }
+
+        function buildChart3() {
+            new Chart(ctx3, {
+                type: 'horizontalBar',
+                data: {
+                    datasets: [{
+                        data: [ontimePercentage],
+                        backgroundColor: [
+                            'rgb(54, 163, 247, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(54, 163, 247, 0.7)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
-                legend: {
-                    display: false
-                },
-                tooltips: {
-                    enabled: false
+                options: {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.5
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 100
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // completion percentage bar chart
         let completionPercentage = parseInt($('#completion-display').text());
         completionPercentage > 100 ? completionPercentage = 100 : null;
         let ctx4 = $('#completion-chart')[0].getContext('2d');
-        new Chart(ctx4, {
-            type: 'horizontalBar',
-            data: {
-                datasets: [{
-                    data: [completionPercentage],
-                    backgroundColor: [
-                        'rgb(244, 81, 108, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgb(244, 81, 108, 0.7)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        barPercentage: 0.5
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: 100
-                        }
+
+        function buildChart4() {
+            new Chart(ctx4, {
+                type: 'horizontalBar',
+                data: {
+                    datasets: [{
+                        data: [completionPercentage],
+                        backgroundColor: [
+                            'rgb(244, 81, 108, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(244, 81, 108, 0.7)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
-                legend: {
-                    display: false
-                },
-                tooltips: {
-                    enabled: false
+                options: {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.5
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 100
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // completion percentage bar chart
         let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
         onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
         let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
-        new Chart(ctx5, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [onboardingLatePercentage, 100 - onboardingLatePercentage],
-                    backgroundColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgba(220, 41, 41, 0.5)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                tooltips: {
-                    enabled: false
+
+        function buildChart5() {
+            new Chart(ctx5, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [onboardingLatePercentage, 1, 100 - onboardingLatePercentage],
+                        backgroundColor: [
+                            'rgba(220, 41, 41, 0.5)',
+                            'rgba(0, 0, 0, 0.5)',
+                            'rgba(241, 233, 231, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(220, 41, 41, 0.5)',
+                            'rgba(0, 0, 0, 0)',
+                            'rgba(241, 233, 231, 0.5)'
+                        ],
+                        borderWidth: 1
+                    },
+                        {
+                            data: [onboardingLatePercentage, 1, 100 - onboardingLatePercentage],
+                            backgroundColor: [
+                                'rgba(0, 0, 0, 0)',
+                                'rgba(0, 0, 0, 0.5)',
+                                'rgba(0, 0, 0, 0)'
+                            ],
+                            borderWidth: 0,
+                        }]
                 },
-                rotation: 0.5 * Math.PI
-            }
-        });
+                options: {
+                    cutoutPercentage: 0,
+                    tooltips: {
+                        enabled: false
+                    },
+                    rotation: -1 * Math.PI,
+                    circumference: Math.PI
+                }
+            });
+        }
 
         // ontime percentage bar chart
         let budgetUpdatedPercentage = parseInt($('#budget-updated-display').text());
         budgetUpdatedPercentage > 100 ? budgetUpdatedPercentage = 100 : null; // display 100 if greater than
         let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
-        new Chart(ctx6, {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [budgetUpdatedPercentage, 100 - budgetUpdatedPercentage],
-                    backgroundColor: [
-                        'rgb(54, 163, 247, 0.7)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderColor: [
-                        'rgb(54, 163, 247, 0.7)',
-                        'rgba(241, 233, 231, 0.5)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                tooltips: {
-                    enabled: false
+
+        function buildChart6() {
+            new Chart(ctx6, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [budgetUpdatedPercentage, 1, 100 - budgetUpdatedPercentage],
+                        backgroundColor: [
+                            'rgb(54, 163, 247, 0.7)',
+                            'rgba(0, 0, 0, 0.5)',
+                            'rgba(241, 233, 231, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgb(54, 163, 247, 0.7)',
+                            'rgba(0, 0, 0, 0)',
+                            'rgba(241, 233, 231, 0.5)'
+                        ],
+                        borderWidth: 1
+                    },
+                        {
+                            data: [budgetUpdatedPercentage, 1, 100 - budgetUpdatedPercentage],
+                            backgroundColor: [
+                                'rgba(0, 0, 0, 0)',
+                                'rgba(0, 0, 0, 0.5)',
+                                'rgba(0, 0, 0, 0)'
+                            ],
+                            borderWidth: 0,
+                        }]
                 },
-                rotation: 0.5 * Math.PI
-            }
-        });
+                options: {
+                    cutoutPercentage: 0,
+                    tooltips: {
+                        enabled: false
+                    },
+                    rotation: -1 * Math.PI,
+                    circumference: Math.PI
+                }
+            });
+        }
 
         // calendar view of promos
         $(document).ready(() => {
@@ -1159,5 +1203,47 @@
                 ]
             });
         });
+
+        // HANDLE DYNAMIC CHART LOADING
+
+        // list of charts that aren't immediately visible upon loading
+        let charts = [
+            {id: '#capacity-chart', viewed: false},
+            {id: '#utilization-chart', viewed: false},
+            {id: '#onboarding-late-chart', viewed: false},
+            {id: '#ontime-chart', viewed: false},
+            {id: '#completion-chart', viewed: false},
+            {id: '#budget-updated-chart', viewed: false}];
+
+        function dynamicLoadChart() {
+            for (let i = 0; i < charts.length; i++) {
+                let chart = charts[i];
+                if (isScrolledIntoView(chart.id)) {
+                    if (chart.viewed) {
+                        return;
+                    }
+                    // call this chart's build function
+                    window['buildChart' + (i+1)]();
+                    chart.viewed = true;
+                }
+            }
+        }
+
+        function isScrolledIntoView(elem) {
+            let leeway = 200; // amount in pixels to 'extend' the viewport for dynamic loading
+
+            let docViewTop = $(window).scrollTop();
+            let docViewBottom = docViewTop + $(window).height();
+
+            let elemTop = $(elem).offset().top;
+            let elemBottom = elemTop + $(elem).height();
+
+            return ((elemTop <= docViewBottom + leeway) && (elemBottom >= docViewTop + leeway));
+        }
+
+        // attach listeners for changes in content displayed
+        $(window).scroll(dynamicLoadChart);
+        $(document).ready(dynamicLoadChart);
+        $('.collapse').on('hidden.bs.collapse', dynamicLoadChart);
     </script>
 {% endblock %}
