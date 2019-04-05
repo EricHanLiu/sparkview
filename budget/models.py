@@ -599,6 +599,20 @@ class Client(models.Model):
             fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee
         return fee
 
+    @property
+    def current_fee(self):
+        initial_fee = 0
+        # If status is lost or inactive, just return 0
+        if self.status == 2 or self.status == 3:
+            return 0
+        if self.is_onboarding_ppc and self.managementFee is not None:
+            initial_fee = self.managementFee.initialFee
+        if self.management_fee_override is not None and self.management_fee_override != 0.0:
+            fee = self.management_fee_override
+        else:
+            fee = self.get_fee_by_spend(self.current_spend) + self.cro_fee + self.seo_fee + initial_fee
+        return fee
+
     def get_ppc_allocated_hours(self):
         if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
             unrounded = self.allocated_ppc_override
