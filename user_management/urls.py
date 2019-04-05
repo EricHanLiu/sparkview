@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^profile$', views.members_single, name='profile'),
     url(r'^members$', views.members, name='members'),
     url(r'^members/new$', views.new_member, name='new_member'),
+    url(r'^members/(\d*)/dashboard$', views.member_dashboard, name='member_dashboard'),
     url(r'^members/(\d*)/edit$', views.edit_member, name='edit_member'),
     url(r'^members/(\d*)$', views.members_single, name='members_single'),
     url(r'^members/(\d*)/hours$', views.members_single_hours, name='members_single_hours'),

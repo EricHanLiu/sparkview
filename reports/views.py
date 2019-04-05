@@ -108,9 +108,10 @@ def account_spend_progression(request):
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
     for account in accounts:
-        total_projected_loss += account.projected_loss
         if account.projected_loss < 0:  # we will overspend
             total_projected_overspend += account.project_yesterday - account.current_budget
+        else:  # we will underspend
+            total_projected_loss += account.projected_loss
 
     context = {
         'accounts': accounts,
