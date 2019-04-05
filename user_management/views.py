@@ -63,7 +63,7 @@ def member_dashboard(request, id):
 
     # HOURS REPORT INFO
     # Get account related metrics
-    member = Member.objects.get(id=id)
+    member = get_object_or_404(Member, id=id)
 
     # Members, Teams, Roles
     members = Member.objects.all()
