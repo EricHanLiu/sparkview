@@ -288,7 +288,7 @@
                                     <h5>
                                         Outstanding Monthly Reports
                                     </h5>
-                                    <table class='table table-hover dataTable my_clients_datatable'
+                                    <table class='table order-column table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
                                         <thead class="thead-inverse">
                                         <tr class="main-table-header">
@@ -363,13 +363,13 @@
                                         <h1 class="text-center text-danger" id="onboarding-late-display">
                                             {{ onboarding_late_percentage|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="onboarding-late-chart" height="100px"></canvas>
+                                        <canvas id="onboarding-late-chart" height="200px"></canvas>
                                     </div>
                                 </div>
                             </div>
                             <div class="row pt-5">
                                 <div class="col-md-12 table-wrapper">
-                                    <table class='table table-hover dataTable my_clients_datatable'
+                                    <table class='table order-column table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
                                         <thead class="thead-inverse">
                                         <tr class="main-table-header">
@@ -439,7 +439,7 @@
                                         </h3>
                                         {% if promos_start_today.count > 0 %}
                                             <div class="table-wrapper">
-                                                <table class='table table-hover dataTable my_clients_datatable'>
+                                                <table class='table table-hover order-column dataTable my_clients_datatable'>
                                                     <thead class="thead-inverse">
                                                     <tr class="main-table-header">
                                                         <th>Account</th>
@@ -490,7 +490,7 @@
                                         </h3>
                                         {% if promos_end_today.count > 0 %}
                                             <div class="table-wrapper">
-                                                <table class='table table-hover dataTable my_clients_datatable'>
+                                                <table class='table order-column table-hover dataTable my_clients_datatable'>
                                                     <thead class="thead-inverse">
                                                     <tr class="main-table-header">
                                                         <th>Account</th>
@@ -580,7 +580,7 @@
                                         <h3 class="text-center text-info">
                                             Unconfirmed Accounts
                                         </h3>
-                                        <table class='table table-hover dataTable my_clients_datatable'
+                                        <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -591,7 +591,7 @@
                                             {% for account in budget_not_updated_accounts %}
                                                 <tr>
                                                     <td>
-                                                        {{ account.client_name }}
+                                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -610,6 +610,8 @@
                                             {{ overspend_accounts|length }}
                                         </h1>
                                     </div>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="bbox shadow p-4 bg-white rounded w-100">
                                         <h3 class="text-center text-danger p-2">
                                             Total Refund Amount
@@ -619,12 +621,34 @@
                                         </h1>
                                     </div>
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-3">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Number of Underspend Accounts
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            {{ underspend_accounts|length }}
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <h3 class="text-center text-warning p-2">
+                                            Total Projected Opportunity Lost
+                                        </h3>
+                                        <h1 class="text-center text-warning">
+                                            ${{ total_projected_loss|floatformat:2 }}
+                                        </h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded table-wrapper">
                                         <h3 class="text-center text-danger">
                                             Projected Overspend Accounts
                                         </h3>
-                                        <table class='table table-hover dataTable my_clients_datatable'
+                                        <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -655,30 +679,12 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="bbox shadow p-4 bg-white rounded w-100">
-                                        <h3 class="text-center text-warning p-2">
-                                            Number of Underspend Accounts
-                                        </h3>
-                                        <h1 class="text-center text-warning">
-                                            {{ underspend_accounts|length }}
-                                        </h1>
-                                    </div>
-                                    <div class="bbox shadow p-4 bg-white rounded w-100">
-                                        <h3 class="text-center text-warning p-2">
-                                            Total Projected Opportunity Lost
-                                        </h3>
-                                        <h1 class="text-center text-warning">
-                                            ${{ total_projected_loss|floatformat:2 }}
-                                        </h1>
-                                    </div>
-                                </div>
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded table-wrapper">
                                         <h3 class="text-center text-warning">
                                             Projected Underspend Accounts
                                         </h3>
-                                        <table class='table table-hover dataTable my_clients_datatable'
+                                        <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -741,8 +747,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8 table-wrapper">
-                                    <div class="row">
-                                        <table class='table table-hover dataTable my_clients_datatable'
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -778,8 +784,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8 table-wrapper">
-                                    <div class="row">
-                                        <table class='table table-hover dataTable my_clients_datatable'
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -832,8 +838,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8 table-wrapper">
-                                    <div class="row">
-                                        <table class='table table-hover dataTable my_clients_datatable'
+                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                        <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
                                             <thead class="thead-inverse">
                                             <tr class="main-table-header">
@@ -904,7 +910,7 @@
             placeholder: "Filter Roles"
         });
 
-        // capacity percentage pie chart
+        // capacity percentage bar chart
         let allocatedHours = parseInt($('#allocated-hours-display').text());
         let totalHours = parseInt($('#total-hours-display').text());
         let ctx1 = $('#capacity-chart')[0].getContext('2d');
@@ -943,7 +949,7 @@
             }
         });
 
-        // utilization percentage pie chart
+        // utilization percentage bar chart
         let actualHours = parseInt($('#actual-hours-display').text());
         let allocatedHours2 = parseInt($('#allocated-hours-display-2').text());
         let ctx2 = $('#utilization-chart')[0].getContext('2d');
@@ -982,7 +988,7 @@
             }
         });
 
-        // ontime percentage pie chart
+        // ontime percentage bar chart
         let ontimePercentage = parseInt($('#ontime-display').text());
         ontimePercentage > 100 ? ontimePercentage = 100 : null; // display 100 if greater than
         let ctx3 = $('#ontime-chart')[0].getContext('2d');
@@ -1021,7 +1027,7 @@
             }
         });
 
-        // completion percentage pie chart
+        // completion percentage bar chart
         let completionPercentage = parseInt($('#completion-display').text());
         completionPercentage > 100 ? completionPercentage = 100 : null;
         let ctx4 = $('#completion-chart')[0].getContext('2d');
@@ -1060,46 +1066,35 @@
             }
         });
 
-        // completion percentage pie chart
+        // completion percentage bar chart
         let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
         onboardingLatePercentage > 100 ? onboardingLatePercentage = 100 : null;
         let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
         new Chart(ctx5, {
-            type: 'horizontalBar',
+            type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [onboardingLatePercentage],
+                    data: [onboardingLatePercentage, 100 - onboardingLatePercentage],
                     backgroundColor: [
-                        'rgb(244, 81, 108, 0.7)'
+                        'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
                     ],
                     borderColor: [
-                        'rgb(244, 81, 108, 0.7)'
+                        'rgba(220, 41, 41, 0.5)',
+                        'rgba(241, 233, 231, 0.5)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
-                scales: {
-                    yAxes: [{
-                        barPercentage: 0.5
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: 100
-                        }
-                    }]
-                },
-                legend: {
-                    display: false
-                },
                 tooltips: {
                     enabled: false
-                }
+                },
+                rotation: 0.5 * Math.PI
             }
         });
 
-        // ontime percentage pie chart
+        // ontime percentage bar chart
         let budgetUpdatedPercentage = parseInt($('#budget-updated-display').text());
         budgetUpdatedPercentage > 100 ? budgetUpdatedPercentage = 100 : null; // display 100 if greater than
         let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
