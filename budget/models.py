@@ -776,6 +776,10 @@ class Client(models.Model):
         return round(fee_if_budget_spent - fee_if_projected_spent, 2)
 
     @property
+    def projected_refund(self):
+        return self.project_yesterday - self.current_budget
+
+    @property
     def has_adwords(self):
         return self.adwords.count() > 0
 
