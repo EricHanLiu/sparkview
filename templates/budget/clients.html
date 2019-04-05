@@ -63,15 +63,19 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="row">
-                                            <div class="col-md-4"><b>Current</b>:
+                                            <div class="col-md-3"><b>Current</b>:
                                                 {{ client.currency }}{{ client.current_spend|floatformat:2|intcomma }}
                                             </div>
-                                            <div class="col-md-4"><b>Budget</b>:
+                                            <div class="col-md-3"><b>Budget</b>:
                                                 {{ client.currency }}{{ client.current_budget|intcomma }}
                                             </div>
-                                            <div class="col-md-4">
-                                                <b>Projected</b>:
+                                            <div class="col-md-3">
+                                                <b>Average Projected</b>:
                                                 {{ client.currency }}{{ client.project_average|floatformat:2|intcomma }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <b>Yesterday Projected</b>:
+                                                {{ client.currency }}{{ client.project_yesterday|floatformat:2|intcomma }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
