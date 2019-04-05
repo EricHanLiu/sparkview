@@ -51,7 +51,7 @@
         {#  Main content #}
         <div class="row">
             <div class="col-xl-12">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -95,7 +95,7 @@
         </div>
         <div class="row">
             <div class="col-xl-12">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#hours-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -111,7 +111,7 @@
                                 <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded"
                                          data-toggle="m-tooltip"
-                                         data-original-title="How many hours the team has invested into the time they were assigned">
+                                         data-original-title="The hours assigned compared to total number of hours available for the month">
                                         <h3 class="text-center text-info p-2">
                                             Team Capacity
                                         </h3>
@@ -140,7 +140,7 @@
                                 <div class="col-md-6">
                                     <div class="bbox shadow p-4 bg-white rounded"
                                          data-toggle="m-tooltip"
-                                         data-original-title="The hours assigned compared to total number of hours available for the month">
+                                         data-original-title="How many hours the team has invested into the time they were assigned">
                                         <h3 class="text-center text-danger p-2">
                                             Team Utilization
                                         </h3>
@@ -171,7 +171,7 @@
                                 <div class="col-md-12 table-wrapper">
                                     <table class='table order-column table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
-                                        <thead class="thead-inverse">
+                                        <thead class="thead-light">
                                         <tr class="main-table-header">
                                             <th>Member</th>
                                             <th>Role</th>
@@ -194,7 +194,7 @@
                                                 Training Hours
                                             </th>
                                             <th>
-                                                Value Added Hours
+                                                Value Added
                                             </th>
                                             <th>
                                                 Date of Last Log
@@ -247,7 +247,7 @@
         </div>
         <div class="row">
             <div class="col-xl-6">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#monthly-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -261,36 +261,40 @@
                         <div class="m-portlet__body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded">
+                                    <div class="bbox shadow p-4 bg-white rounded"
+                                         data-toggle="m-tooltip"
+                                         data-original-title="Percentage of reports sent to client before due date">
                                         <h3 class="text-center text-info p-2">
                                             On Time Percentage
                                         </h3>
                                         <h1 class="text-center text-info" id="ontime-display">
                                             {{ ontime_rate|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="ontime-chart" height="100px"></canvas>
+                                        <canvas id="ontime-chart" height="200px"></canvas>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded">
+                                    <div class="bbox shadow p-4 bg-white rounded"
+                                         data-toggle="m-tooltip"
+                                         data-original-title="Percentage of reports sent">
                                         <h3 class="text-center text-danger p-2">
                                             Completion Percentage
                                         </h3>
                                         <h1 class="text-center text-danger" id="completion-display">
                                             {{ completion_rate|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="completion-chart" height="100px"></canvas>
+                                        <canvas id="completion-chart" height="200px"></canvas>
                                     </div>
                                 </div>
                             </div>
                             <div class="row pt-5">
                                 <div class="col-md-12 table-wrapper">
-                                    <h5>
+                                    <h3 class="text-center">
                                         Outstanding Monthly Reports
-                                    </h5>
+                                    </h3>
                                     <table class='table order-column table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
-                                        <thead class="thead-inverse">
+                                        <thead class="thead-light">
                                         <tr class="main-table-header">
                                             <th>Report Name</th>
                                             <th>Due Date</th>
@@ -324,7 +328,7 @@
                 </div>
             </div>
             <div class="col-xl-6">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#onboarding-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -356,7 +360,9 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded">
+                                    <div class="bbox shadow p-4 bg-white rounded"
+                                         data-toggle="m-tooltip"
+                                         data-original-title="Percentage of onboarding accounts that have passed 12 business days">
                                         <h3 class="text-center text-danger p-2">
                                             Late Percentage
                                         </h3>
@@ -369,9 +375,12 @@
                             </div>
                             <div class="row pt-5">
                                 <div class="col-md-12 table-wrapper">
+                                    <h3 class="text-center">
+                                        Onboarding Accounts
+                                    </h3>
                                     <table class='table order-column table-hover dataTable my_clients_datatable'
                                            style="table-layout: fixed;">
-                                        <thead class="thead-inverse">
+                                        <thead class="thead-light">
                                         <tr class="main-table-header">
                                             <th>Account</th>
                                             <th>
@@ -419,7 +428,7 @@
         </div>
         <div class="row">
             <div class="col-xl-12">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#promos-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -440,7 +449,7 @@
                                         {% if promos_start_today.count > 0 %}
                                             <div class="table-wrapper">
                                                 <table class='table table-hover order-column dataTable my_clients_datatable'>
-                                                    <thead class="thead-inverse">
+                                                    <thead class="thead-light">
                                                     <tr class="main-table-header">
                                                         <th>Account</th>
                                                         <th>
@@ -491,7 +500,7 @@
                                         {% if promos_end_today.count > 0 %}
                                             <div class="table-wrapper">
                                                 <table class='table order-column table-hover dataTable my_clients_datatable'>
-                                                    <thead class="thead-inverse">
+                                                    <thead class="thead-light">
                                                     <tr class="main-table-header">
                                                         <th>Account</th>
                                                         <th>
@@ -551,7 +560,7 @@
         </div>
         <div class="row">
             <div class="col-xl-12">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#budget-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -565,14 +574,16 @@
                         <div class="m-portlet__body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <div class="bbox shadow p-4 bg-white rounded w-100">
+                                    <div class="bbox shadow p-4 bg-white rounded w-100"
+                                         data-toggle="m-tooltip"
+                                         data-original-title="Percentage of budgets that have been updated for all active accounts">
                                         <h3 class="text-center text-info p-2">
                                             Updated Budgets Percentage
                                         </h3>
                                         <h1 class="text-center text-info" id="budget-updated-display">
                                             {{ budget_updated_percentage|floatformat:2 }}%
                                         </h1>
-                                        <canvas id="budget-updated-chart" height="100px"></canvas>
+                                        <canvas id="budget-updated-chart" height="200px"></canvas>
                                     </div>
                                 </div>
                                 <div class="col-md-9">
@@ -582,7 +593,7 @@
                                         </h3>
                                         <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
-                                            <thead class="thead-inverse">
+                                            <thead class="thead-light">
                                             <tr class="main-table-header">
                                                 <th>Account</th>
                                             </tr>
@@ -650,7 +661,7 @@
                                         </h3>
                                         <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
-                                            <thead class="thead-inverse">
+                                            <thead class="thead-light">
                                             <tr class="main-table-header">
                                                 <th>Account</th>
                                                 <th>Budget</th>
@@ -686,7 +697,7 @@
                                         </h3>
                                         <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
-                                            <thead class="thead-inverse">
+                                            <thead class="thead-light">
                                             <tr class="main-table-header">
                                                 <th>Account</th>
                                                 <th>Budget</th>
@@ -723,7 +734,7 @@
         </div>
         <div class="row">
             <div class="col-xl-6">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#notifs-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -750,7 +761,7 @@
                                     <div class="bbox shadow p-4 bg-white rounded w-100">
                                         <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
-                                            <thead class="thead-inverse">
+                                            <thead class="thead-light">
                                             <tr class="main-table-header">
                                                 <th>Member</th>
                                                 <th>Outstanding Notifications</th>
@@ -787,7 +798,7 @@
                                     <div class="bbox shadow p-4 bg-white rounded w-100">
                                         <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
-                                            <thead class="thead-inverse">
+                                            <thead class="thead-light">
                                             <tr class="main-table-header">
                                                 <th>Member</th>
                                                 <th>Outstanding 90 Days</th>
@@ -814,7 +825,7 @@
                 </div>
             </div>
             <div class="col-xl-6">
-                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#flagged-body">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
@@ -841,7 +852,7 @@
                                     <div class="bbox shadow p-4 bg-white rounded w-100">
                                         <table class='table order-column table-hover dataTable my_clients_datatable'
                                                style="table-layout: fixed;">
-                                            <thead class="thead-inverse">
+                                            <thead class="thead-light">
                                             <tr class="main-table-header">
                                                 <th>
                                                     Client
@@ -1099,37 +1110,26 @@
         budgetUpdatedPercentage > 100 ? budgetUpdatedPercentage = 100 : null; // display 100 if greater than
         let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
         new Chart(ctx6, {
-            type: 'horizontalBar',
+            type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [budgetUpdatedPercentage],
+                    data: [budgetUpdatedPercentage, 100 - budgetUpdatedPercentage],
                     backgroundColor: [
-                        'rgb(54, 163, 247, 0.7)'
+                        'rgb(54, 163, 247, 0.7)',
+                        'rgba(241, 233, 231, 0.5)'
                     ],
                     borderColor: [
-                        'rgb(54, 163, 247, 0.7)'
+                        'rgb(54, 163, 247, 0.7)',
+                        'rgba(241, 233, 231, 0.5)'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
-                scales: {
-                    yAxes: [{
-                        barPercentage: 0.5
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            min: 0,
-                            max: 100
-                        }
-                    }]
-                },
-                legend: {
-                    display: false
-                },
                 tooltips: {
                     enabled: false
-                }
+                },
+                rotation: 0.5 * Math.PI
             }
         });
 
