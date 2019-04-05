@@ -6,362 +6,423 @@
 {% endblock %}
 
 {% block content %}
-<div class="m-content">
-  <div class="row">
-    <div class="col-xl-12">
-      <form class="m-form" method="post" id="m_form_add_client">
-      {% csrf_token %}
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                Add New Account
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div class="m-portlet__body">
-            <div class="m-portlet__body">
-              <div id="existing_client_form">
-                <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_btn">Create New Client</button>
-                <div class="form-group m-form__group">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <label for="existing_user">Client:</label>
-                      <select class="form-control m-input"
-                              name="existing_client"
-                              style="width: 100%;" required>
-                              <option value="0">
-                                None
-                              </option>
-                          {% for client in clients %}
-                              <option value="{{ client.id }}">{{ client.name }}</option>
-                          {% endfor %}
-                      </select>
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <form class="m-form" method="post" id="m_form_add_client">
+                    {% csrf_token %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Add New Account
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <div class="m-portlet__body">
+                                <div id="existing_client_form">
+                                    <button type="button" name="button" class="btn btn-sm btn-outline-info"
+                                            id="create_new_btn">Create New Client
+                                    </button>
+                                    <div class="form-group m-form__group">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label for="existing_user">Client:</label>
+                                                <select class="form-control m-input"
+                                                        name="existing_client"
+                                                        style="width: 100%;" required>
+                                                    <option value="0">
+                                                        None
+                                                    </option>
+                                                    {% for client in clients %}
+                                                        <option value="{{ client.id }}">{{ client.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                </div>
+                                <div id="new_client_form" style="display:none;">
+                                    <button type="button" name="button" class="btn btn-sm btn-outline-info"
+                                            id="use_existing_btn">Use Existing Client
+                                    </button>
+                                    <div class="form-group m-form__group">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label for="client_name">Client Name:</label>
+                                                <input type="text" name="client_name" class="form-control m-input"
+                                                       placeholder="Please enter the client name">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="client_name">Account Name:</label>
+                                            <input type="text" name="account_name" class="form-control m-input"
+                                                   placeholder="Please enter the client name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="industry">Industry:</label>
+                                            <select class="form-control m-input"
+                                                    name="industry"
+                                                    style="width: 100%;" required>
+                                                {% for industry in industries %}
+                                                    <option value="{{ industry.id }}">{{ industry.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="client_type">Client Type:</label>
+                                            <select class="form-control m-input"
+                                                    name="client_type"
+                                                    style="width: 100%;" required>
+                                                {% for client_type in client_types %}
+                                                    <option value="{{ client_type.id }}">{{ client_type.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="sold_budget">Sold Budget:</label>
+                                            <input type="text" name="sold_budget"
+                                                   class="form-control m-input" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="contact_email">Account URL:</label>
+                                            <input type="text" name="account_url"
+                                                   class="form-control m-input" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="soldby">Sold by:</label>
+                                            <select class="form-control m-input"
+                                                    name="sold_by"
+                                                    style="width: 100%;" required>
+                                                {% for member in members %}
+                                                    <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="language">Language:</label>
+                                            <select class="form-control m-input"
+                                                    name="language"
+                                                    style="width: 100%;" multiple required>
+                                                {% for language in languages %}
+                                                    <option value="{{ language.id }}">{{ language.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="objective">Objective:</label>
+                                            <select class="form-control m-input"
+                                                    name="objective"
+                                                    style="width: 100%;" required>
+                                                <option value="0">Leads</option>
+                                                <option value="1">Sales</option>
+                                                <option value="2">Awareness</option>
+                                                <option value="3">Store Visits</option>
+                                                <option value="4">Multiple</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </div>
-                <br />
-              </div>
-              <div id="new_client_form" style="display:none;">
-                <button type="button" name="button" class="btn btn-sm btn-outline-info" id="use_existing_btn">Use Existing Client</button>
-                <div class="form-group m-form__group">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <label for="client_name">Client Name:</label>
-                      <input type="text" name="client_name" class="form-control m-input"
-                      placeholder="Please enter the client name">
+                    <!-- Contact info portlet -->
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Contact Info
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group" id="contact_form">
+                                <input style="display:none;" value="1" id="contact_num_input" name="contact_num_input"/>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="contact_name1">Contact Name:</label>
+                                        <input type="text" name="contact_name1"
+                                               class="form-control m-input">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="contact_email1">Contact Email:</label>
+                                        <input type="text" name="contact_email1"
+                                               class="form-control m-input">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="contact_name1">Contact Phone Number:</label>
+                                        <input type="text" name="contact_phone_number1"
+                                               class="form-control m-input">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label>More Contacts</label>
+                                        <button type="button" name="button"
+                                                class="btn btn-sm btn-outline-info add-contact-level">+
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </div>
-                <br />
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-12">
-                    <label for="client_name">Account Name:</label>
-                    <input type="text" name="account_name" class="form-control m-input"
-                    placeholder="Please enter the client name" required>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="industry">Industry:</label>
-                    <select class="form-control m-input"
-                            name="industry"
-                            style="width: 100%;" required>
-                            {% for industry in industries %}
-                                <option value="{{ industry.id }}">{{ industry.name }}</option>
-                            {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="client_type">Client Type:</label>
-                    <select class="form-control m-input"
-                            name="client_type"
-                            style="width: 100%;" required>
-                        {% for client_type in client_types %}
-                            <option value="{{ client_type.id }}">{{ client_type.name }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="sold_budget">Sold Budget:</label>
-                    <input type="text" name="sold_budget"
-                    class="form-control m-input" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="contact_email">Account URL:</label>
-                    <input type="text" name="account_url"
-                    class="form-control m-input" required>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="soldby">Sold by:</label>
-                    <select class="form-control m-input"
-                            name="sold_by"
-                            style="width: 100%;" required>
-                        {% for member in members %}
-                            <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="language">Language:</label>
-                    <select class="form-control m-input"
-                            name="language"
-                            style="width: 100%;" multiple required>
-                        {% for language in languages %}
-                            <option value="{{ language.id }}">{{ language.name }}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group m-form__group">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="objective">Objective:</label>
-                    <select class="form-control m-input"
-                            name="objective"
-                            style="width: 100%;" required>
-                        <option value="0">Leads</option>
-                        <option value="1">Sales</option>
-                        <option value="2">Awareness</option>
-                        <option value="3">Store Visits</option>
-                        <option value="4">Multiple</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+                    <!-- End contact info portlet -->
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Service Agreement
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <input type="text" value="1" id="fee_structure_type" name="fee_structure_type"
+                                   style="display:none;"/>
+                            <div id="create_new_structure">
+                                <button type="button" name="button" class="btn btn-sm btn-outline-info"
+                                        id="use_existing_structure_btn">Use existing fee structure
+                                </button>
+                                <div class="form-group m-form__group" id="management_fee_form">
+                                    <input style="display:none;" value="1" id="rowNumInput" name="rowNumInput"/>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Name:</label>
+                                            <input class="form-control m-input" name="fee_structure_name"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Setup Fee:</label>
+                                            <input class="form-control m-input" name="setup_fee"/>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label>Low Budget Bound ($):</label>
+                                            <input class="form-control m-input" name="low-bound1"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>High Budget Bound ($):</label>
+                                            <input class="form-control m-input" name="high-bound1"/>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>Fee type:</label>
+                                            <select class="form-control m-input"
+                                                    name="fee-type1"
+                                                    style="width: 100%;" required>
+                                                <option value="0">%</option>
+                                                <option value="1">$</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Fee:</label>
+                                            <input class="form-control m-input" name="fee1"/>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label>Add Level</label>
+                                            <button type="button" name="button"
+                                                    class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="use_existing_structure" style="display:none;">
+                                <button type="button" name="button" class="btn btn-sm btn-outline-info"
+                                        id="create_new_structure_btn">Create new fee structure
+                                </button>
+                                <div class="form-group m-form__group" id="management_fee_select">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="existing_structure">Management Fee Structure:</label>
+                                            <select class="form-control m-input"
+                                                    name="existing_structure"
+                                                    style="width: 100%;">
+                                                <option value="0">
+                                                    None
+                                                </option>
+                                                {% for fee_structure in fee_structures %}
+                                                    <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        SEO and CRO Services
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <div class="m-portlet__body">
+                                <div class="m-form__group form-group">
+                                    <div class="row">
+                                        <label class="col-1 col-form-label">SEO</label>
+                                        <div class="col-1">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="seo_check" id="seo_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
+                                        </div>
+                                        <label class="col-1 col-form-label">SEO Hours</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="seo_hours" id="seo_hours"
+                                                   class="form-control m-input" disabled>
+                                        </div>
+                                        <div class="col-2"></div>
+                                        <label class="col-1 col-form-label">PPC</label>
+                                        <div class="col-1">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="ppc_check" id="ppc_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
+                                        </div>
+                                        <div class="col-1"></div>
+                                        <label class="col-1 col-form-label">Strat</label>
+                                        <div class="col-1">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="strat_check" id="strat_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <label class="col-1 col-form-label">CRO</label>
+                                        <div class="col-1">
+                                            <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                                <label>
+                                                    <input name="cro_check" id="cro_check" type="checkbox">
+                                                    <span></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                        <label class="col-1 col-form-label">CRO Hours</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="cro_hours" id="cro_hours"
+                                                   class="form-control m-input" disabled>
+                                        </div>
+                                        <div class="col-2"></div>
+                                        <label class="col-1 col-form-label">Feed Management</label>
+                                        <div class="col-1">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="feed_check" id="feed_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
+                                        </div>
+                                        <div class="col-md-1"></div>
+                                        <label class="col-1 col-form-label">Email Marketing</label>
+                                        <div class="col-1">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="email_check" id="email_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <input type="submit" value="Submit">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-      </div>
-      <!-- Contact info portlet -->
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                Contact Info
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div class="m-portlet__body">
-            <div class="form-group m-form__group" id="contact_form">
-                <input style="display:none;" value="1" id="contact_num_input" name="contact_num_input" />
-                <div class="row">
-                  <div class="col-md-4">
-                    <label for="contact_name1">Contact Name:</label>
-                    <input type="text" name="contact_name1"
-                    class="form-control m-input">
-                  </div>
-                  <div class="col-md-4">
-                    <label for="contact_email1">Contact Email:</label>
-                    <input type="text" name="contact_email1"
-                    class="form-control m-input">
-                  </div>
-                  <div class="col-md-3">
-                    <label for="contact_name1">Contact Phone Number:</label>
-                    <input type="text" name="contact_phone_number1"
-                    class="form-control m-input">
-                  </div>
-                  <div class="col-md-1">
-                    <label>More Contacts</label>
-                    <button type="button" name="button" class="btn btn-sm btn-outline-info add-contact-level">+</button>
-                  </div>
-                </div>
-            </div>
-        </div>
-      </div>
-      <!-- End contact info portlet -->
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                Service Agreement
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div class="m-portlet__body">
-          <input type="text" value="1" id="fee_structure_type" name="fee_structure_type" style="display:none;" />
-          <div id="create_new_structure">
-            <button type="button" name="button" class="btn btn-sm btn-outline-info" id="use_existing_structure_btn">Use existing fee structure</button>
-            <div class="form-group m-form__group" id="management_fee_form">
-              <input style="display:none;" value="1" id="rowNumInput" name="rowNumInput" />
-              <div class="row">
-                <div class="col-md-6">
-                  <label>Name:</label>
-                  <input class="form-control m-input" name="fee_structure_name" />
-                </div>
-                <div class="col-md-6">
-                  <label>Setup Fee:</label>
-                  <input class="form-control m-input" name="setup_fee" />
-                </div>
-              </div>
-              <hr />
-              <div class="row">
-                <div class="col-md-3">
-                  <label>Low Budget Bound ($):</label>
-                  <input class="form-control m-input" name="low-bound1" />
-                </div>
-                <div class="col-md-3">
-                  <label>High Budget Bound ($):</label>
-                  <input class="form-control m-input" name="high-bound1" />
-                </div>
-                <div class="col-md-2">
-                  <label>Fee type:</label>
-                  <select class="form-control m-input"
-                          name="fee-type1"
-                          style="width: 100%;" required>
-                          <option value="0">%</option>
-                          <option value="1">$</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label>Fee:</label>
-                  <input class="form-control m-input" name="fee1" />
-                </div>
-                <div class="col-md-1">
-                  <label>Add Level</label>
-                  <button type="button" name="button" class="btn btn-sm btn-outline-info add-fee-level-btn">Add Level</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="use_existing_structure" style="display:none;">
-            <button type="button" name="button" class="btn btn-sm btn-outline-info" id="create_new_structure_btn">Create new fee structure</button>
-            <div class="form-group m-form__group" id="management_fee_select">
-              <div class="row">
-                <div class="col-md-12">
-                  <label for="existing_structure">Management Fee Structure:</label>
-                  <select class="form-control m-input"
-                          name="existing_structure"
-                          style="width: 100%;">
-                          <option value="0">
-                            None
-                          </option>
-                      {% for fee_structure in fee_structures %}
-                          <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
-                      {% endfor %}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-          <div class="m-portlet__head-caption">
-            <div class="m-portlet__head-title">
-              <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                SEO and CRO Services
-              </h3>
-            </div>
-          </div>
-        </div>
-        <div class="m-portlet__body">
-          <div class="m-portlet__body">
-            <div class="m-form__group form-group row">
-              <label class="col-1 col-form-label">SEO</label>
-              <div class="col-1">
-                <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
-                  <label>
-                    <input name="seo_check" id="seo_check" type="checkbox">
-                    <span></span>
-                  </label>
-                </span>
-              </div>
-              <label class="col-1 col-form-label">SEO Hours</label>
-              <div class="col-md-3">
-                <input type="text" name="seo_hours" id="seo_hours"
-                class="form-control m-input" disabled>
-              </div>
-              <label class="col-1 col-form-label">CRO</label>
-              <div class="col-1">
-                <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
-                  <label>
-                    <input name="cro_check" id="cro_check" type="checkbox">
-                    <span></span>
-                  </label>
-                </span>
-              </div>
-              <label class="col-1 col-form-label">CRO Hours</label>
-              <div class="col-md-3">
-                <input type="text" name="cro_hours" id="cro_hours"
-                class="form-control m-input" disabled>
-              </div>
-            </div>
-            <input type="submit" value="Submit">
-          </div>
-        </div>
-      </div>
-    </form>
+        <!--End::Main Portlet-->
     </div>
-  </div>
-  <!--End::Main Portlet-->
-</div>
 {% endblock %}
 
 {% block extraJs %}
-<script>
-$(document).ready(function () {
-  const $createNewBtn   = $('#create_new_btn');
-  const $useExistingBtn = $('#use_existing_btn');
-  const $existingForm   = $('#existing_client_form');
-  const $newForm        = $('#new_client_form');
+    <script>
+        $(document).ready(function () {
+            const $createNewBtn = $('#create_new_btn');
+            const $useExistingBtn = $('#use_existing_btn');
+            const $existingForm = $('#existing_client_form');
+            const $newForm = $('#new_client_form');
 
-  $createNewBtn.click(function () {
-    $existingForm.hide();
-    $newForm.show();
-  });
+            $createNewBtn.click(function () {
+                $existingForm.hide();
+                $newForm.show();
+            });
 
-  $useExistingBtn.click(function () {
-    $newForm.hide();
-    $existingForm.show();
-  });
+            $useExistingBtn.click(function () {
+                $newForm.hide();
+                $existingForm.show();
+            });
 
-  /**
-   * Management fees
-   */
-  const $createNewFeeBtn   = $('#create_new_structure_btn');
-  const $useExistingFeeBtn = $('#use_existing_structure_btn');
-  const $createNewFeeDiv   = $('#create_new_structure');
-  const $useExistingFeeDiv = $('#use_existing_structure');
-  const $feeStructureType  = $('#fee_structure_type');
+            /**
+             * Management fees
+             */
+            const $createNewFeeBtn = $('#create_new_structure_btn');
+            const $useExistingFeeBtn = $('#use_existing_structure_btn');
+            const $createNewFeeDiv = $('#create_new_structure');
+            const $useExistingFeeDiv = $('#use_existing_structure');
+            const $feeStructureType = $('#fee_structure_type');
 
-  $createNewFeeBtn.click(function () {
-    $feeStructureType.val('1');
-    $useExistingFeeDiv.hide();
-    $createNewFeeDiv.show();
-  });
+            $createNewFeeBtn.click(function () {
+                $feeStructureType.val('1');
+                $useExistingFeeDiv.hide();
+                $createNewFeeDiv.show();
+            });
 
-  $useExistingFeeBtn.click(function () {
-    $feeStructureType.val('2');
-    $createNewFeeDiv.hide();
-    $useExistingFeeDiv.show();
-  });
+            $useExistingFeeBtn.click(function () {
+                $feeStructureType.val('2');
+                $createNewFeeDiv.hide();
+                $useExistingFeeDiv.show();
+            });
 
-  const $addFeeBtn = $('.add-fee-level-btn');
-  const $feeForm   = $('#management_fee_form');
-  const $rowNum    = $('#rowNumInput');
+            const $addFeeBtn = $('.add-fee-level-btn');
+            const $feeForm = $('#management_fee_form');
+            const $rowNum = $('#rowNumInput');
 
-  let feeRows = 1;
-  let feeRowHtml = `
+            let feeRows = 1;
+            let feeRowHtml = `
                   <div class="row">
                     <div class="col-md-3">
                       <label>Low Budget Bound ($):</label>
@@ -387,22 +448,22 @@ $(document).ready(function () {
                   </div>
                   `;
 
-  $addFeeBtn.click(function () {
-    feeRows++;
-    $rowNum.val(feeRows);
-    let feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
-                           .replace('high-bound1', 'high-bound' + feeRows)
-                           .replace('fee-type1', 'fee-type' + feeRows)
-                           .replace('fee1', 'fee' + feeRows);
-    $feeForm.append(feeRowHtmlTmp);
-  });
+            $addFeeBtn.click(function () {
+                feeRows++;
+                $rowNum.val(feeRows);
+                let feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+                    .replace('high-bound1', 'high-bound' + feeRows)
+                    .replace('fee-type1', 'fee-type' + feeRows)
+                    .replace('fee1', 'fee' + feeRows);
+                $feeForm.append(feeRowHtmlTmp);
+            });
 
-  const $addContactBtn = $('.add-contact-level');
-  const $contactForm = $('#contact_form');
-  const $contactNumberInput = $('#contact_num_input');
+            const $addContactBtn = $('.add-contact-level');
+            const $contactForm = $('#contact_form');
+            const $contactNumberInput = $('#contact_num_input');
 
-  let contactRows = 1;
-  let contactRowHtml = `<div class="row">
+            let contactRows = 1;
+            let contactRowHtml = `<div class="row">
                           <div class="col-md-4">
                             <label for="contact_name1">Contact Name:</label>
                             <input type="text" name="contact_name1"
@@ -420,39 +481,39 @@ $(document).ready(function () {
                           </div>
                         </div>`;
 
-  $addContactBtn.click(function () {
-    contactRows++;
-    $contactNumberInput.val(contactRows);
-    let contactRowHtmlTmp = contactRowHtml.replace('contact_name1', 'contact_name' + contactRows)
-                           .replace('contact_email1', 'contact_email' + contactRows)
-                           .replace('contact_phone_number1', 'contact_phone_number' + contactRows);
-    $contactForm.append(contactRowHtmlTmp);
-  });
+            $addContactBtn.click(function () {
+                contactRows++;
+                $contactNumberInput.val(contactRows);
+                let contactRowHtmlTmp = contactRowHtml.replace('contact_name1', 'contact_name' + contactRows)
+                    .replace('contact_email1', 'contact_email' + contactRows)
+                    .replace('contact_phone_number1', 'contact_phone_number' + contactRows);
+                $contactForm.append(contactRowHtmlTmp);
+            });
 
-  // SEO and CRO toggles
-  const $seoCheck = $('#seo_check');
-  const $croCheck = $('#cro_check');
-  const $seoHours  = $('#seo_hours');
-  const $croHours  = $('#cro_hours');
+            // SEO and CRO toggles
+            const $seoCheck = $('#seo_check');
+            const $croCheck = $('#cro_check');
+            const $seoHours = $('#seo_hours');
+            const $croHours = $('#cro_hours');
 
-  $seoCheck.change(function () {
-    if ($(this).is(':checked')) {
-      $seoHours.prop('disabled', false);
-    } else {
-      $seoHours.val('');
-      $seoHours.prop('disabled', true);
-    }
-  });
+            $seoCheck.change(function () {
+                if ($(this).is(':checked')) {
+                    $seoHours.prop('disabled', false);
+                } else {
+                    $seoHours.val('');
+                    $seoHours.prop('disabled', true);
+                }
+            });
 
-  $croCheck.change(function () {
-    if ($(this).is(':checked')) {
-      $croHours.prop('disabled', false);
-    } else {
-      $croHours.val('');
-      $croHours.prop('disabled', true);
-    }
-  });
+            $croCheck.change(function () {
+                if ($(this).is(':checked')) {
+                    $croHours.prop('disabled', false);
+                } else {
+                    $croHours.val('');
+                    $croHours.prop('disabled', true);
+                }
+            });
 
-});
-</script>
+        });
+    </script>
 {% endblock %}
