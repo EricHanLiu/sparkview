@@ -221,25 +221,25 @@ def account_new(request):
             # Check if we sold each service
             if request.POST.get('seo_check'):
                 # account.has_seo = True
-                sp.seo_status = 1
+                sp.seo_status = 0
                 sp.save()
                 account.seo_hours = request.POST.get('seo_hours')
             if request.POST.get('cro_check'):
                 # account.has_cro = True
-                sp.cro_status = 1
+                sp.cro_status = 0
                 sp.save()
                 account.cro_hours = request.POST.get('cro_hours')
             if request.POST.get('ppc_check'):
-                sp.ppc_status = 1
+                sp.ppc_status = 0
                 sp.save()
             if request.POST.get('strat_check'):
-                sp.strat_status = 1
+                sp.strat_status = 0
                 sp.save()
             if request.POST.get('feed_check'):
-                sp.feed_status = 1
+                sp.feed_status = 0
                 sp.save()
             if request.POST.get('email_check'):
-                sp.email_status = 1
+                sp.email_status = 0
                 sp.save()
 
             account.has_gts = True
