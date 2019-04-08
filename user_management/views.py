@@ -96,11 +96,11 @@ def member_dashboard(request, id):
     available_aggregate = 0.0
     training_aggregate = 0.0
 
-    for member in members:
-        actual_aggregate += member.actualHoursThisMonth
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
-        training_aggregate += member.training_hours_month
+    for memb in members:
+        actual_aggregate += memb.actualHoursThisMonth
+        allocated_aggregate += memb.allocated_hours_month()
+        available_aggregate += memb.hours_available
+        training_aggregate += memb.training_hours_month
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
