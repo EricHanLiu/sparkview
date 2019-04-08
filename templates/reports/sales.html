@@ -5,53 +5,131 @@
 {% load template_filters %}
 
 {% block content %}
-<div class="m-content">
-  <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-    <div class="m-portlet__head">
-      <div class="m-portlet__head-caption">
-        <div class="m-portlet__head-title">
-          <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-            Sales Report
-          </h3>
+    <div class="m-content">
+        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                            Sales Report
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="m-portlet__body">
+                <form class="m-form" method="get">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="account">Account Status:</label>
+                            <select class="form-control m-input"
+                                    name="account_status"
+                                    style="width: 100%;">
+                                <option value="all" {% if selected == 'all' %}selected{% endif %}>
+                                    All
+                                </option>
+                                <option value="onboarding" {% if selected == 'onboarding' %}selected{% endif %}>
+                                    Onboarding
+                                </option>
+                                <option value="active" {% if selected == 'active' %}selected{% endif %}>
+                                    Active
+                                </option>
+                                <option value="inactive" {% if selected == 'inactive' %}selected{% endif %}>
+                                    Inactive
+                                </option>
+                                <option value="lost" {% if selected == 'lost' %}selected{% endif %}>
+                                    Lost
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <br/>
+                            <input type="submit" value="Submit">
+                        </div>
+                    </div>
+                </form>
+                <hr/>
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                    <div class="col-12">
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'
+                               id="my_clients_datatable">
+                            <thead class="thead-inverse">
+                            <tr class="main-table-header">
+                                <th>Account</th>
+                                <th>
+                                    Active Services
+                                </th>
+                                <th>
+                                    Pitched Services
+                                </th>
+                                <th>
+                                    Opportunity Services
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for sp in sps %}
+                                <tr>
+                                    <td><a href="/clients/accounts/{{ sp.account.id }}">{{ sp.account }}</a></td>
+                                    <td>{{ sp.active_services_str }}</td>
+                                    <td>
+                                        {% if sp.ppc_status == 5 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.ppc_pitched_desc }}, {{ sp.last_ppc_change }}">PPC &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.seo_status == 5 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.seo_pitched_desc }}, {{ sp.last_seo_change }}">SEO &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.cro_status == 5 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.cro_pitched_desc }}, {{ sp.last_cro_change }}">CRO &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.strat_status == 5 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.strat_pitched_desc }}, {{ sp.last_strat_change }}">Strat &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.feed_status == 5 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.feed_pitched_desc }}, {{ sp.last_feed_change }}">Feed Management &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.email_status == 5 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.email_pitched_desc }}, {{ sp.last_email_change }}">Email Marketing &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if sp.ppc_status == 4 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.ppc_opp_desc }}, {{ sp.last_ppc_change }}">PPC &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.seo_status == 4 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.seo_opp_desc }}, {{ sp.last_seo_change }}">SEO &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.cro_status == 4 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.cro_opp_desc }}, {{ sp.last_cro_change }}">CRO &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.strat_status == 4 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.strat_opp_desc }}, {{ sp.last_strat_change }}">Strat &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.feed_status == 4 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.feed_opp_desc }}, {{ sp.last_feed_change }}">Feed Management &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                        {% if sp.email_status == 4 %}
+                                            <span data-toggle="m-tooltip" data-placement="top"
+                                                  data-original-title="{{ sp.email_opp_desc }}, {{ sp.last_email_change }}">Email Marketing &nbsp;&nbsp;</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-    <div class="m-portlet__body">
-      <div class="row m-row--no-padding m-row--col-separator-xl">
-        <div class="col-12">
-          <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline' id="my_clients_datatable">
-            <thead class="thead-inverse">
-              <tr class="main-table-header">
-                <th>Account</th>
-                <th>
-                  Active Services
-                </th>
-                <th>
-                  Pitched Services
-                </th>
-                <th>
-                  Opportunity Services
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for sp in sps %}
-              <tr>
-                <td><a href="/clients/accounts/{{ sp.account.id }}">{{ sp.account }}</a></td>
-                <td>{{ sp.active_services_str }}</td>
-                <td>
-                    {{ sp.pitched_services_str }}
-                </td>
-                <td>
-                    {{ sp.opp_services_str }}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}

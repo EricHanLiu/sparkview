@@ -8,6 +8,7 @@ from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal,
 from notifications.models import Notification
 import datetime
 import calendar
+from urllib.parse import parse_qs
 
 
 # Create your views here.
@@ -108,9 +109,10 @@ def account_spend_progression(request):
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
     for account in accounts:
-        total_projected_loss += account.projected_loss
         if account.projected_loss < 0:  # we will overspend
             total_projected_overspend += account.project_yesterday - account.current_budget
+        else:  # we will underspend
+            total_projected_loss += account.projected_loss
 
     context = {
         'accounts': accounts,
@@ -861,9 +863,33 @@ def sales(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    sps = SalesProfile.objects.all()
+    qs = parse_qs(request.GET.urlencode())
+    selected = 'all'
+
+    if 'account_status' in qs:
+        status = qs['account_status'][0]
+
+        if status == 'active':
+            accounts = Client.objects.filter(status=1)
+            selected = 'active'
+        elif status == 'onboarding':
+            accounts = Client.objects.filter(status=0)
+            selected = 'onboarding'
+        elif status == 'inactive':
+            accounts = Client.objects.filter(status=2)
+            selected = 'inactive'
+        elif status == 'lost':
+            accounts = Client.objects.filter(status=3)
+            selected = 'lost'
+        else:
+            accounts = Client.objects.all()
+    else:
+        accounts = Client.objects.all()
+
+    sps = SalesProfile.objects.filter(account__in=accounts)
 
     context = {
+        'selected': selected,
         'sps': sps
     }
 

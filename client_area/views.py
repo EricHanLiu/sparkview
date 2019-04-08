@@ -71,6 +71,43 @@ def accounts_all(request):
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
+        'page_type': 'Active',
+        'status_badges': status_badges,
+        'accounts': accounts
+    }
+
+    return render(request, 'client_area/accounts_all.html', context)
+
+
+@login_required
+def accounts_inactive(request):
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(status=2)
+
+    status_badges = ['info', 'success', 'warning', 'danger']
+
+    context = {
+        'page_type': 'Inactive',
+        'status_badges': status_badges,
+        'accounts': accounts
+    }
+
+    return render(request, 'client_area/accounts_all.html', context)
+
+
+@login_required
+def accounts_lost(request):
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    accounts = Client.objects.filter(status=3)
+
+    status_badges = ['info', 'success', 'warning', 'danger']
+
+    context = {
+        'page_type': 'Lost',
         'status_badges': status_badges,
         'accounts': accounts
     }
@@ -180,16 +217,28 @@ def account_new(request):
                 # Create new management fee
                 number_of_tiers = request.POST.get('rowNumInput')
                 fee_structure_name = request.POST.get('fee_structure_name')
-                init_fee = request.POST.get('setup_fee')
+                try:
+                    init_fee = float(request.POST.get('setup_fee'))
+                except ValueError:
+                    init_fee = 0.0
                 management_fee_structure = ManagementFeesStructure()
                 management_fee_structure.name = fee_structure_name
                 management_fee_structure.initialFee = init_fee
                 management_fee_structure.save()
                 for i in range(1, int(number_of_tiers) + 1):
                     fee_type = request.POST.get('fee-type' + str(i))
-                    fee = request.POST.get('fee' + str(i))
-                    lower_bound = request.POST.get('low-bound' + str(i))
-                    high_bound = request.POST.get('high-bound' + str(i))
+                    try:
+                        fee = float(request.POST.get('fee' + str(i)))
+                    except ValueError:
+                        fee = 0.0
+                    try:
+                        lower_bound = float(request.POST.get('low-bound' + str(i)))
+                    except ValueError:
+                        lower_bound = 0.0
+                    try:
+                        high_bound = float(request.POST.get('high-bound' + str(i)))
+                    except ValueError:
+                        high_bound = 0.0
                     feeInterval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee,
                                                                        lowerBound=lower_bound, upperBound=high_bound)
                     management_fee_structure.feeStructure.add(feeInterval)
@@ -204,25 +253,34 @@ def account_new(request):
                 pass
 
             # Set up the sales profile (services) of the account
-            # TODO: Eric, please fill this section out with corresponding front end components
             sp = SalesProfile.objects.create(account=account)
 
-            # Check if we sold SEO and/or CRO
-            # Repeat this process for every type of service (PPC doesn't have hours explicitly)
+            # Check if we sold each service
             if request.POST.get('seo_check'):
                 # account.has_seo = True
-                sp.seo_status = 1
+                sp.seo_status = 0
                 sp.save()
                 account.seo_hours = request.POST.get('seo_hours')
             if request.POST.get('cro_check'):
                 # account.has_cro = True
-                sp.cro_status = 1
+                sp.cro_status = 0
                 sp.save()
                 account.cro_hours = request.POST.get('cro_hours')
+            if request.POST.get('ppc_check'):
+                sp.ppc_status = 0
+                sp.save()
+            if request.POST.get('strat_check'):
+                sp.strat_status = 0
+                sp.save()
+            if request.POST.get('feed_check'):
+                sp.feed_status = 0
+                sp.save()
+            if request.POST.get('email_check'):
+                sp.email_status = 0
+                sp.save()
 
             account.has_gts = True
             account.has_budget = True
-            account.has_ppc = True
 
             account.save()
 
@@ -787,9 +845,8 @@ def add_hours_to_account(request):
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-        ).order_by('client_name')
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
         accounts_count = accounts.count()
-
         for i in range(accounts_count):
             i = str(i)
             account_id = request.POST.get('account-id-' + i)
@@ -1415,6 +1472,21 @@ def onboard_account(request, account_id):
                 break
 
         if acc_active == 1:
+            for step in account.onboardingstepassignment_set.all():
+                sp = account.sales_profile
+                if step.step.service == 0:
+                    sp.ppc_status = 1
+                    sp.save()
+                elif step.step.service == 1:
+                    sp.seo_status = 1
+                    sp.save()
+                elif step.step.service == 2:
+                    sp.cro_status = 1
+                    sp.save()
+                elif step.step.service == 3:
+                    sp.strat_status = 1
+                    sp.save()
+
             account.status = 1
             account.save()
 

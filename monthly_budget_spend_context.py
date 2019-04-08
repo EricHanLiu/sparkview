@@ -58,6 +58,7 @@ def main():
             account_budget_history.bing_spend = account.bing_spend
             account_budget_history.fb_spend = account.fb_spend
             account_budget_history.flex_spend = account.flex_spend
+            account_budget_history.management_fee = account.current_fee
             account_budget_history.save()
         else:
             print('Account ' + account.client_name + ' month ' + str(month) + ' year ' + str(

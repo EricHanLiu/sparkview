@@ -13,6 +13,12 @@
                         <span>{{ member.role }}</span>
                     </div>
                 </li>
+                {% if request.user.is_staff %}
+                    <li class="m-menu__item " aria-haspopup="true"><a
+                            href="/user_management/members/{{ member.id }}/dashboard" class="m-menu__link "><i
+                            class="m-menu__link-icon flaticon-car"></i><span class="m-menu__link-text">Dashboard</span></a>
+                    </li>
+                {% endif %}
                 <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}" class="m-menu__link "><i
                         class="m-menu__link-icon flaticon-light"></i><span

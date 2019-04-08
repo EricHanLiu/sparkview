@@ -3,14 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Sum, Q
 import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
 from budget.models import Client
-from client_area.models import AccountHourRecord, MonthlyReport, Promo
+from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment
+from notifications.models import Notification
 
 
 @login_required
@@ -52,6 +53,206 @@ def members(request):
     }
 
     return render(request, 'user_management/members.html', context)
+
+
+@login_required
+def member_dashboard(request, id):
+    # Authenticate if staff or not
+    if not request.user.is_staff:
+        return HttpResponse('You do not have permission to view this page')
+
+    # HOURS REPORT INFO
+    # Get account related metrics
+    member = get_object_or_404(Member, id=id)
+
+    # Members, Teams, Roles
+    members = Member.objects.all()
+    teams = Team.objects.all()
+    roles = Role.objects.all()
+
+    # If filter request was made, then narrow the member/teams objects
+    teams_request = request.GET.getlist('filter-team')
+    roles_request = request.GET.getlist('filter-role')
+
+    # Convert to role objects
+    filtered_roles = None
+    filtered_teams = None
+    if teams_request:
+        filtered_teams = teams.filter(id__in=teams_request)
+        members = members.filter(team__in=filtered_teams)
+    if roles_request:
+        filtered_roles = roles.filter(id__in=roles_request)
+        members = members.filter(role__in=filtered_roles)
+
+    # get accounts of filtered members
+    accounts = Client.objects.filter(
+        Q(cm1__in=members) | Q(cm2__in=members) | Q(cm3__in=members) | Q(am1__in=members) | Q(am2__in=members) | Q(
+            am3__in=members) | Q(seo1__in=members) | Q(seo2__in=members) | Q(seo3__in=members) | Q(
+            strat1__in=members) | Q(
+            strat2__in=members) | Q(strat3__in=members))
+
+    actual_aggregate = 0.0
+    allocated_aggregate = 0.0
+    available_aggregate = 0.0
+    training_aggregate = 0.0
+
+    for memb in members:
+        actual_aggregate += memb.actualHoursThisMonth
+        allocated_aggregate += memb.allocated_hours_month()
+        available_aggregate += memb.hours_available
+        training_aggregate += memb.training_hours_month
+
+    if allocated_aggregate + available_aggregate == 0:
+        capacity_rate = 0
+    else:
+        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+
+    if allocated_aggregate == 0:
+        utilization_rate = 0
+    else:
+        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+
+    # Total management fee
+    # total_management_fee = 0.0
+    total_allocated_hours = 0.0
+
+    for acc in accounts:
+        # total_management_fee += aa.total_fee
+        total_allocated_hours += acc.all_hours
+
+    # hours worked this month
+    now = datetime.datetime.now()
+    month = now.month
+    year = now.year
+    total_hours_worked = \
+        AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
+    if total_hours_worked is None:
+        total_hours_worked = 0.0
+
+    try:
+        allocation_ratio = total_hours_worked / total_allocated_hours
+    except ZeroDivisionError:
+        allocation_ratio = 0.0
+
+    # MONTHLY REPORTS INFO
+    reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False, cm__in=members)
+    outstanding_reports = reports.filter(year=now.year, month=now.month, date_sent_by_am=None)
+
+    complete_reports = reports.exclude(date_sent_by_am=None).count()
+    report_count = reports.count()
+
+    completion_rate = 0.0
+    if report_count != 0.0:
+        completion_rate = 100.0 * complete_reports / report_count
+
+    ontime_numer = 0.0
+    ontime_denom = 0.0
+    for report in reports:
+        if report.complete_ontime:
+            ontime_numer += 1
+        ontime_denom += 1
+
+    ontime_rate = 0.0
+    if ontime_denom != 0:
+        ontime_rate = 100.0 * ontime_numer / ontime_denom
+
+    # PROMO INFO
+    today = datetime.datetime.now().date()
+    tomorrow = today + datetime.timedelta(1)
+    today_start = datetime.datetime.combine(today, datetime.time())
+    today_end = datetime.datetime.combine(tomorrow, datetime.time())
+    three_days_ago = now - datetime.timedelta(3)
+    three_days_future = now + datetime.timedelta(3)
+
+    promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
+                                       end_date__lte=three_days_future, account__in=accounts)
+    promos_start_today = promos_week.filter(start_date__gte=today_start,
+                                            start_date__lte=today_end)
+    promos_end_today = promos_week.filter(end_date__gte=today_start,
+                                          end_date__lte=today_end)
+
+    # ONBOARDING ACCOUNTS INFO
+    onboarding_accounts = accounts.filter(status=0)
+    num_onboarding = onboarding_accounts.count()
+
+    avg_onboarding_days = 0
+    for acc in onboarding_accounts:
+        avg_onboarding_days += acc.onboarding_duration_elapsed
+    if num_onboarding != 0:
+        avg_onboarding_days /= num_onboarding
+
+    late_accounts = len([account for account in onboarding_accounts if account.is_late_to_onboard])
+    late_percentage = 0.0
+    if num_onboarding != 0:
+        late_percentage = 100.0 * late_accounts / num_onboarding
+
+    # BUDGETS INFO
+    # Monthly budget updates
+    active_accounts = accounts.filter(status=1)
+    budget_updated_accounts = active_accounts.filter(budget_updated=True)
+    budget_not_updated_accounts = active_accounts.filter(budget_updated=False)
+    budget_updated_percentage = 0.0
+    if active_accounts.count() != 0:
+        budget_updated_percentage = 100.0 * budget_updated_accounts.count() / active_accounts.count()
+
+    # Overspend projection - get top 5 overspending and underspending accounts
+    overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, active_accounts),
+                                key=lambda a: a.projected_refund)[0:5]
+    underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
+                                 key=lambda a: a.projected_loss)[0:5]
+
+    total_projected_loss = 0.0
+    total_projected_overspend = 0.0
+    for account in overspend_accounts:
+        total_projected_overspend += account.project_yesterday - account.current_budget
+    for account in underspend_accounts:
+        total_projected_loss += account.projected_loss
+
+    # NOTIFICATIONS INFO
+    num_outstanding_notifs = Notification.objects.filter(confirmed=False, member__in=members).count()
+    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False, account__in=accounts).count()
+
+    # FLAGGED ACCOUNTS INFO
+    flagged_accounts = accounts.filter(star_flag=True)
+
+    context = {
+        'member': member,
+        'capacity_rate': capacity_rate,
+        'utilization_rate': utilization_rate,
+        'allocation_ratio': allocation_ratio,
+        'total_allocated_hours': total_allocated_hours,
+        'total_hours_worked': total_hours_worked,
+        'actual_aggregate': actual_aggregate,
+        'allocated_aggregate': allocated_aggregate,
+        'available_aggregate': available_aggregate,
+        'total_hours_trained': training_aggregate,
+        'filtered_teams': filtered_teams,
+        'filtered_roles': filtered_roles,
+        'completion_rate': completion_rate,
+        'ontime_rate': ontime_rate,
+        'outstanding_reports': outstanding_reports,
+        'promos_start_today': promos_start_today,
+        'promos_end_today': promos_end_today,
+        'promos_week': promos_week,
+        'onboarding_accounts': onboarding_accounts,
+        'num_onboarding': num_onboarding,
+        'average_onboarding_days': avg_onboarding_days,
+        'onboarding_late_percentage': late_percentage,
+        'budget_not_updated_accounts': budget_not_updated_accounts,
+        'budget_updated_percentage': budget_updated_percentage,
+        'overspend_accounts': overspend_accounts,
+        'total_overspend_risk': total_projected_overspend,
+        'underspend_accounts': underspend_accounts,
+        'total_projected_loss': total_projected_loss,
+        'num_outstanding_notifs': num_outstanding_notifs,
+        'num_outstanding_90_days': num_outstanding_90_days,
+        'flagged_accounts': flagged_accounts,
+        'members': members,
+        'teams': teams,
+        'roles': roles
+    }
+
+    return render(request, 'user_management/profile/dashboard.html', context)
 
 
 @login_required
