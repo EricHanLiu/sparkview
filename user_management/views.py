@@ -74,6 +74,24 @@ def member_dashboard(request, id):
     teams_request = request.GET.getlist('filter-team')
     roles_request = request.GET.getlist('filter-role')
 
+    years = [2018, 2019, 2020]
+    now = datetime.datetime.now()
+
+    q_month = request.GET.get('month')
+    q_year = request.GET.get('year')
+
+    month = q_month if q_month else now.month
+    year = q_month if q_month else now.month
+
+    # The following variable will be used to control what is shown in the dashboard
+    # Reason for this is that not everything is available historically
+    load_everything = not (q_month and q_year)
+
+    selected = {
+        'month': month,
+        'year': year
+    }
+
     # Convert to role objects
     filtered_roles = None
     filtered_teams = None
@@ -249,7 +267,10 @@ def member_dashboard(request, id):
         'flagged_accounts': flagged_accounts,
         'members': members,
         'teams': teams,
-        'roles': roles
+        'roles': roles,
+        'years': years,
+        'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
+        'selected': selected
     }
 
     return render(request, 'user_management/profile/dashboard.html', context)
