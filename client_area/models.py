@@ -593,7 +593,7 @@ class SalesProfile(models.Model):
         See last_service_change
         :return:
         """
-        return self.last_service_change(5)
+        return self.last_service_change(4)
 
     @property
     def last_email_change(self):
