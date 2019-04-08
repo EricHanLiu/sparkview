@@ -550,6 +550,72 @@ class SalesProfile(models.Model):
             self._opp_services_str = ', '.join(opp)
         return self._opp_services_str
 
+    @property
+    def last_ppc_change(self):
+        """
+        Returns datetime of the last time the ppc status was changed, None if never
+        See last_service_change
+        :return:
+        """
+        return self.last_service_change(0)
+
+    @property
+    def last_seo_change(self):
+        """
+        Returns datetime of the last time the seo status was changed, None if never
+        See last_service_change
+        :return:
+        """
+        return self.last_service_change(1)
+
+    @property
+    def last_cro_change(self):
+        """
+        Returns datetime of the last time the cro status was changed, None if never
+        See last_service_change
+        :return:
+        """
+        return self.last_service_change(2)
+
+    @property
+    def last_strat_change(self):
+        """
+        Returns datetime of the last time the strat status was changed, None if never
+        See last_service_change
+        :return:
+        """
+        return self.last_service_change(3)
+
+    @property
+    def last_feed_change(self):
+        """
+        Returns datetime of the last time the feed management status was changed, None if never
+        See last_service_change
+        :return:
+        """
+        return self.last_service_change(4)
+
+    @property
+    def last_email_change(self):
+        """
+        Returns datetime of the last time the email marketing status was changed, None if never
+        See last_service_change
+        :return:
+        """
+        return self.last_service_change(5)
+
+    def last_service_change(self, service_id):
+        """
+        Returns datetime of last service change with id 'service_id', None if never
+        :param service_id: ID of the service, corresponds to the choices in the SalesProfileChange model
+        :return:
+        """
+        try:
+            recent_change = SalesProfileChange.objects.filter(profile=self, service=service_id).order_by('-id')[0]
+        except IndexError:
+            return None
+        return recent_change.created_at
+
     def __init__(self, *args, **kwargs):
         super(SalesProfile, self).__init__(*args, **kwargs)
         self.__ppc_status = self.ppc_status
