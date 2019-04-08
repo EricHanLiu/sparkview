@@ -122,10 +122,10 @@
                                         <canvas id="capacity-chart" height="50px"></canvas>
                                         <div class="row mt-4">
                                             <h5 class="col-md-6 text-center text-info">
-                                                {{ allocated_aggregate }}
+                                                {{ allocated_aggregate|floatformat:2 }}
                                             </h5>
                                             <h5 class="col-md-6 text-center text-muted">
-                                                {{ allocated_aggregate|add:available_aggregate }}
+                                                {{ allocated_aggregate|add:available_aggregate|floatformat:2 }}
                                             </h5>
                                         </div>
                                         <div class="row">
@@ -151,10 +151,10 @@
                                         <canvas id="utilization-chart" height="50px"></canvas>
                                         <div class="row mt-4">
                                             <h5 class="col-md-6 text-center text-danger">
-                                                {{ actual_aggregate }}
+                                                {{ actual_aggregate|floatformat:2 }}
                                             </h5>
                                             <h5 class="col-md-6 text-center text-muted">
-                                                {{ allocated_aggregate }}
+                                                {{ allocated_aggregate|floatformat:2 }}
                                             </h5>
                                         </div>
                                         <div class="row">
