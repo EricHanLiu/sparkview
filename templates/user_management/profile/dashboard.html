@@ -116,15 +116,15 @@
                                         <h3 class="text-center text-info p-2">
                                             Team Capacity
                                         </h3>
-                                        <h1 class="text-center text-info">
+                                        <h1 class="text-center text-info" id="capacity-display">
                                             {{ capacity_rate|floatformat:2 }}%
                                         </h1>
                                         <canvas id="capacity-chart" height="50px"></canvas>
                                         <div class="row mt-4">
-                                            <h5 class="col-md-6 text-center text-info" id="allocated-hours-display">
+                                            <h5 class="col-md-6 text-center text-info">
                                                 {{ allocated_aggregate }}
                                             </h5>
-                                            <h5 class="col-md-6 text-center text-muted" id="total-hours-display">
+                                            <h5 class="col-md-6 text-center text-muted">
                                                 {{ allocated_aggregate|add:available_aggregate }}
                                             </h5>
                                         </div>
@@ -150,10 +150,10 @@
                                         </h1>
                                         <canvas id="utilization-chart" height="50px"></canvas>
                                         <div class="row mt-4">
-                                            <h5 class="col-md-6 text-center text-danger" id="actual-hours-display">
+                                            <h5 class="col-md-6 text-center text-danger">
                                                 {{ actual_aggregate }}
                                             </h5>
-                                            <h5 class="col-md-6 text-center text-muted" id="allocated-hours-display-2">
+                                            <h5 class="col-md-6 text-center text-muted">
                                                 {{ allocated_aggregate }}
                                             </h5>
                                         </div>
@@ -923,8 +923,9 @@
         });
 
         // capacity percentage bar chart
-        let allocatedHours = parseInt($('#allocated-hours-display').text());
-        let totalHours = parseInt($('#total-hours-display').text());
+        let capacityPercentage = parseInt($('#capacity-display').text());
+        // display 100 if greater than
+        capacityPercentage = capacityPercentage > 100 ? 100 : capacityPercentage;
         let ctx1 = $('#capacity-chart')[0].getContext('2d');
 
         function buildChart1() {
@@ -932,7 +933,7 @@
                 type: 'horizontalBar',
                 data: {
                     datasets: [{
-                        data: [allocatedHours, totalHours],
+                        data: [capacityPercentage],
                         backgroundColor: [
                             'rgb(54, 163, 247, 0.7)'
                         ],
@@ -950,7 +951,7 @@
                         xAxes: [{
                             ticks: {
                                 min: 0,
-                                max: totalHours += 50 - totalHours % 50
+                                max: 100
                             }
                         }]
                     },
@@ -965,8 +966,9 @@
         }
 
         // utilization percentage bar chart
-        let actualHours = parseInt($('#actual-hours-display').text());
-        let allocatedHours2 = parseInt($('#allocated-hours-display-2').text());
+        let utilizationPercentage = parseInt($('#utilization-display').text());
+        // display 100 if greater than
+        utilizationPercentage = utilizationPercentage > 100 ? 100 : utilizationPercentage;
         let ctx2 = $('#utilization-chart')[0].getContext('2d');
 
         function buildChart2() {
@@ -974,7 +976,7 @@
                 type: 'horizontalBar',
                 data: {
                     datasets: [{
-                        data: [actualHours, allocatedHours2],
+                        data: [utilizationPercentage],
                         backgroundColor: [
                             'rgb(244, 81, 108, 0.7)'
                         ],
@@ -992,7 +994,7 @@
                         xAxes: [{
                             ticks: {
                                 min: 0,
-                                max: allocatedHours2 += 50 - allocatedHours % 50,
+                                max: 100
                             }
                         }]
                     },
