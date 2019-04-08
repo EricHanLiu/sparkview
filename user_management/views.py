@@ -197,9 +197,9 @@ def member_dashboard(request, id):
 
     # Overspend projection - get top 5 overspending and underspending accounts
     overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, active_accounts),
-                                key=lambda a: a.projected_refund)
+                                key=lambda a: a.projected_refund, reverse=True)
     underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
-                                 key=lambda a: a.projected_loss)
+                                 key=lambda a: a.projected_loss, reverse=True)
     top_five_overspend = overspend_accounts[0:5]
     top_five_underspend = underspend_accounts[0:5]
     num_overspend = len(overspend_accounts)
