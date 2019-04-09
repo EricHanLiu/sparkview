@@ -118,6 +118,8 @@ def member_dashboard(request, id):
         actual_aggregate += memb.actual_hours_this_month
         if load_everything:  # This means that it's this month (or the default) that we're querying
             allocated_aggregate += memb.allocated_hours_this_month
+        else:
+            allocated_aggregate += memb.allocated_hours_other_month(year, month)
         available_aggregate += memb.hours_available
         training_aggregate += memb.training_hours_month
 
