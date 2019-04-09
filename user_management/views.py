@@ -216,9 +216,13 @@ def member_dashboard(request, id):
 
     # Overspend projection - get top 5 overspending and underspending accounts
     overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, active_accounts),
-                                key=lambda a: a.projected_refund)[0:5]
+                                key=lambda a: a.projected_refund, reverse=True)
     underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
-                                 key=lambda a: a.projected_loss)[0:5]
+                                 key=lambda a: a.projected_loss, reverse=True)
+    top_five_overspend = overspend_accounts[0:5]
+    top_five_underspend = underspend_accounts[0:5]
+    num_overspend = len(overspend_accounts)
+    num_underspend = len(underspend_accounts)
 
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
@@ -261,9 +265,11 @@ def member_dashboard(request, id):
         'onboarding_late_percentage': late_percentage,
         'budget_not_updated_accounts': budget_not_updated_accounts,
         'budget_updated_percentage': budget_updated_percentage,
-        'overspend_accounts': overspend_accounts,
+        'top_five_overspend': top_five_overspend,
+        'num_overspend': num_overspend,
         'total_overspend_risk': total_projected_overspend,
-        'underspend_accounts': underspend_accounts,
+        'top_five_underspend': top_five_underspend,
+        'num_underspend': num_underspend,
         'total_projected_loss': total_projected_loss,
         'num_outstanding_notifs': num_outstanding_notifs,
         'num_outstanding_90_days': num_outstanding_90_days,
