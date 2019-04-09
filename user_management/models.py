@@ -33,13 +33,6 @@ class Team(models.Model):
         return list(Member.objects.filter(team=self))
 
     @property
-    def accounts(self):
-        """
-        Returns the team's accounts
-        """
-        pass
-
-    @property
     def team_lead(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self], role=role)

@@ -215,6 +215,17 @@ class Client(models.Model):
             return False
 
     @property
+    def has_strat(self):
+        """
+        Check the sales profile (service list) of this client to see if ppc is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.strat_status == 1
+        else:
+            return False
+
+    @property
     def is_onboarding_ppc(self):
         if self.sales_profile is not None:
             return self.sales_profile.ppc_status == 0

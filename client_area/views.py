@@ -814,9 +814,9 @@ def add_hours_to_account(request):
         all_accounts = Client.objects.all().order_by('client_name')
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
-        years = [2018, 2019, 2020, 2021, 2022, 2023]
-
         now = datetime.datetime.now()
+        years = [i for i in range(2018, now.year + 1)]
+
         monthnow = now.month
         current_year = now.year
 
