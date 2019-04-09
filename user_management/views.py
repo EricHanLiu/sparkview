@@ -115,7 +115,7 @@ def member_dashboard(request, id):
     training_aggregate = 0.0
 
     for memb in members:
-        actual_aggregate += memb.actualHoursThisMonth
+        actual_aggregate += memb.actual_hours_this_month
         allocated_aggregate += memb.allocated_hours_month()
         available_aggregate += memb.hours_available
         training_aggregate += memb.training_hours_month
@@ -153,6 +153,7 @@ def member_dashboard(request, id):
         allocation_ratio = 0.0
 
     # MONTHLY REPORTS INFO
+
     reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False, cm__in=members)
     outstanding_reports = reports.filter(year=now.year, month=now.month, date_sent_by_am=None)
 
@@ -227,8 +228,10 @@ def member_dashboard(request, id):
         total_projected_loss += account.projected_loss
 
     # NOTIFICATIONS INFO
-    num_outstanding_notifs = Notification.objects.filter(confirmed=False, member__in=members).count()
-    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False, account__in=accounts).count()
+    num_outstanding_notifs = Notification.objects.filter(confirmed=False,
+                                                         member__in=members).count() if load_everything else None
+    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
+                                                                 account__in=accounts).count() if load_everything else None
 
     # FLAGGED ACCOUNTS INFO
     flagged_accounts = accounts.filter(star_flag=True)
