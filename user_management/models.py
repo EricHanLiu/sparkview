@@ -7,6 +7,10 @@ from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent
 import datetime
 import calendar
 
+AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
+Client = apps.get_model('budget', 'Client')
+Notification = apps.get_model('notifications', 'Notification')
+
 
 class RoleGroup(models.Model):
     name = models.CharField(max_length=255)
@@ -204,7 +208,6 @@ class Member(models.Model):
         return self.actual_hours_other_month(month, year)
 
     def actual_hours_other_month(self, month, year):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         hours = \
             AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(
                 Sum('hours'))[
@@ -223,7 +226,6 @@ class Member(models.Model):
         return self.value_added_hours_other_month(month, year)
 
     def value_added_hours_other_month(self, month, year):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         hours = \
             AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(
                 Sum('hours'))[
@@ -232,7 +234,6 @@ class Member(models.Model):
 
     @property
     def all_hours_month(self):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         now = datetime.datetime.now()
         month = now.month
         year = now.year
@@ -267,13 +268,13 @@ class Member(models.Model):
         return self._allocated_hours_other_month[year][month]
 
     def actual_hours_month_by_account(self, account_id):
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        account = Client.objects.get(id=account_id)
         now = datetime.datetime.now()
         _allocated_hours_month = \
-            apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month,
-                                                                              year=now.year,
-                                                                              account=account,
-                                                                              is_unpaid=False).aggregate(
+            AccountHourRecord.objects.filter(member=self, month=now.month,
+                                             year=now.year,
+                                             account=account,
+                                             is_unpaid=False).aggregate(
                 Sum('hours'))['hours__sum']
         return _allocated_hours_month if _allocated_hours_month is not None else 0
 
@@ -306,8 +307,8 @@ class Member(models.Model):
     @property
     def most_recent_hour_log(self):
         now = datetime.datetime.now()
-        hours = apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month,
-                                                                                  year=now.year)
+        hours = AccountHourRecord.objects.filter(member=self, month=now.month,
+                                                 year=now.year)
         trainer_hours = TrainingHoursRecord.objects.filter(trainer=self, month=now.month, year=now.year)
         hours_count = hours.count()
         trainer_hours_count = trainer_hours.count()
@@ -333,14 +334,14 @@ class Member(models.Model):
         """
         Returns True if this member deals with this account in any way, False otherwise (checks account member assignments)
         """
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        account = Client.objects.get(id=account_id)
         return account in self.accounts or account in self.backup_accounts
 
     def teams_have_accounts(self, account_id):
         """
         Returns True if this member's teams deals with this account in any way, False otherwise (checks account team assignments)
         """
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        account = Client.objects.get(id=account_id)
         a_teams = account.team.all()
         m_teams = self.team.all()
 
@@ -354,7 +355,6 @@ class Member(models.Model):
     @property
     def accounts(self):
         if not hasattr(self, '_accounts'):
-            Client = apps.get_model('budget', 'Client')
             self._accounts = Client.objects.filter(
                 Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
                 Q(am1=self) | Q(am2=self) | Q(am3=self) |
@@ -381,7 +381,6 @@ class Member(models.Model):
         :return:
         """
         if not hasattr(self, '_backupaccounts'):
-            Client = apps.get_model('budget', 'Client')
             self._backupaccounts = Client.objects.filter(Q(cmb=self) | Q(amb=self) | Q(seob=self) | Q(stratb=self))
         return self._backupaccounts
 
@@ -421,7 +420,6 @@ class Member(models.Model):
         """
         Fetches the notifications for this member
         """
-        Notification = apps.get_model('notifications', 'Notification')
         notifications = Notification.objects.filter(member=self, confirmed=False)
         return notifications
 
