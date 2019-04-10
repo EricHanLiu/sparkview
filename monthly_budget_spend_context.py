@@ -25,15 +25,15 @@ def main():
     year = now.year
 
     # Test
-    month = 3
-    year = 2019
+    # month = 3
+    # year = 2019
 
     for account in accounts:
         # First do the allocated hours
         account_members = account.assigned_members
 
         for key in account_members:
-            tup = members[key]
+            tup = account_members[key]
             tmp_member = tup['member']
             percentage = tup['allocated_percentage']
             allocated_hours_month = account.all_hours * (percentage / 100.0)

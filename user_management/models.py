@@ -255,12 +255,15 @@ class Member(models.Model):
             self._allocated_hours_other_month = {}
         if month not in self._allocated_hours_other_month:
             self._allocated_hours_other_month[month] = {}
-        if year not in self._allocated_hours_other_month:
+        if year not in self._allocated_hours_other_month[month]:
             now = datetime.datetime.now()
             if month == now.month and year == now.year:
-                hours = self.allocated_hours_month
+                hours = self.allocated_hours_month()
             else:
-                member_history = MemberHourHistory.objects.filter(member=self, month=month, year=year)
+                try:
+                    member_history = MemberHourHistory.objects.get(member=self, month=month, year=year)
+                except MemberHourHistory.DoesNotExist:
+                    return 0
                 hours = member_history.allocated_hours
             self._allocated_hours_other_month[month][year] = hours
         return self._allocated_hours_other_month[month][year]

@@ -81,7 +81,7 @@ def member_dashboard(request, id):
     q_year = request.GET.get('year')
 
     month = q_month if q_month else now.month
-    year = q_month if q_month else now.month
+    year = q_year if q_year else now.year
 
     # The following variable will be used to control what is shown in the dashboard
     # Reason for this is that not everything is available historically
@@ -119,7 +119,7 @@ def member_dashboard(request, id):
         if load_everything:  # This means that it's this month (or the default) that we're querying
             allocated_aggregate += memb.allocated_hours_this_month
         else:
-            allocated_aggregate += memb.allocated_hours_other_month(year, month)
+            allocated_aggregate += memb.allocated_hours_other_month(month, year)
         available_aggregate += memb.hours_available
         training_aggregate += memb.training_hours_month
 
