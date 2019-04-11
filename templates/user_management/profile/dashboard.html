@@ -353,6 +353,7 @@
                     </div>
                 </div>
             </div>
+            {% if load_everything %}
             <div class="col-xl-6">
                 <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#onboarding-body">
@@ -451,7 +452,9 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
+        {% if load_everything %}
         <div class="row">
             <div class="col-xl-12">
                 <div class="m-portlet m-portlet--responsive-mobile-">
@@ -584,6 +587,8 @@
                 </div>
             </div>
         </div>
+        {% endif %}
+        {% if load_everything %}
         <div class="row">
             <div class="col-xl-12">
                 <div class="m-portlet m-portlet--responsive-mobile-">
@@ -932,6 +937,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 {% endblock %}
 

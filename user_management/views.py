@@ -115,13 +115,10 @@ def member_dashboard(request, id):
     training_aggregate = 0.0
 
     for memb in members:
-        actual_aggregate += memb.actual_hours_this_month
-        if load_everything:  # This means that it's this month (or the default) that we're querying
-            allocated_aggregate += memb.allocated_hours_this_month
-        else:
-            allocated_aggregate += memb.allocated_hours_other_month(month, year)
-        available_aggregate += memb.hours_available
-        training_aggregate += memb.training_hours_month
+        actual_aggregate += memb.actual_hours_other_month(month, year)
+        allocated_aggregate += memb.allocated_hours_other_month(month, year)
+        available_aggregate += memb.hours_available_other_month(month, year)
+        training_aggregate += memb.training_hours_other_month(month, year)
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -142,9 +139,9 @@ def member_dashboard(request, id):
         total_allocated_hours += acc.all_hours
 
     # hours worked this month
-    now = datetime.datetime.now()
-    month = now.month
-    year = now.year
+    # now = datetime.datetime.now()
+    # month = now.month
+    # year = now.year
     total_hours_worked = \
         AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
     if total_hours_worked is None:
@@ -184,6 +181,7 @@ def member_dashboard(request, id):
         ontime_rate = 100.0 * ontime_numer / ontime_denom
 
     # PROMO INFO
+    # TODO: Have to figure this out
     today = datetime.datetime.now().date()
     tomorrow = today + datetime.timedelta(1)
     today_start = datetime.datetime.combine(today, datetime.time())
@@ -202,6 +200,7 @@ def member_dashboard(request, id):
     onboarding_accounts = accounts.filter(status=0)
     num_onboarding = onboarding_accounts.count()
 
+    # TODO: This will be rethought for Eric's ticket
     avg_onboarding_days = 0
     for acc in onboarding_accounts:
         avg_onboarding_days += acc.onboarding_duration_elapsed
@@ -287,7 +286,8 @@ def member_dashboard(request, id):
         'roles': roles,
         'years': years,
         'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
-        'selected': selected
+        'selected': selected,
+        'load_everything': load_everything
     }
 
     return render(request, 'user_management/profile/dashboard.html', context)

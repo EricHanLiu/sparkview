@@ -297,6 +297,27 @@ class Member(models.Model):
         return round((140.0 * (self.buffer_total_percentage / 100.0) * (
                 (100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
 
+    def hours_available_other_month(self, month, year):
+        """
+        Get's the number of hours from another month
+        """
+        if not hasattr(self, '_available_hours_other_month'):
+            self._available_hours_other_month = {}
+        if month not in self._available_hours_other_month:
+            self._available_hours_other_month[month] = {}
+        if year not in self._available_hours_other_month[month]:
+            now = datetime.datetime.now()
+            if month == now.month and year == now.year:
+                hours = self.hours_available()
+            else:
+                try:
+                    member_history = MemberHourHistory.objects.get(member=self, month=month, year=year)
+                except MemberHourHistory.DoesNotExist:
+                    return 0
+                hours = member_history.available_hours
+            self._available_hours_other_month[month][year] = hours
+        return self._available_hours_other_month[month][year]
+
     @property
     def total_hours_minus_buffer(self):
         return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0)
