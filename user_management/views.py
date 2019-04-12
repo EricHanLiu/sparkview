@@ -135,8 +135,15 @@ def member_dashboard(request, id):
         allocation_ratio = 0.0
 
     # MONTHLY REPORTS INFO
-    reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False, cm__in=members)
-    outstanding_reports = reports.filter(year=now.year, month=now.month, date_sent_by_am=None)
+    # The following two lines get the month and year of the month before the selected month
+    # For reporting, I believe this is the logic we want to use
+    # Reason: If you select March 2019, it is actually the February 2019 reports being completed that month
+    monthly_report_year = year - 1 if month == 1 else year
+    monthly_report_month = month - 1 if month != 1 else 12
+    reports = MonthlyReport.objects.filter(year=monthly_report_year, month=monthly_report_month, no_report=False,
+                                           account__in=accounts)
+    # get reports that haven't been sent by am (not sent to client)
+    outstanding_reports = reports.filter(date_sent_by_am=None)
 
     complete_reports = reports.exclude(date_sent_by_am=None).count()
     report_count = reports.count()
