@@ -1247,12 +1247,13 @@
         // HANDLE DYNAMIC CHART LOADING
 
         // list of charts that aren't immediately visible upon loading
+        // ORDER of chart ids and functionNames must match
         let charts = [
             {id: '#capacity-chart', viewed: false},
             {id: '#utilization-chart', viewed: false},
-            {id: '#onboarding-late-chart', viewed: false},
             {id: '#ontime-chart', viewed: false},
             {id: '#completion-chart', viewed: false},
+            {id: '#onboarding-late-chart', viewed: false},
             {id: '#budget-updated-chart', viewed: false}];
         let functionNames = ['Capacity', 'Utilization', 'Ontime', 'Completion', 'Onboarding', 'Budget'];
 
