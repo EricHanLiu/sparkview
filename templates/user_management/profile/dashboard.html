@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-3">
                                     <label for="filter-team">Teams:</label>
-                                    <select class="form-control" name="filter-team" multipleh id="filter-team">
+                                    <select class="form-control" name="filter-team" multiple id="filter-team">
                                         {% for team in teams %}
                                             <option value="{{ team.id }}"
                                                     {% if team in filtered_teams %} selected {% endif %}>

@@ -24,10 +24,6 @@ def main():
     month = now.month
     year = now.year
 
-    # Test
-    # month = 3
-    # year = 2019
-
     for account in accounts:
         # First do the allocated hours
         account_members = account.assigned_members
