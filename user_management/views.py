@@ -182,7 +182,6 @@ def member_dashboard(request, id):
         ontime_rate = 100.0 * ontime_numer / ontime_denom
 
     # PROMO INFO
-    # TODO: Have to figure this out
     today = datetime.datetime.now().date()
     tomorrow = today + datetime.timedelta(1)
     today_start = datetime.datetime.combine(today, datetime.time())
@@ -191,11 +190,11 @@ def member_dashboard(request, id):
     three_days_future = now + datetime.timedelta(3)
 
     promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
-                                       end_date__lte=three_days_future, account__in=accounts)
+                                       end_date__lte=three_days_future, account__in=accounts) if load_everything else None
     promos_start_today = promos_week.filter(start_date__gte=today_start,
-                                            start_date__lte=today_end)
+                                            start_date__lte=today_end) if load_everything else None
     promos_end_today = promos_week.filter(end_date__gte=today_start,
-                                          end_date__lte=today_end)
+                                          end_date__lte=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
@@ -215,18 +214,18 @@ def member_dashboard(request, id):
 
     # BUDGETS INFO
     # Monthly budget updates
-    active_accounts = accounts.filter(status=1)
-    budget_updated_accounts = active_accounts.filter(budget_updated=True)
-    budget_not_updated_accounts = active_accounts.filter(budget_updated=False)
+    active_accounts = accounts.filter(status=1) if load_everything else None
+    budget_updated_accounts = active_accounts.filter(budget_updated=True) if load_everything else None
+    budget_not_updated_accounts = active_accounts.filter(budget_updated=False) if load_everything else None
     budget_updated_percentage = 0.0
-    if active_accounts.count() != 0:
+    if active_accounts.count() != 0 and load_everything:
         budget_updated_percentage = 100.0 * budget_updated_accounts.count() / active_accounts.count()
 
     # Overspend projection - get top 5 overspending and underspending accounts
     overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, active_accounts),
-                                key=lambda a: a.projected_refund, reverse=True)
+                                key=lambda a: a.projected_refund, reverse=True) if load_everything else None
     underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
-                                 key=lambda a: a.projected_loss, reverse=True)
+                                 key=lambda a: a.projected_loss, reverse=True) if load_everything else None
     top_five_overspend = overspend_accounts[0:5]
     top_five_underspend = underspend_accounts[0:5]
     num_overspend = len(overspend_accounts)
@@ -234,10 +233,11 @@ def member_dashboard(request, id):
 
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
-    for account in overspend_accounts:
-        total_projected_overspend += account.project_yesterday - account.current_budget
-    for account in underspend_accounts:
-        total_projected_loss += account.projected_loss
+    if load_everything:
+        for account in overspend_accounts:
+            total_projected_overspend += account.project_yesterday - account.current_budget
+        for account in underspend_accounts:
+            total_projected_loss += account.projected_loss
 
     # NOTIFICATIONS INFO
     num_outstanding_notifs = Notification.objects.filter(confirmed=False,
@@ -246,7 +246,7 @@ def member_dashboard(request, id):
                                                                  account__in=accounts).count() if load_everything else None
 
     # FLAGGED ACCOUNTS INFO
-    flagged_accounts = accounts.filter(star_flag=True)
+    flagged_accounts = accounts.filter(star_flag=True) if load_everything else None
 
     context = {
         'member': member,

@@ -1124,7 +1124,7 @@
                 }
             });
         }
-
+        {% if load_everything %}
         // completion percentage bar chart
         let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
         // display 100 if greater than
@@ -1241,7 +1241,7 @@
                 ]
             });
         });
-
+        {% endif %}
         // HANDLE DYNAMIC CHART LOADING
 
         // list of charts that aren't immediately visible upon loading
@@ -1269,6 +1269,7 @@
         }
 
         function isScrolledIntoView(elem) {
+            console.log(elem);
             let leeway = 200; // amount in pixels to 'extend' the viewport for dynamic loading
 
             let docViewTop = $(window).scrollTop();
