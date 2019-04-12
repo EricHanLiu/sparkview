@@ -456,7 +456,10 @@ def actual_hours(request):
             hour['member'] = members.get(id=hour['member'])
         except Member.DoesNotExist:
             hour['member'] = 'Member does not exist'
-        hour['account'] = accounts.get(id=hour['account'])
+        try:
+            hour['account'] = accounts.get(id=hour['account'])
+        except Client.DoesNotExist:
+            hour['account'] = 'Client does not exist'
 
     context = {
         'hours': hours,

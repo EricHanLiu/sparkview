@@ -77,15 +77,15 @@ def member_dashboard(request, id):
     now = datetime.datetime.now()
     years = [i for i in range(2018, now.year + 1)]
 
-    q_month = int(request.GET.get('month'))
-    q_year = int(request.GET.get('year'))
+    q_month = request.GET.get('month')
+    q_year = request.GET.get('year')
 
-    month = q_month if q_month else now.month
-    year = q_year if q_year else now.year
+    month = int(q_month) if q_month else now.month
+    year = int(q_year) if q_year else now.year
 
     # The following variable will be used to control what is shown in the dashboard
     # Reason for this is that not everything is available historically
-    load_everything = q_month == now.month and q_year == now.year
+    load_everything = month == now.month and year == now.year
 
     selected = {
         'month': month,
@@ -159,8 +159,8 @@ def member_dashboard(request, id):
     monthly_report_year = year - 1 if month == 1 else year
     monthly_report_month = month - 1 if month != 1 else 12
     reports = MonthlyReport.objects.filter(year=monthly_report_year, month=monthly_report_month, no_report=False,
-                                           cm__in=members)
-    outstanding_reports = reports.filter(year=monthly_report_year, month=monthly_report_month, date_sent_by_am=None)
+                                           account__in=accounts)
+    outstanding_reports = reports.filter(date_sent_by_am=None)
 
     complete_reports = reports.exclude(date_sent_by_am=None).count()
     report_count = reports.count()
