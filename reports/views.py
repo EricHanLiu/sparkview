@@ -833,7 +833,29 @@ def new_incident(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    return render(request, 'reports/new_incident.html')
+    if request.method == 'GET':
+        accounts = Client.objects.all()
+        members = Member.objects.all()
+        platforms = Incident.PLATFORMS
+        services = ['Paid Media', 'SEO', 'CRO', 'Client Services', 'Biz Dev', 'Internal Oops']
+        issue_types = ['Budget Error', 'Promotion Error', 'Text Ad Error', 'Lack of Activity Error',
+                       'Communication Error', 'Other']
+
+        context = {
+            'accounts': accounts,
+            'members': members,
+            'platforms': platforms,
+            'services': services,
+            'issue_types': issue_types
+        }
+
+        return render(request, 'reports/new_incident.html', context)
+    elif request.method == 'POST':
+        context = {
+
+        }
+
+        return render(request, 'reports/incidents.html', context)
 
 
 @login_required

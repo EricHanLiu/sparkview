@@ -52,7 +52,7 @@ class Team(models.Model):
 
 class Incident(models.Model):
     """ Incident """
-    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing')]
+    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
 
     members = models.ManyToManyField('Member', default=None)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
