@@ -160,6 +160,7 @@ def member_dashboard(request, id):
     monthly_report_month = month - 1 if month != 1 else 12
     reports = MonthlyReport.objects.filter(year=monthly_report_year, month=monthly_report_month, no_report=False,
                                            account__in=accounts)
+    # get reports that haven't been sent by am (not sent to client)
     outstanding_reports = reports.filter(date_sent_by_am=None)
 
     complete_reports = reports.exclude(date_sent_by_am=None).count()
