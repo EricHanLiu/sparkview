@@ -218,7 +218,7 @@ def member_dashboard(request, id):
     budget_updated_accounts = active_accounts.filter(budget_updated=True) if load_everything else None
     budget_not_updated_accounts = active_accounts.filter(budget_updated=False) if load_everything else None
     budget_updated_percentage = 0.0
-    if active_accounts.count() != 0 and load_everything:
+    if load_everything and active_accounts.count() != 0:
         budget_updated_percentage = 100.0 * budget_updated_accounts.count() / active_accounts.count()
 
     # Overspend projection - get top 5 overspending and underspending accounts
@@ -226,10 +226,10 @@ def member_dashboard(request, id):
                                 key=lambda a: a.projected_refund, reverse=True) if load_everything else None
     underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
                                  key=lambda a: a.projected_loss, reverse=True) if load_everything else None
-    top_five_overspend = overspend_accounts[0:5]
-    top_five_underspend = underspend_accounts[0:5]
-    num_overspend = len(overspend_accounts)
-    num_underspend = len(underspend_accounts)
+    top_five_overspend = overspend_accounts[0:5] if load_everything else None
+    top_five_underspend = underspend_accounts[0:5] if load_everything else None
+    num_overspend = len(overspend_accounts) if load_everything else None
+    num_underspend = len(underspend_accounts) if load_everything else None
 
     total_projected_loss = 0.0
     total_projected_overspend = 0.0

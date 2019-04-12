@@ -1251,7 +1251,8 @@
             {id: '#onboarding-late-chart', viewed: false},
             {id: '#ontime-chart', viewed: false},
             {id: '#completion-chart', viewed: false},
-            {id: '#budget-updated-chart', viewed: false}];
+            {id: '#budget-updated-chart', viewed: false}
+            ];
         let functionNames = ['Capacity', 'Utilization', 'Ontime', 'Completion', 'Onboarding', 'Budget'];
 
         function dynamicLoadChart() {
@@ -1262,6 +1263,7 @@
                         return;
                     }
                     // call this chart's build function
+                    console.log(functionNames[i]);
                     window['buildChart' + functionNames[i]]();
                     chart.viewed = true;
                 }
@@ -1269,13 +1271,14 @@
         }
 
         function isScrolledIntoView(elem) {
-            console.log(elem);
             let leeway = 200; // amount in pixels to 'extend' the viewport for dynamic loading
 
             let docViewTop = $(window).scrollTop();
             let docViewBottom = docViewTop + $(window).height();
+            let $elem = $(elem);
+            if (!$elem.length) return false;
+            let elemTop = $elem.offset().top;
 
-            let elemTop = $(elem).offset().top;
             let elemBottom = elemTop + $(elem).height();
 
             return ((elemTop <= docViewBottom + leeway) && (elemBottom >= docViewTop + leeway));
