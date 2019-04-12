@@ -77,8 +77,8 @@ def member_dashboard(request, id):
     now = datetime.datetime.now()
     years = [i for i in range(2018, now.year + 1)]
 
-    q_month = request.GET.get('month')
-    q_year = request.GET.get('year')
+    q_month = int(request.GET.get('month'))
+    q_year = int(request.GET.get('year'))
 
     month = q_month if q_month else now.month
     year = q_year if q_year else now.year

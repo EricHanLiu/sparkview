@@ -291,6 +291,7 @@ class Member(models.Model):
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage
 
+    @property
     def hours_available(self):
         if self.deactivated:
             return 0.0
@@ -308,7 +309,7 @@ class Member(models.Model):
         if year not in self._available_hours_other_month[month]:
             now = datetime.datetime.now()
             if month == now.month and year == now.year:
-                hours = self.hours_available()
+                hours = self.hours_available
             else:
                 try:
                     member_history = MemberHourHistory.objects.get(member=self, month=month, year=year)
@@ -488,7 +489,6 @@ class Member(models.Model):
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
-    hours_available = property(hours_available)
     backup_accounts = property(get_backup_accounts)
     account_count = property(get_accounts_count)
 
