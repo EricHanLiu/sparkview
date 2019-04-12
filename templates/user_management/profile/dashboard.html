@@ -693,6 +693,7 @@
                                                 <th>Budget</th>
                                                 <th>Spend</th>
                                                 <th>Projected Spend</th>
+                                                <th>Overspend</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -707,8 +708,11 @@
                                                     <td>
                                                         ${{ account.current_spend|floatformat:2 }}
                                                     </td>
-                                                    <td style="color: #f4516c;">
+                                                    <td>
                                                         ${{ account.project_yesterday|floatformat:2 }}
+                                                    </td>
+                                                    <td style="color: #f4516c;">
+                                                        ${{ account.projected_refund|floatformat:2 }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -728,6 +732,7 @@
                                                 <th>Account</th>
                                                 <th>Budget</th>
                                                 <th>Spend</th>
+                                                <th>Projected Spend</th>
                                                 <th>Projected Loss</th>
                                             </tr>
                                             </thead>
@@ -742,6 +747,9 @@
                                                     </td>
                                                     <td>
                                                         ${{ account.current_spend|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.project_yesterday|floatformat:2 }}
                                                     </td>
                                                     <td style="color: #ffb822;">
                                                         ${{ account.projected_loss|floatformat:2 }}
@@ -953,7 +961,7 @@
         capacityPercentage = capacityPercentage > 100 ? 100 : capacityPercentage;
         let ctx1 = $('#capacity-chart')[0].getContext('2d');
 
-        function buildChart1() {
+        function buildChartCapacity() {
             new Chart(ctx1, {
                 type: 'horizontalBar',
                 data: {
@@ -996,7 +1004,7 @@
         utilizationPercentage = utilizationPercentage > 100 ? 100 : utilizationPercentage;
         let ctx2 = $('#utilization-chart')[0].getContext('2d');
 
-        function buildChart2() {
+        function buildChartUtilization() {
             new Chart(ctx2, {
                 type: 'horizontalBar',
                 data: {
@@ -1039,7 +1047,7 @@
         ontimePercentage = ontimePercentage > 100 ? 100 : ontimePercentage;
         let ctx3 = $('#ontime-chart')[0].getContext('2d');
 
-        function buildChart3() {
+        function buildChartOntime() {
             new Chart(ctx3, {
                 type: 'horizontalBar',
                 data: {
@@ -1082,7 +1090,7 @@
         completionPercentage = completionPercentage > 100 ? 100 : completionPercentage;
         let ctx4 = $('#completion-chart')[0].getContext('2d');
 
-        function buildChart4() {
+        function buildChartCompletion() {
             new Chart(ctx4, {
                 type: 'horizontalBar',
                 data: {
@@ -1125,7 +1133,7 @@
         onboardingLatePercentage = onboardingLatePercentage > 100 ? 100 : onboardingLatePercentage;
         let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
 
-        function buildChart5() {
+        function buildChartOnboarding() {
             new Chart(ctx5, {
                 type: 'doughnut',
                 data: {
@@ -1170,7 +1178,7 @@
         budgetUpdatedPercentage = budgetUpdatedPercentage > 100 ? 100 : budgetUpdatedPercentage;
         let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
 
-        function buildChart6() {
+        function buildChartBudget() {
             new Chart(ctx6, {
                 type: 'doughnut',
                 data: {
@@ -1246,6 +1254,7 @@
             {id: '#ontime-chart', viewed: false},
             {id: '#completion-chart', viewed: false},
             {id: '#budget-updated-chart', viewed: false}];
+        let functionNames = ['Capacity', 'Utilization', 'Ontime', 'Completion', 'Onboarding', 'Budget'];
 
         function dynamicLoadChart() {
             for (let i = 0; i < charts.length; i++) {
@@ -1255,7 +1264,7 @@
                         return;
                     }
                     // call this chart's build function
-                    window['buildChart' + (i+1)]();
+                    window['buildChart' + functionNames[i]]();
                     chart.viewed = true;
                 }
             }
