@@ -196,6 +196,8 @@ def member_dashboard(request, id):
     # BUDGETS INFO
     # Monthly budget updates
     active_accounts = accounts.filter(status=1)
+    if filtered_teams is not None:  # filter by account's team, not members' team
+        active_accounts = Client.objects.filter(status=1, team__in=filtered_teams)
     budget_updated_accounts = active_accounts.filter(budget_updated=True)
     budget_not_updated_accounts = active_accounts.filter(budget_updated=False)
     budget_updated_percentage = 0.0
@@ -215,7 +217,7 @@ def member_dashboard(request, id):
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
     for account in overspend_accounts:
-        total_projected_overspend += account.project_yesterday - account.current_budget
+        total_projected_overspend += account.projected_refund
     for account in underspend_accounts:
         total_projected_loss += account.projected_loss
 

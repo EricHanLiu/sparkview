@@ -668,6 +668,7 @@
                                                 <th>Budget</th>
                                                 <th>Spend</th>
                                                 <th>Projected Spend</th>
+                                                <th>Overspend</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -682,8 +683,11 @@
                                                     <td>
                                                         ${{ account.current_spend|floatformat:2 }}
                                                     </td>
-                                                    <td style="color: #f4516c;">
+                                                    <td>
                                                         ${{ account.project_yesterday|floatformat:2 }}
+                                                    </td>
+                                                    <td style="color: #f4516c;">
+                                                        ${{ account.projected_refund|floatformat:2 }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -703,6 +707,7 @@
                                                 <th>Account</th>
                                                 <th>Budget</th>
                                                 <th>Spend</th>
+                                                <th>Projected Spend</th>
                                                 <th>Projected Loss</th>
                                             </tr>
                                             </thead>
@@ -717,6 +722,9 @@
                                                     </td>
                                                     <td>
                                                         ${{ account.current_spend|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.project_yesterday|floatformat:2 }}
                                                     </td>
                                                     <td style="color: #ffb822;">
                                                         ${{ account.projected_loss|floatformat:2 }}
