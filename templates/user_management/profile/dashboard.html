@@ -698,6 +698,7 @@
                                                 <th>Budget</th>
                                                 <th>Spend</th>
                                                 <th>Projected Spend</th>
+                                                <th>Overspend</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -712,8 +713,11 @@
                                                     <td>
                                                         ${{ account.current_spend|floatformat:2 }}
                                                     </td>
-                                                    <td style="color: #f4516c;">
+                                                    <td>
                                                         ${{ account.project_yesterday|floatformat:2 }}
+                                                    </td>
+                                                    <td style="color: #f4516c;">
+                                                        ${{ account.projected_refund|floatformat:2 }}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -733,6 +737,7 @@
                                                 <th>Account</th>
                                                 <th>Budget</th>
                                                 <th>Spend</th>
+                                                <th>Projected Spend</th>
                                                 <th>Projected Loss</th>
                                             </tr>
                                             </thead>
@@ -747,6 +752,9 @@
                                                     </td>
                                                     <td>
                                                         ${{ account.current_spend|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        ${{ account.project_yesterday|floatformat:2 }}
                                                     </td>
                                                     <td style="color: #ffb822;">
                                                         ${{ account.projected_loss|floatformat:2 }}
@@ -1245,14 +1253,14 @@
         // HANDLE DYNAMIC CHART LOADING
 
         // list of charts that aren't immediately visible upon loading
+        // ORDER of chart ids and functionNames must match
         let charts = [
             {id: '#capacity-chart', viewed: false},
             {id: '#utilization-chart', viewed: false},
-            {id: '#onboarding-late-chart', viewed: false},
             {id: '#ontime-chart', viewed: false},
             {id: '#completion-chart', viewed: false},
-            {id: '#budget-updated-chart', viewed: false}
-            ];
+            {id: '#onboarding-late-chart', viewed: false},
+            {id: '#budget-updated-chart', viewed: false}];
         let functionNames = ['Capacity', 'Utilization', 'Ontime', 'Completion', 'Onboarding', 'Budget'];
 
         function dynamicLoadChart() {
