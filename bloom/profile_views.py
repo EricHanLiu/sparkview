@@ -458,11 +458,12 @@ def search(request):
         }
         res.append(item)
 
-    for u in members:
-        item = {
-            'username': u.user.get_full_name(),
-            'member_url': '/user_management/members/' + str(u.id)
-        }
-        res.append(item)
+    if members is not None:
+        for u in members:
+            item = {
+                'username': u.user.get_full_name(),
+                'member_url': '/user_management/members/' + str(u.id)
+            }
+            res.append(item)
     print(res)
     return JsonResponse(res, safe=False)
