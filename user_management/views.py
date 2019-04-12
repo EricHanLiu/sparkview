@@ -74,6 +74,24 @@ def member_dashboard(request, id):
     teams_request = request.GET.getlist('filter-team')
     roles_request = request.GET.getlist('filter-role')
 
+    years = [2018, 2019, 2020]
+    now = datetime.datetime.now()
+
+    q_month = request.GET.get('month')
+    q_year = request.GET.get('year')
+
+    month = q_month if q_month else now.month
+    year = q_month if q_month else now.month
+
+    # The following variable will be used to control what is shown in the dashboard
+    # Reason for this is that not everything is available historically
+    load_everything = not (q_month and q_year)
+
+    selected = {
+        'month': month,
+        'year': year
+    }
+
     # Convert to role objects
     filtered_roles = None
     filtered_teams = None
@@ -97,7 +115,7 @@ def member_dashboard(request, id):
     training_aggregate = 0.0
 
     for memb in members:
-        actual_aggregate += memb.actualHoursThisMonth
+        actual_aggregate += memb.actual_hours_this_month
         allocated_aggregate += memb.allocated_hours_month()
         available_aggregate += memb.hours_available
         training_aggregate += memb.training_hours_month
@@ -222,8 +240,10 @@ def member_dashboard(request, id):
         total_projected_loss += account.projected_loss
 
     # NOTIFICATIONS INFO
-    num_outstanding_notifs = Notification.objects.filter(confirmed=False, member__in=members).count()
-    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False, account__in=accounts).count()
+    num_outstanding_notifs = Notification.objects.filter(confirmed=False,
+                                                         member__in=members).count() if load_everything else None
+    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
+                                                                 account__in=accounts).count() if load_everything else None
 
     # FLAGGED ACCOUNTS INFO
     flagged_accounts = accounts.filter(star_flag=True)
@@ -264,7 +284,10 @@ def member_dashboard(request, id):
         'flagged_accounts': flagged_accounts,
         'members': members,
         'teams': teams,
-        'roles': roles
+        'roles': roles,
+        'years': years,
+        'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
+        'selected': selected
     }
 
     return render(request, 'user_management/profile/dashboard.html', context)

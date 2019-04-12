@@ -36,7 +36,7 @@ def agency_overview(request):
     available_aggregate = 0.0
 
     for member in members:
-        actual_aggregate += member.actualHoursThisMonth
+        actual_aggregate += member.actual_hours_this_month
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
@@ -144,7 +144,7 @@ def cm_capacity(request):
     available_aggregate = 0.0
 
     for member in members:
-        actual_aggregate += member.actualHoursThisMonth
+        actual_aggregate += member.actual_hours_this_month
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
@@ -190,7 +190,7 @@ def am_capacity(request):
     available_aggregate = 0.0
 
     for member in members:
-        actual_aggregate += member.actualHoursThisMonth
+        actual_aggregate += member.actual_hours_this_month
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
@@ -243,7 +243,7 @@ def seo_capacity(request):
         Q(status=0) | Q(status=1))
 
     for member in members:
-        actual_aggregate += member.actualHoursThisMonth
+        actual_aggregate += member.actual_hours_this_month
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
@@ -299,7 +299,7 @@ def strat_capacity(request):
     available_aggregate = 0.0
 
     for member in members:
-        actual_aggregate += member.actualHoursThisMonth
+        actual_aggregate += member.actual_hours_this_month
         allocated_aggregate += member.allocated_hours_month()
         available_aggregate += member.hours_available
 
