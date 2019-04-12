@@ -173,16 +173,16 @@ class Member(models.Model):
     def internal_hours(self):
         return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_internal_percentage / 100.0), 2)
 
-    def countIncidents(self):
+    def count_incidents(self):
         return Incident.objects.filter(members=self).count()
 
-    def getMostRecentIncident(self):
+    def get_most_recent_incident(self):
         return Incident.objects.filter(members=self).latest('date')
 
-    def getSkills(self):
+    def get_skills(self):
         return SkillEntry.objects.filter(member=self).order_by('skill')
 
-    def onAllTeams(self):
+    def on_all_teams(self):
         return self.team.all().count() == Team.objects.all().count()
 
     @property
@@ -190,15 +190,21 @@ class Member(models.Model):
         now = datetime.datetime.now()
         month = now.month
         year = now.year
+        return self.training_hours_other_month(month, year)
+
+    def training_hours_other_month(self, month, year):
         hours = TrainingHoursRecord.objects.filter(trainee=self, month=month, year=year).aggregate(Sum('hours'))[
-                'hours__sum']
+            'hours__sum']
         return hours if hours is not None else 0
 
     def actual_hours_month(self):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         now = datetime.datetime.now()
         month = now.month
         year = now.year
+        return self.actual_hours_other_month(month, year)
+
+    def actual_hours_other_month(self, month, year):
+        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         hours = \
             AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(
                 Sum('hours'))[
@@ -211,10 +217,13 @@ class Member(models.Model):
 
     @property
     def value_added_hours_this_month(self):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         now = datetime.datetime.now()
         month = now.month
         year = now.year
+        return self.value_added_hours_other_month(month, year)
+
+    def value_added_hours_other_month(self, month, year):
+        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         hours = \
             AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(
                 Sum('hours'))[
@@ -240,24 +249,33 @@ class Member(models.Model):
         return hours
 
     def allocated_hours_month(self):
-        if not hasattr(self, '_allocatedHoursMonth'):
+        if not hasattr(self, '_allocated_hours_month'):
             accounts = self.active_accounts
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)
-            self._allocatedHoursMonth = round(hours, 2)
-        return self._allocatedHoursMonth
+            self._allocated_hours_month = round(hours, 2)
+        return self._allocated_hours_month
+
+    def allocated_hours_other_month(self, month, year):
+        if not hasattr(self, '_allocated_hours_other_month'):
+            self._allocated_hours_other_month = {}
+        if year not in self._allocated_hours_other_month:
+            self._allocated_hours_other_month[year] = {}
+        if month not in self._allocated_hours_other_month:
+            self._allocated_hours_other_month[year][month] = 0
+        return self._allocated_hours_other_month[year][month]
 
     def actual_hours_month_by_account(self, account_id):
         account = apps.get_model('budget', 'Client').objects.get(id=account_id)
         now = datetime.datetime.now()
-        memberHoursThisMonth = \
+        _allocated_hours_month = \
             apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month,
                                                                               year=now.year,
                                                                               account=account,
                                                                               is_unpaid=False).aggregate(
                 Sum('hours'))['hours__sum']
-        return memberHoursThisMonth if memberHoursThisMonth != None else 0
+        return _allocated_hours_month if _allocated_hours_month is not None else 0
 
     @property
     def allocated_hours_percentage(self):
@@ -385,9 +403,9 @@ class Member(models.Model):
         """
         Percentage that describes member efficiency. Actual / allocated
         """
-        if self.allocatedHoursMonth == 0.0:
+        if self.allocated_hours_this_month == 0.0:
             return 0.0
-        return 100.0 * (self.actualHoursThisMonth / self.allocatedHoursMonth)
+        return 100.0 * (self.actual_hours_this_month / self.allocated_hours_this_month)
 
     @property
     def capacity_rate(self):
@@ -396,7 +414,7 @@ class Member(models.Model):
         """
         if self.total_hours_minus_buffer == 0.0:
             return 0.0
-        return 100 * (self.allocatedHoursMonth / self.total_hours_minus_buffer)
+        return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer)
 
     @property
     def unread_notifications(self):
@@ -440,12 +458,12 @@ class Member(models.Model):
 
         return self._inactive_lost_accounts_last_month
 
-    incidents = property(countIncidents)
-    mostRecentIncident = property(getMostRecentIncident)
-    skills = property(getSkills)
-    onAllTeams = property(onAllTeams)
-    allocatedHoursMonth = property(allocated_hours_month)
-    actualHoursThisMonth = property(actual_hours_month)
+    incidents = property(count_incidents)
+    most_recent_incident = property(get_most_recent_incident)
+    skills = property(get_skills)
+    on_all_teams = property(on_all_teams)
+    allocated_hours_this_month = property(allocated_hours_month)
+    actual_hours_this_month = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
     hours_available = property(hours_available)
     backup_accounts = property(get_backup_accounts)

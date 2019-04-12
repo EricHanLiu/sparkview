@@ -65,7 +65,8 @@
                     <div class="m-portlet__body">
                         <form class="m-form" method="GET" action="/user_management/members/{{ member.id }}/dashboard">
                             <div class="row">
-                                <div class="col-5">
+                                <div class="col-4">
+                                    <label for="filter-role">Roles:</label>
                                     <select class="form-control" name="filter-role" multiple id="filter-role">
                                         {% for role in roles %}
                                             <option value="{{ role.id }}"
@@ -75,7 +76,8 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-5">
+                                <div class="col-3">
+                                    <label for="filter-team">Teams:</label>
                                     <select class="form-control" name="filter-team" multiple id="filter-team">
                                         {% for team in teams %}
                                             <option value="{{ team.id }}"
@@ -85,8 +87,31 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div class="col-md-2">
+                                    <label for="month">Month:</label>
+                                    <select class="form-control m-input"
+                                            name="month"
+                                            style="width: 100%;">
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label for="year">Year:</label>
+                                    <select class="form-control m-input"
+                                            name="year"
+                                            style="width: 100%;">
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                        <!-- should add to this -->
+                                    </select>
+                                </div>
                                 <div class="col-2">
-                                    <input type="submit" class="btn btn-info m-btn" value="Filter">
+                                    <input type="submit" class="btn btn-info m-btn" style="bottom: 0; position: absolute;" value="Filter">
                                 </div>
                             </div>
                         </form>
@@ -212,7 +237,7 @@
                                                     {{ member.role.name }}
                                                 </td>
                                                 <td>
-                                                    {{ member.actualHoursThisMonth|floatformat:2 }}
+                                                    {{ member.actual_hours_this_month|floatformat:2 }}
                                                 </td>
                                                 <td>
                                                     {{ member.allocated_hours_month|floatformat:2 }}

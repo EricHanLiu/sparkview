@@ -234,7 +234,7 @@ class UserTestCase(TestCase):
         test_user = User.objects.get(username='test2')
         test_member = Member.objects.get(user=test_user)
 
-        hours_this_month = test_member.actualHoursThisMonth
+        hours_this_month = test_member.actual_hours_this_month
         self.assertEqual(hours_this_month, 10.0)
 
         report_hours_dict = {
