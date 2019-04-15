@@ -115,10 +115,14 @@ def member_dashboard(request, id):
     training_aggregate = 0.0
 
     for memb in members:
-        actual_aggregate += memb.actual_hours_other_month(month, year)
-        allocated_aggregate += memb.allocated_hours_other_month(month, year)
-        available_aggregate += memb.hours_available_other_month(month, year)
-        training_aggregate += memb.training_hours_other_month(month, year)
+        memb.actual_hours_tmp = memb.actual_hours_other_month(month, year)
+        actual_aggregate += memb.actual_hours_tmp
+        memb.allocated_hours_tmp = memb.allocated_hours_other_month(month, year)
+        allocated_aggregate += memb.allocated_hours_tmp
+        memb.available_hours_tmp = member.hours_available_other_month(month, year)
+        available_aggregate += memb.available_hours_tmp
+        memb.training_hours_tmp = memb.training_hours_other_month(month, year)
+        training_aggregate += memb.training_hours_tmp
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -190,7 +194,8 @@ def member_dashboard(request, id):
     three_days_future = now + datetime.timedelta(3)
 
     promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
-                                       end_date__lte=three_days_future, account__in=accounts) if load_everything else None
+                                       end_date__lte=three_days_future,
+                                       account__in=accounts) if load_everything else None
     promos_start_today = promos_week.filter(start_date__gte=today_start,
                                             start_date__lte=today_end) if load_everything else None
     promos_end_today = promos_week.filter(end_date__gte=today_start,

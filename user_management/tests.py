@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from user_management.models import Member
+from user_management.models import Member, MemberHourHistory
 from budget.models import Client as BloomClient
 from client_area.models import Promo, MonthlyReport
 import datetime
@@ -56,7 +56,7 @@ class UserTestCase(TestCase):
 
         # TL Dashboard
         response = self.client.get('/user_management/members/' + str(member.id) + '/dashboard')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
     def test_staff_get_views(self):
         """ Check all of the admin/superuser get views """
@@ -256,3 +256,34 @@ class UserTestCase(TestCase):
 
         response = self.client.post('/clients/accounts/report_hours', report_hours_dict)
         self.assertRedirects(response, '/clients/accounts/report_hours', 302)
+
+    def test_member_hour_history(self):
+        """
+        Tests member hour history
+        :return:
+        """
+        test_user = User.objects.get(username='test2')
+        member = Member.objects.get(user=test_user)
+        now = datetime.datetime.now()
+
+        MemberHourHistory.objects.create(year=now.year, month=now.month, available_hours=10,
+                                         allocated_hours=5, actual_hours=3, member=member)
+        test_year = 1994
+        test_month = 4
+        history2 = MemberHourHistory.objects.create(year=test_year, month=test_month, available_hours=20,
+                                                    allocated_hours=9, actual_hours=6, member=member)
+
+        self.assertEqual(member.allocated_hours_other_month(now.month, now.year), member.allocated_hours_this_month)
+
+        self.assertEqual(member.hours_available_other_month(now.month, now.year), member.hours_available)
+
+        self.assertEqual(member.actual_hours_other_month(now.month, now.year), member.actual_hours_this_month)
+
+        self.assertEqual(member.allocated_hours_other_month(test_month, test_year), 9)
+        self.assertEqual(member.allocated_hours_other_month(test_month, test_year), history2.allocated_hours)
+
+        self.assertEqual(member.hours_available_other_month(test_month, test_year), 20)
+        self.assertEqual(member.hours_available_other_month(test_month, test_year), history2.available_hours)
+
+        self.assertEqual(member.actual_hours_other_month(test_month, test_year), 6)
+        self.assertEqual(member.actual_hours_other_month(test_month, test_year), history2.actual_hours)

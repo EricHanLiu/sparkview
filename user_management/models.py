@@ -197,6 +197,11 @@ class Member(models.Model):
         return self.actual_hours_other_month(month, year)
 
     def actual_hours_other_month(self, month, year):
+        # try:
+        #     record = MemberHourHistory.objects.get(member=self, month=month, year=year)
+        # except MemberHourHistory.DoesNotExist:
+        #     return 0
+        # return record.actual_hours
         AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         hours = \
             AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(
