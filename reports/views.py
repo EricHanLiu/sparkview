@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
@@ -822,7 +822,13 @@ def incidents(request):
     if not request.user.is_staff:
         return HttpResponse('You do not have permission to view this page')
 
-    return render(request, 'reports/incidents.html')
+    incidents = Incident.objects.all()
+
+    context = {
+        'incidents': incidents
+    }
+
+    return render(request, 'reports/incidents.html', context)
 
 
 @login_required
@@ -837,9 +843,8 @@ def new_incident(request):
         accounts = Client.objects.all()
         members = Member.objects.all()
         platforms = Incident.PLATFORMS
-        services = ['Paid Media', 'SEO', 'CRO', 'Client Services', 'Biz Dev', 'Internal Oops']
-        issue_types = ['Budget Error', 'Promotion Error', 'Text Ad Error', 'Lack of Activity Error',
-                       'Communication Error', 'Other']
+        services = Incident.SERVICES
+        issue_types = Incident.ISSUES
 
         context = {
             'accounts': accounts,
@@ -851,11 +856,62 @@ def new_incident(request):
 
         return render(request, 'reports/new_incident.html', context)
     elif request.method == 'POST':
-        context = {
+        r = request.POST
+        # get form data
+        email = r.get('email-address')
+        try:
+            service = int(r.get('services'))
+        except ValueError:
+            service = 0  # set to Paid Media by default
+        try:
+            account = int(r.get('account'))
+        except ValueError:
+            account = 0
+        date = r.get('incident-date')
+        description = r.get('issue-description')
+        try:
+            issue_type = int(r.get('issue-type'))
+        except ValueError:
+            issue_type = 5  # set to other by default
+        if issue_type == 0:
+            budget_error_amt = r.get('budget-error')
+        else:
+            budget_error_amt = None  # might be redundant
+        try:
+            platform = r.get('platform')
+        except ValueError:
+            platform = 3  # set to other by default
+        client_aware_response = r.get('client-aware')
+        client_aware = True if client_aware_response == 'Yes' else False
+        client_at_risk_response = r.get('client-at-risk')
+        client_at_risk = True if client_at_risk_response == 'Yes' else False
+        justification = r.get('justification')
 
-        }
+        # create incident
+        incident = Incident()
+        incident.email = email
+        incident.service = service
+        incident.account = Client.objects.get(id=account)
+        incident.date = date
+        incident.save()
 
-        return render(request, 'reports/incidents.html', context)
+        members = []
+        for member_id in r.getlist('member'):
+            members.append(Member.objects.get(id=member_id))
+        incident.members.set(members)
+
+        incident.description = description
+        incident.issue_type = issue_type
+        if budget_error_amt is not None:
+            incident.budget_error_amount = budget_error_amt
+        incident.platform = platform
+        incident.client_aware = client_aware
+        incident.client_at_risk = client_at_risk
+        incident.justification = justification
+
+        incident.save()
+
+        return redirect('/reports/incidents')
 
 
 @login_required

@@ -53,18 +53,36 @@ class Team(models.Model):
 class Incident(models.Model):
     """ Incident """
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
+    SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops')]
+    ISSUES = [(0, 'Budget Error'), (1, 'Promotion Error'), (2, 'Text Ad Error'), (3, 'Lack of Activity Error'),
+              (4, 'Communication Error'), (5, 'Other')]
 
-    members = models.ManyToManyField('Member', default=None)
+    email = models.CharField(max_length=355, default='')
+    service = models.IntegerField(default=0, choices=SERVICES)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
-    platform = models.IntegerField(default=0, choices=PLATFORMS)
+    date = models.DateField(default=None, null=True, blank=True)
+    members = models.ManyToManyField('Member', default=None)
     description = models.CharField(max_length=355, default='')
+    issue_type = models.IntegerField(default=0, choices=ISSUES)
+    budget_error_amount = models.FloatField(default=0.0)
+    platform = models.IntegerField(default=0, choices=PLATFORMS)
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
     justification = models.CharField(max_length=900, default='')
-    additional_comments = models.CharField(max_length=300, default='')
-    refund_required = models.BooleanField(default=False)
-    refund_amount = models.IntegerField(default=0.0)
-    date = models.DateTimeField(default=None, null=True, blank=True)
+
+    @property
+    def get_issue(self):
+        (issue_id, issue_str) = self.ISSUES[self.issue_type]
+        return issue_str
+
+    @property
+    def get_platform(self):
+        (platform_id, platform_str) = self.PLATFORMS[self.platform]
+        return platform_str
+
+    @property
+    def get_members(self):
+        return [member for member in self.members.all()]
 
     def __str__(self):
         return 'Incident ' + str(self.id)

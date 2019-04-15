@@ -28,14 +28,14 @@
                                         <div class="col-md-6">
                                             <label for="email-address">Email Address:</label>
                                             <input type="email" name="email-address"
-                                                   class="form-control m-input">
+                                                   class="form-control m-input" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="services">Service:</label>
                                             <select class="form-control m-input"
                                                     name="services">
-                                                {% for service in services %}
-                                                    <option value="{{ service }}">{{ service }}</option>
+                                                {% for service_id, service in services %}
+                                                    <option value="{{ service_id }}">{{ service }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="form-group m-form__group">
                                     <div class="row">
-                                        <div class="col-md-5">
+                                        <div class="col-md-4">
                                             <label>Account:</label>
                                             <select class="form-control m-input"
                                                     name="account"
@@ -53,14 +53,16 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        <div class="col-md-1">
-                                            PUT DATE SELECTOR HERE
+                                        <div class="col-md-2">
+                                            <label for="incident-date">Date of Incident:</label>
+                                            <input type="text" name="incident-date" class="form-control datetimepicker"
+                                                   placeholder="Enter Date..." required>
                                         </div>
                                         <div class="col-md-6">
                                             <label>Member(s) Responsible:</label>
                                             <select class="form-control m-input"
                                                     name="member" multiple id="member-incident"
-                                                    style="width: 100%;">
+                                                    style="width: 100%;" required>
                                                 {% for member in members %}
                                                     <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
                                                 {% endfor %}
@@ -73,15 +75,16 @@
                                         <div class="col-md-6">
                                             <label for="issue-description">Issue Description:</label>
                                             <input type="text" name="issue-description"
-                                                   class="form-control m-input">
+                                                   class="form-control m-input" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label>Type of Issue:</label>
                                             <select class="form-control m-input"
                                                     name="issue-type"
+                                                    id="issue-selector"
                                                     style="width: 100%;">
-                                                {% for issue in issue_types %}
-                                                    <option value="{{ issue }}">{{ issue }}</option>
+                                                {% for issue_id, issue in issue_types %}
+                                                    <option value="{{ issue_id }}">{{ issue }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -91,16 +94,16 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="budget-error">Budget Error Amount:</label>
-                                            <input type="text" name="budget-error"
-                                                   class="form-control m-input">
+                                            <input type="text" name="budget-error" id="budget-error-amount"
+                                                   class="form-control m-input" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label>Platform:</label>
                                             <select class="form-control m-input"
-                                                    name="issue-type"
+                                                    name="platform"
                                                     style="width: 100%;">
-                                                {% for platform_num, platform_str in platforms %}
-                                                    <option value="{{ platform_num }}">{{ platform_str }}</option>
+                                                {% for platform_id, platform in platforms %}
+                                                    <option value="{{ platform_id }}">{{ platform }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -155,6 +158,23 @@
         $('#member-incident').select2({
             closeOnSelect: false,
             placeholder: "Select..."
+        });
+
+        $('.datetimepicker').datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        let $issueSelector = $('#issue-selector');
+        let $budgetErrorAmt  = $('#budget-error-amount');
+
+        $issueSelector.change(function () {
+            console.log($(this).val());
+            if ($(this).val() !== '0') {
+                $budgetErrorAmt.prop('disabled', true);
+                $budgetErrorAmt.val('');
+            } else {
+                $budgetErrorAmt.prop('disabled', false);
+            }
         });
     </script>
 {% endblock %}
