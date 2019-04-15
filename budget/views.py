@@ -7,7 +7,7 @@ import time
 from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404, HttpResponse
+from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
@@ -1185,7 +1185,7 @@ def edit_flex_budget(request):
     if not request.user.is_staff and not member.has_account(
             int(request.POST.get('account_id'))) and not member.teams_have_accounts(
             int(request.POST.get('account_id'))):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
@@ -1203,7 +1203,7 @@ def edit_other_budget(request):
     if not request.user.is_staff and not member.has_account(
             int(request.POST.get('account_id'))) and not member.teams_have_accounts(
             int(request.POST.get('account_id'))):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
@@ -1223,7 +1223,7 @@ def confirm_budget(request):
     member = Member.objects.get(user=request.user)
     account_id = int(request.POST.get('account_id'))
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.now()
     account = Client.objects.get(id=account_id)

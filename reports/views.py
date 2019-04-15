@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role
@@ -15,7 +15,7 @@ from urllib.parse import parse_qs
 @login_required
 def agency_overview(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # Get account related metrics
     total_active_accounts = Client.objects.filter(status=1)
@@ -103,7 +103,7 @@ def account_spend_progression(request):
     Creates the report that warns about accounts that may lose values
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
     accounts = Client.objects.filter(status=1)
 
     total_projected_loss = 0.0
@@ -129,7 +129,7 @@ def cm_capacity(request):
     Creates report that shows the capacity of the PPC campaign managers on an aggregated and individual basis
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # Probably has to be changed before production
     # This badly has to be fixed when we implement proper roles
@@ -179,7 +179,7 @@ def am_capacity(request):
     Creates report that shows the capacity of the account managers on an aggregated and individual basis
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
@@ -225,7 +225,7 @@ def seo_capacity(request):
     Creates report that shows the capacity of the account managers on an aggregated and individual basis
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
@@ -288,7 +288,7 @@ def strat_capacity(request):
     Creates report that shows the capacity of the strats on an aggregated and individual basis
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='Strategist'))
@@ -334,7 +334,7 @@ def hour_log(request):
     Creates report that shows which users have added hours this month
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.datetime.now()
     month = now.month
@@ -355,7 +355,7 @@ def facebook(request):
     Creates report that just shows active FB accounts
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.exclude(facebook=None).filter(status=1)
 
@@ -372,7 +372,7 @@ def promos(request):
     Shows calendar of all going on and upcoming promos
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     three_days_ago = datetime.datetime.now() - datetime.timedelta(3)
     three_days_future = datetime.datetime.now() + datetime.timedelta(3)
@@ -404,7 +404,7 @@ def actual_hours(request):
     Shows tables of all hours from selection of members, clients, and month
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.datetime.now()
     accounts = Client.objects.all()
@@ -479,7 +479,7 @@ def monthly_reporting(request):
     Shows status of reports
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.datetime.now()
     accounts = Client.objects.all()
@@ -561,7 +561,7 @@ def account_capacity(request):
     Capacity report for accounts
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(status=1)  # active accounts only
 
@@ -605,7 +605,7 @@ def backup_report(request):
     Lists accounts that currently have backups
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     context = {}
 
@@ -618,7 +618,7 @@ def flagged_accounts(request):
     Lists accounts that currently have backups
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(star_flag=True)
     members = Member.objects.all()
@@ -637,7 +637,7 @@ def performance_anomalies(request):
     Finds campaigns that are underperforming or overperforming
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(Q(target_cpa__gt=0.0) | Q(target_roas__gt=0.0))
 
@@ -685,7 +685,7 @@ def account_history(request):
     The overall monthly account reports
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.datetime.now()
     default_month = now.month
@@ -761,7 +761,7 @@ def tier_overview(request):
     Tier overview
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     proposals = TierChangeProposal.objects.filter(changed_by=None)
     changed_proposals = TierChangeProposal.objects.exclude(changed_by=None)
@@ -780,7 +780,7 @@ def update_tier(request):
     Updates an account's tier from a tier proposal
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     proposal_id = request.POST.get('proposal_id')
     accept_change = int(request.POST.get('accept')) == 1
@@ -806,7 +806,7 @@ def outstanding_notifications(request):
     Report to show who hasn't acknowledged their notifications
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     outstanding = Notification.objects.filter(confirmed=False).order_by('created')
 
@@ -823,7 +823,7 @@ def incidents(request):
     Incidents page
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     return render(request, 'reports/incidents.html')
 
@@ -834,7 +834,7 @@ def new_incident(request):
     New incident page
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     return render(request, 'reports/new_incident.html')
 
@@ -845,7 +845,7 @@ def onboarding(request):
     Onboarding report
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     onboarding_accounts = Client.objects.filter(status=0)
 
@@ -864,7 +864,7 @@ def sales(request):
     :return:
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     qs = parse_qs(request.GET.urlencode())
     selected = 'all'

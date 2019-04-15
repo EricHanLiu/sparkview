@@ -30,6 +30,8 @@ class UserTestCase(TestCase):
     def test_regular_get_views(self):
         """ Check all of the regular user views """
         self.client.login(username='test2', password='123456')
+        user = User.objects.get(username='test2')
+        member = Member.objects.get(user=user)
 
         response = self.client.get('/user_management/profile')
         self.assertEqual(response.status_code, 200)
@@ -50,6 +52,10 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/promos/edit')
+        self.assertEqual(response.status_code, 200)
+
+        # TL Dashboard
+        response = self.client.get('/user_management/members/' + str(member.id) + '/dashboard')
         self.assertEqual(response.status_code, 200)
 
     def test_staff_get_views(self):
@@ -181,6 +187,10 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/new')
+        self.assertEqual(response.status_code, 200)
+
+        # TL dashboard
+        response = self.client.get('/user_management/members/' + str(member.id) + '/dashboard')
         self.assertEqual(response.status_code, 200)
 
     def test_regular_post_view(self):

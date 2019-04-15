@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 import datetime
@@ -23,7 +23,7 @@ def index(request):
 def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         members_resp = {}
@@ -59,7 +59,7 @@ def members(request):
 def member_dashboard(request, id):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # HOURS REPORT INFO
     # Get account related metrics
@@ -298,7 +298,7 @@ def member_dashboard(request, id):
 def new_member(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
         teams = Team.objects.all()
         roles = Role.objects.all()
@@ -417,7 +417,7 @@ def new_member(request):
 def edit_member(request, id):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
 
@@ -517,7 +517,7 @@ def teams(request):
 @login_required
 def new_team(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'POST':
         context = {}
         return JsonResponse(context)
@@ -543,7 +543,7 @@ def members_single(request, id=0):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id and id != 0:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
@@ -616,7 +616,7 @@ def members_single_hours(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
 
@@ -637,7 +637,7 @@ def members_single_reports(request, id):
     """
     member = Member.objects.get(id=id)
     if not request.user.is_staff and int(id) != member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -723,7 +723,7 @@ def members_single_promos(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     now = datetime.datetime.now()
@@ -755,7 +755,7 @@ def members_single_kpis(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     accounts = Client.objects.filter(
@@ -783,7 +783,7 @@ def members_single_timesheet(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     now = datetime.datetime.now()
@@ -821,7 +821,7 @@ def members_single_skills(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     member_skills = SkillEntry.objects.filter(member=member)
@@ -861,7 +861,7 @@ def training_members(request):
 @login_required
 def training_members_json(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     members = list(Member.objects.values())
     return JsonResponse(members, safe=False)
@@ -870,7 +870,7 @@ def training_members_json(request):
 @login_required
 def skills(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     skills = Skill.objects.all()
 
@@ -884,7 +884,7 @@ def skills(request):
 @login_required
 def skills_single(request, id):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     skill = Skill.objects.get(id=id)
 
@@ -898,7 +898,7 @@ def skills_single(request, id):
 @login_required
 def skills_new(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         skill_name = request.POST.get('skillname')
@@ -917,7 +917,7 @@ def backups(request):
     :return:
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         """
@@ -1046,7 +1046,7 @@ def backup_event(request, backup_period_id):
     :return:
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     try:
         backup_period = BackupPeriod.objects.get(id=backup_period_id)
@@ -1106,7 +1106,7 @@ def add_training_hours(request):
     Adds a training hour record
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # trainer_id = request.POST.get('trainer_id')
     trainer = Member.objects.get(user=request.user)
