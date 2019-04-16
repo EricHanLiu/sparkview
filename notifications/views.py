@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from user_management.models import Member
 from .models import Notification
 from client_area.models import PhaseTaskAssignment, LifecycleEvent
@@ -29,7 +29,7 @@ def create(request):
     Creates recurring or one time notification
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page.')
+        return HttpResponseForbidden('You do not have permission to view this page.')
     return HttpResponse('Create')
 
 

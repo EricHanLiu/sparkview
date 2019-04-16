@@ -7,31 +7,34 @@ import django
 django.setup()
 from budget.models import Client, AccountBudgetSpendHistory
 from client_area.models import AccountAllocatedHoursHistory
+from user_management.models import Member, MemberHourHistory
 from datetime import datetime
 
 
-# Purpose of this script is to take a snapshot of budgets, allocated hours, and spend so that we can look back historically at the data
+# Purpose of this script is to take a snapshot of budgets, allocated hours,
+# and spend so that we can look back historically at the data
 # Should run on the last day of every month and should be able to be rebuilt easily
 
 
 def main():
     accounts = Client.objects.all()
+    members = Member.objects.all()
+
+    now = datetime.now()
+    month = now.month
+    year = now.year
 
     for account in accounts:
         # First do the allocated hours
-        members = account.assigned_members
+        account_members = account.assigned_members
 
-        now = datetime.now()
-        month = now.month
-        year = now.year
-
-        for key in members:
-            tup = members[key]
-            member = tup['member']
+        for key in account_members:
+            tup = account_members[key]
+            tmp_member = tup['member']
             percentage = tup['allocated_percentage']
             allocated_hours_month = account.all_hours * (percentage / 100.0)
 
-            record, created = AccountAllocatedHoursHistory.objects.get_or_create(account=account, member=member,
+            record, created = AccountAllocatedHoursHistory.objects.get_or_create(account=account, member=tmp_member,
                                                                                  month=month, year=year)
 
             if True:
@@ -64,7 +67,12 @@ def main():
             print('Account ' + account.client_name + ' month ' + str(month) + ' year ' + str(
                 year) + ' budget history was already created, needs manual intervention')
 
-    #     allocated_hours = models.FloatField(default=0)
+    for member in members:
+        record, created = MemberHourHistory.objects.get(member=member, month=month, year=year)
+        record.allocated_hours = member.allocated_hours_month
+        record.actual_hours = member.actual_hours_month
+        record.available_hours = member.hours_available
+        record.save()
 
 
 main()
