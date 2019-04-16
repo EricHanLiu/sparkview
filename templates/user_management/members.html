@@ -70,7 +70,7 @@
                   <a href="members/{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</a>
                 </td>
                 <td>
-                  {% if member.onAllTeams %}
+                  {% if member.on_all_teams %}
                     All
                   {% else %}
                     {% for team in member.team.all %}

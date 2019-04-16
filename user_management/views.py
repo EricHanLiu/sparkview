@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 import datetime
@@ -23,7 +23,7 @@ def index(request):
 def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         members_resp = {}
@@ -59,7 +59,7 @@ def members(request):
 def member_dashboard(request, id):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # HOURS REPORT INFO
     # Get account related metrics
@@ -73,6 +73,24 @@ def member_dashboard(request, id):
     # If filter request was made, then narrow the member/teams objects
     teams_request = request.GET.getlist('filter-team')
     roles_request = request.GET.getlist('filter-role')
+
+    now = datetime.datetime.now()
+    years = [i for i in range(2018, now.year + 1)]
+
+    q_month = request.GET.get('month')
+    q_year = request.GET.get('year')
+
+    month = int(q_month) if q_month else now.month
+    year = int(q_year) if q_year else now.year
+
+    # The following variable will be used to control what is shown in the dashboard
+    # Reason for this is that not everything is available historically
+    load_everything = month == now.month and year == now.year
+
+    selected = {
+        'month': month,
+        'year': year
+    }
 
     # Convert to role objects
     filtered_roles = None
@@ -97,10 +115,14 @@ def member_dashboard(request, id):
     training_aggregate = 0.0
 
     for memb in members:
-        actual_aggregate += memb.actualHoursThisMonth
-        allocated_aggregate += memb.allocated_hours_month()
-        available_aggregate += memb.hours_available
-        training_aggregate += memb.training_hours_month
+        memb.actual_hours_tmp = memb.actual_hours_other_month(month, year)
+        actual_aggregate += memb.actual_hours_tmp
+        memb.allocated_hours_tmp = memb.allocated_hours_other_month(month, year)
+        allocated_aggregate += memb.allocated_hours_tmp
+        memb.available_hours_tmp = member.hours_available_other_month(month, year)
+        available_aggregate += memb.available_hours_tmp
+        memb.training_hours_tmp = memb.training_hours_other_month(month, year)
+        training_aggregate += memb.training_hours_tmp
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -121,9 +143,9 @@ def member_dashboard(request, id):
         total_allocated_hours += acc.all_hours
 
     # hours worked this month
-    now = datetime.datetime.now()
-    month = now.month
-    year = now.year
+    # now = datetime.datetime.now()
+    # month = now.month
+    # year = now.year
     total_hours_worked = \
         AccountHourRecord.objects.filter(month=month, year=year, is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
     if total_hours_worked is None:
@@ -135,8 +157,15 @@ def member_dashboard(request, id):
         allocation_ratio = 0.0
 
     # MONTHLY REPORTS INFO
-    reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False, cm__in=members)
-    outstanding_reports = reports.filter(year=now.year, month=now.month, date_sent_by_am=None)
+    # The following two lines get the month and year of the month before the selected month
+    # For reporting, I believe this is the logic we want to use
+    # Reason: If you select March 2019, it is actually the February 2019 reports being completed that month
+    monthly_report_year = year - 1 if month == 1 else year
+    monthly_report_month = month - 1 if month != 1 else 12
+    reports = MonthlyReport.objects.filter(year=monthly_report_year, month=monthly_report_month, no_report=False,
+                                           account__in=accounts)
+    # get reports that haven't been sent by am (not sent to client)
+    outstanding_reports = reports.filter(date_sent_by_am=None)
 
     complete_reports = reports.exclude(date_sent_by_am=None).count()
     report_count = reports.count()
@@ -165,16 +194,18 @@ def member_dashboard(request, id):
     three_days_future = now + datetime.timedelta(3)
 
     promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
-                                       end_date__lte=three_days_future, account__in=accounts)
+                                       end_date__lte=three_days_future,
+                                       account__in=accounts) if load_everything else None
     promos_start_today = promos_week.filter(start_date__gte=today_start,
-                                            start_date__lte=today_end)
+                                            start_date__lte=today_end) if load_everything else None
     promos_end_today = promos_week.filter(end_date__gte=today_start,
-                                          end_date__lte=today_end)
+                                          end_date__lte=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
     num_onboarding = onboarding_accounts.count()
 
+    # TODO: This will be rethought for Eric's ticket
     avg_onboarding_days = 0
     for acc in onboarding_accounts:
         avg_onboarding_days += acc.onboarding_duration_elapsed
@@ -188,36 +219,39 @@ def member_dashboard(request, id):
 
     # BUDGETS INFO
     # Monthly budget updates
-    active_accounts = accounts.filter(status=1)
-    budget_updated_accounts = active_accounts.filter(budget_updated=True)
-    budget_not_updated_accounts = active_accounts.filter(budget_updated=False)
+    active_accounts = accounts.filter(status=1) if load_everything else None
+    budget_updated_accounts = active_accounts.filter(budget_updated=True) if load_everything else None
+    budget_not_updated_accounts = active_accounts.filter(budget_updated=False) if load_everything else None
     budget_updated_percentage = 0.0
-    if active_accounts.count() != 0:
+    if load_everything and active_accounts.count() != 0:
         budget_updated_percentage = 100.0 * budget_updated_accounts.count() / active_accounts.count()
 
     # Overspend projection - get top 5 overspending and underspending accounts
     overspend_accounts = sorted(filter(lambda a: a.projected_loss < 0, active_accounts),
-                                key=lambda a: a.projected_refund)
+                                key=lambda a: a.projected_refund, reverse=True) if load_everything else None
     underspend_accounts = sorted(filter(lambda a: a.projected_loss > 0, active_accounts),
-                                 key=lambda a: a.projected_loss)
-    top_five_overspend = overspend_accounts[0:5]
-    top_five_underspend = underspend_accounts[0:5]
-    num_overspend = len(overspend_accounts)
-    num_underspend = len(underspend_accounts)
+                                 key=lambda a: a.projected_loss, reverse=True) if load_everything else None
+    top_five_overspend = overspend_accounts[0:5] if load_everything else None
+    top_five_underspend = underspend_accounts[0:5] if load_everything else None
+    num_overspend = len(overspend_accounts) if load_everything else None
+    num_underspend = len(underspend_accounts) if load_everything else None
 
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
-    for account in overspend_accounts:
-        total_projected_overspend += account.project_yesterday - account.current_budget
-    for account in underspend_accounts:
-        total_projected_loss += account.projected_loss
+    if load_everything:
+        for account in overspend_accounts:
+            total_projected_overspend += account.project_yesterday - account.current_budget
+        for account in underspend_accounts:
+            total_projected_loss += account.projected_loss
 
     # NOTIFICATIONS INFO
-    num_outstanding_notifs = Notification.objects.filter(confirmed=False, member__in=members).count()
-    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False, account__in=accounts).count()
+    num_outstanding_notifs = Notification.objects.filter(confirmed=False,
+                                                         member__in=members).count() if load_everything else None
+    num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
+                                                                 account__in=accounts).count() if load_everything else None
 
     # FLAGGED ACCOUNTS INFO
-    flagged_accounts = accounts.filter(star_flag=True)
+    flagged_accounts = accounts.filter(star_flag=True) if load_everything else None
 
     context = {
         'member': member,
@@ -255,7 +289,11 @@ def member_dashboard(request, id):
         'flagged_accounts': flagged_accounts,
         'members': members,
         'teams': teams,
-        'roles': roles
+        'roles': roles,
+        'years': years,
+        'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
+        'selected': selected,
+        'load_everything': load_everything
     }
 
     return render(request, 'user_management/profile/dashboard.html', context)
@@ -265,7 +303,7 @@ def member_dashboard(request, id):
 def new_member(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
         teams = Team.objects.all()
         roles = Role.objects.all()
@@ -384,7 +422,7 @@ def new_member(request):
 def edit_member(request, id):
     # Authenticate if staff or not
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
 
@@ -484,7 +522,7 @@ def teams(request):
 @login_required
 def new_team(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'POST':
         context = {}
         return JsonResponse(context)
@@ -510,7 +548,7 @@ def members_single(request, id=0):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id and id != 0:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
@@ -583,7 +621,7 @@ def members_single_hours(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
 
@@ -604,7 +642,7 @@ def members_single_reports(request, id):
     """
     member = Member.objects.get(id=id)
     if not request.user.is_staff and int(id) != member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -690,7 +728,7 @@ def members_single_promos(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     now = datetime.datetime.now()
@@ -722,7 +760,7 @@ def members_single_kpis(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     accounts = Client.objects.filter(
@@ -750,7 +788,7 @@ def members_single_timesheet(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     now = datetime.datetime.now()
@@ -788,7 +826,7 @@ def members_single_skills(request, id):
     """
     request_member = Member.objects.get(user=request.user)
     if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
     member_skills = SkillEntry.objects.filter(member=member)
@@ -828,7 +866,7 @@ def training_members(request):
 @login_required
 def training_members_json(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     members = list(Member.objects.values())
     return JsonResponse(members, safe=False)
@@ -837,7 +875,7 @@ def training_members_json(request):
 @login_required
 def skills(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     skills = Skill.objects.all()
 
@@ -851,7 +889,7 @@ def skills(request):
 @login_required
 def skills_single(request, id):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     skill = Skill.objects.get(id=id)
 
@@ -865,7 +903,7 @@ def skills_single(request, id):
 @login_required
 def skills_new(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         skill_name = request.POST.get('skillname')
@@ -884,7 +922,7 @@ def backups(request):
     :return:
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
         """
@@ -1013,7 +1051,7 @@ def backup_event(request, backup_period_id):
     :return:
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     try:
         backup_period = BackupPeriod.objects.get(id=backup_period_id)
@@ -1073,7 +1111,7 @@ def add_training_hours(request):
     Adds a training hour record
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # trainer_id = request.POST.get('trainer_id')
     trainer = Member.objects.get(user=request.user)

@@ -33,13 +33,6 @@ class Team(models.Model):
         return list(Member.objects.filter(team=self))
 
     @property
-    def accounts(self):
-        """
-        Returns the team's accounts
-        """
-        pass
-
-    @property
     def team_lead(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self], role=role)
@@ -173,16 +166,16 @@ class Member(models.Model):
     def internal_hours(self):
         return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_internal_percentage / 100.0), 2)
 
-    def countIncidents(self):
+    def count_incidents(self):
         return Incident.objects.filter(members=self).count()
 
-    def getMostRecentIncident(self):
+    def get_most_recent_incident(self):
         return Incident.objects.filter(members=self).latest('date')
 
-    def getSkills(self):
+    def get_skills(self):
         return SkillEntry.objects.filter(member=self).order_by('skill')
 
-    def onAllTeams(self):
+    def on_all_teams(self):
         return self.team.all().count() == Team.objects.all().count()
 
     @property
@@ -190,20 +183,35 @@ class Member(models.Model):
         now = datetime.datetime.now()
         month = now.month
         year = now.year
+        return self.training_hours_other_month(month, year)
+
+    def training_hours_other_month(self, month, year):
         hours = TrainingHoursRecord.objects.filter(trainee=self, month=month, year=year).aggregate(Sum('hours'))[
-                'hours__sum']
+            'hours__sum']
         return hours if hours is not None else 0
 
     def actual_hours_month(self):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         now = datetime.datetime.now()
         month = now.month
         year = now.year
-        hours = \
-            AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(
-                Sum('hours'))[
-                'hours__sum']
-        return hours if hours is not None else 0
+        return self.actual_hours_other_month(month, year)
+
+    def actual_hours_other_month(self, month, year):
+        now = datetime.datetime.now()
+        if month == now.month and year == now.year:
+            AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
+            m_hours = \
+                AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=False).aggregate(
+                    Sum('hours'))[
+                    'hours__sum']
+            hours = m_hours if m_hours is not None else 0
+        else:
+            try:
+                record = MemberHourHistory.objects.get(member=self, month=month, year=year)
+            except MemberHourHistory.DoesNotExist:
+                return 0
+            hours = record.actual_hours
+        return hours
 
     @property
     def team_string(self):
@@ -211,10 +219,13 @@ class Member(models.Model):
 
     @property
     def value_added_hours_this_month(self):
-        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         now = datetime.datetime.now()
         month = now.month
         year = now.year
+        return self.value_added_hours_other_month(month, year)
+
+    def value_added_hours_other_month(self, month, year):
+        AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
         hours = \
             AccountHourRecord.objects.filter(member=self, month=month, year=year, is_unpaid=True).aggregate(
                 Sum('hours'))[
@@ -240,24 +251,42 @@ class Member(models.Model):
         return hours
 
     def allocated_hours_month(self):
-        if not hasattr(self, '_allocatedHoursMonth'):
+        if not hasattr(self, '_allocated_hours_month'):
             accounts = self.active_accounts
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)
-            self._allocatedHoursMonth = round(hours, 2)
-        return self._allocatedHoursMonth
+            self._allocated_hours_month = round(hours, 2)
+        return self._allocated_hours_month
+
+    def allocated_hours_other_month(self, month, year):
+        if not hasattr(self, '_allocated_hours_other_month'):
+            self._allocated_hours_other_month = {}
+        if month not in self._allocated_hours_other_month:
+            self._allocated_hours_other_month[month] = {}
+        if year not in self._allocated_hours_other_month[month]:
+            now = datetime.datetime.now()
+            if month == now.month and year == now.year:
+                hours = self.allocated_hours_month()
+            else:
+                try:
+                    member_history = MemberHourHistory.objects.get(member=self, month=month, year=year)
+                except MemberHourHistory.DoesNotExist:
+                    return 0
+                hours = member_history.allocated_hours
+            self._allocated_hours_other_month[month][year] = hours
+        return self._allocated_hours_other_month[month][year]
 
     def actual_hours_month_by_account(self, account_id):
         account = apps.get_model('budget', 'Client').objects.get(id=account_id)
         now = datetime.datetime.now()
-        memberHoursThisMonth = \
+        allocated_hours_month = \
             apps.get_model('client_area', 'AccountHourRecord').objects.filter(member=self, month=now.month,
                                                                               year=now.year,
                                                                               account=account,
                                                                               is_unpaid=False).aggregate(
                 Sum('hours'))['hours__sum']
-        return memberHoursThisMonth if memberHoursThisMonth != None else 0
+        return allocated_hours_month if allocated_hours_month is not None else 0
 
     @property
     def allocated_hours_percentage(self):
@@ -271,11 +300,33 @@ class Member(models.Model):
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage
 
+    @property
     def hours_available(self):
         if self.deactivated:
             return 0.0
         return round((140.0 * (self.buffer_total_percentage / 100.0) * (
                 (100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
+
+    def hours_available_other_month(self, month, year):
+        """
+        Get's the number of hours from another month
+        """
+        if not hasattr(self, '_available_hours_other_month'):
+            self._available_hours_other_month = {}
+        if month not in self._available_hours_other_month:
+            self._available_hours_other_month[month] = {}
+        if year not in self._available_hours_other_month[month]:
+            now = datetime.datetime.now()
+            if month == now.month and year == now.year:
+                hours = self.hours_available
+            else:
+                try:
+                    member_history = MemberHourHistory.objects.get(member=self, month=month, year=year)
+                except MemberHourHistory.DoesNotExist:
+                    return 0
+                hours = member_history.available_hours
+            self._available_hours_other_month[month][year] = hours
+        return self._available_hours_other_month[month][year]
 
     @property
     def total_hours_minus_buffer(self):
@@ -385,9 +436,9 @@ class Member(models.Model):
         """
         Percentage that describes member efficiency. Actual / allocated
         """
-        if self.allocatedHoursMonth == 0.0:
+        if self.allocated_hours_this_month == 0.0:
             return 0.0
-        return 100.0 * (self.actualHoursThisMonth / self.allocatedHoursMonth)
+        return 100.0 * (self.actual_hours_this_month / self.allocated_hours_this_month)
 
     @property
     def capacity_rate(self):
@@ -396,7 +447,7 @@ class Member(models.Model):
         """
         if self.total_hours_minus_buffer == 0.0:
             return 0.0
-        return 100 * (self.allocatedHoursMonth / self.total_hours_minus_buffer)
+        return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer)
 
     @property
     def unread_notifications(self):
@@ -440,14 +491,13 @@ class Member(models.Model):
 
         return self._inactive_lost_accounts_last_month
 
-    incidents = property(countIncidents)
-    mostRecentIncident = property(getMostRecentIncident)
-    skills = property(getSkills)
-    onAllTeams = property(onAllTeams)
-    allocatedHoursMonth = property(allocated_hours_month)
-    actualHoursThisMonth = property(actual_hours_month)
+    incidents = property(count_incidents)
+    most_recent_incident = property(get_most_recent_incident)
+    skills = property(get_skills)
+    on_all_teams = property(on_all_teams)
+    allocated_hours_this_month = property(allocated_hours_month)
+    actual_hours_this_month = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
-    hours_available = property(hours_available)
     backup_accounts = property(get_backup_accounts)
     account_count = property(get_accounts_count)
 
@@ -524,4 +574,19 @@ class TrainingHoursRecord(models.Model):
     hours = models.FloatField(default=0.0)
     month = models.IntegerField(default=1, choices=MONTH_CHOICES)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
+    added = models.DateTimeField(auto_now_add=True)
+
+
+class MemberHourHistory(models.Model):
+    """
+    Logs member hours from a previous month
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True)
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.PositiveSmallIntegerField(blank=True, default=1999)
+    actual_hours = models.FloatField(default=0.0)
+    allocated_hours = models.FloatField(default=0.0)
+    available_hours = models.FloatField(default=0.0)
     added = models.DateTimeField(auto_now_add=True)

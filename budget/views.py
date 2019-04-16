@@ -7,7 +7,7 @@ import time
 from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404, HttpResponse
+from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
@@ -696,7 +696,8 @@ def add_groupings(request):
                 group_name=group_name,
                 group_by=group_by_text,
                 budget=budget,
-                client=client
+                client=client,
+                group_type=2
             )
             new_group.update_text_grouping()
         elif group_by == 'all':
@@ -704,7 +705,8 @@ def add_groupings(request):
                 group_name=group_name,
                 group_by=group_by,
                 budget=budget,
-                client=client
+                client=client,
+                group_type=0
             )
             # Add all the campaigns
             for aa in client.adwords.all():
@@ -728,7 +730,8 @@ def add_groupings(request):
                 group_name=group_name,
                 group_by=group_by,
                 budget=budget,
-                client=client
+                client=client,
+                group_type=1
             )
 
             for c in campaigns:
@@ -736,21 +739,21 @@ def add_groupings(request):
                     cmp = Campaign.objects.get(campaign_id=c)
                     new_group.aw_campaigns.add(cmp)
                     new_group.save()
-                except ObjectDoesNotExist:
+                except Campaign.DoesNotExist:
                     pass
 
                 try:
                     cmp = BingCampaign.objects.get(campaign_id=c)
                     new_group.bing_campaigns.add(cmp)
                     new_group.save()
-                except ObjectDoesNotExist:
+                except BingCampaign.DoesNotExist:
                     pass
 
                 try:
                     cmp = FacebookCampaign.objects.get(campaign_id=c)
                     new_group.fb_campaigns.add(cmp)
                     new_group.save()
-                except ObjectDoesNotExist:
+                except FacebookCampaign.DoesNotExist:
                     pass
 
         if flight_date == 'yes':
@@ -762,24 +765,24 @@ def add_groupings(request):
             new_group.save()
 
         response['group_name'] = new_group.group_name
-        for acc in acc_ids:
-            try:
-                adwords = DependentAccount.objects.get(dependent_account_id=acc)
-                adwords_tasks.adwords_cron_campaign_stats.delay(adwords.dependent_account_id, client.id)
-            except ObjectDoesNotExist:
-                pass
-            try:
-                time.sleep(0.5)
-                bing = BingAccounts.objects.get(account_id=acc)
-                bing_tasks.bing_cron_campaign_stats.delay(bing.account_id, client.id)
-            except ObjectDoesNotExist:
-                pass
-            try:
-                time.sleep(0.5)
-                facebook = FacebookAccount.objects.get(account_id=acc)
-                facebook_tasks.facebook_cron_campaign_stats.delay(facebook.account_id, client.id)
-            except ObjectDoesNotExist:
-                pass
+        # for acc in acc_ids:
+        #     try:
+        #         adwords = DependentAccount.objects.get(dependent_account_id=acc)
+        #         # adwords_tasks.adwords_cron_campaign_stats.delay(adwords.dependent_account_id, client.id)
+        #     except ObjectDoesNotExist:
+        #         pass
+        #     try:
+        #         time.sleep(0.5)
+        #         bing = BingAccounts.objects.get(account_id=acc)
+        #         # bing_tasks.bing_cron_campaign_stats.delay(bing.account_id, client.id)
+        #     except ObjectDoesNotExist:
+        #         pass
+        #     try:
+        #         time.sleep(0.5)
+        #         facebook = FacebookAccount.objects.get(account_id=acc)
+        #         # facebook_tasks.facebook_cron_campaign_stats.delay(facebook.account_id, client.id)
+        #     except ObjectDoesNotExist:
+        #         pass
 
         return JsonResponse(response)
 
@@ -1185,7 +1188,7 @@ def edit_flex_budget(request):
     if not request.user.is_staff and not member.has_account(
             int(request.POST.get('account_id'))) and not member.teams_have_accounts(
             int(request.POST.get('account_id'))):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
@@ -1203,7 +1206,7 @@ def edit_other_budget(request):
     if not request.user.is_staff and not member.has_account(
             int(request.POST.get('account_id'))) and not member.teams_have_accounts(
             int(request.POST.get('account_id'))):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
@@ -1223,7 +1226,7 @@ def confirm_budget(request):
     member = Member.objects.get(user=request.user)
     account_id = int(request.POST.get('account_id'))
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.now()
     account = Client.objects.get(id=account_id)
