@@ -233,6 +233,27 @@ class Client(models.Model):
             return False
 
     @property
+    def is_onboarding_seo(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.seo_status == 0
+        else:
+            return False
+
+    @property
+    def is_onboarding_cro(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.cro_status == 0
+        else:
+            return False
+
+    @property
+    def is_onboarding_strat(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.strat_status == 0
+        else:
+            return False
+
+    @property
     def calculated_tier(self):
         proj_management_fee = self.total_fee
         if proj_management_fee < 1500:

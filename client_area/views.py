@@ -296,21 +296,21 @@ def account_new(request):
                                             severity=2)
 
             # Create onboarding steps for this client
-            if account.has_ppc:
+            if account.is_onboarding_ppc:
                 ppc_steps = OnboardingStep.objects.filter(service=0)
                 for ppc_step in ppc_steps:
                     ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
                     ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
                     for ppc_task in ppc_tasks:
                         OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
-            if account.has_seo:
+            if account.is_onboarding_seo:
                 seo_steps = OnboardingStep.objects.filter(service=1)
                 for seo_step in seo_steps:
                     seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
                     seo_tasks = OnboardingTask.objects.filter(step=seo_step)
                     for seo_task in seo_tasks:
                         OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
-            if account.has_cro:
+            if account.is_onboarding_cro:
                 cro_steps = OnboardingStep.objects.filter(service=2)
                 for cro_step in cro_steps:
                     cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
@@ -394,6 +394,22 @@ def account_edit_temp(request, id):
                 message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
+            sp = account.sales_profile
+
+            if sp.ppc_status == 1:
+                sp.ppc_status = 2
+            if sp.seo_status == 1:
+                sp.seo_status = 2
+            if sp.cro_status == 1:
+                sp.cro_status = 2
+            if sp.strat_status == 1:
+                sp.strat_status = 2
+            if sp.feed_status == 1:
+                sp.feed_status = 2
+            if sp.email_status == 1:
+                sp.email_status = 2
+            sp.save()
+
             event_description = account.client_name + ' was set to inactive. The reason is ' + str(
                 inactive_reason) + '.'
             lc_event = LifecycleEvent.objects.create(account=account, type=3, description=event_description,
@@ -423,6 +439,22 @@ def account_edit_temp(request, id):
                 link = '/clients/accounts/' + str(account.id)
                 message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            sp = account.sales_profile
+
+            if sp.ppc_status == 1:
+                sp.ppc_status = 2
+            if sp.seo_status == 1:
+                sp.seo_status = 2
+            if sp.cro_status == 1:
+                sp.cro_status = 2
+            if sp.strat_status == 1:
+                sp.strat_status = 2
+            if sp.feed_status == 1:
+                sp.feed_status = 2
+            if sp.email_status == 1:
+                sp.email_status = 2
+            sp.save()
 
             event_description = account.client_name + ' was set to lost. The reason is ' + str(
                 lost_reason) + '.'
@@ -1424,19 +1456,21 @@ def onboard_account(request, account_id):
         s_ac_cro_steps = None
         s_ac_strat_steps = None
 
-        if account.has_ppc:
+        if account.is_onboarding_ppc:
+            print('here')
             ppc_step = OnboardingStep.objects.filter(service=0)
             ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
             s_ac_ppc_steps = sorted(ac_ppc_steps, key=lambda t: t.step.order)
-        if account.has_seo:
+            print(s_ac_ppc_steps)
+        if account.is_onboarding_seo:
             seo_step = OnboardingStep.objects.filter(service=1)
             ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
             s_ac_seo_steps = sorted(ac_seo_steps, key=lambda t: t.step.order)
-        if account.has_cro:
+        if account.is_onboarding_cro:
             cro_step = OnboardingStep.objects.filter(service=2)
             ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
             s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
-        if account.has_strat:
+        if account.is_onboarding_strat:
             strat_step = OnboardingStep.objects.filter(service=3)
             ac_strat_steps = OnboardingStepAssignment.objects.filter(step__in=strat_step, account=account)
             s_ac_strat_steps = sorted(ac_strat_steps, key=lambda t: t.step.order)
