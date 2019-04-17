@@ -750,3 +750,13 @@ class Mandate(models.Model):
 
     def __str__(self):
         return self.account.name + ' ' + self.mandate_type.name
+
+
+class Tag(models.Model):
+    """
+    Simple tag concept that can later be used for tracking success of members and clients
+    """
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
