@@ -119,7 +119,7 @@ def member_dashboard(request, id):
         actual_aggregate += memb.actual_hours_tmp
         memb.allocated_hours_tmp = memb.allocated_hours_other_month(month, year)
         allocated_aggregate += memb.allocated_hours_tmp
-        memb.available_hours_tmp = member.hours_available_other_month(month, year)
+        memb.available_hours_tmp = memb.hours_available_other_month(month, year)
         available_aggregate += memb.available_hours_tmp
         memb.training_hours_tmp = memb.training_hours_other_month(month, year)
         training_aggregate += memb.training_hours_tmp

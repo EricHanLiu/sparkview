@@ -311,6 +311,9 @@ class Member(models.Model):
         """
         Get's the number of hours from another month
         """
+        now = datetime.datetime.now()
+        if now.month == month and now.year == year:
+            return self.hours_available
         if not hasattr(self, '_available_hours_other_month'):
             self._available_hours_other_month = {}
         if month not in self._available_hours_other_month:

@@ -723,3 +723,30 @@ class SalesProfileChange(models.Model):
     def __str__(self):
         return self.profile.account.client_name + ' ' + self.get_service_display() + ' from ' + \
                self.get_from_status_display() + ' to ' + self.get_to_status_display()
+
+
+class MandateType(models.Model):
+    """
+    Type of mandate
+    """
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class Mandate(models.Model):
+    """
+    Mandate (one off service) for a client
+    """
+    mandate_type = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
+    account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+    members = models.ManyToManyField('user_management.Member', blank=True)
+    cost = models.FloatField(default=0.0)
+    hourly_rate = models.FloatField(default=125.0)
+    start_date = models.DateTimeField(default=None, null=True)
+    end_date = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.account.name + ' ' + self.mandate_type.name
