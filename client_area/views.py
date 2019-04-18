@@ -699,6 +699,10 @@ def account_single(request, id):
     pitches = PitchedDescription.objects.all()
 
     mandate_types = MandateType.objects.all()
+    try:
+        first_mandate_rate = mandate_types[0].hourly_rate
+    except IndexError:
+        first_mandate_rate = ''
 
     context = {
         'account': account,
@@ -713,7 +717,8 @@ def account_single(request, id):
         'promos': promos,
         'opps': opps,
         'pitches': pitches,
-        'mandate_types': mandate_types
+        'mandate_types': mandate_types,
+        'first_mandate_rate': first_mandate_rate
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -1461,11 +1466,9 @@ def onboard_account(request, account_id):
         s_ac_strat_steps = None
 
         if account.is_onboarding_ppc:
-            print('here')
             ppc_step = OnboardingStep.objects.filter(service=0)
             ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
             s_ac_ppc_steps = sorted(ac_ppc_steps, key=lambda t: t.step.order)
-            print(s_ac_ppc_steps)
         if account.is_onboarding_seo:
             seo_step = OnboardingStep.objects.filter(service=1)
             ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
