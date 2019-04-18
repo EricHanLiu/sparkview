@@ -750,6 +750,13 @@ class Mandate(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
+    def hours(self):
+        try:
+            return self.cost / self.hourly_rate
+        except ZeroDivisionError:
+            return 0
+
+    @property
     def start_date_pretty(self):
         return self.start_date.strftime('%b %d, %Y')
 
@@ -759,6 +766,20 @@ class Mandate(models.Model):
 
     def __str__(self):
         return self.account.client_name + ' ' + self.mandate_type.name
+
+
+class MandatePercentageAssignment(models.Model):
+    """
+    Assign a percentage of the mandates hours
+    """
+    pass
+
+
+class MandateHourRecord(models.Model):
+    """
+    Record an hour in a mandate
+    """
+    pass
 
 
 class Tag(models.Model):
