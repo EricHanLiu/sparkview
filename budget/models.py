@@ -10,7 +10,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate
 from dateutil.relativedelta import relativedelta
 
 
@@ -1208,6 +1208,18 @@ class Client(models.Model):
 
         services = {}
         return services
+
+    @property
+    def active_mandates(self):
+        """
+        Mandates that are active for the client right now
+        :return:
+        """
+        if not hasattr(self, '_active_mandates'):
+            now = datetime.datetime.now()
+            mandates = Mandate.objects.filter(start_date__lte=now, end_date__gte=now, account=self)
+            self._active_mandates = mandates
+        return self._active_mandates
 
     def hybrid_projection(self, method):
         projection = self.current_spend

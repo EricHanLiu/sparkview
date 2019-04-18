@@ -730,6 +730,7 @@ class MandateType(models.Model):
     Type of mandate
     """
     name = models.CharField(max_length=255)
+    hourly_rate = models.FloatField(default=125.0)
 
     def __str__(self):
         return self.name
@@ -748,8 +749,16 @@ class Mandate(models.Model):
     end_date = models.DateTimeField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def start_date_pretty(self):
+        return self.start_date.strftime('%b %d, %Y')
+
+    @property
+    def end_date_pretty(self):
+        return self.end_date.strftime('%b %d, %Y')
+
     def __str__(self):
-        return self.account.name + ' ' + self.mandate_type.name
+        return self.account.client_name + ' ' + self.mandate_type.name
 
 
 class Tag(models.Model):

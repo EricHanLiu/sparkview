@@ -369,14 +369,22 @@ class Member(models.Model):
         """
         Returns True if this member deals with this account in any way, False otherwise (checks account member assignments)
         """
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        client_model = apps.get_model('budget', 'Client')
+        try:
+            account = client_model.objects.get(id=account_id)
+        except client_model.DoesNotExist:
+            return False
         return account in self.accounts or account in self.backup_accounts
 
     def teams_have_accounts(self, account_id):
         """
         Returns True if this member's teams deals with this account in any way, False otherwise (checks account team assignments)
         """
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        client_model = apps.get_model('budget', 'Client')
+        try:
+            account = client_model.objects.get(id=account_id)
+        except client_model.DoesNotExist:
+            return False
         a_teams = account.team.all()
         m_teams = self.team.all()
 

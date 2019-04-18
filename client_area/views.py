@@ -14,7 +14,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription
+    PitchedDescription, MandateType, Mandate
 from .forms import NewClientForm
 
 
@@ -698,6 +698,8 @@ def account_single(request, id):
     opps = OpportunityDescription.objects.all()
     pitches = PitchedDescription.objects.all()
 
+    mandate_types = MandateType.objects.all()
+
     context = {
         'account': account,
         'members': members,
@@ -710,7 +712,8 @@ def account_single(request, id):
         'kpid': account.kpi_info,
         'promos': promos,
         'opps': opps,
-        'pitches': pitches
+        'pitches': pitches,
+        'mandate_types': mandate_types
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -720,7 +723,8 @@ def account_single(request, id):
 def account_assign_members(request):
     account_id = request.POST.get('account_id')
     if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page. Only admins can assign members now.')
+        return HttpResponseForbidden(
+            'You do not have permission to view this page. Only admins can assign members now.')
 
     account = Client.objects.get(id=account_id)
 
@@ -1621,3 +1625,39 @@ def campaigns(request, account_id):
     }
 
     return render(request, 'client_area/campaigns.html', context)
+
+
+def create_mandate(request):
+    """
+    View to create mandate
+    :param request:
+    :return:
+    """
+    account_id = request.POST.get('account_id')
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponse('Invalid client')
+
+    try:
+        mandate_type = MandateType.objects.get(id=request.POST.get('mandate_type'))
+    except MandateType.DoesNotExist:
+        return HttpResponse('Invalid mandate type')
+
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
+
+    cost = request.POST.get('cost')
+    hourly_rate = request.POST.get('hourly_rate')
+
+    start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+    Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt, end_date=end_date_dt,
+                           account=account, mandate_type=mandate_type)
+
+    return redirect('/clients/accounts/' + str(account.id))
