@@ -219,7 +219,7 @@ def member_dashboard(request, id):
 
     # BUDGETS INFO
     # Monthly budget updates
-    active_accounts = accounts.filter(status=1) if load_everything else None
+    active_accounts = accounts.filter(salesprofile__ppc_status=1) if load_everything else None
     budget_updated_accounts = active_accounts.filter(budget_updated=True) if load_everything else None
     budget_not_updated_accounts = active_accounts.filter(budget_updated=False) if load_everything else None
     budget_updated_percentage = 0.0

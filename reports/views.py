@@ -842,8 +842,6 @@ def new_high_five(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    print("TEST" + request.method)
-
     if request.method == 'GET':
         members = Member.objects.all()
 
