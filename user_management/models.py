@@ -53,7 +53,8 @@ class Team(models.Model):
 class Incident(models.Model):
     """ Incident """
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
-    SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops')]
+    SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
+                (6, 'None')]
     ISSUES = [(0, 'Budget Error'), (1, 'Promotion Error'), (2, 'Text Ad Error'), (3, 'Lack of Activity Error'),
               (4, 'Communication Error'), (5, 'Other')]
 

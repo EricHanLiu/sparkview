@@ -862,7 +862,7 @@ def new_incident(request):
         try:
             service = int(r.get('services'))
         except ValueError:
-            service = 0  # set to Paid Media by default
+            service = 6  # set to None by default
         try:
             account = int(r.get('account'))
         except ValueError:
