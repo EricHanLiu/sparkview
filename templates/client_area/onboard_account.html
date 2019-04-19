@@ -22,7 +22,7 @@
         <div class="alert alert-success" role="alert" {% if account.status == 0 %}style="display:none;"{% endif %}>
             {{ account.client_name }} is now <strong>active</strong>.
         </div>
-        {% if account.has_ppc %}
+        {% if account.is_onboarding_ppc %}
             <h5>PPC</h5>
             {% for assigned_step in ac_ppc_steps %}
                 <div>
@@ -43,7 +43,7 @@
             {% endfor %}
             <hr />
         {% endif %}
-        {% if account.has_seo %}
+        {% if account.is_onboarding_seo %}
             <h5>SEO Steps</h5>
             {% for assigned_step in ac_seo_steps %}
                 <div>
@@ -64,7 +64,7 @@
             {% endfor %}
             <hr />
         {% endif %}
-        {% if account.has_cro %}
+        {% if account.is_onboarding_cro %}
             <h5>CRO Steps</h5>
             {% for assigned_step in ac_cro_steps %}
                 <div>
@@ -85,7 +85,7 @@
             {% endfor %}
             <hr />
         {% endif %}
-        {% if account.has_strat %}
+        {% if account.is_onboarding_strat %}
             <h5>Strategy Steps</h5>
             {% for assigned_step in ac_strat_steps %}
                 <div>

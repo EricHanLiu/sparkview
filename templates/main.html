@@ -132,13 +132,13 @@ License: You must have a valid license purchased only from themeforest(the above
                                       </span>
                                     </a>
                                   </li>
-                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                    <a href="/clients/accounts/team" class="m-menu__link ">
-                                      <span class="m-menu__link-text">
-                                        My Team's Accounts
-                                      </span>
-                                    </a>
-                                  </li>
+{#                                  <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                    <a href="/clients/accounts/team" class="m-menu__link ">#}
+{#                                      <span class="m-menu__link-text">#}
+{#                                        My Team's Accounts#}
+{#                                      </span>#}
+{#                                    </a>#}
+{#                                  </li>#}
                                   <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
                                     <a href="/clients/accounts/report_hours" class="m-menu__link ">
                                       <span class="m-menu__link-text">
@@ -179,104 +179,104 @@ License: You must have a valid license purchased only from themeforest(the above
                                 </ul>
                               </div>
                             </li>
-                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
-                                data-menu-submenu-toggle="click" aria-haspopup="true">
-                                <a href="#" class="m-menu__link m-menu__toggle">
-                                    <span class="m-menu__item-here"></span>
-                                    <span class="m-menu__link-text">
-                  										Budgets
-                  									</span>
-                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
-                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
-                                </a>
-                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
-                                    <ul class="m-menu__subnav">
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'budget:add_client' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-ello"></i>
-                                                <span class="m-menu__link-text">
-                        													All platforms
-                        												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'budget:adwords' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
-                                                <span class="m-menu__link-text">
-                        													AdWords
-                        												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'budget:bing' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
-                                                <span class="m-menu__link-text">
-                        													Bing Ads
-                        												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'budget:facebook' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
-                                                <span class="m-menu__link-text">
-                        													Facebook
-                        												</span>
-                                            </a>
-                                        </li>
-                                        {% if request.user.is_staff %}
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'accounts:adwords' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>
-                                                <span class="m-menu__link-text">
-                        													Activate - Adwords
-                        												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'accounts:bing' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>
-                                                <span class="m-menu__link-text">
-                        													Activate - Bing Ads
-                        												</span>
-                                            </a>
-                                        </li>
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="{% url 'accounts:facebook' %}" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>
-                                                <span class="m-menu__link-text">
-                        													Activate - Facebook
-                        												</span>
-                                            </a>
-                                        </li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </li>
-                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
-                                data-menu-submenu-toggle="click" aria-haspopup="true">
-                                <a href="#" class="m-menu__link m-menu__toggle">
-                                    <span class="m-menu__item-here"></span>
-                                    <span class="m-menu__link-text">
-                  										Tools
-                  									</span>
-                                    <i class="m-menu__hor-arrow la la-angle-down"></i>
-                                    <i class="m-menu__ver-arrow la la-angle-right"></i>
-                                </a>
-                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">
-                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>
-                                    <ul class="m-menu__subnav">
-                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
-                                            <a href="https://adwords-campaign-builder.herokuapp.com/login/?next=/campaigns/new/" class="m-menu__link ">
-                                                <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>
-                                                <span class="m-menu__link-text">
-                        													SKAG Builder
-                        												</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
+{#                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"#}
+{#                                data-menu-submenu-toggle="click" aria-haspopup="true">#}
+{#                                <a href="#" class="m-menu__link m-menu__toggle">#}
+{#                                    <span class="m-menu__item-here"></span>#}
+{#                                    <span class="m-menu__link-text">#}
+{#                  										Budgets#}
+{#                  									</span>#}
+{#                                    <i class="m-menu__hor-arrow la la-angle-down"></i>#}
+{#                                    <i class="m-menu__ver-arrow la la-angle-right"></i>#}
+{#                                </a>#}
+{#                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">#}
+{#                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>#}
+{#                                    <ul class="m-menu__subnav">#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'budget:add_client' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-ello"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													All platforms#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'budget:adwords' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													AdWords#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'budget:bing' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													Bing Ads#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'budget:facebook' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													Facebook#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        {% if request.user.is_staff %}#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'accounts:adwords' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-google"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													Activate - Adwords#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'accounts:bing' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-windows"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													Activate - Bing Ads#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="{% url 'accounts:facebook' %}" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon socicon-facebook"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													Activate - Facebook#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                        {% endif %}#}
+{#                                    </ul>#}
+{#                                </div>#}
+{#                            </li>#}
+{#                            <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"#}
+{#                                data-menu-submenu-toggle="click" aria-haspopup="true">#}
+{#                                <a href="#" class="m-menu__link m-menu__toggle">#}
+{#                                    <span class="m-menu__item-here"></span>#}
+{#                                    <span class="m-menu__link-text">#}
+{#                  										Tools#}
+{#                  									</span>#}
+{#                                    <i class="m-menu__hor-arrow la la-angle-down"></i>#}
+{#                                    <i class="m-menu__ver-arrow la la-angle-right"></i>#}
+{#                                </a>#}
+{#                                <div class="m-menu__submenu m-menu__submenu--classic m-menu__submenu--left">#}
+{#                                    <span class="m-menu__arrow m-menu__arrow--adjust"></span>#}
+{#                                    <ul class="m-menu__subnav">#}
+{#                                        <li class="m-menu__item " data-redirect="true" aria-haspopup="true">#}
+{#                                            <a href="https://adwords-campaign-builder.herokuapp.com/login/?next=/campaigns/new/" class="m-menu__link ">#}
+{#                                                <i class="m-menu__link-icon m-nav__link-icon fa fa-tags"></i>#}
+{#                                                <span class="m-menu__link-text">#}
+{#                        													SKAG Builder#}
+{#                        												</span>#}
+{#                                            </a>#}
+{#                                        </li>#}
+{#                                    </ul>#}
+{#                                </div>#}
+{#                            </li>#}
 
                             {# User management #}
                             <li class="m-menu__item  m-menu__item--submenu m-menu__item--rel"
@@ -284,7 +284,7 @@ License: You must have a valid license purchased only from themeforest(the above
                                 <a href="#" class="m-menu__link m-menu__toggle">
                                     <span class="m-menu__item-here"></span>
                                     <span class="m-menu__link-text">
-                  										Users
+                  										Members
                   									</span>
                                     <i class="m-menu__hor-arrow la la-angle-down"></i>
                                     <i class="m-menu__ver-arrow la la-angle-right"></i>
@@ -361,7 +361,7 @@ License: You must have a valid license purchased only from themeforest(the above
                             <a href="#" class="m-menu__link m-menu__toggle">
                               <span class="m-menu__item-here"></span>
                               <span class="m-menu__link-text">
-                                Reports
+                                Admin
                               </span>
                               <i class="m-menu__hor-arrow la la-angle-down"></i>
                               <i class="m-menu__ver-arrow la la-angle-right"></i>
@@ -506,22 +506,22 @@ License: You must have a valid license purchased only from themeforest(the above
                             </div>
                           </li>
                           {% endif %}
-                          <li class="m-menu__item m-menu__item--rel" aria-haspopup="false">
-                          <a href="https://docs.google.com/forms/d/e/1FAIpQLSeCjfnKOTa4vVjx7EBlUG3yfKZUOaFyzcU54hlR0FcaCSRYbA/viewform" class="m-menu__link" target="_blank">
-                            <span class="m-menu__item-here"></span>
-                            <span class="m-menu__link-text">
-                              Report a Bug
-                            </span>
-                          </a>
-                          </li>
-                          <li class="m-menu__item m-menu__item--rel" aria-haspopup="false">
-                          <a href="https://docs.google.com/document/d/1KplVandb4H8w1gUMG9tHZlxka1oJAXZFC3IJEoAHw1s/edit?usp=sharing" class="m-menu__link" target="_blank">
-                            <span class="m-menu__item-here"></span>
-                            <span class="m-menu__link-text">
-                              User Manual
-                            </span>
-                          </a>
-                          </li>
+{#                          <li class="m-menu__item m-menu__item--rel" aria-haspopup="false">#}
+{#                          <a href="https://docs.google.com/forms/d/e/1FAIpQLSeCjfnKOTa4vVjx7EBlUG3yfKZUOaFyzcU54hlR0FcaCSRYbA/viewform" class="m-menu__link" target="_blank">#}
+{#                            <span class="m-menu__item-here"></span>#}
+{#                            <span class="m-menu__link-text">#}
+{#                              Report a Bug#}
+{#                            </span>#}
+{#                          </a>#}
+{#                          </li>#}
+{#                          <li class="m-menu__item m-menu__item--rel" aria-haspopup="false">#}
+{#                          <a href="https://docs.google.com/document/d/1KplVandb4H8w1gUMG9tHZlxka1oJAXZFC3IJEoAHw1s/edit?usp=sharing" class="m-menu__link" target="_blank">#}
+{#                            <span class="m-menu__item-here"></span>#}
+{#                            <span class="m-menu__link-text">#}
+{#                              User Manual#}
+{#                            </span>#}
+{#                          </a>#}
+{#                          </li>#}
                         </ul>
                     </div>
                     <!-- END: Horizontal Menu -->
@@ -545,53 +545,53 @@ License: You must have a valid license purchased only from themeforest(the above
                         <div class="m-stack__item m-topbar__nav-wrapper">
                             <ul class="m-topbar__nav m-nav m-nav--inline">
                               <!-- Begin notifications -->
-                              {% with notifications=request.user|get_unread_notifications %}
-                              <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
-                                  data-dropdown-toggle="click" data-dropdown-persistent="1">
-                                  <input value="{{ notifications.count }}" id="notif_count" style="display:none;" />
-                                  <a href="#" class="m-nav__link m-dropdown__toggle">
-                                    {% if notifications.count > 0 %}
-                                    <span class="m-nav__link-badge m-badge text-center">{{ notifications.count }}</span>
-                                    <!-- <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span> -->
-                                    {% endif %}
-                                    <span class="m-nav__link-icon"><i class="fa fa-bell" style="font-size:1.5rem;{% if notifications.count > 0 %}color:#f4516c;{% endif %}"></i></span>
-                                  </a>
-                                  <div class="m-dropdown__wrapper">
-                                      <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
-                                      <div class="m-dropdown__inner">
-                                        <div class="m-dropdown__body">
-                                          <div class="m-dropdown__content">
-                                            <div class="tab-content">
-                                              <div class="tab-pane active show" id="topbar_notifications_notifications" role="tabpanel">
-                                                <div class="m-scrollable m-scroller ps" data-scrollable="true" data-height="250" data-mobile-height="200" style="height: 250px; overflow: hidden;">
-                                                  <div class="m-list-timeline m-list-timeline--skin-light">
-                                                    <div class="m-list-timeline__items">
-                                                      {% if notifications.count == 0 %}
-                                                      <div class="m-list-timeline__item">
-                                                        <span class="m-list-timeline__text">Nothing to see here!</span>
-                                                      </div>
-                                                      {% else %}
-                                                        {% for notification in notifications %}
-                                                        <div class="m-list-timeline__item">
-                                                          <span class="m-list-timeline__badge m-list-timeline__badge--{{ notification.colour }}"></span>
-                                                          {% if notification.link != None %}<a style="text-decoration: none;" href="{{ notification.link }}" class="m-list-timeline__text">{% else %}<span class="m-list-timeline__text">{% endif %}{{ notification.message }}{% if notification.link != None %}</a>{% else %}</span>{% endif %}
-                                                          <span class="m-list-timeline__time">
-                                                            <i class="fa fa-check-circle notif-check" style="color:#ddd;" data-checked="0" data-notification-id="{{ notification.id }}"></i>
-                                                          </span>
-                                                        </div>
-                                                        {% endfor %}
-                                                      {% endif %}
-                                                    </div>
-                                                  </div>
-                                                <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 4px; height: 250px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 220px;"></div></div></div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                  </div>
-                              </li>
-                              {% endwith %}
+{#                              {% with notifications=request.user|get_unread_notifications %}#}
+{#                              <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"#}
+{#                                  data-dropdown-toggle="click" data-dropdown-persistent="1">#}
+{#                                  <input value="{{ notifications.count }}" id="notif_count" style="display:none;" />#}
+{#                                  <a href="#" class="m-nav__link m-dropdown__toggle">#}
+{#                                    {% if notifications.count > 0 %}#}
+{#                                    <span class="m-nav__link-badge m-badge text-center">{{ notifications.count }}</span>#}
+{#                                    <!-- <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span> -->#}
+{#                                    {% endif %}#}
+{#                                    <span class="m-nav__link-icon"><i class="fa fa-bell" style="font-size:1.5rem;{% if notifications.count > 0 %}color:#f4516c;{% endif %}"></i></span>#}
+{#                                  </a>#}
+{#                                  <div class="m-dropdown__wrapper">#}
+{#                                      <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>#}
+{#                                      <div class="m-dropdown__inner">#}
+{#                                        <div class="m-dropdown__body">#}
+{#                                          <div class="m-dropdown__content">#}
+{#                                            <div class="tab-content">#}
+{#                                              <div class="tab-pane active show" id="topbar_notifications_notifications" role="tabpanel">#}
+{#                                                <div class="m-scrollable m-scroller ps" data-scrollable="true" data-height="250" data-mobile-height="200" style="height: 250px; overflow: hidden;">#}
+{#                                                  <div class="m-list-timeline m-list-timeline--skin-light">#}
+{#                                                    <div class="m-list-timeline__items">#}
+{#                                                      {% if notifications.count == 0 %}#}
+{#                                                      <div class="m-list-timeline__item">#}
+{#                                                        <span class="m-list-timeline__text">Nothing to see here!</span>#}
+{#                                                      </div>#}
+{#                                                      {% else %}#}
+{#                                                        {% for notification in notifications %}#}
+{#                                                        <div class="m-list-timeline__item">#}
+{#                                                          <span class="m-list-timeline__badge m-list-timeline__badge--{{ notification.colour }}"></span>#}
+{#                                                          {% if notification.link != None %}<a style="text-decoration: none;" href="{{ notification.link }}" class="m-list-timeline__text">{% else %}<span class="m-list-timeline__text">{% endif %}{{ notification.message }}{% if notification.link != None %}</a>{% else %}</span>{% endif %}#}
+{#                                                          <span class="m-list-timeline__time">#}
+{#                                                            <i class="fa fa-check-circle notif-check" style="color:#ddd;" data-checked="0" data-notification-id="{{ notification.id }}"></i>#}
+{#                                                          </span>#}
+{#                                                        </div>#}
+{#                                                        {% endfor %}#}
+{#                                                      {% endif %}#}
+{#                                                    </div>#}
+{#                                                  </div>#}
+{#                                                <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 4px; height: 250px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 220px;"></div></div></div>#}
+{#                                              </div>#}
+{#                                            </div>#}
+{#                                          </div>#}
+{#                                        </div>#}
+{#                                      </div>#}
+{#                                  </div>#}
+{#                              </li>#}
+{#                              {% endwith %}#}
                               <!-- End notifications -->
                               <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
                                   data-dropdown-toggle="click">
@@ -683,7 +683,7 @@ License: You must have a valid license purchased only from themeforest(the above
             <div class="m-stack m-stack--flex-tablet-and-mobile m-stack--ver m-stack--desktop">
                 <div class="m-stack__item m-stack__item--left m-stack__item--middle m-stack__item--last">
                     <span class="m-footer__copyright">
-                        2018 &copy; SparkView
+                        2019 &copy; SparkView - <a href="/release_notes">Release notes</a>
                     </span>
                 </div>
             </div>

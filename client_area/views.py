@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
 from django.db.models import Sum
 from django.db.models import Q
 from django.utils import timezone
@@ -14,7 +14,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription
+    PitchedDescription, MandateType, Mandate
 from .forms import NewClientForm
 
 
@@ -64,7 +64,7 @@ def accounts_team(request):
 @login_required
 def accounts_all(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0))
 
@@ -82,7 +82,7 @@ def accounts_all(request):
 @login_required
 def accounts_inactive(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(status=2)
 
@@ -100,7 +100,7 @@ def accounts_inactive(request):
 @login_required
 def accounts_lost(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(status=3)
 
@@ -118,7 +118,7 @@ def accounts_lost(request):
 @login_required
 def account_new(request):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
         teams = Team.objects.all()
@@ -296,21 +296,21 @@ def account_new(request):
                                             severity=2)
 
             # Create onboarding steps for this client
-            if account.has_ppc:
+            if account.is_onboarding_ppc:
                 ppc_steps = OnboardingStep.objects.filter(service=0)
                 for ppc_step in ppc_steps:
                     ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
                     ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
                     for ppc_task in ppc_tasks:
                         OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
-            if account.has_seo:
+            if account.is_onboarding_seo:
                 seo_steps = OnboardingStep.objects.filter(service=1)
                 for seo_step in seo_steps:
                     seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
                     seo_tasks = OnboardingTask.objects.filter(step=seo_step)
                     for seo_task in seo_tasks:
                         OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
-            if account.has_cro:
+            if account.is_onboarding_cro:
                 cro_steps = OnboardingStep.objects.filter(service=2)
                 for cro_step in cro_steps:
                     cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
@@ -342,7 +342,7 @@ def account_edit_temp(request, id):
     """
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
         account = Client.objects.get(id=id)
@@ -394,6 +394,22 @@ def account_edit_temp(request, id):
                 message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
+            sp = account.sales_profile
+
+            if sp.ppc_status == 1:
+                sp.ppc_status = 2
+            if sp.seo_status == 1:
+                sp.seo_status = 2
+            if sp.cro_status == 1:
+                sp.cro_status = 2
+            if sp.strat_status == 1:
+                sp.strat_status = 2
+            if sp.feed_status == 1:
+                sp.feed_status = 2
+            if sp.email_status == 1:
+                sp.email_status = 2
+            sp.save()
+
             event_description = account.client_name + ' was set to inactive. The reason is ' + str(
                 inactive_reason) + '.'
             lc_event = LifecycleEvent.objects.create(account=account, type=3, description=event_description,
@@ -423,6 +439,22 @@ def account_edit_temp(request, id):
                 link = '/clients/accounts/' + str(account.id)
                 message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            sp = account.sales_profile
+
+            if sp.ppc_status == 1:
+                sp.ppc_status = 2
+            if sp.seo_status == 1:
+                sp.seo_status = 2
+            if sp.cro_status == 1:
+                sp.cro_status = 2
+            if sp.strat_status == 1:
+                sp.strat_status = 2
+            if sp.feed_status == 1:
+                sp.feed_status = 2
+            if sp.email_status == 1:
+                sp.email_status = 2
+            sp.save()
 
             event_description = account.client_name + ' was set to lost. The reason is ' + str(
                 lost_reason) + '.'
@@ -511,7 +543,7 @@ def account_edit_temp(request, id):
 @login_required
 def account_edit(request, id):
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
         account = Client.objects.get(id=id)
@@ -622,7 +654,7 @@ def account_single(request, id):
     The following flag needs to be turned off for now
     """
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
-    #     return HttpResponse('You do not have permission to view this page')
+    #     return HttpResponseForbidden('You do not have permission to view this page')
     account = Client.objects.get(id=id)
     members = Member.objects.all()
     changes = AccountChanges.objects.filter(account=account)
@@ -666,6 +698,12 @@ def account_single(request, id):
     opps = OpportunityDescription.objects.all()
     pitches = PitchedDescription.objects.all()
 
+    mandate_types = MandateType.objects.all()
+    try:
+        first_mandate_rate = mandate_types[0].hourly_rate
+    except IndexError:
+        first_mandate_rate = ''
+
     context = {
         'account': account,
         'members': members,
@@ -678,7 +716,9 @@ def account_single(request, id):
         'kpid': account.kpi_info,
         'promos': promos,
         'opps': opps,
-        'pitches': pitches
+        'pitches': pitches,
+        'mandate_types': mandate_types,
+        'first_mandate_rate': first_mandate_rate
     }
 
     return render(request, 'client_area/account_single.html', context)
@@ -688,7 +728,8 @@ def account_single(request, id):
 def account_assign_members(request):
     account_id = request.POST.get('account_id')
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page. Only admins can assign members now.')
+        return HttpResponseForbidden(
+            'You do not have permission to view this page. Only admins can assign members now.')
 
     account = Client.objects.get(id=account_id)
 
@@ -814,9 +855,9 @@ def add_hours_to_account(request):
         all_accounts = Client.objects.all().order_by('client_name')
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
-        years = [2018, 2019, 2020, 2021, 2022, 2023]
-
         now = datetime.datetime.now()
+        years = [i for i in range(2018, now.year + 1)]
+
         monthnow = now.month
         current_year = now.year
 
@@ -853,7 +894,7 @@ def add_hours_to_account(request):
             account = Client.objects.get(id=account_id)
 
             if not request.user.is_staff and not member.has_account(account_id):
-                return HttpResponse('You do not have permission to add hours to this account')
+                return HttpResponseForbidden('You do not have permission to add hours to this account')
             member = Member.objects.get(user=request.user)
             hours = request.POST.get('hours-' + i)
             try:
@@ -876,7 +917,7 @@ def value_added_hours(request):
         account_id = request.POST.get('account_id')
         account = Client.objects.get(id=account_id)
         # if (not request.user.is_staff and not member.has_account(account_id)):
-        #     return HttpResponse('You do not have permission to add hours to this account')
+        #     return HttpResponseForbidden('You do not have permission to add hours to this account')
         member = Member.objects.get(user=request.user)
         hours = request.POST.get('hours')
         month = request.POST.get('month')
@@ -894,7 +935,7 @@ def account_allocate_percentages(request):
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     # There may be a better way to handle this form
     # This is boilerplate
@@ -970,7 +1011,7 @@ def get_management_fee_details(request, id):
     Returns a json format of a management fee structure. Used to render them dynamically
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     fee_structure = get_object_or_404(ManagementFeesStructure, id=id)
 
@@ -1002,7 +1043,7 @@ def confirm_sent_am(request):
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
@@ -1027,7 +1068,7 @@ def confirm_sent_client(request):
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
@@ -1052,7 +1093,7 @@ def set_due_date(request):
     account_id = request.POST.get('account_id')
     account = Client.objects.get(id=account_id)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
@@ -1077,7 +1118,7 @@ def new_promo(request):
     account = Client.objects.get(id=account_id)
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     promo_name = request.POST.get('promo-name')
     promo_start_date = request.POST.get('start-date')
@@ -1119,7 +1160,7 @@ def confirm_promo(request):
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     promo = get_object_or_404(Promo, id=int(request.POST.get('promo_id')))
 
@@ -1145,7 +1186,7 @@ def star_account(request):
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     bc_link = request.POST.get('bc_link')
     if bc_link is None or bc_link == '':
@@ -1182,7 +1223,7 @@ def assign_member_flagged_account(request):
     Assigns a member to a flagged account
     """
     if not request.user.is_staff:
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=request.POST.get('member'))
     flagged_account = Client.objects.get(id=request.POST.get('account'))
@@ -1228,7 +1269,7 @@ def edit_promos(request):
         promo_id = request.POST.get('promo_id')
         member = Member.objects.get(user=request.user)
         if not request.user.is_staff and not promos.filter(id=promo_id).exists():
-            return HttpResponse('You do not have permission to view this page')
+            return HttpResponseForbidden('You do not have permission to view this page')
 
         promo_name = request.POST.get('promo-name')
         promo_start_date = request.POST.get('start-date')
@@ -1255,7 +1296,7 @@ def set_kpis(request):
     member = Member.objects.get(user=request.user)
     account_id = int(request.POST.get('account_id'))
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account = Client.objects.get(id=account_id)
     roas = request.POST.get('set-roas')
@@ -1280,7 +1321,7 @@ def set_services(request):
     member = Member.objects.get(user=request.user)
     account_id = int(request.POST.get('account_id'))
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account = Client.objects.get(id=account_id)
     sales_profile = SalesProfile.objects.get(account=account)
@@ -1414,7 +1455,7 @@ def onboard_account(request, account_id):
     """
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponse('You do not have permission to view this page')
+        return HttpResponseForbidden('You do not have permission to view this page')
 
     account = Client.objects.get(id=account_id)
 
@@ -1424,19 +1465,19 @@ def onboard_account(request, account_id):
         s_ac_cro_steps = None
         s_ac_strat_steps = None
 
-        if account.has_ppc:
+        if account.is_onboarding_ppc:
             ppc_step = OnboardingStep.objects.filter(service=0)
             ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
             s_ac_ppc_steps = sorted(ac_ppc_steps, key=lambda t: t.step.order)
-        if account.has_seo:
+        if account.is_onboarding_seo:
             seo_step = OnboardingStep.objects.filter(service=1)
             ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
             s_ac_seo_steps = sorted(ac_seo_steps, key=lambda t: t.step.order)
-        if account.has_cro:
+        if account.is_onboarding_cro:
             cro_step = OnboardingStep.objects.filter(service=2)
             ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
             s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
-        if account.has_strat:
+        if account.is_onboarding_strat:
             strat_step = OnboardingStep.objects.filter(service=3)
             ac_strat_steps = OnboardingStepAssignment.objects.filter(step__in=strat_step, account=account)
             s_ac_strat_steps = sorted(ac_strat_steps, key=lambda t: t.step.order)
@@ -1587,3 +1628,39 @@ def campaigns(request, account_id):
     }
 
     return render(request, 'client_area/campaigns.html', context)
+
+
+def create_mandate(request):
+    """
+    View to create mandate
+    :param request:
+    :return:
+    """
+    account_id = request.POST.get('account_id')
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponse('Invalid client')
+
+    try:
+        mandate_type = MandateType.objects.get(id=request.POST.get('mandate_type'))
+    except MandateType.DoesNotExist:
+        return HttpResponse('Invalid mandate type')
+
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date')
+
+    cost = request.POST.get('cost')
+    hourly_rate = request.POST.get('hourly_rate')
+
+    start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+    Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt, end_date=end_date_dt,
+                           account=account, mandate_type=mandate_type)
+
+    return redirect('/clients/accounts/' + str(account.id))

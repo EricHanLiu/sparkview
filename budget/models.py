@@ -10,7 +10,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate
 from dateutil.relativedelta import relativedelta
 
 
@@ -215,9 +215,41 @@ class Client(models.Model):
             return False
 
     @property
+    def has_strat(self):
+        """
+        Check the sales profile (service list) of this client to see if ppc is active
+        :return:
+        """
+        if self.sales_profile is not None:
+            return self.sales_profile.strat_status == 1
+        else:
+            return False
+
+    @property
     def is_onboarding_ppc(self):
         if self.sales_profile is not None:
             return self.sales_profile.ppc_status == 0
+        else:
+            return False
+
+    @property
+    def is_onboarding_seo(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.seo_status == 0
+        else:
+            return False
+
+    @property
+    def is_onboarding_cro(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.cro_status == 0
+        else:
+            return False
+
+    @property
+    def is_onboarding_strat(self):
+        if self.sales_profile is not None:
+            return self.sales_profile.strat_status == 0
         else:
             return False
 
@@ -1176,6 +1208,18 @@ class Client(models.Model):
 
         services = {}
         return services
+
+    @property
+    def active_mandates(self):
+        """
+        Mandates that are active for the client right now
+        :return:
+        """
+        if not hasattr(self, '_active_mandates'):
+            now = datetime.datetime.now()
+            mandates = Mandate.objects.filter(start_date__lte=now, end_date__gte=now, account=self)
+            self._active_mandates = mandates
+        return self._active_mandates
 
     def hybrid_projection(self, method):
         projection = self.current_spend

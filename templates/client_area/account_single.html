@@ -316,6 +316,7 @@
                 </div>
             </div>
             <div class="col-xl-4">
+                <!-- Start services -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
@@ -354,7 +355,11 @@
                                     PPC
                                 </td>
                                 <td>
-                                    {{ account.sales_profile.get_ppc_status_display }}
+                                    {% if account.sales_profile.ppc_status == 0 %}
+                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_ppc_status_display }}</a>
+                                    {% else %}
+                                        {{ account.sales_profile.get_ppc_status_display }}
+                                    {% endif %}
                                 </td>
                             </tr>
                             <tr>
@@ -362,7 +367,11 @@
                                     SEO
                                 </td>
                                 <td>
-                                    {{ account.sales_profile.get_seo_status_display }}
+                                    {% if account.sales_profile.seo_status == 0 %}
+                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_seo_status_display }}</a>
+                                    {% else %}
+                                        {{ account.sales_profile.get_seo_status_display }}
+                                    {% endif %}
                                 </td>
                             </tr>
                             <tr>
@@ -370,7 +379,11 @@
                                     CRO
                                 </td>
                                 <td>
-                                    {{ account.sales_profile.get_cro_status_display }}
+                                    {% if account.sales_profile.cro_status == 0 %}
+                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_cro_status_display }}</a>
+                                    {% else %}
+                                        {{ account.sales_profile.get_cro_status_display }}
+                                    {% endif %}
                                 </td>
                             </tr>
                             <tr>
@@ -401,102 +414,62 @@
                         </table>
                     </div>
                 </div>
-                <!-- KPI -->
+                <!-- End services -->
+                <!-- Start mandates -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
                         <div class="m-portlet__head-caption">
                             <div class="m-portlet__head-title">
                                 <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                                    KPIs
+                                    Additional Services
                                 </h3>
                             </div>
                         </div>
                         <div class="m-portlet__head-tools">
                             <ul class="m-portlet__nav">
                                 <li class="m-portlet__nav-item">
-                                    <button type="button" class="btn btn-info m-btn"
-                                            data-toggle="modal"
-                                            data-target="#m_set_kpis" id="kpi_btn">
-                                        Set KPIs
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_new_mandate" id="kpi_btn">
+                                        New Additional Service
                                     </button>
                                 </li>
                             </ul>
                         </div>
                     </div>
                     <div class="m-portlet__body">
-                        <div class="form-group m-form__group">
-                            <div class="row">
-                                <div class="col-md-12 col-lg-12 col-xl-6">
-                                    {% if account.target_roas != None and account.target_roas != 0.0 %}
-                                        <div class="m-widget1__item">
-                                            <div class="row m-row--no-padding align-items-center">
-                                                <div class="col">
-                                                    <h3 class="m-widget1__title">ROAS</h3>
-                                                    <span class="m-widget1__desc">Target ROAS</span>
-                                                </div>
-                                                <div class="col m--align-right">
-                                                    <span class="m-widget1__number m--font-brand">{{ account.roas_this_month|floatformat:2 }}</span>
-                                                    <br/>
-                                                    <span>{{ account.target_roas|floatformat:2 }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                        <div class="m-widget1__item">
-                                            <div class="row m-row--no-padding align-items-center">
-                                                <div class="col">
-                                                    <span class="m-widget1__title">Google Ads ROAS</span>
-                                                    <span class="m-widget1__desc">Target ROAS</span>
-                                                </div>
-                                                <div class="col m--align-right">
-                                                    <span class="m-widget1__number m--font-brand">{{ account.roas_this_month|floatformat:2 }}</span>
-                                                    <br/>
-                                                    <span>{{ account.target_roas|floatformat:2 }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        There is no target ROAS
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-12 col-lg-12 col-xl-6">
-                                    {% if account.target_cpa != None and account.target_cpa != 0.0 %}
-                                        <div class="m-widget1__item">
-                                            <div class="row m-row--no-padding align-items-center">
-                                                <div class="col">
-                                                    <h3 class="m-widget1__title">CPA</h3>
-                                                    <span class="m-widget1__desc">Target CPA</span>
-                                                </div>
-                                                <div class="col m--align-right">
-                                                    <span class="m-widget1__number m--font-brand">${{ account.cpa_this_month|format_money }}</span>
-                                                    <br/>
-                                                    <span>${{ account.target_cpa|format_money }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr/>
-                                        <div class="m-widget1__item">
-                                            <div class="row m-row--no-padding align-items-center">
-                                                <div class="col">
-                                                    <span class="m-widget1__title">Google Ads CPA</span>
-                                                    <span class="m-widget1__desc">Target CPA</span>
-                                                </div>
-                                                <div class="col m--align-right">
-                                                    <span class="m-widget1__number m--font-brand">${{ account.google_kpi_month.cpa|format_money }}</span>
-                                                    <br/>
-                                                    <span>${{ account.target_cpa|format_money }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        There is no target CPA
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                               id="account_change_datatable">
+                            <thead class="thead-inverse">
+                            <tr class="main-table-header">
+                                <th>
+                                    Type
+                                </th>
+                                <th>
+                                    Cost
+                                </th>
+                                <th>
+                                    Term
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for mandate in account.active_mandates %}
+                                <tr>
+                                    <td>
+                                        {{ mandate.mandate_type }}
+                                    </td>
+                                    <td>
+                                        {{ mandate.cost }}
+                                    </td>
+                                    <td>
+                                        {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <!-- End KPI -->
+                <!-- End mandates -->
                 <!-- Details -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
@@ -1740,6 +1713,78 @@
     </div>
     <!-- End Flag account modal -->
 
+    <!-- New mandate modal -->
+    <div class="modal fade" id="m_new_mandate" tabindex="-1" role="dialog" aria-labelledby="m_new_mandate">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Additional Service for {{ account.client_name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/clients/accounts/mandates/new">
+                    {% csrf_token %}
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="num_members" type="text" value="0" style="display:none;" />
+
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Additional service type:</label>
+                                        <select class="form-control m-input"
+                                                name="mandate_type"
+                                                id="mandate_type"
+                                                style="width: 100%;">
+                                            {% for mandate_type in mandate_types %}
+                                                <option value="{{ mandate_type.id }}"
+                                                        data-hourly="{{ mandate_type.hourly_rate }}">
+                                                    {{ mandate_type }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Cost:</label>
+                                        <input type="text" name="cost" class="form-control m-input" required/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Hourly rate:</label>
+                                        <input type="text" name="hourly_rate" id="mandate_hourly_rate"
+                                               class="form-control m-input" value="{{ first_mandate_rate }}" required/>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Start Date:</label>
+                                        <input type="text" name="start_date" class="form-control m-input m_datepicker" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>End Date:</label>
+                                        <input type="text" name="end_date" class="form-control m-input m_datepicker" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End New mandate modal -->
+
+
+
 {% endblock %}
 
 {% block extraJs %}
@@ -1769,8 +1814,8 @@
 
 
         $(document).ready(function () {
-            var $distrubteHoursBtn = $('#distribute_hours_btn');
-            var $starIcon = $('.fa-flag');
+            let $distrubteHoursBtn = $('#distribute_hours_btn');
+            {#let $starIcon = $('.fa-flag');#}
             let $promoCheck = $('.confirm-promo');
 
             $promoCheck.click(function () {
@@ -1820,34 +1865,17 @@
                 ]
             });
 
-            // var starAccount = function (flagOn) {
-            //   $.ajax({
-            //       url: '/clients/accounts/flag',
-            //       data: {
-            //         'account_id': {{ account.id }},
-            //         'star_flag': flagOn
-            //       },
-            //       headers: {'X-CSRFToken': csrftoken},
-            //       type: 'POST',
-            //       success: function (data) {
-            //         console.log(data);
-            //       }
-            //   });
-            // };
+            // New mandate modal controls
+            let $mandateType = $('#mandate_type');
+            let $mandateHourlyRate = $('#mandate_hourly_rate');
 
-            // $starIcon.click(function () {
-            //   if ($starIcon.data('flag') == '1') {
-            //     // On, so turn it off
-            //     starAccount(1);
-            //     $starIcon.data('flag', '0')
-            //     $starIcon.css('color', '');
-            //   } else {
-            //     // Off, so turn it on
-            //     starAccount(0);
-            //     $starIcon.data('flag', '1')
-            //     $starIcon.css('color', '#ff5733');
-            //   }
-            // });
+            $mandateType.change(function () {
+                let init_hourly_rate = $(this).find(':selected').data('hourly');
+                console.log(init_hourly_rate);
+                $mandateHourlyRate.val(init_hourly_rate);
+            });
+
+            // End of new mandate modal controls
 
             $('.m_datepicker').datepicker({
                 todayHighlight: !0,
@@ -1862,34 +1890,34 @@
                 event.stopPropagation();
             });
 
-            $('.datetimepicker').datetimepicker();
+            {#$('.datetimepicker').datetimepicker();#}
 
 
-            var distributeHours = function () {
-                var hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
-                var seoHours = {{ account.seo_hours|escapejs }};
-                var hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
-                var croHours = {{ account.cro_hours|escapejs }};
-                var totalHours = {{ account.all_hours|escapejs }};
-                var ppc_hours = {{ account.ppc_hours|escapejs }};
+            let distributeHours = function () {
+                let hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
+                let seoHours = {{ account.seo_hours|escapejs }};
+                let hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
+                let croHours = {{ account.cro_hours|escapejs }};
+                let totalHours = {{ account.all_hours|escapejs }};
+                let ppc_hours = {{ account.ppc_hours|escapejs }};
 
                 // Cms
-                var cms = [];
+                let cms = [];
                 {% if account.cm1 != None %}cms.push(1);{% endif %}
                 {% if account.cm2 != None %}cms.push(2);{% endif %}
                 {% if account.cm3 != None %}cms.push(3);{% endif %}
                 // Ams
-                var ams = [];
+                let ams = [];
                 {% if account.am1 != None %}ams.push(1);{% endif %}
                 {% if account.am2 != None %}ams.push(2);{% endif %}
                 {% if account.am3 != None %}ams.push(3);{% endif %}
                 // strats
-                var strats = [];
+                let strats = [];
                 {% if account.strat1 != None %}strats.push(1);{% endif %}
                 {% if account.strat2 != None %}strats.push(2);{% endif %}
                 {% if account.strat3 != None %}strats.push(3);{% endif %}
                 // seos
-                var seos = [];
+                let seos = [];
                 {% if account.seo1 != None %}seos.push(1);{% endif %}
                 {% if account.seo2 != None %}seos.push(2);{% endif %}
                 {% if account.seo3 != None %}seos.push(3);{% endif %}
@@ -1897,26 +1925,26 @@
                 /**
                  * Calculate hour percentages
                  */
-                var cmPortion = 0.75;
-                var amPortion = 0.25;
-                var seoPortion = 0.0;
+                let cmPortion = 0.75;
+                let amPortion = 0.25;
+                let seoPortion = 0.0;
 
                 if (hasSeo || hasCro) {
-                    var seoTotalPortion = ((seoHours + croHours) / totalHours);
+                    let seoTotalPortion = ((seoHours + croHours) / totalHours);
                     seoPortion = seoTotalPortion * 0.9;
-                    var remainingPortion = 1.0 - seoTotalPortion;
+                    let remainingPortion = 1.0 - seoTotalPortion;
                     cmPortion = remainingPortion * 0.75;
                     amPortion = (remainingPortion * 0.25) + (seoPortion * 0.1);
                 }
 
-                var eachCm = (100.0 * cmPortion / cms.length).toFixed(2);
-                var eachAm = (100.0 * amPortion / ams.length).toFixed(2);
-                var eachSeo = (100.0 * seoPortion / seos.length).toFixed(2);
+                let eachCm = (100.0 * cmPortion / cms.length).toFixed(2);
+                let eachAm = (100.0 * amPortion / ams.length).toFixed(2);
+                let eachSeo = (100.0 * seoPortion / seos.length).toFixed(2);
 
                 /**
                  * First set all to 0
                  */
-                for (var i = 1; i <= 3; i++) {
+                for (let i = 1; i <= 3; i++) {
                     document.getElementById('cm' + i + '-percent').value = '0.0';
                     document.getElementById('am' + i + '-percent').value = '0.0';
                     document.getElementById('strat' + i + '-percent').value = '0.0';
@@ -1924,15 +1952,15 @@
                 }
 
                 cms.forEach(function (i) {
-                    var el = document.getElementById('cm' + i + '-percent').value = eachCm;
+                    let el = document.getElementById('cm' + i + '-percent').value = eachCm;
                 });
 
                 ams.forEach(function (i) {
-                    var el = document.getElementById('am' + i + '-percent').value = eachAm;
+                    let el = document.getElementById('am' + i + '-percent').value = eachAm;
                 });
 
                 seos.forEach(function (i) {
-                    var el = document.getElementById('seo' + i + '-percent').value = eachSeo;
+                    let el = document.getElementById('seo' + i + '-percent').value = eachSeo;
                 });
 
             };
