@@ -168,7 +168,6 @@
         let $budgetErrorAmt  = $('#budget-error-amount');
 
         $issueSelector.change(function () {
-            console.log($(this).val());
             if ($(this).val() !== '0') {
                 $budgetErrorAmt.prop('disabled', true);
                 $budgetErrorAmt.val('');

@@ -65,18 +65,14 @@ class Incident(models.Model):
     justification = models.CharField(max_length=2000, default='')
 
     @property
-    def get_issue(self):
+    def issue_name(self):
         (issue_id, issue_str) = self.ISSUES[self.issue_type]
         return issue_str
 
     @property
-    def get_platform(self):
+    def platform_name(self):
         (platform_id, platform_str) = self.PLATFORMS[self.platform]
         return platform_str
-
-    @property
-    def get_members(self):
-        return [member for member in self.members.all()]
 
     def __str__(self):
         return 'Incident ' + str(self.id)

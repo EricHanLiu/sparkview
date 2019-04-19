@@ -19,7 +19,7 @@
                 <div class="m-portlet__head-tools">
                     <ul class="m-portlet__nav">
                         <li class="m-portlet__nav-item">
-                            <a href="/reports/incidents/new" class="btn btn-info m-btn">New Incident</a>
+                            <a href="/reports/oops/new" class="btn btn-info m-btn">New Oops</a>
                         </li>
                     </ul>
                 </div>
@@ -27,7 +27,7 @@
             <div class="m-portlet__body">
                 <div class="row m-row--no-padding m-row--col-separator-xl">
                     <div class="col-12">
-                        <table class='table table-hover dataTable'
+                        <table class='table table-hover dataTable order-column'
                                id="star_clients_datatable">
                             <thead class="thead-light">
                             <tr class="main-table-header">
@@ -76,10 +76,12 @@
                                         {{ incident.email }}
                                     </td>
                                     <td>
-                                        {{ incident.description }}
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ incident.description }}
+                                        </div>
                                     </td>
                                     <td>
-                                        {{ incident.get_issue }}
+                                        {{ incident.issue_name }}
                                     </td>
                                     <td>
                                         {% if incident.budget_error_amount == 0 %}
@@ -103,10 +105,12 @@
                                         {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
-                                        {{ incident.get_platform }}
+                                        {{ incident.platform_name }}
                                     </td>
                                     <td>
-                                        {{ incident.justification }}
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ incident.justification }}
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}

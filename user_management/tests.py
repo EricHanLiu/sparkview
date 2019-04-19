@@ -153,7 +153,7 @@ class UserTestCase(TestCase):
         response = self.client.get('/reports/outstanding_notifications')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/reports/incidents')
+        response = self.client.get('/reports/oops')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/user_management/backups')

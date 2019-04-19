@@ -7,7 +7,7 @@ from budget.models import Client
 from user_management.models import Member, Incident
 
 
-file = open('incidentreports.csv', 'r')
+file = open('oopsreports.csv', 'r')
 reader = csv.reader(file, delimiter=',')
 count = 0
 for row in reader:
@@ -43,7 +43,10 @@ for row in reader:
     type = row[2].lower()
     if type == 'budget error':
         incident.issue_type = 0
-        # get budget error amount
+        amount = ''.join(x for x in row[3] if x.isdigit())  # will be inaccurate for sums and things like 1K$
+        incident.budget_error_amount = 0
+        if amount != '':
+            incident.budget_error_amount = float(amount)
     elif type == 'promotion error':
         incident.issue_type = 1
     elif type == 'text ad error':

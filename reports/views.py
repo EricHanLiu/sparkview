@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
@@ -831,7 +831,7 @@ def incidents(request):
         'incidents': incidents
     }
 
-    return render(request, 'reports/incidents.html', context)
+    return render(request, 'reports/oops.html', context)
 
 
 @login_required
@@ -857,7 +857,7 @@ def new_incident(request):
             'issue_types': issue_types
         }
 
-        return render(request, 'reports/new_incident.html', context)
+        return render(request, 'reports/new_oops.html', context)
     elif request.method == 'POST':
         r = request.POST
         # get form data
@@ -885,9 +885,9 @@ def new_incident(request):
         except ValueError:
             platform = 3  # set to other by default
         client_aware_response = r.get('client-aware')
-        client_aware = True if client_aware_response == 'Yes' else False
+        client_aware = client_aware_response == 'Yes'
         client_at_risk_response = r.get('client-at-risk')
-        client_at_risk = True if client_at_risk_response == 'Yes' else False
+        client_at_risk = client_at_risk_response == 'Yes'
         justification = r.get('justification')
 
         # create incident
@@ -914,7 +914,7 @@ def new_incident(request):
 
         incident.save()
 
-        return redirect('/reports/incidents')
+        return redirect('/reports/oops')
 
 
 @login_required
