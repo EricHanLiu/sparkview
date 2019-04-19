@@ -854,9 +854,14 @@ def new_high_five(request):
         return render(request, 'reports/new_high_five.html', context)
     elif request.method == 'POST':
         r = request.POST
-
         high_five = HighFive()
-        high_five.date = r.get('hf-date')
+
+        date_text = r.get('hf-date')
+        try:
+            high_five.date = datetime.datetime.strptime(date_text, '%Y-%m-%d')
+        except ValueError:  # if invalid date format given, get current date
+            high_five.date = datetime.datetime.today().strftime('%Y-%m-%d')
+
         high_five.member = Member.objects.get(id=r.get('member'))
         high_five.description = r.get('description')
 
@@ -943,7 +948,10 @@ def new_incident(request):
         incident.email = email
         incident.service = service
         incident.account = Client.objects.get(id=account)
-        incident.date = date
+        try:
+            incident.date = datetime.datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:  # if invalid date format given, get current date
+            incident.date = datetime.datetime.today().strftime('%Y-%m-%d')
         incident.save()
 
         members = []
