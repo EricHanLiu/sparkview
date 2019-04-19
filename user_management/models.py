@@ -63,13 +63,13 @@ class Incident(models.Model):
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
     date = models.DateField(default=None, null=True, blank=True)
     members = models.ManyToManyField('Member', default=None)
-    description = models.CharField(max_length=355, default='')
+    description = models.CharField(max_length=2000, default='')
     issue_type = models.IntegerField(default=0, choices=ISSUES)
     budget_error_amount = models.FloatField(default=0.0)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
-    justification = models.CharField(max_length=900, default='')
+    justification = models.CharField(max_length=2000, default='')
 
     @property
     def get_issue(self):
