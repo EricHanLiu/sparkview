@@ -27,6 +27,8 @@ urlpatterns = [
     url(r'^outstanding_notifications$', views.outstanding_notifications, name='outstanding_notifications'),
     url(r'^oops$', views.incidents, name='incidents'),
     url(r'^oops/new$', views.new_incident, name='new_incident'),
+    url(r'^high_fives$', views.high_fives, name='high_fives'),
+    url(r'^high_fives/new$', views.new_high_five, name='new_high_five'),
     url(r'^onboarding$', views.onboarding, name='onboarding'),
     url(r'^sales$', views.sales, name='sales')
 ]

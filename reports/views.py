@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, Incident, Role
+from user_management.models import Member, Team, Incident, Role, HighFive
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
@@ -815,6 +815,54 @@ def outstanding_notifications(request):
     }
 
     return render(request, 'reports/outstanding_notifications.html', context)
+
+
+@login_required
+def high_fives(request):
+    """
+    High five reports page
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    high_fives = HighFive.objects.all()
+
+    context = {
+        'high_fives': high_fives
+    }
+
+    return render(request, 'reports/high_fives.html', context)
+
+
+@login_required
+def new_high_five(request):
+    """
+    New high five page
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    print("TEST" + request.method)
+
+    if request.method == 'GET':
+        members = Member.objects.all()
+
+        context = {
+            'members': members
+        }
+
+        return render(request, 'reports/new_high_five.html', context)
+    elif request.method == 'POST':
+        r = request.POST
+
+        high_five = HighFive()
+        high_five.date = r.get('hf-date')
+        high_five.member = Member.objects.get(id=r.get('member'))
+        high_five.description = r.get('description')
+
+        high_five.save()
+
+        return redirect('/reports/high_fives')
 
 
 @login_required

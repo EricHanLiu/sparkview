@@ -43,6 +43,16 @@ class Team(models.Model):
         return self.name
 
 
+class HighFive(models.Model):
+    """ High Fives"""
+    date = models.DateField(default=None, null=True, blank=True)
+    member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True)
+    description = models.CharField(max_length=2000, default='')
+
+    def __str__(self):
+        return 'High Five ' + str(self.id)
+
+
 class Incident(models.Model):
     """ Incident """
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
