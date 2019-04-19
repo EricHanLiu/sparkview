@@ -768,18 +768,28 @@ class Mandate(models.Model):
         return self.account.client_name + ' ' + self.mandate_type.name
 
 
-class MandatePercentageAssignment(models.Model):
+class MandateAssignment(models.Model):
     """
     Assign a percentage of the mandates hours
     """
-    pass
+    member = models.ForeignKey('user_management.Member', models.CASCADE, null=True, default=None)
+    mandate = models.ForeignKey(Mandate, models.CASCADE, null=True, default=None)
+    percentage = models.FloatField(default=0.0)
+
+    def __str__(self):
+        return self.member + ' ' + self.mandate + ' ' + self.percentage + '%'
 
 
 class MandateHourRecord(models.Model):
     """
     Record an hour in a mandate
     """
-    pass
+    assignment = models.ForeignKey(MandateAssignment, models.CASCADE, null=True, default=None)
+    hours = models.FloatField(default=0.0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.assignment + ' ' + str(self.hours) + ' hours'
 
 
 class Tag(models.Model):
