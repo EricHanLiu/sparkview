@@ -1,0 +1,139 @@
+{% extends 'user_management/profile/layout.html' %}
+
+{% load notification_tags %}
+
+
+{% block content %}
+    <div class="m-content">
+        {# Notification stuff #}
+        {% with notifications=request.user|get_unread_notifications %}
+            {% if notifications.count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    <strong>Heads Up!</strong> You have unread notifications.
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if starAccounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ starAccounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        {#  Main content #}
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--responsive-mobile-">
+                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#hours-body">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Your Oopses
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <div class="row m-row--no-padding m-row--col-separator-xl">
+                            <div class="col-12">
+                                <table class='table table-hover dataTable order-column my_clients_datatable'>
+                                    <thead class="thead-light">
+                                    <tr class="main-table-header">
+                                        <th>
+                                            Date
+                                        </th>
+                                        <th>
+                                            Email Address
+                                        </th>
+                                        <th>
+                                            Issue Description
+                                        </th>
+                                        <th>
+                                            Type of Issue
+                                        </th>
+                                        <th>
+                                            Budget Error Amount
+                                        </th>
+                                        <th>
+                                            Account
+                                        </th>
+                                        <th>
+                                            Client Aware
+                                        </th>
+                                        <th>
+                                            Client At Risk
+                                        </th>
+                                        <th>
+                                            Platform
+                                        </th>
+                                        <th>
+                                            Justification
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for incident in oops %}
+                                        <tr>
+                                            <td>
+                                                {{ incident.date }}
+                                            </td>
+                                            <td>
+                                                {{ incident.email }}
+                                            </td>
+                                            <td>
+                                                <div style="max-height: 70px; overflow: auto;">
+                                                    {{ incident.description }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {{ incident.issue_name }}
+                                            </td>
+                                            <td>
+                                                {% if incident.budget_error_amount == 0 %}
+                                                    None
+                                                {% else %}
+                                                    {{ incident.budget_error_amount|floatformat:2 }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if incident.account is not None %}
+                                                    <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if incident.client_aware %} Yes {% else %} No {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                            </td>
+                                            <td>
+                                                {{ incident.platform_name }}
+                                            </td>
+                                            <td>
+                                                <div style="max-height: 70px; overflow: auto;">
+                                                    {{ incident.justification }}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -8,7 +8,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment
 from notifications.models import Notification
@@ -840,6 +840,35 @@ def members_single_skills(request, id):
     }
 
     return render(request, 'user_management/profile/skills.html', context)
+
+
+@login_required
+def member_oops(request, id):
+    """Oops reports that belong to the member"""
+    member = Member.objects.get(id=id)
+    # oops = Incident.objects.filter(members__in=member)
+    oops = member.incident_set.all()
+
+    context = {
+        'member': member,
+        'oops': oops
+    }
+
+    return render(request, 'user_management/profile/oops.html', context)
+
+
+@login_required
+def member_high_fives(request, id):
+    """Oops reports that belong to the member"""
+    member = Member.objects.get(id=id)
+    high_fives = HighFive.objects.filter(member=id)
+
+    context = {
+        'member': member,
+        'high_fives': high_fives
+    }
+
+    return render(request, 'user_management/profile/highfives.html', context)
 
 
 @login_required
