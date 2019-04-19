@@ -89,6 +89,12 @@ class UserTestCase(TestCase):
         response = self.client.get('/user_management/members/' + str(member.id) + '/skills')
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get('/user_management/members/' + str(member.id) + '/oops')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/user_management/members/' + str(member.id) + '/high_fives')
+        self.assertEqual(response.status_code, 200)
+
         response = self.client.get('/clients/')
         self.assertEqual(response.status_code, 200)
 
@@ -154,6 +160,9 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/reports/oops')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/reports/high_fives')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/user_management/backups')
