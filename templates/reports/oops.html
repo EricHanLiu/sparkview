@@ -11,7 +11,7 @@
                 <div class="m-portlet__head-caption">
                     <div class="m-portlet__head-title">
                         <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                            Oops Reports
+                            Oops
                         </h3>
                     </div>
                 </div>
@@ -92,11 +92,13 @@
                                     </td>
                                     <td>
                                         {% for member in incident.members.all %}
-                                            {{ member }}{% if not forloop.last %}, {% endif %}
+                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
                                     <td>
-                                        {{ incident.account }}
+                                        {% if incident.account is not None %}
+                                            <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if incident.client_aware %} Yes {% else %} No {% endif %}
