@@ -1,5 +1,10 @@
 {% extends 'main.html' %}
 
+{% block extraCss %}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+{% endblock %}
+
 {% block leftAside %}
     <div id="m_aside_left" class="m-grid__item m-aside-left  m-aside-left--skin-light ">
         <!-- BEGIN: Aside Menu -->
@@ -16,7 +21,7 @@
                 {% if request.user.is_staff %}
                     <li class="m-menu__item " aria-haspopup="true"><a
                             href="/user_management/members/{{ member.id }}/dashboard" class="m-menu__link "><i
-                            class="m-menu__link-icon flaticon-car"></i><span class="m-menu__link-text">Dashboard</span></a>
+                            class="m-menu__link-icon fas fa-tachometer-alt"></i><span class="m-menu__link-text">Dashboard</span></a>
                     </li>
                 {% endif %}
                 <li class="m-menu__item " aria-haspopup="true"><a
@@ -49,11 +54,11 @@
                         class="m-menu__link-text">Skills</span></a></li>
                 <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}/oops" class="m-menu__link "><i
-                        class="m-menu__link-icon flaticon-circle"></i><span
+                        class="m-menu__link-icon fas fa-exclamation-circle"></i><span
                         class="m-menu__link-text">Oopsies</span></a></li>
                 <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}/high_fives" class="m-menu__link "><i
-                        class="m-menu__link-icon flaticon-business"></i><span
+                        class="m-menu__link-icon fas fa-laugh-beam"></i><span
                         class="m-menu__link-text">High Fives</span></a></li>
             </ul>
             <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
