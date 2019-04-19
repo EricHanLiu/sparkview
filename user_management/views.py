@@ -190,16 +190,16 @@ def member_dashboard(request, id):
     tomorrow = today + datetime.timedelta(1)
     today_start = datetime.datetime.combine(today, datetime.time())
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
-    three_days_ago = now - datetime.timedelta(3)
-    three_days_future = now + datetime.timedelta(3)
+    this_month = datetime.datetime(today.year, today.month, 1)
+    next_month = datetime.datetime(today.year, today.month + 1 if today.month != 12 else 1, 1)
 
-    promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
-                                       end_date__lte=three_days_future,
-                                       account__in=accounts) if load_everything else None
-    promos_start_today = promos_week.filter(start_date__gte=today_start,
-                                            start_date__lte=today_end) if load_everything else None
-    promos_end_today = promos_week.filter(end_date__gte=today_start,
-                                          end_date__lte=today_end) if load_everything else None
+    promos_month = Promo.objects.filter(start_date__gte=this_month,
+                                        end_date__lte=next_month,
+                                        account__in=accounts) if load_everything else None
+    promos_start_today = promos_month.filter(start_date__gte=today_start,
+                                             start_date__lte=today_end) if load_everything else None
+    promos_end_today = promos_month.filter(end_date__gte=today_start,
+                                           end_date__lte=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
@@ -271,7 +271,7 @@ def member_dashboard(request, id):
         'outstanding_reports': outstanding_reports,
         'promos_start_today': promos_start_today,
         'promos_end_today': promos_end_today,
-        'promos_week': promos_week,
+        'promos_week': promos_month,
         'onboarding_accounts': onboarding_accounts,
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,
