@@ -43,21 +43,46 @@ class Team(models.Model):
         return self.name
 
 
+class HighFive(models.Model):
+    """ High Fives"""
+    date = models.DateField(default=None, null=True, blank=True)
+    member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True)
+    description = models.CharField(max_length=2000, default='')
+
+    def __str__(self):
+        return 'High Five ' + str(self.id)
+
+
 class Incident(models.Model):
     """ Incident """
-    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing')]
+    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
+    SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
+                (6, 'None')]
+    ISSUES = [(0, 'Budget Error'), (1, 'Promotion Error'), (2, 'Text Ad Error'), (3, 'Lack of Activity Error'),
+              (4, 'Communication Error'), (5, 'Other')]
 
-    members = models.ManyToManyField('Member', default=None)
+    email = models.CharField(max_length=355, default='')
+    service = models.IntegerField(default=0, choices=SERVICES)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    date = models.DateField(default=None, null=True, blank=True)
+    members = models.ManyToManyField('Member', default=None)
+    description = models.CharField(max_length=2000, default='')
+    issue_type = models.IntegerField(default=0, choices=ISSUES)
+    budget_error_amount = models.FloatField(default=0.0)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
-    description = models.CharField(max_length=355, default='')
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
-    justification = models.CharField(max_length=900, default='')
-    additional_comments = models.CharField(max_length=300, default='')
-    refund_required = models.BooleanField(default=False)
-    refund_amount = models.IntegerField(default=0.0)
-    date = models.DateTimeField(default=None, null=True, blank=True)
+    justification = models.CharField(max_length=2000, default='')
+
+    @property
+    def issue_name(self):
+        (issue_id, issue_str) = self.ISSUES[self.issue_type]
+        return issue_str
+
+    @property
+    def platform_name(self):
+        (platform_id, platform_str) = self.PLATFORMS[self.platform]
+        return platform_str
 
     def __str__(self):
         return 'Incident ' + str(self.id)
@@ -311,6 +336,9 @@ class Member(models.Model):
         """
         Get's the number of hours from another month
         """
+        now = datetime.datetime.now()
+        if now.month == month and now.year == year:
+            return self.hours_available
         if not hasattr(self, '_available_hours_other_month'):
             self._available_hours_other_month = {}
         if month not in self._available_hours_other_month:
@@ -366,14 +394,22 @@ class Member(models.Model):
         """
         Returns True if this member deals with this account in any way, False otherwise (checks account member assignments)
         """
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        client_model = apps.get_model('budget', 'Client')
+        try:
+            account = client_model.objects.get(id=account_id)
+        except client_model.DoesNotExist:
+            return False
         return account in self.accounts or account in self.backup_accounts
 
     def teams_have_accounts(self, account_id):
         """
         Returns True if this member's teams deals with this account in any way, False otherwise (checks account team assignments)
         """
-        account = apps.get_model('budget', 'Client').objects.get(id=account_id)
+        client_model = apps.get_model('budget', 'Client')
+        try:
+            account = client_model.objects.get(id=account_id)
+        except client_model.DoesNotExist:
+            return False
         a_teams = account.team.all()
         m_teams = self.team.all()
 
