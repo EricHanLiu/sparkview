@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <form class="m-form" method="post">
+                    {% csrf_token %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        New Oops
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <div class="m-portlet__body">
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="email-address">Email Address:</label>
+                                            <input type="email" name="email-address"
+                                                   class="form-control m-input" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="services">Service:</label>
+                                            <select class="form-control m-input"
+                                                    name="services">
+                                                {% for service_id, service in services %}
+                                                    <option value="{{ service_id }}">{{ service }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Account:</label>
+                                            <select class="form-control m-input"
+                                                    name="account"
+                                                    style="width: 100%;">
+                                                {% for account in accounts %}
+                                                    <option value="{{ account.id }}">{{ account.client_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="incident-date">Date of Incident:</label>
+                                            <input type="text" name="incident-date" class="form-control datetimepicker"
+                                                   placeholder="Enter Date..." required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Member(s) Responsible:</label>
+                                            <select class="form-control m-input"
+                                                    name="member" multiple id="member-incident"
+                                                    style="width: 100%;" required>
+                                                {% for member in members %}
+                                                    <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="issue-description">Issue Description:</label>
+                                            <input type="text" name="issue-description"
+                                                   class="form-control m-input" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Type of Issue:</label>
+                                            <select class="form-control m-input"
+                                                    name="issue-type"
+                                                    id="issue-selector"
+                                                    style="width: 100%;">
+                                                {% for issue_id, issue in issue_types %}
+                                                    <option value="{{ issue_id }}">{{ issue }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="budget-error">Budget Error Amount:</label>
+                                            <input type="text" name="budget-error" id="budget-error-amount"
+                                                   class="form-control m-input" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Platform:</label>
+                                            <select class="form-control m-input"
+                                                    name="platform"
+                                                    style="width: 100%;">
+                                                {% for platform_id, platform in platforms %}
+                                                    <option value="{{ platform_id }}">{{ platform }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label>Client Aware:</label>
+                                            <select class="form-control m-input"
+                                                    name="client-aware"
+                                                    style="width: 100%;">
+                                                <option value="0">No</option>
+                                                <option value="1">Yes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Client At Risk:</label>
+                                            <select class="form-control m-input"
+                                                    name="client-at-risk"
+                                                    style="width: 100%;">
+                                                <option value="0">No</option>
+                                                <option value="1">Yes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="justification">Justification:</label>
+                                            <input type="text" name="justification"
+                                                   class="form-control m-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#member-incident').select2({
+            closeOnSelect: false,
+            placeholder: "Select..."
+        });
+
+        $('.datetimepicker').datepicker({
+            format: 'yyyy-mm-dd'
+        });
+
+        let $issueSelector = $('#issue-selector');
+        let $budgetErrorAmt  = $('#budget-error-amount');
+
+        $issueSelector.change(function () {
+            if ($(this).val() !== '0') {
+                $budgetErrorAmt.prop('disabled', true);
+                $budgetErrorAmt.val('');
+            } else {
+                $budgetErrorAmt.prop('disabled', false);
+            }
+        });
+    </script>
+{% endblock %}

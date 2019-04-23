@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% block leftAside %}
+{% endblock %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <form class="m-form" method="post">
+                    {% csrf_token %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        New High Five
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <div class="m-portlet__body">
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Member:</label>
+                                            <select class="form-control m-input"
+                                                    name="member" id="member-hf"
+                                                    style="width: 100%;" required>
+                                                {% for member in members %}
+                                                    <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="hf-date">Date:</label>
+                                            <input type="text" name="hf-date" class="form-control datetimepicker"
+                                                   placeholder="Enter Date..." required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="description">Description:</label>
+                                            <input type="text" name="description"
+                                                   class="form-control m-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group m-form__group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#member-incident').select2({
+            closeOnSelect: false,
+            placeholder: "Select..."
+        });
+
+        $('.datetimepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            orientation: 'bottom' // necessary for this form
+        });
+
+        let $issueSelector = $('#issue-selector');
+        let $budgetErrorAmt  = $('#budget-error-amount');
+
+        $issueSelector.change(function () {
+            if ($(this).val() !== '0') {
+                $budgetErrorAmt.prop('disabled', true);
+                $budgetErrorAmt.val('');
+            } else {
+                $budgetErrorAmt.prop('disabled', false);
+            }
+        });
+    </script>
+{% endblock %}
