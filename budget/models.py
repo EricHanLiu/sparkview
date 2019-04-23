@@ -599,6 +599,23 @@ class Client(models.Model):
                 self._ppc_fee = 0
         return self._ppc_fee
 
+    @property
+    def current_month_mandate_fee(self):
+        """
+        Get's the mandates that are active this month
+        Returns the sum of portions of each mandate that will be paid this month
+        :return:
+        """
+        if not hasattr(self, '_current_month_mandate_fee'):
+            now = datetime.datetime.now()
+            first_day, last_day = calendar.monthrange(now.year, now.month)
+            mandates = self.mandate_set.filter(start_date__gte=first_day, end_date__lte=last_day)
+            fee = 0.0
+            for m in mandates:
+                fee += m.fee_in_month(now.month, now.year)
+            self._current_month_mandate_fee = fee
+        return self._current_month_mandate_fee
+
     def get_fee_by_spend(self, spend):
         """
         Get's fee by any amount, as opposed to just calculating it by budget
@@ -619,10 +636,10 @@ class Client(models.Model):
         return fee
 
     def get_fee(self):
-        initial_fee = 0
+        initial_fee = 0.0
         # If status is lost or inactive, just return 0
         if self.status == 2 or self.status == 3:
-            return 0
+            return 0.0
         if self.is_onboarding_ppc and self.managementFee is not None:
             initial_fee = self.managementFee.initialFee
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
@@ -642,7 +659,8 @@ class Client(models.Model):
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.get_fee_by_spend(self.current_spend) + self.cro_fee + self.seo_fee + initial_fee
+            fee = self.get_fee_by_spend(
+                self.current_spend) + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
         return fee
 
     def get_ppc_allocated_hours(self):
@@ -664,7 +682,8 @@ class Client(models.Model):
 
     def days_in_month_in_daterange(self, start, end, month):
         """
-        Calculates how many days are in a certain month within a daterange. For example: October 28th to November 5th has 4 days in October, so this would return 4 for (2018-10-28, 2018-11-05, 10)
+        Calculates how many days are in a certain month within a daterange.
+        Example: Oct 28th to Nov 5th has 4 days in October,  this would return 4 for (2018-10-28, 2018-11-05, 10)
         """
         one_day = datetime.timedelta(1)
         date_counter = 0

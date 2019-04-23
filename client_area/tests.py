@@ -2,6 +2,9 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client
+from .utils import days_in_month_in_daterange
+from .models import Mandate, MandateType, MandateAssignment
+import datetime
 
 
 class ClientTestCase(TestCase):
@@ -18,15 +21,24 @@ class ClientTestCase(TestCase):
 
         test_account.save()
 
-    def test_ninety_days_update(self):
+    def test_utils(self):
         """
-        Test ninety days update
+        Tests utils
+        :return:
         """
+        date1 = datetime.datetime(2019, 4, 20)
+        date2 = datetime.datetime(2019, 5, 20)
 
-        # This is a pretty bad unit test because the function is run from a file.
-        # This code needs to be updated to change it
-        pass
+        self.assertEqual(days_in_month_in_daterange(date1, date2, 4, 2019), 11)
+        self.assertEqual(days_in_month_in_daterange(date1, date2, 5, 2019), 20)
+        self.assertEqual(days_in_month_in_daterange(date1, date2, 4, 2020), 0)
 
+    def test_mandates(self):
+        """
+        Test everything related to mandates
+        """
+        test_account = Client.objects.create(client_name='test2')
+        test_mandate_type = MandateType.objects.create(name='test_type')
+        mandate1 = Mandate.objects.create(mandate_type=test_mandate_type, account=test_account)
 
-
-
+        self.assertEqual(1, 1)

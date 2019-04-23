@@ -1770,6 +1770,16 @@
                                         <input type="text" name="end_date" class="form-control m-input m_datepicker" />
                                     </div>
                                 </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button type="button" id="add_member_btn" class="btn btn-info">Add Member</button>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row" id="mandate_members">
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1783,7 +1793,28 @@
     </div>
     <!-- End New mandate modal -->
 
-
+    <!-- New member in mandate row -->
+    <template id="member_in_mandate_template">
+        <div class="col-md-9">
+            <label>Member:</label>
+            <select class="form-control m-input"
+                    name="mandate_member"
+                    style="width: 100%;">
+                {% for member in members %}
+                    <option value="{{ member.id }}">
+                        {{ member }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Percentage:</label>
+            <input type="text" name="percentage"
+                   class="form-control m-input" required/>
+        </div>
+        <br />
+    </template>
+    <!-- end new member in mandate row -->
 
 {% endblock %}
 
@@ -1868,11 +1899,19 @@
             // New mandate modal controls
             let $mandateType = $('#mandate_type');
             let $mandateHourlyRate = $('#mandate_hourly_rate');
+            let $addMemberBtn = $('#add_member_btn');
+            let mandateMembersDiv = document.getElementById('mandate_members');
 
             $mandateType.change(function () {
                 let init_hourly_rate = $(this).find(':selected').data('hourly');
                 console.log(init_hourly_rate);
                 $mandateHourlyRate.val(init_hourly_rate);
+            });
+
+            $addMemberBtn.click(function () {
+                const memberMandateTemplate = document.getElementById('member_in_mandate_template').content;
+                const clone = document.importNode(memberMandateTemplate, true);
+                mandateMembersDiv.appendChild(clone);
             });
 
             // End of new mandate modal controls

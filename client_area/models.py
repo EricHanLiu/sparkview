@@ -1,4 +1,5 @@
 from django.db import models
+from client_area.utils import days_in_month_in_daterange
 import calendar
 import datetime
 
@@ -742,7 +743,6 @@ class Mandate(models.Model):
     """
     mandate_type = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
-    members = models.ManyToManyField('user_management.Member', blank=True)
     cost = models.FloatField(default=0.0)
     hourly_rate = models.FloatField(default=125.0)
     start_date = models.DateTimeField(default=None, null=True)
@@ -764,6 +764,18 @@ class Mandate(models.Model):
     def end_date_pretty(self):
         return self.end_date.strftime('%b %d, %Y')
 
+    def fee_in_month(self, month, year):
+        """
+        Returns the fee in a certain month.
+        Example: If half of the term of the mandate occurs in January, then January will get half of the fee
+        :param month:
+        :param year:
+        :return:
+        """
+        numerator = days_in_month_in_daterange(self.start_date, self.end_date, month, year)
+        denominator = (self.end_date - self.start_date).days
+        return numerator / denominator
+
     def __str__(self):
         return self.account.client_name + ' ' + self.mandate_type.name
 
@@ -777,7 +789,7 @@ class MandateAssignment(models.Model):
     percentage = models.FloatField(default=0.0)
 
     def __str__(self):
-        return self.member + ' ' + self.mandate + ' ' + self.percentage + '%'
+        return str(self.member) + ' ' + str(self.mandate) + ' ' + str(self.percentage) + '%'
 
 
 class MandateHourRecord(models.Model):
@@ -789,7 +801,7 @@ class MandateHourRecord(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.assignment + ' ' + str(self.hours) + ' hours'
+        return str(self.assignment) + ' ' + str(self.hours) + ' hours'
 
 
 class Tag(models.Model):

@@ -14,7 +14,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate
+    PitchedDescription, MandateType, Mandate, MandateAssignment
 from .forms import NewClientForm
 
 
@@ -1660,7 +1660,13 @@ def create_mandate(request):
     start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
     end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-    Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt, end_date=end_date_dt,
-                           account=account, mandate_type=mandate_type)
+    mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt, end_date=end_date_dt,
+                                     account=account, mandate_type=mandate_type)
+
+    mandate_members = request.POST.getlist('mandate_member')
+    mandate_percentages = request.POST.getlist('percentages')
+
+    for i in range(len(mandate_members)):
+        MandateAssignment.objects.create(mandate=mandate, member=mandate_members[i], percentage=mandate_percentages[i])
 
     return redirect('/clients/accounts/' + str(account.id))

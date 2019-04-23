@@ -398,8 +398,8 @@ class Member(models.Model):
     @property
     def accounts(self):
         if not hasattr(self, '_accounts'):
-            Client = apps.get_model('budget', 'Client')
-            self._accounts = Client.objects.filter(
+            client_model = apps.get_model('budget', 'Client')
+            self._accounts = client_model.objects.filter(
                 Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
                 Q(am1=self) | Q(am2=self) | Q(am3=self) |
                 Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
