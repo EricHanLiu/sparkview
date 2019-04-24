@@ -1664,9 +1664,10 @@ def create_mandate(request):
                                      account=account, mandate_type=mandate_type)
 
     mandate_members = request.POST.getlist('mandate_member')
-    mandate_percentages = request.POST.getlist('percentages')
+    mandate_percentages = request.POST.getlist('percentage')
 
     for i in range(len(mandate_members)):
-        MandateAssignment.objects.create(mandate=mandate, member=mandate_members[i], percentage=mandate_percentages[i])
+        MandateAssignment.objects.create(mandate=mandate, member_id=mandate_members[i],
+                                         percentage=mandate_percentages[i])
 
     return redirect('/clients/accounts/' + str(account.id))

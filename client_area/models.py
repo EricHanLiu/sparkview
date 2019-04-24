@@ -773,8 +773,9 @@ class Mandate(models.Model):
         :return:
         """
         numerator = days_in_month_in_daterange(self.start_date, self.end_date, month, year)
-        denominator = (self.end_date - self.start_date).days
-        return numerator / denominator
+        denominator = (self.end_date - self.start_date).days + 1
+        portion_in_month = numerator / denominator
+        return self.cost * portion_in_month
 
     def __str__(self):
         return self.account.client_name + ' ' + self.mandate_type.name
