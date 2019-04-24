@@ -10,8 +10,9 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment
 from dateutil.relativedelta import relativedelta
+from client_area.utils import days_in_month_in_daterange
 
 
 class Client(models.Model):
@@ -527,6 +528,36 @@ class Client(models.Model):
                                                  is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
 
+    @property
+    def active_mandate_assignments(self):
+        """
+        Returns the active mandate assignments for this account
+        :return:
+        """
+        if not hasattr(self, '_active_mandate_assignments'):
+            mandates = self.active_mandates
+            self._active_mandate_assignments = MandateAssignment.objects.filter(mandate__in=mandates)
+        return self._active_mandate_assignments
+
+    def mandate_hours_this_month_member(self, member):
+        """
+        Get's the number of mandate hours a certain member has this month
+        :param member:
+        :return:
+        """
+        mandates = self.mandates_active_this_month
+        hours = 0
+        mandate_assignments = member.mandateassignment_set.filter(mandate__in=mandates)
+        now = datetime.datetime.now()
+        for mandate_assignment in mandate_assignments:
+            mandate = mandate_assignment.mandate
+            numerator = days_in_month_in_daterange(mandate.start_date, mandate.end_date, now.month, now.year)
+            denominator = (mandate.end_date - mandate.start_date).days + 1
+            portion_in_month = numerator / denominator
+            hours += portion_in_month * ((mandate_assignment.mandate.cost * (
+                        mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
+        return hours
+
     def get_allocation_this_month_member(self, member):
         percentage = 0.0
         # Boilerplate incoming
@@ -555,7 +586,9 @@ class Client(models.Model):
         if self.strat3 == member:
             percentage += self.strat3percent
 
-        return round(self.get_allocated_hours() * percentage / 100.0, 2)
+        mandate_hours = self.mandate_hours_this_month_member(member)
+
+        return round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
 
     @property
     def current_phase_tasks(self):
@@ -599,6 +632,37 @@ class Client(models.Model):
                 self._ppc_fee = 0
         return self._ppc_fee
 
+    @property
+    def mandates_active_this_month(self):
+        """
+        Returns queryset of mandates active this month
+        :return:
+        """
+        if not hasattr(self, '_mandates_active_this_month'):
+            now = datetime.datetime.now()
+            first_day, last_day = calendar.monthrange(now.year, now.month)
+            start_date_month = datetime.datetime(now.year, now.month, 1, 0, 0, 0)
+            end_date_month = datetime.datetime(now.year, now.month, last_day, 23, 59, 59)
+            mandates = self.mandate_set.filter(start_date__lte=end_date_month, end_date__gte=start_date_month)
+            self._mandates_active_this_month = mandates
+        return self._mandates_active_this_month
+
+    @property
+    def current_month_mandate_fee(self):
+        """
+        Get's the mandates that are active this month
+        Returns the sum of portions of each mandate that will be paid this month
+        :return:
+        """
+        if not hasattr(self, '_current_month_mandate_fee'):
+            now = datetime.datetime.now()
+            mandates = self.mandates_active_this_month
+            fee = 0.0
+            for m in mandates:
+                fee += m.fee_in_month(now.month, now.year)
+            self._current_month_mandate_fee = fee
+        return self._current_month_mandate_fee
+
     def get_fee_by_spend(self, spend):
         """
         Get's fee by any amount, as opposed to just calculating it by budget
@@ -609,7 +673,7 @@ class Client(models.Model):
             fee = self.management_fee_override
         elif self.managementFee is not None:
             for feeInterval in self.managementFee.feeStructure.all().order_by('lowerBound'):
-                if spend >= feeInterval.lowerBound and spend <= feeInterval.upperBound:
+                if feeInterval.lowerBound <= spend <= feeInterval.upperBound:
                     if feeInterval.feeStyle == 0:  # %
                         fee = spend * (feeInterval.fee / 100.0)
                         break
@@ -619,16 +683,16 @@ class Client(models.Model):
         return fee
 
     def get_fee(self):
-        initial_fee = 0
+        initial_fee = 0.0
         # If status is lost or inactive, just return 0
         if self.status == 2 or self.status == 3:
-            return 0
+            return 0.0
         if self.is_onboarding_ppc and self.managementFee is not None:
             initial_fee = self.managementFee.initialFee
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee
+            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
         return fee
 
     @property
@@ -642,7 +706,8 @@ class Client(models.Model):
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.get_fee_by_spend(self.current_spend) + self.cro_fee + self.seo_fee + initial_fee
+            fee = self.get_fee_by_spend(
+                self.current_spend) + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
         return fee
 
     def get_ppc_allocated_hours(self):
@@ -664,7 +729,8 @@ class Client(models.Model):
 
     def days_in_month_in_daterange(self, start, end, month):
         """
-        Calculates how many days are in a certain month within a daterange. For example: October 28th to November 5th has 4 days in October, so this would return 4 for (2018-10-28, 2018-11-05, 10)
+        Calculates how many days are in a certain month within a daterange.
+        Example: Oct 28th to Nov 5th has 4 days in October,  this would return 4 for (2018-10-28, 2018-11-05, 10)
         """
         one_day = datetime.timedelta(1)
         date_counter = 0

@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import Promo, MonthlyReport, Service, Language, ClientType, Industry, ManagementFeesStructure, \
     ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord, OnboardingTask, OnboardingTaskAssignment, \
     OnboardingStep, OnboardingStepAssignment, PhaseTaskAssignment, PhaseTask, LifecycleEvent, SalesProfile, \
-    SalesProfileChange, OpportunityDescription, PitchedDescription, MandateType, Mandate
+    SalesProfileChange, OpportunityDescription, PitchedDescription, MandateType, Mandate, MandateHourRecord, \
+    MandateAssignment
 
 
 @admin.register(OpportunityDescription)
@@ -122,4 +123,14 @@ class MandateAdmin(admin.ModelAdmin):
 
 @admin.register(MandateType)
 class MandateTypeAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(MandateHourRecord)
+class MandateHourRecordAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(MandateAssignment)
+class MandateAssignmentAdmin(admin.ModelAdmin):
     pass

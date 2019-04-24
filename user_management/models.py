@@ -3,7 +3,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate
 import datetime
 import calendar
 
@@ -421,15 +421,46 @@ class Member(models.Model):
         return resp
 
     @property
+    def active_mandate_assignments(self):
+        """
+        Returns active mandate assignments
+        :return:
+        """
+        if not hasattr(self, '_active_mandate_assignments'):
+            now = datetime.datetime.now()
+            first_day, last_day = calendar.monthrange(now.year, now.month)
+            start_date_month = datetime.datetime(now.year, now.month, 1, 0, 0, 0)
+            end_date_month = datetime.datetime(now.year, now.month, last_day, 23, 59, 59)
+            self._active_mandate_assignments = self.mandateassignment_set.filter(
+                mandate__start_date__lte=end_date_month, mandate__end_date__gte=start_date_month)
+            accs = []
+            for ama in self._active_mandate_assignments:
+                accs.append(ama.mandate.account)
+        return self._active_mandate_assignments
+
+    @property
+    def active_mandate_accounts(self):
+        """
+        Returns active mandate assignments
+        :return:
+        """
+        if not hasattr(self, '_active_mandate_accounts'):
+            active_mandate_assignments = self.active_mandate_assignments
+            mandates = Mandate.objects.filter(mandateassignment__in=active_mandate_assignments)
+            accounts = apps.get_model('budget', 'Client').objects.filter(mandate__in=mandates)
+            self._active_mandate_accounts = accounts
+        return self._active_mandate_accounts
+
+    @property
     def accounts(self):
         if not hasattr(self, '_accounts'):
-            Client = apps.get_model('budget', 'Client')
-            self._accounts = Client.objects.filter(
+            client_model = apps.get_model('budget', 'Client')
+            self._accounts = client_model.objects.filter(
                 Q(cm1=self) | Q(cm2=self) | Q(cm3=self) |
                 Q(am1=self) | Q(am2=self) | Q(am3=self) |
                 Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
                 Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
-            )
+            ) | self.active_mandate_accounts
         return self._accounts
 
     @property
