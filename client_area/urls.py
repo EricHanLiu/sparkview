@@ -30,5 +30,6 @@ urlpatterns = [
     url(r'^accounts/set_services$', views.set_services, name='set_services'),
     url(r'^accounts/flag/member$', views.assign_member_flagged_account, name='assign_member_flagged_account'),
     url(r'^accounts/(\d*)/lifecycle$', views.account_lifecycle, name='account_lifecycle'),
-    url(r'^campaigns/(\d*)$', views.campaigns, name='campaigns')
+    url(r'^campaigns/(\d*)$', views.campaigns, name='campaigns'),
+    url(r'^accounts/mandates/new$', views.create_mandate, name='create_mandate')
 ]

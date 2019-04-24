@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                            Oopsies
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="m-portlet__head-tools">
+                    <ul class="m-portlet__nav">
+                        <li class="m-portlet__nav-item">
+                            <a href="/reports/oops/new" class="btn btn-info m-btn">New Oops</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="m-portlet__body">
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                    <div class="col-12">
+                        <table class='table table-hover dataTable order-column'
+                               id="star_clients_datatable">
+                            <thead class="thead-light">
+                            <tr class="main-table-header">
+                                <th>
+                                    Date
+                                </th>
+                                <th>
+                                    Email Address
+                                </th>
+                                <th>
+                                    Issue Description
+                                </th>
+                                <th>
+                                    Type of Issue
+                                </th>
+                                <th>
+                                    Budget Error Amount
+                                </th>
+                                <th>
+                                    Member(s) Responsible
+                                </th>
+                                <th>
+                                    Account
+                                </th>
+                                <th>
+                                    Client Aware
+                                </th>
+                                <th>
+                                    Client At Risk
+                                </th>
+                                <th>
+                                    Platform
+                                </th>
+                                <th>
+                                    Justification
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for incident in incidents %}
+                                <tr>
+                                    <td>
+                                        {{ incident.date }}
+                                    </td>
+                                    <td>
+                                        {{ incident.email }}
+                                    </td>
+                                    <td>
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ incident.description }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ incident.issue_name }}
+                                    </td>
+                                    <td>
+                                        {% if incident.budget_error_amount == 0 %}
+                                            None
+                                        {% else %}
+                                            {{ incident.budget_error_amount|floatformat:2 }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for member in incident.members.all %}
+                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if incident.account is not None %}
+                                            <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if incident.client_aware %} Yes {% else %} No {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ incident.platform_name }}
+                                    </td>
+                                    <td>
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ incident.justification }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flag member -->
+    <div class="modal fade" id="flag_member_modal" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Flag Account {{ account.client_name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/clients/accounts/flag/member">
+                    {% csrf_token %}
+                    <input name="account" id="member_account_id" type="text" value="" style="display:none;"/>
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Assign a member:</label>
+                                        <select class="form-control m-input"
+                                                name="member"
+                                                style="width: 100%;">
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Assign Member" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End Flag member modal -->
+{% endblock %}

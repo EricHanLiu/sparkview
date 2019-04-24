@@ -1,4 +1,5 @@
 from django.db import models
+from client_area.utils import days_in_month_in_daterange
 import calendar
 import datetime
 
@@ -723,3 +724,110 @@ class SalesProfileChange(models.Model):
     def __str__(self):
         return self.profile.account.client_name + ' ' + self.get_service_display() + ' from ' + \
                self.get_from_status_display() + ' to ' + self.get_to_status_display()
+
+
+class MandateType(models.Model):
+    """
+    Type of mandate
+    """
+    name = models.CharField(max_length=255)
+    hourly_rate = models.FloatField(default=125.0)
+
+    def __str__(self):
+        return self.name
+
+
+class Mandate(models.Model):
+    """
+    Mandate (one off service) for a client
+    """
+    mandate_type = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
+    account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+    cost = models.FloatField(default=0.0)
+    hourly_rate = models.FloatField(default=125.0)
+    start_date = models.DateTimeField(default=None, null=True)
+    end_date = models.DateTimeField(default=None, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def hours(self):
+        try:
+            return self.cost / self.hourly_rate
+        except ZeroDivisionError:
+            return 0
+
+    @property
+    def start_date_pretty(self):
+        return self.start_date.strftime('%b %d, %Y')
+
+    @property
+    def end_date_pretty(self):
+        return self.end_date.strftime('%b %d, %Y')
+
+    def fee_in_month(self, month, year):
+        """
+        Returns the fee in a certain month.
+        Example: If half of the term of the mandate occurs in January, then January will get half of the fee
+        :param month:
+        :param year:
+        :return:
+        """
+        numerator = days_in_month_in_daterange(self.start_date, self.end_date, month, year)
+        denominator = (self.end_date - self.start_date).days + 1
+        portion_in_month = numerator / denominator
+        return self.cost * portion_in_month
+
+    def __str__(self):
+        return self.account.client_name + ' ' + self.mandate_type.name
+
+
+class MandateAssignment(models.Model):
+    """
+    Assign a percentage of the mandates hours
+    """
+    member = models.ForeignKey('user_management.Member', models.CASCADE, null=True, default=None)
+    mandate = models.ForeignKey(Mandate, models.CASCADE, null=True, default=None)
+    percentage = models.FloatField(default=0.0)
+
+    @property
+    def hours(self):
+        """
+        Returns the actual allocated hours in this month
+        :return:
+        """
+        if not hasattr(self, '_hours'):
+            now = datetime.datetime.now()
+            numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month, now.year)
+            denominator = (self.mandate.end_date - self.mandate.start_date).days + 1
+            portion_in_month = numerator / denominator
+            self._hours = round(portion_in_month * self.mandate.hours * self.percentage / 100.0, 2)
+        return self._hours
+
+    def __str__(self):
+        return str(self.member) + ' ' + str(self.mandate) + ' ' + str(self.percentage) + '%'
+
+
+class MandateHourRecord(models.Model):
+    """
+    Record an hour in a mandate
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    assignment = models.ForeignKey(MandateAssignment, models.CASCADE, null=True, default=None)
+    hours = models.FloatField(default=0.0)
+    month = models.IntegerField(default=0.0, choices=MONTH_CHOICES)
+    year = models.IntegerField(default=1990)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.assignment) + ' ' + str(self.hours) + ' hours'
+
+
+class Tag(models.Model):
+    """
+    Simple tag concept that can later be used for tracking success of members and clients
+    """
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

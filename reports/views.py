@@ -1,8 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, Incident, Role
+from user_management.models import Member, Team, Incident, Role, HighFive
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
@@ -818,6 +818,57 @@ def outstanding_notifications(request):
 
 
 @login_required
+def high_fives(request):
+    """
+    High five reports page
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    high_fives = HighFive.objects.all()
+
+    context = {
+        'high_fives': high_fives
+    }
+
+    return render(request, 'reports/high_fives.html', context)
+
+
+@login_required
+def new_high_five(request):
+    """
+    New high five page
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    if request.method == 'GET':
+        members = Member.objects.all()
+
+        context = {
+            'members': members
+        }
+
+        return render(request, 'reports/new_high_five.html', context)
+    elif request.method == 'POST':
+        r = request.POST
+        high_five = HighFive()
+
+        date_text = r.get('hf-date')
+        try:
+            high_five.date = datetime.datetime.strptime(date_text, '%Y-%m-%d')
+        except ValueError:  # if invalid date format given, get current date
+            high_five.date = datetime.datetime.today().strftime('%Y-%m-%d')
+
+        high_five.member = Member.objects.get(id=r.get('member'))
+        high_five.description = r.get('description')
+
+        high_five.save()
+
+        return redirect('/reports/high_fives')
+
+
+@login_required
 def incidents(request):
     """
     Incidents page
@@ -825,7 +876,13 @@ def incidents(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    return render(request, 'reports/incidents.html')
+    incidents = Incident.objects.all()
+
+    context = {
+        'incidents': incidents
+    }
+
+    return render(request, 'reports/oops.html', context)
 
 
 @login_required
@@ -836,7 +893,82 @@ def new_incident(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    return render(request, 'reports/new_incident.html')
+    if request.method == 'GET':
+        accounts = Client.objects.all()
+        members = Member.objects.all()
+        platforms = Incident.PLATFORMS
+        services = Incident.SERVICES
+        issue_types = Incident.ISSUES
+
+        context = {
+            'accounts': accounts,
+            'members': members,
+            'platforms': platforms,
+            'services': services,
+            'issue_types': issue_types
+        }
+
+        return render(request, 'reports/new_oops.html', context)
+    elif request.method == 'POST':
+        r = request.POST
+        # get form data
+        email = r.get('email-address')
+        try:
+            service = int(r.get('services'))
+        except ValueError:
+            service = 6  # set to None by default
+        try:
+            account = int(r.get('account'))
+        except ValueError:
+            account = 0
+        date = r.get('incident-date')
+        description = r.get('issue-description')
+        try:
+            issue_type = int(r.get('issue-type'))
+        except ValueError:
+            issue_type = 5  # set to other by default
+        if issue_type == 0:
+            budget_error_amt = r.get('budget-error')
+        else:
+            budget_error_amt = None  # might be redundant
+        try:
+            platform = r.get('platform')
+        except ValueError:
+            platform = 3  # set to other by default
+        client_aware_response = r.get('client-aware')
+        client_aware = client_aware_response == 'Yes'
+        client_at_risk_response = r.get('client-at-risk')
+        client_at_risk = client_at_risk_response == 'Yes'
+        justification = r.get('justification')
+
+        # create incident
+        incident = Incident()
+        incident.email = email
+        incident.service = service
+        incident.account = Client.objects.get(id=account)
+        try:
+            incident.date = datetime.datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:  # if invalid date format given, get current date
+            incident.date = datetime.datetime.today().strftime('%Y-%m-%d')
+        incident.save()
+
+        members = []
+        for member_id in r.getlist('member'):
+            members.append(Member.objects.get(id=member_id))
+        incident.members.set(members)
+
+        incident.description = description
+        incident.issue_type = issue_type
+        if budget_error_amt is not None:
+            incident.budget_error_amount = budget_error_amt
+        incident.platform = platform
+        incident.client_aware = client_aware
+        incident.client_at_risk = client_at_risk
+        incident.justification = justification
+
+        incident.save()
+
+        return redirect('/reports/oops')
 
 
 @login_required

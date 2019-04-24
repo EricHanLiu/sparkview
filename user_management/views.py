@@ -8,7 +8,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment
 from notifications.models import Notification
@@ -119,7 +119,7 @@ def member_dashboard(request, id):
         actual_aggregate += memb.actual_hours_tmp
         memb.allocated_hours_tmp = memb.allocated_hours_other_month(month, year)
         allocated_aggregate += memb.allocated_hours_tmp
-        memb.available_hours_tmp = member.hours_available_other_month(month, year)
+        memb.available_hours_tmp = memb.hours_available_other_month(month, year)
         available_aggregate += memb.available_hours_tmp
         memb.training_hours_tmp = memb.training_hours_other_month(month, year)
         training_aggregate += memb.training_hours_tmp
@@ -190,16 +190,16 @@ def member_dashboard(request, id):
     tomorrow = today + datetime.timedelta(1)
     today_start = datetime.datetime.combine(today, datetime.time())
     today_end = datetime.datetime.combine(tomorrow, datetime.time())
-    three_days_ago = now - datetime.timedelta(3)
-    three_days_future = now + datetime.timedelta(3)
+    this_month = datetime.datetime(today.year, today.month, 1)
+    next_month = datetime.datetime(today.year, today.month + 1 if today.month != 12 else 1, 1)
 
-    promos_week = Promo.objects.filter(start_date__gte=three_days_ago,
-                                       end_date__lte=three_days_future,
-                                       account__in=accounts) if load_everything else None
-    promos_start_today = promos_week.filter(start_date__gte=today_start,
-                                            start_date__lte=today_end) if load_everything else None
-    promos_end_today = promos_week.filter(end_date__gte=today_start,
-                                          end_date__lte=today_end) if load_everything else None
+    promos_month = Promo.objects.filter(start_date__gte=this_month,
+                                        end_date__lte=next_month,
+                                        account__in=accounts) if load_everything else None
+    promos_start_today = promos_month.filter(start_date__gte=today_start,
+                                             start_date__lte=today_end) if load_everything else None
+    promos_end_today = promos_month.filter(end_date__gte=today_start,
+                                           end_date__lte=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
@@ -219,7 +219,7 @@ def member_dashboard(request, id):
 
     # BUDGETS INFO
     # Monthly budget updates
-    active_accounts = accounts.filter(status=1) if load_everything else None
+    active_accounts = accounts.filter(salesprofile__ppc_status=1) if load_everything else None
     budget_updated_accounts = active_accounts.filter(budget_updated=True) if load_everything else None
     budget_not_updated_accounts = active_accounts.filter(budget_updated=False) if load_everything else None
     budget_updated_percentage = 0.0
@@ -271,7 +271,7 @@ def member_dashboard(request, id):
         'outstanding_reports': outstanding_reports,
         'promos_start_today': promos_start_today,
         'promos_end_today': promos_end_today,
-        'promos_week': promos_week,
+        'promos_week': promos_month,
         'onboarding_accounts': onboarding_accounts,
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,
@@ -840,6 +840,35 @@ def members_single_skills(request, id):
     }
 
     return render(request, 'user_management/profile/skills.html', context)
+
+
+@login_required
+def member_oops(request, id):
+    """Oops reports that belong to the member"""
+    member = Member.objects.get(id=id)
+    # oops = Incident.objects.filter(members__in=member)
+    oops = member.incident_set.all()
+
+    context = {
+        'member': member,
+        'oops': oops
+    }
+
+    return render(request, 'user_management/profile/oops.html', context)
+
+
+@login_required
+def member_high_fives(request, id):
+    """Oops reports that belong to the member"""
+    member = Member.objects.get(id=id)
+    high_fives = HighFive.objects.filter(member=id)
+
+    context = {
+        'member': member,
+        'high_fives': high_fives
+    }
+
+    return render(request, 'user_management/profile/highfives.html', context)
 
 
 @login_required
