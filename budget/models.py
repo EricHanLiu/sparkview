@@ -10,7 +10,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
 
@@ -527,6 +527,17 @@ class Client(models.Model):
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=now.month, year=now.year,
                                                  is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
+
+    @property
+    def active_mandate_assignments(self):
+        """
+        Returns the active mandate assignments for this account
+        :return:
+        """
+        if not hasattr(self, '_active_mandate_assignments'):
+            mandates = self.active_mandates
+            self._active_mandate_assignments = MandateAssignment.objects.filter(mandate__in=mandates)
+        return self._active_mandate_assignments
 
     def mandate_hours_this_month_member(self, member):
         """

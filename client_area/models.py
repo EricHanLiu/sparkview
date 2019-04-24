@@ -789,6 +789,20 @@ class MandateAssignment(models.Model):
     mandate = models.ForeignKey(Mandate, models.CASCADE, null=True, default=None)
     percentage = models.FloatField(default=0.0)
 
+    @property
+    def hours(self):
+        """
+        Returns the actual allocated hours in this month
+        :return:
+        """
+        if not hasattr(self, '_hours'):
+            now = datetime.datetime.now()
+            numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month, now.year)
+            denominator = (self.mandate.end_date - self.mandate.start_date).days + 1
+            portion_in_month = numerator / denominator
+            self._hours = round(portion_in_month * self.mandate.hours * self.percentage / 100.0, 2)
+        return self._hours
+
     def __str__(self):
         return str(self.member) + ' ' + str(self.mandate) + ' ' + str(self.percentage) + '%'
 
@@ -797,8 +811,12 @@ class MandateHourRecord(models.Model):
     """
     Record an hour in a mandate
     """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
     assignment = models.ForeignKey(MandateAssignment, models.CASCADE, null=True, default=None)
     hours = models.FloatField(default=0.0)
+    month = models.IntegerField(default=0.0, choices=MONTH_CHOICES)
+    year = models.IntegerField(default=1990)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

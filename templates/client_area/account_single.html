@@ -290,6 +290,33 @@
                                         </div>
                                     {% endfor %}
                                 {% endif %}
+                                {% for assignment in account.active_mandate_assignments %}
+                                    {% with assigned_member=assignment.member %}
+                                        <div class="m-card-profile">
+                                            <div class="m-card-profile__pic">
+                                                <div class="m-card-profile__pic-wrapper">
+                                                    {% if assigned_member.image != None %}
+                                                        <img src="{% static 'img/bloomers/'|add:assigned_member.image %}"/>
+                                                    {% else %}
+                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="m-card-profile__details">
+                                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                                    {% if request.user.is_staff %}
+                                                        <a href="/user_management/members/{{ assigned_member.id }}">{% endif %}{{ assigned_member.user.get_full_name }}
+                                                    {% if request.user.is_staff %}</a>{% endif %}</h3>
+                                                <span class="m-badge m-badge--wide"
+                                                      style="background: rgb(255, 153, 51); color: white;">Mandate</span>
+                                                <br/>
+                                                <span data-toggle="m-tooltip">{{ assignment.hours }}hr</span>
+                                                <br/>
+                                                <span data-toggle="m-tooltip">{{ assignment.mandate.start_date_pretty }} - {{ assignment.mandate.end_date_pretty }}</span>
+                                            </div>
+                                        </div>
+                                    {% endwith %}
+                                {% endfor %}
                                 <div class="m-card-profile">
                                     <div class="m-card-profile__pic">
                                         <div class="m-card-profile__pic-wrapper">
