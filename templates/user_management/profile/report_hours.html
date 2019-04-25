@@ -1,0 +1,36 @@
+{% extends 'user_management/profile/layout.html' %}
+
+{% block content %}
+     <div class="m-content">
+        {# Notification stuff #}
+        {% with notifications=request.user|get_unread_notifications %}
+            {% if notifications.count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    <strong>Heads Up!</strong> You have unread notifications.
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if star_accounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ star_accounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        {#  Main content #}
+        <div class="row">
+
+        </div>
+    </div>
+{% endblock %}

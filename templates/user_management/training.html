@@ -85,9 +85,9 @@ td {
                       <td>
                         {{ member.role }}
                       </td>
-                      {% for memberSkill in member.skills %}
+                      {% for member_skill in member.skills %}
                       <td>
-                        <span class="m-badge m-badge--{{ score_badges|get_item_from_list:memberSkill.score }}" data-toggle="m-tooltip" data-original-title="{{ memberSkill.updated_at }}"></span>
+                        <span class="m-badge m-badge--{{ score_badges|get_item_from_list:member_skill.score }}" data-toggle="m-tooltip" data-original-title="{{ member_skill.updated_at }}"></span>
                       </td>
                       {% endfor %}
                     </tr>

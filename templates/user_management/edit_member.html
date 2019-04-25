@@ -142,7 +142,7 @@
               </div>
               <h3>Member Skills</h3>
               <hr />
-              {% for memberSkill in memberSkills %}
+              {% for member_skill in member_skills %}
                 {% if forloop.first %}
                 <div class="form-group m-form__group">
                   <div class="row">
@@ -150,12 +150,12 @@
                 {% cycle '' '' '' '' '' '<div class="form-group m-form__group"><div class="row">' %}
                 {% endif %}
                 <div class="col-md-2">
-                  <label for="skill_{{ memberSkill.skill.name }}">{{ memberSkill.skill.name }}:</label>
+                  <label for="skill_{{ member_skill.skill.name }}">{{ member_skill.skill.name }}:</label>
                   <select class="form-control m-input"
-                          name="skill_{{ memberSkill.skill.name }}"
+                          name="skill_{{ member_skill.skill.name }}"
                           style="width: 100%;" required>
                       {% for skillOption in skillOptions %}
-                          <option value="{{ skillOption }}" {% if skillOption == memberSkill.score %}selected{% endif %}>{{ skillOption }}</option>
+                          <option value="{{ skillOption }}" {% if skillOption == member_skill.score %}selected{% endif %}>{{ skillOption }}</option>
                       {% endfor %}
                   </select>
                 </div>

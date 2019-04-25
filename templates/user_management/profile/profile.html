@@ -45,11 +45,11 @@
                 check on them!
             </div>
         {% endif %}
-        {% if starAccounts.count > 0 %}
+        {% if star_accounts.count > 0 %}
             <div class="alert alert-primary alert-dismissible fade show" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 </button>
-                <strong>Flagged account alert!</strong> You are assigned to {{ starAccounts.count }} flagged accounts.
+                <strong>Flagged account alert!</strong> You are assigned to {{ star_accounts.count }} flagged accounts.
                 You can find them in the <strong>Flagged Accounts</strong> section below.
             </div>
         {% endif %}
@@ -72,11 +72,6 @@
                                     <div class="m-widget2__item m-widget2__item--info">
                                         <div class="m-widget2__checkbox">
                                             <button class="btn btn-info btn-sm" data-task-id="{{ task.id }}" data-toggle="modal" data-target="#resolve_task_modal">Resolve</button>
-{#                                            <label class="m-checkbox m-checkbox--solid m-checkbox--single m-checkbox--brand">#}
-{#                                                <input type="checkbox" class="task-check-page"#}
-{#                                                       data-task-id="{{ task.id }}">#}
-{#                                                <span></span>#}
-{#                                            </label>#}
                                         </div>
                                         <div class="m-widget2__desc">
                                             <a href="{{ task.link }}" class="m-widget2__text">
@@ -371,7 +366,7 @@
                     </div>
                 {% endif %}
 
-                {% if starAccounts.count > 0 %}
+                {% if star_accounts.count > 0 %}
                     <!-- Being starred accounts (admin only) -->
                     <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                         <div class="m-portlet__head">
@@ -401,7 +396,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for account in starAccounts %}
+                                {% for account in star_accounts %}
                                     <tr>
                                         <td>
                                             {{ account.parentClient.name }}

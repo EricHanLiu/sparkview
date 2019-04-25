@@ -494,14 +494,14 @@ def edit_member(request, id):
         member = Member.objects.get(id=id)
         teams = Team.objects.all()
         roles = Role.objects.all()
-        memberSkills = SkillEntry.objects.filter(member=member)
+        member_skills = SkillEntry.objects.filter(member=member)
         skillOptions = [0, 1, 2, 3]
 
         context = {
             'member': member,
             'teams': teams,
             'roles': roles,
-            'memberSkills': memberSkills,
+            'member_skills': member_skills,
             'skillOptions': skillOptions
         }
 
@@ -587,7 +587,7 @@ def members_single(request, id=0):
 
     backing_me = backup_periods.filter(member=member)
 
-    starAccounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
+    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
 
     accountHours = {}
     accountAllocation = {}
@@ -604,7 +604,7 @@ def members_single(request, id=0):
         'onboarding_accounts': onboarding_accounts,
         'backups': backups,
         'backing_me': backing_me,
-        'starAccounts': starAccounts,
+        'star_accounts': star_accounts,
         'black_marker': black_marker,
     }
 
@@ -844,7 +844,16 @@ def members_single_skills(request, id):
 
 @login_required
 def member_oops(request, id):
-    """Oops reports that belong to the member"""
+    """
+    Oops reports that belong to the member
+    :param request:
+    :param id:
+    :return:
+    """
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
     member = Member.objects.get(id=id)
     # oops = Incident.objects.filter(members__in=member)
     oops = member.incident_set.all()
@@ -859,7 +868,16 @@ def member_oops(request, id):
 
 @login_required
 def member_high_fives(request, id):
-    """Oops reports that belong to the member"""
+    """
+    High five reports that belong to the member
+    :param request:
+    :param id:
+    :return:
+    """
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
     member = Member.objects.get(id=id)
     high_fives = HighFive.objects.filter(member=id)
 
@@ -872,21 +890,94 @@ def member_high_fives(request, id):
 
 
 @login_required
+def report_hours_profile(request, id):
+    """
+    Alternative way for members to report hours
+    :param request:
+    :param id:
+    :return:
+    """
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    if request.method == 'GET':
+        member = Member.objects.get(user=request.user)
+        accounts = Client.objects.filter(
+            Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+            Q(am1=member) | Q(am2=member) | Q(am3=member) |
+            Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+            Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
+
+        all_accounts = Client.objects.all().order_by('client_name')
+
+        months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+        now = datetime.datetime.now()
+        years = [i for i in range(2018, now.year + 1)]
+
+        monthnow = now.month
+        current_year = now.year
+
+        members = Member.objects.none
+        if request.user.is_staff:
+            # Reason for this is that this members list if used for the training hours, which is staff only
+            members = Member.objects.all()
+
+        context = {
+            'member': member,
+            'all_accounts': all_accounts,
+            'accounts': accounts,
+            'months': months,
+            'monthnow': monthnow,
+            'years': years,
+            'members': members,
+            'current_year': current_year
+        }
+
+        return render(request, 'user_management/profile/report_hours.html', context)
+
+    elif request.method == 'POST':
+        member = Member.objects.get(user=request.user)
+        accounts = Client.objects.filter(
+            Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+            Q(am1=member) | Q(am2=member) | Q(am3=member) |
+            Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+            Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
+        accounts_count = accounts.count()
+        for i in range(accounts_count):
+            i = str(i)
+            account_id = request.POST.get('account-id-' + i)
+            account = Client.objects.get(id=account_id)
+
+            if not request.user.is_staff and not member.has_account(account_id):
+                return HttpResponseForbidden('You do not have permission to add hours to this account')
+            member = Member.objects.get(user=request.user)
+            hours = request.POST.get('hours-' + i)
+            try:
+                hours = float(hours)
+            except (TypeError, ValueError):
+                continue
+            month = request.POST.get('month-' + i)
+            year = request.POST.get('year-' + i)
+
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+
+        return redirect('/clients/accounts/report_hours')
+
+
+@login_required
 def training_members(request):
     members = Member.objects.only('team', 'role')
-    memberSkills = SkillEntry.objects.all()
+    member_skills = SkillEntry.objects.all()
 
-    roleBadges = ['info', 'primary', 'accent', 'focus']
     score_badges = ['secondary', 'danger', 'warning', 'success']
-
-    scoreDescs = ['None', 'Below Average', 'Average', 'Excellent']
-    roles = ['CM', 'AM', 'SEO', 'Strat']
 
     context = {
         'members': members,
-        'memberSkills': memberSkills,
+        'member_skills': member_skills,
         'score_badges': score_badges,
-        'scoreDescs': scoreDescs
     }
 
     return render(request, 'user_management/training.html', context)
@@ -906,10 +997,10 @@ def skills(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    skills = Skill.objects.all()
+    all_skills = Skill.objects.all()
 
     context = {
-        'skills': skills
+        'skills': all_skills
     }
 
     return render(request, 'user_management/skills.html', context)
@@ -954,9 +1045,7 @@ def backups(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
-        """
-        Creates a backup period
-        """
+        # Creates a backup period
         form_type = request.POST.get('type')
         if form_type == 'period':
             member_id = request.POST.get('member')
@@ -980,7 +1069,6 @@ def backups(request):
                 b.account = account
                 b.period = bp
                 b.save()
-                print(b)
 
         elif form_type == 'backup':
             member_id = request.POST.get('member')
@@ -1054,7 +1142,6 @@ def backups(request):
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
-    seven_days_future = now + datetime.timedelta(7)
     members = Member.objects.all()
     accounts = Client.objects.filter(Q(status=0) | Q(status=1))
 
@@ -1077,6 +1164,7 @@ def backup_event(request, backup_period_id):
     """
     Specific backup event page
     :param request:
+    :param backup_period_id:
     :return:
     """
     if not request.user.is_staff:
