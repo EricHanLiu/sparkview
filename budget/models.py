@@ -626,7 +626,7 @@ class Client(models.Model):
         """
         if not hasattr(self, '_ppc_fee'):
             if self.has_ppc:
-                fee = self.get_fee_by_spend(self.current_full_budget)
+                fee = self.get_fee_by_spend(self.current_budget)
                 self._ppc_fee = round(fee, 2)
             else:
                 self._ppc_fee = 0

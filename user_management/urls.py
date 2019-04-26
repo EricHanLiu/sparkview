@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^members/(\d*)/skills$', views.members_single_skills, name='members_single_skills'),
     url(r'^members/(\d*)/oops$', views.member_oops, name='oops'),
     url(r'^members/(\d*)/high_fives$', views.member_high_fives, name='high_fives'),
+    url(r'^members/(\d*)/input_hours$', views.input_hours_profile, name='input_hours'),
     url(r'^members/training$', views.training_members, name='training_members'),
     url(r'^members/training/json$', views.training_members_json, name='training_members_json'),
     url(r'^teams$', views.teams, name='teams'),

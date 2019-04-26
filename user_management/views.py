@@ -890,7 +890,7 @@ def member_high_fives(request, id):
 
 
 @login_required
-def report_hours_profile(request, id):
+def input_hours_profile(request, id):
     """
     Alternative way for members to report hours
     :param request:
@@ -935,7 +935,7 @@ def report_hours_profile(request, id):
             'current_year': current_year
         }
 
-        return render(request, 'user_management/profile/report_hours.html', context)
+        return render(request, 'user_management/profile/input_hours.html', context)
 
     elif request.method == 'POST':
         member = Member.objects.get(user=request.user)
@@ -964,7 +964,7 @@ def report_hours_profile(request, id):
 
             AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
 
-        return redirect('/clients/accounts/report_hours')
+        return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
 
 @login_required
