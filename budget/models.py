@@ -1615,7 +1615,7 @@ class CampaignGrouping(models.Model):
         keywords = self.group_by.split(',')
 
         # if only negative keywords
-        if '+' not in self.group_by and '-' in self.group_by:
+        if '+' not in self.group_by and self.group_by[0] == '-':
             aw_campaigns_in_group = list(adwords_campaigns)
             fb_campaigns_in_group = list(facebook_campaigns)
             bing_campaigns_in_group = list(bing_campaigns)
