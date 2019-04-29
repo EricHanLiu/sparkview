@@ -11,7 +11,9 @@
             <div class="m-portlet__head-caption">
                 <div class="m-portlet__head-title">
                     <h2 class="m-portlet__head-label m-portlet__head-label--bloom">
-                        <span>Teams</span>
+                        <h3 class="m-portlet__head-text">
+                            Teams
+                        </h3>
                     </h2>
                 </div>
             </div>
@@ -42,7 +44,7 @@
                 </td>
                 <td>
                   {% for member in team.members %}
-                    {{ member.user.first_name }}
+                    {{ member.user.first_name }}{% if not forloop.last %},{% endif %}
                   {% endfor %}
                 </td>
               </tr>
