@@ -198,6 +198,8 @@ class AccountTestCase(TestCase):
 
         cg3 = CampaignGrouping.objects.create(client=account, group_by='-test')
         cg3.update_text_grouping()
+        cg4 = CampaignGrouping.objects.create(client=account, group_by='-test,-hello,-sup,-sam123,-foo')
+        cg4.update_text_grouping()
 
         cmp1 = Campaign.objects.get(campaign_id='123')
         cmp2 = FacebookCampaign.objects.get(campaign_id='456')
@@ -218,3 +220,8 @@ class AccountTestCase(TestCase):
         self.assertNotIn(cmp2, cg3.fb_campaigns.all())
         self.assertIn(cmp3, cg3.bing_campaigns.all())
         self.assertIn(cmp4, cg3.aw_campaigns.all())
+
+        self.assertNotIn(cmp1, cg4.aw_campaigns.all())
+        self.assertNotIn(cmp2, cg4.fb_campaigns.all())
+        self.assertNotIn(cmp3, cg4.bing_campaigns.all())
+        self.assertNotIn(cmp4, cg4.aw_campaigns.all())
