@@ -555,7 +555,7 @@ class Client(models.Model):
             denominator = (mandate.end_date - mandate.start_date).days + 1
             portion_in_month = numerator / denominator
             hours += portion_in_month * ((mandate_assignment.mandate.cost * (
-                        mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
+                    mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
         return hours
 
     def get_allocation_this_month_member(self, member):
@@ -1614,7 +1614,16 @@ class CampaignGrouping(models.Model):
 
         keywords = self.group_by.split(',')
 
-        aw_campaigns_in_group = []
+        # if only negative keywords
+        if '+' not in self.group_by and self.group_by[0] == '-':
+            aw_campaigns_in_group = list(adwords_campaigns)
+            fb_campaigns_in_group = list(facebook_campaigns)
+            bing_campaigns_in_group = list(bing_campaigns)
+        else:
+            aw_campaigns_in_group = []
+            fb_campaigns_in_group = []
+            bing_campaigns_in_group = []
+
         for adwords_campaign in adwords_campaigns:
             for keyword in keywords:
                 # In this case, we want to remove the campaign if its in the group and then break
@@ -1630,7 +1639,6 @@ class CampaignGrouping(models.Model):
 
         self.aw_campaigns.set(aw_campaigns_in_group)
 
-        fb_campaigns_in_group = []
         for facebook_campaign in facebook_campaigns:
             for keyword in keywords:
                 if '-' in keyword:
@@ -1645,7 +1653,6 @@ class CampaignGrouping(models.Model):
 
         self.fb_campaigns.set(fb_campaigns_in_group)
 
-        bing_campaigns_in_group = []
         for bing_campaign in bing_campaigns:
             for keyword in keywords:
                 if '-' in keyword:

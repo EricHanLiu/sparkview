@@ -10,7 +10,8 @@ import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
 from budget.models import Client
-from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment
+from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
+    MandateAssignment
 from notifications.models import Notification
 
 
@@ -924,6 +925,9 @@ def input_hours_profile(request, id):
             # Reason for this is that this members list if used for the training hours, which is staff only
             members = Member.objects.all()
 
+        # for mandate hour inputting
+        mandate_assignments = member.active_mandate_assignments
+
         context = {
             'member': member,
             'all_accounts': all_accounts,
@@ -932,7 +936,8 @@ def input_hours_profile(request, id):
             'monthnow': monthnow,
             'years': years,
             'members': members,
-            'current_year': current_year
+            'current_year': current_year,
+            'mandate_assignments': mandate_assignments
         }
 
         return render(request, 'user_management/profile/input_hours.html', context)
@@ -963,6 +968,42 @@ def input_hours_profile(request, id):
             year = request.POST.get('year-' + i)
 
             AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+
+        return redirect('/user_management/members/' + str(member.id) + '/input_hours')
+
+
+@login_required
+def input_mandate_profile(request, id):
+    """
+    Alternative way for members to report hours
+    :param request:
+    :param id:
+    :return:
+    """
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(id) != request_member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    if request.method == 'POST':
+        member = Member.objects.get(user=request.user)
+        assignments_count = member.active_mandate_assignments.count()
+        for i in range(assignments_count):
+            i = str(i)
+            assignment_id = request.POST.get('mandate-id-' + i)
+            mandate_assignment = MandateAssignment.objects.get(id=assignment_id)
+
+            account_id = request.POST.get('account-id-' + i)
+            if not request.user.is_staff and not member.has_account(account_id):
+                return HttpResponseForbidden('You do not have permission to add hours to this account')
+            hours = request.POST.get('hours-' + i)
+            try:
+                hours = float(hours)
+            except (TypeError, ValueError):
+                continue
+            month = request.POST.get('month-' + i)
+            year = request.POST.get('year-' + i)
+
+            MandateHourRecord.objects.create(assignment=mandate_assignment, hours=hours, month=month, year=year)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 

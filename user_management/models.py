@@ -441,7 +441,7 @@ class Member(models.Model):
     @property
     def active_mandate_accounts(self):
         """
-        Returns active mandate assignments
+        Returns active mandate accounts
         :return:
         """
         if not hasattr(self, '_active_mandate_accounts'):
