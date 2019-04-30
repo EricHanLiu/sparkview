@@ -13,11 +13,7 @@
             text-align: center;
         }
 
-        #reports_datatable {
-            text-align: center;
-        }
-
-        .late-onboard:hover {
+        .onboard-badge:hover {
             cursor: pointer;
         }
 
@@ -222,8 +218,9 @@
                                                                                              {% if account.late_onboard_reason != None %}data-toggle="m-tooltip"
                                                                                              data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4>
                                             </a>&nbsp;&nbsp;<span
-                                                class="m-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}"
-                                                style="margin-bottom: 0.5rem;">{{ account.onboarding_duration_elapsed }}</span>
+                                                class="m-badge onboard-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}"
+                                                style="margin-bottom: 0.5rem;" {% if account.is_late_to_onboard %}data-toggle="modal"
+                                                  data-target="#late_onboard_modal"{% endif %}>{{ account.onboarding_duration_elapsed }}</span>
                                         </div>
                                     </div>
                                     <br/>
