@@ -30,6 +30,63 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Modal for quick adding hours -->
+    <div class="modal fade" id="quickAddModal" tabindex="-1" role="dialog" aria-labelledby="quickAddModal"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        Quick Add Hours
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="m-form" id="quickadd">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Hours:</label>
+                                    <input type="text" name="quickadd-hours"
+                                           class="form-control m-input" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Month:</label>
+                                    <select class="form-control m-input"
+                                            name="quickadd-month"
+                                            style="width: 100%;" required>
+                                        {% for monthNum, monthName in months %}
+                                            <option value="{{ monthNum }}"
+                                                    {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="year">Year:</label>
+                                    <select class="form-control m-input"
+                                            name="quickadd-year"
+                                            style="width: 100%;" required>
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row justify-content-end mt-3">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary w-100">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="m-content">
         <!-- Assigned members -->
         <div class="row">
@@ -103,11 +160,17 @@
                                        data-flag="{% if account.star_flag %}1{% else %}0{% endif %}"
                                        {% if account.star_flag %}style="color:#ff5733;"{% endif %}></i>
                                     &nbsp;
-                                    <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000;">
-                  <span class="la la-edit">
-                  </span>
+                                    <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000; text-decoration: none;">
+                                      <span class="la la-edit">
+                                      </span>
                                     </a>
-                                    <a class="btn btn-info m-btn btn-sm" href="/clients/accounts/{{ account.id }}/lifecycle">
+                                    &nbsp;
+                                    <span class="fas fa-clock" data-toggle="modal" style="cursor: pointer;"
+                                            data-target="#quickAddModal">
+                                    </span>
+                                    &nbsp;
+                                    <a class="btn btn-info m-btn btn-sm"
+                                       href="/clients/accounts/{{ account.id }}/lifecycle">
                                       Lifecycle
                                     </a>
                                 </h3>
@@ -2032,6 +2095,24 @@
             };
 
             $distrubteHoursBtn.click(distributeHours);
+        });
+
+        // for quick-adding hours
+        let form = $('#quickadd')
+        form.submit(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/clients/accounts/{{ account.id }}',
+                data: form.serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: function(data) {
+                    $('#quickAddModal').modal('toggle');
+                }
+            });
         });
     </script>
 {% endblock %}
