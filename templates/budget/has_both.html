@@ -316,10 +316,11 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     Group name: {{ gr.group_name }}
-                                    <i class="fa fa-minus-circle" data-toggle="modal"
+                                    <i class="fa fa-minus-circle fa-2x" data-toggle="modal"
                                        data-target="#m_delete_campaign_group"
-                                       data-grid="{{ gr.id }}"></i>
-                                    <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                       data-grid="{{ gr.id }}"
+                                       style="cursor: pointer;"></i>
+                                    <i class="fa fa-pencil-square fa-2x" data-toggle="modal"
                                        data-target="#m_edit_campaign_group"
                                        data-c_id="{{ client_data.id }}"
                                        data-group_name="{{ gr.group_name }}"
@@ -327,6 +328,7 @@
                                        data-acc_ids="{% spaceless %}{% for a in client_data.adwords.all %}{{ a.dependent_account_id }},{% endfor %}{% for b in client_data.bing.all %}{{ b.account_id }},{% if not forloop.last %},{% endif %}{% endfor %}{% for f in client_data.facebook.all %}{{ f.account_id }}{% if not forloop.last %},{% endif %}{% endfor %}{% endspaceless %}"
                                        data-group_budget="{{ gr.budget }}"
                                        data-budget="{{ gr.budget }}" data-grid="{{ gr.id }}"
+                                       style="cursor: pointer;"
                                             {% if gr.start_date %}
                                        data-start_date="{{ gr.start_date }}"
                                        data-end_date="{{ gr.end_date }}"
@@ -478,7 +480,7 @@
                             <div class="col-md-2">
                                 <b>Budget</b>:
                                 <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend|floatformat:2|intcomma }}</span>
-                                <span class="fa fa-pencil-square fa-4x"
+                                <span class="fa fa-pencil-square fa-2x"
                                       data-toggle="modal"
                                       data-target="#m_edit_budget"
                                       data-channel="adwords"
@@ -587,7 +589,7 @@
                                         <i class="fa fa-minus-circle" data-toggle="modal"
                                            data-target="#m_delete_flight_date"
                                            data-fbudgetid="{{ fbudget.id }}"></i>
-                                        <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                        <i class="fa fa-pencil-square fa-2x" data-toggle="modal"
                                            data-target="#m_edit_flight_date"
                                            data-channel="adwords"
                                            data-sdate="{{ fbudget.start_date }}"
@@ -678,7 +680,7 @@
                                 <span id="budget-{{ b.account_id }}">
                                                                         {{ b.desired_spend|intcomma }}
                                                                     </span>
-                                <span class="fa fa-pencil-square fa-4x"
+                                <span class="fa fa-pencil-square fa-2x"
                                       data-toggle="modal"
                                       data-target="#m_edit_budget"
                                       data-channel="bing"
@@ -738,7 +740,7 @@
                                         <i class="fa fa-minus-circle" data-toggle="modal"
                                            data-target="#m_delete_flight_date"
                                            data-fbudgetid="{{ fbudget.id }}"></i>
-                                        <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                        <i class="fa fa-pencil-square fa-2x" data-toggle="modal"
                                            data-target="#m_edit_flight_date"
                                            data-channel="bing"
                                            data-sdate="{{ fbudget.start_date }}"
@@ -827,7 +829,7 @@
                                 <span id="budget-{{ f.account_id }}">
                                         {{ f.desired_spend|floatformat:2|intcomma }}
                                     </span>
-                                <span class="fa fa-pencil-square fa-4x"
+                                <span class="fa fa-pencil-square fa-2x"
                                       data-toggle="modal"
                                       data-target="#m_edit_budget"
                                       data-channel="facebook"
@@ -887,7 +889,7 @@
                                         <i class="fa fa-minus-circle" data-toggle="modal"
                                            data-target="#m_delete_flight_date"
                                            data-fbudgetid="{{ fbudget.id }}"></i>
-                                        <i class="fa fa-pencil-square fa-4x" data-toggle="modal"
+                                        <i class="fa fa-pencil-square fa-2x" data-toggle="modal"
                                            data-target="#m_edit_flight_date"
                                            data-channel="facebook"
                                            data-sdate="{{ fbudget.start_date }}"

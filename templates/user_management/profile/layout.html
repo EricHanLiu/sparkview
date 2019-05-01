@@ -1,10 +1,5 @@
 {% extends 'main.html' %}
 
-{% block extraCss %}
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
-          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-{% endblock %}
-
 {% block leftAside %}
     <div id="m_aside_left" class="m-grid__item m-aside-left  m-aside-left--skin-light ">
         <!-- BEGIN: Aside Menu -->
@@ -33,6 +28,10 @@
                         class="m-menu__link-icon flaticon-interface-7 "></i><span
                         class="m-menu__link-text">Hours</span></a></li>
                 <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/input_hours" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-questions-circular-button"></i><span
+                        class="m-menu__link-text">Input Hours</span></a></li>
+                <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}/reports" class="m-menu__link "><i
                         class="m-menu__link-icon flaticon-grid-menu-v2 "></i><span
                         class="m-menu__link-text">Reports</span></a></li>
@@ -44,10 +43,10 @@
 {#                        href="/user_management/members/{{ member.id }}/kpis" class="m-menu__link "><i#}
 {#                        class="m-menu__link-icon flaticon-questions-circular-button"></i><span#}
 {#                        class="m-menu__link-text">KPIs</span></a></li>#}
-{#                <li class="m-menu__item " aria-haspopup="true"><a#}
-{#                        href="/user_management/members/{{ member.id }}/timesheet" class="m-menu__link "><i#}
-{#                        class="m-menu__link-icon flaticon-network"></i><span#}
-{#                        class="m-menu__link-text">Timesheet</span></a></li>#}
+                <li class="m-menu__item " aria-haspopup="true"><a
+                        href="/user_management/members/{{ member.id }}/timesheet" class="m-menu__link "><i
+                        class="m-menu__link-icon flaticon-network"></i><span
+                        class="m-menu__link-text">Timesheet</span></a></li>
                 <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}/skills" class="m-menu__link "><i
                         class="m-menu__link-icon flaticon-squares-4"></i><span
@@ -55,7 +54,7 @@
                 <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}/oops" class="m-menu__link "><i
                         class="m-menu__link-icon fas fa-exclamation-circle"></i><span
-                        class="m-menu__link-text">Oopsies</span></a></li>
+                        class="m-menu__link-text">Oops</span></a></li>
                 <li class="m-menu__item " aria-haspopup="true"><a
                         href="/user_management/members/{{ member.id }}/high_fives" class="m-menu__link "><i
                         class="m-menu__link-icon fas fa-laugh-beam"></i><span

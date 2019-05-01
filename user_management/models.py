@@ -44,52 +44,67 @@ class Team(models.Model):
 
 
 class HighFive(models.Model):
-    """ High Fives"""
+    """
+    High Fives
+    """
     date = models.DateField(default=None, null=True, blank=True)
     member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True)
     description = models.CharField(max_length=2000, default='')
+    created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return 'High Five ' + str(self.id)
 
 
+class IncidentReason(models.Model):
+    """
+    Reasons for an incident
+    """
+    name = models.CharField(max_length=355)
+
+    def __str__(self):
+        return self.name
+
+
 class Incident(models.Model):
-    """ Incident """
+    """
+    Incident
+    """
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
-    ISSUES = [(0, 'Budget Error'), (1, 'Promotion Error'), (2, 'Text Ad Error'), (3, 'Lack of Activity Error'),
-              (4, 'Communication Error'), (5, 'Other')]
 
-    email = models.CharField(max_length=355, default='')
+    reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True, related_name='reporter')
     service = models.IntegerField(default=0, choices=SERVICES)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    timestamp = models.DateTimeField(default=None, null=True, blank=True)
     date = models.DateField(default=None, null=True, blank=True)
-    members = models.ManyToManyField('Member', default=None)
+    members = models.ManyToManyField('Member', default=None, related_name='incident_members')
     description = models.CharField(max_length=2000, default='')
-    issue_type = models.IntegerField(default=0, choices=ISSUES)
+    issue = models.ForeignKey(IncidentReason, on_delete=models.DO_NOTHING, default=None, null=True)
     budget_error_amount = models.FloatField(default=0.0)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
+    addressed_with_member = models.BooleanField(default=False)
     justification = models.CharField(max_length=2000, default='')
 
     @property
     def issue_name(self):
-        (issue_id, issue_str) = self.ISSUES[self.issue_type]
-        return issue_str
+        return str(self.issue)
 
     @property
     def platform_name(self):
-        (platform_id, platform_str) = self.PLATFORMS[self.platform]
-        return platform_str
+        return self.get_platform_display()
 
     def __str__(self):
         return 'Incident ' + str(self.id)
 
 
 class Skill(models.Model):
-    """ Skillset for each Member """
+    """
+    Skillset for each Member
+    """
     name = models.CharField(max_length=255)
 
     def get_score_0(self):
@@ -441,7 +456,7 @@ class Member(models.Model):
     @property
     def active_mandate_accounts(self):
         """
-        Returns active mandate assignments
+        Returns active mandate accounts
         :return:
         """
         if not hasattr(self, '_active_mandate_accounts'):

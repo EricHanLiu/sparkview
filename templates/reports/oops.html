@@ -11,7 +11,7 @@
                 <div class="m-portlet__head-caption">
                     <div class="m-portlet__head-title">
                         <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                            Oopsies
+                            Oops
                         </h3>
                     </div>
                 </div>
@@ -32,10 +32,13 @@
                             <thead class="thead-light">
                             <tr class="main-table-header">
                                 <th>
-                                    Date
+                                    Timestamp
                                 </th>
                                 <th>
-                                    Email Address
+                                    Date Of Issue
+                                </th>
+                                <th>
+                                    Reported By
                                 </th>
                                 <th>
                                     Issue Description
@@ -53,10 +56,13 @@
                                     Account
                                 </th>
                                 <th>
-                                    Client Aware
+                                    Client Aware?
                                 </th>
                                 <th>
-                                    Client At Risk
+                                    Client At Risk?
+                                </th>
+                                <th>
+                                    Addressed With Member(s)?
                                 </th>
                                 <th>
                                     Platform
@@ -70,10 +76,13 @@
                             {% for incident in incidents %}
                                 <tr>
                                     <td>
+                                        {{ incident.timestamp }}
+                                    </td>
+                                    <td>
                                         {{ incident.date }}
                                     </td>
                                     <td>
-                                        {{ incident.email }}
+                                        <a href="/user_management/members/{{ incident.reporter.id }}">{{ incident.reporter.user.get_full_name }}</a>
                                     </td>
                                     <td>
                                         <div style="max-height: 70px; overflow: auto;">
@@ -107,6 +116,9 @@
                                         {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
+                                        {% if incident.addressed_with_member %} Yes {% else %} No {% endif %}
+                                    </td>
+                                    <td>
                                         {{ incident.platform_name }}
                                     </td>
                                     <td>
@@ -123,48 +135,4 @@
             </div>
         </div>
     </div>
-
-    <!-- Flag member -->
-    <div class="modal fade" id="flag_member_modal" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Flag Account {{ account.client_name }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <form class="m-form" method="POST" action="/clients/accounts/flag/member">
-                    {% csrf_token %}
-                    <input name="account" id="member_account_id" type="text" value="" style="display:none;"/>
-                    <div class="modal-body">
-                        <div class="m-portlet__body">
-                            <div class="form-group m-form__group">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label>Assign a member:</label>
-                                        <select class="form-control m-input"
-                                                name="member"
-                                                style="width: 100%;">
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" value="Assign Member" class="btn btn-brand">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- End Flag member modal -->
 {% endblock %}
