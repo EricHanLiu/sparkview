@@ -928,8 +928,8 @@ def new_incident(request):
         description = r.get('issue-description')
         try:
             issue_type = int(r.get('issue-type'))
-        except ValueError:
-            issue_type = None  # set to other by default
+        except (ValueError, TypeError):
+            issue_type = None
         if issue_type == 0:
             budget_error_amt = r.get('budget-error')
         else:
