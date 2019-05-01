@@ -68,7 +68,7 @@ def main():
                 year) + ' budget history was already created, needs manual intervention')
 
     for member in members:
-        record, created = MemberHourHistory.objects.get(member=member, month=month, year=year)
+        record, created = MemberHourHistory.objects.get_or_create(member=member, month=month, year=year)
         record.allocated_hours = member.allocated_hours_month
         record.actual_hours = member.actual_hours_month
         record.available_hours = member.hours_available
