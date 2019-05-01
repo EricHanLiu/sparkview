@@ -912,7 +912,10 @@ def new_incident(request):
     elif request.method == 'POST':
         r = request.POST
         # get form data
-        email = r.get('email-address')
+        try:
+            reporter_id = int(r.get('reporting-member'))
+        except ValueError:
+            reporter_id = 0
         try:
             service = int(r.get('services'))
         except ValueError:
@@ -935,15 +938,15 @@ def new_incident(request):
             platform = r.get('platform')
         except ValueError:
             platform = 3  # set to other by default
-        client_aware_response = r.get('client-aware')
-        client_aware = client_aware_response == 'Yes'
-        client_at_risk_response = r.get('client-at-risk')
-        client_at_risk = client_at_risk_response == 'Yes'
+        client_aware = r.get('client-aware') == 'Yes'
+        client_at_risk = r.get('client-at-risk') == 'Yes'
+        members_addressed = r.get('members-addressed') == 'Yes'
         justification = r.get('justification')
 
         # create incident
         incident = Incident()
-        incident.email = email
+        incident.timestamp = datetime.datetime.now()
+        incident.reporter = Member.objects.get(id=reporter_id)
         incident.service = service
         incident.account = Client.objects.get(id=account)
         try:
@@ -972,6 +975,7 @@ def new_incident(request):
         incident.platform = platform
         incident.client_aware = client_aware
         incident.client_at_risk = client_at_risk
+        incident.addressed_with_member = members_addressed
         incident.justification = justification
 
         incident.save()

@@ -74,19 +74,19 @@ class Incident(models.Model):
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
 
-    email = models.CharField(max_length=355, default='')
     reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True, related_name='reporter')
     service = models.IntegerField(default=0, choices=SERVICES)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    timestamp = models.DateTimeField(default=None, null=True, blank=True)
     date = models.DateField(default=None, null=True, blank=True)
-    addressed_with_member = models.BooleanField(default=False)
-    members = models.ManyToManyField('Member', default=None)
+    members = models.ManyToManyField('Member', default=None, related_name='incident_members')
     description = models.CharField(max_length=2000, default='')
     issue = models.ForeignKey(IncidentReason, on_delete=models.DO_NOTHING, default=None, null=True)
     budget_error_amount = models.FloatField(default=0.0)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
+    addressed_with_member = models.BooleanField(default=False)
     justification = models.CharField(max_length=2000, default='')
 
     @property

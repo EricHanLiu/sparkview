@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from user_management.models import Member, MemberHourHistory
 from budget.models import Client as BloomClient
-from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate
+from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate, MandateType
 import datetime
 
 
@@ -282,12 +282,26 @@ class UserTestCase(TestCase):
         history2 = MemberHourHistory.objects.create(year=test_year, month=test_month, available_hours=20,
                                                     allocated_hours=9, actual_hours=6, member=member)
 
-        test_mandate = Mandate.objects.create()
-        mandate_assignment = MandateAssignment.objects.create(member=member, mandate=test_mandate, percentage=50)
-        mandate_history = MandateHourRecord.objects.create(assignment=mandate_assignment, hours=5,
-                                                           month=now.month, year=now.year)
+        now = datetime.datetime.now()
+        if now.day < 3:
+            start_date = now
+            end_date = now + datetime.timedelta(2)
+        else:
+            start_date = now - datetime.timedelta(2)
+            end_date = now
 
-        self.assertEqual(mandate_history.hours, 5)
+        test_account = BloomClient.objects.create(client_name="test", cm1=member)
+        test_mandate_type = MandateType.objects.create(name='test_type')
+        test_mandate = Mandate.objects.create(account=test_account, start_date=start_date,
+                                              end_date=end_date, mandate_type=test_mandate_type, cost=5, hourly_rate=1)
+        test_mandate_assignment = MandateAssignment.objects.create(member=member, mandate=test_mandate, percentage=100)
+        # MandateHourRecord.objects.create(assignment=test_mandate_assignment, hours=5,
+        #                                  month=now.month, year=now.year)
+        mandate_hours = 0
+        for account in member.accounts:
+            mandate_hours += account.mandate_hours_this_month_member(member)
+
+        self.assertEqual(mandate_hours, 5.0)
 
         self.assertEqual(member.allocated_hours_other_month(now.month, now.year), member.allocated_hours_this_month)
 

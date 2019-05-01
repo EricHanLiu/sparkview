@@ -856,14 +856,13 @@ def member_oops(request, id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
-    # oops = Incident.objects.filter(members__in=member)
-    oops = member.incident_set.all()
-    incidents_reported = Incident.objects.filter()
+    oops = member.incident_members.all()
+    incidents_reported = Incident.objects.filter(reporter=member)
 
     context = {
         'member': member,
         'incidents': oops,
-        'incidents_reports': incidents_reported
+        'incidents_reported': incidents_reported
     }
 
     return render(request, 'user_management/profile/oops.html', context)
