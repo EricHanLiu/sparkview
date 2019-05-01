@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from user_management.models import Member, MemberHourHistory
 from budget.models import Client as BloomClient
-from client_area.models import Promo, MonthlyReport
+from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate
 import datetime
 
 
@@ -281,6 +281,13 @@ class UserTestCase(TestCase):
         test_month = 4
         history2 = MemberHourHistory.objects.create(year=test_year, month=test_month, available_hours=20,
                                                     allocated_hours=9, actual_hours=6, member=member)
+
+        test_mandate = Mandate.objects.create()
+        mandate_assignment = MandateAssignment.objects.create(member=member, mandate=test_mandate, percentage=50)
+        mandate_history = MandateHourRecord.objects.create(assignment=mandate_assignment, hours=5,
+                                                           month=now.month, year=now.year)
+
+        self.assertEqual(mandate_history.hours, 5)
 
         self.assertEqual(member.allocated_hours_other_month(now.month, now.year), member.allocated_hours_this_month)
 
