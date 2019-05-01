@@ -1,0 +1,318 @@
+{% extends 'user_management/profile/layout.html' %}
+
+{% load notification_tags %}
+
+{% block extraCss %}
+    <style>
+        .collapse-trigger {
+            cursor: pointer;
+        }
+
+        .collapse-trigger:hover {
+            background-color: #F8F6F6;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="m-content">
+        {# Notification stuff #}
+        {% with notifications=request.user|get_unread_notifications %}
+            {% if notifications.count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    </button>
+                    <strong>Heads Up!</strong> You have unread notifications.
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if star_accounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ star_accounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        {#  Main content #}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Insert Hours
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <form class="m-form" method="post">
+                            {% csrf_token %}
+                            <div class="m-portlet__body">
+                                <div class="form-group m-form__group">
+                                    {% for account in accounts %}
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>Account:</label>
+                                                <input name="account-id-{{ forloop.counter0 }}" value="{{ account.id }}"
+                                                       style="display:none;"/>
+                                                <input type="text" name="account-name-{{ forloop.counter0 }}"
+                                                       value="{{ account.client_name }}"
+                                                       class="form-control m-input" disabled>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Hours:</label>
+                                                <input type="text" name="hours-{{ forloop.counter0 }}"
+                                                       class="form-control m-input">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Month:</label>
+                                                <select class="form-control m-input"
+                                                        name="month-{{ forloop.counter0 }}"
+                                                        style="width: 100%;" required>
+                                                    {% for monthNum, monthName in months %}
+                                                        <option value="{{ monthNum }}"
+                                                                {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="year">Year:</label>
+                                                <select class="form-control m-input"
+                                                        name="year-{{ forloop.counter0 }}"
+                                                        style="width: 100%;" required>
+                                                    {% for year in years %}
+                                                        <option value="{{ year }}"
+                                                                {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <input type="submit" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <!-- Mandate Hours -->
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head collapse-trigger collapsed" data-toggle="collapse"
+                         data-target="#mandate-hours">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Mandate Hours
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse hide" id="mandate-hours">
+                        <div class="m-portlet__body">
+                            <form class="m-form" method="post"
+                              action="/user_management/members/{{ member.id }}/input_mandate">
+                                {% csrf_token %}
+                                <div class="m-portlet__body">
+                                    <div class="form-group m-form__group">
+                                        {% for mandate_assignment in mandate_assignments %}
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <label>Mandate:</label>
+                                                    <input name="mandate-id-{{ forloop.counter0 }}"
+                                                           value="{{ mandate_assignment.id }}"
+                                                           style="display:none;"/>
+                                                    <input type="text" name="mandate-name-{{ forloop.counter0 }}"
+                                                           value="{{ mandate_assignment }}"
+                                                           class="form-control m-input" disabled>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label>Hours:</label>
+                                                    <input type="text" name="hours-{{ forloop.counter0 }}"
+                                                           class="form-control m-input">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label>Month:</label>
+                                                    <select class="form-control m-input"
+                                                            name="month-{{ forloop.counter0 }}"
+                                                            style="width: 100%;" required>
+                                                        {% for monthNum, monthName in months %}
+                                                            <option value="{{ monthNum }}"
+                                                                    {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label for="year">Year:</label>
+                                                    <select class="form-control m-input"
+                                                            name="year-{{ forloop.counter0 }}"
+                                                            style="width: 100%;" required>
+                                                        {% for year in years %}
+                                                            <option value="{{ year }}"
+                                                                    {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <input type="submit" value="Submit">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- end mandate hours -->
+            </div>
+            <div class="col-md-12">
+                <!-- Value Added Hours -->
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head collapse-trigger collapsed" data-toggle="collapse"
+                         data-target="#value-added-hours">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Value Added Hours
+                                    &nbsp;
+                                    <span class="m-badge  m-badge--danger m-badge--wide">Warning: Only report these hours if they were worked as Value Added Hours (the client did not pay for them)</span>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse hide" id="value-added-hours">
+                        <div class="m-portlet__body">
+                            <form class="m-form" method="post" action="/clients/accounts/report_value_added_hours">
+                                {% csrf_token %}
+                                <div class="m-portlet__body">
+                                    <div class="form-group m-form__group">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label>Account:</label>
+                                                <select class="form-control m-input"
+                                                        name="account_id"
+                                                        style="width: 100%;" required>
+                                                    {% for account in all_accounts %}
+                                                        <option value="{{ account.id }}">{{ account.client_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Hours:</label>
+                                                <input type="text" name="hours"
+                                                       class="form-control m-input">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Month:</label>
+                                                <select class="form-control m-input"
+                                                        name="month"
+                                                        style="width: 100%;" required>
+                                                    {% for monthNum, monthName in months %}
+                                                        <option value="{{ monthNum }}"
+                                                                {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="year">Year:</label>
+                                                <select class="form-control m-input"
+                                                        name="year"
+                                                        style="width: 100%;" required>
+                                                    {% for year in years %}
+                                                        <option value="{{ year }}"
+                                                                {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="submit" value="Submit">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- end value added hours -->
+            </div>
+            {% if request.user.is_staff %}
+                <div class="col-md-12">
+                    <!-- training hours -->
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head collapse-trigger collapsed" data-toggle="collapse"
+                             data-target="#training-hours">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        Training Hours
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse hide" id="training-hours">
+                            <div class="m-portlet__body">
+                                <form class="m-form" method="post" action="/user_management/add_training_hours">
+                                    {% csrf_token %}
+                                    <div class="m-portlet__body">
+                                        <div class="form-group m-form__group">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <label>Trainee:</label>
+                                                    <select class="form-control m-input"
+                                                            name="trainee_id"
+                                                            style="width: 100%;" required>
+                                                        {% for member in members %}
+                                                            <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label>Hours:</label>
+                                                    <input type="text" name="hours"
+                                                           class="form-control m-input">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label>Month:</label>
+                                                    <select class="form-control m-input"
+                                                            name="month"
+                                                            style="width: 100%;" required>
+                                                        {% for monthNum, monthName in months %}
+                                                            <option value="{{ monthNum }}"
+                                                                    {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label for="year">Year:</label>
+                                                    <select class="form-control m-input"
+                                                            name="year"
+                                                            style="width: 100%;" required>
+                                                        {% for year in years %}
+                                                            <option value="{{ year }}"
+                                                                    {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="submit" value="Submit">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end training hours -->
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
