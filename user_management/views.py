@@ -858,10 +858,12 @@ def member_oops(request, id):
     member = Member.objects.get(id=id)
     # oops = Incident.objects.filter(members__in=member)
     oops = member.incident_set.all()
+    incidents_reported = Incident.objects.filter()
 
     context = {
         'member': member,
-        'oops': oops
+        'incidents': oops,
+        'incidents_reports': incidents_reported
     }
 
     return render(request, 'user_management/profile/oops.html', context)

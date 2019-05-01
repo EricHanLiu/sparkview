@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, Incident, Role, HighFive
+from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
@@ -898,7 +898,7 @@ def new_incident(request):
         members = Member.objects.all()
         platforms = Incident.PLATFORMS
         services = Incident.SERVICES
-        issue_types = Incident.ISSUES
+        issue_types = IncidentReason.objects.all()
 
         context = {
             'accounts': accounts,
@@ -926,7 +926,7 @@ def new_incident(request):
         try:
             issue_type = int(r.get('issue-type'))
         except ValueError:
-            issue_type = 5  # set to other by default
+            issue_type = None  # set to other by default
         if issue_type == 0:
             budget_error_amt = r.get('budget-error')
         else:
@@ -958,7 +958,15 @@ def new_incident(request):
         incident.members.set(members)
 
         incident.description = description
-        incident.issue_type = issue_type
+        if issue_type is not None:
+            try:
+                incident_reason = IncidentReason.objects.get(id=issue_type)
+            except IncidentReason.DoesNotExist:
+                incident_reason = None
+        else:
+            incident_reason = None
+
+        incident.issue = incident_reason
         if budget_error_amt is not None:
             incident.budget_error_amount = budget_error_amt
         incident.platform = platform
