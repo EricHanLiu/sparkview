@@ -3,7 +3,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord
 import datetime
 import calendar
 
@@ -253,6 +253,15 @@ class Member(models.Model):
             hours = record.actual_hours
         return hours
 
+    def actual_hours_today(self):
+        now = datetime.datetime.now()
+        today_start = datetime.datetime(now.year, now.month, now.day)
+
+        hours = AccountHourRecord.objects.filter(member=self, created_at__gte=today_start, is_unpaid=False).aggregate(
+            Sum('hours'))['hours__sum']
+        hours = 0 if hours is None else hours
+        return hours
+
     @property
     def team_string(self):
         return ','.join(str(team) for team in self.team.all())
@@ -271,6 +280,15 @@ class Member(models.Model):
                 Sum('hours'))[
                 'hours__sum']
         return hours if hours is not None else 0
+
+    def value_added_hours_today(self):
+        now = datetime.datetime.now()
+        today_start = datetime.datetime(now.year, now.month, now.day)
+
+        hours = AccountHourRecord.objects.filter(member=self, created_at__gte=today_start, is_unpaid=True).aggregate(
+            Sum('hours'))['hours__sum']
+        hours = 0 if hours is None else hours
+        return hours
 
     @property
     def all_hours_month(self):

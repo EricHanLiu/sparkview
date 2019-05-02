@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load notification_tags %}
+{% load member_tags %}
 <!DOCTYPE html>
 <!--
 Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 4
@@ -82,6 +83,39 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- <body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-aside-left--enabled m-aside-left--skin-light m-aside-left--fixed m-aside-left--offcanvas m-aside-left--minimize m-brand--minimize m-footer--push m-aside--offcanvas-default"  > -->
 <body class="m-page--fluid m--skin- m-content--skin-light2 m-header--fixed m-header--fixed-mobile m-brand--minimize m-footer--push m-aside--offcanvas-default">
 <!-- begin:: Page -->
+
+<!-- Modal for end of day hours summary -->
+{% with member=request.user|get_member %}
+    <div class="modal fade" id="eodPopup" tabindex="-1" role="dialog" aria-labelledby="quickAddModal"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-info">
+                        Day Summary
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="text-info"> Hey {{ request.user.get_short_name }}! </h5>
+                    You have worked
+                    <span style="font-size: 1.3em;"
+                          class="text-info mt-2"> {{ member.actual_hours_today|floatformat:2 }} </span>
+                    hours on billable work and
+                    <span style="font-size: 1.3em;"
+                          class="text-info mt-2"> {{ member.value_added_hours_today|floatformat:2 }} </span>
+                    hours on non-billable work today.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endwith %}
+
 <div class="m-grid m-grid--hor m-grid--root m-page">
     <!-- BEGIN: Header -->
     <header class="m-grid__item    m-header " data-minimize-offset="200" data-minimize-mobile-offset="200">
@@ -817,36 +851,56 @@ License: You must have a valid license purchased only from themeforest(the above
 </script>
 
 <script>
-  /**
-   * This is where we will handle notification confirmation
-   */
-  $(document).ready(function () {
-    let $notificationChecks = $('.notif-check');
-    let $notifCount = $('#notif_count');
-    let $notifDot = $('.notif-dot');
-    $notificationChecks.click(function () {
-      let $el = $(this);
-      let $notif = $(this).closest('.m-list-timeline__item');
-      $.ajax({
-          url: '/notifications/confirm',
-          data: {
-            'notification_id': $(this).data('notification-id')
-          },
-          headers: {'X-CSRFToken': '{{ csrf_token }}'},
-          type: 'POST',
-          success: function (data) {
-            // console.log(data);
-            $el.data('checked', '1');
-            $el.css('color', 'rgb(41, 163, 41)');
-            $notif.fadeOut();
-            $notifCount.val(parseInt($notifCount.val()) - 1);
-            if (parseInt($notifCount.val()) == 0) {
-              $notifDot.hide();
-            }
-          }
-      });
+    /**
+     * This is where we will handle notification confirmation
+     */
+    $(document).ready(function () {
+        let $notificationChecks = $('.notif-check');
+        let $notifCount = $('#notif_count');
+        let $notifDot = $('.notif-dot');
+        $notificationChecks.click(function () {
+            let $el = $(this);
+            let $notif = $(this).closest('.m-list-timeline__item');
+            $.ajax({
+                url: '/notifications/confirm',
+                data: {
+                    'notification_id': $(this).data('notification-id')
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: function (data) {
+                    // console.log(data);
+                    $el.data('checked', '1');
+                    $el.css('color', 'rgb(41, 163, 41)');
+                    $notif.fadeOut();
+                    $notifCount.val(parseInt($notifCount.val()) - 1);
+                    if (parseInt($notifCount.val()) == 0) {
+                        $notifDot.hide();
+                    }
+                }
+            });
+        });
     });
-  });
+
+    /**
+     *  End of day summary popup
+     */
+    function eodSummary()
+    {
+        let now = new Date();
+        let timeTill4PM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0, 0, 0) - now;
+        if (timeTill4PM < 0) {
+            return; // it's already passed 4, no summary needed
+        }
+        setTimeout(function () {
+            $('#eodPopup').modal({
+                backdrop: 'static', // unclosable by (accidentally) clicking backdrop
+                show: true
+            });
+        }, timeTill4PM);
+    }
+    eodSummary();
+
 </script>
 
 <script src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
