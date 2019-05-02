@@ -194,7 +194,7 @@
                     <!-- Assigned members -->
                     <div class="m-portlet__body" style="padding: 1.2rem 1.2rem;">
                         <div class="row">
-                            <div class="col-xl-12">
+                            <div class="col-xl-12" id="assigned-members-display">
                                 {% for role, assigned_member in account.assigned_ams.items %}
                                     <div class="m-card-profile">
                                         <div class="m-card-profile__pic">
@@ -2098,10 +2098,9 @@
         });
 
         // for quick-adding hours
-        let form = $('#quickadd')
+        let form = $('#quickadd');
         form.submit(function(e) {
             e.preventDefault();
-
             $.ajax({
                 url: '/clients/accounts/{{ account.id }}',
                 data: form.serialize(),
@@ -2120,6 +2119,9 @@
                 success: function() {
                     $('#quickAddModal').modal('toggle');
                     toastr.success("Hours submitted successfully!");
+                    let assignedMembersDisplay = $('#assigned-members-display');
+                    // refresh the team display to update hours
+                    assignedMembersDisplay.load(location.href + " #assigned-members-display>*","");
                 }
             });
         });

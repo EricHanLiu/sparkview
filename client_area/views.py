@@ -742,7 +742,7 @@ def account_single(request, id):
         month = request.POST.get('quickadd-month')
         year = request.POST.get('quickadd-year')
 
-        if not request.user.is_staff and not member.has_account(id):
+        if not member.has_account(id):
             return HttpResponseForbidden()
 
         try:

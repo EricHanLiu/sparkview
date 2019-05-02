@@ -11,6 +11,10 @@
         .collapse-trigger:hover {
             background-color: #F8F6F6;
         }
+
+        .quickadd {
+            width: 100%;
+        }
     </style>
 {% endblock %}
 
@@ -70,12 +74,12 @@
                                                        value="{{ account.client_name }}"
                                                        class="form-control m-input" disabled>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Hours:</label>
                                                 <input type="text" name="hours-{{ forloop.counter0 }}"
                                                        class="form-control m-input" required>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label>Month:</label>
                                                 <select class="form-control m-input"
                                                         name="month-{{ forloop.counter0 }}"
@@ -86,7 +90,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label for="year">Year:</label>
                                                 <select class="form-control m-input"
                                                         name="year-{{ forloop.counter0 }}"
@@ -96,6 +100,31 @@
                                                                 {% if year == current_year %}selected{% endif %}>{{ year }}</option>
                                                     {% endfor %}
                                                 </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Quick Add:</label>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <button type="button" class="btn btn-secondary quickadd">
+                                                            +30m
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <button type="button" class="btn btn-secondary quickadd">
+                                                            +1h
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <button type="button" class="btn btn-secondary quickadd">
+                                                            +2h
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <button type="button" class="btn btn-secondary quickadd">
+                                                            +4h
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     {% endfor %}
