@@ -736,9 +736,23 @@ def account_single(request, id):
         return render(request, 'client_area/account_single.html', context)
     elif request.method == 'POST':
         account = Client.objects.get(id=id)
-        # TODO: add hours to member object
+        member = Member.objects.get(user=request.user)
 
-        return redirect('/clients/accounts/' + str(account.id))
+        hours = request.POST.get('quickadd-hours')
+        month = request.POST.get('quickadd-month')
+        year = request.POST.get('quickadd-year')
+
+        if not request.user.is_staff and not member.has_account(id):
+            return HttpResponseForbidden()
+
+        try:
+            hours = float(hours)
+        except (TypeError, ValueError):
+            hours = 0
+
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+
+        return HttpResponse()
 
 
 @login_required

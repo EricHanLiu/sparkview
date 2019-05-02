@@ -2109,8 +2109,17 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
                 type: 'POST',
-                success: function(data) {
+                error: function(jqXHR, error, errorString) {
+                    let message = "Error";
+                    if (errorString === "Forbidden") {
+                        message = "You don't have permission to add hours to this account!";
+                    }
+                    toastr.error(message);
                     $('#quickAddModal').modal('toggle');
+                },
+                success: function() {
+                    $('#quickAddModal').modal('toggle');
+                    toastr.success("Hours submitted successfully!");
                 }
             });
         });
