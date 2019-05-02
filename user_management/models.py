@@ -98,7 +98,7 @@ class Incident(models.Model):
         return self.get_platform_display()
 
     def __str__(self):
-        return 'Incident ' + str(self.id)
+        return 'Incident on ' + str(self.date)
 
 
 class Skill(models.Model):
