@@ -73,7 +73,7 @@
                                             <div class="col-md-3">
                                                 <label>Hours:</label>
                                                 <input type="text" name="hours-{{ forloop.counter0 }}"
-                                                       class="form-control m-input">
+                                                       class="form-control m-input" required>
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Month:</label>
@@ -139,7 +139,7 @@
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label>Hours:</label>
-                                                    <input type="text" name="hours-{{ forloop.counter0 }}"
+                                                    <input type="text" name="hours-{{ forloop.counter0 }}" required
                                                            class="form-control m-input">
                                                 </div>
                                                 <div class="col-md-3">
@@ -209,7 +209,7 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <label>Hours:</label>
-                                                <input type="text" name="hours"
+                                                <input type="text" name="hours" required
                                                        class="form-control m-input">
                                             </div>
                                             <div class="col-md-3">
@@ -265,19 +265,21 @@
                                     <div class="m-portlet__body">
                                         <div class="form-group m-form__group">
                                             <div class="row">
-                                                <div class="col-md-3">
+                                                <div class="col-md-4">
                                                     <label>Trainee:</label>
                                                     <select class="form-control m-input"
                                                             name="trainee_id"
+                                                            id="trainees"
+                                                            multiple
                                                             style="width: 100%;" required>
                                                         {% for member in members %}
                                                             <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
                                                     <label>Hours:</label>
-                                                    <input type="text" name="hours"
+                                                    <input type="text" name="hours" required
                                                            class="form-control m-input">
                                                 </div>
                                                 <div class="col-md-3">
@@ -315,4 +317,13 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#trainees').select2({
+            closeOnSelect: false,
+            placeholder: "Select..."
+        });
+    </script>
 {% endblock %}

@@ -1275,17 +1275,18 @@ def add_training_hours(request):
     # trainer_id = request.POST.get('trainer_id')
     trainer = Member.objects.get(user=request.user)
 
-    trainee_id = request.POST.get('trainee_id')
-    trainee = Member.objects.get(id=trainee_id)
+    trainee_ids = request.POST.getlist('trainee_id')
+    trainees = Member.objects.filter(id__in=trainee_ids)
 
-    if trainer == trainee:
+    if trainer in trainees:
         return HttpResponse('You can\'t train yourself!')
 
     month = request.POST.get('month')
     year = request.POST.get('year')
     hours = request.POST.get('hours')
 
-    TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
+    for trainee in trainees:
+        TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
 
     # return redirect('/clients/accounts/report_hours')
     # keep everything on profile page
