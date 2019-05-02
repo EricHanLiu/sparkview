@@ -12,7 +12,7 @@ file = open('oopsreports.csv', 'r')
 reader = csv.reader(file, delimiter=',')
 count = 0
 for row in reader:
-    # skip first line
+    # skip first lines
     if count < 2:
         count += 1
         continue
@@ -21,12 +21,10 @@ for row in reader:
     incident = Incident()
 
     email = row[1]
-    name = email.split('@')[0].capitalize()
-    print(name)
-    if name == "Genevieve":
-        incident.reporter = Member.objects.get(user__first_name='Geneviève')
-    elif name != "Arnaud":  # probably old member no longer exists
-        incident.reporter = Member.objects.get(user__first_name__contains=name)
+    try:
+        incident.reporter = Member.objects.get(user__email=email)
+    except Member.DoesNotExist:  # old member no longer exists
+        incident.reporter = None
     incident.service = 6  # none
     try:
         incident.account = Client.objects.get(client_name=row[17])
@@ -49,12 +47,21 @@ for row in reader:
     incident.description = row[15]  # additional comments
 
     # parse incident type
-    issue_str = row[2].lower()
-    incident_reason = IncidentReason.objects.get(name__contains=issue_str)
+    issue_str = row[2]
+    print(issue_str)
+    try:
+        incident_reason = IncidentReason.objects.get(name=issue_str)
+    except IncidentReason.DoesNotExist:
+        incident_reason = IncidentReason.objects.get(id=25)  # other issue
     incident.issue = incident_reason
 
+    if incident_reason.id == 1:
+        amount = ''.join(x for x in row[3] if x.isdigit())  # will be inaccurate for sums and things like 1K$
+        incident.budget_error_amount = 0
+        if amount != '':
+            incident.budget_error_amount = float(amount)
     # parse platform type
-    platform = row[9].lower()
+    platform = row[9].lower().split(',')[0]
     if platform == 'adwords':
         incident.platform = 0
     elif platform == 'facebook':
