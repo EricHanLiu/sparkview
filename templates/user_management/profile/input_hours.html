@@ -11,10 +11,6 @@
         .collapse-trigger:hover {
             background-color: #F8F6F6;
         }
-
-        .quickadd {
-            width: 100%;
-        }
     </style>
 {% endblock %}
 
@@ -101,27 +97,29 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-3" data-toggle="m-tooltip"
+                                                 data-original-title="For the selected date">
                                                 <label>Quick Add:</label>
                                                 <div class="row">
-                                                    <div class="col-md-3">
-                                                        <button type="button" class="btn btn-secondary quickadd">
+                                                    <div class="col-md-4">
+                                                        <button type="button"
+                                                                class="btn btn-info quickadd-{{ account.id }}"
+                                                                style="width: 100%;">
+                                                            +15m
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <button type="button"
+                                                                class="btn btn-info quickadd-{{ account.id }}"
+                                                                style="width: 100%;">
                                                             +30m
                                                         </button>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <button type="button" class="btn btn-secondary quickadd">
+                                                    <div class="col-md-4">
+                                                        <button type="button"
+                                                                class="btn btn-info quickadd-{{ account.id }}"
+                                                                style="width: 100%;">
                                                             +1h
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <button type="button" class="btn btn-secondary quickadd">
-                                                            +2h
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <button type="button" class="btn btn-secondary quickadd">
-                                                            +4h
                                                         </button>
                                                     </div>
                                                 </div>
@@ -151,7 +149,7 @@
                     <div class="collapse hide" id="mandate-hours">
                         <div class="m-portlet__body">
                             <form class="m-form" method="post"
-                              action="/user_management/members/{{ member.id }}/input_mandate">
+                                  action="/user_management/members/{{ member.id }}/input_mandate">
                                 {% csrf_token %}
                                 <div class="m-portlet__body">
                                     <div class="form-group m-form__group">
@@ -354,5 +352,42 @@
             closeOnSelect: false,
             placeholder: "Select..."
         });
+
+        let i = 0; // index of account row
+        {% for account in accounts %}
+            let id = '{{ account.id }}';
+            $('.quickadd-{{ account.id }}').click(function () {
+                let amt = parseInt($(this).text());
+                if (amt === 15) {
+                    amt = 0.25;
+                } else if (amt === 30) {
+                    amt = 0.5;
+                }
+                let month = $('[name=month-' + i).val();
+                let year = $('[name=year-' + i).val();
+
+                $.ajax({
+                    url: '',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    type: 'POST',
+                    data: {
+                        ['account-id-' + i]: id,
+                        ['hours-' + i]: amt,
+                        ['month-' + i]: month,
+                        ['year-' + i]: year,
+                    },
+                    success: function () {
+                        let plural = amt === 1 ? '' : 's'; // pluralize hour
+                        toastr.success('Successfully added ' + amt + ' hour' + plural + '!');
+                    }
+                });
+            });
+        {% endfor %}
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
     </script>
 {% endblock %}
