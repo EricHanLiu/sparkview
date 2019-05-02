@@ -1287,8 +1287,9 @@ def add_training_hours(request):
 
     TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
 
-    return redirect('/clients/accounts/report_hours')
-
+    # return redirect('/clients/accounts/report_hours')
+    # keep everything on profile page
+    return redirect('/user_management/members/' + str(trainer.id) + '/input_hours')
 
 @login_required
 def late_onboard(request):

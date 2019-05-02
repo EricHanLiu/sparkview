@@ -957,7 +957,9 @@ def value_added_hours(request):
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
                                          is_unpaid=True)
 
-        return redirect('/clients/accounts/report_hours')
+        # return redirect('/clients/accounts/report_hours')
+        # keep everything on profile page
+        return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
 
 @login_required
