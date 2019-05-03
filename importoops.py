@@ -48,11 +48,13 @@ for row in reader:
 
     # parse incident type
     issue_str = row[2]
-    print(issue_str)
     try:
         incident_reason = IncidentReason.objects.get(name=issue_str)
     except IncidentReason.DoesNotExist:
-        incident_reason = IncidentReason.objects.get(id=25)  # other issue
+        try:
+            incident_reason = IncidentReason.objects.get(id=25)  # other issue
+        except IncidentReason.DoesNotExist:
+            incident_reason = None
     incident.issue = incident_reason
 
     if incident_reason.id == 1:
