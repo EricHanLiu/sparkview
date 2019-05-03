@@ -174,6 +174,7 @@ class Member(models.Model):
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
     image = models.CharField(max_length=255, null=True, default=None, blank=True)
+    last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage = models.FloatField(null=True, blank=True, default=100)
@@ -185,6 +186,10 @@ class Member(models.Model):
     buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
+
+    @property
+    def viewed_summary_today(self):
+        return self.last_viewed_summary == datetime.date.today()
 
     @property
     def learning_hours(self):

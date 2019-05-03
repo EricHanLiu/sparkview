@@ -85,6 +85,8 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- begin:: Page -->
 
 <!-- Modal for end of day hours summary -->
+{% is_eod as eod %}
+{% if eod %}
 {% with member=request.user|get_member %}
     <div class="modal fade" id="eodPopup" tabindex="-1" role="dialog" aria-labelledby="quickAddModal"
          aria-hidden="true">
@@ -99,6 +101,7 @@ License: You must have a valid license purchased only from themeforest(the above
                     </button>
                 </div>
                 <div class="modal-body">
+                    <p>
                     <h5 class="text-info"> Hey {{ request.user.get_short_name }}! </h5>
                     You have worked
                     <span style="font-size: 1.3em;"
@@ -106,7 +109,12 @@ License: You must have a valid license purchased only from themeforest(the above
                     hours on billable work and
                     <span style="font-size: 1.3em;"
                           class="text-info mt-2"> {{ member.value_added_hours_today|floatformat:2 }} </span>
-                    hours on non-billable work today.
+                    hours on non-billable work today. </p>
+                    <p>
+                        If these hours seem inaccurate, then don't forget to <a
+                            href="/user_management/members/{{ member.id }}/input_hours">input your hours for the
+                        day!</a>
+                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" data-dismiss="modal">Got it!</button>
@@ -115,6 +123,7 @@ License: You must have a valid license purchased only from themeforest(the above
         </div>
     </div>
 {% endwith %}
+{% endif %}
 
 <div class="m-grid m-grid--hor m-grid--root m-page">
     <!-- BEGIN: Header -->
@@ -885,20 +894,37 @@ License: You must have a valid license purchased only from themeforest(the above
     /**
      *  End of day summary popup
      */
+    {% with member=request.user|get_member %}
     function eodSummary()
     {
         let now = new Date();
-        let timeTill4PM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0, 0, 0) - now;
-        if (timeTill4PM < 0) {
-            return; // it's already passed 4, no summary needed
+        let pastFourPM = now >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 0, 0, 0);
+        let hasViewedToday = '{{ member.viewed_summary_today }}';
+
+        if (!pastFourPM || hasViewedToday === 'True') {
+            // don't display if not time yet or user has already viewed today
+            return;
         }
-        setTimeout(function () {
-            $('#eodPopup').modal({
-                backdrop: 'static', // unclosable by (accidentally) clicking backdrop
-                show: true
-            });
-        }, timeTill4PM);
+
+        $('#eodPopup').modal({
+            backdrop: 'static', // unclosable by (accidentally) clicking backdrop
+            show: true
+        });
+
+        // store that the user viewed this today
+        $.ajax({
+            url: '/user_management/view_summary',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            type: 'POST',
+            success: function () {
+                console.log('Success');
+            }
+        });
     }
+    {% endwith %}
+
     eodSummary();
 
 </script>

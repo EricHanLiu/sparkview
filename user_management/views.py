@@ -952,9 +952,12 @@ def input_hours_profile(request, id):
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
         ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
         accounts_count = accounts.count()
+
         for i in range(accounts_count):
             i = str(i)
             account_id = request.POST.get('account-id-' + i)
+            if account_id is None:
+                continue  # ajax request for just one account
             account = Client.objects.get(id=account_id)
 
             if not request.user.is_staff and not member.has_account(account_id):
@@ -1074,6 +1077,16 @@ def skills_new(request):
         return redirect('/user_management/skills')
     else:
         return HttpResponse('Invalid request type')
+
+
+@login_required
+def view_summary(request):
+    member = Member.objects.get(user=request.user)
+    today = datetime.date.today()
+    member.last_viewed_summary = today
+    member.save()
+
+    return HttpResponse()
 
 
 @login_required
@@ -1291,6 +1304,7 @@ def add_training_hours(request):
     # return redirect('/clients/accounts/report_hours')
     # keep everything on profile page
     return redirect('/user_management/members/' + str(trainer.id) + '/input_hours')
+
 
 @login_required
 def late_onboard(request):
