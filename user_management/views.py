@@ -569,12 +569,7 @@ def members_single(request, id=0):
     lastday_month = next_month + relativedelta(days=-1)
     black_marker = (now.day / lastday_month.day) * 100
 
-    accounts = Client.objects.filter(
-        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
-        Q(am1=member) | Q(am2=member) | Q(am3=member) |
-        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=1).order_by('client_name')
+    accounts = member.active_accounts
 
     onboarding_accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |

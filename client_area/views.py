@@ -483,15 +483,17 @@ def account_edit_temp(request, id):
             sp.seo_status = 1
             account.seo_hours = seo_hours
         else:
-            sp.seo_status = 6
-            account.seo_hours = 0.0
+            if sp.seo_status != 2:
+                sp.seo_status = 6
+                account.seo_hours = 0.0
 
         if cro_hours != '' and float(cro_hours) != 0.0:
             sp.cro_status = 1
             account.cro_hours = cro_hours
         else:
-            sp.cro_status = 6
-            account.cro_hours = 0.0
+            if sp.cro_status != 2:
+                sp.cro_status = 6
+                account.cro_hours = 0.0
 
         sp.save()
 

@@ -1287,6 +1287,13 @@ class Client(models.Model):
             self._active_mandates = mandates
         return self._active_mandates
 
+    def create_onboarding_steps(self):
+        """
+        Creates onboarding steps
+        :return:
+        """
+        pass
+
     def hybrid_projection(self, method):
         projection = self.current_spend
         now = datetime.datetime.today() - datetime.timedelta(1)

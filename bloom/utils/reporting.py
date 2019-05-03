@@ -87,46 +87,46 @@ class Reporting:
         if change > 25:
             score = 100
             message = 'Your ' + parameter + ' has increased significantly over the last 3 months.\n' \
-            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
+                                            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 20:
             score = 90
             message = 'Your ' + parameter + ' has increased significantly over the last 3 months.\n' \
-            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
+                                            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 10:
             score = 80
             message = 'Your ' + parameter + ' has increased significantly over the last 3 months.\n' \
-            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
+                                            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 5:
             score = 70
             message = 'Your ' + parameter + ' has increased slightly over the last 3 months.\n' \
-            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
+                                            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change > 0:
             score = 60
             message = 'Your ' + parameter + ' has increased slightly over the last 3 months.\n' \
-            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
+                                            'One of the changes done recently has significantly improved the performance of the account in regards to ' + parameter + '.'
         elif change == 0:
             score = 50
             message = 'Your ' + parameter + ' has not changed over the last 3 months.\n'
         elif 0 > change > -4.99:
             score = 40
             message = 'Your ' + parameter + ' has decreased slightly over the last 3 months.\n' \
-            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' drop.'
+                                            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' drop.'
         elif -5 > change > -9.99:
             score = 30
             message = 'Your ' + parameter + ' has decreased slightly over the last 3 months.\n' \
-            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' drop.'
+                                            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' drop.'
         elif -10 > change > -19.99:
             score = 20
             message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
-            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
+                                            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
         elif -20 > change > -24.99:
             score = 10
             message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
-            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
+                                            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
         elif -25 > change:
             score = 0
             message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
-            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
+                                            'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
         return (score, message)
 
     @staticmethod
@@ -139,7 +139,6 @@ class Reporting:
         ag_bid_modifier_counter = 0
         ads_counter = 0
         kw_counter = 0
-
 
         if account_changes['changedCampaigns']:
             for data in account_changes['changedCampaigns']:
@@ -166,13 +165,14 @@ class Reporting:
                                 kw_counter += len(ad_group_data['changedCriteria'])
                             if 'removedCriteria' in ad_group_data and len(ad_group_data['removedCriteria']) > 0:
                                 kw_counter += len(ad_group_data['removedCriteria'])
-                            if 'changedAdGroupBidModifierCriteria' in ad_group_data and len(ad_group_data['changedAdGroupBidModifierCriteria']) > 0:
+                            if 'changedAdGroupBidModifierCriteria' in ad_group_data and len(
+                                    ad_group_data['changedAdGroupBidModifierCriteria']) > 0:
                                 ag_bid_modifier_counter += len(ad_group_data['changedAdGroupBidModifierCriteria'])
-                            if 'removedAdGroupBidModifierCriteria' in ad_group_data and len(ad_group_data['removedAdGroupBidModifierCriteria']) > 0:
+                            if 'removedAdGroupBidModifierCriteria' in ad_group_data and len(
+                                    ad_group_data['removedAdGroupBidModifierCriteria']) > 0:
                                 ag_bid_modifier_counter += len(ad_group_data['removedAdGroupBidModifierCriteria'])
 
             change_counter = change_counter + cmp_counter + ag_counter + ads_counter + kw_counter + cmp_criteria_counter + ag_bid_modifier_counter
-
 
         return change_counter
 
@@ -255,7 +255,7 @@ class Reporting:
 
             difference[k] = dict1[k]
 
-        summary = {k.replace('.', '').replace('/',''): [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
+        summary = {k.replace('.', '').replace('/', ''): [difference[k], dict1[k], dict2[k]] for k in intersect_keys}
 
         return summary
 
@@ -532,7 +532,7 @@ class BingReporting(Reporting):
         filters = self.reporting_service.factory.create(
             "CampaignPerformanceReportFilter"
         )
-        #filters.Status = ["Active"]
+        # filters.Status = ["Active"]
 
         return filters
 
@@ -1059,7 +1059,6 @@ class AdwordsReporting(Reporting):
 
         return query
 
-
     def get_sqr_performance_query(
             self,
             dateRangeType="LAST_14_DAYS",
@@ -1111,7 +1110,6 @@ class AdwordsReporting(Reporting):
             )
 
         return query
-
 
     def mcv(self, cost):
         c = float(cost)
@@ -1201,7 +1199,6 @@ class AdwordsReportingService(AdwordsReporting):
 
         return self.parse_report_csv(downloaded_report)
 
-
     def get_sqr_performance(self, customer_id=None, **kwargs):
         client = self.client
 
@@ -1218,7 +1215,6 @@ class AdwordsReportingService(AdwordsReporting):
         )
 
         return self.parse_report_csv(downloaded_report)
-
 
     def get_account_quality_score(self, customer_id=None, **kwargs):
 
@@ -1387,7 +1383,6 @@ class AdwordsReportingService(AdwordsReporting):
             client.client_customer_id = customer_id
 
         service = client.GetService('ConversionTrackerService', version=self.api_version)
-
 
         fields = ['AttributionModelType']
 
