@@ -868,6 +868,34 @@ def new_high_five(request):
 
         high_five.save()
 
+        # send email to mailing list
+        mailing_list = {
+            'lexi@makeitbloom.com',
+            'marina@makeitbloom.com',
+            'xurxo@makeitbloom.com',
+            'phil@makeitbloom.com',
+            'antoine@makeitbloom.com',
+            'jessica@makeitbloom.com',
+            'franck@makeitbloom.com',
+            'mike@makeitbloom.com',
+            'nick@makeitbloom.com',
+            'martin@makeitbloom.com',
+            'jeff@makeitbloom.com',
+            'joelle@makeitbloom.com',
+            'jamie@makeitbloom.com'
+            'genevieve.b@makeitbloom.com',
+            'dorian@makeitbloom.com'
+        }
+        mail_details = {
+            'hf': high_five
+        }
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_high_five.html', mail_details)
+
+        send_mail(
+            'New High Five Created', msg_html,
+            EMAIL_HOST_USER, mailing_list, fail_silently=False, html_message=msg_html)
+
         return redirect('/reports/high_fives')
 
 
