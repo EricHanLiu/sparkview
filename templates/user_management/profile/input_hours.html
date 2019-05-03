@@ -353,7 +353,13 @@
             placeholder: "Select..."
         });
 
-        let len = {{ accounts.count }}
+        // get list of account names for quickadd success message
+        let accountNames = [];
+        {% for account in accounts %}
+            accountNames.push('{{ account.client_name }}');
+        {% endfor %}
+        console.log(accountNames);
+        let len = accountNames.length;
 
         $(document).ready(() => {
             for (let i = 0; i < len; i++)
@@ -361,6 +367,7 @@
                 $('.quickadd-' + i).click(function () {
                     let classes = $(this).attr('class').split(' ');
                     let id = parseInt(classes[classes.length - 1]); // get last class which is account id
+                    let acc_name = accountNames[i];
 
                     let amt = parseInt($(this).text());
                     if (amt === 15) {
@@ -387,7 +394,7 @@
                         data: data,
                         success: function () {
                             let plural = amt === 1 ? '' : 's'; // pluralize hour
-                            toastr.success('Successfully added ' + amt + ' hour' + plural + '!');
+                            toastr.success('Successfully added ' + amt + ' hour' + plural + ' to account ' + acc_name + '!');
                         }
                     });
                 });
