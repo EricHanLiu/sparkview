@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseForbidden
+from django.core.mail import send_mail
+from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
+from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
@@ -865,6 +868,34 @@ def new_high_five(request):
 
         high_five.save()
 
+        # send email to mailing list
+        mailing_list = {
+            'lexi@makeitbloom.com',
+            'marina@makeitbloom.com',
+            'xurxo@makeitbloom.com',
+            'phil@makeitbloom.com',
+            'antoine@makeitbloom.com',
+            'jessica@makeitbloom.com',
+            'franck@makeitbloom.com',
+            'mike@makeitbloom.com',
+            'nick@makeitbloom.com',
+            'martin@makeitbloom.com',
+            'jeff@makeitbloom.com',
+            'joelle@makeitbloom.com',
+            'jamie@makeitbloom.com'
+            'genevieve.b@makeitbloom.com',
+            'dorian@makeitbloom.com'
+        }
+        mail_details = {
+            'hf': high_five
+        }
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_high_five.html', mail_details)
+
+        send_mail(
+            'New High Five Created', msg_html,
+            EMAIL_HOST_USER, mailing_list, fail_silently=False, html_message=msg_html)
+
         return redirect('/reports/high_fives')
 
 
@@ -928,8 +959,8 @@ def new_incident(request):
         description = r.get('issue-description')
         try:
             issue_type = int(r.get('issue-type'))
-        except ValueError:
-            issue_type = None  # set to other by default
+        except (ValueError, TypeError):
+            issue_type = None
         if issue_type == 0:
             budget_error_amt = r.get('budget-error')
         else:
@@ -979,6 +1010,34 @@ def new_incident(request):
         incident.justification = justification
 
         incident.save()
+
+        # send email to mailing list
+        mailing_list = {
+            'lexi@makeitbloom.com',
+            'marina@makeitbloom.com',
+            'xurxo@makeitbloom.com',
+            'phil@makeitbloom.com',
+            'antoine@makeitbloom.com',
+            'jessica@makeitbloom.com',
+            'franck@makeitbloom.com',
+            'mike@makeitbloom.com',
+            'nick@makeitbloom.com',
+            'martin@makeitbloom.com',
+            'jeff@makeitbloom.com',
+            'joelle@makeitbloom.com',
+            'jamie@makeitbloom.com'
+            'genevieve.b@makeitbloom.com',
+            'dorian@makeitbloom.com'
+        }
+        mail_details = {
+            'incident': incident
+        }
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_incident.html', mail_details)
+
+        send_mail(
+            'New Oops Report Created', msg_html,
+            EMAIL_HOST_USER, mailing_list, fail_silently=False, html_message=msg_html)
 
         return redirect('/reports/oops')
 

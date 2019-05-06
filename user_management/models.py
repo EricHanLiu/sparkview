@@ -3,7 +3,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord
 import datetime
 import calendar
 
@@ -98,7 +98,7 @@ class Incident(models.Model):
         return self.get_platform_display()
 
     def __str__(self):
-        return 'Incident ' + str(self.id)
+        return 'Incident on ' + str(self.date)
 
 
 class Skill(models.Model):
@@ -174,6 +174,7 @@ class Member(models.Model):
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
     image = models.CharField(max_length=255, null=True, default=None, blank=True)
+    last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage = models.FloatField(null=True, blank=True, default=100)
@@ -185,6 +186,10 @@ class Member(models.Model):
     buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
+
+    @property
+    def viewed_summary_today(self):
+        return self.last_viewed_summary == datetime.date.today()
 
     @property
     def learning_hours(self):
@@ -253,6 +258,15 @@ class Member(models.Model):
             hours = record.actual_hours
         return hours
 
+    def actual_hours_today(self):
+        now = datetime.datetime.now()
+        today_start = datetime.datetime(now.year, now.month, now.day)
+
+        hours = AccountHourRecord.objects.filter(member=self, created_at__gte=today_start, is_unpaid=False).aggregate(
+            Sum('hours'))['hours__sum']
+        hours = 0 if hours is None else hours
+        return hours
+
     @property
     def team_string(self):
         return ','.join(str(team) for team in self.team.all())
@@ -271,6 +285,15 @@ class Member(models.Model):
                 Sum('hours'))[
                 'hours__sum']
         return hours if hours is not None else 0
+
+    def value_added_hours_today(self):
+        now = datetime.datetime.now()
+        today_start = datetime.datetime(now.year, now.month, now.day)
+
+        hours = AccountHourRecord.objects.filter(member=self, created_at__gte=today_start, is_unpaid=True).aggregate(
+            Sum('hours'))['hours__sum']
+        hours = 0 if hours is None else hours
+        return hours
 
     @property
     def all_hours_month(self):
