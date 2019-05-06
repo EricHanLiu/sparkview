@@ -882,7 +882,7 @@ def new_high_five(request):
             'martin@makeitbloom.com',
             'jeff@makeitbloom.com',
             'joelle@makeitbloom.com',
-            'jamie@makeitbloom.com'
+            'jamie@makeitbloom.com',
             'genevieve.b@makeitbloom.com',
             'dorian@makeitbloom.com'
         }
@@ -1025,7 +1025,7 @@ def new_incident(request):
             'martin@makeitbloom.com',
             'jeff@makeitbloom.com',
             'joelle@makeitbloom.com',
-            'jamie@makeitbloom.com'
+            'jamie@makeitbloom.com',
             'genevieve.b@makeitbloom.com',
             'dorian@makeitbloom.com'
         }
