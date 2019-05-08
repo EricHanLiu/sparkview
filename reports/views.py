@@ -9,6 +9,7 @@ from user_management.models import Member, Team, Incident, Role, HighFive, Incid
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
+from django.conf import settings
 import datetime
 import calendar
 from urllib.parse import parse_qs
@@ -868,24 +869,6 @@ def new_high_five(request):
 
         high_five.save()
 
-        # send email to mailing list
-        mailing_list = {
-            'lexi@makeitbloom.com',
-            'marina@makeitbloom.com',
-            'xurxo@makeitbloom.com',
-            'phil@makeitbloom.com',
-            'antoine@makeitbloom.com',
-            'jessica@makeitbloom.com',
-            'franck@makeitbloom.com',
-            'mike@makeitbloom.com',
-            'nick@makeitbloom.com',
-            'martin@makeitbloom.com',
-            'jeff@makeitbloom.com',
-            'joelle@makeitbloom.com',
-            'jamie@makeitbloom.com'
-            'genevieve.b@makeitbloom.com',
-            'dorian@makeitbloom.com'
-        }
         mail_details = {
             'hf': high_five
         }
@@ -894,7 +877,7 @@ def new_high_five(request):
 
         send_mail(
             'New High Five Created', msg_html,
-            EMAIL_HOST_USER, mailing_list, fail_silently=False, html_message=msg_html)
+            EMAIL_HOST_USER, settings.OOPS_HF_MAILING_LIST, fail_silently=False, html_message=msg_html)
 
         return redirect('/reports/high_fives')
 
@@ -1012,23 +995,6 @@ def new_incident(request):
         incident.save()
 
         # send email to mailing list
-        mailing_list = {
-            'lexi@makeitbloom.com',
-            'marina@makeitbloom.com',
-            'xurxo@makeitbloom.com',
-            'phil@makeitbloom.com',
-            'antoine@makeitbloom.com',
-            'jessica@makeitbloom.com',
-            'franck@makeitbloom.com',
-            'mike@makeitbloom.com',
-            'nick@makeitbloom.com',
-            'martin@makeitbloom.com',
-            'jeff@makeitbloom.com',
-            'joelle@makeitbloom.com',
-            'jamie@makeitbloom.com'
-            'genevieve.b@makeitbloom.com',
-            'dorian@makeitbloom.com'
-        }
         mail_details = {
             'incident': incident
         }
@@ -1037,7 +1003,7 @@ def new_incident(request):
 
         send_mail(
             'New Oops Report Created', msg_html,
-            EMAIL_HOST_USER, mailing_list, fail_silently=False, html_message=msg_html)
+            EMAIL_HOST_USER, settings.OOPS_HF_MAILING_LIST, fail_silently=False, html_message=msg_html)
 
         return redirect('/reports/oops')
 

@@ -80,7 +80,7 @@
             </td>
             <td style="border: 1px solid #e2e2e2;">
                 {% for member in incident.members.all %}
-                    member.user.get_full_name }}
+                    {{ member.user.get_full_name }}
                     {% if not forloop.last %}, {% endif %}
                 {% endfor %}
             </td>

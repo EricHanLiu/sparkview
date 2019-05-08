@@ -358,7 +358,6 @@
         {% for account in accounts %}
             accountNames.push('{{ account.client_name }}');
         {% endfor %}
-        console.log(accountNames);
         let len = accountNames.length;
 
         $(document).ready(() => {
