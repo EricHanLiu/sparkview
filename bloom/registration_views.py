@@ -9,12 +9,6 @@ import json
 
 def index(request):
     if request.user.is_authenticated:
-        if request.user.is_staff:
-            try:
-                member = Member.objects.get(user=request.user)
-            except Member.DoesNotExist:
-                return redirect('/user_management/profile')
-            return redirect('/user_management/members/' + str(member.id) + '/dashboard')
         return redirect('/user_management/profile')
 
     return render(request, 'login/login.html')
