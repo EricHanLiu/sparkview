@@ -53,7 +53,7 @@ class HighFive(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return 'High Five ' + str(self.id)
+        return 'High Five on ' + str(self.date)
 
 
 class IncidentReason(models.Model):
