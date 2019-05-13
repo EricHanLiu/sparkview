@@ -108,7 +108,7 @@ def member_dashboard(request, id):
         Q(cm1__in=members) | Q(cm2__in=members) | Q(cm3__in=members) | Q(am1__in=members) | Q(am2__in=members) | Q(
             am3__in=members) | Q(seo1__in=members) | Q(seo2__in=members) | Q(seo3__in=members) | Q(
             strat1__in=members) | Q(
-            strat2__in=members) | Q(strat3__in=members))
+            strat2__in=members) | Q(strat3__in=members)).order_by('client_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -588,7 +588,7 @@ def members_single(request, id=0):
 
     backing_me = backup_periods.filter(member=member)
 
-    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
+    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
 
     accountHours = {}
     accountAllocation = {}
@@ -1201,7 +1201,7 @@ def backups(request):
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
     members = Member.objects.all()
-    accounts = Client.objects.filter(Q(status=0) | Q(status=1))
+    accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,

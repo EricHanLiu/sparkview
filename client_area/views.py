@@ -47,7 +47,7 @@ def accounts_team(request):
 
     accounts = {}
     for team in teams.all():
-        accounts[team.id] = Client.objects.filter(team=team).filter(Q(status=1) | Q(status=0))
+        accounts[team.id] = Client.objects.filter(team=team).filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -66,7 +66,7 @@ def accounts_all(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(Q(status=1) | Q(status=0))
+    accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -84,7 +84,7 @@ def accounts_inactive(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(status=2)
+    accounts = Client.objects.filter(status=2).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -102,7 +102,7 @@ def accounts_lost(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(status=3)
+    accounts = Client.objects.filter(status=3).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -123,7 +123,7 @@ def account_new(request):
     if request.method == 'GET':
         teams = Team.objects.all()
         client_types = ClientType.objects.all()
-        clients = ParentClient.objects.all()
+        clients = ParentClient.objects.all().order_by('name')
         industries = Industry.objects.all()
         languages = Language.objects.all()
         members = Member.objects.all()
