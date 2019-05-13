@@ -11,7 +11,7 @@ import calendar
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment
+    MandateAssignment, Mandate
 from notifications.models import Notification
 
 
@@ -597,6 +597,8 @@ def members_single(request, id=0):
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
 
+    mandates = Mandate.objects.all()
+
     context = {
         'accountHours': accountHours,
         'accountAllocation': accountAllocation,
@@ -607,6 +609,7 @@ def members_single(request, id=0):
         'backing_me': backing_me,
         'star_accounts': star_accounts,
         'black_marker': black_marker,
+        'mandates': mandates
     }
 
     return render(request, 'user_management/profile/profile.html', context)
