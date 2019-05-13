@@ -408,11 +408,11 @@ def new_member(request):
         skills = Skill.objects.all()
 
         for skill in skills:
-            skillValue = request.POST.get('skill_' + skill.name)
-            if skillValue is None:
-                skillValue = 0
+            skill_value = request.POST.get('skill_' + skill.name)
+            if skill_value is None:
+                skill_value = 0
 
-            SkillEntry.objects.create(skill=skill, member=member, score=skillValue)
+            SkillEntry.objects.create(skill=skill, member=member, score=skill_value)
 
         return redirect('/user_management/members')
     else:
@@ -458,14 +458,14 @@ def edit_member(request, id):
         # Update skills
         skills = Skill.objects.all()
         for skill in skills:
-            skillScore = request.POST.get('skill_' + skill.name)
+            skill_score = request.POST.get('skill_' + skill.name)
             try:
-                skillEntry = SkillEntry.objects.get(skill=skill, member=member)
+                skill_entry = SkillEntry.objects.get(skill=skill, member=member)
             except SkillEntry.DoesNotExist:
-                skillEntry = SkillEntry(skill=skill, member=member)
+                skill_entry = SkillEntry(skill=skill, member=member)
 
-            skillEntry.score = skillScore
-            skillEntry.save()
+            skill_entry.score = skill_score
+            skill_entry.save()
 
         # Set all of the member skills with the edited variables
         # User parameters
@@ -496,14 +496,14 @@ def edit_member(request, id):
         teams = Team.objects.all()
         roles = Role.objects.all()
         member_skills = SkillEntry.objects.filter(member=member)
-        skillOptions = [0, 1, 2, 3]
+        skill_options = [0, 1, 2, 3]
 
         context = {
             'member': member,
             'teams': teams,
             'roles': roles,
             'member_skills': member_skills,
-            'skillOptions': skillOptions
+            'skillOptions': skill_options
         }
 
         return render(request, 'user_management/edit_member.html', context)
@@ -569,7 +569,13 @@ def members_single(request, id=0):
     lastday_month = next_month + relativedelta(days=-1)
     black_marker = (now.day / lastday_month.day) * 100
 
-    accounts = member.active_accounts
+    # accounts = member.active_accounts
+    accounts = Client.objects.filter(
+        Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+        Q(am1=member) | Q(am2=member) | Q(am3=member) |
+        Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+    ).filter(status=1).order_by('client_name')
 
     onboarding_accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |

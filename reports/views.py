@@ -692,7 +692,7 @@ def account_history(request):
     default_year = now.year
 
     months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
-    years = ['2018', '2019', '2020']
+    years = [str(i) for i in range(2018, now.year + 1)]
 
     selected = {
         'account': 'all',
@@ -722,7 +722,7 @@ def account_history(request):
     for account in accounts:
         try:
             bh = AccountBudgetSpendHistory.objects.get(month=month, year=year, account=account)
-        except:
+        except AccountAllocatedHoursHistory.DoesNotExist:
             continue
 
         allocated_history = AccountAllocatedHoursHistory.objects.filter(month=month, year=year, account=account).values(
@@ -734,7 +734,7 @@ def account_history(request):
         actual_hours = account.actual_hours_month_year(month, year)
         try:
             actual_hours_ratio = actual_hours / allocated_hours
-        except:
+        except ZeroDivisionError:
             actual_hours_ratio = 'N/A'
 
         tmpa = []
