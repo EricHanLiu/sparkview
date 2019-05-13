@@ -17,7 +17,9 @@ class RoleGroup(models.Model):
 
 
 class Role(models.Model):
-    """ Role at the company (example, Campaign Manager) """
+    """
+    Role at the company (example, Campaign Manager)
+    """
     name = models.CharField(max_length=255)
     group = models.ForeignKey(RoleGroup, models.SET_NULL, blank=True, null=True)
 
@@ -26,18 +28,19 @@ class Role(models.Model):
 
 
 class Team(models.Model):
-    """ Class to represent the different teams at Bloom """
+    """
+    Class to represent the different teams at Bloom
+    """
     name = models.CharField(max_length=255)
 
-    def get_members(self):
+    @property
+    def members(self):
         return list(Member.objects.filter(team=self))
 
     @property
     def team_lead(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self], role=role)
-
-    members = property(get_members)
 
     def __str__(self):
         return self.name
@@ -140,7 +143,9 @@ class Skill(models.Model):
 
 
 class SkillEntry(models.Model):
-    """ Actually sets a score to the skill for a member """
+    """
+    Actually sets a score to the skill for a member
+    """
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
     score = models.IntegerField(null=True, blank=True, default=None)
@@ -155,7 +160,9 @@ class SkillEntry(models.Model):
 
 
 class SkillHistory(models.Model):
-    """ Keeps track of all skill entries, not only current """
+    """
+    Keeps track of all skill entries, not only current
+    """
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
     score = models.IntegerField(null=True, blank=True, default=None)

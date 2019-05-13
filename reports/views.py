@@ -860,6 +860,7 @@ def new_high_five(request):
         except ValueError:  # if invalid date format given, get current date
             high_five.date = datetime.datetime.today().strftime('%Y-%m-%d')
 
+        high_five.nominator = Member.objects.get(id=r.get('nominator'))
         high_five.member = Member.objects.get(id=r.get('member'))
         high_five.description = r.get('description')
 
