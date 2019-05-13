@@ -37,9 +37,7 @@ def main():
             record.allocated_hours = allocated_hours_month
             record.save()
 
-        """
-        Do spend and budget
-        """
+        # Do spend and budget
         account_budget_history, created = AccountBudgetSpendHistory.objects.get_or_create(account=account, month=month,
                                                                                           year=year)
         account_budget_history.aw_budget = account.aw_budget
