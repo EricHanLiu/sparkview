@@ -48,7 +48,8 @@ class HighFive(models.Model):
     High Fives
     """
     date = models.DateField(default=None, null=True, blank=True)
-    member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True)
+    nominator = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True, related_name='nominator')
+    member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True, related_name='awarded_member')
     description = models.CharField(max_length=2000, default='')
     created = models.DateTimeField(auto_now_add=True)
 
