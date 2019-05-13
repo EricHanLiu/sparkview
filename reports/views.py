@@ -22,7 +22,7 @@ def agency_overview(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     # Get account related metrics
-    total_active_accounts = Client.objects.filter(status=1)
+    total_active_accounts = Client.objects.filter(status=1).order_by('client_name')
     total_active_seo = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
     total_active_cro = Client.objects.filter(status=1).filter(salesprofile__seo_status=1).count()
 
@@ -33,7 +33,7 @@ def agency_overview(request):
     incident_count = Incident.objects.all().count()
 
     # Members
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -108,7 +108,7 @@ def account_spend_progression(request):
     """
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
-    accounts = Client.objects.filter(status=1)
+    accounts = Client.objects.filter(status=1).order_by('client_name')
 
     total_projected_loss = 0.0
     total_projected_overspend = 0.0
@@ -141,7 +141,7 @@ def cm_capacity(request):
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
             name='PPC Team Lead'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -187,7 +187,7 @@ def am_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -233,7 +233,7 @@ def seo_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -244,7 +244,7 @@ def seo_capacity(request):
 
     status_badges = ['info', 'success', 'warning', 'danger']
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
-        Q(status=0) | Q(status=1))
+        Q(status=0) | Q(status=1)).order_by('client_name')
 
     for member in members:
         actual_aggregate += member.actual_hours_this_month
@@ -296,7 +296,7 @@ def strat_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='Strategist'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -344,7 +344,7 @@ def hour_log(request):
     month = now.month
     year = now.year
 
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'members': members
@@ -411,8 +411,8 @@ def actual_hours(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.datetime.now()
-    accounts = Client.objects.all()
-    members = Member.objects.all()
+    accounts = Client.objects.all().order_by('client_name')
+    members = Member.objects.all().order_by('user__first_name')
     months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = ['2018', '2019', '2020']
 
@@ -486,7 +486,7 @@ def monthly_reporting(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     now = datetime.datetime.now()
-    accounts = Client.objects.all()
+    accounts = Client.objects.all().order_by('client_name')
     teams = Team.objects.all()
     months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = ['2018', '2019', '2020']
@@ -567,7 +567,7 @@ def account_capacity(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(status=1)  # active accounts only
+    accounts = Client.objects.filter(status=1).order_by('client_name')  # active accounts only
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -624,8 +624,8 @@ def flagged_accounts(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(star_flag=True)
-    members = Member.objects.all()
+    accounts = Client.objects.filter(star_flag=True).order_by('client_name')
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'accounts': accounts,
@@ -643,7 +643,7 @@ def performance_anomalies(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(Q(target_cpa__gt=0.0) | Q(target_roas__gt=0.0))
+    accounts = Client.objects.filter(Q(target_cpa__gt=0.0) | Q(target_roas__gt=0.0)).order_by('client_name')
 
     excellent_accounts = []
     good_accounts = []
@@ -708,7 +708,7 @@ def account_history(request):
     month = default_month
     year = default_year
 
-    all_accounts = Client.objects.all()
+    all_accounts = Client.objects.all().order_by('client_name')
     accounts = all_accounts
     accounts_array = []
 
@@ -847,7 +847,7 @@ def new_high_five(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
 
         context = {
             'members': members
@@ -908,8 +908,8 @@ def new_incident(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
-        accounts = Client.objects.all()
-        members = Member.objects.all()
+        accounts = Client.objects.all().order_by('client_name')
+        members = Member.objects.all().order_by('user__first_name')
         platforms = Incident.PLATFORMS
         services = Incident.SERVICES
         issue_types = IncidentReason.objects.all()
@@ -1016,7 +1016,7 @@ def onboarding(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    onboarding_accounts = Client.objects.filter(status=0)
+    onboarding_accounts = Client.objects.filter(status=0).order_by('client_name')
 
     context = {
         'onboarding_accounts': onboarding_accounts
@@ -1054,9 +1054,11 @@ def sales(request):
             accounts = Client.objects.filter(status=3)
             selected = 'lost'
         else:
-            accounts = Client.objects.all()
+            accounts = Client.objects.all().order_by('client_name')
     else:
-        accounts = Client.objects.all()
+        accounts = Client.objects.all().order_by('client_name')
+
+    accounts = accounts.order_by('client_name')
 
     sps = SalesProfile.objects.filter(account__in=accounts)
 
