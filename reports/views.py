@@ -33,7 +33,7 @@ def agency_overview(request):
     incident_count = Incident.objects.all().count()
 
     # Members
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -141,7 +141,7 @@ def cm_capacity(request):
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
             name='PPC Team Lead'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -187,7 +187,7 @@ def am_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -233,7 +233,7 @@ def seo_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -296,7 +296,7 @@ def strat_capacity(request):
 
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='Strategist'))
-    members = Member.objects.filter(role__in=role)
+    members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -344,7 +344,7 @@ def hour_log(request):
     month = now.month
     year = now.year
 
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'members': members
@@ -412,7 +412,7 @@ def actual_hours(request):
 
     now = datetime.datetime.now()
     accounts = Client.objects.all().order_by('client_name')
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
     months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = ['2018', '2019', '2020']
 
@@ -625,7 +625,7 @@ def flagged_accounts(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     accounts = Client.objects.filter(star_flag=True).order_by('client_name')
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'accounts': accounts,
@@ -847,7 +847,7 @@ def new_high_five(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
 
         context = {
             'members': members
@@ -909,7 +909,7 @@ def new_incident(request):
 
     if request.method == 'GET':
         accounts = Client.objects.all().order_by('client_name')
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
         platforms = Incident.PLATFORMS
         services = Incident.SERVICES
         issue_types = IncidentReason.objects.all()

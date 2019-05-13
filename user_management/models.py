@@ -30,7 +30,7 @@ class Team(models.Model):
     name = models.CharField(max_length=255)
 
     def get_members(self):
-        return list(Member.objects.filter(team=self))
+        return list(Member.objects.filter(team=self).order_by('user__first_name'))
 
     @property
     def team_lead(self):
