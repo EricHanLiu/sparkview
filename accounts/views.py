@@ -49,7 +49,7 @@ def bing_accounts(request):
     if request.method == 'POST':
         acc_id = request.POST['id']
         try:
-            acc = BingAccounts.objects.get(account_id=acc_id)
+            acc = BingAccounts.objects.get(account_id=acc_id).order_by('account_name')
             currentStatus = acc.blacklisted
             acc.blacklisted = not currentStatus
             response = {'status': 'active'} if not acc.blacklisted else {'status': 'inactive'}

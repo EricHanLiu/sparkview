@@ -121,7 +121,7 @@ def add_client(request):
 
     if request.method == 'GET':
         context = {}
-        clients = Client.objects.all()
+        clients = Client.objects.all().order_by('client_name')
         adwords_accounts = DependentAccount.objects.filter(blacklisted=False)
         bing_accounts = BingAccounts.objects.filter(blacklisted=False)
         facebook_accounts = FacebookAccount.objects.filter(blacklisted=False)

@@ -11,7 +11,7 @@ import calendar
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment
+    MandateAssignment, Mandate
 from notifications.models import Notification
 
 
@@ -30,7 +30,7 @@ def members(request):
         members_resp = {}
         count = 0
 
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
         for member in members:
             members_resp[count]['id'] = member.id
             members_resp[count]['name'] = member.user.get_full_name()
@@ -67,7 +67,7 @@ def member_dashboard(request, id):
     member = get_object_or_404(Member, id=id)
 
     # Members, Teams, Roles
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
     teams = Team.objects.all()
     roles = Role.objects.all()
 
@@ -108,7 +108,7 @@ def member_dashboard(request, id):
         Q(cm1__in=members) | Q(cm2__in=members) | Q(cm3__in=members) | Q(am1__in=members) | Q(am2__in=members) | Q(
             am3__in=members) | Q(seo1__in=members) | Q(seo2__in=members) | Q(seo3__in=members) | Q(
             strat1__in=members) | Q(
-            strat2__in=members) | Q(strat3__in=members))
+            strat2__in=members) | Q(strat3__in=members)).order_by('client_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -589,7 +589,7 @@ def members_single(request, id=0):
 
     backing_me = backup_periods.filter(member=member)
 
-    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
+    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
 
     accountHours = {}
     accountAllocation = {}
@@ -597,6 +597,8 @@ def members_single(request, id=0):
         hours = account.get_hours_worked_this_month_member(member)
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
+
+    mandates = Mandate.objects.all()
 
     context = {
         'accountHours': accountHours,
@@ -608,6 +610,7 @@ def members_single(request, id=0):
         'backing_me': backing_me,
         'star_accounts': star_accounts,
         'black_marker': black_marker,
+        'mandates': mandates
     }
 
     return render(request, 'user_management/profile/profile.html', context)
@@ -925,7 +928,7 @@ def input_hours_profile(request, id):
         members = Member.objects.none
         if request.user.is_staff:
             # Reason for this is that this members list if used for the training hours, which is staff only
-            members = Member.objects.all()
+            members = Member.objects.all().order_by('user__first_name')
 
         # for mandate hour inputting
         mandate_assignments = member.active_mandate_assignments
@@ -1198,8 +1201,8 @@ def backups(request):
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
-    members = Member.objects.all()
-    accounts = Client.objects.filter(Q(status=0) | Q(status=1))
+    members = Member.objects.all().order_by('user__first_name')
+    accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
@@ -1268,7 +1271,7 @@ def backup_event(request, backup_period_id):
             return HttpResponse('success')
 
     role = backup_period.member.role
-    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id)
+    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id).order_by('user__first_name')
 
     context = {
         'backup_period': backup_period,
@@ -1290,7 +1293,7 @@ def add_training_hours(request):
     trainer = Member.objects.get(user=request.user)
 
     trainee_ids = request.POST.getlist('trainee_id')
-    trainees = Member.objects.filter(id__in=trainee_ids)
+    trainees = Member.objects.filter(id__in=trainee_ids).order_by('user__first_name')
 
     if trainer in trainees:
         return HttpResponse('You can\'t train yourself!')

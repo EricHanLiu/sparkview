@@ -102,7 +102,7 @@
                                         <div class="col-md-6">
                                             <label for="budget-error">Budget Error Amount:</label>
                                             <input type="text" name="budget-error" id="budget-error-amount"
-                                                   class="form-control m-input" required>
+                                                   class="form-control m-input">
                                         </div>
                                         <div class="col-md-6">
                                             <label>Platform:</label>
@@ -178,18 +178,6 @@
 
         $('.datetimepicker').datepicker({
             format: 'yyyy-mm-dd'
-        });
-
-        let $issueSelector = $('#issue-selector');
-        let $budgetErrorAmt  = $('#budget-error-amount');
-
-        $issueSelector.change(function () {
-            if ($(this).val() !== '0') {
-                $budgetErrorAmt.prop('disabled', true);
-                $budgetErrorAmt.val('');
-            } else {
-                $budgetErrorAmt.prop('disabled', false);
-            }
         });
     </script>
 {% endblock %}

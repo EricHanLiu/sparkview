@@ -318,8 +318,7 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                                   id="my_backup_clients_datatable">
+                            <table class="table table-striped table-bordered table-hover table-checkable dataTable">
                                 <thead class="thead-inverse">
                                 <tr class="main-table-header">
                                     <th>
@@ -362,6 +361,69 @@
                         </div>
                     </div>
                 {% endif %}
+                {% if mandates.count > 0 %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        My Mandates
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <table class="table table-striped table-bordered table-hover dataTable">
+                                <thead class="thead-default">
+                                <tr>
+                                    <th>
+                                        Type
+                                    </th>
+                                    <th>
+                                        Account
+                                    </th>
+                                    <th>
+                                        Cost
+                                    </th>
+                                    <th>
+                                        Hourly Rate
+                                    </th>
+                                    <th>
+                                        Hours
+                                    </th>
+                                    <th>
+                                        Date Range
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for mandate in mandates %}
+                                    <tr>
+                                        <td>
+                                            {{ mandate.mandate_type.name }}
+                                        </td>
+                                        <td>
+                                            <a href="/clients/accounts/{{ mandate.account.id }}">{{ mandate.account.client_name }}</a>
+                                        </td>
+                                        <td>
+                                            {{ mandate.cost|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.hourly_rate|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.hours|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
 
                 {% if star_accounts.count > 0 %}
                     <!-- Being starred accounts (admin only) -->
@@ -376,7 +438,7 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                            <table class="table table-striped table-bordered table-hover table-checkable dataTable"
                                    id="star_clients_datatable">
                                 <thead class="thead-inverse">
                                 <tr class="main-table-header">
