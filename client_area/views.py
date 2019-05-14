@@ -657,73 +657,104 @@ def account_single(request, id):
     """
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
-    account = Client.objects.get(id=id)
-    members = Member.objects.all()
-    changes = AccountChanges.objects.filter(account=account)
+    if request.method == 'GET':
+        account = Client.objects.get(id=id)
+        members = Member.objects.all()
+        changes = AccountChanges.objects.filter(account=account)
 
-    # Get hours this month for this account
-    now = datetime.datetime.now()
-    month = now.month
-    year = now.year
-    accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
+        # Get hours this month for this account
+        now = datetime.datetime.now()
+        month = now.month
+        year = now.year
+        accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
 
-    accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
-                                                                      is_unpaid=False).values('member', 'month',
-                                                                                              'year').annotate(
-        Sum('hours'))
-    accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
-                                                                           is_unpaid=True).values('member', 'month',
+        accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                          is_unpaid=False).values('member', 'month',
                                                                                                   'year').annotate(
-        Sum('hours'))
+            Sum('hours'))
+        accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                               is_unpaid=True).values('member', 'month',
+                                                                                                      'year').annotate(
+            Sum('hours'))
 
-    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(account=account, period__in=backup_periods, approved=True)
+        backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+        backups = Backup.objects.filter(account=account, period__in=backup_periods, approved=True)
 
-    for row in accountsHoursThisMonthByMember:
+        for row in accountsHoursThisMonthByMember:
+            try:
+                row['member'] = members.get(id=row['member'])
+            except Member.DoesNotExist:
+                pass
+
+        for row in accountsValueHoursThisMonthByMember:
+            try:
+                row['member'] = members.get(id=row['member'])
+            except Member.DoesNotExist:
+                pass
+
+        seven_days_ago = now - datetime.timedelta(7)
+
+        promos = Promo.objects.filter(account=account, end_date__gte=seven_days_ago)
+
+        status_badges = ['info', 'success', 'warning', 'danger']
+
+        opps = OpportunityDescription.objects.all()
+        pitches = PitchedDescription.objects.all()
+
+        mandate_types = MandateType.objects.all()
         try:
-            row['member'] = members.get(id=row['member'])
-        except Member.DoesNotExist:
-            pass
+            first_mandate_rate = mandate_types[0].hourly_rate
+        except IndexError:
+            first_mandate_rate = ''
 
-    for row in accountsValueHoursThisMonthByMember:
+        months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+        now = datetime.datetime.now()
+        years = [i for i in range(2018, now.year + 1)]
+
+        monthnow = now.month
+        current_year = now.year
+
+        context = {
+            'account': account,
+            'members': members,
+            'backups': backups,
+            'accountHoursMember': accountsHoursThisMonthByMember,
+            'value_hours_member': accountsValueHoursThisMonthByMember,
+            'changes': changes,
+            'accountHoursThisMonth': accountHoursThisMonth,
+            'status_badges': status_badges,
+            'kpid': account.kpi_info,
+            'promos': promos,
+            'opps': opps,
+            'pitches': pitches,
+            'mandate_types': mandate_types,
+            'first_mandate_rate': first_mandate_rate,
+            'months': months,
+            'monthnow': monthnow,
+            'years': years,
+            'current_year': current_year
+        }
+
+        return render(request, 'client_area/account_single.html', context)
+    elif request.method == 'POST':
+        account = Client.objects.get(id=id)
+        member = Member.objects.get(user=request.user)
+
+        hours = request.POST.get('quickadd-hours')
+        month = request.POST.get('quickadd-month')
+        year = request.POST.get('quickadd-year')
+
+        if not member.has_account(id):
+            return HttpResponseForbidden()
+
         try:
-            row['member'] = members.get(id=row['member'])
-        except Member.DoesNotExist:
-            pass
+            hours = float(hours)
+        except (TypeError, ValueError):
+            hours = 0
 
-    seven_days_ago = now - datetime.timedelta(7)
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
 
-    promos = Promo.objects.filter(account=account, end_date__gte=seven_days_ago)
-
-    status_badges = ['info', 'success', 'warning', 'danger']
-
-    opps = OpportunityDescription.objects.all()
-    pitches = PitchedDescription.objects.all()
-
-    mandate_types = MandateType.objects.all()
-    try:
-        first_mandate_rate = mandate_types[0].hourly_rate
-    except IndexError:
-        first_mandate_rate = ''
-
-    context = {
-        'account': account,
-        'members': members,
-        'backups': backups,
-        'accountHoursMember': accountsHoursThisMonthByMember,
-        'value_hours_member': accountsValueHoursThisMonthByMember,
-        'changes': changes,
-        'accountHoursThisMonth': accountHoursThisMonth,
-        'status_badges': status_badges,
-        'kpid': account.kpi_info,
-        'promos': promos,
-        'opps': opps,
-        'pitches': pitches,
-        'mandate_types': mandate_types,
-        'first_mandate_rate': first_mandate_rate
-    }
-
-    return render(request, 'client_area/account_single.html', context)
+        return HttpResponse()
 
 
 @login_required
@@ -928,7 +959,9 @@ def value_added_hours(request):
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
                                          is_unpaid=True)
 
-        return redirect('/clients/accounts/report_hours')
+        # return redirect('/clients/accounts/report_hours')
+        # keep everything on profile page
+        return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
 
 @login_required

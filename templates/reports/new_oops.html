@@ -26,7 +26,7 @@
                                 <div class="form-group m-form__group">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label for="email-address">Who is reporting?</label>
+                                            <label for="reporting-member">Who is reporting?</label>
                                             <select class="form-control m-input"
                                                     name="reporting-member" id="reporting-member-incident"
                                                     style="width: 100%;" required>
@@ -118,7 +118,7 @@
                                 </div>
                                 <div class="form-group m-form__group">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label>Client Aware:</label>
                                             <select class="form-control m-input"
                                                     name="client-aware"
@@ -127,10 +127,19 @@
                                                 <option value="1">Yes</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <label>Client At Risk:</label>
                                             <select class="form-control m-input"
                                                     name="client-at-risk"
+                                                    style="width: 100%;">
+                                                <option value="0">No</option>
+                                                <option value="1">Yes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>Addressed With Member(s):</label>
+                                            <select class="form-control m-input"
+                                                    name="members-addressed"
                                                     style="width: 100%;">
                                                 <option value="0">No</option>
                                                 <option value="1">Yes</option>

@@ -857,14 +857,13 @@ def member_oops(request, id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
-    # oops = Incident.objects.filter(members__in=member)
-    oops = member.incident_set.all()
-    incidents_reported = Incident.objects.filter()
+    oops = member.incident_members.all()
+    incidents_reported = Incident.objects.filter(reporter=member)
 
     context = {
         'member': member,
         'incidents': oops,
-        'incidents_reports': incidents_reported
+        'incidents_reported': incidents_reported
     }
 
     return render(request, 'user_management/profile/oops.html', context)
@@ -954,9 +953,12 @@ def input_hours_profile(request, id):
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
         ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
         accounts_count = accounts.count()
+
         for i in range(accounts_count):
             i = str(i)
             account_id = request.POST.get('account-id-' + i)
+            if account_id is None:
+                continue  # ajax request for just one account
             account = Client.objects.get(id=account_id)
 
             if not request.user.is_staff and not member.has_account(account_id):
@@ -1076,6 +1078,16 @@ def skills_new(request):
         return redirect('/user_management/skills')
     else:
         return HttpResponse('Invalid request type')
+
+
+@login_required
+def view_summary(request):
+    member = Member.objects.get(user=request.user)
+    today = datetime.date.today()
+    member.last_viewed_summary = today
+    member.save()
+
+    return HttpResponse()
 
 
 @login_required
@@ -1277,19 +1289,22 @@ def add_training_hours(request):
     # trainer_id = request.POST.get('trainer_id')
     trainer = Member.objects.get(user=request.user)
 
-    trainee_id = request.POST.get('trainee_id')
-    trainee = Member.objects.get(id=trainee_id)
+    trainee_ids = request.POST.getlist('trainee_id')
+    trainees = Member.objects.filter(id__in=trainee_ids)
 
-    if trainer == trainee:
+    if trainer in trainees:
         return HttpResponse('You can\'t train yourself!')
 
     month = request.POST.get('month')
     year = request.POST.get('year')
     hours = request.POST.get('hours')
 
-    TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
+    for trainee in trainees:
+        TrainingHoursRecord.objects.create(trainee=trainee, trainer=trainer, month=month, year=year, hours=hours)
 
-    return redirect('/clients/accounts/report_hours')
+    # return redirect('/clients/accounts/report_hours')
+    # keep everything on profile page
+    return redirect('/user_management/members/' + str(trainer.id) + '/input_hours')
 
 
 @login_required

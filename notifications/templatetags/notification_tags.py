@@ -4,6 +4,7 @@ from user_management.models import Member
 
 register = template.Library()
 
+
 @register.filter
 def get_unread_notifications(user):
     member = Member.objects.get(user=user)
