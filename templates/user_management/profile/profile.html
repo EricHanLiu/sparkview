@@ -610,8 +610,6 @@
                 let checked = this.checked;
                 let mandateId = this.id;
 
-                console.log(checked + ', ' + mandateId);
-
                 $.ajax({
                     url: '',
                     headers: {
@@ -624,7 +622,7 @@
                     },
                     success: function () {
                         let inPrefix = checked ? '' : 'in';
-                        toastr.success('Mandate marked as ' + inPrefix + 'complete!');
+                        toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
                     }
                 });
             });
