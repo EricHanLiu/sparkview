@@ -18,6 +18,9 @@
                 Date
             </th>
             <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Nominator
+            </th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
                 Member
             </th>
             <th style="color: #fff; background: #0057e7; margin: 0.35em;">
@@ -28,6 +31,9 @@
         <tr>
             <td style="border: 1px solid #e2e2e2;">
                 {{ hf.date }}
+            </td>
+            <td style="border: 1px solid #e2e2e2;">
+                {{ hf.nominator.user.get_full_name }}
             </td>
             <td style="border: 1px solid #e2e2e2;">
                 {{ hf.member.user.get_full_name }}
