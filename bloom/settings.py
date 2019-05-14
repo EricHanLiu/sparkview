@@ -36,7 +36,9 @@ ALLOWED_HOSTS = [
     "*"
 ]
 ADMINS = [
-    ('Bloom Dev', 'dev@makeitbloom.com')
+    ('Bloom Dev', 'dev@makeitbloom.com'),
+    ('Lexi', 'lexi@makeitbloom.com'),
+    ('Sam', 'sam@makeitbloom.com')
 ]
 # Application definition
 
@@ -64,6 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'admin_honeypot'
 ]
 
 MIDDLEWARE = [
