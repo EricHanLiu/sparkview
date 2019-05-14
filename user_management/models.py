@@ -3,7 +3,7 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord
 import datetime
 import calendar
 
@@ -78,19 +78,19 @@ class Incident(models.Model):
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
 
-    email = models.CharField(max_length=355, default='')
     reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True, related_name='reporter')
     service = models.IntegerField(default=0, choices=SERVICES)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    timestamp = models.DateTimeField(default=None, null=True, blank=True)
     date = models.DateField(default=None, null=True, blank=True)
-    addressed_with_member = models.BooleanField(default=False)
-    members = models.ManyToManyField('Member', default=None)
+    members = models.ManyToManyField('Member', default=None, related_name='incident_members')
     description = models.CharField(max_length=2000, default='')
     issue = models.ForeignKey(IncidentReason, on_delete=models.DO_NOTHING, default=None, null=True)
     budget_error_amount = models.FloatField(default=0.0)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
+    addressed_with_member = models.BooleanField(default=False)
     justification = models.CharField(max_length=2000, default='')
 
     @property
@@ -102,7 +102,7 @@ class Incident(models.Model):
         return self.get_platform_display()
 
     def __str__(self):
-        return 'Incident ' + str(self.id)
+        return 'Incident on ' + str(self.date)
 
 
 class Skill(models.Model):
@@ -182,6 +182,7 @@ class Member(models.Model):
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
     image = models.CharField(max_length=255, null=True, default=None, blank=True)
+    last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage = models.FloatField(null=True, blank=True, default=100)
@@ -193,6 +194,10 @@ class Member(models.Model):
     buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
+
+    @property
+    def viewed_summary_today(self):
+        return self.last_viewed_summary == datetime.date.today()
 
     @property
     def learning_hours(self):
@@ -261,6 +266,15 @@ class Member(models.Model):
             hours = record.actual_hours
         return hours
 
+    def actual_hours_today(self):
+        now = datetime.datetime.now()
+        today_start = datetime.datetime(now.year, now.month, now.day)
+
+        hours = AccountHourRecord.objects.filter(member=self, created_at__gte=today_start, is_unpaid=False).aggregate(
+            Sum('hours'))['hours__sum']
+        hours = 0 if hours is None else hours
+        return hours
+
     @property
     def team_string(self):
         return ','.join(str(team) for team in self.team.all())
@@ -279,6 +293,15 @@ class Member(models.Model):
                 Sum('hours'))[
                 'hours__sum']
         return hours if hours is not None else 0
+
+    def value_added_hours_today(self):
+        now = datetime.datetime.now()
+        today_start = datetime.datetime(now.year, now.month, now.day)
+
+        hours = AccountHourRecord.objects.filter(member=self, created_at__gte=today_start, is_unpaid=True).aggregate(
+            Sum('hours'))['hours__sum']
+        hours = 0 if hours is None else hours
+        return hours
 
     @property
     def all_hours_month(self):

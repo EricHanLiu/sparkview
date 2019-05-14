@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^members/(\d*)/high_fives$', views.member_high_fives, name='high_fives'),
     url(r'^members/(\d*)/input_hours$', views.input_hours_profile, name='input_hours'),
     url(r'^members/(\d*)/input_mandate$', views.input_mandate_profile, name='input_mandate'),
+    url(r'^view_summary$', views.view_summary, name='view_summary'),
     url(r'^members/training$', views.training_members, name='training_members'),
     url(r'^members/training/json$', views.training_members_json, name='training_members_json'),
     url(r'^teams$', views.teams, name='teams'),

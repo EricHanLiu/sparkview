@@ -32,10 +32,13 @@
                             <thead class="thead-light">
                             <tr class="main-table-header">
                                 <th>
-                                    Date
+                                    Timestamp
                                 </th>
                                 <th>
-                                    Email Address
+                                    Date Of Issue
+                                </th>
+                                <th>
+                                    Reported By
                                 </th>
                                 <th>
                                     Issue Description
@@ -53,10 +56,13 @@
                                     Account
                                 </th>
                                 <th>
-                                    Client Aware
+                                    Client Aware?
                                 </th>
                                 <th>
-                                    Client At Risk
+                                    Client At Risk?
+                                </th>
+                                <th>
+                                    Addressed With Member(s)?
                                 </th>
                                 <th>
                                     Platform
@@ -70,10 +76,13 @@
                             {% for incident in incidents %}
                                 <tr>
                                     <td>
+                                        {{ incident.timestamp }}
+                                    </td>
+                                    <td>
                                         {{ incident.date }}
                                     </td>
                                     <td>
-                                        {{ incident.email }}
+                                        <a href="/user_management/members/{{ incident.reporter.id }}">{{ incident.reporter.user.get_full_name }}</a>
                                     </td>
                                     <td>
                                         <div style="max-height: 70px; overflow: auto;">
@@ -107,120 +116,7 @@
                                         {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
-                                        {{ incident.platform_name }}
-                                    </td>
-                                    <td>
-                                        <div style="max-height: 70px; overflow: auto;">
-                                            {{ incident.justification }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-            <div class="m-portlet__head">
-                <div class="m-portlet__head-caption">
-                    <div class="m-portlet__head-title">
-                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                            Oops Reported
-                        </h3>
-                    </div>
-                </div>
-
-                <div class="m-portlet__head-tools">
-                    <ul class="m-portlet__nav">
-                        <li class="m-portlet__nav-item">
-                            <a href="/reports/oops/new" class="btn btn-info m-btn">New Oops</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="m-portlet__body">
-                <div class="row m-row--no-padding m-row--col-separator-xl">
-                    <div class="col-12">
-                        <table class='table table-hover dataTable order-column'
-                               id="star_clients_datatable">
-                            <thead class="thead-light">
-                            <tr class="main-table-header">
-                                <th>
-                                    Date
-                                </th>
-                                <th>
-                                    Email Address
-                                </th>
-                                <th>
-                                    Issue Description
-                                </th>
-                                <th>
-                                    Type of Issue
-                                </th>
-                                <th>
-                                    Budget Error Amount
-                                </th>
-                                <th>
-                                    Member(s) Responsible
-                                </th>
-                                <th>
-                                    Account
-                                </th>
-                                <th>
-                                    Client Aware
-                                </th>
-                                <th>
-                                    Client At Risk
-                                </th>
-                                <th>
-                                    Platform
-                                </th>
-                                <th>
-                                    Justification
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for incident in incidents_reported %}
-                                <tr>
-                                    <td>
-                                        {{ incident.date }}
-                                    </td>
-                                    <td>
-                                        {{ incident.email }}
-                                    </td>
-                                    <td>
-                                        <div style="max-height: 70px; overflow: auto;">
-                                            {{ incident.description }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {{ incident.issue_name }}
-                                    </td>
-                                    <td>
-                                        {% if incident.budget_error_amount == 0 %}
-                                            None
-                                        {% else %}
-                                            {{ incident.budget_error_amount|floatformat:2 }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% for member in incident.members.all %}
-                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% if incident.account is not None %}
-                                            <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if incident.client_aware %} Yes {% else %} No {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                        {% if incident.addressed_with_member %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
                                         {{ incident.platform_name }}

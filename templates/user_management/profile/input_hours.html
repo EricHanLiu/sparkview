@@ -166,7 +166,7 @@
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label>Hours:</label>
-                                                    <input type="text" name="hours-{{ forloop.counter0 }}"
+                                                    <input type="text" name="hours-{{ forloop.counter0 }}" required
                                                            class="form-control m-input">
                                                 </div>
                                                 <div class="col-md-3">
@@ -358,6 +358,7 @@
         {% for account in accounts %}
             accountNames.push('{{ account.client_name }}');
         {% endfor %}
+        
         let len = accountNames.length;
 
         $(document).ready(() => {
