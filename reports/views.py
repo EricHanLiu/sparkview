@@ -726,7 +726,7 @@ def account_history(request):
     for account in accounts:
         try:
             bh = AccountBudgetSpendHistory.objects.get(month=month, year=year, account=account)
-        except AccountAllocatedHoursHistory.DoesNotExist:
+        except AccountBudgetSpendHistory.DoesNotExist:
             continue
 
         allocated_history = AccountAllocatedHoursHistory.objects.filter(month=month, year=year, account=account).values(

@@ -3,7 +3,8 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
+    MandateHourRecord
 import datetime
 import calendar
 
@@ -249,6 +250,12 @@ class Member(models.Model):
         year = now.year
         return self.actual_hours_other_month(month, year)
 
+    def mandate_hours_other_month(self, month, year):
+        mandate_hours = \
+            MandateHourRecord.objects.filter(assignment__member=self, month=month, year=year).aggregate(Sum('hours'))[
+                'hours__sum']
+        return mandate_hours if mandate_hours is not None else 0.0
+
     def actual_hours_other_month(self, month, year):
         now = datetime.datetime.now()
         if month == now.month and year == now.year:
@@ -264,7 +271,7 @@ class Member(models.Model):
             except MemberHourHistory.DoesNotExist:
                 return 0
             hours = record.actual_hours
-        return hours
+        return hours + self.mandate_hours_other_month(month, year)
 
     def actual_hours_today(self):
         now = datetime.datetime.now()

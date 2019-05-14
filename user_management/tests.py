@@ -203,7 +203,9 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_regular_post_view(self):
-        """ Check post views for regular users """
+        """
+        Check post views for regular users
+        """
         self.client.login(username='test2', password='123456')
         test_account = BloomClient.objects.get(client_name='ctest')
 
@@ -295,8 +297,8 @@ class UserTestCase(TestCase):
         test_mandate = Mandate.objects.create(account=test_account, start_date=start_date,
                                               end_date=end_date, mandate_type=test_mandate_type, cost=5, hourly_rate=1)
         test_mandate_assignment = MandateAssignment.objects.create(member=member, mandate=test_mandate, percentage=100)
-        # MandateHourRecord.objects.create(assignment=test_mandate_assignment, hours=5,
-        #                                  month=now.month, year=now.year)
+        MandateHourRecord.objects.create(assignment=test_mandate_assignment, hours=5,
+                                         month=now.month, year=now.year)
         mandate_hours = 0
         for account in member.accounts:
             mandate_hours += account.mandate_hours_this_month_member(member)
@@ -308,6 +310,9 @@ class UserTestCase(TestCase):
         self.assertEqual(member.hours_available_other_month(now.month, now.year), member.hours_available)
 
         self.assertEqual(member.actual_hours_other_month(now.month, now.year), member.actual_hours_this_month)
+        self.assertEqual(member.actual_hours_other_month(now.month, now.year), 5)
+        self.assertEqual(member.actual_hours_other_month(now.month, now.year),
+                         member.mandate_hours_other_month(now.month, now.year))
 
         self.assertEqual(member.allocated_hours_other_month(test_month, test_year), 9)
         self.assertEqual(member.allocated_hours_other_month(test_month, test_year), history2.allocated_hours)
