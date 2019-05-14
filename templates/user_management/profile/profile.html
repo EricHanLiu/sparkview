@@ -394,11 +394,14 @@
                                     <th>
                                         Date Range
                                     </th>
+                                    <th>
+                                        Mandate Completed
+                                    </th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for mandate in mandates %}
-                                    <tr>
+                                    <tr style="text-align:center">
                                         <td>
                                             {{ mandate.mandate_type.name }}
                                         </td>
@@ -416,6 +419,13 @@
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
+                                        </td>
+                                        <td>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" {% if mandate.completed %}
+                                                       checked {% endif %}>
+                                                <span></span>
+                                            </label>
                                         </td>
                                     </tr>
                                 {% endfor %}

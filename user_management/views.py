@@ -1011,6 +1011,12 @@ def input_mandate_profile(request, id):
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
 
+            completed_str = request.POST.get('completed-' + i)
+            completed = True if completed_str is not None else False
+            mandate = mandate_assignment.mandate
+            mandate.completed = completed
+            mandate.save()
+
             MandateHourRecord.objects.create(assignment=mandate_assignment, hours=hours, month=month, year=year)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
