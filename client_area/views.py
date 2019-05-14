@@ -21,7 +21,7 @@ from .forms import NewClientForm
 @login_required
 def accounts(request):
     member = Member.objects.get(user=request.user)
-    accounts = member.accounts
+    accounts = member.accounts_not_lost
 
     now = datetime.datetime.now()
 

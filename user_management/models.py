@@ -487,6 +487,14 @@ class Member(models.Model):
         return self._accounts
 
     @property
+    def accounts_not_lost(self):
+        """
+        My accounts that are not lost
+        :return:
+        """
+        return self.accounts.exclude(status=3)
+
+    @property
     def active_accounts(self):
         return self.accounts.filter(status=1)
 

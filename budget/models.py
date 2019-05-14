@@ -1292,7 +1292,33 @@ class Client(models.Model):
         Creates onboarding steps
         :return:
         """
-        pass
+        if self.is_onboarding_ppc:
+            ppc_steps = OnboardingStep.objects.filter(service=0)
+            for ppc_step in ppc_steps:
+                ppc_step_assignment, created = OnboardingStepAssignment.objects.get_or_create(step=ppc_step,
+                                                                                              account=self)
+                if created:
+                    ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
+                    for ppc_task in ppc_tasks:
+                        OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
+        if self.is_onboarding_seo:
+            seo_steps = OnboardingStep.objects.filter(service=1)
+            for seo_step in seo_steps:
+                seo_step_assignment, created = OnboardingStepAssignment.objects.get_or_create(step=seo_step,
+                                                                                              account=self)
+                if created:
+                    seo_tasks = OnboardingTask.objects.filter(step=seo_step)
+                    for seo_task in seo_tasks:
+                        OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
+        if self.is_onboarding_cro:
+            cro_steps = OnboardingStep.objects.filter(service=2)
+            for cro_step in cro_steps:
+                cro_step_assignment, created = OnboardingStepAssignment.objects.get_or_create(step=cro_step,
+                                                                                              account=self)
+                if created:
+                    cro_tasks = OnboardingTask.objects.filter(step=cro_step)
+                    for cro_task in cro_tasks:
+                        OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
 
     def hybrid_projection(self, method):
         projection = self.current_spend
