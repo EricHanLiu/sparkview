@@ -37,9 +37,7 @@ def main():
             record.allocated_hours = allocated_hours_month
             record.save()
 
-        """
-        Do spend and budget
-        """
+        # Do spend and budget
         account_budget_history, created = AccountBudgetSpendHistory.objects.get_or_create(account=account, month=month,
                                                                                           year=year)
         account_budget_history.aw_budget = account.aw_budget
@@ -50,6 +48,7 @@ def main():
         account_budget_history.bing_spend = account.bing_spend
         account_budget_history.fb_spend = account.fb_spend
         account_budget_history.flex_spend = account.flex_spend
+        account_budget_history.management_fee = account.current_fee
         account_budget_history.save()
 
 

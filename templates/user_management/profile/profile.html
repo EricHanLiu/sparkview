@@ -67,7 +67,9 @@
                                 {% for task in member.phase_tasks %}
                                     <div class="m-widget2__item m-widget2__item--info">
                                         <div class="m-widget2__checkbox">
-                                            <button class="btn btn-info btn-sm" data-task-id="{{ task.id }}" data-toggle="modal" data-target="#resolve_task_modal">Resolve</button>
+                                            <button class="btn btn-info btn-sm" data-task-id="{{ task.id }}"
+                                                    data-toggle="modal" data-target="#resolve_task_modal">Resolve
+                                            </button>
                                         </div>
                                         <div class="m-widget2__desc">
                                             <a href="{{ task.link }}" class="m-widget2__text">
@@ -103,7 +105,7 @@
                                     <div class="col-3">
                                         <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                         <p>My hours this month:
-                                            {{ accountHours|get_item_from_list:account.id  }}/{{ accountAllocation|get_item_from_list:account.id }}</p>
+                                            {{ accountHours|get_item_from_list:account.id }}/{{ accountAllocation|get_item_from_list:account.id }}</p>
                                         <div class="m--space-30">
                                             {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
                                                 <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
@@ -111,6 +113,10 @@
                                                       data-original-title="
                                                         {% if aw %}
                                                             {% for a in aw %}
+
+
+
+
 
 
 
@@ -219,8 +225,9 @@
                                                                                              data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4>
                                             </a>&nbsp;&nbsp;<span
                                                 class="m-badge onboard-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}"
-                                                style="margin-bottom: 0.5rem;" {% if account.is_late_to_onboard %}data-toggle="modal"
-                                                  data-target="#late_onboard_modal"{% endif %}>{{ account.onboarding_duration_elapsed }}</span>
+                                                style="margin-bottom: 0.5rem;"
+                                                {% if account.is_late_to_onboard %}data-toggle="modal"
+                                                data-target="#late_onboard_modal"{% endif %}>{{ account.onboarding_duration_elapsed }}</span>
                                         </div>
                                     </div>
                                     <br/>
@@ -318,8 +325,7 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                                   id="my_backup_clients_datatable">
+                            <table class="table table-striped table-bordered table-hover table-checkable dataTable">
                                 <thead class="thead-inverse">
                                 <tr class="main-table-header">
                                     <th>
@@ -362,6 +368,79 @@
                         </div>
                     </div>
                 {% endif %}
+                {% if mandates.count > 0 %}
+                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                        My Mandates
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-portlet__body">
+                            <table class="table table-striped table-bordered table-hover dataTable">
+                                <thead class="thead-default">
+                                <tr>
+                                    <th>
+                                        Type
+                                    </th>
+                                    <th>
+                                        Account
+                                    </th>
+                                    <th>
+                                        Cost
+                                    </th>
+                                    <th>
+                                        Hourly Rate
+                                    </th>
+                                    <th>
+                                        Hours
+                                    </th>
+                                    <th>
+                                        Date Range
+                                    </th>
+                                    <th>
+                                        Mandate Completed
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for mandate in mandates %}
+                                    <tr style="text-align:center">
+                                        <td>
+                                            {{ mandate.mandate_type.name }}
+                                        </td>
+                                        <td>
+                                            <a href="/clients/accounts/{{ mandate.account.id }}">{{ mandate.account.client_name }}</a>
+                                        </td>
+                                        <td>
+                                            {{ mandate.cost|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.hourly_rate|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.hours|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
+                                        </td>
+                                        <td>
+                                            <label class="m-checkbox">
+                                                <input type="checkbox" class="mandate-completed" id="{{ mandate.id }}"
+                                                        {% if mandate.completed %} checked {% endif %}>
+                                                <span></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endif %}
 
                 {% if star_accounts.count > 0 %}
                     <!-- Being starred accounts (admin only) -->
@@ -376,7 +455,7 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                            <table class="table table-striped table-bordered table-hover table-checkable dataTable"
                                    id="star_clients_datatable">
                                 <thead class="thead-inverse">
                                 <tr class="main-table-header">
@@ -495,35 +574,58 @@
 {% endblock %}
 
 {% block extraJs %}
-<script>
-$(document).ready(function () {
-  let $flagTaskBtn = $('#flag_task_btn');
+    <script>
+        $(document).ready(function () {
+            let $flagTaskBtn = $('#flag_task_btn');
 
-  $('#late_onboard_modal').on('show.bs.modal', function (e) {
-    let account_id = $(e.relatedTarget).data('account-id');
-    $('#m_account_id').attr('value', account_id);
-  });
+            $('#late_onboard_modal').on('show.bs.modal', function (e) {
+                let account_id = $(e.relatedTarget).data('account-id');
+                $('#m_account_id').attr('value', account_id);
+            });
 
-  $('#resolve_task_modal').on('show.bs.modal', function (e) {
-    let task_id = $(e.relatedTarget).data('task-id');
-    $('#m_task_id').attr('value', task_id);
-  });
+            $('#resolve_task_modal').on('show.bs.modal', function (e) {
+                let task_id = $(e.relatedTarget).data('task-id');
+                $('#m_task_id').attr('value', task_id);
+            });
 
-  $flagTaskBtn.click(function () {
-    $.ajax({
-        url: '/notifications/cycle/confirm',
-        data: {
-          'task_id': $('#m_task_id').val(),
-          'bc_link': $('#bc_link').val(),
-          'flagged': 'True'
-        },
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        type: 'POST',
-        success: function (data) {
-          window.location.href = '/user_management/profile';
-        }
-    });
-  });
-});
-</script>
+            $flagTaskBtn.click(function () {
+                $.ajax({
+                    url: '/notifications/cycle/confirm',
+                    data: {
+                        'task_id': $('#m_task_id').val(),
+                        'bc_link': $('#bc_link').val(),
+                        'flagged': 'True'
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    success: function (data) {
+                        window.location.href = '/user_management/profile';
+                    }
+                });
+            });
+
+            // mandate completed checkbox
+            let $mandateCompleteBoxes = $('.mandate-completed');
+            $mandateCompleteBoxes.change(function () {
+                let checked = this.checked;
+                let mandateId = this.id;
+
+                $.ajax({
+                    url: '',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    type: 'POST',
+                    data: {
+                        'checked': checked,
+                        'mandate-id': mandateId
+                    },
+                    success: function () {
+                        let inPrefix = checked ? '' : 'in';
+                        toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

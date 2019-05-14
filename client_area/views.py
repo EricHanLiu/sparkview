@@ -21,7 +21,7 @@ from .forms import NewClientForm
 @login_required
 def accounts(request):
     member = Member.objects.get(user=request.user)
-    accounts = member.accounts
+    accounts = member.accounts_not_lost
 
     now = datetime.datetime.now()
 
@@ -47,7 +47,7 @@ def accounts_team(request):
 
     accounts = {}
     for team in teams.all():
-        accounts[team.id] = Client.objects.filter(team=team).filter(Q(status=1) | Q(status=0))
+        accounts[team.id] = Client.objects.filter(team=team).filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -66,14 +66,14 @@ def accounts_all(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(Q(status=1) | Q(status=0))
+    accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'page_type': 'Active',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -84,14 +84,14 @@ def accounts_inactive(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(status=2)
+    accounts = Client.objects.filter(status=2).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'page_type': 'Inactive',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -102,14 +102,14 @@ def accounts_lost(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    accounts = Client.objects.filter(status=3)
+    accounts = Client.objects.filter(status=3).order_by('client_name')
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'page_type': 'Lost',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -123,10 +123,10 @@ def account_new(request):
     if request.method == 'GET':
         teams = Team.objects.all()
         client_types = ClientType.objects.all()
-        clients = ParentClient.objects.all()
+        clients = ParentClient.objects.all().order_by('name')
         industries = Industry.objects.all()
         languages = Language.objects.all()
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
         services = Service.objects.all()
         fee_structures = ManagementFeesStructure.objects.all()
         tiers = [1, 2, 3]
@@ -483,15 +483,17 @@ def account_edit_temp(request, id):
             sp.seo_status = 1
             account.seo_hours = seo_hours
         else:
-            sp.seo_status = 6
-            account.seo_hours = 0.0
+            if sp.seo_status != 2:
+                sp.seo_status = 6
+                account.seo_hours = 0.0
 
         if cro_hours != '' and float(cro_hours) != 0.0:
             sp.cro_status = 1
             account.cro_hours = cro_hours
         else:
-            sp.cro_status = 6
-            account.cro_hours = 0.0
+            if sp.cro_status != 2:
+                sp.cro_status = 6
+                account.cro_hours = 0.0
 
         sp.save()
 
@@ -551,7 +553,7 @@ def account_edit(request, id):
         client_types = ClientType.objects.all()
         industries = Industry.objects.all()
         languages = Language.objects.all()
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
         services = Service.objects.all()
         statuses = Client._meta.get_field('status').choices
         tiers = [1, 2, 3]
@@ -657,7 +659,7 @@ def account_single(request, id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
         account = Client.objects.get(id=id)
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
         changes = AccountChanges.objects.filter(account=account)
 
         # Get hours this month for this account
@@ -895,7 +897,7 @@ def add_hours_to_account(request):
         members = Member.objects.none
         if request.user.is_staff:
             # Reason for this is that this members list if used for the training hours, which is staff only
-            members = Member.objects.all()
+            members = Member.objects.all().order_by('user__first_name')
 
         context = {
             'member': member,

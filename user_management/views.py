@@ -11,7 +11,7 @@ import calendar
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment
+    MandateAssignment, Mandate
 from notifications.models import Notification
 
 
@@ -30,7 +30,7 @@ def members(request):
         members_resp = {}
         count = 0
 
-        members = Member.objects.all()
+        members = Member.objects.all().order_by('user__first_name')
         for member in members:
             members_resp[count]['id'] = member.id
             members_resp[count]['name'] = member.user.get_full_name()
@@ -67,7 +67,7 @@ def member_dashboard(request, id):
     member = get_object_or_404(Member, id=id)
 
     # Members, Teams, Roles
-    members = Member.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
     teams = Team.objects.all()
     roles = Role.objects.all()
 
@@ -108,7 +108,7 @@ def member_dashboard(request, id):
         Q(cm1__in=members) | Q(cm2__in=members) | Q(cm3__in=members) | Q(am1__in=members) | Q(am2__in=members) | Q(
             am3__in=members) | Q(seo1__in=members) | Q(seo2__in=members) | Q(seo3__in=members) | Q(
             strat1__in=members) | Q(
-            strat2__in=members) | Q(strat3__in=members))
+            strat2__in=members) | Q(strat3__in=members)).order_by('client_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -408,11 +408,11 @@ def new_member(request):
         skills = Skill.objects.all()
 
         for skill in skills:
-            skillValue = request.POST.get('skill_' + skill.name)
-            if skillValue is None:
-                skillValue = 0
+            skill_value = request.POST.get('skill_' + skill.name)
+            if skill_value is None:
+                skill_value = 0
 
-            SkillEntry.objects.create(skill=skill, member=member, score=skillValue)
+            SkillEntry.objects.create(skill=skill, member=member, score=skill_value)
 
         return redirect('/user_management/members')
     else:
@@ -458,14 +458,14 @@ def edit_member(request, id):
         # Update skills
         skills = Skill.objects.all()
         for skill in skills:
-            skillScore = request.POST.get('skill_' + skill.name)
+            skill_score = request.POST.get('skill_' + skill.name)
             try:
-                skillEntry = SkillEntry.objects.get(skill=skill, member=member)
+                skill_entry = SkillEntry.objects.get(skill=skill, member=member)
             except SkillEntry.DoesNotExist:
-                skillEntry = SkillEntry(skill=skill, member=member)
+                skill_entry = SkillEntry(skill=skill, member=member)
 
-            skillEntry.score = skillScore
-            skillEntry.save()
+            skill_entry.score = skill_score
+            skill_entry.save()
 
         # Set all of the member skills with the edited variables
         # User parameters
@@ -496,14 +496,14 @@ def edit_member(request, id):
         teams = Team.objects.all()
         roles = Role.objects.all()
         member_skills = SkillEntry.objects.filter(member=member)
-        skillOptions = [0, 1, 2, 3]
+        skill_options = [0, 1, 2, 3]
 
         context = {
             'member': member,
             'teams': teams,
             'roles': roles,
             'member_skills': member_skills,
-            'skillOptions': skillOptions
+            'skillOptions': skill_options
         }
 
         return render(request, 'user_management/edit_member.html', context)
@@ -569,6 +569,7 @@ def members_single(request, id=0):
     lastday_month = next_month + relativedelta(days=-1)
     black_marker = (now.day / lastday_month.day) * 100
 
+    # accounts = member.active_accounts
     accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -588,7 +589,7 @@ def members_single(request, id=0):
 
     backing_me = backup_periods.filter(member=member)
 
-    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
+    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
 
     accountHours = {}
     accountAllocation = {}
@@ -596,6 +597,8 @@ def members_single(request, id=0):
         hours = account.get_hours_worked_this_month_member(member)
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
+
+    mandates = Mandate.objects.all()
 
     context = {
         'accountHours': accountHours,
@@ -607,7 +610,16 @@ def members_single(request, id=0):
         'backing_me': backing_me,
         'star_accounts': star_accounts,
         'black_marker': black_marker,
+        'mandates': mandates
     }
+
+    # ajax mandate completed checkmarking
+    if request.method == 'POST':
+        checked = request.POST.get('checked') == 'true'
+        mandate_id = request.POST.get('mandate-id')
+        mandate = Mandate.objects.get(id=mandate_id)
+        mandate.completed = checked
+        mandate.save()
 
     return render(request, 'user_management/profile/profile.html', context)
 
@@ -924,7 +936,7 @@ def input_hours_profile(request, id):
         members = Member.objects.none
         if request.user.is_staff:
             # Reason for this is that this members list if used for the training hours, which is staff only
-            members = Member.objects.all()
+            members = Member.objects.all().order_by('user__first_name')
 
         # for mandate hour inputting
         mandate_assignments = member.active_mandate_assignments
@@ -1006,6 +1018,12 @@ def input_mandate_profile(request, id):
                 continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
+
+            completed_str = request.POST.get('completed-' + i)
+            completed = True if completed_str is not None else False
+            mandate = mandate_assignment.mandate
+            mandate.completed = completed
+            mandate.save()
 
             MandateHourRecord.objects.create(assignment=mandate_assignment, hours=hours, month=month, year=year)
 
@@ -1197,8 +1215,8 @@ def backups(request):
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
-    members = Member.objects.all()
-    accounts = Client.objects.filter(Q(status=0) | Q(status=1))
+    members = Member.objects.all().order_by('user__first_name')
+    accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
@@ -1267,7 +1285,7 @@ def backup_event(request, backup_period_id):
             return HttpResponse('success')
 
     role = backup_period.member.role
-    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id)
+    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id).order_by('user__first_name')
 
     context = {
         'backup_period': backup_period,
@@ -1289,7 +1307,7 @@ def add_training_hours(request):
     trainer = Member.objects.get(user=request.user)
 
     trainee_ids = request.POST.getlist('trainee_id')
-    trainees = Member.objects.filter(id__in=trainee_ids)
+    trainees = Member.objects.filter(id__in=trainee_ids).order_by('user__first_name')
 
     if trainer in trainees:
         return HttpResponse('You can\'t train yourself!')

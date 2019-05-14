@@ -3,7 +3,8 @@ from django.apps import apps
 from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
-from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord
+from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
+    MandateHourRecord
 import datetime
 import calendar
 
@@ -17,7 +18,9 @@ class RoleGroup(models.Model):
 
 
 class Role(models.Model):
-    """ Role at the company (example, Campaign Manager) """
+    """
+    Role at the company (example, Campaign Manager)
+    """
     name = models.CharField(max_length=255)
     group = models.ForeignKey(RoleGroup, models.SET_NULL, blank=True, null=True)
 
@@ -26,18 +29,19 @@ class Role(models.Model):
 
 
 class Team(models.Model):
-    """ Class to represent the different teams at Bloom """
+    """
+    Class to represent the different teams at Bloom
+    """
     name = models.CharField(max_length=255)
 
-    def get_members(self):
+    @property
+    def members(self):
         return list(Member.objects.filter(team=self))
 
     @property
     def team_lead(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self], role=role)
-
-    members = property(get_members)
 
     def __str__(self):
         return self.name
@@ -48,12 +52,13 @@ class HighFive(models.Model):
     High Fives
     """
     date = models.DateField(default=None, null=True, blank=True)
-    member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True)
+    nominator = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True, related_name='nominator')
+    member = models.ForeignKey('Member', models.SET_NULL, blank=True, null=True, related_name='awarded_member')
     description = models.CharField(max_length=2000, default='')
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return 'High Five ' + str(self.id)
+        return 'High Five on ' + str(self.date)
 
 
 class IncidentReason(models.Model):
@@ -139,7 +144,9 @@ class Skill(models.Model):
 
 
 class SkillEntry(models.Model):
-    """ Actually sets a score to the skill for a member """
+    """
+    Actually sets a score to the skill for a member
+    """
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
     score = models.IntegerField(null=True, blank=True, default=None)
@@ -154,7 +161,9 @@ class SkillEntry(models.Model):
 
 
 class SkillHistory(models.Model):
-    """ Keeps track of all skill entries, not only current """
+    """
+    Keeps track of all skill entries, not only current
+    """
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
     score = models.IntegerField(null=True, blank=True, default=None)
@@ -241,6 +250,12 @@ class Member(models.Model):
         year = now.year
         return self.actual_hours_other_month(month, year)
 
+    def mandate_hours_other_month(self, month, year):
+        mandate_hours = \
+            MandateHourRecord.objects.filter(assignment__member=self, month=month, year=year).aggregate(Sum('hours'))[
+                'hours__sum']
+        return mandate_hours if mandate_hours is not None else 0.0
+
     def actual_hours_other_month(self, month, year):
         now = datetime.datetime.now()
         if month == now.month and year == now.year:
@@ -256,7 +271,7 @@ class Member(models.Model):
             except MemberHourHistory.DoesNotExist:
                 return 0
             hours = record.actual_hours
-        return hours
+        return hours + self.mandate_hours_other_month(month, year)
 
     def actual_hours_today(self):
         now = datetime.datetime.now()
@@ -500,6 +515,14 @@ class Member(models.Model):
                 Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
             ) | self.active_mandate_accounts
         return self._accounts
+
+    @property
+    def accounts_not_lost(self):
+        """
+        My accounts that are not lost
+        :return:
+        """
+        return self.accounts.exclude(status=3)
 
     @property
     def active_accounts(self):

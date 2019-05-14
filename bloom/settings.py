@@ -295,6 +295,31 @@ else:
         'lexi@makeitbloom.com',
     ]
 
+if DEBUG:
+    OOPS_HF_MAILING_LIST = {
+        'lexi@makeitbloom.com',
+        'eric@makeitbloom.com',
+        'sam@makeitbloom.com'
+    }
+else:
+    OOPS_HF_MAILING_LIST = {
+        'lexi@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'xurxo@makeitbloom.com',
+        'phil@makeitbloom.com',
+        'antoine@makeitbloom.com',
+        'jessica@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'mike@makeitbloom.com',
+        'nick@makeitbloom.com',
+        'martin@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'joelle@makeitbloom.com',
+        'jamie@makeitbloom.com',
+        'genevieve.b@makeitbloom.com',
+        'doriane@makeitbloom.com'
+    }
+
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

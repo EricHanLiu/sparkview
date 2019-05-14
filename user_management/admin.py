@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Role, Member, Team, Incident, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
-    MemberHourHistory, IncidentReason
+    MemberHourHistory, IncidentReason, HighFive
 
 
 @admin.register(Member)
@@ -15,6 +15,11 @@ class TeamAdmin(admin.ModelAdmin):
 
 @admin.register(Incident)
 class IncidentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(HighFive)
+class HighFiveAdmin(admin.ModelAdmin):
     pass
 
 
