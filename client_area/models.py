@@ -748,6 +748,7 @@ class Mandate(models.Model):
     start_date = models.DateTimeField(default=None, null=True)
     end_date = models.DateTimeField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
 
     @property
     def hours(self):

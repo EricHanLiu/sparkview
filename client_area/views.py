@@ -73,7 +73,7 @@ def accounts_all(request):
     context = {
         'page_type': 'Active',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -91,7 +91,7 @@ def accounts_inactive(request):
     context = {
         'page_type': 'Inactive',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -109,7 +109,7 @@ def accounts_lost(request):
     context = {
         'page_type': 'Lost',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)

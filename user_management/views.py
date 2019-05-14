@@ -613,6 +613,14 @@ def members_single(request, id=0):
         'mandates': mandates
     }
 
+    # ajax mandate completed checkmarking
+    if request.method == 'POST':
+        checked = request.POST.get('checked') == 'true'
+        mandate_id = request.POST.get('mandate-id')
+        mandate = Mandate.objects.get(id=mandate_id)
+        mandate.completed = checked
+        mandate.save()
+
     return render(request, 'user_management/profile/profile.html', context)
 
 
@@ -1010,6 +1018,12 @@ def input_mandate_profile(request, id):
                 continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
+
+            completed_str = request.POST.get('completed-' + i)
+            completed = True if completed_str is not None else False
+            mandate = mandate_assignment.mandate
+            mandate.completed = completed
+            mandate.save()
 
             MandateHourRecord.objects.create(assignment=mandate_assignment, hours=hours, month=month, year=year)
 
