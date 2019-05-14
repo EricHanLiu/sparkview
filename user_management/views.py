@@ -598,7 +598,8 @@ def members_single(request, id=0):
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
 
-    mandates = Mandate.objects.all()
+    mandate_assignments = member.active_mandate_assignments
+    mandates = [assignment.mandate for assignment in mandate_assignments]
 
     context = {
         'accountHours': accountHours,
