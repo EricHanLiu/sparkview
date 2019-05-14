@@ -25,7 +25,17 @@
                             <div class="m-portlet__body">
                                 <div class="form-group m-form__group">
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
+                                            <label>Nominator:</label>
+                                            <select class="form-control m-input"
+                                                    name="nominator" id="nominator_hf"
+                                                    style="width: 100%;" required>
+                                                {% for member in members %}
+                                                    <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
                                             <label>Member:</label>
                                             <select class="form-control m-input"
                                                     name="member" id="member-hf"
@@ -40,7 +50,7 @@
                                             <input type="text" name="hf-date" class="form-control datetimepicker"
                                                    placeholder="Enter Date..." required>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label for="description">Description:</label>
                                             <input type="text" name="description"
                                                    class="form-control m-input">

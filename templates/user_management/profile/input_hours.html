@@ -73,13 +73,13 @@
                                             <div class="col-md-2">
                                                 <label>Hours:</label>
                                                 <input type="text" name="hours-{{ forloop.counter0 }}"
-                                                       class="form-control m-input" required>
+                                                       class="form-control m-input">
                                             </div>
                                             <div class="col-md-2">
                                                 <label>Month:</label>
                                                 <select class="form-control m-input"
                                                         name="month-{{ forloop.counter0 }}"
-                                                        style="width: 100%;" required>
+                                                        style="width: 100%;">
                                                     {% for monthNum, monthName in months %}
                                                         <option value="{{ monthNum }}"
                                                                 {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
@@ -90,7 +90,7 @@
                                                 <label for="year">Year:</label>
                                                 <select class="form-control m-input"
                                                         name="year-{{ forloop.counter0 }}"
-                                                        style="width: 100%;" required>
+                                                        style="width: 100%;">
                                                     {% for year in years %}
                                                         <option value="{{ year }}"
                                                                 {% if year == current_year %}selected{% endif %}>{{ year }}</option>
@@ -169,27 +169,36 @@
                                                     <input type="text" name="hours-{{ forloop.counter0 }}" required
                                                            class="form-control m-input">
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
                                                     <label>Month:</label>
                                                     <select class="form-control m-input"
                                                             name="month-{{ forloop.counter0 }}"
-                                                            style="width: 100%;" required>
+                                                            style="width: 100%;">
                                                         {% for monthNum, monthName in months %}
                                                             <option value="{{ monthNum }}"
                                                                     {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
                                                     <label for="year">Year:</label>
                                                     <select class="form-control m-input"
                                                             name="year-{{ forloop.counter0 }}"
-                                                            style="width: 100%;" required>
+                                                            style="width: 100%;">
                                                         {% for year in years %}
                                                             <option value="{{ year }}"
                                                                     {% if year == current_year %}selected{% endif %}>{{ year }}</option>
                                                         {% endfor %}
                                                     </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label>Mandate Completed:</label> <br>
+                                                    <label class="m-checkbox">
+                                                        <input type="checkbox" name="completed-{{ forloop.counter0 }}"
+                                                                {% if mandate_assignment.mandate.completed %}
+                                                               checked {% endif %}>
+                                                        <span></span>
+                                                    </label>
                                                 </div>
                                             </div>
                                         {% endfor %}
@@ -242,8 +251,8 @@
                                             <div class="col-md-3">
                                                 <label>Month:</label>
                                                 <select class="form-control m-input"
-                                                        name="month"
-                                                        style="width: 100%;" required>
+                                                        name="month" required
+                                                        style="width: 100%;">
                                                     {% for monthNum, monthName in months %}
                                                         <option value="{{ monthNum }}"
                                                                 {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
@@ -253,8 +262,8 @@
                                             <div class="col-md-3">
                                                 <label for="year">Year:</label>
                                                 <select class="form-control m-input"
-                                                        name="year"
-                                                        style="width: 100%;" required>
+                                                        name="year" required
+                                                        style="width: 100%;">
                                                     {% for year in years %}
                                                         <option value="{{ year }}"
                                                                 {% if year == current_year %}selected{% endif %}>{{ year }}</option>
@@ -358,6 +367,7 @@
         {% for account in accounts %}
             accountNames.push('{{ account.client_name }}');
         {% endfor %}
+
         let len = accountNames.length;
 
         $(document).ready(() => {

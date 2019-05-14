@@ -21,7 +21,7 @@ from .forms import NewClientForm
 @login_required
 def accounts(request):
     member = Member.objects.get(user=request.user)
-    accounts = member.accounts
+    accounts = member.accounts_not_lost
 
     now = datetime.datetime.now()
 
@@ -73,7 +73,7 @@ def accounts_all(request):
     context = {
         'page_type': 'Active',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -91,7 +91,7 @@ def accounts_inactive(request):
     context = {
         'page_type': 'Inactive',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -109,7 +109,7 @@ def accounts_lost(request):
     context = {
         'page_type': 'Lost',
         'status_badges': status_badges,
-        'accounts': accounts
+        'accounts': accounts,
     }
 
     return render(request, 'client_area/accounts_all.html', context)
@@ -483,15 +483,17 @@ def account_edit_temp(request, id):
             sp.seo_status = 1
             account.seo_hours = seo_hours
         else:
-            sp.seo_status = 6
-            account.seo_hours = 0.0
+            if sp.seo_status != 2:
+                sp.seo_status = 6
+                account.seo_hours = 0.0
 
         if cro_hours != '' and float(cro_hours) != 0.0:
             sp.cro_status = 1
             account.cro_hours = cro_hours
         else:
-            sp.cro_status = 6
-            account.cro_hours = 0.0
+            if sp.cro_status != 2:
+                sp.cro_status = 6
+                account.cro_hours = 0.0
 
         sp.save()
 

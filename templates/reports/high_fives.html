@@ -35,6 +35,9 @@
                                     Date
                                 </th>
                                 <th>
+                                    Nominator
+                                </th>
+                                <th>
                                     Member
                                 </th>
                                 <th>
@@ -47,6 +50,9 @@
                                 <tr>
                                     <td>
                                         {{ hf.date }}
+                                    </td>
+                                    <td>
+                                        {{ hf.nominator }}
                                     </td>
                                     <td>
                                         <a href="/user_management/members/{{ hf.member.id }}">{{ hf.member.user.get_full_name }}</a>

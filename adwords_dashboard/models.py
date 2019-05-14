@@ -136,7 +136,22 @@ class DependentAccount(models.Model):
         Returns campaigns that are greater than 0 spend only
         :return:
         """
-        return Campaign.objects.filter(account=self, campaign_cost__gt=0).order_by('-campaign_cost')
+        if not hasattr(self, '_campaigns'):
+            self._campaigns = self.campaign_set.filter(campaign_cost__gt=0).order_by('-campaign_cost')
+        return self._campaigns
+
+    @property
+    def current_spend_calculated(self):
+        """
+        Sums up all campaigns
+        :return:
+        """
+        if not hasattr(self, '_current_spend_calculated'):
+            spend = 0.0
+            for cmp in self.campaigns:
+                spend += cmp.spend
+            self._current_spend_calculated = spend
+        return self._current_spend_calculated
 
     @property
     def project_yesterday(self):
@@ -207,6 +222,20 @@ class DependentAccount(models.Model):
         if self.dependent_account_name is None:
             return str(self.dependent_account_id)
         return self.dependent_account_name
+
+
+class GoogleAdsAccountMonthRecord(models.Model):
+    """
+    Records the spend and budget of a Google Ads account for one month
+    """
+    account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True, default=None)
+    month = models.IntegerField(default=0)
+    year = models.IntegerField(default=1970)
+    spend = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.account) + ' ' + str(self.month) + '/' + str(self.year)
 
 
 class Performance(models.Model):
