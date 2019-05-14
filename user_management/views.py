@@ -613,6 +613,14 @@ def members_single(request, id=0):
         'mandates': mandates
     }
 
+    # ajax mandate completed checkmarking
+    if request.method == 'POST':
+        checked = request.POST.get('checked') == 'true'
+        mandate_id = request.POST.get('mandate-id')
+        mandate = Mandate.objects.get(id=mandate_id)
+        mandate.completed = checked
+        mandate.save()
+
     return render(request, 'user_management/profile/profile.html', context)
 
 
