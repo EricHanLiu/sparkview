@@ -137,16 +137,6 @@
                                                       data-original-title="
                                                         {% if aw %}
                                                             {% for a in aw %}
-
-
-
-
-
-
-
-
-
-
                                                           {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
                                                             {% endfor %}
                                                         {% else %}
@@ -394,7 +384,7 @@
                         </div>
                     </div>
                 {% endif %}
-                {% if mandates.count > 0 %}
+                {% if mandates|length > 0 %}
                     <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                         <div class="m-portlet__head">
                             <div class="m-portlet__head-caption">
