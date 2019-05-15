@@ -916,8 +916,9 @@ def input_hours_profile(request, id):
     if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    member = Member.objects.get(id=id)
+
     if request.method == 'GET':
-        member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
             Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -957,7 +958,6 @@ def input_hours_profile(request, id):
         return render(request, 'user_management/profile/input_hours.html', context)
 
     elif request.method == 'POST':
-        member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
             Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -973,9 +973,8 @@ def input_hours_profile(request, id):
                 continue  # ajax request for just one account
             account = Client.objects.get(id=account_id)
 
-            if not request.user.is_staff and not member.has_account(account_id):
+            if not request.user.is_staff and not request_member.has_account(account_id):
                 return HttpResponseForbidden('You do not have permission to add hours to this account')
-            member = Member.objects.get(user=request.user)
             hours = request.POST.get('hours-' + i)
             try:
                 hours = float(hours)
@@ -998,19 +997,16 @@ def input_mandate_profile(request, id):
     :return:
     """
     request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
-        member = Member.objects.get(user=request.user)
+        member = Member.objects.get(id=id)
         assignments_count = member.active_mandate_assignments.count()
         for i in range(assignments_count):
             i = str(i)
             assignment_id = request.POST.get('mandate-id-' + i)
             mandate_assignment = MandateAssignment.objects.get(id=assignment_id)
 
-            account_id = request.POST.get('account-id-' + i)
-            if not request.user.is_staff and not member.has_account(account_id):
+            if not request.user.is_staff and mandate_assignment not in request_member.active_mandate_assignments:
                 return HttpResponseForbidden('You do not have permission to add hours to this account')
             hours = request.POST.get('hours-' + i)
             try:
