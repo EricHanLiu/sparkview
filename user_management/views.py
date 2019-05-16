@@ -916,7 +916,11 @@ def input_hours_profile(request, id):
     if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    member = Member.objects.get(id=id)
+    # if provided member ID is invalid, use request user
+    try:
+        member = Member.objects.get(id=id)
+    except Member.DoesNotExist:
+        member = Member.objects.get(user=request.user)
 
     if request.method == 'GET':
         accounts = Client.objects.filter(
@@ -999,14 +1003,19 @@ def input_mandate_profile(request, id):
     request_member = Member.objects.get(user=request.user)
 
     if request.method == 'POST':
-        member = Member.objects.get(id=id)
-        assignments_count = member.active_mandate_assignments.count()
-        for i in range(assignments_count):
-            i = str(i)
-            assignment_id = request.POST.get('mandate-id-' + i)
-            mandate_assignment = MandateAssignment.objects.get(id=assignment_id)
+        # if provided member ID is invalid, use request user
+        try:
+            member = Member.objects.get(id=id)
+        except Member.DoesNotExist:
+            member = Member.objects.get(user=request.user)
 
-            if not request.user.is_staff and mandate_assignment not in request_member.active_mandate_assignments:
+        assignments = member.active_mandate_assignments
+        for i in range(len(assignments)):
+            assignment = assignments[i]
+            i = str(i)
+
+            # check if this assignment is in the request user's active assignments, if not then disallow post
+            if not request.user.is_staff and assignment not in request_member.active_mandate_assignments:
                 return HttpResponseForbidden('You do not have permission to add hours to this account')
             hours = request.POST.get('hours-' + i)
             try:
@@ -1018,11 +1027,11 @@ def input_mandate_profile(request, id):
 
             completed_str = request.POST.get('completed-' + i)
             completed = True if completed_str is not None else False
-            mandate = mandate_assignment.mandate
+            mandate = assignment.mandate
             mandate.completed = completed
             mandate.save()
 
-            MandateHourRecord.objects.create(assignment=mandate_assignment, hours=hours, month=month, year=year)
+            MandateHourRecord.objects.create(assignment=assignment, hours=hours, month=month, year=year)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
