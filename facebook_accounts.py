@@ -48,7 +48,8 @@ def add_campaigns():
 
 
 def main():
-    FacebookAdsApi.init(settings.app_id, settings.app_secret, settings.w_access_token, api_version=settings.FACEBOOK_AD_VERSION)
+    FacebookAdsApi.init(settings.app_id, settings.app_secret, settings.w_access_token,
+                        api_version=settings.FACEBOOK_ADS_VERSION)
     me = AdUser(fbid='me')
     accounts = list(me.get_ad_accounts())
     # remove personal AdAccount from list
