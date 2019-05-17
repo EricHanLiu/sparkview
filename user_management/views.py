@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, Http404
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 import datetime
@@ -920,7 +920,7 @@ def input_hours_profile(request, id):
     try:
         member = Member.objects.get(id=id)
     except Member.DoesNotExist:
-        member = Member.objects.get(user=request.user)
+        raise Http404('The member associated with this ID does not exist!')
 
     if request.method == 'GET':
         accounts = Client.objects.filter(
@@ -1007,7 +1007,7 @@ def input_mandate_profile(request, id):
         try:
             member = Member.objects.get(id=id)
         except Member.DoesNotExist:
-            member = Member.objects.get(user=request.user)
+            raise Http404('The member associated with this ID does not exist!')
 
         assignments = member.active_mandate_assignments
         for i in range(len(assignments)):
