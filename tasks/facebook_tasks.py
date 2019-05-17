@@ -1,5 +1,5 @@
 import calendar
-from bloom import celery_app
+from bloom import celery_app, settings
 from bloom.utils import FacebookReportingService
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
@@ -12,7 +12,7 @@ from dateutil.relativedelta import relativedelta
 
 
 def facebook_init():
-    return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.1')
+    return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version=settings.FACEBOOK_ADS_VERSION)
 
 
 def account_anomalies(account_id, helper, daterange1, daterange2):
@@ -86,7 +86,7 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 @celery_app.task(bind=True)
 def facebook_accounts(self):
 
-    FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.1')
+    FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version=settings.FACEBOOK_ADS_VERSION)
 
     me = AdUser(fbid='me')
     accounts = list(me.get_ad_accounts())
@@ -103,7 +103,7 @@ def facebook_accounts(self):
         try:
             FacebookAccount.objects.get(account_id=account[AdAccount.Field.account_id])
             print('Matched in DB(' + account[AdAccount.Field.account_id] + ')')
-        except ObjectDoesNotExist:
+        except FacebookAccount.DoesNotExist:
             FacebookAccount.objects.create(account_id=account[AdAccount.Field.account_id],
                                            account_name=account[AdAccount.Field.name], channel='facebook')
             print('Added to DB - ' + str(account[AdAccount.Field.name]) + '.')
