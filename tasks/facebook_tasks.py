@@ -12,7 +12,8 @@ from dateutil.relativedelta import relativedelta
 
 
 def facebook_init():
-    return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version=settings.FACEBOOK_ADS_VERSION)
+    # return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version=settings.FACEBOOK_ADS_VERSION)
+    return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.0.1')
 
 
 def account_anomalies(account_id, helper, daterange1, daterange2):

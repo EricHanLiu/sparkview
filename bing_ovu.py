@@ -1,18 +1,29 @@
 import os
-import logging
+from redis.exceptions import ConnectionError as ReddisConnectionError
+from kombu.exceptions import OperationalError as KombuOperationalError
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
+
 django.setup()
 from bing_dashboard.models import BingAccounts
 from tasks.bing_tasks import bing_cron_ovu
+from tasks.logger import Logger
 
 
 def main():
-
     accounts = BingAccounts.objects.filter(blacklisted=False)
 
     for acc in accounts:
-        bing_cron_ovu.delay(acc.account_id)
+        try:
+            bing_cron_ovu.delay(acc.account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for bing_ovu.py for account ' + str(
+                acc.account_name)
+            warning_desc = 'Failed to create celery task for bing_ovu.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
 
 
 if __name__ == '__main__':
