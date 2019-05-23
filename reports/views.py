@@ -455,6 +455,7 @@ def actual_hours(request):
     else:
         return HttpResponse('Invalid request type')
 
+    hour_total = 0.0
     for hour in hours:
         try:
             hour['member'] = members.get(id=hour['member'])
@@ -465,13 +466,16 @@ def actual_hours(request):
         except Client.DoesNotExist:
             hour['account'] = 'Client does not exist'
 
+        hour_total += hour['sum_hours']
+
     context = {
         'hours': hours,
         'accounts': accounts,
         'members': members,
         'months': months,
         'years': years,
-        'selected': selected
+        'selected': selected,
+        'hour_total': hour_total
     }
 
     return render(request, 'reports/actual_hours.html', context)
@@ -945,10 +949,10 @@ def new_incident(request):
             issue_type = int(r.get('issue-type'))
         except (ValueError, TypeError):
             issue_type = None
-        if issue_type == 0:
-            budget_error_amt = r.get('budget-error')
-        else:
-            budget_error_amt = None  # might be redundant
+        try:
+            budget_error_amt = float(r.get('budget-error'))
+        except ValueError:
+            budget_error_amt = 0.0
         try:
             platform = r.get('platform')
         except ValueError:
@@ -985,8 +989,7 @@ def new_incident(request):
             incident_reason = None
 
         incident.issue = incident_reason
-        if budget_error_amt is not None:
-            incident.budget_error_amount = budget_error_amt
+        incident.budget_error_amount = budget_error_amt
         incident.platform = platform
         incident.client_aware = client_aware
         incident.client_at_risk = client_at_risk

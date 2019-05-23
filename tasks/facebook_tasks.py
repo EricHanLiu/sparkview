@@ -1,5 +1,5 @@
 import calendar
-from bloom import celery_app
+from bloom import celery_app, settings
 from bloom.utils import FacebookReportingService
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
@@ -7,12 +7,20 @@ from budget.models import FlightBudget, CampaignGrouping, Client
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
 from facebook_business.adobjects.adaccount import AdAccount
+from facebook_business.exceptions import FacebookBadObjectError, FacebookRequestError
 from bloom.settings import app_id, app_secret, w_access_token
 from dateutil.relativedelta import relativedelta
+from tasks.logger import Logger
 
 
 def facebook_init():
-    return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.1')
+    try:
+        return FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version=settings.FACEBOOK_ADS_VERSION)
+    except FacebookBadObjectError:
+        logger = Logger()
+        warning_message = 'Failed to initialize facebook api in facebook_accounts.py'
+        warning_desc = 'Failed facebook api initialize'
+        logger.send_warning_email(warning_message, warning_desc)
 
 
 def account_anomalies(account_id, helper, daterange1, daterange2):
@@ -85,8 +93,7 @@ def campaign_anomalies(account_id, helper, daterange1, daterange2):
 
 @celery_app.task(bind=True)
 def facebook_accounts(self):
-
-    FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version='v3.1')
+    FacebookAdsApi.init(app_id, app_secret, w_access_token, api_version=settings.FACEBOOK_ADS_VERSION)
 
     me = AdUser(fbid='me')
     accounts = list(me.get_ad_accounts())
@@ -103,20 +110,17 @@ def facebook_accounts(self):
         try:
             FacebookAccount.objects.get(account_id=account[AdAccount.Field.account_id])
             print('Matched in DB(' + account[AdAccount.Field.account_id] + ')')
-        except ObjectDoesNotExist:
+        except FacebookAccount.DoesNotExist:
             FacebookAccount.objects.create(account_id=account[AdAccount.Field.account_id],
                                            account_name=account[AdAccount.Field.name], channel='facebook')
             print('Added to DB - ' + str(account[AdAccount.Field.name]) + '.')
 
 
-
 @celery_app.task(bind=True)
 def facebook_ovu(self):
-
     accounts = FacebookAccount.objects.filter(blacklisted=False)
 
     for account in accounts:
-
         facebook_cron_ovu.delay(account.account_id)
 
 
@@ -146,11 +150,18 @@ def facebook_cron_ovu(self, account_id):
         level='account'
     )
 
-    spend_this_month = helper.get_account_insights(account.account_id, params=this_month, extra_fields=['spend'])
-    segmented = helper.get_account_insights(account.account_id, params=segmented_param)
+    try:
+        spend_this_month = helper.get_account_insights(account.account_id, params=this_month, extra_fields=['spend'])
+        segmented = helper.get_account_insights(account.account_id, params=segmented_param)
 
-    yesterday = helper.get_account_insights(account.account_id, params=yesterday_time, extra_fields=['spend'])
-    last_7_days = helper.get_account_insights(account.account_id, params=last_7, extra_fields=['spend'])
+        yesterday = helper.get_account_insights(account.account_id, params=yesterday_time, extra_fields=['spend'])
+        last_7_days = helper.get_account_insights(account.account_id, params=last_7, extra_fields=['spend'])
+    except FacebookRequestError:
+        logger = Logger()
+        warning_message = 'Failed to make a request to Facebook in facebook_ovu.pu'
+        warning_desc = 'Failed to make FB call facebook_ovu.py'
+        logger.send_warning_email(warning_message, warning_desc)
+        return
 
     segmented_data = {
         i['date_stop']: i['spend'] for i in segmented
@@ -190,11 +201,9 @@ def facebook_cron_ovu(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_anomalies(self):
-
     accounts = FacebookAccount.objects.filter(blacklisted=False)
 
     for account in accounts:
-
         facebook_cron_anomalies.delay(account.account_id)
 
 
@@ -320,11 +329,9 @@ def facebook_cron_anomalies_campaigns(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_alerts(self):
-
     accounts = FacebookAccount.objects.filter(blacklisted=False)
 
     for account in accounts:
-
         facebook_cron_alerts.delay(account.account_id)
 
 
@@ -375,7 +382,6 @@ def facebook_cron_alerts(self, account_id):
 
 @celery_app.task(bind=True)
 def facebook_campaigns(self):
-
     accounts = FacebookAccount.objects.filter(blacklisted=False)
 
     for account in accounts:
@@ -462,11 +468,11 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
 
 @celery_app.task(bind=True)
 def facebook_flight_dates(self):
-
     fb = FacebookAccount.objects.filter(blacklisted=False)
 
     for f in fb:
         facebook_cron_flight_dates.delay(f.account_id)
+
 
 @celery_app.task(bind=True)
 def facebook_cron_flight_dates(self, customer_id):
@@ -498,11 +504,11 @@ def facebook_cron_flight_dates(self, customer_id):
 
 @celery_app.task(bind=True)
 def facebook_trends(self):
-
     accounts = FacebookAccount.objects.filter(blacklisted=False)
 
     for account in accounts:
         facebook_result_trends.delay(account.account_id)
+
 
 @celery_app.task(bind=True)
 def facebook_result_trends(self, customer_id):
