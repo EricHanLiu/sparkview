@@ -455,6 +455,7 @@ def actual_hours(request):
     else:
         return HttpResponse('Invalid request type')
 
+    hour_total = 0.0
     for hour in hours:
         try:
             hour['member'] = members.get(id=hour['member'])
@@ -465,13 +466,16 @@ def actual_hours(request):
         except Client.DoesNotExist:
             hour['account'] = 'Client does not exist'
 
+        hour_total += hour['sum_hours']
+
     context = {
         'hours': hours,
         'accounts': accounts,
         'members': members,
         'months': months,
         'years': years,
-        'selected': selected
+        'selected': selected,
+        'hour_total': hour_total
     }
 
     return render(request, 'reports/actual_hours.html', context)
