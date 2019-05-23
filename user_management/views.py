@@ -49,8 +49,27 @@ def members(request):
                                   'buffer_seniority_percentage'
                                   )
 
+    total_hours_available = 0.0
+    total_actual_hours = 0.0
+    total_value_added_hours = 0.0
+    total_active_accounts = 0.0
+    total_onboarding_accounts = 0.0
+
+    for member in members:
+        # TODO: Make sure all of these calls are cached
+        total_hours_available += member.hours_available
+        total_actual_hours += member.actual_hours_month()
+        total_value_added_hours += member.value_added_hours_this_month
+        total_active_accounts += member.active_accounts_count
+        total_onboarding_accounts += member.onboarding_accounts_count
+
     context = {
         'members': members,
+        'total_hours_available': round(total_hours_available, 2),
+        'total_actual_hours': round(total_actual_hours, 2),
+        'total_value_added_hours': round(total_value_added_hours, 2),
+        'total_active_accounts': round(total_active_accounts, 2),
+        'total_onboarding_accounts': round(total_onboarding_accounts, 2)
     }
 
     return render(request, 'user_management/members.html', context)
