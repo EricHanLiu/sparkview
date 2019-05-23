@@ -30,7 +30,7 @@ def members(request):
         members_resp = {}
         count = 0
 
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         for member in members:
             members_resp[count]['id'] = member.id
             members_resp[count]['name'] = member.user.get_full_name()
@@ -67,7 +67,7 @@ def member_dashboard(request, id):
     member = get_object_or_404(Member, id=id)
 
     # Members, Teams, Roles
-    members = Member.objects.all().order_by('user__first_name')
+    members = Member.objects.filter(deactivated=False).order_by('user__first_name')
     teams = Team.objects.all()
     roles = Role.objects.all()
 
@@ -942,7 +942,7 @@ def input_hours_profile(request, id):
         members = Member.objects.none
         if request.user.is_staff:
             # Reason for this is that this members list if used for the training hours, which is staff only
-            members = Member.objects.all().order_by('user__first_name')
+            members = Member.objects.filter(deactivated=False).order_by('user__first_name')
 
         # for mandate hour inputting
         mandate_assignments = member.active_mandate_assignments
@@ -1221,7 +1221,7 @@ def backups(request):
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
-    members = Member.objects.all().order_by('user__first_name')
+    members = Member.objects.filter(deactivated=False).order_by('user__first_name')
     accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
@@ -1313,7 +1313,7 @@ def add_training_hours(request):
     trainer = Member.objects.get(user=request.user)
 
     trainee_ids = request.POST.getlist('trainee_id')
-    trainees = Member.objects.filter(id__in=trainee_ids).order_by('user__first_name')
+    trainees = Member.objects.filter(id__in=trainee_ids, deactivated=False).order_by('user__first_name')
 
     if trainer in trainees:
         return HttpResponse('You can\'t train yourself!')

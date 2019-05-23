@@ -126,7 +126,7 @@ def account_new(request):
         clients = ParentClient.objects.all().order_by('name')
         industries = Industry.objects.all()
         languages = Language.objects.all()
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         services = Service.objects.all()
         fee_structures = ManagementFeesStructure.objects.all()
         tiers = [1, 2, 3]
@@ -286,7 +286,7 @@ def account_new(request):
 
             # Account is created, send out notifications to all necessary members
             staff_users = User.objects.filter(is_staff=True)
-            staff_members = Member.objects.filter(user__in=staff_users)
+            staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
             for staff_member in staff_members:
                 Notification.objects.create(member=staff_member,
                                             message='New account won! Please assign members to new account ' + str(
@@ -388,7 +388,7 @@ def account_edit_temp(request, id):
             if inactive_return != '':
                 account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%Y-%m-%d')
             staff_users = User.objects.filter(is_staff=True)
-            staff_members = Member.objects.filter(user__in=staff_users)
+            staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
                 message = str(account.client_name) + ' is now inactive (paused).'
@@ -434,7 +434,7 @@ def account_edit_temp(request, id):
             if lost_bc != '':
                 account.lost_bc_link = lost_bc
             staff_users = User.objects.filter(is_staff=True)
-            staff_members = Member.objects.filter(user__in=staff_users)
+            staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
                 message = str(account.client_name) + ' has been lost.'
@@ -553,7 +553,7 @@ def account_edit(request, id):
         client_types = ClientType.objects.all()
         industries = Industry.objects.all()
         languages = Language.objects.all()
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         services = Service.objects.all()
         statuses = Client._meta.get_field('status').choices
         tiers = [1, 2, 3]
@@ -659,7 +659,7 @@ def account_single(request, id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
         account = Client.objects.get(id=id)
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         changes = AccountChanges.objects.filter(account=account)
 
         # Get hours this month for this account
@@ -897,7 +897,7 @@ def add_hours_to_account(request):
         members = Member.objects.none
         if request.user.is_staff:
             # Reason for this is that this members list if used for the training hours, which is staff only
-            members = Member.objects.all().order_by('user__first_name')
+            members = Member.objects.filter(deactivated=False).order_by('user__first_name')
 
         context = {
             'member': member,
