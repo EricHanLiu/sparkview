@@ -16,7 +16,7 @@ def main():
 
     for account in accounts:
         try:
-            facebook_cron_ovu.delay(account.account_id)
+            facebook_cron_ovu(account.account_id)
         except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
             logger = Logger()
             warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(

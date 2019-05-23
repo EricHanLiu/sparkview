@@ -8,7 +8,7 @@ class Logger:
     """
 
     def __init__(self):
-        self.email_addresses = settings.MAIL_ADS
+        self.email_addresses = settings.WARNING_SYSTEM_EMAILS
 
     def send_warning_email(self, message, short_desc):
         if settings.DEBUG:

@@ -190,7 +190,6 @@ API_VERSION = 'v201809'
 BING_API_VERSION = 12
 FACEBOOK_ADS_VERSION = 'v3.2'
 
-
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_ERROR_URL = 'login'
@@ -299,6 +298,12 @@ else:
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
     ]
+
+if DEBUG:
+    WARNING_SYSTEM_EMAILS = ['sam@makeitbloom.com', 'lexi@makeitbloom.com', 'dev@makeitbloom.com']
+else:
+    WARNING_SYSTEM_EMAILS = ['sam@makeitbloom.com', 'lexi@makeitbloom.com', 'dev@makeitbloom.com',
+                             'eric@makeitbloom.com']
 
 if DEBUG:
     OOPS_HF_MAILING_LIST = {
