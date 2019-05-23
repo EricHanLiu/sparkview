@@ -156,9 +156,11 @@ def facebook_cron_ovu(self, account_id):
 
         yesterday = helper.get_account_insights(account.account_id, params=yesterday_time, extra_fields=['spend'])
         last_7_days = helper.get_account_insights(account.account_id, params=last_7, extra_fields=['spend'])
-    except FacebookRequestError:
+    except FacebookRequestError as fre:
+        if fre.body()['error']['error_subcode'] == 33:
+            return
         logger = Logger()
-        warning_message = 'Failed to make a request to Facebook in facebook_ovu.pu'
+        warning_message = 'Failed to make a request to Facebook in facebook_ovu.py. Error is this: ' + str(fre)
         warning_desc = 'Failed to make FB call facebook_ovu.py'
         logger.send_warning_email(warning_message, warning_desc)
         return
