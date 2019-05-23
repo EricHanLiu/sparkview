@@ -188,6 +188,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 API_VERSION = 'v201809'
 BING_API_VERSION = 12
+FACEBOOK_ADS_VERSION = 'v3.2'
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = 'index'
@@ -204,7 +205,7 @@ CRONJOBS = [
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
-    ('5 8 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
+    # ('5 8 * * *', 'cron_labels.main', '> ' + BASE_DIR + '/logs/labels.log'),
     # ('30 8 * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
     ('00 * * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
     ('00 * * * *', 'bing_campaigns.main', '> ' + BASE_DIR + '/logs/bing_campaigns.log'),
@@ -229,9 +230,9 @@ CRONJOBS = [
     # ('00 13 * * *', 'cron_trends.main', '> ' + BASE_DIR + '/logs/trends_report.log'),
     # ('00 13 * * *', 'bing_trends.main', '> ' + BASE_DIR + '/logs/bing_trends_report.log'),
     # ('05 13 * * *', 'cron_qualityscore.main', '> ' + BASE_DIR + '/logs/cron_qualityscore_report.log'),
-    ('10 13 * * *', 'cron_accounts_not_running.main', '> ' + BASE_DIR + '/logs/cron_not_running.log'),
-    ('25 13 * * *', 'bing_qualityscore.main', '> ' + BASE_DIR + '/logs/bing_qualityscore_report.log'),
-    ('25 13 * * *', 'bing_accounts_not_running.main', '> ' + BASE_DIR + '/logs/bing_not_running.log'),
+    # ('10 13 * * *', 'cron_accounts_not_running.main', '> ' + BASE_DIR + '/logs/cron_not_running.log'),
+    # ('25 13 * * *', 'bing_qualityscore.main', '> ' + BASE_DIR + '/logs/bing_qualityscore_report.log'),
+    # ('25 13 * * *', 'bing_accounts_not_running.main', '> ' + BASE_DIR + '/logs/bing_not_running.log'),
     # ('35 13 * * *', 'cron_extensions.main', '> ' + BASE_DIR + '/logs/cron_extensions.log'),
     # ('40 13 * * *', 'cron_nlc_am.main', '> ' + BASE_DIR + '/logs/cron_nlc_am.log'),
     # ('50 13 * * *', 'cron_wasted_spend.main', '> ' + BASE_DIR + '/logs/cron_wasted_spend.log'),
@@ -297,6 +298,12 @@ else:
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
     ]
+
+if DEBUG:
+    WARNING_SYSTEM_EMAILS = ['sam@makeitbloom.com', 'lexi@makeitbloom.com', 'dev@makeitbloom.com']
+else:
+    WARNING_SYSTEM_EMAILS = ['sam@makeitbloom.com', 'lexi@makeitbloom.com', 'dev@makeitbloom.com',
+                             'eric@makeitbloom.com']
 
 if DEBUG:
     OOPS_HF_MAILING_LIST = {
