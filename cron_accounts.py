@@ -4,8 +4,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 django.setup()
 from django.conf import settings
+from googleads.errors import GoogleAdsValueError
 from adwords_dashboard import models
 from adwords_dashboard.cron_scripts import get_accounts
+from tasks.logger import Logger
 
 
 def add_accounts(client):
@@ -27,8 +29,15 @@ def add_accounts(client):
 
 
 def main():
+    try:
+        adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
+    except GoogleAdsValueError:
+        logger = Logger()
+        warning_message = 'Failed to create a session with Google Ads API in cron_accounts.py'
+        warning_desc = 'Failure in cron_accounts.py'
+        logger.send_warning_email(warning_message, warning_desc)
+        return
 
-    adwords_client = adwords.AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
     add_accounts(adwords_client)
 
 

@@ -12,6 +12,8 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from _pickle import UnpicklingError
+from tasks.logger import Logger
 import itertools
 from operator import itemgetter
 
@@ -239,7 +241,14 @@ def bing_ovu(self):
 @celery_app.task(bind=True)
 def bing_cron_ovu(self, customer_id):
     account = BingAccounts.objects.get(account_id=customer_id)
-    helper = BingReportingService()
+    try:
+        helper = BingReportingService()
+    except UnpicklingError:
+        logger = Logger()
+        warning_message = 'Could not connect to bing. Probably bad credentials.'
+        warning_desc = 'Bad credentials for bing ads.'
+        logger.send_warning_email(warning_message, warning_desc)
+        return
 
     this_month = helper.get_this_month_daterange()
     last_7 = helper.get_daterange(days=7)
