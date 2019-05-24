@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client
 from .utils import days_in_month_in_daterange
-from client_area.models import Mandate, MandateType, MandateAssignment
+from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord
 import datetime
 from django.utils.timezone import make_aware
 
@@ -67,3 +67,6 @@ class ClientTestCase(TestCase):
 
         self.assertEqual(test_member.allocated_hours_this_month, 7)
         self.assertEqual(test_member2.allocated_hours_this_month, 3)
+
+        MandateHourRecord.objects.create(assignment=mandate_assignment1, hours=5, month=now.month, year=now.year)
+        self.assertEqual(test_account.actual_mandate_hours(now.month, now.year), 5)
