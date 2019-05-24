@@ -140,7 +140,7 @@ def cm_capacity(request):
     # TODO: Make this reasonable
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead'))
+            name='PPC Team Lead') | Q(name='Team Lead') | Q(name='Management'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0

@@ -17,6 +17,10 @@
             cursor: pointer;
         }
 
+        .summary-spend-row {
+            font-size: 0.9rem;
+        }
+
     </style>
 {% endblock %}
 
@@ -102,7 +106,7 @@
                         <div class="m-portlet__body">
                             {% for account in accounts %}
                                 <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
-                                    <div class="col-3">
+                                    <div class="col-2">
                                         <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                         <p>My hours this month:
                                             {{ accountHours|get_item_from_list:account.id }}/{{ accountAllocation|get_item_from_list:account.id }}</p>
@@ -159,21 +163,29 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-                                    <div class="col-9">
-                                        <div class="row">
-                                            <div class="col-md-3"><b>Current</b>:
+                                    <div class="col-10">
+                                        <div class="row summary-spend-row">
+                                            <div class="col-md-2"><b>Current</b>:
                                                 {{ account.currency }}{{ account.current_spend|format_money }}
                                             </div>
-                                            <div class="col-md-3"><b>Budget</b>:
+                                            <div class="col-md-2"><b>Budget</b>:
                                                 {{ account.currency }}{{ account.current_budget|format_money }}
                                             </div>
-                                            <div class="col-md-3">
-                                                <b>Average Projected</b>:
+                                            <div class="col-md-2">
+                                                <b>Avg Projected</b>:
                                                 {{ account.currency }}{{ account.project_average|format_money }}
                                             </div>
-                                            <div class="col-md-3">
-                                                <b>Yesterday Projected</b>:
+                                            <div class="col-md-2">
+                                                <b>Yest Projected</b>:
                                                 {{ account.currency }}{{ account.project_yesterday|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Spend</b>:
+                                                {{ account.currency }}{{ account.yesterday_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Target Daily Spend</b>:
+                                                {{ account.currency }}{{ account.target_spend|format_money }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
