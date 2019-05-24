@@ -765,6 +765,10 @@ class Mandate(models.Model):
     def end_date_pretty(self):
         return self.end_date.strftime('%b %d, %Y')
 
+    def hours_in_month(self, month, year):
+        fee = self.fee_in_month(month, year)
+        return fee / self.hourly_rate
+
     def fee_in_month(self, month, year):
         """
         Returns the fee in a certain month.

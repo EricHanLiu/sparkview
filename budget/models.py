@@ -10,7 +10,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
 
@@ -277,15 +277,28 @@ class Client(models.Model):
             year = now.year
             hours = AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(
                 Sum('hours'))['hours__sum']
-            self._hours_worked_this_month = hours if hours is not None else 0
+            if hours is None:
+                hours = 0.0
+            hours += self.actual_mandate_hours(month, year)
+            self._hours_worked_this_month = hours
         return self._hours_worked_this_month
+
+    def actual_mandate_hours(self, month, year):
+        hours = MandateHourRecord.objects.filter(assignment__mandate__account=self, year=year, month=month).aggregate(
+            Sum('hours'))['hours__sum']
+        if hours is None:
+            return 0.0
+        return hours
 
     def actual_hours_month_year(self, month, year):
         hours = \
             AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(
                 Sum('hours'))[
                 'hours__sum']
-        return hours if hours is not None else 0
+        if hours is None:
+            hours = 0.0
+        hours += self.actual_mandate_hours(month, year)
+        return hours
 
     def get_hours_remaining_this_month(self):
         if not hasattr(self, '_hoursRemainingMonth'):
@@ -720,11 +733,14 @@ class Client(models.Model):
         return round(unrounded, 2)
 
     def get_allocated_hours(self):
+        now = datetime.datetime.now()
         hours = self.get_ppc_allocated_hours()
         if self.has_seo:
             hours += self.seo_hours
         if self.has_cro:
             hours += self.cro_hours
+        for mandate in self.active_mandates:
+            hours += mandate.hours_in_month(now.month, now.year)
         return round(hours, 2)
 
     def days_in_month_in_daterange(self, start, end, month):

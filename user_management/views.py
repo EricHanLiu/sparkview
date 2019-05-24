@@ -828,6 +828,7 @@ def members_single_timesheet(request, id):
     month = now.month
     year = now.year
     reg_hours_this_month = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
+    mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__member=member, month=month, year=year)
     value_added_hours = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=True)
 
     trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=month, year=year)
@@ -842,6 +843,7 @@ def members_single_timesheet(request, id):
         'reg_hours_this_month': reg_hours_this_month,
         'trainer_hours_this_month': trainer_hours_this_month,
         'trainee_hours_this_month': trainee_hours_this_month,
+        'mandate_hours_this_month': mandate_hours_this_month,
         'trainee_hour_total': trainee_hour_total,
         'value_added_hours': value_added_hours
     }
