@@ -302,7 +302,7 @@ class Client(models.Model):
 
     def get_hours_remaining_this_month(self):
         if not hasattr(self, '_hoursRemainingMonth'):
-            self._hoursRemainingMonth = round(self.get_allocated_hours() - self.get_hours_worked_this_month(), 2)
+            self._hoursRemainingMonth = round(self.allocated_hours_including_mandate - self.get_hours_worked_this_month(), 2)
         return self._hoursRemainingMonth
 
     def get_hours_worked_this_month_member(self, member):
@@ -733,15 +733,20 @@ class Client(models.Model):
         return round(unrounded, 2)
 
     def get_allocated_hours(self):
-        now = datetime.datetime.now()
         hours = self.get_ppc_allocated_hours()
         if self.has_seo:
             hours += self.seo_hours
         if self.has_cro:
             hours += self.cro_hours
+        return round(hours, 2)
+
+    @property
+    def allocated_hours_including_mandate(self):
+        now = datetime.datetime.now()
+        hours = 0.0
         for mandate in self.active_mandates:
             hours += mandate.hours_in_month(now.month, now.year)
-        return round(hours, 2)
+        return self.get_allocated_hours() + hours
 
     def days_in_month_in_daterange(self, start, end, month):
         """
