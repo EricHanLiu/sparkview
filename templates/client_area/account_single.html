@@ -714,16 +714,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for hour_row in mandate_hour_rows %}
+                            {% for hour_row in mandate_hours_this_month %}
                                 <tr>
                                     <td>
                                         {{ hour_row.assignment.mandate }}
                                     </td>
                                     <td>
-                                        {{ hour_row.member }}
+                                        {{ hour_row.assignment.member }}
                                     </td>
                                     <td>
-                                        {{ hour_row.hours__sum }}
+                                        {{ hour_row.hours }}
                                     </td>
                                     <td>
                                         {{ hour_row.month }}
