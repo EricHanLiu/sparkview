@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, Http404
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 import datetime
@@ -30,7 +30,7 @@ def members(request):
         members_resp = {}
         count = 0
 
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         for member in members:
             members_resp[count]['id'] = member.id
             members_resp[count]['name'] = member.user.get_full_name()
@@ -86,7 +86,7 @@ def member_dashboard(request, id):
     member = get_object_or_404(Member, id=id)
 
     # Members, Teams, Roles
-    members = Member.objects.all().order_by('user__first_name')
+    members = Member.objects.filter(deactivated=False).order_by('user__first_name')
     teams = Team.objects.all()
     roles = Role.objects.all()
 
@@ -617,7 +617,8 @@ def members_single(request, id=0):
         accountHours[account.id] = hours
         accountAllocation[account.id] = account.get_allocation_this_month_member(member)
 
-    mandates = Mandate.objects.all()
+    mandate_assignments = member.active_mandate_assignments
+    mandates = [assignment.mandate for assignment in mandate_assignments]
 
     context = {
         'accountHours': accountHours,
@@ -936,8 +937,13 @@ def input_hours_profile(request, id):
     if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    # if provided member ID is invalid, use request user
+    try:
+        member = Member.objects.get(id=id)
+    except Member.DoesNotExist:
+        raise Http404('The member associated with this ID does not exist!')
+
     if request.method == 'GET':
-        member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
             Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -957,7 +963,7 @@ def input_hours_profile(request, id):
         members = Member.objects.none
         if request.user.is_staff:
             # Reason for this is that this members list if used for the training hours, which is staff only
-            members = Member.objects.all().order_by('user__first_name')
+            members = Member.objects.filter(deactivated=False).order_by('user__first_name')
 
         # for mandate hour inputting
         mandate_assignments = member.active_mandate_assignments
@@ -977,7 +983,6 @@ def input_hours_profile(request, id):
         return render(request, 'user_management/profile/input_hours.html', context)
 
     elif request.method == 'POST':
-        member = Member.objects.get(user=request.user)
         accounts = Client.objects.filter(
             Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
@@ -993,9 +998,8 @@ def input_hours_profile(request, id):
                 continue  # ajax request for just one account
             account = Client.objects.get(id=account_id)
 
-            if not request.user.is_staff and not member.has_account(account_id):
+            if not request.user.is_staff and not request_member.has_account(account_id):
                 return HttpResponseForbidden('You do not have permission to add hours to this account')
-            member = Member.objects.get(user=request.user)
             hours = request.POST.get('hours-' + i)
             try:
                 hours = float(hours)
@@ -1018,19 +1022,21 @@ def input_mandate_profile(request, id):
     :return:
     """
     request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'POST':
-        member = Member.objects.get(user=request.user)
-        assignments_count = member.active_mandate_assignments.count()
-        for i in range(assignments_count):
-            i = str(i)
-            assignment_id = request.POST.get('mandate-id-' + i)
-            mandate_assignment = MandateAssignment.objects.get(id=assignment_id)
+        # if provided member ID is invalid, use request user
+        try:
+            member = Member.objects.get(id=id)
+        except Member.DoesNotExist:
+            raise Http404('The member associated with this ID does not exist!')
 
-            account_id = request.POST.get('account-id-' + i)
-            if not request.user.is_staff and not member.has_account(account_id):
+        assignments = member.active_mandate_assignments
+        for i in range(len(assignments)):
+            assignment = assignments[i]
+            i = str(i)
+
+            # check if this assignment is in the request user's active assignments, if not then disallow post
+            if not request.user.is_staff and assignment not in request_member.active_mandate_assignments:
                 return HttpResponseForbidden('You do not have permission to add hours to this account')
             hours = request.POST.get('hours-' + i)
             try:
@@ -1042,11 +1048,11 @@ def input_mandate_profile(request, id):
 
             completed_str = request.POST.get('completed-' + i)
             completed = True if completed_str is not None else False
-            mandate = mandate_assignment.mandate
+            mandate = assignment.mandate
             mandate.completed = completed
             mandate.save()
 
-            MandateHourRecord.objects.create(assignment=mandate_assignment, hours=hours, month=month, year=year)
+            MandateHourRecord.objects.create(assignment=assignment, hours=hours, month=month, year=year)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
@@ -1236,7 +1242,7 @@ def backups(request):
 
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
-    members = Member.objects.all().order_by('user__first_name')
+    members = Member.objects.filter(deactivated=False).order_by('user__first_name')
     accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
@@ -1328,7 +1334,7 @@ def add_training_hours(request):
     trainer = Member.objects.get(user=request.user)
 
     trainee_ids = request.POST.getlist('trainee_id')
-    trainees = Member.objects.filter(id__in=trainee_ids).order_by('user__first_name')
+    trainees = Member.objects.filter(id__in=trainee_ids, deactivated=False).order_by('user__first_name')
 
     if trainer in trainees:
         return HttpResponse('You can\'t train yourself!')
