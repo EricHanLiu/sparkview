@@ -47,7 +47,7 @@ def members(request):
                                   'buffer_planning_percentage',
                                   'buffer_internal_percentage',
                                   'buffer_seniority_percentage'
-                                  )
+                                  ).filter(deactivated=False).order_by('user__first_name')
 
     total_hours_available = 0.0
     total_actual_hours = 0.0
@@ -1194,6 +1194,7 @@ def backups(request):
             b.approved = True
             b.approved_by = approved_by
             b.save()
+            return HttpResponse()
         elif form_type == 'delete':
             bu_id = request.POST.get('bu_id')
             Backup.objects.get(id=bu_id).delete()
