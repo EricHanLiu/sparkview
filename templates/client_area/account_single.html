@@ -134,14 +134,14 @@
                     </div>
                     {% if account.is_late_to_onboard %}
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        </button>
-                        <strong>Warning!</strong> This account is late to onboard.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            </button>
+                            <strong>Warning!</strong> This account is late to onboard.
                             It has been in the onboarding phase for {{ account.onboarding_duration_elapsed }} days.
                             {% if account.late_onboard_reason != None and account.late_onboard_reason != '' %}
                                 The reason is {{ account.late_onboard_reason }}.
                             {% endif %}
-                    </div>
+                        </div>
                     {% endif %}
                 {% endif %}
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -160,18 +160,19 @@
                                        data-flag="{% if account.star_flag %}1{% else %}0{% endif %}"
                                        {% if account.star_flag %}style="color:#ff5733;"{% endif %}></i>
                                     &nbsp;
-                                    <a href="/clients/accounts/{{ account.id }}/edit" style="color: #000; text-decoration: none;">
+                                    <a href="/clients/accounts/{{ account.id }}/edit"
+                                       style="color: #000; text-decoration: none;">
                                       <span class="la la-edit">
                                       </span>
                                     </a>
                                     &nbsp;
                                     <span class="fas fa-clock" data-toggle="modal" style="cursor: pointer;"
-                                            data-target="#quickAddModal">
+                                          data-target="#quickAddModal">
                                     </span>
                                     &nbsp;
                                     <a class="btn btn-secondary m-btn btn-sm"
                                        href="/clients/accounts/{{ account.id }}/lifecycle">
-                                      Lifecycle
+                                        Lifecycle
                                     </a>
                                 </h3>
                             </div>
@@ -312,24 +313,24 @@
                                 {% endfor %}
                                 {% if account.team_lead_override != None and account.team_lead_override != '' %}
                                     <div class="m-card-profile">
-                                            <div class="m-card-profile__pic">
-                                                <div class="m-card-profile__pic-wrapper">
-                                                    {% if account.team_lead_override.image != None %}
-                                                        <img src="{% static 'img/bloomers/'|add:account.team_lead_override.image %}"/>
-                                                    {% else %}
-                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="m-card-profile__details">
-                                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                                                    {% if request.user.is_staff %}
-                                                        <a href="/user_management/members/{{ account.team_lead_override.id }}">{% endif %}{{ account.team_lead_override.user.get_full_name }}
-                                                    {% if request.user.is_staff %}</a>{% endif %}</h3>
-                                                <span class="m-badge m-badge--wide"
-                                                      style="background: rgb(255, 153, 51); color: white;">Team Lead</span>
+                                        <div class="m-card-profile__pic">
+                                            <div class="m-card-profile__pic-wrapper">
+                                                {% if account.team_lead_override.image != None %}
+                                                    <img src="{% static 'img/bloomers/'|add:account.team_lead_override.image %}"/>
+                                                {% else %}
+                                                    <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                                {% endif %}
                                             </div>
                                         </div>
+                                        <div class="m-card-profile__details">
+                                            <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ account.team_lead_override.id }}">{% endif %}{{ account.team_lead_override.user.get_full_name }}
+                                                {% if request.user.is_staff %}</a>{% endif %}</h3>
+                                            <span class="m-badge m-badge--wide"
+                                                  style="background: rgb(255, 153, 51); color: white;">Team Lead</span>
+                                        </div>
+                                    </div>
                                 {% else %}
                                     {% for assigned_member in account.team_leads %}
                                         <div class="m-card-profile">
@@ -338,7 +339,8 @@
                                                     {% if assigned_member.image != None %}
                                                         <img src="{% static 'img/bloomers/'|add:assigned_member.image %}"/>
                                                     {% else %}
-                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}"
+                                                             alt=""/>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -361,7 +363,8 @@
                                                     {% if assigned_member.image != None %}
                                                         <img src="{% static 'img/bloomers/'|add:assigned_member.image %}"/>
                                                     {% else %}
-                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
+                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}"
+                                                             alt=""/>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -419,7 +422,8 @@
                         <div class="m-portlet__head-tools">
                             <ul class="m-portlet__nav">
                                 <li class="m-portlet__nav-item">
-                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_update_services" id="kpi_btn">
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"
+                                            data-target="#m_update_services" id="kpi_btn">
                                         Update
                                     </button>
                                 </li>
@@ -446,7 +450,7 @@
                                 </td>
                                 <td>
                                     {% if account.sales_profile.ppc_status == 0 %}
-                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_ppc_status_display }}</a>
+                                        <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_ppc_status_display }}</a>
                                     {% else %}
                                         {{ account.sales_profile.get_ppc_status_display }}
                                     {% endif %}
@@ -458,7 +462,7 @@
                                 </td>
                                 <td>
                                     {% if account.sales_profile.seo_status == 0 %}
-                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_seo_status_display }}</a>
+                                        <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_seo_status_display }}</a>
                                     {% else %}
                                         {{ account.sales_profile.get_seo_status_display }}
                                     {% endif %}
@@ -470,36 +474,36 @@
                                 </td>
                                 <td>
                                     {% if account.sales_profile.cro_status == 0 %}
-                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_cro_status_display }}</a>
+                                        <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_cro_status_display }}</a>
                                     {% else %}
                                         {{ account.sales_profile.get_cro_status_display }}
                                     {% endif %}
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    Strat
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_strat_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Email Marketing
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_email_status_display }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Feed Management
-                                </td>
-                                <td>
-                                    {{ account.sales_profile.get_feed_status_display }}
-                                </td>
-                            </tr>
+                            {#                            <tr>#}
+                            {#                                <td>#}
+                            {#                                    Strat#}
+                            {#                                </td>#}
+                            {#                                <td>#}
+                            {#                                    {{ account.sales_profile.get_strat_status_display }}#}
+                            {#                                </td>#}
+                            {#                            </tr>#}
+                            {#                            <tr>#}
+                            {#                                <td>#}
+                            {#                                    Email Marketing#}
+                            {#                                </td>#}
+                            {#                                <td>#}
+                            {#                                    {{ account.sales_profile.get_email_status_display }}#}
+                            {#                                </td>#}
+                            {#                            </tr>#}
+                            {#                            <tr>#}
+                            {#                                <td>#}
+                            {#                                    Feed Management#}
+                            {#                                </td>#}
+                            {#                                <td>#}
+                            {#                                    {{ account.sales_profile.get_feed_status_display }}#}
+                            {#                                </td>#}
+                            {#                            </tr>#}
                             </tbody>
                         </table>
                     </div>
@@ -518,7 +522,8 @@
                         <div class="m-portlet__head-tools">
                             <ul class="m-portlet__nav">
                                 <li class="m-portlet__nav-item">
-                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal" data-target="#m_new_mandate" id="kpi_btn">
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"
+                                            data-target="#m_new_mandate" id="kpi_btn">
                                         New Additional Service
                                     </button>
                                 </li>
@@ -548,7 +553,7 @@
                                         {{ mandate.mandate_type }}
                                     </td>
                                     <td>
-                                        {{ mandate.cost }}
+                                        {{ mandate.calculated_cost }}
                                     </td>
                                     <td>
                                         {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
@@ -685,6 +690,57 @@
                 </div>
                 <!-- end hours this month -->
 
+                <!-- Hours this month -->
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Mandates Hours This Month
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                               id="single_client_hours_datatable">
+                            <thead>
+                            <tr>
+                                <th>Mandate</th>
+                                <th>
+                                    Member
+                                </th>
+                                <th>
+                                    Hours
+                                </th>
+                                <th>
+                                    Month
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for hour_row in mandate_hours_this_month %}
+                                <tr>
+                                    <td>
+                                        {{ hour_row.assignment.mandate }}
+                                    </td>
+                                    <td>
+                                        {{ hour_row.assignment.member }}
+                                    </td>
+                                    <td>
+                                        {{ hour_row.hours }}
+                                    </td>
+                                    <td>
+                                        {{ hour_row.month }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- end hours this month -->
+
                 <!-- Value added hours this month -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
@@ -733,62 +789,62 @@
                 <!-- End value added hours -->
 
                 <!-- Account history -->
-{#                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
-{#                    <div class="m-portlet__head">#}
-{#                        <div class="m-portlet__head-caption">#}
-{#                            <div class="m-portlet__head-title">#}
-{#                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
-{#                                    Account History#}
-{#                                </h3>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="m-portlet__body">#}
-{#                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'#}
-{#                               id="account_change_datatable">#}
-{#                            <thead class="thead-inverse">#}
-{#                            <tr class="main-table-header">#}
-{#                                <th>#}
-{#                                    Member#}
-{#                                </th>#}
-{#                                <th>#}
-{#                                    Field Changed#}
-{#                                </th>#}
-{#                                <th>#}
-{#                                    Changed From#}
-{#                                </th>#}
-{#                                <th>#}
-{#                                    Changed To#}
-{#                                </th>#}
-{#                                <th>#}
-{#                                    Date#}
-{#                                </th>#}
-{#                            </tr>#}
-{#                            </thead>#}
-{#                            <tbody>#}
-{#                            {% for change in changes.all %}#}
-{#                                <tr>#}
-{#                                    <td>#}
-{#                                        {{ change.member.user.first_name }} {{ change.member.user.last_name }}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        {{ change.changeField }}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        {{ change.changedFrom }}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        {{ change.changedTo }}#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        {{ change.datetime }}#}
-{#                                    </td>#}
-{#                                </tr>#}
-{#                            {% endfor %}#}
-{#                            </tbody>#}
-{#                        </table>#}
-{#                    </div>#}
-{#                </div>#}
+                {#                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
+                {#                    <div class="m-portlet__head">#}
+                {#                        <div class="m-portlet__head-caption">#}
+                {#                            <div class="m-portlet__head-title">#}
+                {#                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
+                {#                                    Account History#}
+                {#                                </h3>#}
+                {#                            </div>#}
+                {#                        </div>#}
+                {#                    </div>#}
+                {#                    <div class="m-portlet__body">#}
+                {#                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'#}
+                {#                               id="account_change_datatable">#}
+                {#                            <thead class="thead-inverse">#}
+                {#                            <tr class="main-table-header">#}
+                {#                                <th>#}
+                {#                                    Member#}
+                {#                                </th>#}
+                {#                                <th>#}
+                {#                                    Field Changed#}
+                {#                                </th>#}
+                {#                                <th>#}
+                {#                                    Changed From#}
+                {#                                </th>#}
+                {#                                <th>#}
+                {#                                    Changed To#}
+                {#                                </th>#}
+                {#                                <th>#}
+                {#                                    Date#}
+                {#                                </th>#}
+                {#                            </tr>#}
+                {#                            </thead>#}
+                {#                            <tbody>#}
+                {#                            {% for change in changes.all %}#}
+                {#                                <tr>#}
+                {#                                    <td>#}
+                {#                                        {{ change.member.user.first_name }} {{ change.member.user.last_name }}#}
+                {#                                    </td>#}
+                {#                                    <td>#}
+                {#                                        {{ change.changeField }}#}
+                {#                                    </td>#}
+                {#                                    <td>#}
+                {#                                        {{ change.changedFrom }}#}
+                {#                                    </td>#}
+                {#                                    <td>#}
+                {#                                        {{ change.changedTo }}#}
+                {#                                    </td>#}
+                {#                                    <td>#}
+                {#                                        {{ change.datetime }}#}
+                {#                                    </td>#}
+                {#                                </tr>#}
+                {#                            {% endfor %}#}
+                {#                            </tbody>#}
+                {#                        </table>#}
+                {#                    </div>#}
+                {#                </div>#}
                 <!-- end account history -->
 
                 <!-- Management fee structure -->
@@ -917,7 +973,7 @@
                                                 <span class="m-widget1__desc">All hours allocated this month</span>
                                             </div>
                                             <div class="col m--align-right">
-                                                <span class="m-widget1__number m--font-info">{{ account.all_hours|floatformat }}</span>
+                                                <span class="m-widget1__number m--font-info">{{ account.allocated_hours_including_mandate|floatformat }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1516,12 +1572,12 @@
                                 </div>
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-ppc">
-                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                        {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.ppc_status == service_num %}
                                                     selected
                                                     {% endif %}>
-                                            {{ service_str }}
+                                                {{ service_str }}
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -1551,23 +1607,23 @@
                                     </select>
                                 </div>
                             </div>
-                             <div class="row ">
+                            <div class="row ">
                                 <div class="col-4">
                                     SEO
                                 </div>
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-seo">
-                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                        {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.seo_status == service_num %}
                                                     selected
                                                     {% endif %}>
-                                            {{ service_str }}
+                                                {{ service_str }}
                                             </option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                 <div style="display:none;">
+                                <div style="display:none;">
                                     <select class="form-control" name="set-seo-opp">
                                         {% for opp in opps %}
                                             <option value="{{ opp.id }}"
@@ -1591,19 +1647,19 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                             </div>
-                             <div class="row ">
+                            </div>
+                            <div class="row ">
                                 <div class="col-4">
                                     CRO
                                 </div>
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-cro">
-                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                        {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
                                             <option value="{{ service_num }}"
                                                     {% if account.sales_profile.cro_status == service_num %}
                                                     selected
                                                     {% endif %}>
-                                            {{ service_str }}
+                                                {{ service_str }}
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -1633,129 +1689,129 @@
                                     </select>
                                 </div>
                             </div>
-                             <div class="row ">
-                                <div class="col-4">
-                                    Strat
-                                </div>
-                                <div class="col-4">
-                                    <select class="form-control update-service" name="set-strat">
-                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.strat_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                            {{ service_str }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-strat-opp">
-                                        {% for opp in opps %}
-                                            <option value="{{ opp.id }}"
-                                                    {% if opp == account.sales_profile.strat_opp_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ opp }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-strat-pitched">
-                                        {% for pitch in pitches %}
-                                            <option value="{{ pitch.id }}"
-                                                    {% if pitch == account.sales_profile.strat_pitched_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ pitch }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                             <div class="row ">
-                                <div class="col-4">
-                                    Email Marketing
-                                </div>
-                                <div class="col-4">
-                                    <select class="form-control update-service" name="set-email-marketing">
-                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.email_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                            {{ service_str }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-email-opp">
-                                        {% for opp in opps %}
-                                            <option value="{{ opp.id }}"
-                                                    {% if opp == account.sales_profile.email_opp_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ opp }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-email-pitched">
-                                        {% for pitch in pitches %}
-                                            <option value="{{ pitch.id }}"
-                                                    {% if pitch == account.sales_profile.email_pitched_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ pitch }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                             <div class="row ">
-                                <div class="col-4">
-                                    Feed Management
-                                </div>
-                                <div class="col-4">
-                                    <select class="form-control update-service" name="set-feed-management">
-                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.feed_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                            {{ service_str }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-feed-opp">
-                                        {% for opp in opps %}
-                                            <option value="{{ opp.id }}"
-                                                    {% if opp == account.sales_profile.feed_opp_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ opp }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-feed-pitched">
-                                        {% for pitch in pitches %}
-                                            <option value="{{ pitch.id }}"
-                                                    {% if pitch == account.sales_profile.feed_pitched_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ pitch }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
+                            {#                             <div class="row ">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    Strat#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <select class="form-control update-service" name="set-strat">#}
+                            {#                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}#}
+                            {#                                            <option value="{{ service_num }}"#}
+                            {#                                                    {% if account.sales_profile.strat_status == service_num %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                            {{ service_str }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                                <div style="display:none;">#}
+                            {#                                    <select class="form-control" name="set-strat-opp">#}
+                            {#                                        {% for opp in opps %}#}
+                            {#                                            <option value="{{ opp.id }}"#}
+                            {#                                                    {% if opp == account.sales_profile.strat_opp_desc %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                                {{ opp }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                                <div style="display:none;">#}
+                            {#                                    <select class="form-control" name="set-strat-pitched">#}
+                            {#                                        {% for pitch in pitches %}#}
+                            {#                                            <option value="{{ pitch.id }}"#}
+                            {#                                                    {% if pitch == account.sales_profile.strat_pitched_desc %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                                {{ pitch }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                            {#                             <div class="row ">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    Email Marketing#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <select class="form-control update-service" name="set-email-marketing">#}
+                            {#                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}#}
+                            {#                                            <option value="{{ service_num }}"#}
+                            {#                                                    {% if account.sales_profile.email_status == service_num %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                            {{ service_str }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                                <div style="display:none;">#}
+                            {#                                    <select class="form-control" name="set-email-opp">#}
+                            {#                                        {% for opp in opps %}#}
+                            {#                                            <option value="{{ opp.id }}"#}
+                            {#                                                    {% if opp == account.sales_profile.email_opp_desc %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                                {{ opp }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                                <div style="display:none;">#}
+                            {#                                    <select class="form-control" name="set-email-pitched">#}
+                            {#                                        {% for pitch in pitches %}#}
+                            {#                                            <option value="{{ pitch.id }}"#}
+                            {#                                                    {% if pitch == account.sales_profile.email_pitched_desc %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                                {{ pitch }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                            {#                             <div class="row ">#}
+                            {#                                <div class="col-4">#}
+                            {#                                    Feed Management#}
+                            {#                                </div>#}
+                            {#                                <div class="col-4">#}
+                            {#                                    <select class="form-control update-service" name="set-feed-management">#}
+                            {#                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}#}
+                            {#                                            <option value="{{ service_num }}"#}
+                            {#                                                    {% if account.sales_profile.feed_status == service_num %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                            {{ service_str }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                                <div style="display:none;">#}
+                            {#                                    <select class="form-control" name="set-feed-opp">#}
+                            {#                                        {% for opp in opps %}#}
+                            {#                                            <option value="{{ opp.id }}"#}
+                            {#                                                    {% if opp == account.sales_profile.feed_opp_desc %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                                {{ opp }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                                <div style="display:none;">#}
+                            {#                                    <select class="form-control" name="set-feed-pitched">#}
+                            {#                                        {% for pitch in pitches %}#}
+                            {#                                            <option value="{{ pitch.id }}"#}
+                            {#                                                    {% if pitch == account.sales_profile.feed_pitched_desc %}#}
+                            {#                                                    selected#}
+                            {#                                                    {% endif %}>#}
+                            {#                                                {{ pitch }}#}
+                            {#                                            </option>#}
+                            {#                                        {% endfor %}#}
+                            {#                                    </select>#}
+                            {#                                </div>#}
+                            {#                            </div>#}
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1816,7 +1872,7 @@
                 <form class="m-form" method="POST" action="/clients/accounts/mandates/new">
                     {% csrf_token %}
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                    <input name="num_members" type="text" value="0" style="display:none;" />
+                    <input name="num_members" type="text" value="0" style="display:none;"/>
 
                     <div class="modal-body">
                         <div class="m-portlet__body">
@@ -1837,36 +1893,89 @@
                                         </select>
                                     </div>
                                 </div>
-                                <br />
+                                <br/>
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <label>Cost:</label>
-                                        <input type="text" name="cost" class="form-control m-input" required/>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label>Hourly rate:</label>
-                                        <input type="text" name="hourly_rate" id="mandate_hourly_rate"
-                                               class="form-control m-input" value="{{ first_mandate_rate }}" required/>
+                                    <label class="col-2 col-form-label">Ongoing Service</label>
+                                    <div class="col-2">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="ongoing_check" id="ongoing_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
                                     </div>
                                 </div>
-                                <br />
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label>Start Date:</label>
-                                        <input type="text" name="start_date" class="form-control m-input m_datepicker" />
+                                <hr/>
+                                <div id="set_duration_form">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Cost:</label>
+                                            <input type="text" name="cost" class="form-control m-input"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Hourly rate:</label>
+                                            <input type="text" name="hourly_rate" id="mandate_hourly_rate"
+                                                   class="form-control m-input" value="{{ first_mandate_rate }}"
+                                            />
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label>End Date:</label>
-                                        <input type="text" name="end_date" class="form-control m-input m_datepicker" />
+                                    <br/>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Start Date:</label>
+                                            <input type="text" name="start_date"
+                                                   class="form-control m-input m_datepicker"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>End Date:</label>
+                                            <input type="text" name="end_date"
+                                                   class="form-control m-input m_datepicker"/>
+                                        </div>
                                     </div>
                                 </div>
-                                <br />
+                                <div id="ongoing_form" style="display: none;">
+                                    <div class="row">
+                                        <label class="col-2 col-form-label">Hour bank</label>
+                                        <div class="col-2">
+                                        <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
+                                            <label>
+                                                <input name="hourly_check" id="hourly_check" type="checkbox">
+                                                <span></span>
+                                            </label>
+                                        </span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Monthly Cost:</label>
+                                            <input type="text" name="monthly_cost" id="monthly_cost"
+                                                   class="form-control m-input"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Hourly rate:</label>
+                                            <input type="text" name="monthly_hourly_rate" id="monthly_hourly_rate"
+                                                   class="form-control m-input" value="{{ first_mandate_rate }}"
+                                            />
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Monthly Hours:</label>
+                                            <input type="text" name="monthly_hours" id="monthly_hours"
+                                                   class="form-control m-input" disabled/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br/>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <button type="button" id="add_member_btn" class="btn btn-info">Add Member</button>
+                                        <button type="button" id="add_member_btn" class="btn btn-info">Add Member
+                                        </button>
                                     </div>
                                 </div>
-                                <br />
+                                <br/>
                                 <div class="row" id="mandate_members">
 
                                 </div>
@@ -1902,7 +2011,7 @@
             <input type="text" name="percentage"
                    class="form-control m-input" required/>
         </div>
-        <br />
+        <br/>
     </template>
     <!-- end new member in mandate row -->
 
@@ -1931,7 +2040,6 @@
                 $pitchSelect.hide();
             }
         }
-
 
 
         $(document).ready(function () {
@@ -1980,7 +2088,8 @@
                             description: "{{ promo.desc }}",
                             start: moment("{{ promo.formatted_start }}"),
                             end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+                            className: "{% if promo.is_active %}m-fc-event--success{% else %}
+                                m-fc-event--warning{% endif %}"
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 ]
@@ -2099,7 +2208,7 @@
 
         // for quick-adding hours
         let form = $('#quickadd');
-        form.submit(function(e) {
+        form.submit(function (e) {
             e.preventDefault();
             $.ajax({
                 url: '/clients/accounts/{{ account.id }}',
@@ -2108,7 +2217,7 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
                 type: 'POST',
-                error: function(jqXHR, error, errorString) {
+                error: function (jqXHR, error, errorString) {
                     let message = "Error";
                     if (errorString === "Forbidden") {
                         message = "You don't have permission to add hours to this account!";
@@ -2116,14 +2225,45 @@
                     toastr.error(message);
                     $('#quickAddModal').modal('toggle');
                 },
-                success: function() {
+                success: function () {
                     $('#quickAddModal').modal('toggle');
                     toastr.success("Hours submitted successfully!");
                     let assignedMembersDisplay = $('#assigned-members-display');
                     // refresh the team display to update hours
-                    assignedMembersDisplay.load(location.href + " #assigned-members-display>*","");
+                    assignedMembersDisplay.load(location.href + " #assigned-members-display>*", "");
                 }
             });
         });
+
+
+        // Additional services stuff
+        const $ongoingCheck = $('#ongoing_check');
+        const $setDurationForm = $('#set_duration_form');
+        const $ongoingForm = $('#ongoing_form');
+        const $hourlyCheck = $('#hourly_check');
+
+        const $monthlyCost = $('#monthly_cost');
+        const $monthlyHours = $('#monthly_hours');
+
+        $ongoingCheck.change(function () {
+            if ($(this).is(':checked')) {
+                $setDurationForm.hide();
+                $ongoingForm.show();
+            } else {
+                $ongoingForm.hide();
+                $setDurationForm.show();
+            }
+        });
+
+        $hourlyCheck.change(function () {
+            if ($(this).is(':checked')) {
+                $monthlyCost.prop('disabled', true);
+                $monthlyHours.prop('disabled', false);
+            } else {
+                $monthlyHours.prop('disabled', true);
+                $monthlyCost.prop('disabled', false);
+            }
+        });
+
     </script>
 {% endblock %}

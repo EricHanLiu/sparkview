@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client
 from .utils import days_in_month_in_daterange
-from client_area.models import Mandate, MandateType, MandateAssignment
+from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord
 import datetime
 from django.utils.timezone import make_aware
 
@@ -44,6 +44,8 @@ class ClientTestCase(TestCase):
         test_member = Member.objects.create(user=test_user)
         test_member2 = Member.objects.create(user=test_user2)
         test_account = Client.objects.create(client_name='test2', status=1)
+        test_account2 = Client.objects.create(client_name='test3', status=1)
+        test_account3 = Client.objects.create(client_name='test4', status=1)
 
         now = datetime.datetime.now()
 
@@ -56,14 +58,37 @@ class ClientTestCase(TestCase):
             end_date = now
 
         mandate1 = Mandate.objects.create(mandate_type=test_mandate_type, account=test_account, cost=1000,
+                                          billing_style=1,
                                           hourly_rate=100, start_date=make_aware(start_date),
                                           end_date=make_aware(end_date))
         mandate_assignment1 = MandateAssignment.objects.create(mandate=mandate1, member=test_member, percentage=70)
-        mandate_assignment2 = MandateAssignment.objects.create(mandate=mandate1, member=test_member2, percentage=30)
 
         self.assertEqual(test_account.current_fee, test_account.current_month_mandate_fee)
         self.assertEqual(test_account.current_fee, test_account.total_fee)
         self.assertEqual(test_account.current_fee, 1000)
 
         self.assertEqual(test_member.allocated_hours_this_month, 7)
+        # Need better tests for this, test with a fixed month and year
+        # self.assertEqual(mandate1.hours_in_month(now.month, now.year), 7)
+        # self.assertEqual(test_account.get_allocated_hours(), 7)
+
+        MandateHourRecord.objects.create(assignment=mandate_assignment1, hours=5, month=now.month, year=now.year)
+        self.assertEqual(test_account.actual_mandate_hours(now.month, now.year), 5)
+
+        # This mandate has a set number of hours per month
+        mandate2 = Mandate.objects.create(mandate_type=test_mandate_type, account=test_account2, billing_style=0,
+                                          ongoing=True, hourly_rate=125, ongoing_hours=10)
+        mandate_assignment2 = MandateAssignment.objects.create(mandate=mandate2, member=test_member2, percentage=30)
+
+        self.assertEqual(mandate2.calculated_ongoing_hours, 10)
+        self.assertEqual(mandate2.calculated_ongoing_fee, 1250)
+        self.assertEqual(mandate_assignment2.hours, 3)
         self.assertEqual(test_member2.allocated_hours_this_month, 3)
+
+        mandate3 = Mandate.objects.create(mandate_type=test_mandate_type, account=test_account3, billing_style=1,
+                                          ongoing=True, hourly_rate=100, ongoing_cost=2000)
+        mandate_assignment3 = MandateAssignment.objects.create(mandate=mandate3, percentage=100, member=test_member)
+
+        self.assertEqual(mandate3.calculated_ongoing_hours, 20)
+        self.assertEqual(mandate3.calculated_ongoing_fee, 2000)
+        self.assertEqual(mandate_assignment3.hours, 20)

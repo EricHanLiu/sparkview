@@ -140,7 +140,7 @@ def cm_capacity(request):
     # TODO: Make this reasonable
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead'))
+            name='PPC Team Lead') | Q(name='Team Lead') | Q(name='Management'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
@@ -957,6 +957,7 @@ def new_incident(request):
             platform = r.get('platform')
         except ValueError:
             platform = 3  # set to other by default
+
         client_aware = r.get('client-aware') == 'Yes'
         client_at_risk = r.get('client-at-risk') == 'Yes'
         members_addressed = r.get('members-addressed') == 'Yes'
@@ -995,6 +996,12 @@ def new_incident(request):
         incident.client_at_risk = client_at_risk
         incident.addressed_with_member = members_addressed
         incident.justification = justification
+
+        try:
+            refund_amount = float(r.get('refund-amount'))
+            incident.refund_amount = refund_amount
+        except ValueError:
+            pass
 
         incident.save()
 
@@ -1072,3 +1079,25 @@ def sales(request):
     }
 
     return render(request, 'reports/sales.html', context)
+
+
+@login_required
+def jamie(request):
+    """
+    Jamie's custom report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    roles = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
+    ams = Member.objects.filter(role__in=roles).order_by('user__first_name')
+    status_badges = ['info', 'success', 'warning', 'danger']
+
+    context = {
+        'ams': ams,
+        'status_badges': status_badges
+    }
+
+    return render(request, 'reports/jamie.html', context)

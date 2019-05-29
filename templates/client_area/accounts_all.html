@@ -75,6 +75,9 @@
                                 <th>
                                     Current Budget
                                 </th>
+                                <th>
+                                    Language
+                                </th>
                                 {% ifequal page_type 'Inactive' %}
                                     <th>
                                         Reason For Inactivity
@@ -123,6 +126,11 @@
                                     </td>
                                     <td>
                                         {{ account.current_budget }}
+                                    </td>
+                                    <td>
+                                        {% for lang in account.language.all %}
+                                            {{ lang }}{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
                                     </td>
                                     {% ifequal page_type 'Inactive' %}
                                         <td>

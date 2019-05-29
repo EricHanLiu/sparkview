@@ -47,7 +47,7 @@ def members(request):
                                   'buffer_planning_percentage',
                                   'buffer_internal_percentage',
                                   'buffer_seniority_percentage'
-                                  )
+                                  ).filter(deactivated=False).order_by('user__first_name')
 
     total_hours_available = 0.0
     total_actual_hours = 0.0
@@ -828,6 +828,7 @@ def members_single_timesheet(request, id):
     month = now.month
     year = now.year
     reg_hours_this_month = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=False)
+    mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__member=member, month=month, year=year)
     value_added_hours = AccountHourRecord.objects.filter(member=member, month=month, year=year, is_unpaid=True)
 
     trainer_hours_this_month = TrainingHoursRecord.objects.filter(trainer=member, month=month, year=year)
@@ -842,6 +843,7 @@ def members_single_timesheet(request, id):
         'reg_hours_this_month': reg_hours_this_month,
         'trainer_hours_this_month': trainer_hours_this_month,
         'trainee_hours_this_month': trainee_hours_this_month,
+        'mandate_hours_this_month': mandate_hours_this_month,
         'trainee_hour_total': trainee_hour_total,
         'value_added_hours': value_added_hours
     }
@@ -1192,6 +1194,7 @@ def backups(request):
             b.approved = True
             b.approved_by = approved_by
             b.save()
+            return HttpResponse()
         elif form_type == 'delete':
             bu_id = request.POST.get('bu_id')
             Backup.objects.get(id=bu_id).delete()
