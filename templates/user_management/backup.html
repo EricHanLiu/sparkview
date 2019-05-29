@@ -430,7 +430,7 @@ $(document).ready(function () {
         type: 'POST',
         success: function (data) {
             console.log(data);
-            for (id in data) {
+            for (let id in data) {
               spawnBackupTemplate(data[id]);
             }
         }

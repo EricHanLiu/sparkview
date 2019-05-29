@@ -27,6 +27,30 @@
 
 
 {% block content %}
+    <!-- Modal for unchecking mandate completed (confirmation) -->
+    <div class="modal fade" id="mandateConfirmation" tabindex="-1" role="dialog" aria-labelledby="mandateConfirmation"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary">
+                        Reopen Mandate
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>This mandate is currently marked as completed. Are you sure you want to reopen it?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-toggle="modal" data-target="#mandateConfirmation">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="reopenMandate">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="m-content">
         {% with notifications=request.user|get_unread_notifications %}
             {% if notifications.count > 0 %}
@@ -372,7 +396,7 @@
                         </div>
                     </div>
                 {% endif %}
-                {% if mandates.count > 0 %}
+                {% if mandates|length > 0 %}
                     <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                         <div class="m-portlet__head">
                             <div class="m-portlet__head-caption">
@@ -426,7 +450,7 @@
                                             {{ mandate.hourly_rate|floatformat:2 }}
                                         </td>
                                         <td>
-                                            {{ mandate.hours|floatformat:2 }}
+                                            {{ mandate.calculated_hours|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
@@ -610,10 +634,35 @@
 
             // mandate completed checkbox
             let $mandateCompleteBoxes = $('.mandate-completed');
+            let $modal = $('#mandateConfirmation');
+            let handlerAttached = false;
             $mandateCompleteBoxes.change(function () {
                 let checked = this.checked;
                 let mandateId = this.id;
 
+                // display confirmation modal if already checked
+                if (!checked) {
+                    $modal.modal('toggle');
+                    this.checked = true;
+
+                    // only attach click handler once
+                    if (handlerAttached) {
+                        return;
+                    } else {
+                        // arrow function to avoid 'this' redefinition
+                        $('#reopenMandate').click(() => {
+                            sendRequest(checked, mandateId);
+                            this.checked = false;
+                            $modal.modal('toggle');
+                        });
+                        handlerAttached = true;
+                    }
+                } else {
+                    sendRequest(checked, mandateId);
+                }
+            });
+
+            function sendRequest(checked, mandateId) {
                 $.ajax({
                     url: '',
                     headers: {
@@ -629,7 +678,7 @@
                         toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
                     }
                 });
-            });
+            }
         });
     </script>
 {% endblock %}

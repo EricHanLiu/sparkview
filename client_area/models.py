@@ -741,9 +741,15 @@ class Mandate(models.Model):
     """
     Mandate (one off service) for a client
     """
+    BILLING_CHOICES = [(0, 'Hours'), (1, 'Fee')]
+
     mandate_type = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
-    cost = models.FloatField(default=0.0)
+    billing_style = models.IntegerField(default=0, choices=BILLING_CHOICES)
+    cost = models.FloatField(default=None, null=True)
+    ongoing = models.BooleanField(default=False)
+    ongoing_hours = models.FloatField(default=None, null=True)
+    ongoing_cost = models.FloatField(default=None, null=True)
     hourly_rate = models.FloatField(default=125.0)
     start_date = models.DateTimeField(default=None, null=True)
     end_date = models.DateTimeField(default=None, null=True)
@@ -751,11 +757,35 @@ class Mandate(models.Model):
     completed = models.BooleanField(default=False)
 
     @property
-    def hours(self):
+    def calculated_hours(self):
         try:
             return self.cost / self.hourly_rate
         except ZeroDivisionError:
             return 0
+
+    @property
+    def calculated_ongoing_hours(self):
+        """
+        Will only return anything if this account is in ongoing mode
+        :return:
+        """
+        if not self.ongoing:
+            return 0.0
+        if self.billing_style == 0:
+            return self.ongoing_hours
+        return self.ongoing_cost / self.hourly_rate
+
+    @property
+    def calculated_ongoing_fee(self):
+        """
+        Will only return ongoing fee if this account is in ongoing mode
+        :return:
+        """
+        if not self.ongoing:
+            return 0.0
+        if self.billing_style == 1:
+            return self.ongoing_cost
+        return self.ongoing_hours * self.hourly_rate
 
     @property
     def start_date_pretty(self):
@@ -766,6 +796,8 @@ class Mandate(models.Model):
         return self.end_date.strftime('%b %d, %Y')
 
     def hours_in_month(self, month, year):
+        if self.ongoing:
+            return self.calculated_ongoing_hours
         fee = self.fee_in_month(month, year)
         return fee / self.hourly_rate
 
@@ -777,6 +809,8 @@ class Mandate(models.Model):
         :param year:
         :return:
         """
+        if self.ongoing:
+            return self.calculated_ongoing_fee
         numerator = days_in_month_in_daterange(self.start_date, self.end_date, month, year)
         denominator = (self.end_date - self.start_date).days + 1
         portion_in_month = numerator / denominator
@@ -801,11 +835,15 @@ class MandateAssignment(models.Model):
         :return:
         """
         if not hasattr(self, '_hours'):
-            now = datetime.datetime.now()
-            numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month, now.year)
-            denominator = (self.mandate.end_date - self.mandate.start_date).days + 1
-            portion_in_month = numerator / denominator
-            self._hours = round(portion_in_month * self.mandate.hours * self.percentage / 100.0, 2)
+            # TODO: Tidy up this logic eventually. A bit of redundancy.
+            if self.mandate.ongoing:
+                self._hours = round(self.mandate.calculated_ongoing_hours * self.percentage / 100.0, 2)
+            else:
+                now = datetime.datetime.now()
+                numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month, now.year)
+                denominator = (self.mandate.end_date - self.mandate.start_date).days + 1
+                portion_in_month = numerator / denominator
+                self._hours = round(portion_in_month * self.mandate.calculated_hours * self.percentage / 100.0, 2)
         return self._hours
 
     def __str__(self):
