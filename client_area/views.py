@@ -14,7 +14,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate, MandateAssignment
+    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord
 from .forms import NewClientForm
 
 
@@ -543,12 +543,12 @@ def account_edit_temp(request, id):
 
 
 @login_required
-def account_edit(request, id):
+def account_edit(request, account_id):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.method == 'GET':
-        account = Client.objects.get(id=id)
+        account = Client.objects.get(id=account_id)
         teams = Team.objects.all()
         client_types = ClientType.objects.all()
         industries = Industry.objects.all()
@@ -650,7 +650,7 @@ def account_edit(request, id):
 
 
 @login_required
-def account_single(request, id):
+def account_single(request, account_id):
     # member = Member.objects.get(user=request.user)
     """
     The following flag needs to be turned off for now
@@ -658,7 +658,7 @@ def account_single(request, id):
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
-        account = Client.objects.get(id=id)
+        account = Client.objects.get(id=account_id)
         members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         changes = AccountChanges.objects.filter(account=account)
 
@@ -666,7 +666,8 @@ def account_single(request, id):
         now = datetime.datetime.now()
         month = now.month
         year = now.year
-        accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year, is_unpaid=False)
+        accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                 is_unpaid=False)
 
         accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
                                                                           is_unpaid=False).values('member', 'month',
@@ -714,6 +715,9 @@ def account_single(request, id):
         monthnow = now.month
         current_year = now.year
 
+        mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__member__in=members, month=month,
+                                                                    year=year)
+
         context = {
             'account': account,
             'members': members,
@@ -729,6 +733,7 @@ def account_single(request, id):
             'pitches': pitches,
             'mandate_types': mandate_types,
             'first_mandate_rate': first_mandate_rate,
+            'mandate_hours_this_month': mandate_hours_this_month,
             'months': months,
             'monthnow': monthnow,
             'years': years,
@@ -1686,17 +1691,34 @@ def create_mandate(request):
     except MandateType.DoesNotExist:
         return HttpResponse('Invalid mandate type')
 
-    start_date = request.POST.get('start_date')
-    end_date = request.POST.get('end_date')
+    print('HERE')
+    print(request.POST)
+    print('ongoing_check' in request.POST)
+    # Check if its an ongoing mandate or not
+    if 'ongoing_check' in request.POST:
+        hourly_rate = request.POST.get('monthly_hourly_rate')
+        if 'hourly_check' in request.POST:
+            hours = request.POST.get('monthly_hours')
+            mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_hours=hours,
+                                             mandate_type=mandate_type, account=account)
+        else:
+            print('good spot here')
+            cost = request.POST.get('monthly_cost')
+            mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_cost=cost,
+                                             mandate_type=mandate_type, account=account)
+    else:
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
 
-    cost = request.POST.get('cost')
-    hourly_rate = request.POST.get('hourly_rate')
+        cost = request.POST.get('cost')
+        hourly_rate = request.POST.get('hourly_rate')
 
-    start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-    end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-    mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt, end_date=end_date_dt,
-                                     account=account, mandate_type=mandate_type)
+        mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
+                                         end_date=end_date_dt,
+                                         account=account, mandate_type=mandate_type)
 
     mandate_members = request.POST.getlist('mandate_member')
     mandate_percentages = request.POST.getlist('percentage')

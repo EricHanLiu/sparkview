@@ -75,7 +75,7 @@ class Incident(models.Model):
     """
     Incident
     """
-    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other')]
+    PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other'), (4, 'None')]
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
 
@@ -88,6 +88,7 @@ class Incident(models.Model):
     description = models.CharField(max_length=2000, default='')
     issue = models.ForeignKey(IncidentReason, on_delete=models.DO_NOTHING, default=None, null=True)
     budget_error_amount = models.FloatField(default=0.0)
+    refund_amount = models.FloatField(default=0.0)
     platform = models.IntegerField(default=0, choices=PLATFORMS)
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
@@ -485,7 +486,11 @@ class Member(models.Model):
             start_date_month = datetime.datetime(now.year, now.month, 1, 0, 0, 0)
             end_date_month = datetime.datetime(now.year, now.month, last_day, 23, 59, 59)
             self._active_mandate_assignments = self.mandateassignment_set.filter(
-                mandate__start_date__lte=end_date_month, mandate__end_date__gte=start_date_month)
+                Q(mandate__start_date__lte=end_date_month, mandate__end_date__gte=start_date_month,
+                  mandate__completed=False,
+                  mandate__ongoing=False) | Q(
+                    mandate__ongoing=True,
+                    mandate__completed=False))
             accs = []
             for ama in self._active_mandate_assignments:
                 accs.append(ama.mandate.account)

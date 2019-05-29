@@ -201,7 +201,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <b>Target Daily Spend</b>:
-                                                {{ account.currency }}{{ account.target_spend|format_money }}
+                                                {{ account.currency }}{{ account.rec_ds|floatformat:2|intcomma }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
@@ -450,7 +450,7 @@
                                             {{ mandate.hourly_rate|floatformat:2 }}
                                         </td>
                                         <td>
-                                            {{ mandate.hours|floatformat:2 }}
+                                            {{ mandate.calculated_hours|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}

@@ -13,8 +13,7 @@ import datetime
 
 
 def main():
-    # accounts = Client.objects.filter(status=1)
-    accounts = Client.objects.filter(id=218)
+    accounts = Client.objects.all()
     for account in accounts:
         print(account.client_name + ' day was ' + str(account.phase_day))
         account.phase_day += 1

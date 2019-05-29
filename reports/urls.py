@@ -30,5 +30,6 @@ urlpatterns = [
     url(r'^high_fives$', views.high_fives, name='high_fives'),
     url(r'^high_fives/new$', views.new_high_five, name='new_high_five'),
     url(r'^onboarding$', views.onboarding, name='onboarding'),
-    url(r'^sales$', views.sales, name='sales')
+    url(r'^sales$', views.sales, name='sales'),
+    url(r'^jamie$', views.jamie, name='jamie')
 ]
