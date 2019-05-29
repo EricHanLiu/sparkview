@@ -117,14 +117,6 @@
                                                       data-original-title="
                                                         {% if aw %}
                                                             {% for a in aw %}
-
-
-
-
-
-
-
-
                                                           {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
                                                             {% endfor %}
                                                         {% else %}
@@ -185,7 +177,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <b>Target Daily Spend</b>:
-                                                {{ account.currency }}{{ account.target_spend|format_money }}
+                                                {{ account.currency }}{{ account.rec_ds|floatformat:2|intcomma }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
