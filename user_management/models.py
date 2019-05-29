@@ -485,7 +485,11 @@ class Member(models.Model):
             start_date_month = datetime.datetime(now.year, now.month, 1, 0, 0, 0)
             end_date_month = datetime.datetime(now.year, now.month, last_day, 23, 59, 59)
             self._active_mandate_assignments = self.mandateassignment_set.filter(
-                mandate__start_date__lte=end_date_month, mandate__end_date__gte=start_date_month)
+                Q(mandate__start_date__lte=end_date_month, mandate__end_date__gte=start_date_month,
+                  mandate__completed=False,
+                  mandate__ongoing=False) | Q(
+                    mandate__ongoing=True,
+                    mandate__completed=False))
             accs = []
             for ama in self._active_mandate_assignments:
                 accs.append(ama.mandate.account)

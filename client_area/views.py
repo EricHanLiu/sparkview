@@ -1691,17 +1691,30 @@ def create_mandate(request):
     except MandateType.DoesNotExist:
         return HttpResponse('Invalid mandate type')
 
-    start_date = request.POST.get('start_date')
-    end_date = request.POST.get('end_date')
+    # Check if its an ongoing mandate or not
+    if 'ongoing_check' in request.POST:
+        hourly_rate = request.POST.get('monthly_hourly_rate')
+        if 'hourly_check' in request.POST:
+            hours = request.POST.get('monthly_hours')
+            mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_hours=hours,
+                                             mandate_type=mandate_type, account=account)
+        else:
+            cost = request.POST.get('monthly_cost')
+            mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_cost=cost,
+                                             mandate_type=mandate_type, account=account)
+    else:
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
 
-    cost = request.POST.get('cost')
-    hourly_rate = request.POST.get('hourly_rate')
+        cost = request.POST.get('cost')
+        hourly_rate = request.POST.get('hourly_rate')
 
-    start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-    end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-    mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt, end_date=end_date_dt,
-                                     account=account, mandate_type=mandate_type)
+        mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
+                                         end_date=end_date_dt,
+                                         account=account, mandate_type=mandate_type)
 
     mandate_members = request.POST.getlist('mandate_member')
     mandate_percentages = request.POST.getlist('percentage')

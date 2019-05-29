@@ -13,6 +13,7 @@ from client_area.models import Service, Industry, Language, ClientType, ClientCo
     OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
+from django.db.models import Q
 
 
 class Client(models.Model):
@@ -302,7 +303,8 @@ class Client(models.Model):
 
     def get_hours_remaining_this_month(self):
         if not hasattr(self, '_hoursRemainingMonth'):
-            self._hoursRemainingMonth = round(self.allocated_hours_including_mandate - self.get_hours_worked_this_month(), 2)
+            self._hoursRemainingMonth = round(
+                self.allocated_hours_including_mandate - self.get_hours_worked_this_month(), 2)
         return self._hoursRemainingMonth
 
     def get_hours_worked_this_month_member(self, member):
@@ -563,12 +565,15 @@ class Client(models.Model):
         mandate_assignments = member.mandateassignment_set.filter(mandate__in=mandates)
         now = datetime.datetime.now()
         for mandate_assignment in mandate_assignments:
-            mandate = mandate_assignment.mandate
-            numerator = days_in_month_in_daterange(mandate.start_date, mandate.end_date, now.month, now.year)
-            denominator = (mandate.end_date - mandate.start_date).days + 1
-            portion_in_month = numerator / denominator
-            hours += portion_in_month * ((mandate_assignment.mandate.cost * (
-                    mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
+            if mandate_assignment.mandate.ongoing:
+                hours += mandate_assignment.hours
+            else:
+                mandate = mandate_assignment.mandate
+                numerator = days_in_month_in_daterange(mandate.start_date, mandate.end_date, now.month, now.year)
+                denominator = (mandate.end_date - mandate.start_date).days + 1
+                portion_in_month = numerator / denominator
+                hours += portion_in_month * ((mandate_assignment.mandate.cost * (
+                        mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
         return hours
 
     def get_allocation_this_month_member(self, member):
@@ -656,7 +661,9 @@ class Client(models.Model):
             first_day, last_day = calendar.monthrange(now.year, now.month)
             start_date_month = datetime.datetime(now.year, now.month, 1, 0, 0, 0)
             end_date_month = datetime.datetime(now.year, now.month, last_day, 23, 59, 59)
-            mandates = self.mandate_set.filter(start_date__lte=end_date_month, end_date__gte=start_date_month)
+            mandates = self.mandate_set.filter(
+                Q(start_date__lte=end_date_month, end_date__gte=start_date_month, completed=False, ongoing=False) | Q(
+                    ongoing=True, completed=False))
             self._mandates_active_this_month = mandates
         return self._mandates_active_this_month
 
@@ -1354,6 +1361,22 @@ class Client(models.Model):
             projection += ((self.current_spend / day_of_month) * days_remaining)
 
         return projection
+
+    @property
+    def budget_remaining(self):
+        """
+        Calculates budget remaining this month
+        :return:
+        """
+        return self.current_budget - self.current_spend
+
+    @property
+    def calculated_daily_recommended(self):
+        today = datetime.date.today() - relativedelta(days=1)
+        last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+        remaining_days = last_day.day - today.day
+
+        return self.budget_remaining / remaining_days
 
     # Recommended daily spend for clients with flex budget
     # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py
