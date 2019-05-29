@@ -957,6 +957,7 @@ def new_incident(request):
             platform = r.get('platform')
         except ValueError:
             platform = 3  # set to other by default
+
         client_aware = r.get('client-aware') == 'Yes'
         client_at_risk = r.get('client-at-risk') == 'Yes'
         members_addressed = r.get('members-addressed') == 'Yes'
@@ -995,6 +996,12 @@ def new_incident(request):
         incident.client_at_risk = client_at_risk
         incident.addressed_with_member = members_addressed
         incident.justification = justification
+
+        try:
+            refund_amount = float(r.get('refund-amount'))
+            incident.refund_amount = refund_amount
+        except ValueError:
+            pass
 
         incident.save()
 
