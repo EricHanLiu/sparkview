@@ -1691,6 +1691,9 @@ def create_mandate(request):
     except MandateType.DoesNotExist:
         return HttpResponse('Invalid mandate type')
 
+    print('HERE')
+    print(request.POST)
+    print('ongoing_check' in request.POST)
     # Check if its an ongoing mandate or not
     if 'ongoing_check' in request.POST:
         hourly_rate = request.POST.get('monthly_hourly_rate')
@@ -1699,6 +1702,7 @@ def create_mandate(request):
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_hours=hours,
                                              mandate_type=mandate_type, account=account)
         else:
+            print('good spot here')
             cost = request.POST.get('monthly_cost')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_cost=cost,
                                              mandate_type=mandate_type, account=account)

@@ -757,6 +757,10 @@ class Mandate(models.Model):
     completed = models.BooleanField(default=False)
 
     @property
+    def calculated_cost(self):
+        return self.cost if self.cost is not None else self.calculated_ongoing_fee
+
+    @property
     def calculated_hours(self):
         try:
             return self.cost / self.hourly_rate
@@ -772,8 +776,13 @@ class Mandate(models.Model):
         if not self.ongoing:
             return 0.0
         if self.billing_style == 0:
+            if self.ongoing_hours is None:
+                return 0
             return self.ongoing_hours
-        return self.ongoing_cost / self.hourly_rate
+        try:
+            return self.ongoing_cost / self.hourly_rate
+        except TypeError:
+            return 0.0
 
     @property
     def calculated_ongoing_fee(self):
@@ -785,14 +794,21 @@ class Mandate(models.Model):
             return 0.0
         if self.billing_style == 1:
             return self.ongoing_cost
-        return self.ongoing_hours * self.hourly_rate
+        try:
+            return self.ongoing_hours * self.hourly_rate
+        except TypeError:
+            return 0.0
 
     @property
     def start_date_pretty(self):
+        if self.start_date is None:
+            return 'Ongoing'
         return self.start_date.strftime('%b %d, %Y')
 
     @property
     def end_date_pretty(self):
+        if self.end_date is None:
+            return 'Ongoing'
         return self.end_date.strftime('%b %d, %Y')
 
     def hours_in_month(self, month, year):

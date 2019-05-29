@@ -1311,7 +1311,10 @@ class Client(models.Model):
         """
         if not hasattr(self, '_active_mandates'):
             now = datetime.datetime.now()
-            mandates = Mandate.objects.filter(start_date__lte=now, end_date__gte=now, account=self)
+            mandates = Mandate.objects.filter(
+                Q(start_date__lte=now, end_date__gte=now, account=self, completed=False) | Q(ongoing=True,
+                                                                                             completed=False,
+                                                                                             account=self))
             self._active_mandates = mandates
         return self._active_mandates
 

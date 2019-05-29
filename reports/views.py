@@ -1072,3 +1072,25 @@ def sales(request):
     }
 
     return render(request, 'reports/sales.html', context)
+
+
+@login_required
+def jamie(request):
+    """
+    Jamie's custom report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    roles = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
+    ams = Member.objects.filter(role__in=roles).order_by('user__first_name')
+    status_badges = ['info', 'success', 'warning', 'danger']
+
+    context = {
+        'ams': ams,
+        'status_badges': status_badges
+    }
+
+    return render(request, 'reports/jamie.html', context)
