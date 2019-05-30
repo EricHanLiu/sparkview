@@ -94,7 +94,7 @@ class DependentAccount(models.Model):
     assigned_cm3 = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_cm3')
     assigned_am = models.ForeignKey(User, models.SET_NULL, null=True, blank=True, related_name='aw_am')
     assigned = models.BooleanField(default=False)
-    blacklisted = models.BooleanField(default=False)
+    blacklisted = models.BooleanField(default=True)
     protected = models.BooleanField(default=False)
     currency = models.CharField(max_length=255, default='')
     ch_flag = models.BooleanField(default=False)

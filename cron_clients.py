@@ -1,6 +1,7 @@
 import os
 import django
 import collections
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 django.setup()
 import unicodedata
@@ -22,8 +23,8 @@ def perdelta(start, end, delta):
         yield curr
         curr += delta
 
-def projected(spend, yspend):
 
+def projected(spend, yspend):
     today = datetime.today() - relativedelta(days=1)
     lastday_month = monthrange(today.year, today.month)
     remaining = lastday_month[1] - today.day
@@ -31,10 +32,10 @@ def projected(spend, yspend):
     # projected value
     rval = spend + (yspend * remaining)
 
-    return round(rval ,2)
+    return round(rval, 2)
+
 
 def main():
-
     today = date.today() - relativedelta(days=1)
     first_day = date(today.year, today.month, 1)
     last_day = date(today.year, today.month, monthrange(today.year, today.month)[1])
@@ -196,7 +197,7 @@ def main():
                 client.bing_budget += b.desired_spend
                 client.bing_current_ds += b.current_spend / today.day
 
-                #for k, v in sorted(b.segmented_spend.items()):
+                # for k, v in sorted(b.segmented_spend.items()):
                 #    b_temp = b_temp + float(v['spend'])
                 #    bing_spend[v['timeperiod']] = round(b_temp, 2)
                 bing_s_final['B - ' + remove_accents(b.account_name) + ' Spend'] = bing_spend
@@ -208,7 +209,8 @@ def main():
                 else:
                     bing_projected_per_day = (bing_projected_val - b.current_spend)
                 for index, val in enumerate(pdays):
-                    bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend, 2)
+                    bing_projected[val.strftime("%Y-%m-%d")] = round((bing_projected_per_day * index) + b.current_spend,
+                                                                     2)
                 bing_p_final['B - ' + remove_accents(b.account_name) + ' Projected'] = bing_projected
 
                 # Budget only client
