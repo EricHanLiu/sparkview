@@ -715,7 +715,7 @@ def account_single(request, account_id):
         monthnow = now.month
         current_year = now.year
 
-        mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__member__in=members, month=month,
+        mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
 
         context = {
