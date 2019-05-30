@@ -88,7 +88,7 @@ def main():
 
         client.save()
 
-        adwords = client.adwords.all()
+        adwords = client.adwords.filter(blacklisted=False)
         if adwords:
             client.currency = client.adwords.all()[0].currency
         if len(adwords) > 0:

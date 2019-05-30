@@ -24,7 +24,7 @@ from oauth2client import client
 # Your OAuth2 Client ID and Secret. If you do not have an ID and Secret yet,
 # please go to https://console.developers.google.com and create a set.
 DEFAULT_CLIENT_ID = '967183304564-ocr38is2io10nhnu8is0iudils9p64h1.apps.googleusercontent.com'
-DEFAULT_CLIENT_SECRET = 'wFJBTi9JxWEN_RQrtI5B7zIF'
+DEFAULT_CLIENT_SECRET = '-koiqWvigGeqdficUP5zLm9_'
 
 # The AdWords API OAuth2 scope.
 SCOPE = u'https://www.googleapis.com/auth/adwords'
