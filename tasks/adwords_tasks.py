@@ -1836,6 +1836,7 @@ def adwords_cron_no_changes(self):
         'franck@makeitbloom.com',
         'marina@makeitbloom.com',
         'lexi@makeitbloom.com',
+        'avi@makeitbloom.com'
     ]
 
     accounts = DependentAccount.objects.filter(blacklisted=False)
