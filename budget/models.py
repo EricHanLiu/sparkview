@@ -1411,7 +1411,7 @@ class Client(models.Model):
         Calculates budget remaining this month
         :return:
         """
-        return self.current_budget - self.current_spend
+        return self.current_budget - self.calculated_spend
 
     @property
     def calculated_daily_recommended(self):
@@ -1419,7 +1419,7 @@ class Client(models.Model):
         last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         remaining_days = last_day.day - today.day
 
-        return self.budget_remaining / remaining_days
+        return round(self.budget_remaining / remaining_days, 2)
 
     # Recommended daily spend for clients with flex budget
     # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py
