@@ -88,7 +88,6 @@ class Client(models.Model):
     flex_budget_start_date = models.DateTimeField(default=None, null=True,
                                                   blank=True)
     flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
-    other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
     # Parent Client (aka Client, this model should be Account)
@@ -928,7 +927,7 @@ class Client(models.Model):
 
     @property
     def current_full_budget(self):
-        return self.current_budget + self.other_budget
+        return self.current_budget
 
     def get_flex_spend_this_month(self):
         flex_spend = 0.0
@@ -1412,7 +1411,7 @@ class Client(models.Model):
         Calculates budget remaining this month
         :return:
         """
-        return self.current_budget - self.current_spend
+        return self.current_budget - self.calculated_spend
 
     @property
     def calculated_daily_recommended(self):
@@ -1420,7 +1419,7 @@ class Client(models.Model):
         last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         remaining_days = last_day.day - today.day
 
-        return self.budget_remaining / remaining_days
+        return round(self.budget_remaining / remaining_days, 2)
 
     # Recommended daily spend for clients with flex budget
     # TODO: If no flex budget is set, calculate the rec ds as in cron_clients.py

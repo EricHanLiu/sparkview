@@ -7,6 +7,9 @@ from bing_dashboard.models import BingAccounts, BingCampaign
 from client_area.models import Industry, ClientContact, ParentClient, Language, \
     ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile
 from user_management.models import Member, Team
+from dateutil.relativedelta import relativedelta
+import calendar
+import datetime
 
 
 class AccountTestCase(TestCase):
@@ -15,7 +18,7 @@ class AccountTestCase(TestCase):
         test_user = User.objects.create(username='test', password='12345')
         test_super = User.objects.create_user(username='test4', password='123456', is_staff=True, is_superuser=True)
         test_member = Member.objects.create(user=test_user)
-        test_member_super = Member.objects.create(user=test_super)
+        Member.objects.create(user=test_super)
         test_contact = ClientContact.objects.create(name='test', email='test@test.com', phone='1231231234')
         test_client = ParentClient.objects.create(name='test parent')
         test_client_type = ClientType.objects.create(name='test ct')
@@ -67,6 +70,16 @@ class AccountTestCase(TestCase):
         """Makes sure the budget calculating feature is working correctly"""
         account = BloomClient.objects.get(client_name='test client')
         self.assertEqual(account.current_budget, 1000.0)
+
+        aw_account = DependentAccount.objects.get(dependent_account_id='123')
+        aw_account.current_spend = 500.0
+        aw_account.save()
+
+        today = datetime.date.today() - relativedelta(days=1)
+        last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
+        remaining_days = last_day.day - today.day
+
+        self.assertEqual(account.calculated_daily_recommended, round(500.0 / remaining_days, 2))
 
     def test_management_fee(self):
         """Tests all things related to management fee"""
