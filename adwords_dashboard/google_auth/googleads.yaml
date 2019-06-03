@@ -20,7 +20,7 @@ adwords:
   # The following values configure the client for the installed application
   # flow.
   client_id: 967183304564-ocr38is2io10nhnu8is0iudils9p64h1.apps.googleusercontent.com
-  client_secret: wFJBTi9JxWEN_RQrtI5B7zIF
+  client_secret: -koiqWvigGeqdficUP5zLm9_
   refresh_token: 1/ru4ceR17iRWbFcdcy6X5KdairYJlIY60PbwZXSDJQPM
   # The following values configure the client for the service account flow.
   # service_account_email: INSERT_SERVICE_ACCOUNT_EMAIL_HERE

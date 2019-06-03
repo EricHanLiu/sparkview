@@ -764,7 +764,7 @@ class Mandate(models.Model):
     def calculated_hours(self):
         try:
             return self.cost / self.hourly_rate
-        except ZeroDivisionError:
+        except (ZeroDivisionError, TypeError):
             return 0
 
     @property

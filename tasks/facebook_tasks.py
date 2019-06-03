@@ -242,11 +242,11 @@ def facebook_cron_anomalies(self, account_id):
     )
 
     acc_metadata = {}
-    acc_metadata["daterange1_min"] = current_period_daterange["time_range"]["since"]
-    acc_metadata["daterange1_max"] = current_period_daterange["time_range"]["until"]
-    acc_metadata["daterange2_min"] = previous_period_daterange["time_range"]["since"]
-    acc_metadata["daterange2_max"] = previous_period_daterange["time_range"]["until"]
-    acc_metadata["vals"] = acc_anomalies
+    acc_metadata['daterange1_min'] = current_period_daterange['time_range']['since']
+    acc_metadata['daterange1_max'] = current_period_daterange['time_range']['until']
+    acc_metadata['daterange2_min'] = previous_period_daterange['time_range']['since']
+    acc_metadata['daterange2_max'] = previous_period_daterange['time_range']['until']
+    acc_metadata['vals'] = acc_anomalies
 
     FacebookPerformance.objects.filter(account=account, performance_type='ACCOUNT').delete()
 
@@ -304,11 +304,11 @@ def facebook_cron_anomalies_campaigns(self, account_id):
     for cmp in cmp_anomalies:
 
         cmp_metadata = {}
-        cmp_metadata["daterange1_min"] = current_period["time_range"]["since"]
-        cmp_metadata["daterange1_max"] = current_period["time_range"]["until"]
-        cmp_metadata["daterange2_min"] = previous_period["time_range"]["since"]
-        cmp_metadata["daterange2_max"] = previous_period["time_range"]["until"]
-        cmp_metadata["vals"] = cmp
+        cmp_metadata['daterange1_min'] = current_period['time_range']['since']
+        cmp_metadata['daterange1_max'] = current_period['time_range']['until']
+        cmp_metadata['daterange2_min'] = previous_period['time_range']['since']
+        cmp_metadata['daterange2_max'] = previous_period['time_range']['until']
+        cmp_metadata['vals'] = cmp
 
         if 'cpc' in cmp:
             cpc = cmp['cpc'][0]
@@ -318,12 +318,12 @@ def facebook_cron_anomalies_campaigns(self, account_id):
         FacebookPerformance.objects.create(
             account=account,
             performance_type='CAMPAIGN',
-            campaign_name=cmp["campaign_name"][0],
-            campaign_id=cmp["campaign_id"][0],
-            clicks=cmp["clicks"][0],
-            impressions=cmp["impressions"][0],
-            ctr=cmp["ctr"][0],
-            cost=cmp["spend"][0],
+            campaign_name=cmp['campaign_name'][0],
+            campaign_id=cmp['campaign_id'][0],
+            clicks=cmp['clicks'][0],
+            impressions=cmp['impressions'][0],
+            ctr=cmp['ctr'][0],
+            cost=cmp['spend'][0],
             cpc=cpc,
             metadata=cmp_metadata
         )
@@ -406,9 +406,9 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
     ]
 
     filtering = [{
-        'field': 'campaign.effective_status',
-        'operator': 'IN',
-        'value': ['ACTIVE'],
+        'field': 'campaign.spend',
+        'operator': 'GREATER_THAN',
+        'value': 0,
     }]
 
     this_month = helper.set_params(
@@ -543,7 +543,7 @@ def facebook_result_trends(self, customer_id):
         month_num = item['date_start'].split('-')[1]
         month = calendar.month_name[int(month_num)]
 
-        ctr = "{0:.2f}".format(float(item['ctr']))
+        ctr = '{0:.2f}'.format(float(item['ctr']))
 
         trends_data[month] = {
             'ctr': ctr,

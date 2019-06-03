@@ -228,6 +228,47 @@ class Client(models.Model):
             return False
 
     @property
+    def calculated_aw_spend(self):
+        """
+        Calculates adwords spend on the fly
+        :return:
+        """
+        spend = 0.0
+        for aw_acc in self.adwords.all():
+            spend += aw_acc.current_spend
+        return spend
+
+    @property
+    def calculated_fb_spend(self):
+        """
+        Calculates facebook spend on the fly
+        :return:
+        """
+        spend = 0.0
+        for fb_acc in self.facebook.all():
+            spend += fb_acc.current_spend
+        return spend
+
+    @property
+    def calculated_bing_spend(self):
+        """
+        Calculates bing spend on the fly
+        :return:
+        """
+        spend = 0.0
+        for bing_acc in self.bing.all():
+            spend += bing_acc.current_spend
+        return spend
+
+    @property
+    def calculated_spend(self):
+        """
+        Calculated spend
+        :return:
+        """
+        return self.calculated_aw_spend + self.calculated_fb_spend + self.calculated_bing_spend
+
+    @property
     def is_onboarding_ppc(self):
         if self.sales_profile is not None:
             return self.sales_profile.ppc_status == 0

@@ -715,7 +715,7 @@ def account_single(request, account_id):
         monthnow = now.month
         current_year = now.year
 
-        mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__member__in=members, month=month,
+        mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
 
         context = {
@@ -1379,18 +1379,6 @@ def set_services(request):
         cro = int(request.POST.get('set-cro'))
     except ValueError:
         cro = 6
-    try:
-        strat = int(request.POST.get('set-strat'))
-    except ValueError:
-        strat = 6
-    try:
-        email_marketing = int(request.POST.get('set-email-marketing'))
-    except ValueError:
-        email_marketing = 6
-    try:
-        feed_management = int(request.POST.get('set-feed-management'))
-    except ValueError:
-        feed_management = 6
 
     # get opp or pitch status if applicable
     if ppc == 4:
@@ -1429,42 +1417,6 @@ def set_services(request):
         except PitchedDescription.DoesNotExist:
             pitch = None
         sales_profile.cro_pitched_desc = pitch
-    if strat == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-strat-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.strat_opp_desc = opp
-    elif strat == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-strat-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.strat_pitched_desc = pitch
-    if email_marketing == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-email-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.email_opp_desc = opp
-    elif email_marketing == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-email-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.email_pitched_desc = pitch
-    if feed_management == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-feed-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.feed_opp_desc = opp
-    elif ppc == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-feed-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.feed_pitched_desc = pitch
 
     status_range = range(0, len(sales_profile.STATUS_CHOICES))
     if ppc is not None and ppc in status_range:
@@ -1473,12 +1425,6 @@ def set_services(request):
         sales_profile.seo_status = seo
     if cro is not None and cro in status_range:
         sales_profile.cro_status = cro
-    if strat is not None and strat in status_range:
-        sales_profile.strat_status = strat
-    if email_marketing is not None and email_marketing in status_range:
-        sales_profile.email_status = email_marketing
-    if feed_management is not None and feed_management in status_range:
-        sales_profile.feed_status = feed_management
 
     sales_profile.save()
 
