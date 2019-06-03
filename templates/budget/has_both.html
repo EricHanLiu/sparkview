@@ -1021,37 +1021,6 @@
             </div>
         </div>
         <!--end::Item-->
-        <div class="m-accordion__item">
-            <div class="m-accordion__item-head collapsed" role="tab"
-                 id="m_accordion_4_item_7_head" data-toggle="collapse"
-                 href="#m_accordion_4_item_7_body" aria-expanded="    false">
-                <span class="m-accordion__item-icon"></span>
-                <span class="m-accordion__item-title">Other Budgets</span>
-
-                <span class="m-accordion__item-mode"></span>
-            </div>
-
-            <div class="m-accordion__item-body collapse" id="m_accordion_4_item_7_body"
-                 role="tabpanel" aria-labelledby="m_accordion_4_item_7_head"
-                 data-parent="#m_accordion_4">
-                <div class="m-accordion__item-content">
-                    <form method="post" action="/budget/clients/edit_other_budget">
-                        {% csrf_token %}
-                        <input value="{{ client_data.id }}" name="account_id" id="account_id" style="display:none;"/>
-                        <div class="form-group m-form__group">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="client_name">Other Budget:</label>
-                                    <input type="text" name="other_budget" class="form-control m-input"
-                                           value="{{ client_data.other_budget }}"/>
-                                </div>
-                            </div>
-                            <input type="submit" value="Submit"/>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
 {% endblock view_client_block %}

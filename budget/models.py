@@ -88,7 +88,6 @@ class Client(models.Model):
     flex_budget_start_date = models.DateTimeField(default=None, null=True,
                                                   blank=True)
     flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
-    other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
     # Parent Client (aka Client, this model should be Account)
@@ -928,7 +927,7 @@ class Client(models.Model):
 
     @property
     def current_full_budget(self):
-        return self.current_budget + self.other_budget
+        return self.current_budget
 
     def get_flex_spend_this_month(self):
         flex_spend = 0.0
