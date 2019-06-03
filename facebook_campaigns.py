@@ -12,8 +12,7 @@ from tasks.logger import Logger
 
 
 def main():
-    # accounts = FacebookAccount.objects.filter(blacklisted=False)
-    accounts = FacebookAccount.objects.filter(account_name='Natrel (BLOOM)')
+    accounts = FacebookAccount.objects.filter(blacklisted=False)
     for account in accounts:
         try:
             client_id = account.facebook.all()[0].id
@@ -21,7 +20,7 @@ def main():
             client_id = None
 
         try:
-            facebook_cron_campaign_stats(account.account_id, client_id)
+            facebook_cron_campaign_stats.delay(account.account_id, client_id)
         except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
             logger = Logger()
             warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
