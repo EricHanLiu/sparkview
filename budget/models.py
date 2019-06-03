@@ -116,7 +116,6 @@ class Client(models.Model):
     tier = models.IntegerField(default=1)
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
     # maybe do services another way?
-    services = models.ManyToManyField(Service, blank=True, related_name='services')
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
     seo_hours = models.FloatField(default=0)
