@@ -397,6 +397,20 @@ class Adgroup(models.Model):
         )
 
 
+class BadAd(models.Model):
+    """
+    Bad ad (turned on and in a promo)
+    """
+    ad_id = models.CharField(max_length=255)
+    label = models.CharField(max_length=255)
+    ad_group = models.ForeignKey(Adgroup, models.CASCADE, null=True, default=None)
+    campaign = models.ForeignKey(Campaign, models.CASCADE, null=True, default=None)
+    date_found_on = models.DateTimeField()
+
+    def __str__(self):
+        return self.ad_id
+
+
 class Label(models.Model):
     # used for filtering text labels
     account = models.ForeignKey(DependentAccount, models.SET_NULL, blank=True, null=True)

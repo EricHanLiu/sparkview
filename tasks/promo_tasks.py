@@ -28,5 +28,6 @@ def get_ads_in_promos(self, promo):
     """
     ads_in_promo, created = AdsInPromo.objects.get_or_create(promo=promo)
 
+    # Get Ads in Google Ads
     client = get_client()
     helper = AdwordsReportingService(client)
