@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
     'app.mibhub.com',
     "*"
 ]
+
 ADMINS = [
     ('Bloom Dev', 'dev@makeitbloom.com'),
     ('Lexi', 'lexi@makeitbloom.com'),
@@ -66,7 +67,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'admin_honeypot'
+    'admin_honeypot',
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -274,7 +277,7 @@ BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
 bloomworker = '100025980313978'
 app_id = '582921108716849'
 business_id = '10154654586810511'
-app_secret = '17bc991966f6895650068fe41bc87aa0'
+app_secret = '15a5a1a6c5c4903c678e2b20ce35c66b'
 access_token = "EAAISKeWdZCTEBAGyyF5cheVZAGbr546TflaDJ4BhThFKigmetLZAW3SB0YHIGoZAoGGI0wZAYlPZBvV2hHUv6wtO8gD3is8eQGNIqKZAyBkVO5H8FnCTG6lRvV4TSLDpovlAgUrCYqA34I5zWBHrlOKALg8vo8dBqAZD"
 w_access_token = "EAAISKeWdZCTEBANbBD1ZA4igkrUYzdacd02E0IggsEfbrKvwvMZBlXvdZCPOgwEycpHTnrmsZCkFFNG7ehPDeo8Ez3PXQlMi6Kz3QWwhMFdqBMXKZCMZAvrAeOIExRdnw0tUNo4VVphEPhRhlD7epvYiwny80W6HlrZCccAXC3cDJduysrZBdmZBMU"
 
