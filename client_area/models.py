@@ -895,7 +895,7 @@ class Tag(models.Model):
         return self.name
 
 
-class AdsOnInPromo(models.Model):
+class AdsInPromo(models.Model):
     """
     Count of ads on or off in promo
     """
