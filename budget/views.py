@@ -1187,31 +1187,13 @@ def edit_flex_budget(request):
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(
             int(request.POST.get('account_id'))) and not member.teams_have_accounts(
-            int(request.POST.get('account_id'))):
+        int(request.POST.get('account_id'))):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     account_id = int(request.POST.get('account_id'))
     account = Client.objects.get(id=account_id)
 
     account.flex_budget = request.POST.get('flex_budget')
-
-    account.save()
-
-    return redirect('/budget/client/' + str(account.id))
-
-
-@login_required
-def edit_other_budget(request):
-    member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and not member.has_account(
-            int(request.POST.get('account_id'))) and not member.teams_have_accounts(
-            int(request.POST.get('account_id'))):
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    account_id = int(request.POST.get('account_id'))
-    account = Client.objects.get(id=account_id)
-
-    account.other_budget = request.POST.get('other_budget')
 
     account.save()
 
