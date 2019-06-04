@@ -88,7 +88,6 @@ class Client(models.Model):
     flex_budget_start_date = models.DateTimeField(default=None, null=True,
                                                   blank=True)
     flex_budget_end_date = models.DateTimeField(default=None, null=True, blank=True)
-    other_budget = models.FloatField(default=0)
     currency = models.CharField(max_length=255, default='', blank=True)
 
     # Parent Client (aka Client, this model should be Account)
