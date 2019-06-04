@@ -858,7 +858,8 @@ class MandateAssignment(models.Model):
                 self._hours = round(self.mandate.calculated_ongoing_hours * self.percentage / 100.0, 2)
             else:
                 now = datetime.datetime.now()
-                numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month, now.year)
+                numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month,
+                                                       now.year)
                 denominator = (self.mandate.end_date - self.mandate.start_date).days + 1
                 portion_in_month = numerator / denominator
                 self._hours = round(portion_in_month * self.mandate.calculated_hours * self.percentage / 100.0, 2)
@@ -892,3 +893,19 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class AdsOnInPromo(models.Model):
+    """
+    Count of ads on or off in promo
+    """
+    promo = models.ForeignKey(Promo, models.CASCADE, null=True, default=None)
+    aw_on = models.IntegerField(default=0)
+    aw_off = models.IntegerField(default=0)
+    fb_on = models.IntegerField(default=0)
+    fb_off = models.IntegerField(default=0)
+    bing_on = models.IntegerField(default=0)
+    bing_off = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.promo) + ' Ad Status'
