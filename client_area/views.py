@@ -742,14 +742,14 @@ def account_single(request, account_id):
 
         return render(request, 'client_area/account_single.html', context)
     elif request.method == 'POST':
-        account = Client.objects.get(id=id)
+        account = Client.objects.get(id=account_id)
         member = Member.objects.get(user=request.user)
 
         hours = request.POST.get('quickadd-hours')
         month = request.POST.get('quickadd-month')
         year = request.POST.get('quickadd-year')
 
-        if not member.has_account(id):
+        if not member.has_account(account_id):
             return HttpResponseForbidden()
 
         try:

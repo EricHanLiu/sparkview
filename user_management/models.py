@@ -453,7 +453,7 @@ class Member(models.Model):
             account = client_model.objects.get(id=account_id)
         except client_model.DoesNotExist:
             return False
-        return account in self.accounts or account in self.backup_accounts
+        return account in self.accounts
 
     def teams_have_accounts(self, account_id):
         """

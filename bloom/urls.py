@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^api/token/$', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     url(r'^api/token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
     url(r'^api/token/verify/$', CustomTokenVerifyView.as_view(), name='token_verify'),
+    url(r'^api/', include('api.urls', namespace='api')),
     url(r"^auth/login$", lviews.bloom_login, name='login'),
     url(r"^auth/logout$", lviews.bloom_logout, name='logout'),
     url(r"^auth/", include('social_django.urls', namespace='social')),
