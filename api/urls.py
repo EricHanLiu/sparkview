@@ -1,9 +1,10 @@
 from django.conf.urls import url
-from django.contrib import admin
-from api.views import ListAdwordsAccounts
+from . import views
 
-app_name = "bloomapi"
+app_name = 'bloomapi'
 
 urlpatterns = [
-    url(r"^$", ListAdwordsAccounts.as_view(), name="listadwordsaccounts"),
+    url(r'^login$', views.login, name='login'),
+    url(r'^sample$', views.sample_api, name='sample'),
+    url(r'^create_tracking_mandate$', views.create_tracking_mandate, name='create_tracking_mandate')
 ]
