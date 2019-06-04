@@ -50,14 +50,15 @@ def create_tracking_mandate(request):
     :return:
     """
     try:
-        tracking_mandate_type, created = MandateType.objects.get(name='Tracking Onboarding')
+        tracking_mandate_type = MandateType.objects.get(name='Tracking Onboarding')
     except MandateType.DoesNotExist:
         return Response({'error': 'Cannot find a mandate for tracking'},
                         status=HTTP_404_NOT_FOUND)
 
-    account_id = request.POST.get('account_id')
+    account_name = request.data.get('account_name')
+
     try:
-        account = Client.objects.get(id=account_id)
+        account = Client.objects.get(client_name=account_name)
     except Client.DoesNotExist:
         return Response({'error': 'Cannot find that client'},
                         status=HTTP_404_NOT_FOUND)
@@ -72,7 +73,7 @@ def create_tracking_mandate(request):
         return Response({'error': 'Mandate already exists'},
                         status=HTTP_400_BAD_REQUEST)
 
-    cost = request.POST.get('cost')
+    cost = request.data.get('cost')
     hourly = 125.0
 
     mandate.cost = cost
@@ -83,6 +84,7 @@ def create_tracking_mandate(request):
 
     mandate.start_date = today
     mandate.end_date = in_two_weeks
+    mandate.save()
 
     if settings.DEBUG:
         tracker = Member.objects.get(id=1)
