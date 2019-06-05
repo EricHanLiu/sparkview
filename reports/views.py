@@ -739,7 +739,7 @@ def account_history(request):
         if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
             allocated_hours = allocated_history[0]['sum_hours']
 
-        actual_hours = account.actual_hours_month_year(month, year)
+        all_hours = account.all_hours_month_year(month, year)
         try:
             actual_hours_ratio = actual_hours / allocated_hours
         except ZeroDivisionError:
@@ -749,7 +749,7 @@ def account_history(request):
         tmpa.append(account)  # 0
         tmpa.append(bh)  # 1
         tmpa.append(allocated_hours)  # 2
-        tmpa.append(actual_hours)  # 3
+        tmpa.append(all_hours)  # 3
         tmpa.append(actual_hours_ratio)  # 4
         accounts_array.append(tmpa)
 

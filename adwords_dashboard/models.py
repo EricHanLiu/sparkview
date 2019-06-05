@@ -431,8 +431,8 @@ class Label(models.Model):
             label_id=self.label_id,
             name=self.name,
             label_type=self.label_type,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.updated_time.strftime("%Y%m%d"),
+            updated_time=self.updated_time.strftime('%Y%m%d'),
+            created_time=self.updated_time.strftime('%Y%m%d'),
         )
 
     class Meta:
