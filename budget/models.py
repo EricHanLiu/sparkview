@@ -1522,6 +1522,7 @@ class AccountBudgetSpendHistory(models.Model):
     bing_spend = models.FloatField(default=0)
     fb_spend = models.FloatField(default=0)
     flex_spend = models.FloatField(default=0)
+    status = models.IntegerField(default=0)
 
     @property
     def budget(self):
