@@ -4,6 +4,7 @@ from googleads.adwords import AdWordsClient
 from googleads.errors import GoogleAdsValueError
 from tasks.logger import Logger
 from bloom import celery_app, settings
+from bloom.utils.reporting import Reporting
 from bloom.utils import AdwordsReportingService
 
 
@@ -30,4 +31,139 @@ def get_ads_in_promos(self, promo):
 
     # Get Ads in Google Ads
     client = get_client()
-    helper = AdwordsReportingService(client)
+
+    # TODO: This should be fixed
+    if promo.account.adwords.count() > 0:
+        client.client_customer_id = promo.account.adwords[0].account_id
+
+    label_service = client.GetService('LabelService', version=settings.API_VERSION)
+
+    label_selector = {
+        'fields': []
+    }
+
+    labels = label_service.get(label_selector)
+
+    # google_ads_service = client.GetService('AdService', version=settings.API_VERSION)
+    # report_downloader = client.GetReportDownloader(version=settings.API_VERSION)
+    #
+    # promo_ad_report_selector = {
+    #     'fields': ['Id', 'AdType', 'Description', 'HeadlinePart1', 'HeadlinePart2'],
+    #     'predicates': [
+    #         {
+    #             'field': 'AdGroupStatus',
+    #             'operator': 'EQUALS',
+    #             'values': 'ENABLED'
+    #         },
+    #         {
+    #             'field': 'CampaignStatus',
+    #             'operator': 'EQUALS',
+    #             'values': 'ENABLED'
+    #         },
+    #         {
+    #             'field': 'Status',
+    #             'operator': 'EQUALS',
+    #             'values': 'ENABLED'
+    #         },
+    #         {
+    #             'field': 'Impressions',
+    #             'operator': 'GREATER_THAN',
+    #             'values': '0'
+    #         },
+    #         {
+    #             'field': 'Labels',
+    #             'operator': ''
+    #         }
+    #     ]
+    # }
+    #
+    # promo_ad_report_query = {
+    #     'reportName': 'AD_PERFORMANCE_REPORT',
+    #     'dateRangeType': 'TODAY',
+    #     'reportType': 'AD_PERFORMANCE_REPORT',
+    #     'downloadFormat': 'CSV',
+    #     'selector': promo_ad_report_selector
+    # }
+
+    # promo_ads = google_ads_service.get(promo_ad_selector)
+
+
+@celery_app.task(bind=True)
+def get_bad_ads(self, account_id):
+    """
+    This should take in a promo and return a set of ads or a number of ads (depending on how many ads there are)
+    :param self:
+    :param account_id: ID of adwords account
+    :return:
+    """
+    print('in get bad ads')
+    # Get Ads in Google Ads
+    client = get_client()
+    client.client_customer_id = account_id
+
+    # google_ads_service = client.GetService('AdService', version=settings.API_VERSION)
+    report_downloader = client.GetReportDownloader(version=settings.API_VERSION)
+
+    promo_ad_report_selector = {
+        'fields': ['Id', 'AdType', 'Description', 'HeadlinePart1', 'HeadlinePart2'],
+        'predicates': [
+            {
+                'field': 'AdGroupStatus',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
+            },
+            {
+                'field': 'CampaignStatus',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
+            },
+            {
+                'field': 'Status',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
+            },
+            {
+                'field': 'Impressions',
+                'operator': 'GREATER_THAN',
+                'values': '0'
+            },
+            {
+                'field': 'Labels',
+                'operator': 'CONTAINS',
+                'values': ['Promo']
+            }
+        ]
+    }
+
+    promo_ad_report_query = {
+        'reportName': 'AD_PERFORMANCE_REPORT',
+        'dateRangeType': 'TODAY',
+        'reportType': 'AD_PERFORMANCE_REPORT',
+        'downloadFormat': 'CSV',
+        'selector': promo_ad_report_selector
+    }
+
+    promo_ads_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(promo_ad_report_query))
+    print(promo_ads_report)
+
+
+@celery_app.task(bind=True)
+def get_bad_ad_group_ads(self, account_id):
+    # Get Ads in Google Ads
+    client = get_client()
+    client.client_customer_id = account_id
+
+    ad_group_ad_service = client.GetService('AdGroupAdService', version=settings.API_VERSION)
+
+    ad_group_ads_selector = {
+        'fields': ['adGroupId'],
+        'predicates': [
+            {
+                'field': 'labels',
+                'operator': 'CONTAINS',
+                'values': 'Promo'
+            }
+        ]
+    }
+
+    labels = ad_group_ad_service.get(ad_group_ads_selector)

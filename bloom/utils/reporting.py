@@ -267,36 +267,55 @@ class Reporting:
 
         return new_date
 
-    def get_daterange(self, days=14, maxDate=None):
+    def get_daterange(self, days=14, max_date=None):
         today = datetime.today()
-        if maxDate is None:
-            maxDate = today + relativedelta(days=-1)
+        if max_date is None:
+            max_date = today + relativedelta(days=-1)
 
-        minDate = maxDate + relativedelta(days=-days)
-        dateRange = dict(
-            maxDate=maxDate,
-            minDate=minDate
+        min_date = max_date + relativedelta(days=-days)
+        date_range = dict(
+            maxDate=max_date,
+            minDate=min_date
         )
 
-        return dateRange
+        return date_range
 
-    def create_daterange(self, minDate, maxDate):
+    def create_daterange(self, min_date, max_date):
 
         return dict(
-            minDate=minDate,
-            maxDate=maxDate
+            minDate=min_date,
+            maxDate=max_date
         )
 
     def get_this_month_daterange(self):
 
         today = datetime.today()
 
-        minDate = datetime(today.year, today.month, 1)
-        maxDate = today
+        min_date = datetime(today.year, today.month, 1)
+        max_date = today
 
-        this_month = dict(minDate=minDate, maxDate=maxDate)
+        this_month = dict(minDate=min_date, maxDate=max_date)
 
         return this_month
+
+    @staticmethod
+    def parse_report_csv_new(report, header=True, footer=True):
+        report = report.splitlines()
+        if header:
+            report.pop(0)
+
+        report_headers = [
+            header.lower().replace(' ', '_') for header in report[0].split(',')
+        ]
+
+        report[0] = ','.join(report_headers)
+
+        if footer:
+            report.pop(-1).split(',')
+
+        dict_list = list(csv.DictReader(io.StringIO('\n'.join(report))))
+
+        return dict_list
 
     def parse_report_csv(self, report, header=True, footer=True):
         report = report.splitlines()

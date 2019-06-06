@@ -1101,3 +1101,19 @@ def jamie(request):
     }
 
     return render(request, 'reports/jamie.html', context)
+
+
+@login_required
+def promo_ads(request):
+    """
+    Jamie's custom report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    context = {
+    }
+
+    return render(request, 'reports/promo_ads.html', context)
