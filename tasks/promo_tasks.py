@@ -129,7 +129,7 @@ def get_bad_ads(self, account_id):
             },
             {
                 'field': 'Labels',
-                'operator': 'CONTAINS',
+                'operator': 'CONTAINS_ANY',
                 'values': ['Promo']
             }
         ]
@@ -155,15 +155,24 @@ def get_bad_ad_group_ads(self, account_id):
 
     ad_group_ad_service = client.GetService('AdGroupAdService', version=settings.API_VERSION)
 
+    # Get all labels
+    label_service = client.GetService('LabelService', version=settings.API_VERSION)
+    label_selector = {
+        'fields': []
+    }
+
+    labels = label_service.get(label_selector)
+
     ad_group_ads_selector = {
-        'fields': ['adGroupId'],
+        'fields': ['Id'],
         'predicates': [
             {
-                'field': 'labels',
-                'operator': 'CONTAINS',
-                'values': 'Promo'
+                'field': 'Labels',
+                'operator': 'CONTAINS_ANY',
+                'values': ['Promo']
             }
         ]
     }
 
-    labels = ad_group_ad_service.get(ad_group_ads_selector)
+    ad_group_ads = ad_group_ad_service.get(ad_group_ads_selector)
+    print(ad_group_ads)

@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django.test import TestCase
-from tasks.promo_tasks import get_bad_ads
+from tasks.promo_tasks import get_bad_ads, get_bad_ad_group_ads
 
 
 class GoogleAdsTestCase(TestCase):
