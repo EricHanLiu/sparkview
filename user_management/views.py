@@ -76,6 +76,27 @@ def members(request):
 
 
 @login_required
+def member_todo(request, id):
+    # Authenticate if staff or not
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    member = get_object_or_404(Member, id=id)
+
+    today = datetime.datetime.now().date()
+    promos_starting_today = Promo.objects.filter(start_date__gte=today)
+    promos_ending_today = Promo.objects.filter(end_date__lte=today)
+
+    context = {
+        'member': member,
+        'promos_starting_today': promos_starting_today,
+        'promos_ending_today': promos_ending_today
+    }
+
+    return render(request, 'user_management/profile/todo.html', context)
+
+
+@login_required
 def member_dashboard(request, id):
     # Authenticate if staff or not
     if not request.user.is_staff:
