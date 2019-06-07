@@ -147,6 +147,14 @@ def get_bad_ads(self, account_id):
     print(promo_ads_report)
 
 
+def is_ad_bad_promo(ad):
+    """
+    Checks if the ad is bad (promo still on)
+    :param ad:
+    :return:
+    """
+
+
 @celery_app.task(bind=True)
 def get_bad_ad_group_ads(self, account_id):
     # Get Ads in Google Ads
@@ -158,21 +166,86 @@ def get_bad_ad_group_ads(self, account_id):
     # Get all labels
     label_service = client.GetService('LabelService', version=settings.API_VERSION)
     label_selector = {
-        'fields': []
-    }
-
-    labels = label_service.get(label_selector)
-
-    ad_group_ads_selector = {
-        'fields': ['Id'],
+        'fields': ['LabelName', 'LabelId'],
         'predicates': [
             {
-                'field': 'Labels',
-                'operator': 'CONTAINS_ANY',
+                'field': 'LabelName',
+                'operator': 'CONTAINS',
                 'values': ['Promo']
+            },
+            {
+                'field': 'LabelStatus',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
             }
         ]
     }
 
-    ad_group_ads = ad_group_ad_service.get(ad_group_ads_selector)
-    print(ad_group_ads)
+    labels = label_service.get(label_selector)
+    label_ids = [label['id'] for label in labels['entries']]
+    # print(label_ids)
+
+    report_downloader = client.GetReportDownloader(version=settings.API_VERSION)
+
+    promo_ad_report_selector = {
+        'fields': ['Id', 'AdType', 'Description', 'HeadlinePart1', 'HeadlinePart2', 'Labels'],
+        'predicates': [
+            {
+                'field': 'AdGroupStatus',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
+            },
+            {
+                'field': 'CampaignStatus',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
+            },
+            {
+                'field': 'Status',
+                'operator': 'EQUALS',
+                'values': 'ENABLED'
+            },
+            {
+                'field': 'Impressions',
+                'operator': 'GREATER_THAN',
+                'values': '0'
+            },
+            {
+                'field': 'Labels',
+                'operator': 'CONTAINS_ANY',
+                'values': label_ids
+            }
+        ]
+    }
+
+    promo_ad_report_query = {
+        'reportName': 'AD_PERFORMANCE_REPORT',
+        'dateRangeType': 'TODAY',
+        'reportType': 'AD_PERFORMANCE_REPORT',
+        'downloadFormat': 'CSV',
+        'selector': promo_ad_report_selector
+    }
+
+    promo_ads_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(promo_ad_report_query))
+
+    bad_ads = []
+
+    for ad in promo_ads_report:
+        if is_ad_bad_promo(ad):
+            pass
+        print(ad)
+    # print(promo_ads_report)
+
+    # ad_group_ads_selector = {
+    #     'fields': ['Id'],
+    #     'predicates': [
+    #         {
+    #             'field': 'Labels',
+    #             'operator': 'CONTAINS_ANY',
+    #             'values': label_ids
+    #         }
+    #     ]
+    # }
+    #
+    # ad_group_ads = ad_group_ad_service.get(ad_group_ads_selector)
+    # print(ad_group_ads)
