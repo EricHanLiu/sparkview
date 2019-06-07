@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from client_area.models import AdsInPromo
 from googleads.adwords import AdWordsClient
 from googleads.errors import GoogleAdsValueError
+from adwords_dashboard.models import BadAdAlert, DependentAccount
 from tasks.logger import Logger
 from bloom import celery_app, settings
 from bloom.utils.reporting import Reporting
@@ -162,16 +163,13 @@ def is_ad_bad_promo(ad):
     date_components = label_date.split('/')
 
     now = datetime.datetime.now()
-    now_year = now.year
 
-    promo_month = int(date_components[0])
-    promo_day = int(date_components[1])
-    promo_year = now_year
+    promo_month, promo_day, promo_year = int(date_components[0]), int(date_components[1]), now.year
     if len(date_components) == 3:
         promo_year = int(date_components[2])
 
     promo_end_date = datetime.datetime(promo_year, promo_month, promo_day)
-    if promo_end_date > now:
+    if now > promo_end_date:
         return True
 
     return False
@@ -180,6 +178,12 @@ def is_ad_bad_promo(ad):
 @celery_app.task(bind=True)
 def get_bad_ad_group_ads(self, account_id):
     # Get Ads in Google Ads
+    try:
+        account = DependentAccount.objects.get(id=account_id)
+    except DependentAccount.DoesNotExist:
+        print('That account does not exist')
+        return
+
     client = get_client()
     client.client_customer_id = account_id
 
@@ -250,24 +254,19 @@ def get_bad_ad_group_ads(self, account_id):
 
     promo_ads_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(promo_ad_report_query))
 
-    bad_ads = []
+    # Use this object to count how many bad ads there are
+    bad_ads = {}
 
     for ad in promo_ads_report:
+        label = ad['labels']
         if is_ad_bad_promo(ad):
-            pass
-        print(ad)
-    # print(promo_ads_report)
+            if label in bad_ads:
+                bad_ads[label] = bad_ads[label] + 1
+            else:
+                bad_ads[label] = 1
 
-    # ad_group_ads_selector = {
-    #     'fields': ['Id'],
-    #     'predicates': [
-    #         {
-    #             'field': 'Labels',
-    #             'operator': 'CONTAINS_ANY',
-    #             'values': label_ids
-    #         }
-    #     ]
-    # }
-    #
-    # ad_group_ads = ad_group_ad_service.get(ad_group_ads_selector)
-    # print(ad_group_ads)
+    for key in bad_ads:
+        value = bad_ads[key]
+        bad_ad_alert, created = BadAdAlert.objects.get_or_create(account=account, label=key)
+        bad_ad_alert.count = value
+        bad_ad_alert.save()
