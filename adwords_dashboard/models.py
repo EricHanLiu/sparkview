@@ -397,6 +397,20 @@ class Adgroup(models.Model):
         )
 
 
+class BadAdAlert(models.Model):
+    """
+    TODO: Use a better model for this in the future
+    An alert that there are some bad ads turned on (past due date on promo)
+    """
+    account = models.ForeignKey(DependentAccount, models.CASCADE, null=True, default=None)
+    count = models.IntegerField(default=0)
+    label = models.CharField(max_length=255, default='')
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.account) + ' ' + str(self.created)
+
+
 class BadAd(models.Model):
     """
     Bad ad (turned on and in a promo)

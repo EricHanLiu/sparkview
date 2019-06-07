@@ -5,7 +5,7 @@ from googleads.errors import GoogleAdsValueError
 from tasks.logger import Logger
 from bloom import celery_app, settings
 from bloom.utils.reporting import Reporting
-from bloom.utils import AdwordsReportingService
+import datetime
 
 
 def get_client():
@@ -144,7 +144,6 @@ def get_bad_ads(self, account_id):
     }
 
     promo_ads_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(promo_ad_report_query))
-    print(promo_ads_report)
 
 
 def is_ad_bad_promo(ad):
@@ -153,6 +152,29 @@ def is_ad_bad_promo(ad):
     :param ad:
     :return:
     """
+    # Parse the label
+    # This is absolutely terrible, need a better solution in the future
+    label = ad['labels']
+    label_split = label.split(' - ')
+
+    label_date = label_split[-1]
+    label_date = label_date.replace('"', '').replace(']', '')
+    date_components = label_date.split('/')
+
+    now = datetime.datetime.now()
+    now_year = now.year
+
+    promo_month = int(date_components[0])
+    promo_day = int(date_components[1])
+    promo_year = now_year
+    if len(date_components) == 3:
+        promo_year = int(date_components[2])
+
+    promo_end_date = datetime.datetime(promo_year, promo_month, promo_day)
+    if promo_end_date > now:
+        return True
+
+    return False
 
 
 @celery_app.task(bind=True)
