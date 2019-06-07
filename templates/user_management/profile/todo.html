@@ -45,8 +45,22 @@
                         </div>
                     </div>
                     <div class="m-portlet__body">
-                        <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
-                        </div>
+                        <h4>
+                            Promos Starting/Ending Today
+                        </h4>
+                        {% for promo in promos_today %}
+                            <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                <div class="col-md-1">
+                                    <label class="m-checkbox">
+                                        <input type="checkbox"/>
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-11">
+                                    <a href="/clients/accounts/{{ promo.account_id }}">{{ promo }}</a>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

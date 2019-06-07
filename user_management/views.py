@@ -84,13 +84,15 @@ def member_todo(request, id):
     member = get_object_or_404(Member, id=id)
 
     today = datetime.datetime.now().date()
-    promos_starting_today = Promo.objects.filter(start_date__gte=today)
-    promos_ending_today = Promo.objects.filter(end_date__lte=today)
+    tomorrow = today + datetime.timedelta(1)
+    today_start = datetime.datetime.combine(today, datetime.time())
+    today_end = datetime.datetime.combine(tomorrow, datetime.time())
+    promos_starting_or_ending_today = Promo.objects.filter(Q(start_date__gte=today_start, start_date__lte=today_end)
+                                                           | Q(end_date__gte=today_start, end_date__lte=today_end))
 
     context = {
         'member': member,
-        'promos_starting_today': promos_starting_today,
-        'promos_ending_today': promos_ending_today
+        'promos_today': promos_starting_or_ending_today,
     }
 
     return render(request, 'user_management/profile/todo.html', context)
