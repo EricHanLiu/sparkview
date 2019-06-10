@@ -12,7 +12,7 @@
     <meta name="description" content="Latest updates and statistic charts">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    {% if request.META.HTTP_HOST != '127.0.0.1:8000' %}
+    {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
     <script>
@@ -22,7 +22,7 @@
       {% if request.user.is_authenticated %}
       gtag('set', {'user_id': '{{ request.user.member.id }}'});
       {% endif %}
-      gtag('config', 'UA-127221597-1')
+      gtag('config', 'UA-127221597-1');
     </script>
     {% endif %}
 
