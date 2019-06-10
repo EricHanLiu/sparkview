@@ -760,6 +760,7 @@ class Opportunity(models.Model):
     Marks an opportunity to upsell
     """
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+    reason = models.ForeignKey(OpportunityDescription, models.SET_NULL, null=True, default=None)
     is_primary = models.BooleanField(default=False)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
@@ -780,6 +781,7 @@ class Pitch(models.Model):
     Marks a pitch that was made to a client
     """
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+    reason = models.ForeignKey(PitchedDescription, models.SET_NULL, null=True, default=None)
     is_primary = models.BooleanField(default=False)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
