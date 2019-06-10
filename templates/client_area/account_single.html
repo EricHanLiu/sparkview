@@ -374,9 +374,11 @@
                                                         <a href="/user_management/members/{{ assigned_member.id }}">{% endif %}{{ assigned_member.user.get_full_name }}
                                                     {% if request.user.is_staff %}</a>{% endif %}</h3>
                                                 <span class="m-badge m-badge--wide"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="{{ assignment.mandate }}"
                                                       style="background: rgb(255, 153, 51); color: white;">Mandate</span>
                                                 <br/>
-                                                <span data-toggle="m-tooltip">{{ assignment.hours }}hr</span>
+                                                <span data-toggle="m-tooltip">{{ assignment.worked_this_month }}/{{ assignment.hours }}hr</span>
                                                 <br/>
                                                 <span data-toggle="m-tooltip">{{ assignment.mandate.start_date_pretty }} - {{ assignment.mandate.end_date_pretty }}</span>
                                             </div>

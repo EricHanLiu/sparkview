@@ -1,5 +1,6 @@
 from django.db import models
 from client_area.utils import days_in_month_in_daterange
+from django.db.models import Sum
 import calendar
 import datetime
 
@@ -864,6 +865,20 @@ class MandateAssignment(models.Model):
                 portion_in_month = numerator / denominator
                 self._hours = round(portion_in_month * self.mandate.calculated_hours * self.percentage / 100.0, 2)
         return self._hours
+
+    @property
+    def worked_this_month(self):
+        """
+        Returns number of hours worked this month
+        :return:
+        """
+        now = datetime.datetime.now()
+        hours = \
+            MandateHourRecord.objects.filter(assignment=self, month=now.month, year=now.year).aggregate(Sum('hours'))[
+                'hours__sum']
+        if hours is None:
+            return 0.0
+        return hours
 
     def __str__(self):
         return str(self.member) + ' ' + str(self.mandate) + ' ' + str(self.percentage) + '%'

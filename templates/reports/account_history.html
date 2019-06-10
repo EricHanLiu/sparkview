@@ -82,13 +82,19 @@
                             <tr class="main-table-header">
                                 <th>Account</th>
                                 <th>
-                                    Actual Hours
+                                    All Hours
+                                </th>
+                                <th>
+                                    Value Added Hours
+                                </th>
+                                <th>
+                                    Mandate Hours
                                 </th>
                                 <th>
                                     Allocated Hours
                                 </th>
                                 <th>
-                                    Actual/Allocated
+                                    All/Allocated
                                 </th>
                                 <th>
                                     Spend
@@ -108,7 +114,16 @@
                                         {{ account.0.client_name }}
                                     </td>
                                     <td>
+                                        <!-- All hours -->
                                         {{ account.3|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <!-- Value added hours -->
+                                        {{ account.5|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <!-- Mandate hours -->
+                                        {{ account.6|floatformat:2 }}
                                     </td>
                                     <td>
                                         {{ account.2|floatformat:2 }}
