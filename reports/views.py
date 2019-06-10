@@ -748,6 +748,7 @@ def account_history(request):
 
         value_added_hours = account.value_hours_month_year(month, year)
         mandate_hours = account.actual_mandate_hours(month, year)
+        actual_hours_sum = account.actual_hours_month_year(month, year)
 
         tmpa = []
         tmpa.append(account)  # 0
@@ -757,6 +758,7 @@ def account_history(request):
         tmpa.append(actual_hours_ratio)  # 4
         tmpa.append(value_added_hours)  # 5
         tmpa.append(mandate_hours)  # 6
+        tmpa.append(actual_hours_sum)  # 7
         accounts_array.append(tmpa)
 
     context = {

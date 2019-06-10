@@ -81,14 +81,15 @@
                             <thead class="thead-inverse">
                             <tr class="main-table-header">
                                 <th>Account</th>
-                                <th>
-                                    All Hours
-                                </th>
+                                <th>Actual Hours</th>
                                 <th>
                                     Value Added Hours
                                 </th>
                                 <th>
                                     Mandate Hours
+                                </th>
+                                <th>
+                                    All Hours
                                 </th>
                                 <th>
                                     Allocated Hours
@@ -111,11 +112,10 @@
                             {% for account in accounts_array %}
                                 <tr>
                                     <td>
-                                        {{ account.0.client_name }}
+                                        <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
                                     </td>
                                     <td>
-                                        <!-- All hours -->
-                                        {{ account.3|floatformat:2 }}
+                                        {{ account.7|floatformat:2 }}
                                     </td>
                                     <td>
                                         <!-- Value added hours -->
@@ -124,6 +124,10 @@
                                     <td>
                                         <!-- Mandate hours -->
                                         {{ account.6|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <!-- All hours -->
+                                        {{ account.3|floatformat:2 }}
                                     </td>
                                     <td>
                                         {{ account.2|floatformat:2 }}
