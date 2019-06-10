@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Sum
 from .utils import days_in_month_in_daterange
-from budget.models import Client
 import calendar
 import datetime
 
@@ -761,7 +760,7 @@ class Opportunity(models.Model):
     """
     PRIMARY_SERVICE_CHOICES = [(1, 'PPC'), (2, 'SEO'), (3, 'CRO')]
 
-    account = models.ForeignKey(Client, models.CASCADE, null=True, default=None)
+    account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     is_primary = models.BooleanField(default=False)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
