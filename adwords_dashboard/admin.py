@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 from .models import DependentAccount, Profile, Campaign
 from django.contrib import admin
+from .models import BadAdAlert
 
-
-# Register your models here.
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
@@ -19,6 +18,11 @@ class DependentAccountAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     fields = ('user', 'adwords', 'bing')
     list_filter = ('created_time', 'updated_time')
+
+
+@admin.register(BadAdAlert)
+class BadAdAlertAdmin(admin.ModelAdmin):
+    pass
 
 
 admin.site.register(DependentAccount, DependentAccountAdmin)

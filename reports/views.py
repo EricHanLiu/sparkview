@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
+from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
@@ -1113,7 +1114,11 @@ def promo_ads(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    # Change this later
+    bad_ad_alerts = BadAdAlert.objects.all()
+
     context = {
+        'bad_ad_alerts': bad_ad_alerts
     }
 
     return render(request, 'reports/promo_ads.html', context)

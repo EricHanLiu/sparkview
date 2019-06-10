@@ -407,6 +407,16 @@ class BadAdAlert(models.Model):
     label = models.CharField(max_length=255, default='')
     created = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def parent_account(self):
+        """
+        Returns the 'Client' associated with this account
+        :return:
+        """
+        if self.account is None:
+            return None
+        return self.account.client_set.all()[0]
+
     def __str__(self):
         return str(self.account) + ' ' + str(self.created)
 
