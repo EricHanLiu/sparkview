@@ -79,38 +79,41 @@
             </div>
         {% endif %}
         <!-- MAIN CONTENT -->
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="m-portlet m-portlet--responsive-mobile-">
-                    <div class="m-portlet__head">
-                        <div class="m-portlet__head-caption">
-                            <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text">
-                                    Todo List - {{ today|date:"l F j, Y" }}
-                                </h3>
+        {% if todos.count > 0 %}
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="m-portlet m-portlet--responsive-mobile-">
+                        <div class="m-portlet__head">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text">
+                                        Todo List - {{ today|date:"l F j, Y" }}&nbsp
+                                        <a id="filterTodo"><i class="fas fa-filter"></i></a>
+                                    </h3>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="m-portlet__body" id="todoList">
-                        {% for todo in todos %}
-                            <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
-                                <div class="col-md-1">
-                                    <label class="m-checkbox pb-1">
-                                        <input type="checkbox" class="complete-todo"
-                                               data-todo-id="{{ todo.id }}"
-                                               {% if todo.completed %}disabled{% endif %}/>
-                                        <span></span>
-                                    </label>
+                        <div class="m-portlet__body" id="todoList">
+                            {% for todo in todos %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-md-1">
+                                        <label class="m-checkbox pb-1">
+                                            <input type="checkbox" class="complete-todo"
+                                                   data-todo-id="{{ todo.id }}"
+                                                   {% if todo.completed %}disabled{% endif %}/>
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                    </div>
                                 </div>
-                                <div class="col-md-11">
-                                    <a href="{{ todo.link }}">{{ todo.description }}</a>
-                                </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
         <div class="row">
             <div class="col-12">
                 {# Replaced by to do list #}
