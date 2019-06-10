@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum
 from .utils import days_in_month_in_daterange
+from .choices import PRIMARY_SERVICE_CHOICES
 import calendar
 import datetime
 
@@ -758,8 +759,6 @@ class Opportunity(models.Model):
     """
     Marks an opportunity to upsell
     """
-    PRIMARY_SERVICE_CHOICES = [(1, 'PPC'), (2, 'SEO'), (3, 'CRO')]
-
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     is_primary = models.BooleanField(default=False)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
@@ -780,4 +779,8 @@ class Pitch(models.Model):
     """
     Marks a pitch that was made to a client
     """
-    pass
+    account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
+    is_primary = models.BooleanField(default=False)
+    primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
+    additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
+    created = models.DateTimeField(auto_now_add=True)
