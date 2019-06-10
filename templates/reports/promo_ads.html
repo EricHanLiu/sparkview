@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                            Bad Promo Ads
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="m-portlet__body">
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                    <div class="col-12">
+                        <table class="table table-hover dataTable order-column">
+                            <thead class="thead-light">
+                            <tr class="main-table-header">
+                                <th>
+                                    Account
+                                </th>
+                                <th>
+                                    Google Ads Account
+                                </th>
+                                <th>
+                                    Label
+                                </th>
+                                <th>
+                                    Number of bad ads
+                                </th>
+                                <th>
+                                    Date found
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for bad_ad_alert in bad_ad_alerts %}
+                                    <tr>
+                                        <td>
+                                            {{ bad_ad_alert.parent_account }}
+                                        </td>
+                                        <td>
+                                            {{ bad_ad_alert.account }}
+                                        </td>
+                                        <td>
+                                            {{ bad_ad_alert.label }}
+                                        </td>
+                                        <td>
+                                            {{ bad_ad_alert.count }}
+                                        </td>
+                                        <td>
+                                            {{ bad_ad_alert.created }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

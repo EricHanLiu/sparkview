@@ -81,14 +81,21 @@
                             <thead class="thead-inverse">
                             <tr class="main-table-header">
                                 <th>Account</th>
+                                <th>Actual Hours</th>
                                 <th>
-                                    Actual Hours
+                                    Value Added Hours
+                                </th>
+                                <th>
+                                    Mandate Hours
+                                </th>
+                                <th>
+                                    All Hours
                                 </th>
                                 <th>
                                     Allocated Hours
                                 </th>
                                 <th>
-                                    Actual/Allocated
+                                    All/Allocated
                                 </th>
                                 <th>
                                     Spend
@@ -105,9 +112,21 @@
                             {% for account in accounts_array %}
                                 <tr>
                                     <td>
-                                        {{ account.0.client_name }}
+                                        <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
                                     </td>
                                     <td>
+                                        {{ account.7|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <!-- Value added hours -->
+                                        {{ account.5|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <!-- Mandate hours -->
+                                        {{ account.6|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <!-- All hours -->
                                         {{ account.3|floatformat:2 }}
                                     </td>
                                     <td>

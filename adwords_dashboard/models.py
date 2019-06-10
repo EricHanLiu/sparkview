@@ -397,6 +397,44 @@ class Adgroup(models.Model):
         )
 
 
+class BadAdAlert(models.Model):
+    """
+    TODO: Use a better model for this in the future
+    An alert that there are some bad ads turned on (past due date on promo)
+    """
+    account = models.ForeignKey(DependentAccount, models.CASCADE, null=True, default=None)
+    count = models.IntegerField(default=0)
+    label = models.CharField(max_length=255, default='')
+    created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def parent_account(self):
+        """
+        Returns the 'Client' associated with this account
+        :return:
+        """
+        if self.account is None:
+            return None
+        return self.account.client_set.all()[0]
+
+    def __str__(self):
+        return str(self.account) + ' ' + str(self.created)
+
+
+class BadAd(models.Model):
+    """
+    Bad ad (turned on and in a promo)
+    """
+    ad_id = models.CharField(max_length=255)
+    label = models.CharField(max_length=255)
+    ad_group = models.ForeignKey(Adgroup, models.CASCADE, null=True, default=None)
+    campaign = models.ForeignKey(Campaign, models.CASCADE, null=True, default=None)
+    date_found_on = models.DateTimeField()
+
+    def __str__(self):
+        return self.ad_id
+
+
 class Label(models.Model):
     # used for filtering text labels
     account = models.ForeignKey(DependentAccount, models.SET_NULL, blank=True, null=True)
@@ -417,8 +455,8 @@ class Label(models.Model):
             label_id=self.label_id,
             name=self.name,
             label_type=self.label_type,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.updated_time.strftime("%Y%m%d"),
+            updated_time=self.updated_time.strftime('%Y%m%d'),
+            created_time=self.updated_time.strftime('%Y%m%d'),
         )
 
     class Meta:

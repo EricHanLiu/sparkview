@@ -330,6 +330,16 @@ class Client(models.Model):
             return 0.0
         return hours
 
+    def all_hours_month_year(self, month, year):
+        hours = \
+            AccountHourRecord.objects.filter(account=self, month=month, year=year).aggregate(
+                Sum('hours'))[
+                'hours__sum']
+        if hours is None:
+            hours = 0.0
+        hours += self.actual_mandate_hours(month, year)
+        return hours
+
     def actual_hours_month_year(self, month, year):
         hours = \
             AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=False).aggregate(
@@ -337,7 +347,15 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
-        hours += self.actual_mandate_hours(month, year)
+        return hours
+
+    def value_hours_month_year(self, month, year):
+        hours = \
+            AccountHourRecord.objects.filter(account=self, month=month, year=year, is_unpaid=True).aggregate(
+                Sum('hours'))[
+                'hours__sum']
+        if hours is None:
+            hours = 0.0
         return hours
 
     def get_hours_remaining_this_month(self):
@@ -1504,6 +1522,7 @@ class AccountBudgetSpendHistory(models.Model):
     bing_spend = models.FloatField(default=0)
     fb_spend = models.FloatField(default=0)
     flex_spend = models.FloatField(default=0)
+    status = models.IntegerField(default=0)
 
     @property
     def budget(self):

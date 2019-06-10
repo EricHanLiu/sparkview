@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
+from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
@@ -414,7 +415,7 @@ def actual_hours(request):
     accounts = Client.objects.all().order_by('client_name')
     members = Member.objects.all().order_by('user__first_name')
     months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
-    years = ['2018', '2019', '2020']
+    years = [str(i) for i in range(2018, now.year)]
 
     selected = {
         'account': 'all',
@@ -739,18 +740,25 @@ def account_history(request):
         if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
             allocated_hours = allocated_history[0]['sum_hours']
 
-        actual_hours = account.actual_hours_month_year(month, year)
+        all_hours = account.all_hours_month_year(month, year)
         try:
-            actual_hours_ratio = actual_hours / allocated_hours
+            actual_hours_ratio = all_hours / allocated_hours
         except ZeroDivisionError:
             actual_hours_ratio = 'N/A'
+
+        value_added_hours = account.value_hours_month_year(month, year)
+        mandate_hours = account.actual_mandate_hours(month, year)
+        actual_hours_sum = account.actual_hours_month_year(month, year)
 
         tmpa = []
         tmpa.append(account)  # 0
         tmpa.append(bh)  # 1
         tmpa.append(allocated_hours)  # 2
-        tmpa.append(actual_hours)  # 3
+        tmpa.append(all_hours)  # 3
         tmpa.append(actual_hours_ratio)  # 4
+        tmpa.append(value_added_hours)  # 5
+        tmpa.append(mandate_hours)  # 6
+        tmpa.append(actual_hours_sum)  # 7
         accounts_array.append(tmpa)
 
     context = {
@@ -1101,3 +1109,23 @@ def jamie(request):
     }
 
     return render(request, 'reports/jamie.html', context)
+
+
+@login_required
+def promo_ads(request):
+    """
+    Jamie's custom report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    # Change this later
+    bad_ad_alerts = BadAdAlert.objects.all()
+
+    context = {
+        'bad_ad_alerts': bad_ad_alerts
+    }
+
+    return render(request, 'reports/promo_ads.html', context)

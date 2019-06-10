@@ -49,6 +49,11 @@ def create_tracking_mandate(request):
     :param request:
     :return:
     """
+    service_type = request.data.get('service_type')
+    if service_type.lower() != 'tracking onboarding':
+        return Response({'error': 'Invalid service'},
+                        status=HTTP_400_BAD_REQUEST)
+
     try:
         tracking_mandate_type = MandateType.objects.get(name='Tracking Onboarding')
     except MandateType.DoesNotExist:

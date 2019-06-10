@@ -1,5 +1,6 @@
 from django.db import models
 from client_area.utils import days_in_month_in_daterange
+from django.db.models import Sum
 import calendar
 import datetime
 
@@ -858,11 +859,26 @@ class MandateAssignment(models.Model):
                 self._hours = round(self.mandate.calculated_ongoing_hours * self.percentage / 100.0, 2)
             else:
                 now = datetime.datetime.now()
-                numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month, now.year)
+                numerator = days_in_month_in_daterange(self.mandate.start_date, self.mandate.end_date, now.month,
+                                                       now.year)
                 denominator = (self.mandate.end_date - self.mandate.start_date).days + 1
                 portion_in_month = numerator / denominator
                 self._hours = round(portion_in_month * self.mandate.calculated_hours * self.percentage / 100.0, 2)
         return self._hours
+
+    @property
+    def worked_this_month(self):
+        """
+        Returns number of hours worked this month
+        :return:
+        """
+        now = datetime.datetime.now()
+        hours = \
+            MandateHourRecord.objects.filter(assignment=self, month=now.month, year=now.year).aggregate(Sum('hours'))[
+                'hours__sum']
+        if hours is None:
+            return 0.0
+        return hours
 
     def __str__(self):
         return str(self.member) + ' ' + str(self.mandate) + ' ' + str(self.percentage) + '%'
@@ -892,3 +908,19 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class AdsInPromo(models.Model):
+    """
+    Count of ads on or off in promo
+    """
+    promo = models.ForeignKey(Promo, models.CASCADE, null=True, default=None)
+    aw_on = models.IntegerField(default=0)
+    aw_off = models.IntegerField(default=0)
+    fb_on = models.IntegerField(default=0)
+    fb_off = models.IntegerField(default=0)
+    bing_on = models.IntegerField(default=0)
+    bing_off = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.promo) + ' Ad Status'

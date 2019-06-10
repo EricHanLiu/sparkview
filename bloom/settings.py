@@ -255,6 +255,7 @@ CRONJOBS = [
     ('45 10 * * *', 'ninety_days_update.main', '> ' + BASE_DIR + '/logs/ninety_days_update.log'),
     # ('15 12 * * *', 'ninety_days_notifications.main', '> ' + BASE_DIR + '/logs/ninety_days_notifications.log'),
     ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
+    ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log')
 ]
 
 # Bing Stuff
