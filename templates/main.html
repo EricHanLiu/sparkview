@@ -12,15 +12,17 @@
     <meta name="description" content="Latest updates and statistic charts">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    {% if request.META.HTTP_HOST != "127.0.0.1:8000" %}
+    {% if request.META.HTTP_HOST != '127.0.0.1:8000' %}
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      gtag('config', 'UA-127221597-1');
+      {% if request.user.is_authenticated %}
+      gtag('set', {'user_id': '{{ request.user.member.id }}'});
+      {% endif %}
+      gtag('config', 'UA-127221597-1')
     </script>
     {% endif %}
 
@@ -538,6 +540,13 @@
                                   <a href="/reports/sales" class="m-menu__link ">
                                     <span class="m-menu__link-text">
                                       Sales
+                                    </span>
+                                  </a>
+                                </li>
+                                <li class="m-menu__item " data-redirect="true" aria-haspopup="true">
+                                  <a href="/reports/promo_ads" class="m-menu__link ">
+                                    <span class="m-menu__link-text">
+                                      Bad Promo Ads
                                     </span>
                                   </a>
                                 </li>

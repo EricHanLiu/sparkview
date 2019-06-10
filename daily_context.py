@@ -49,6 +49,7 @@ def main():
         account_budget_history.fb_spend = account.fb_spend
         account_budget_history.flex_spend = account.flex_spend
         account_budget_history.management_fee = account.current_fee
+        account_budget_history.status = account.status
         account_budget_history.save()
 
 

@@ -253,6 +253,7 @@
                                                                                              data-original-title="{{ account.late_onboard_reason }}"{% endif %}>{{ account.client_name }}</h4>
                                             </a>&nbsp;&nbsp;<span
                                                 class="m-badge onboard-badge m-badge--{% if account.is_late_to_onboard %}danger{% else %}info{% endif %}"
+                                                data-account-id="{{ account.id }}"
                                                 style="margin-bottom: 0.5rem;"
                                                 {% if account.is_late_to_onboard %}data-toggle="modal"
                                                 data-target="#late_onboard_modal"{% endif %}>{{ account.onboarding_duration_elapsed }}</span>
