@@ -44,7 +44,8 @@
                     <p>This mandate is currently marked as completed. Are you sure you want to reopen it?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn" data-toggle="modal" data-target="#mandateConfirmation">Cancel</button>
+                    <button type="button" class="btn" data-toggle="modal" data-target="#mandateConfirmation">Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" id="reopenMandate">Yes</button>
                 </div>
             </div>
@@ -77,6 +78,41 @@
                 You can find them in the <strong>Flagged Accounts</strong> section below.
             </div>
         {% endif %}
+        <!-- MAIN CONTENT -->
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--responsive-mobile-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Todo List - {{ today|date:"l F j, Y" }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body" id="todoList">
+                        <form method="POST">
+                            {% for todo in todos %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-md-1">
+                                        <label class="m-checkbox">
+                                            <input type="checkbox" class="complete-todo"
+                                                   data-todo-id="{{ todo.id }}"
+                                                   {% if todo.completed %}disabled{% endif %}/>
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 {% if member.phase_tasks.count > 0 %}
@@ -141,6 +177,8 @@
                                                       data-original-title="
                                                         {% if aw %}
                                                             {% for a in aw %}
+
+
                                                           {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
                                                             {% endfor %}
                                                         {% else %}
@@ -603,6 +641,27 @@
 
 {% block extraJs %}
     <script>
+        $('body').on('change', '.complete-todo', function () {
+            let todoID = $(this).data('todo-id');
+
+            // send request if checking off todo
+            if (this.checked) {
+                $.ajax({
+                    url: '',
+                    data: {
+                        'todo_id': todoID,
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    success: () => {
+                        $(this).prop('disabled', 'disabled');
+                        // refresh list
+                        $('#todoList').load(location.href + ' #todoList>*', '');
+                    }
+                });
+            }
+        });
+
         $(document).ready(function () {
             let $flagTaskBtn = $('#flag_task_btn');
 

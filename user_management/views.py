@@ -12,7 +12,7 @@ from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPerio
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     MandateAssignment, Mandate
-from notifications.models import Notification
+from notifications.models import Notification, Todo
 
 
 @login_required
@@ -73,30 +73,6 @@ def members(request):
     }
 
     return render(request, 'user_management/members.html', context)
-
-
-@login_required
-def member_todo(request, id):
-    # Authenticate if staff or not
-    if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    member = get_object_or_404(Member, id=id)
-
-    today = datetime.datetime.now().date()
-    tomorrow = today + datetime.timedelta(1)
-    today_start = datetime.datetime.combine(today, datetime.time())
-    today_end = datetime.datetime.combine(tomorrow, datetime.time())
-    promos_starting_or_ending_today = Promo.objects.filter(Q(start_date__gte=today_start, start_date__lte=today_end)
-                                                           | Q(end_date__gte=today_start, end_date__lte=today_end))
-
-    context = {
-        'member': member,
-        'promos_today': promos_starting_or_ending_today,
-    }
-
-    return render(request, 'user_management/profile/todo.html', context)
-
 
 @login_required
 def member_dashboard(request, id):
@@ -643,6 +619,9 @@ def members_single(request, id=0):
     mandate_assignments = member.active_mandate_assignments
     mandates = [assignment.mandate for assignment in mandate_assignments]
 
+    today = datetime.datetime.today().date()
+    todos = Todo.objects.filter(member=member, completed=False, date_created=today)
+
     context = {
         'accountHours': accountHours,
         'accountAllocation': accountAllocation,
@@ -653,16 +632,28 @@ def members_single(request, id=0):
         'backing_me': backing_me,
         'star_accounts': star_accounts,
         'black_marker': black_marker,
-        'mandates': mandates
+        'mandates': mandates,
+        'today': today,
+        'todos': todos
     }
 
-    # ajax mandate completed checkmarking
+    # ajax mandate completed checkmarking and todolist completion
     if request.method == 'POST':
         checked = request.POST.get('checked') == 'true'
         mandate_id = request.POST.get('mandate-id')
-        mandate = Mandate.objects.get(id=mandate_id)
-        mandate.completed = checked
-        mandate.save()
+        if mandate_id is not None:
+            mandate = Mandate.objects.get(id=mandate_id)
+            mandate.completed = checked
+            mandate.save()
+
+        todo_id = request.POST.get('todo_id')
+        if todo_id is not None:
+            todo = Todo.objects.get(id=todo_id)
+
+            todo.completed = True
+            todo.save()
+
+        return HttpResponse()
 
     return render(request, 'user_management/profile/profile.html', context)
 

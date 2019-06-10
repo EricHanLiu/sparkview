@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from user_management.models import Member
 import calendar
 
 
@@ -59,3 +60,17 @@ class ScheduledNotification(models.Model):
 
     def __str__(self):
         return self.message
+
+
+class Todo(models.Model):
+    """
+    A to-do list that the user sees every day of tasks to do
+    """
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, default=None, blank=True)
+    description = models.CharField(max_length=255, default='')
+    link = models.CharField(max_length=255, default='')
+    completed = models.BooleanField(default=False)
+    date_created = models.DateField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return str(self.member) + ': ' + self.description

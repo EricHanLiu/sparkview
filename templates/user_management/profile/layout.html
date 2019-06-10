@@ -13,10 +13,6 @@
                         <span>{{ member.role }}</span>
                     </div>
                 </li>
-                <li class="m-menu__item " aria-haspopup="true"><a
-                        href="/user_management/members/{{ member.id }}/todo" class="m-menu__link "><i
-                        class="m-menu__link-icon flaticon-add"></i><span
-                        class="m-menu__link-text">Todo</span></a></li>
                 {% if request.user.is_staff %}
                     <li class="m-menu__item " aria-haspopup="true"><a
                             href="/user_management/members/{{ member.id }}/dashboard" class="m-menu__link "><i
