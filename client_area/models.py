@@ -1,6 +1,7 @@
 from django.db import models
-from client_area.utils import days_in_month_in_daterange
 from django.db.models import Sum
+from .utils import days_in_month_in_daterange
+from budget.models import Client
 import calendar
 import datetime
 
@@ -427,42 +428,9 @@ class SalesProfile(models.Model):
                       (5, 'Pitched'), (6, 'None')]
 
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
-
     ppc_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
-    ppc_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
-                                     related_name='ppc_opp')
-    ppc_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
-                                         related_name='ppc_pitch')
-
     seo_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
-    seo_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
-                                     related_name='seo_opp')
-    seo_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
-                                         related_name='seo_pitch')
-
     cro_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
-    cro_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
-                                     related_name='cro_opp')
-    cro_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
-                                         related_name='cro_pitch')
-
-    strat_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
-    strat_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
-                                       related_name='strat_opp')
-    strat_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
-                                           related_name='strat_opp')
-
-    feed_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
-    feed_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
-                                      related_name='feed_opp')
-    feed_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
-                                          related_name='feed_opp')
-
-    email_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
-    email_opp_desc = models.ForeignKey(OpportunityDescription, on_delete=models.CASCADE, default=None, null=True,
-                                       related_name='email_opp')
-    email_pitched_desc = models.ForeignKey(PitchedDescription, on_delete=models.CASCADE, default=None, null=True,
-                                           related_name='email_opp')
 
     @property
     def overall_active(self):
@@ -475,12 +443,6 @@ class SalesProfile(models.Model):
         if self.seo_status == 1:
             return True
         if self.cro_status == 1:
-            return True
-        if self.strat_status == 1:
-            return True
-        if self.feed_status == 1:
-            return True
-        if self.email_status == 1:
             return True
 
         return False
@@ -499,60 +461,8 @@ class SalesProfile(models.Model):
                 active.append('SEO')
             if self.account.has_cro:
                 active.append('CRO')
-            if self.strat_status == 1:
-                active.append('Strat')
-            if self.feed_status == 1:
-                active.append('Feed Management')
-            if self.email_status == 1:
-                active.append('Email Marketing')
             self._active_services_str = ', '.join(active)
         return self._active_services_str
-
-    @property
-    def pitched_services_str(self):
-        """
-        Returns pitched services
-        :return:
-        """
-        if not hasattr(self, '_pitched_services_str'):
-            pitched = []
-            if self.ppc_status == 5:
-                pitched.append('PPC')
-            if self.seo_status == 5:
-                pitched.append('SEO')
-            if self.cro_status == 5:
-                pitched.append('CRO')
-            if self.strat_status == 5:
-                pitched.append('Strat')
-            if self.feed_status == 5:
-                pitched.append('Feed Management')
-            if self.email_status == 5:
-                pitched.append('Email Marketing')
-            self._pitched_services_str = ', '.join(pitched)
-        return self._pitched_services_str
-
-    @property
-    def opp_services_str(self):
-        """
-        Returns opportunity services
-        :return:
-        """
-        if not hasattr(self, '_opp_services_str'):
-            opp = []
-            if self.ppc_status == 4:
-                opp.append('PPC')
-            if self.seo_status == 4:
-                opp.append('SEO')
-            if self.cro_status == 4:
-                opp.append('CRO')
-            if self.strat_status == 4:
-                opp.append('Strat')
-            if self.feed_status == 4:
-                opp.append('Feed Management')
-            if self.email_status == 4:
-                opp.append('Email Marketing')
-            self._opp_services_str = ', '.join(opp)
-        return self._opp_services_str
 
     @property
     def last_ppc_change(self):
@@ -581,33 +491,6 @@ class SalesProfile(models.Model):
         """
         return self.last_service_change(2)
 
-    @property
-    def last_strat_change(self):
-        """
-        Returns datetime of the last time the strat status was changed, None if never
-        See last_service_change
-        :return:
-        """
-        return self.last_service_change(3)
-
-    @property
-    def last_feed_change(self):
-        """
-        Returns datetime of the last time the feed management status was changed, None if never
-        See last_service_change
-        :return:
-        """
-        return self.last_service_change(4)
-
-    @property
-    def last_email_change(self):
-        """
-        Returns datetime of the last time the email marketing status was changed, None if never
-        See last_service_change
-        :return:
-        """
-        return self.last_service_change(5)
-
     def last_service_change(self, service_id):
         """
         Returns datetime of last service change with id 'service_id', None if never
@@ -625,78 +508,24 @@ class SalesProfile(models.Model):
         self.__ppc_status = self.ppc_status
         self.__seo_status = self.seo_status
         self.__cro_status = self.cro_status
-        self.__strat_status = self.strat_status
-        self.__feed_status = self.feed_status
-        self.__email_status = self.email_status
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.ppc_status != self.__ppc_status:
             spc = SalesProfileChange.objects.create(profile=self, service=0, from_status=self.__ppc_status,
                                                     to_status=self.ppc_status)
-            if self.ppc_status == 4:
-                spc.opp_desc = self.ppc_opp_desc
-                spc.save()
-            if self.ppc_status == 5:
-                spc.pitched_desc = self.ppc_pitched_desc
-                spc.save()
 
         if self.seo_status != self.__seo_status:
             spc = SalesProfileChange.objects.create(profile=self, service=1, from_status=self.__seo_status,
                                                     to_status=self.seo_status)
-            if self.seo_status == 4:
-                spc.opp_desc = self.seo_opp_desc
-                spc.save()
-            if self.seo_status == 5:
-                spc.pitched_desc = self.seo_pitched_desc
-                spc.save()
 
         if self.cro_status != self.__cro_status:
             spc = SalesProfileChange.objects.create(profile=self, service=2, from_status=self.__cro_status,
                                                     to_status=self.cro_status)
-            if self.cro_status == 4:
-                spc.opp_desc = self.cro_opp_desc
-                spc.save()
-            if self.cro_status == 5:
-                spc.pitched_desc = self.cro_pitched_desc
-                spc.save()
-
-        if self.strat_status != self.__strat_status:
-            spc = SalesProfileChange.objects.create(profile=self, service=3, from_status=self.__strat_status,
-                                                    to_status=self.strat_status)
-            if self.strat_status == 4:
-                spc.opp_desc = self.strat_opp_desc
-                spc.save()
-            if self.strat_status == 5:
-                spc.pitched_desc = self.strat_pitched_desc
-                spc.save()
-
-        if self.feed_status != self.__feed_status:
-            spc = SalesProfileChange.objects.create(profile=self, service=4, from_status=self.__feed_status,
-                                                    to_status=self.feed_status)
-            if self.feed_status == 4:
-                spc.opp_desc = self.feed_opp_desc
-                spc.save()
-            if self.feed_status == 5:
-                spc.pitched_desc = self.feed_pitched_desc
-                spc.save()
-
-        if self.email_status != self.__email_status:
-            spc = SalesProfileChange.objects.create(profile=self, service=5, from_status=self.__email_status,
-                                                    to_status=self.email_status)
-            if self.email_status == 4:
-                spc.opp_desc = self.email_opp_desc
-                spc.save()
-            if self.email_status == 5:
-                spc.pitched_desc = self.email_pitched_desc
-                spc.save()
 
         self.__ppc_status = self.ppc_status
         self.__seo_status = self.seo_status
         self.__cro_status = self.cro_status
-        self.__strat_status = self.strat_status
-        self.__feed_status = self.feed_status
-        self.__email_status = self.email_status
 
         if self.overall_active:
             self.account.status = 1  # Set account to active if at least one service is active
@@ -924,3 +753,32 @@ class AdsInPromo(models.Model):
 
     def __str__(self):
         return str(self.promo) + ' Ad Status'
+
+
+class Opportunity(models.Model):
+    """
+    Marks an opportunity to upsell
+    """
+    PRIMARY_SERVICE_CHOICES = [(1, 'PPC'), (2, 'SEO'), (3, 'CRO')]
+
+    account = models.ForeignKey(Client, models.CASCADE, null=True, default=None)
+    is_primary = models.BooleanField(default=False)
+    primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
+    additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.service_string + ' - ' + str(self.account)
+
+    @property
+    def service_string(self):
+        if self.is_primary:
+            return self.get_primary_service_display()
+        return str(self.additional_service)
+
+
+class Pitch(models.Model):
+    """
+    Marks a pitch that was made to a client
+    """
+    pass
