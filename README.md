@@ -67,7 +67,7 @@
 ##  When updating cron tasks
  - Restart celery `sudo sh /etc/init.d/celeryd restart`
  
-## Deployment Checking
+## Deployment Checklist
  - Pull the latest version
  - Make sure `DEBUG = False` in `bloom/settings.py`
  - Set DB settings to prod values in `bloom/settings.py` 

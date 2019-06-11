@@ -424,8 +424,7 @@ class SalesProfile(models.Model):
     """
     Outlines the
     """
-    STATUS_CHOICES = [(0, 'Onboarding'), (1, 'Active'), (2, 'Inactive'), (3, 'Lost'), (4, 'Opportunity'),
-                      (5, 'Pitched'), (6, 'None')]
+    STATUS_CHOICES = [(0, 'Onboarding'), (1, 'Active'), (2, 'Inactive'), (3, 'Lost'), (6, 'None')]
 
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     ppc_status = models.IntegerField(default=6, choices=STATUS_CHOICES)
