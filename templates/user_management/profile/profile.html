@@ -637,11 +637,13 @@
             }
         });
 
-        // instantiate datepicker and set hidden input value on date change
+        // instantiate datepicker, set default date, and submit with input value on date change
         let $calendar = $('#datepicker');
-        $calendar.datepicker();
+        let dateParts = '{{ today }}'.split('-');
+        let date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); // JS counts months from 0 (dateParts[1])
+        $calendar.datepicker('setDate', date);
         $calendar.on('changeDate', () => {
-            let date = $calendar.datepicker('getFormattedDate')
+            let date = $calendar.datepicker('getFormattedDate');
 
             $('#todoDate').val(date);
             $('#todoForm').submit();
