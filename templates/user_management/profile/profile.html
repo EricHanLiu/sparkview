@@ -79,48 +79,51 @@
             </div>
         {% endif %}
         <!-- MAIN CONTENT -->
-            <div class="row" id="todoList">
-                <div class="col-xl-12">
-                    <div class="m-portlet m-portlet--responsive-mobile-">
-                        <div class="m-portlet__head">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text">
-                                        Todo List - {{ today|date:"l F j, Y" }}
-                                    </h3>
-                                </div>
+        <div class="row" id="todoList">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--responsive-mobile-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Todo List - {{ today|date:"l F j, Y" }}
+                                    <i class="far fa-calendar-alt"
+                                       style="cursor: pointer;" id="datepicker"></i>
+                                    <input class="d-none" id="todoDate"/>
+                                </h3>
                             </div>
                         </div>
-                        <div class="m-portlet__body">
-                            {% for todo in todos %}
-                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
-                                    <div class="col-md-1">
-                                        <label class="m-checkbox pb-1">
-                                            <input type="checkbox" class="complete-todo"
-                                                   data-todo-id="{{ todo.id }}"
-                                                   {% if todo.completed %}disabled{% endif %}/>
-                                            <span></span>
-                                        </label>
+                    </div>
+                    <div class="m-portlet__body">
+                        {% for todo in todos %}
+                            <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                <div class="col-md-1">
+                                    <label class="m-checkbox pb-1">
+                                        <input type="checkbox" class="complete-todo"
+                                               data-todo-id="{{ todo.id }}"
+                                               {% if todo.completed %}disabled{% endif %}/>
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
                                     </div>
-                                    <div class="col-md-11">
-                                        <div class="row">
-                                            <a href="{{ todo.link }}">{{ todo.description }}</a>
-                                        </div>
-                                        <div class="row">
+                                    <div class="row">
                                             <span class="badge badge-pill badge-{{ todo.colour }}">
                                                 {{ todo.get_type_display }}
                                             </span>
-                                        </div>
                                     </div>
                                 </div>
-                            {% endfor %}
-                            {% if todos.count == 0 %}
-                                You're all caught up for the day!
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endfor %}
+                        {% if todos.count == 0 %}
+                            You're all caught up for the day!
+                        {% endif %}
                     </div>
                 </div>
             </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <!-- Accounts -->
@@ -630,6 +633,25 @@
                     }
                 });
             }
+        });
+
+        $('#datepicker').datepicker();
+        // instantiate datepicker and set hidden input value on date change
+        $('body').on('changeDate', '#datepicker', () => {
+            let date = $('#datepicker').datepicker('getFormattedDate');
+
+            $.ajax({
+                url: '',
+                data: {
+                    'date': date
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'GET',
+                success: function () {
+                    $('#todoList').load(location.href + ' #todoList>*', '');
+                    $('#datepicker').datepicker();
+                }
+            });
         });
 
         $(document).ready(function () {

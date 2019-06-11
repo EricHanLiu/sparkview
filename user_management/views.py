@@ -619,8 +619,14 @@ def members_single(request, id=0):
     mandate_assignments = member.active_mandate_assignments
     mandates = [assignment.mandate for assignment in mandate_assignments]
 
+    # TODOS, handle possible get by date
     today = datetime.datetime.today().date()
-    todos = Todo.objects.filter(member=member, completed=False, date_created=today)
+    date = request.GET.get('date')
+    if date is not None:
+        today = datetime.datetime.strptime(date, '%m/%d/%Y')
+        todos = Todo.objects.filter(member=member, date_created=today)
+    else:
+        todos = Todo.objects.filter(member=member, completed=False, date_created=today)
 
     context = {
         'accountHours': accountHours,
