@@ -89,7 +89,9 @@
                                     Todo List - {{ today|date:"l F j, Y" }}
                                     <i class="far fa-calendar-alt"
                                        style="cursor: pointer;" id="datepicker"></i>
-                                    <input class="d-none" id="todoDate"/>
+                                    <form id="todoForm" method="GET">
+                                        <input class="d-none" id="todoDate" name="todoDate"/>
+                                    </form>
                                 </h3>
                             </div>
                         </div>
@@ -101,7 +103,7 @@
                                     <label class="m-checkbox pb-1">
                                         <input type="checkbox" class="complete-todo"
                                                data-todo-id="{{ todo.id }}"
-                                               {% if todo.completed %}disabled{% endif %}/>
+                                               {% if todo.completed %}disabled checked{% endif %}/>
                                         <span></span>
                                     </label>
                                 </div>
@@ -635,23 +637,14 @@
             }
         });
 
-        $('#datepicker').datepicker();
         // instantiate datepicker and set hidden input value on date change
-        $('body').on('changeDate', '#datepicker', () => {
-            let date = $('#datepicker').datepicker('getFormattedDate');
+        let $calendar = $('#datepicker');
+        $calendar.datepicker();
+        $calendar.on('changeDate', () => {
+            let date = $calendar.datepicker('getFormattedDate')
 
-            $.ajax({
-                url: '',
-                data: {
-                    'date': date
-                },
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                type: 'GET',
-                success: function () {
-                    $('#todoList').load(location.href + ' #todoList>*', '');
-                    $('#datepicker').datepicker();
-                }
-            });
+            $('#todoDate').val(date);
+            $('#todoForm').submit();
         });
 
         $(document).ready(function () {

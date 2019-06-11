@@ -621,9 +621,9 @@ def members_single(request, id=0):
 
     # TODOS, handle possible get by date
     today = datetime.datetime.today().date()
-    date = request.GET.get('date')
+    date = request.GET.get('todoDate')
     if date is not None:
-        today = datetime.datetime.strptime(date, '%m/%d/%Y')
+        today = datetime.datetime.strptime(date, '%m/%d/%Y').date()
         todos = Todo.objects.filter(member=member, date_created=today)
     else:
         todos = Todo.objects.filter(member=member, completed=False, date_created=today)
