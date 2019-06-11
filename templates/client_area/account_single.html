@@ -429,12 +429,12 @@
                                         New Opportunity
                                     </button>
                                 </li>
-                                <li class="m-portlet__nav-item">
-                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"
-                                            data-target="#m_new_pitch" id="new_pitch">
-                                        New Pitch
-                                    </button>
-                                </li>
+{#                                <li class="m-portlet__nav-item">#}
+{#                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"#}
+{#                                            data-target="#m_new_pitch" id="new_pitch">#}
+{#                                        New Pitch#}
+{#                                    </button>#}
+{#                                </li>#}
                                 <li class="m-portlet__nav-item">
                                     <button type="button" class="btn btn-info m-btn" data-toggle="modal"
                                             data-target="#m_update_services" id="kpi_btn">
@@ -625,6 +625,52 @@
                     </div>
                 </div>
                 <!-- end opportunities -->
+                <!-- Pitches -->
+{#                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
+{#                    <div class="m-portlet__head">#}
+{#                        <div class="m-portlet__head-caption">#}
+{#                            <div class="m-portlet__head-title">#}
+{#                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
+{#                                    Pitches#}
+{#                                </h3>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="m-portlet__body">#}
+{#                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'#}
+{#                               id="single_client_hours_datatable">#}
+{#                            <thead>#}
+{#                            <tr>#}
+{#                                <th>#}
+{#                                    Service#}
+{#                                </th>#}
+{#                                <th>#}
+{#                                    Description#}
+{#                                </th>#}
+{#                                <th>#}
+{#                                    Date Created#}
+{#                                </th>#}
+{#                            </tr>#}
+{#                            </thead>#}
+{#                            <tbody>#}
+{#                            {% for pitch in account.pitches %}#}
+{#                                <tr>#}
+{#                                    <td>#}
+{#                                        {{ opp.service_string }}#}
+{#                                    </td>#}
+{#                                    <td>#}
+{#                                        {{ opp.reason }}#}
+{#                                    </td>#}
+{#                                    <td>#}
+{#                                        {{ opp.created }}#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                            {% endfor %}#}
+{#                            </tbody>#}
+{#                        </table>#}
+{#                    </div>#}
+{#                </div>#}
+                <!-- end pitches -->
                 <!-- Details -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">

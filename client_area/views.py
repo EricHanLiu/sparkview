@@ -14,7 +14,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity
+    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
 
 
@@ -1723,5 +1723,50 @@ def set_opportunity(request):
         opp.additional_service = service
 
     opp.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+def set_pitch(request):
+    """
+    Sets Pitch
+    :param request:
+    :return:
+    """
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('That account does not exist')
+
+    service_id = request.POST.get('service')
+    reason_id = request.POST.get('opp_reason')
+    try:
+        opp_desc = OpportunityDescription.objects.get(id=reason_id)
+    except OpportunityDescription.DoesNotExist:
+        return HttpResponseNotFound('That opportunity description does not exist')
+
+    pitch = Pitch()
+    pitch.account = account
+    pitch.reason = opp_desc
+
+    if service_id == 'ppc':
+        pitch.is_primary = True
+        pitch.primary_service = 1
+    elif service_id == 'seo':
+        pitch.is_primary = True
+        pitch.primary_service = 2
+    elif service_id == 'cro':
+        pitch.is_primary = True
+        pitch.primary_service = 3
+    else:
+        pitch.is_primary = False
+        try:
+            service = MandateType.objects.get(id=service_id)
+        except MandateType.DoesNotExist:
+            return HttpResponseNotFound('This service does not exist')
+        pitch.additional_service = service
+
+    pitch.save()
 
     return redirect('/clients/accounts/' + str(account.id))
