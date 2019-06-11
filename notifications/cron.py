@@ -46,7 +46,7 @@ def prepare_todos():
         # 90 DAYS OF AWESOME TASKS
         for task_assignment in member.phase_tasks:
             description = 'Account Task: ' + task_assignment.task.message
-            Todo.objects.create(member=member, description=description, type=3)
+            Todo.objects.create(member=member, description=description, type=3, phase_task_id=task_assignment.id)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
         yesterday = today - datetime.timedelta(1)

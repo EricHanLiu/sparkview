@@ -85,6 +85,7 @@ class Todo(models.Model):
     completed = models.BooleanField(default=False)
     date_created = models.DateField(auto_now_add=True, null=True)
     type = models.IntegerField(default=0, blank=True, choices=TODO_TYPES)
+    phase_task_id = models.IntegerField(default=None, null=True)  # only applies to phase task todos
 
     @property
     def colour(self):
