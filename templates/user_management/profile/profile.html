@@ -79,21 +79,19 @@
             </div>
         {% endif %}
         <!-- MAIN CONTENT -->
-        {% if todos.count > 0 %}
-            <div class="row">
+            <div class="row" id="todoList">
                 <div class="col-xl-12">
                     <div class="m-portlet m-portlet--responsive-mobile-">
                         <div class="m-portlet__head">
                             <div class="m-portlet__head-caption">
                                 <div class="m-portlet__head-title">
                                     <h3 class="m-portlet__head-text">
-                                        Todo List - {{ today|date:"l F j, Y" }}&nbsp
-                                        <a id="filterTodo"><i class="fas fa-filter"></i></a>
+                                        Todo List - {{ today|date:"l F j, Y" }}
                                     </h3>
                                 </div>
                             </div>
                         </div>
-                        <div class="m-portlet__body" id="todoList">
+                        <div class="m-portlet__body">
                             {% for todo in todos %}
                                 <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
                                     <div class="col-md-1">
@@ -105,54 +103,26 @@
                                         </label>
                                     </div>
                                     <div class="col-md-11">
-                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                        <div class="row">
+                                            <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                        </div>
+                                        <div class="row">
+                                            <span class="badge badge-pill badge-{{ todo.colour }}">
+                                                {{ todo.get_type_display }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
+                            {% if todos.count == 0 %}
+                                You're all caught up for the day!
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
-        {% endif %}
         <div class="row">
             <div class="col-12">
-                {# Replaced by to do list #}
-{#                {% if member.phase_tasks.count > 0 %}#}
-{#                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
-{#                        <div class="m-portlet__head">#}
-{#                            <div class="m-portlet__head-caption">#}
-{#                                <div class="m-portlet__head-title">#}
-{#                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
-{#                                        Account Tasks#}
-{#                                    </h3>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="m-portlet__body">#}
-{#                            <div class="m-widget2">#}
-{#                                {% for task in member.phase_tasks %}#}
-{#                                    <div class="m-widget2__item m-widget2__item--info">#}
-{#                                        <div class="m-widget2__checkbox">#}
-{#                                            <button class="btn btn-info btn-sm" data-task-id="{{ task.id }}"#}
-{#                                                    data-toggle="modal" data-target="#resolve_task_modal">Resolve#}
-{#                                            </button>#}
-{#                                        </div>#}
-{#                                        <div class="m-widget2__desc">#}
-{#                                            <a href="{{ task.link }}" class="m-widget2__text">#}
-{#                                                {{ task.account.client_name }}: {{ task.task.message }}#}
-{#                                            </a><br>#}
-{#                                            <span class="m-widget2__user-name">#}
-{#                                              <a href="#" class="m-widget2__link">#}
-{#                                                Created {{ task.date_created }}#}
-{#                                              </a>#}
-{#                                            </span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                {% endfor %}#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                {% endif %}#}
                 <!-- Accounts -->
                 {% if accounts.count > 0 %}
                     <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">

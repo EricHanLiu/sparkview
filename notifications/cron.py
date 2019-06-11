@@ -28,12 +28,12 @@ def prepare_todos():
         for promo in promos_start_today:
             description = 'Promo Starting Today: ' + str(promo)
             link = '/clients/accounts/' + str(promo.account.id)
-            Todo.objects.create(member=member, description=description, link=link)
+            Todo.objects.create(member=member, description=description, link=link, type=1)
 
         for promo in promos_end_today:
             description = 'Promo Ending Today: ' + str(promo)
-            link = '/clients/accounts/' + promo.account.id
-            Todo.objects.create(member=member, description=description, link=link)
+            link = '/clients/accounts/' + str(promo.account.id)
+            Todo.objects.create(member=member, description=description, link=link, type=1)
 
         # NOTIFICATIONS
         notifications = Notification.objects.filter(member=member, created__gte=today_start, created__lte=today_end)
@@ -41,12 +41,12 @@ def prepare_todos():
         for notification in notifications:
             description = 'Notification: ' + notification.message
             link = notification.link
-            Todo.objects.create(member=member, description=description, link=link)
+            Todo.objects.create(member=member, description=description, link=link, type=2)
 
         # 90 DAYS OF AWESOME TASKS
         for task_assignment in member.phase_tasks:
             description = 'Account Task: ' + task_assignment.task.message
-            Todo.objects.create(member=member, description=description)
+            Todo.objects.create(member=member, description=description, type=3)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
         yesterday = today - datetime.timedelta(1)
@@ -61,12 +61,12 @@ def prepare_todos():
         for promo in promos_ended_yesterday:
             description = 'Reminder! Promo ' + str(promo) + ' ended yesterday. Did you turn it off?'
             link = '/clients/accounts/' + str(promo.account.id)
-            Todo.objects.create(member=member, description=description, link=link)
+            Todo.objects.create(member=member, description=description, link=link, type=1)
 
         for promo in promos_start_tomorrow:
             description = 'Reminder! Promo ' + str(promo) + ' starts tomorrow.'
-            link = '/clients/accounts/' + promo.account.id
-            Todo.objects.create(member=member, description=description, link=link)
+            link = '/clients/accounts/' + str(promo.account.id)
+            Todo.objects.create(member=member, description=description, link=link, type=1)
 
         # CHANGE HISTORY 5 DAYS
         all_unchanged_accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
@@ -75,4 +75,4 @@ def prepare_todos():
         for account in unchanged_accounts:
             description = 'No change in the last 5 days for account ' + account.client_name
             link = '/clients/accounts/' + str(account.id)
-            Todo.objects.create(member=member, description=description, link=link)
+            Todo.objects.create(member=member, description=description, link=link, type=4)
