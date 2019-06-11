@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from . import views
 
-app_name = "client_area"
+app_name = 'client_area'
 
 urlpatterns = [
     url(r'^$', views.accounts, name='accounts'),
@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^accounts/flag/member$', views.assign_member_flagged_account, name='assign_member_flagged_account'),
     url(r'^accounts/(\d*)/lifecycle$', views.account_lifecycle, name='account_lifecycle'),
     url(r'^campaigns/(\d*)$', views.campaigns, name='campaigns'),
-    url(r'^accounts/mandates/new$', views.create_mandate, name='create_mandate')
+    url(r'^accounts/mandates/new$', views.create_mandate, name='create_mandate'),
+    url(r'^accounts/set_opportunity$', views.set_opportunity, name='set_opportunity')
 ]

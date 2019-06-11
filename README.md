@@ -68,6 +68,17 @@
  - Restart celery `sudo sh /etc/init.d/celeryd restart`
  
 ## Deployment Checklist
+ - Pull the latest version
+ - Make sure `DEBUG = False` in `bloom/settings.py`
+ - Set DB settings to prod values in `bloom/settings.py` 
+ - Migrate DB to latest schema `python manage.py migrate`
+ - Make sure bing credentials are in place `cp bing_dashboards/bing_creds_prod bing_dashboards/bing_creds`
+ - If new cron jobs, run `python manage.py crontab add` (must be from `sam` user, may need to be run several times)
+ - Restart gunicorn `sudo systemctl restart gunicorn`
+ - Restart celery `sudo systemctl restart celeryd.service`
+ - Optionally test `python manage.py test`
+ 
+## Old Deployment Checklist
 
  - Pull latest version
  - Make sure `DEBUG = False` in `bloom/settings.py`

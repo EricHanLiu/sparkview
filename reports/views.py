@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
 from adwords_dashboard.models import BadAdAlert
-from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport
+from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification
 from django.conf import settings
@@ -1054,36 +1054,10 @@ def sales(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    qs = parse_qs(request.GET.urlencode())
-    selected = 'all'
-
-    if 'account_status' in qs:
-        status = qs['account_status'][0]
-
-        if status == 'active':
-            accounts = Client.objects.filter(status=1)
-            selected = 'active'
-        elif status == 'onboarding':
-            accounts = Client.objects.filter(status=0)
-            selected = 'onboarding'
-        elif status == 'inactive':
-            accounts = Client.objects.filter(status=2)
-            selected = 'inactive'
-        elif status == 'lost':
-            accounts = Client.objects.filter(status=3)
-            selected = 'lost'
-        else:
-            accounts = Client.objects.all().order_by('client_name')
-    else:
-        accounts = Client.objects.all().order_by('client_name')
-
-    accounts = accounts.order_by('client_name')
-
-    sps = SalesProfile.objects.filter(account__in=accounts)
+    opportunities = Opportunity.objects.filter(addressed=False)
 
     context = {
-        'selected': selected,
-        'sps': sps
+        'opportunities': opportunities
     }
 
     return render(request, 'reports/sales.html', context)
