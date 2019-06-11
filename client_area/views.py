@@ -1703,6 +1703,7 @@ def set_opportunity(request):
 
     opp = Opportunity()
     opp.account = account
+    opp.reason = opp_desc
 
     if service_id == 'ppc':
         opp.is_primary = True

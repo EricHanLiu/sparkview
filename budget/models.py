@@ -182,6 +182,14 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     @property
+    def opportunities(self):
+        """
+        Returns opportunities
+        :return:
+        """
+        return self.opportunity_set.filter(addressed=False)
+
+    @property
     def has_ppc(self):
         """
         Check the sales profile (service list) of this client to see if ppc is active
