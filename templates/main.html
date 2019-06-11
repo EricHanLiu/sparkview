@@ -592,55 +592,6 @@
                         </div>
                         <div class="m-stack__item m-topbar__nav-wrapper">
                             <ul class="m-topbar__nav m-nav m-nav--inline">
-                              <!-- Begin notifications -->
-                              {% with notifications=request.user|get_unread_notifications %}
-                              <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
-                                  data-dropdown-toggle="click" data-dropdown-persistent="1">
-                                  <input value="{{ notifications.count }}" id="notif_count" style="display:none;" />
-                                  <a href="#" class="m-nav__link m-dropdown__toggle">
-                                    {% if notifications.count > 0 %}
-                                    <span class="m-nav__link-badge m-badge text-center">{{ notifications.count }}</span>
-                                    <!-- <span class="m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger notif-dot"></span> -->
-                                    {% endif %}
-                                    <span class="m-nav__link-icon"><i class="fa fa-bell" style="font-size:1.5rem;{% if notifications.count > 0 %}color:#f4516c;{% endif %}"></i></span>
-                                  </a>
-                                  <div class="m-dropdown__wrapper">
-                                      <span class="m-dropdown__arrow m-dropdown__arrow--right m-dropdown__arrow--adjust"></span>
-                                      <div class="m-dropdown__inner">
-                                        <div class="m-dropdown__body">
-                                          <div class="m-dropdown__content">
-                                            <div class="tab-content">
-                                              <div class="tab-pane active show" id="topbar_notifications_notifications" role="tabpanel">
-                                                <div class="m-scrollable m-scroller ps" data-scrollable="true" data-height="250" data-mobile-height="200" style="height: 250px; overflow: hidden;">
-                                                  <div class="m-list-timeline m-list-timeline--skin-light">
-                                                    <div class="m-list-timeline__items">
-                                                      {% if notifications.count == 0 %}
-                                                      <div class="m-list-timeline__item">
-                                                        <span class="m-list-timeline__text">Nothing to see here!</span>
-                                                      </div>
-                                                      {% else %}
-                                                        {% for notification in notifications %}
-                                                        <div class="m-list-timeline__item">
-                                                          <span class="m-list-timeline__badge m-list-timeline__badge--{{ notification.colour }}"></span>
-                                                          {% if notification.link != None %}<a style="text-decoration: none;" href="{{ notification.link }}" class="m-list-timeline__text">{% else %}<span class="m-list-timeline__text">{% endif %}{{ notification.message }}{% if notification.link != None %}</a>{% else %}</span>{% endif %}
-                                                          <span class="m-list-timeline__time">
-                                                            <i class="fa fa-check-circle notif-check" style="color:#ddd;" data-checked="0" data-notification-id="{{ notification.id }}"></i>
-                                                          </span>
-                                                        </div>
-                                                        {% endfor %}
-                                                      {% endif %}
-                                                    </div>
-                                                  </div>
-                                                <div class="ps__rail-x" style="left: 0px; bottom: 0px;"><div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps__rail-y" style="top: 0px; right: 4px; height: 250px;"><div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 220px;"></div></div></div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                  </div>
-                              </li>
-                              {% endwith %}
-                              <!-- End notifications -->
                               <li class="m-nav__item m-topbar__user-profile  m-dropdown m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right m-dropdown--mobile-full-width m-dropdown--skin-light"
                                   data-dropdown-toggle="click">
                                   <a href="#" class="m-nav__link m-dropdown__toggle">
