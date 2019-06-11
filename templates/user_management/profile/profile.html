@@ -44,7 +44,8 @@
                     <p>This mandate is currently marked as completed. Are you sure you want to reopen it?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn" data-toggle="modal" data-target="#mandateConfirmation">Cancel</button>
+                    <button type="button" class="btn" data-toggle="modal" data-target="#mandateConfirmation">Cancel
+                    </button>
                     <button type="button" class="btn btn-primary" id="reopenMandate">Yes</button>
                 </div>
             </div>
@@ -77,44 +78,56 @@
                 You can find them in the <strong>Flagged Accounts</strong> section below.
             </div>
         {% endif %}
-        <div class="row">
-            <div class="col-12">
-                {% if member.phase_tasks.count > 0 %}
-                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-                        <div class="m-portlet__head">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                                        Account Tasks
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="m-portlet__body">
-                            <div class="m-widget2">
-                                {% for task in member.phase_tasks %}
-                                    <div class="m-widget2__item m-widget2__item--info">
-                                        <div class="m-widget2__checkbox">
-                                            <button class="btn btn-info btn-sm" data-task-id="{{ task.id }}"
-                                                    data-toggle="modal" data-target="#resolve_task_modal">Resolve
-                                            </button>
-                                        </div>
-                                        <div class="m-widget2__desc">
-                                            <a href="{{ task.link }}" class="m-widget2__text">
-                                                {{ task.account.client_name }}: {{ task.task.message }}
-                                            </a><br>
-                                            <span class="m-widget2__user-name">
-                                              <a href="#" class="m-widget2__link">
-                                                Created {{ task.date_created }}
-                                              </a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                {% endfor %}
+        <!-- MAIN CONTENT -->
+        <div class="row" id="todoList">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--responsive-mobile-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Todo List - {{ today|date:"l F j, Y" }}
+                                    <i class="far fa-calendar-alt"
+                                       style="cursor: pointer;" id="datepicker"></i>
+                                    <form id="todoForm" method="GET">
+                                        <input class="d-none" id="todoDate" name="todoDate"/>
+                                    </form>
+                                </h3>
                             </div>
                         </div>
                     </div>
-                {% endif %}
+                    <div class="m-portlet__body">
+                        {% for todo in todos %}
+                            <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                <div class="col-md-1">
+                                    <label class="m-checkbox pb-1">
+                                        <input type="checkbox" class="complete-todo"
+                                               data-todo-id="{{ todo.id }}"
+                                               {% if todo.completed %}disabled checked{% endif %}/>
+                                        <span></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="row">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                    </div>
+                                    <div class="row">
+                                            <span class="badge badge-pill badge-{{ todo.colour }}">
+                                                {{ todo.get_type_display }}
+                                            </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if todos.count == 0 %}
+                            You're all caught up for the day!
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
                 <!-- Accounts -->
                 {% if accounts.count > 0 %}
                     <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
@@ -604,6 +617,39 @@
 
 {% block extraJs %}
     <script>
+        $('body').on('change', '.complete-todo', function () {
+            let todoID = $(this).data('todo-id');
+
+            // send request if checking off todo
+            if (this.checked) {
+                $.ajax({
+                    url: '',
+                    data: {
+                        'todo_id': todoID,
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    success: () => {
+                        $(this).prop('disabled', 'disabled');
+                        // refresh list
+                        $('#todoList').load(location.href + ' #todoList>*', '');
+                    }
+                });
+            }
+        });
+
+        // instantiate datepicker, set default date, and submit with input value on date change
+        let $calendar = $('#datepicker');
+        let dateParts = '{{ today }}'.split('-');
+        let date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); // JS counts months from 0 (dateParts[1])
+        $calendar.datepicker('setDate', date);
+        $calendar.on('changeDate', () => {
+            let date = $calendar.datepicker('getFormattedDate');
+
+            $('#todoDate').val(date);
+            $('#todoForm').submit();
+        });
+
         $(document).ready(function () {
             let $flagTaskBtn = $('#flag_task_btn');
 

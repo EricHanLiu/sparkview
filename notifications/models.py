@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from user_management.models import Member
 import calendar
 
 
@@ -48,9 +49,12 @@ class ScheduledNotification(models.Model):
     members = models.ManyToManyField('user_management.Member', default=None, blank=True)
     teams = models.ManyToManyField('user_management.Team', default=None, blank=True)
     roles = models.ManyToManyField('user_management.Role', default=None, blank=True)
-    days_positive = ArrayField(models.IntegerField(), default=None, null=True, blank=True)  # ie: [1,2,3,10] would mean first, second, third, and 10th of month
-    days_negative = ArrayField(models.IntegerField(), default=None, null=True, blank=True)  # ie: [-1,-5] would mean last and 5th to last day of month
-    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, default=None, blank=True)  # can be 0 through 6, corresponds to day of week
+    days_positive = ArrayField(models.IntegerField(), default=None, null=True,
+                               blank=True)  # ie: [1,2,3,10] would mean first, second, third, and 10th of month
+    days_negative = ArrayField(models.IntegerField(), default=None, null=True,
+                               blank=True)  # ie: [-1,-5] would mean last and 5th to last day of month
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, default=None,
+                                      blank=True)  # can be 0 through 6, corresponds to day of week
     every_day = models.BooleanField(default=False)
     every_week_day = models.BooleanField(default=False)
     message = models.CharField(max_length=999, default='No message')
@@ -59,3 +63,32 @@ class ScheduledNotification(models.Model):
 
     def __str__(self):
         return self.message
+
+
+class Todo(models.Model):
+    """
+    A to-do list that the user sees every day of tasks to do
+    """
+    TODO_TYPES = [
+        (0, 'Other'),
+        (1, 'Promo'),
+        (2, 'Notification'),
+        (3, 'Phase Task'),
+        (4, 'Change History'),
+    ]
+
+    TODO_COLOUR_CLASSES = ['danger', 'info', 'success', 'primary', 'warning']
+
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, default=None, blank=True)
+    description = models.CharField(max_length=255, default='')
+    link = models.CharField(max_length=255, default='')
+    completed = models.BooleanField(default=False)
+    date_created = models.DateField(auto_now_add=True, null=True)
+    type = models.IntegerField(default=0, blank=True, choices=TODO_TYPES)
+
+    @property
+    def colour(self):
+        return self.TODO_COLOUR_CLASSES[self.type]
+
+    def __str__(self):
+        return str(self.member) + ': ' + self.description

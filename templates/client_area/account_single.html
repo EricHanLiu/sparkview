@@ -425,6 +425,18 @@
                             <ul class="m-portlet__nav">
                                 <li class="m-portlet__nav-item">
                                     <button type="button" class="btn btn-info m-btn" data-toggle="modal"
+                                            data-target="#m_new_opportunity" id="new_opportunity">
+                                        New Opportunity
+                                    </button>
+                                </li>
+{#                                <li class="m-portlet__nav-item">#}
+{#                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"#}
+{#                                            data-target="#m_new_pitch" id="new_pitch">#}
+{#                                        New Pitch#}
+{#                                    </button>#}
+{#                                </li>#}
+                                <li class="m-portlet__nav-item">
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"
                                             data-target="#m_update_services" id="kpi_btn">
                                         Update
                                     </button>
@@ -567,6 +579,98 @@
                     </div>
                 </div>
                 <!-- End mandates -->
+                <!-- Opportunities -->
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Opportunities
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                               id="single_client_hours_datatable">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Service
+                                </th>
+                                <th>
+                                    Description
+                                </th>
+                                <th>
+                                    Date Created
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for opp in account.opportunities %}
+                                <tr>
+                                    <td>
+                                        {{ opp.service_string }}
+                                    </td>
+                                    <td>
+                                        {{ opp.reason }}
+                                    </td>
+                                    <td>
+                                        {{ opp.created }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- end opportunities -->
+                <!-- Pitches -->
+{#                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
+{#                    <div class="m-portlet__head">#}
+{#                        <div class="m-portlet__head-caption">#}
+{#                            <div class="m-portlet__head-title">#}
+{#                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">#}
+{#                                    Pitches#}
+{#                                </h3>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="m-portlet__body">#}
+{#                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'#}
+{#                               id="single_client_hours_datatable">#}
+{#                            <thead>#}
+{#                            <tr>#}
+{#                                <th>#}
+{#                                    Service#}
+{#                                </th>#}
+{#                                <th>#}
+{#                                    Description#}
+{#                                </th>#}
+{#                                <th>#}
+{#                                    Date Created#}
+{#                                </th>#}
+{#                            </tr>#}
+{#                            </thead>#}
+{#                            <tbody>#}
+{#                            {% for pitch in account.pitches %}#}
+{#                                <tr>#}
+{#                                    <td>#}
+{#                                        {{ opp.service_string }}#}
+{#                                    </td>#}
+{#                                    <td>#}
+{#                                        {{ opp.reason }}#}
+{#                                    </td>#}
+{#                                    <td>#}
+{#                                        {{ opp.created }}#}
+{#                                    </td>#}
+{#                                </tr>#}
+{#                            {% endfor %}#}
+{#                            </tbody>#}
+{#                        </table>#}
+{#                    </div>#}
+{#                </div>#}
+                <!-- end pitches -->
                 <!-- Details -->
                 <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
                     <div class="m-portlet__head">
@@ -1512,17 +1616,17 @@
     </div>
     <!-- End add promo -->
 
-    <!-- Set KPI modal -->
-    <div class="modal fade" id="m_set_kpis" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <!-- New opportunity modal -->
+    <div class="modal fade" id="m_new_opportunity" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Set KPIs for {{ account.client_name }}</h5>
+                    <h5 class="modal-title">New opportunity for {{ account.client_name }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form class="m-form" method="POST" action="/clients/accounts/set_kpis">
+                <form class="m-form" method="POST" action="/clients/accounts/set_opportunity">
                     {% csrf_token %}
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="modal-body">
@@ -1530,28 +1634,53 @@
                             <div class="form-group m-form__group">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label>Target ROAS:</label>
-                                        <input type="text" name="set-roas" class="form-control m-input"
-                                               value="{{ account.target_roas }}"/>
+                                        <label>Service:</label>
+                                        <select class="form-control m-input"
+                                                name="service"
+                                                id="service"
+                                                style="width: 100%;">
+                                            <option value="ppc">
+                                                PPC
+                                            </option>
+                                            <option value="seo">
+                                                SEO
+                                            </option>
+                                            <option value="cro">
+                                                CRO
+                                            </option>
+                                            {% for service in additional_services %}
+                                                <option value="{{ service.id }}">
+                                                    {{ service }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label>Target CPA:</label>
-                                        <input type="text" name="set-cpa" class="form-control m-input"
-                                               value="{{ account.target_cpa }}"/>
+                                        <label>Description:</label>
+                                        <select class="form-control m-input"
+                                                name="opp_reason"
+                                                id="opp_reason"
+                                                style="width: 100%;">
+                                            {% for opp in opp_reasons %}
+                                                <option value="{{ opp.id }}">
+                                                    {{ opp }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" value="Set Targets" class="btn btn-brand">
+                        <input type="submit" value="Submit" class="btn btn-brand">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <!-- End set KPIs -->
+    <!-- End New opportunity -->
 
     <!-- Set Services modal -->
     <div class="modal fade" id="m_update_services" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
@@ -1584,30 +1713,6 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-ppc-opp">
-                                        {% for opp in opps %}
-                                            <option value="{{ opp.id }}"
-                                                    {% if opp == account.sales_profile.ppc_opp_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ opp }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-ppc-pitched">
-                                        {% for pitch in pitches %}
-                                            <option value="{{ pitch.id }}"
-                                                    {% if pitch == account.sales_profile.ppc_pitched_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ pitch }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
                             </div>
                             <div class="row ">
                                 <div class="col-4">
@@ -1621,30 +1726,6 @@
                                                     selected
                                                     {% endif %}>
                                                 {{ service_str }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-seo-opp">
-                                        {% for opp in opps %}
-                                            <option value="{{ opp.id }}"
-                                                    {% if opp == account.sales_profile.seo_opp_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ opp }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-seo-pitched">
-                                        {% for pitch in pitches %}
-                                            <option value="{{ pitch.id }}"
-                                                    {% if pitch == account.sales_profile.seo_pitched_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ pitch }}
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -1666,154 +1747,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-cro-opp">
-                                        {% for opp in opps %}
-                                            <option value="{{ opp.id }}"
-                                                    {% if opp == account.sales_profile.cro_opp_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ opp }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display:none;">
-                                    <select class="form-control" name="set-cro-pitched">
-                                        {% for pitch in pitches %}
-                                            <option value="{{ pitch.id }}"
-                                                    {% if pitch == account.sales_profile.cro_pitched_desc %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ pitch }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
                             </div>
-                            {#                             <div class="row ">#}
-                            {#                                <div class="col-4">#}
-                            {#                                    Strat#}
-                            {#                                </div>#}
-                            {#                                <div class="col-4">#}
-                            {#                                    <select class="form-control update-service" name="set-strat">#}
-                            {#                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}#}
-                            {#                                            <option value="{{ service_num }}"#}
-                            {#                                                    {% if account.sales_profile.strat_status == service_num %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                            {{ service_str }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                                <div style="display:none;">#}
-                            {#                                    <select class="form-control" name="set-strat-opp">#}
-                            {#                                        {% for opp in opps %}#}
-                            {#                                            <option value="{{ opp.id }}"#}
-                            {#                                                    {% if opp == account.sales_profile.strat_opp_desc %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                                {{ opp }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                                <div style="display:none;">#}
-                            {#                                    <select class="form-control" name="set-strat-pitched">#}
-                            {#                                        {% for pitch in pitches %}#}
-                            {#                                            <option value="{{ pitch.id }}"#}
-                            {#                                                    {% if pitch == account.sales_profile.strat_pitched_desc %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                                {{ pitch }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
-                            {#                             <div class="row ">#}
-                            {#                                <div class="col-4">#}
-                            {#                                    Email Marketing#}
-                            {#                                </div>#}
-                            {#                                <div class="col-4">#}
-                            {#                                    <select class="form-control update-service" name="set-email-marketing">#}
-                            {#                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}#}
-                            {#                                            <option value="{{ service_num }}"#}
-                            {#                                                    {% if account.sales_profile.email_status == service_num %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                            {{ service_str }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                                <div style="display:none;">#}
-                            {#                                    <select class="form-control" name="set-email-opp">#}
-                            {#                                        {% for opp in opps %}#}
-                            {#                                            <option value="{{ opp.id }}"#}
-                            {#                                                    {% if opp == account.sales_profile.email_opp_desc %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                                {{ opp }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                                <div style="display:none;">#}
-                            {#                                    <select class="form-control" name="set-email-pitched">#}
-                            {#                                        {% for pitch in pitches %}#}
-                            {#                                            <option value="{{ pitch.id }}"#}
-                            {#                                                    {% if pitch == account.sales_profile.email_pitched_desc %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                                {{ pitch }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
-                            {#                             <div class="row ">#}
-                            {#                                <div class="col-4">#}
-                            {#                                    Feed Management#}
-                            {#                                </div>#}
-                            {#                                <div class="col-4">#}
-                            {#                                    <select class="form-control update-service" name="set-feed-management">#}
-                            {#                                        {%  for service_num, service_str in account.sales_profile.STATUS_CHOICES %}#}
-                            {#                                            <option value="{{ service_num }}"#}
-                            {#                                                    {% if account.sales_profile.feed_status == service_num %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                            {{ service_str }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                                <div style="display:none;">#}
-                            {#                                    <select class="form-control" name="set-feed-opp">#}
-                            {#                                        {% for opp in opps %}#}
-                            {#                                            <option value="{{ opp.id }}"#}
-                            {#                                                    {% if opp == account.sales_profile.feed_opp_desc %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                                {{ opp }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                                <div style="display:none;">#}
-                            {#                                    <select class="form-control" name="set-feed-pitched">#}
-                            {#                                        {% for pitch in pitches %}#}
-                            {#                                            <option value="{{ pitch.id }}"#}
-                            {#                                                    {% if pitch == account.sales_profile.feed_pitched_desc %}#}
-                            {#                                                    selected#}
-                            {#                                                    {% endif %}>#}
-                            {#                                                {{ pitch }}#}
-                            {#                                            </option>#}
-                            {#                                        {% endfor %}#}
-                            {#                                    </select>#}
-                            {#                                </div>#}
-                            {#                            </div>#}
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -2031,16 +1965,6 @@
             let status = $(this).val();
             let $oppSelect = $(this).parent().next();
             let $pitchSelect = $oppSelect.next();
-            if (status == 4) { // opportunity selected
-                $oppSelect.show();
-                $pitchSelect.hide();
-            } else if (status == 5) { // pitched selected
-                $oppSelect.hide();
-                $pitchSelect.show();
-            } else {
-                $oppSelect.hide();
-                $pitchSelect.hide();
-            }
         }
 
 
