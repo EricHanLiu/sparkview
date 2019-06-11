@@ -89,39 +89,42 @@
                         </div>
                     </div>
                     <div class="m-portlet__body" id="todoList">
-                        {% for todo in todos %}
-                            <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
-                                <div class="col-md-1">
-                                    <label class="m-checkbox pb-1">
-                                        <input type="checkbox" class="complete-todo"
-                                               data-todo-id="{{ todo.id }}"
-                                               {% if todo.completed %}disabled checked{% endif %}/>
-                                        <span></span>
-                                    </label>
-                                </div>
-                                <div class="col-md-10">
-                                    <div class="row">
-                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                        <div>
+                            {% for todo in todos %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-md-1">
+                                        <label class="m-checkbox pb-1">
+                                            <input type="checkbox" class="complete-todo"
+                                                   data-todo-id="{{ todo.id }}"
+                                                   {% if todo.completed %}disabled checked{% endif %}/>
+                                            <span></span>
+                                        </label>
                                     </div>
-                                    <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="row">
+                                            <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                        </div>
+                                        <div class="row">
                                             <span class="badge badge-pill badge-{{ todo.colour }}">
                                                 {{ todo.get_type_display }}
                                             </span>
+                                        </div>
                                     </div>
+                                    <!-- if phase task, display resolve button -->
+                                    {% if todo.type == 3 %}
+                                        <div class="col-md-1">
+                                            <button class="btn btn-primary btn-sm"
+                                                    data-task-id="{{ todo.phase_task_id }}"
+                                                    data-toggle="modal" data-target="#resolve_task_modal">Resolve
+                                            </button>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                                <!-- if phase task, display resolve button -->
-                                {% if todo.type == 3 %}
-                                    <div class="col-md-1">
-                                        <button class="btn btn-primary btn-sm" data-task-id="{{ todo.phase_task_id }}"
-                                                data-toggle="modal" data-target="#resolve_task_modal">Resolve
-                                        </button>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        {% if todos.count == 0 %}
-                            You're all caught up for the day!
-                        {% endif %}
+                            {% endfor %}
+                            {% if todos.count == 0 %}
+                                You're all caught up for the day!
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
