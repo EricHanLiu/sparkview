@@ -425,6 +425,18 @@
                             <ul class="m-portlet__nav">
                                 <li class="m-portlet__nav-item">
                                     <button type="button" class="btn btn-info m-btn" data-toggle="modal"
+                                            data-target="#m_new_opportunity" id="new_opportunity">
+                                        New Opportunity
+                                    </button>
+                                </li>
+                                <li class="m-portlet__nav-item">
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"
+                                            data-target="#m_new_pitch" id="new_pitch">
+                                        New Pitch
+                                    </button>
+                                </li>
+                                <li class="m-portlet__nav-item">
+                                    <button type="button" class="btn btn-info m-btn" data-toggle="modal"
                                             data-target="#m_update_services" id="kpi_btn">
                                         Update
                                     </button>
@@ -1512,17 +1524,17 @@
     </div>
     <!-- End add promo -->
 
-    <!-- Set KPI modal -->
-    <div class="modal fade" id="m_set_kpis" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
+    <!-- New opportunity modal -->
+    <div class="modal fade" id="m_new_opportunity" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Set KPIs for {{ account.client_name }}</h5>
+                    <h5 class="modal-title">New opportunity for {{ account.client_name }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form class="m-form" method="POST" action="/clients/accounts/set_kpis">
+                <form class="m-form" method="POST" action="/clients/accounts/set_opportunity">
                     {% csrf_token %}
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="modal-body">
@@ -1530,28 +1542,53 @@
                             <div class="form-group m-form__group">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <label>Target ROAS:</label>
-                                        <input type="text" name="set-roas" class="form-control m-input"
-                                               value="{{ account.target_roas }}"/>
+                                        <label>Service:</label>
+                                        <select class="form-control m-input"
+                                                name="service"
+                                                id="service"
+                                                style="width: 100%;">
+                                            <option value="ppc">
+                                                PPC
+                                            </option>
+                                            <option value="seo">
+                                                SEO
+                                            </option>
+                                            <option value="cro">
+                                                CRO
+                                            </option>
+                                            {% for service in additional_services %}
+                                                <option value="{{ service.id }}">
+                                                    {{ service }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label>Target CPA:</label>
-                                        <input type="text" name="set-cpa" class="form-control m-input"
-                                               value="{{ account.target_cpa }}"/>
+                                        <label>Description:</label>
+                                        <select class="form-control m-input"
+                                                name="opp_reason"
+                                                id="opp_reason"
+                                                style="width: 100%;">
+                                            {% for opp in opp_reasons %}
+                                                <option value="{{ opp.id }}">
+                                                    {{ opp }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" value="Set Targets" class="btn btn-brand">
+                        <input type="submit" value="Submit" class="btn btn-brand">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <!-- End set KPIs -->
+    <!-- End New opportunity -->
 
     <!-- Set Services modal -->
     <div class="modal fade" id="m_update_services" tabindex="-1" role="dialog" aria-labelledby="m_position_allocation">

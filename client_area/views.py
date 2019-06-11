@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.db.models import Sum
 from django.db.models import Q
 from django.utils import timezone
@@ -14,7 +14,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord
+    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity
 from .forms import NewClientForm
 
 
@@ -718,6 +718,10 @@ def account_single(request, account_id):
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
 
+        # Pretty bad for speed of the page... we'll see how badly it affects it
+        additional_services = MandateType.objects.all()
+        opp_reasons = OpportunityDescription.objects.all()
+
         context = {
             'account': account,
             'members': members,
@@ -737,7 +741,9 @@ def account_single(request, account_id):
             'months': months,
             'monthnow': monthnow,
             'years': years,
-            'current_year': current_year
+            'current_year': current_year,
+            'additional_services': additional_services,
+            'opp_reasons': opp_reasons
         }
 
         return render(request, 'client_area/account_single.html', context)
@@ -1672,5 +1678,49 @@ def create_mandate(request):
     for i in range(len(mandate_members)):
         MandateAssignment.objects.create(mandate=mandate, member_id=mandate_members[i],
                                          percentage=mandate_percentages[i])
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+def set_opportunity(request):
+    """
+    Sets opportunity
+    :param request:
+    :return:
+    """
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('That account does not exist')
+
+    service_id = request.POST.get('service')
+    reason_id = request.POST.get('opp_reason')
+    try:
+        opp_desc = OpportunityDescription.objects.get(id=reason_id)
+    except OpportunityDescription.DoesNotExist:
+        return HttpResponseNotFound('That opportunity description does not exist')
+
+    opp = Opportunity()
+    opp.account = account
+
+    if service_id == 'ppc':
+        opp.is_primary = True
+        opp.primary_service = 1
+    elif service_id == 'seo':
+        opp.is_primary = True
+        opp.primary_service = 2
+    elif service_id == 'cro':
+        opp.is_primary = True
+        opp.primary_service = 3
+    else:
+        opp.is_primary = False
+        try:
+            service = MandateType.objects.get(id=service_id)
+        except MandateType.DoesNotExist:
+            return HttpResponseNotFound('This service does not exist')
+        opp.additional_service = service
+
+    opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))

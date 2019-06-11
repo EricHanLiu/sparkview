@@ -763,6 +763,7 @@ class Opportunity(models.Model):
     is_primary = models.BooleanField(default=False)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
+    addressed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -781,7 +782,17 @@ class Pitch(models.Model):
     """
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     reason = models.ForeignKey(PitchedDescription, models.SET_NULL, null=True, default=None)
+    opportunity = models.ForeignKey(Opportunity, models.SET_NULL, null=True, default=None)
     is_primary = models.BooleanField(default=False)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.service_string + ' - ' + str(self.account)
+
+    @property
+    def service_string(self):
+        if self.is_primary:
+            return self.get_primary_service_display()
+        return str(self.additional_service)
