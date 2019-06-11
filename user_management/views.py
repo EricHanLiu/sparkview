@@ -1079,14 +1079,14 @@ def input_mandate_profile(request, id):
 
 @login_required
 def training_members(request):
-    members = Member.objects.only('team', 'role')
-    member_skills = SkillEntry.objects.all()
+    members = Member.objects.filter(deactivated=False).only('team', 'role')
+    skills = Skill.objects.all()
 
-    score_badges = ['secondary', 'danger', 'warning', 'success']
+    score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
     context = {
         'members': members,
-        'member_skills': member_skills,
+        'skills': skills,
         'score_badges': score_badges,
     }
 

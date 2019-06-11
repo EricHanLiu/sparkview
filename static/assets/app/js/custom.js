@@ -141,12 +141,11 @@ $(document).ready(function () {
     });
 
     $("#training_datatable").DataTable({
-        "scrollX": true,
-        "bPaginate": false,
+        "bPaginate": true,
         "bLengthChange": false,
         "bFilter": true,
         "bInfo": false,
-        "bAutoWidth": false,
+        "bAutoWidth": true,
         'language': {
             'sSearch': '<i class="fa fa-search"></i>',
         }

@@ -113,22 +113,25 @@ class Skill(models.Model):
     """
     name = models.CharField(max_length=255)
 
+    @property
     def get_score_0(self):
         return SkillEntry.objects.filter(skill=self, score=0)
 
+    @property
     def get_score_1(self):
         return SkillEntry.objects.filter(skill=self, score=1)
 
+    @property
     def get_score_2(self):
         return SkillEntry.objects.filter(skill=self, score=2)
 
+    @property
     def get_score_3(self):
         return SkillEntry.objects.filter(skill=self, score=3)
 
-    score0 = property(get_score_0)
-    score1 = property(get_score_1)
-    score2 = property(get_score_2)
-    score3 = property(get_score_3)
+    @property
+    def get_score_4(self):
+        return SkillEntry.objects.filter(skill=self, score=4)
 
     def __str__(self):
         return self.name
@@ -148,9 +151,17 @@ class SkillEntry(models.Model):
     """
     Actually sets a score to the skill for a member
     """
+    SCORE_OPTIONS = [
+        (0, 'Unscored'),
+        (1, 'Terrible'),
+        (2, 'Poor'),
+        (3, 'Good'),
+        (4, 'Excellent'),
+    ]
+
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
-    score = models.IntegerField(null=True, blank=True, default=None)
+    score = models.IntegerField(default=0, choices=SCORE_OPTIONS)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

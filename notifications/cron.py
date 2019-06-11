@@ -39,7 +39,7 @@ def prepare_todos():
         notifications = Notification.objects.filter(member=member, created__gte=today_start, created__lte=today_end)
 
         for notification in notifications:
-            description = 'Notification: ' + notification.message
+            description = notification.message
             link = notification.link
             Todo.objects.create(member=member, description=description, link=link, type=2)
 
