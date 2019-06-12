@@ -40,12 +40,14 @@ def prepare_todos():
 
         for notification in notifications:
             description = notification.message
+            if 'Phase' in description:  # don't create todos for phase task notifs
+                continue
             link = notification.link
             Todo.objects.create(member=member, description=description, link=link, type=2)
 
         # 90 DAYS OF AWESOME TASKS
         for task_assignment in member.phase_tasks:
-            description = 'Account Task: ' + task_assignment.task.message
+            description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
             Todo.objects.create(member=member, description=description, type=3)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
