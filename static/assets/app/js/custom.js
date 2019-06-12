@@ -140,7 +140,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#training_datatable").DataTable({
+    $(".training_datatable").DataTable({
         "bPaginate": true,
         "bLengthChange": false,
         "bFilter": true,

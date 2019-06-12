@@ -8,7 +8,8 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
+    HighFive, TrainingGroup
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     MandateAssignment, Mandate
@@ -73,6 +74,7 @@ def members(request):
     }
 
     return render(request, 'user_management/members.html', context)
+
 
 @login_required
 def member_dashboard(request, id):
@@ -1080,14 +1082,12 @@ def input_mandate_profile(request, id):
 @login_required
 def training_members(request):
     if request.method == 'GET':
-        members = Member.objects.filter(deactivated=False).only('team', 'role')
-        skills = Skill.objects.all()
+        training_groups = TrainingGroup.objects.all()
 
         score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
         context = {
-            'members': members,
-            'skills': skills,
+            'training_groups': training_groups,
             'score_badges': score_badges,
         }
 
@@ -1109,7 +1109,6 @@ def training_members(request):
         skill_entry.save()
 
         return redirect('/user_management/members/training')
-
 
 
 @login_required

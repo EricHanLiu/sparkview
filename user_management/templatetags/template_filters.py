@@ -1,8 +1,14 @@
 from django import template
-from user_management.models import Member
+from user_management.models import SkillEntry
 import calendar
 
 register = template.Library()
+
+
+@register.filter
+def get_skill_entry_for_member(member, skill):
+    skill_entry = SkillEntry.objects.get(member=member, skill=skill)
+    return skill_entry
 
 
 @register.filter

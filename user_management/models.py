@@ -107,6 +107,25 @@ class Incident(models.Model):
         return 'Incident on ' + str(self.date)
 
 
+class TrainingGroup(models.Model):
+    """
+    Group of members/roles which will be trained under a specific skill set
+    """
+    name = models.CharField(max_length=255, default='')
+
+    members = models.ManyToManyField('Member', default=None, blank=True)
+    roles = models.ManyToManyField('Role', default=None, blank=True)
+    skills = models.ManyToManyField('Skill', default=None, blank=True)
+
+    @property
+    def all_members(self):
+        members = self.members.all() | Member.objects.filter(role__in=self.roles.all())
+        return members
+
+    def __str__(self):
+        return 'Training Group: ' + self.name
+
+
 class Skill(models.Model):
     """
     Skillset for each Member
