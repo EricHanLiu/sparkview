@@ -76,3 +76,5 @@ def prepare_todos():
             description = 'No change in the last 5 days for account ' + account.client_name
             link = '/clients/accounts/' + str(account.id)
             Todo.objects.create(member=member, description=description, link=link, type=4)
+
+        print('Successfully created todos for member %s' % str(member))
