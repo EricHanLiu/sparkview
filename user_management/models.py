@@ -112,6 +112,7 @@ class Skill(models.Model):
     Skillset for each Member
     """
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, default='', blank=True)
 
     @property
     def get_score_0(self):

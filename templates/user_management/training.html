@@ -40,9 +40,14 @@
                     <div class="m-portlet__body">
                         <div class="row">
                             <button type="button" class="btn btn-info m-btn add-client"
-                                    data-toggle="modal"
+                                    data-toggle="modal" style="margin-right: 15px;"
                                     data-target="#addSkillModal"> Add a new skill
                             </button>
+                            <a class="btn btn-info m-btn"
+                               href="https://docs.google.com/spreadsheets/d/1VfolHkDGy4ESOFuPpTQWvUGhU_j9EFQ2AzmL7Z5LzLE/edit#gid=793214929"
+                               target="_blank">
+                                Legend
+                            </a>
                         </div>
                         <div id="m_table_1_wrapper" class="dataTables_wrapper mt-3">
                             <div class="row">
@@ -57,7 +62,8 @@
                                                 Role
                                             </th>
                                             {% for skill in skills %}
-                                                <th>
+                                                <th data-toggle="m-tooltip"
+                                                    data-original-title="{{ skill.description }}">
                                                     {{ skill.name }}
                                                 </th>
                                             {% endfor %}
@@ -98,8 +104,8 @@
                                             </tr>
                                         {% endfor %}
                                         </tbody>
-
                                     </table>
+
                                 </div>
                             </div>
                         </div>
