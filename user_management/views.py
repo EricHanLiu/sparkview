@@ -888,7 +888,7 @@ def members_single_skills(request, id):
     member = Member.objects.get(id=id)
     member_skills = SkillEntry.objects.filter(member=member)
 
-    score_badges = ['secondary', 'danger', 'warning', 'success']
+    score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
     context = {
         'member': member,
@@ -1081,6 +1081,12 @@ def input_mandate_profile(request, id):
 
 @login_required
 def training_members(request):
+    """
+    View of all members skills and training groups
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
     if request.method == 'GET':
         training_groups = TrainingGroup.objects.all()
 

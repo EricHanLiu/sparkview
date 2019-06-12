@@ -192,20 +192,6 @@ class SkillEntry(models.Model):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
 
-class SkillHistory(models.Model):
-    """
-    Keeps track of all skill entries, not only current
-    """
-    skill = models.ForeignKey('Skill', models.CASCADE, default=None)
-    member = models.ForeignKey('Member', models.CASCADE, default=None)
-    score = models.IntegerField(null=True, blank=True, default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + str(
-            self.created_at)
-
-
 class Member(models.Model):
     """
     Extension of user class via OneToOneField

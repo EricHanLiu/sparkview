@@ -9,6 +9,7 @@
     <style>
         th {
             white-space: nowrap;
+            text-align: center;
         }
 
         td {
@@ -91,18 +92,18 @@
                                                     {% with member|get_skill_entry_for_member:skill as skill_entry %}
                                                         <td>
                                                             <h4>
-                                                            <span data-toggle="modal" data-target="#updateSkillModal">
-                                                                <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:skill_entry.score }}"
-                                                                      data-toggle="m-tooltip"
-                                                                      data-original-title="{{ skill_entry.updated_at }}"
-                                                                      data-member="{{ member }}"
-                                                                      data-member-id="{{ member.id }}"
-                                                                      data-score="{{ skill_entry.score }}"
-                                                                      data-skill-id="{{ skill_entry.id }}"
-                                                                      data-skill-name="{{ skill_entry.skill.name }}">
-                                                                    {{ skill_entry.score }}
+                                                                <span data-toggle="modal" data-target="#updateSkillModal">
+                                                                    <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:skill_entry.score }}"
+                                                                          data-toggle="m-tooltip"
+                                                                          data-original-title="{{ skill_entry.updated_at }}"
+                                                                          data-member="{{ member }}"
+                                                                          data-member-id="{{ member.id }}"
+                                                                          data-score="{{ skill_entry.score }}"
+                                                                          data-skill-id="{{ skill_entry.id }}"
+                                                                          data-skill-name="{{ skill_entry.skill.name }}">
+                                                                        {{ skill_entry.score }}
+                                                                    </span>
                                                                 </span>
-                                                            </span>
                                                             </h4>
                                                         </td>
                                                     {% endwith %}
