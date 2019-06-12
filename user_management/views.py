@@ -1079,18 +1079,37 @@ def input_mandate_profile(request, id):
 
 @login_required
 def training_members(request):
-    members = Member.objects.filter(deactivated=False).only('team', 'role')
-    skills = Skill.objects.all()
+    if request.method == 'GET':
+        members = Member.objects.filter(deactivated=False).only('team', 'role')
+        skills = Skill.objects.all()
 
-    score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
+        score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
-    context = {
-        'members': members,
-        'skills': skills,
-        'score_badges': score_badges,
-    }
+        context = {
+            'members': members,
+            'skills': skills,
+            'score_badges': score_badges,
+        }
 
-    return render(request, 'user_management/training.html', context)
+        return render(request, 'user_management/training.html', context)
+    elif request.method == 'POST':
+        member_id = request.POST.get('member-id')
+        skill_id = request.POST.get('skill-id')
+        new_score = request.POST.get('new-score')
+
+        try:
+            new_score = int(new_score)
+        except ValueError:
+            return HttpResponse('Invalid score value!')
+
+        member = get_object_or_404(Member, id=member_id)
+        skill_entry = get_object_or_404(SkillEntry, id=skill_id)
+
+        skill_entry.score = new_score
+        skill_entry.save()
+
+        return redirect('/user_management/members/training')
+
 
 
 @login_required

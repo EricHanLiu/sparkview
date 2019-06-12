@@ -13,6 +13,10 @@
         td {
             text-align: center;
         }
+
+        .skill-badge {
+            cursor: pointer;
+        }
     </style>
 {% endblock %}
 
@@ -37,7 +41,7 @@
                         <div class="row">
                             <button type="button" class="btn btn-info m-btn add-client"
                                     data-toggle="modal"
-                                    data-target="#m_add_skill"> Add a new skill
+                                    data-target="#addSkillModal"> Add a new skill
                             </button>
                         </div>
                         <div id="m_table_1_wrapper" class="dataTables_wrapper mt-3">
@@ -76,11 +80,18 @@
                                                 {% for member_skill in member.skills %}
                                                     <td>
                                                         <h4>
-                                                        <span class="badge badge-pill badge-{{ score_badges|get_item_from_list:member_skill.score }}"
-                                                              data-toggle="m-tooltip"
-                                                              data-original-title="{{ member_skill.updated_at }}">
-                                                            {{ member_skill.score }}
-                                                        </span>
+                                                            <span data-toggle="modal" data-target="#updateSkillModal">
+                                                                <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:member_skill.score }}"
+                                                                      data-toggle="m-tooltip"
+                                                                      data-original-title="{{ member_skill.updated_at }}"
+                                                                      data-member="{{ member }}"
+                                                                      data-member-id="{{ member.id }}"
+                                                                      data-score="{{ member_skill.score }}"
+                                                                      data-skill-id="{{ member_skill.id }}"
+                                                                      data-skill-name="{{ member_skill.skill.name }}">
+                                                                    {{ member_skill.score }}
+                                                                </span>
+                                                            </span>
                                                         </h4>
                                                     </td>
                                                 {% endfor %}
@@ -99,8 +110,8 @@
         <!--End::Main Portlet-->
     </div>
 
-    <!-- Begin add skill modal -->
-    <div class="modal fade" id="m_add_skill" tabindex="-1" role="dialog" aria-labelledby="m_add_skill">
+    <!-- Add skill modal -->
+    <div class="modal fade" id="addSkillModal" tabindex="-1" role="dialog" aria-labelledby="addSkillModal">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -109,7 +120,7 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form class="m-form" method="POST" action="/user_management/skills/new" id="m_form_add_skill">
+                <form class="m-form" method="POST" action="/user_management/skills/new">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="m-portlet__body">
@@ -133,4 +144,75 @@
             </div>
         </div>
     </div>
+
+    <!-- Update skill rating modal -->
+    <div class="modal fade" id="updateSkillModal" tabindex="-1" role="dialog" aria-labelledby="quickAddModal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Update Skill Rating - <span id="skillName"></span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="m-form" id="updateSkillForm" method="POST">{% csrf_token %}
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>Member:</label>
+                                    <input id="currentMember" class="form-control" readonly/>
+                                    <input id="memberID" name="member-id" class="form-control" hidden/>
+                                    <input id="skillID" name="skill-id" class="form-control" hidden/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label>Current Rating</label>
+                                    <input id="currentRating" class="form-control" readonly/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="year">New Rating</label>
+                                    <select class="form-control m-input"
+                                            name="new-score" required>
+                                        {% for badge in score_badges %}
+                                            <option value="{{ forloop.counter0 }}">
+                                                <span class="badge badge-pill badge-{{ badge }}">
+                                                    {{ forloop.counter0 }}
+                                                </span>
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row justify-content-end mt-3">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary w-100">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        let $skillButtons = $('.skill-badge');
+        $skillButtons.click(function () {
+            let member = $(this).data('member');
+            let memberID = $(this).data('member-id');
+            let score = $(this).data('score');
+            let skillID = $(this).data('skill-id');
+            let skillName = $(this).data('skill-name');
+
+            $('#currentMember').val(member);
+            $('#memberID').val(memberID);
+            $('#currentRating').val(score);
+            $('#skillID').val(skillID);
+            $('#skillName').text(skillName);
+        });
+    </script>
 {% endblock %}
