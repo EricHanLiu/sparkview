@@ -256,7 +256,7 @@ CRONJOBS = [
     # ('15 12 * * *', 'ninety_days_notifications.main', '> ' + BASE_DIR + '/logs/ninety_days_notifications.log'),
     ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
     ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
-    ('0 7 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
+    ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
 ]
 
 # Bing Stuff
@@ -291,7 +291,6 @@ EMAIL_HOST_USER = 'dev@makeitbloom.com'
 EMAIL_HOST_PASSWORD = 'ujfgvsieuwptnrgp'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_EMAIL_FROM = 'dev@makeitbloom.com'
 
 if DEBUG:
     MAIL_ADS = ['lexi@makeitbloom.com', 'sam@makeitbloom.com']
