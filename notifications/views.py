@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
 from user_management.models import Member
-from .models import Notification
+from .models import Notification, Todo
 from client_area.models import PhaseTaskAssignment, LifecycleEvent
 import datetime
 
@@ -84,6 +84,12 @@ def cycle_confirm(request):
     task.completed = datetime.datetime.now()
     task.completed_by = member
     task.save()
+
+    # also check off the TODO
+    today = datetime.date.today()
+    todo = Todo.objects.get(date_created=today, phase_task_id=task.id)
+    todo.completed = True
+    todo.save()
 
     event_description = member.user.get_full_name() + ' completed the task: ' + task.task.message + '.'
     notes = 'Basecamp link: ' + task.bc_link
