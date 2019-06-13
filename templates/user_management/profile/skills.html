@@ -65,7 +65,7 @@
                                 <thead class="thead-inverse">
                                 <tr class="main-table-header">
                                     {% for skill in group.skills.all %}
-                                        <th>
+                                        <th data-toggle="m-tooltip" data-original-title="{{ skill.description }}">
                                             {{ skill.name }}
                                         </th>
                                     {% endfor %}
