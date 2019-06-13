@@ -886,14 +886,16 @@ def members_single_skills(request, id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
-    member_skills = SkillEntry.objects.filter(member=member)
+    member_groups = [group for group in TrainingGroup.objects.all() if member in group.all_members]
+
+    print(member_groups)
 
     score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
     context = {
         'member': member,
         'score_badges': score_badges,
-        'member_skills': member_skills
+        'member_groups': member_groups
     }
 
     return render(request, 'user_management/profile/skills.html', context)

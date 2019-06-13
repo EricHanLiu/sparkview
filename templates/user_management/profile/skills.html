@@ -55,32 +55,41 @@
                 </div>
             </div>
             <div class="m-portlet__body">
-                <div style="width: 100%; overflow: auto;">
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead class="thead-inverse">
-                        <tr class="main-table-header">
-                            {% for member_skill in member_skills %}
-                                <th>
-                                    {{ member_skill.skill.name }}
-                                </th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            {% for member_skill in member_skills %}
-                                <td>
-                                    <h4>
-                                        <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:member_skill.score }}">
-                                            {{ member_skill.score }}
-                                        </span>
-                                    </h4>
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                {% for group in member_groups %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            {{ group.name }}
+                        </div>
+                        <div class="card-body" style="width: 100%; overflow: auto;">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead class="thead-inverse">
+                                <tr class="main-table-header">
+                                    {% for skill in group.skills.all %}
+                                        <th>
+                                            {{ skill.name }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    {% for skill in group.skills.all %}
+                                        {% with member|get_skill_entry_for_member:skill as skill_entry %}
+                                            <td>
+                                                <h4>
+                                                <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:skill_entry.score }}">
+                                                    {{ skill_entry.score }}
+                                                </span>
+                                                </h4>
+                                            </td>
+                                        {% endwith %}
+                                    {% endfor %}
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
         <!-- end member skills -->
