@@ -72,6 +72,9 @@
                                                     {{ skill.name }}
                                                 </th>
                                             {% endfor %}
+                                            <th>
+                                                Last Update
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -92,7 +95,8 @@
                                                     {% with member|get_skill_entry_for_member:skill as skill_entry %}
                                                         <td>
                                                             <h4>
-                                                                <span data-toggle="modal" data-target="#updateSkillModal">
+                                                                <span data-toggle="modal"
+                                                                      data-target="#updateSkillModal">
                                                                     <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:skill_entry.score }}"
                                                                           data-toggle="m-tooltip"
                                                                           data-original-title="{{ skill_entry.updated_at }}"
@@ -108,6 +112,11 @@
                                                         </td>
                                                     {% endwith %}
                                                 {% endfor %}
+                                                <td>
+                                                    {% with member|get_latest_skill_entry_for_member:group as last_entry %}
+                                                        {{ last_entry.updated_at }}
+                                                    {% endwith %}
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                         </tbody>

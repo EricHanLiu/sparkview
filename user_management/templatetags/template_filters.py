@@ -12,6 +12,14 @@ def get_skill_entry_for_member(member, skill):
 
 
 @register.filter
+def get_latest_skill_entry_for_member(member, training_group):
+    skills = training_group.skills.all()
+    skill_entries = SkillEntry.objects.filter(member=member, skill__in=skills).order_by('-updated_at')
+    last_entry = skill_entries[0]
+    return last_entry
+
+
+@register.filter
 def get_item_from_list(dictionary, key):
     if key is None or len(dictionary) == 0:
         return 0

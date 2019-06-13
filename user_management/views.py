@@ -888,8 +888,6 @@ def members_single_skills(request, id):
     member = Member.objects.get(id=id)
     member_groups = [group for group in TrainingGroup.objects.all() if member in group.all_members]
 
-    print(member_groups)
-
     score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
     context = {
