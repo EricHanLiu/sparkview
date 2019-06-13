@@ -87,7 +87,7 @@ def cycle_confirm(request):
 
     # also check off the TODO
     today = datetime.date.today()
-    todo = Todo.objects.get(date_created=today, phase_task_id=task.id)
+    todo = Todo.objects.get(date_created=today, phase_task_id=task.id, member=member)
     todo.completed = True
     todo.save()
 
