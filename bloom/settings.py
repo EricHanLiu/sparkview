@@ -291,6 +291,7 @@ EMAIL_HOST_USER = 'dev@makeitbloom.com'
 EMAIL_HOST_PASSWORD = 'ujfgvsieuwptnrgp'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+DEFAULT_EMAIL_FROM = 'dev@makeitbloom.com'
 
 if DEBUG:
     MAIL_ADS = ['lexi@makeitbloom.com', 'sam@makeitbloom.com']
