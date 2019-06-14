@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
-    HighFive, TrainingGroup
+    HighFive, TrainingGroup, SkillHistory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     MandateAssignment, Mandate
@@ -1113,6 +1113,9 @@ def training_members(request):
 
         skill_entry.score = new_score
         skill_entry.save()
+
+        # store skill history for this entry
+        SkillHistory.objects.create(skill_entry=skill_entry)
 
         return redirect('/user_management/members/training')
 

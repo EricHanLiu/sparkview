@@ -192,6 +192,18 @@ class SkillEntry(models.Model):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
 
+class SkillHistory(models.Model):
+    """
+    History log of SkillEntry updates, since SkillEntries are unique
+    Unused for now but is useful so we don't lose data going forward
+    """
+    skill_entry = models.ForeignKey('SkillEntry', models.CASCADE, default=None)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(date) + ': ' + str(self.skill_entry)
+
+
 class Member(models.Model):
     """
     Extension of user class via OneToOneField
