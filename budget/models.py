@@ -101,6 +101,7 @@ class Client(models.Model):
 
     # override ppc hours
     allocated_ppc_override = models.FloatField(default=None, null=True, blank=True)
+    override_difference = models.FloatField(default=None, null=True, blank=True)
     # % buffer
     allocated_ppc_buffer = models.FloatField(default=0.0)
     # management fee override

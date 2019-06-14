@@ -1083,6 +1083,19 @@
                                             </div>
                                         </div>
                                     </div>
+                                    {% if account.override_difference is not None %}
+                                        <div class="m-widget1__item">
+                                            <div class="row m-row--no-padding align-items-center">
+                                                <div class="col">
+                                                    <h3 class="m-widget1__title">Fallback Hours</h3>
+                                                    <span class="m-widget1__desc">Remaining hours leftover from override</span>
+                                                </div>
+                                                <div class="col m--align-right">
+                                                    <span class="m-widget1__number m--font-danger">{{ account.override_difference|floatformat }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                     <div class="m-widget1__item">
                                         <div class="row m-row--no-padding align-items-center">
                                             <div class="col">

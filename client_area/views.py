@@ -480,6 +480,9 @@ def account_edit_temp(request, id):
             if fee_override != 'None':
                 account.management_fee_override = float(fee_override)
             if hours_override != 'None':
+                # calculate difference first before setting the override
+                default_allocated_hours = account.get_ppc_allocated_hours()
+                account.override_difference = default_allocated_hours - float(hours_override)
                 account.allocated_ppc_override = float(hours_override)
             if 'advanced_reporting' in request.POST:
                 account.advanced_reporting = True
