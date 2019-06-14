@@ -269,15 +269,6 @@ def account_new(request):
             if request.POST.get('ppc_check'):
                 sp.ppc_status = 0
                 sp.save()
-            if request.POST.get('strat_check'):
-                sp.strat_status = 0
-                sp.save()
-            if request.POST.get('feed_check'):
-                sp.feed_status = 0
-                sp.save()
-            if request.POST.get('email_check'):
-                sp.email_status = 0
-                sp.save()
 
             account.has_gts = True
             account.has_budget = True
@@ -402,12 +393,6 @@ def account_edit_temp(request, id):
                 sp.seo_status = 2
             if sp.cro_status == 1:
                 sp.cro_status = 2
-            if sp.strat_status == 1:
-                sp.strat_status = 2
-            if sp.feed_status == 1:
-                sp.feed_status = 2
-            if sp.email_status == 1:
-                sp.email_status = 2
             sp.save()
 
             event_description = account.client_name + ' was set to inactive. The reason is ' + str(
@@ -448,12 +433,6 @@ def account_edit_temp(request, id):
                 sp.seo_status = 2
             if sp.cro_status == 1:
                 sp.cro_status = 2
-            if sp.strat_status == 1:
-                sp.strat_status = 2
-            if sp.feed_status == 1:
-                sp.feed_status = 2
-            if sp.email_status == 1:
-                sp.email_status = 2
             sp.save()
 
             event_description = account.client_name + ' was set to lost. The reason is ' + str(
@@ -1515,9 +1494,6 @@ def onboard_account(request, account_id):
                     sp.save()
                 elif step.step.service == 2:
                     sp.cro_status = 1
-                    sp.save()
-                elif step.step.service == 3:
-                    sp.strat_status = 1
                     sp.save()
 
             account.status = 1
