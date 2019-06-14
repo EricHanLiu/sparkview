@@ -332,7 +332,9 @@ else:
         'joelle@makeitbloom.com',
         'jamie@makeitbloom.com',
         'genevieve.b@makeitbloom.com',
-        'doriane@makeitbloom.com'
+        'doriane@makeitbloom.com',
+        'avi@makeitbloom.com',
+        'keith@makeitbloom.com'
     }
 
 CELERY_RESULT_BACKEND = 'django-db'
