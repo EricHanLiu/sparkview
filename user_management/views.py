@@ -215,12 +215,12 @@ def member_dashboard(request, id):
     next_month = datetime.datetime(today.year, today.month + 1 if today.month != 12 else 1, 1)
 
     promos_month = Promo.objects.filter(start_date__gte=this_month,
-                                        end_date__lte=next_month,
+                                        end_date__lt=next_month,
                                         account__in=accounts) if load_everything else None
     promos_start_today = promos_month.filter(start_date__gte=today_start,
-                                             start_date__lte=today_end) if load_everything else None
+                                             start_date__lt=today_end) if load_everything else None
     promos_end_today = promos_month.filter(end_date__gte=today_start,
-                                           end_date__lte=today_end) if load_everything else None
+                                           end_date__lt=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
