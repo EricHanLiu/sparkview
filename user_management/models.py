@@ -481,7 +481,7 @@ class Member(models.Model):
             account = client_model.objects.get(id=account_id)
         except client_model.DoesNotExist:
             return False
-        return account in self.accounts
+        return account in self.accounts or account in self.backup_accounts
 
     def teams_have_accounts(self, account_id):
         """
@@ -569,14 +569,14 @@ class Member(models.Model):
         """
         return self.accounts.filter(Q(status=0) | Q(status=1))
 
-    def get_backup_accounts(self):
+    @property
+    def backup_accounts(self):
         """
-        Deprecated, will not work
-        :return:
+        All the accounts this member is currently backing up
         """
         if not hasattr(self, '_backupaccounts'):
-            Client = apps.get_model('budget', 'Client')
-            self._backupaccounts = Client.objects.filter(Q(cmb=self) | Q(amb=self) | Q(seob=self) | Q(stratb=self))
+            backups = Backup.objects.filter(member=self)
+            self._backupaccounts = [backup.account for backup in backups]
         return self._backupaccounts
 
     def get_accounts_count(self):
@@ -659,7 +659,6 @@ class Member(models.Model):
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
-    backup_accounts = property(get_backup_accounts)
     account_count = property(get_accounts_count)
 
     def __str__(self):
