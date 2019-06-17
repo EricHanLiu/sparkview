@@ -966,15 +966,15 @@ def input_hours_profile(request, id):
         raise Http404('The member associated with this ID does not exist!')
 
     if request.method == 'GET':
-        accounts = list(Client.objects.filter(
+        accounts = Client.objects.filter(
             Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-        ).filter(Q(status=0) | Q(status=1)).order_by('client_name'))
-
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
         non_backups_length = len(accounts)  # for knowing where the backup accounts are in the list
-        accounts.extend(a for a in member.backup_accounts if a not in accounts)  # add backup accounts
+
+        accounts = accounts | member.backup_accounts  # add backup accounts
 
         all_accounts = Client.objects.all().order_by('client_name')
 

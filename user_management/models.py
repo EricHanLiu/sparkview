@@ -576,7 +576,8 @@ class Member(models.Model):
         """
         if not hasattr(self, '_backupaccounts'):
             backups = Backup.objects.filter(member=self)
-            self._backupaccounts = [backup.account for backup in backups]
+            self._backupaccounts = apps.get_model('budget', 'Client').objects.filter(
+                id__in=backups.values('account_id'))
         return self._backupaccounts
 
     def get_accounts_count(self):
