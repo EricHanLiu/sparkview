@@ -47,10 +47,10 @@ def prepare_todos():
 
         # 90 DAYS OF AWESOME TASKS
         for task_assignment in member.phase_tasks:
-            if task_assignment.account.status == 2:
-                continue  # don't create todos for inactive accounts
-            description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
-            Todo.objects.create(member=member, description=description, type=3)
+            if task_assignment.account.status == 0 or task_assignment.account.status == 1:
+                # only create todos for active/onboarding accounts
+                description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
+                Todo.objects.create(member=member, description=description, type=3)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
         yesterday = today - datetime.timedelta(1)
