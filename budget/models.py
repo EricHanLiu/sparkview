@@ -224,17 +224,6 @@ class Client(models.Model):
             return False
 
     @property
-    def has_strat(self):
-        """
-        Check the sales profile (service list) of this client to see if ppc is active
-        :return:
-        """
-        if self.sales_profile is not None:
-            return self.sales_profile.strat_status == 1
-        else:
-            return False
-
-    @property
     def calculated_aw_spend(self):
         """
         Calculates adwords spend on the fly
@@ -293,13 +282,6 @@ class Client(models.Model):
     def is_onboarding_cro(self):
         if self.sales_profile is not None:
             return self.sales_profile.cro_status == 0
-        else:
-            return False
-
-    @property
-    def is_onboarding_strat(self):
-        if self.sales_profile is not None:
-            return self.sales_profile.strat_status == 0
         else:
             return False
 

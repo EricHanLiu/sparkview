@@ -1451,17 +1451,12 @@ def onboard_account(request, account_id):
             cro_step = OnboardingStep.objects.filter(service=2)
             ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
             s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
-        if account.is_onboarding_strat:
-            strat_step = OnboardingStep.objects.filter(service=3)
-            ac_strat_steps = OnboardingStepAssignment.objects.filter(step__in=strat_step, account=account)
-            s_ac_strat_steps = sorted(ac_strat_steps, key=lambda t: t.step.order)
 
         context = {
             'account': account,
             'ac_ppc_steps': s_ac_ppc_steps,
             'ac_seo_steps': s_ac_seo_steps,
             'ac_cro_steps': s_ac_cro_steps,
-            'ac_strat_steps': s_ac_strat_steps,
         }
 
         return render(request, 'client_area/onboard_account.html', context)
