@@ -3,6 +3,19 @@
 {% load notification_tags %}
 {% load template_filters %}
 
+{% block extraCss %}
+    <style>
+        th {
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        td {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="m-content">
 
@@ -22,41 +35,69 @@
                 You can find them in the <strong>Flagged Accounts</strong> section below.
             </div>
         {% endif %}
-        <!-- Member skills -->
+        <!-- Member Skills -->
         <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
             <div class="m-portlet__head">
                 <div class="m-portlet__head-caption">
                     <div class="m-portlet__head-title">
                         <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                            Member Skills
+                            Your Skills
                         </h3>
                     </div>
                 </div>
             </div>
             <div class="m-portlet__body">
-                <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                       id="my_skills_datatable">
-                    <thead class="thead-inverse">
-                    <tr class="main-table-header">
-                        {% for member_skill in member_skills %}
-                            <th>
-                                {{ member_skill.skill.name }}
-                            </th>
-                        {% endfor %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        {% for member_skill in member_skills %}
-                            <td>
-                                <span class="m-badge m-badge--{{ score_badges|get_item_from_list:member_skill.score }}"></span>
-                            </td>
-                        {% endfor %}
-                    </tr>
-                    </tbody>
-                </table>
+                {% for group in member_groups %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            {{ group.name }}
+                        </div>
+                        <div class="card-body" style="width: 100%; overflow: auto;">
+                            <table class="table table-striped table-bordered table-hover">
+                                <thead class="thead-inverse">
+                                <tr class="main-table-header">
+                                    {% for skill in group.skills.all %}
+                                        <th data-toggle="m-tooltip" data-original-title="{{ skill.description }}">
+                                            {{ skill.name }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    {% for skill in group.skills.all %}
+                                        {% with member|get_skill_entry_for_member:skill as skill_entry %}
+                                            <td>
+                                                <h4>
+                                                <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:skill_entry.score }}">
+                                                    {{ skill_entry.score }}
+                                                </span>
+                                                </h4>
+                                            </td>
+                                        {% endwith %}
+                                    {% endfor %}
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
-        <!-- end member skills -->
+        <!-- Skill Progression -->
+        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                            Skill Progression
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="m-portlet__body">
+                Coming soon...
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -8,7 +8,8 @@ import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 
-from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, HighFive
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
+    HighFive, TrainingGroup, SkillHistory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     MandateAssignment, Mandate
@@ -73,6 +74,7 @@ def members(request):
     }
 
     return render(request, 'user_management/members.html', context)
+
 
 @login_required
 def member_dashboard(request, id):
@@ -213,12 +215,12 @@ def member_dashboard(request, id):
     next_month = datetime.datetime(today.year, today.month + 1 if today.month != 12 else 1, 1)
 
     promos_month = Promo.objects.filter(start_date__gte=this_month,
-                                        end_date__lte=next_month,
+                                        end_date__lt=next_month,
                                         account__in=accounts) if load_everything else None
     promos_start_today = promos_month.filter(start_date__gte=today_start,
-                                             start_date__lte=today_end) if load_everything else None
+                                             start_date__lt=today_end) if load_everything else None
     promos_end_today = promos_month.filter(end_date__gte=today_start,
-                                           end_date__lte=today_end) if load_everything else None
+                                           end_date__lt=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
@@ -884,14 +886,14 @@ def members_single_skills(request, id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = Member.objects.get(id=id)
-    member_skills = SkillEntry.objects.filter(member=member)
+    member_groups = [group for group in TrainingGroup.objects.all() if member in group.all_members]
 
-    score_badges = ['secondary', 'danger', 'warning', 'success']
+    score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
 
     context = {
         'member': member,
         'score_badges': score_badges,
-        'member_skills': member_skills
+        'member_groups': member_groups
     }
 
     return render(request, 'user_management/profile/skills.html', context)
@@ -1079,18 +1081,45 @@ def input_mandate_profile(request, id):
 
 @login_required
 def training_members(request):
-    members = Member.objects.only('team', 'role')
-    member_skills = SkillEntry.objects.all()
+    """
+    View of all members skills and training groups
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
 
-    score_badges = ['secondary', 'danger', 'warning', 'success']
+    if request.method == 'GET':
+        training_groups = TrainingGroup.objects.all()
 
-    context = {
-        'members': members,
-        'member_skills': member_skills,
-        'score_badges': score_badges,
-    }
+        score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
+        scores = SkillEntry.SCORE_OPTIONS
 
-    return render(request, 'user_management/training.html', context)
+        context = {
+            'training_groups': training_groups,
+            'score_badges': score_badges,
+            'scores': scores
+        }
+
+        return render(request, 'user_management/training.html', context)
+    elif request.method == 'POST':
+        member_id = request.POST.get('member-id')
+        skill_id = request.POST.get('skill-id')
+        new_score = request.POST.get('new-score')
+
+        try:
+            new_score = int(new_score)
+        except ValueError:
+            return HttpResponse('Invalid score value!')
+
+        member = get_object_or_404(Member, id=member_id)
+        skill_entry = get_object_or_404(SkillEntry, id=skill_id)
+
+        skill_entry.score = new_score
+        skill_entry.save()
+
+        # store skill history for this entry
+        SkillHistory.objects.create(skill_entry=skill_entry)
+
+        return redirect('/user_management/members/training')
 
 
 @login_required

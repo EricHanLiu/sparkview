@@ -223,17 +223,6 @@ class Client(models.Model):
             return False
 
     @property
-    def has_strat(self):
-        """
-        Check the sales profile (service list) of this client to see if ppc is active
-        :return:
-        """
-        if self.sales_profile is not None:
-            return self.sales_profile.strat_status == 1
-        else:
-            return False
-
-    @property
     def calculated_aw_spend(self):
         """
         Calculates adwords spend on the fly
@@ -292,13 +281,6 @@ class Client(models.Model):
     def is_onboarding_cro(self):
         if self.sales_profile is not None:
             return self.sales_profile.cro_status == 0
-        else:
-            return False
-
-    @property
-    def is_onboarding_strat(self):
-        if self.sales_profile is not None:
-            return self.sales_profile.strat_status == 0
         else:
             return False
 
@@ -795,13 +777,24 @@ class Client(models.Model):
                 self.current_spend) + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
         return fee
 
+    @property
+    def fallback_hours(self):
+        if self.allocated_ppc_override is None:
+            return None
+        return self.ppc_ignore_override - self.allocated_ppc_override
+
+    @property
+    def ppc_ignore_override(self):
+        fee = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+        if self.status == 0 and self.managementFee is not None:
+            fee += (self.managementFee.initialFee / 125.0)
+        return fee
+
     def get_ppc_allocated_hours(self):
         if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
             unrounded = self.allocated_ppc_override
         else:
-            unrounded = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
-        if self.status == 0 and self.managementFee is not None:
-            unrounded += (self.managementFee.initialFee / 125.0)
+            unrounded = self.ppc_ignore_override
         return round(unrounded, 2)
 
     def get_allocated_hours(self):
