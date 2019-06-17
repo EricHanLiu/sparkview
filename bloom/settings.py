@@ -256,7 +256,7 @@ CRONJOBS = [
     # ('15 12 * * *', 'ninety_days_notifications.main', '> ' + BASE_DIR + '/logs/ninety_days_notifications.log'),
     ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
     ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
-    ('0 4 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
+    ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
 ]
 
 # Bing Stuff
@@ -332,7 +332,9 @@ else:
         'joelle@makeitbloom.com',
         'jamie@makeitbloom.com',
         'genevieve.b@makeitbloom.com',
-        'doriane@makeitbloom.com'
+        'doriane@makeitbloom.com',
+        'avi@makeitbloom.com',
+        'keith@makeitbloom.com'
     }
 
 CELERY_RESULT_BACKEND = 'django-db'

@@ -3,140 +3,235 @@
 {% load staticfiles %}
 
 {% load template_filters %}
+{% load member_tags %}
 
 {% block extraCss %}
-<style>
-#training_datatable, #m_table_1_info {
-  width: 100%;
-}
-.long-header-row {
-  text-align: center;
-}
-.main-table-header {
-  background: #f4f3f8;
-}
-th {
-  white-space: nowrap;
-}
-thead th {
-  border: 0;
-}
-td {
-  text-align: center;
-}
-</style>
+    <style>
+        th {
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        .skill-badge {
+            cursor: pointer;
+        }
+    </style>
 {% endblock %}
 
 {% block leftAside %}
 {% endblock %}
 
 {% block content %}
-<div class="m-content">
-  <div class="row">
-    <div class="col-xl-12">
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-      		<div class="m-portlet__head-caption">
-      			<div class="m-portlet__head-title">
-      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					Member Training Datatable
-      				</h3>
-      			</div>
-      		</div>
-        </div>
-        <div class="m-portlet__body">
-          <div class="row">
-              <button type="button" class="btn btn-info m-btn add-client"
-                      data-toggle="modal"
-                      data-target="#m_add_skill"> Add a new skill
-              </button>
-          </div>
-          <div id="m_table_1_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div class="row">
-              <div class="col-sm-12">
-                <table class="table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline" id="training_datatable">
-                  <thead>
-                    <tr>
-                      <th>Member</th>
-                      <th>Team</th>
-                      <th>
-                        Role
-                      </th>
-                      {# Just get the skills #}
-                      {% for skillEntry in members.0.skills %}
-                      <th>
-                        {{ skillEntry.skill.name }}
-                      </th>
-                      {% endfor %}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {% for member in members %}
-                    <tr>
-                      <td>
-                        <a href="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</a>
-                      </td>
-                      <td>
-                        {% for team in member.team.all %}
-                        {{ team.name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                      </td>
-                      <td>
-                        {{ member.role }}
-                      </td>
-                      {% for member_skill in member.skills %}
-                      <td>
-                        <span class="m-badge m-badge--{{ score_badges|get_item_from_list:member_skill.score }}" data-toggle="m-tooltip" data-original-title="{{ member_skill.updated_at }}"></span>
-                      </td>
-                      {% endfor %}
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<!--End::Main Portlet-->
-</div>
-
-<!-- Begin add skill modal -->
-<div class="modal fade" id="m_add_skill" tabindex="-1" role="dialog" aria-labelledby="m_add_skill">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add New Skill</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <form class="m-form" method="POST" action="/user_management/skills/new" id="m_form_add_skill">
-              {% csrf_token %}
-              <div class="modal-body">
-                <div class="m-portlet__body">
-                    <div class="form-group m-form__group">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label for="input_skillname">Skill name:</label>
-                                <input type="text" name="skillname" class="form-control m-input"
-                                       placeholder="Please enter a team name">
-                                <span class="m-form__help">Required. 150 characters or fewer.</span>
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    Member Training
+                                </h3>
                             </div>
                         </div>
                     </div>
+                    <div class="m-portlet__body">
+                        <div class="row">
+                            <button type="button" class="btn btn-info m-btn add-client"
+                                    data-toggle="modal" style="margin-right: 15px;"
+                                    data-target="#addSkillModal"> Add a new skill
+                            </button>
+                            <a class="btn btn-info m-btn"
+                               href="https://docs.google.com/spreadsheets/d/1VfolHkDGy4ESOFuPpTQWvUGhU_j9EFQ2AzmL7Z5LzLE/edit#gid=793214929"
+                               target="_blank">
+                                Legend
+                            </a>
+                        </div>
+                        <!-- ACTUAL TRAINING DATA START -->
+                        {% for group in training_groups %}
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    {{ group.name }}
+                                </div>
+                                <div class="card-body" style="width: 100%; overflow: auto;">
+                                    <table class="table table-striped table-bordered table-hover training_datatable">
+                                        <thead>
+                                        <tr>
+                                            <th>Member</th>
+                                            <th>Team</th>
+                                            <th>
+                                                Role
+                                            </th>
+                                            {% for skill in group.skills.all %}
+                                                <th data-toggle="m-tooltip"
+                                                    data-original-title="{{ skill.description }}">
+                                                    {{ skill.name }}
+                                                </th>
+                                            {% endfor %}
+                                            <th>
+                                                Last Update
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for member in group.all_members %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</a>
+                                                </td>
+                                                <td>
+                                                    {% for team in member.team.all %}
+                                                        {{ team.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                                <td>
+                                                    {{ member.role }}
+                                                </td>
+                                                {% for skill in group.skills.all %}
+                                                    {% with member|get_skill_entry_for_member:skill as skill_entry %}
+                                                        <td>
+                                                            <h4>
+                                                                <span data-toggle="modal"
+                                                                      data-target="#updateSkillModal">
+                                                                    <span class="skill-badge badge badge-pill badge-{{ score_badges|get_item_from_list:skill_entry.score }}"
+                                                                          data-toggle="m-tooltip"
+                                                                          data-original-title="{{ skill_entry.updated_at }}"
+                                                                          data-member="{{ member }}"
+                                                                          data-member-id="{{ member.id }}"
+                                                                          data-score="{{ skill_entry.get_score_display }}"
+                                                                          data-skill-id="{{ skill_entry.id }}"
+                                                                          data-skill-name="{{ skill_entry.skill.name }}">
+                                                                        {{ skill_entry.score }}
+                                                                    </span>
+                                                                </span>
+                                                            </h4>
+                                                        </td>
+                                                    {% endwith %}
+                                                {% endfor %}
+                                                <td>
+                                                    {% with member|get_latest_skill_entry_for_member:group as last_entry %}
+                                                        {{ last_entry.updated_at }}
+                                                    {% endwith %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-              </div>
-              <div class="modal-footer">
-                  <input type="submit" value="Submit" class="btn btn-brand">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+    <!--End::Main Portlet-->
+    </div>
+
+    <!-- Add skill modal -->
+    <div class="modal fade" id="addSkillModal" tabindex="-1" role="dialog" aria-labelledby="addSkillModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add New Skill</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST" action="/user_management/skills/new">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="input_skillname">Skill name:</label>
+                                        <input type="text" name="skillname" class="form-control m-input"
+                                               placeholder="Please enter a team name">
+                                        <span class="m-form__help">Required. 150 characters or fewer.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update skill rating modal -->
+    <div class="modal fade" id="updateSkillModal" tabindex="-1" role="dialog" aria-labelledby="quickAddModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Update Skill Rating - <span id="skillName"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="m-form" id="updateSkillForm" method="POST">{% csrf_token %}
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Member:</label>
+                                <input id="currentMember" class="form-control" readonly/>
+                                <input id="memberID" name="member-id" class="form-control" hidden/>
+                                <input id="skillID" name="skill-id" class="form-control" hidden/>
+                            </div>
+                            <div class="col-md-4">
+                                <label>Current Rating</label>
+                                <input id="currentRating" class="form-control" readonly/>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="year">New Rating</label>
+                                <select class="form-control m-input"
+                                        name="new-score" required>
+                                    {% for score_int, score_str in scores %}
+                                        <option value="{{ forloop.counter0 }}">
+                                            {{ score_int }} - {{ score_str }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row justify-content-end mt-3">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary w-100">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        let $skillButtons = $('.skill-badge');
+        $skillButtons.click(function () {
+            let member = $(this).data('member');
+            let memberID = $(this).data('member-id');
+            let score = parseInt($(this).text()) + ' - ' + $(this).data('score');
+            let skillID = $(this).data('skill-id');
+            let skillName = $(this).data('skill-name');
+
+            $('#currentMember').val(member);
+            $('#memberID').val(memberID);
+            $('#currentRating').val(score);
+            $('#skillID').val(skillID);
+            $('#skillName').text(skillName);
+        });
+    </script>
 {% endblock %}

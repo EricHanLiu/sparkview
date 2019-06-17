@@ -1,8 +1,22 @@
 from django import template
-from user_management.models import Member
+from user_management.models import SkillEntry
 import calendar
 
 register = template.Library()
+
+
+@register.filter
+def get_skill_entry_for_member(member, skill):
+    skill_entry = SkillEntry.objects.get(member=member, skill=skill)
+    return skill_entry
+
+
+@register.filter
+def get_latest_skill_entry_for_member(member, training_group):
+    skills = training_group.skills.all()
+    skill_entries = SkillEntry.objects.filter(member=member, skill__in=skills).order_by('-updated_at')
+    last_entry = skill_entries[0]
+    return last_entry
 
 
 @register.filter

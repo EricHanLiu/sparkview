@@ -91,4 +91,4 @@ class Todo(models.Model):
         return self.TODO_COLOUR_CLASSES[self.type]
 
     def __str__(self):
-        return str(self.member) + ': ' + self.description
+        return str(self.date_created) + ': ' + str(self.member) + ': ' + self.description

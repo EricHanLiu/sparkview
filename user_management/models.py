@@ -107,28 +107,50 @@ class Incident(models.Model):
         return 'Incident on ' + str(self.date)
 
 
+class TrainingGroup(models.Model):
+    """
+    Group of members/roles which will be trained under a specific skill set
+    """
+    name = models.CharField(max_length=255, default='')
+    members = models.ManyToManyField('Member', default=None, blank=True)
+    roles = models.ManyToManyField('Role', default=None, blank=True)
+    skills = models.ManyToManyField('Skill', default=None, blank=True)
+
+    @property
+    def all_members(self):
+        members = self.members.all() | Member.objects.filter(role__in=self.roles.all())
+        return members
+
+    def __str__(self):
+        return 'Training Group: ' + self.name
+
+
 class Skill(models.Model):
     """
     Skillset for each Member
     """
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, default='', blank=True)
 
+    @property
     def get_score_0(self):
         return SkillEntry.objects.filter(skill=self, score=0)
 
+    @property
     def get_score_1(self):
         return SkillEntry.objects.filter(skill=self, score=1)
 
+    @property
     def get_score_2(self):
         return SkillEntry.objects.filter(skill=self, score=2)
 
+    @property
     def get_score_3(self):
         return SkillEntry.objects.filter(skill=self, score=3)
 
-    score0 = property(get_score_0)
-    score1 = property(get_score_1)
-    score2 = property(get_score_2)
-    score3 = property(get_score_3)
+    @property
+    def get_score_4(self):
+        return SkillEntry.objects.filter(skill=self, score=4)
 
     def __str__(self):
         return self.name
@@ -148,9 +170,17 @@ class SkillEntry(models.Model):
     """
     Actually sets a score to the skill for a member
     """
+    SCORE_OPTIONS = [
+        (0, 'Unscored'),
+        (1, 'Beginner'),
+        (2, 'Intermediate'),
+        (3, 'Advanced'),
+        (4, 'Expert'),
+    ]
+
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
-    score = models.IntegerField(null=True, blank=True, default=None)
+    score = models.IntegerField(default=0, choices=SCORE_OPTIONS)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -163,16 +193,14 @@ class SkillEntry(models.Model):
 
 class SkillHistory(models.Model):
     """
-    Keeps track of all skill entries, not only current
+    History log of SkillEntry updates, since SkillEntries are unique
+    Unused for now but is useful so we don't lose data going forward
     """
-    skill = models.ForeignKey('Skill', models.CASCADE, default=None)
-    member = models.ForeignKey('Member', models.CASCADE, default=None)
-    score = models.IntegerField(null=True, blank=True, default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
+    skill_entry = models.ForeignKey('SkillEntry', models.CASCADE, default=None)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name + ' ' + str(
-            self.created_at)
+        return str(date) + ': ' + str(self.skill_entry)
 
 
 class Member(models.Model):

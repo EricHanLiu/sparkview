@@ -39,13 +39,15 @@ def prepare_todos():
         notifications = Notification.objects.filter(member=member, created__gte=today_start, created__lte=today_end)
 
         for notification in notifications:
-            description = 'Notification: ' + notification.message
+            description = notification.message
+            if 'Phase' in description:  # don't create todos for phase task notifs
+                continue
             link = notification.link
             Todo.objects.create(member=member, description=description, link=link, type=2)
 
         # 90 DAYS OF AWESOME TASKS
         for task_assignment in member.phase_tasks:
-            description = 'Account Task: ' + task_assignment.task.message
+            description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
             Todo.objects.create(member=member, description=description, type=3)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
@@ -76,3 +78,5 @@ def prepare_todos():
             description = 'No change in the last 5 days for account ' + account.client_name
             link = '/clients/accounts/' + str(account.id)
             Todo.objects.create(member=member, description=description, link=link, type=4)
+
+        print('Successfully created todos for member %s' % str(member))

@@ -269,15 +269,6 @@ def account_new(request):
             if request.POST.get('ppc_check'):
                 sp.ppc_status = 0
                 sp.save()
-            if request.POST.get('strat_check'):
-                sp.strat_status = 0
-                sp.save()
-            if request.POST.get('feed_check'):
-                sp.feed_status = 0
-                sp.save()
-            if request.POST.get('email_check'):
-                sp.email_status = 0
-                sp.save()
 
             account.has_gts = True
             account.has_budget = True
@@ -402,12 +393,6 @@ def account_edit_temp(request, id):
                 sp.seo_status = 2
             if sp.cro_status == 1:
                 sp.cro_status = 2
-            if sp.strat_status == 1:
-                sp.strat_status = 2
-            if sp.feed_status == 1:
-                sp.feed_status = 2
-            if sp.email_status == 1:
-                sp.email_status = 2
             sp.save()
 
             event_description = account.client_name + ' was set to inactive. The reason is ' + str(
@@ -448,12 +433,6 @@ def account_edit_temp(request, id):
                 sp.seo_status = 2
             if sp.cro_status == 1:
                 sp.cro_status = 2
-            if sp.strat_status == 1:
-                sp.strat_status = 2
-            if sp.feed_status == 1:
-                sp.feed_status = 2
-            if sp.email_status == 1:
-                sp.email_status = 2
             sp.save()
 
             event_description = account.client_name + ' was set to lost. The reason is ' + str(
@@ -502,6 +481,8 @@ def account_edit_temp(request, id):
                 account.management_fee_override = float(fee_override)
             if hours_override != 'None':
                 account.allocated_ppc_override = float(hours_override)
+            else:
+                account.allocated_ppc_override = None
             if 'advanced_reporting' in request.POST:
                 account.advanced_reporting = True
             else:
@@ -1386,44 +1367,6 @@ def set_services(request):
     except ValueError:
         cro = 6
 
-    # get opp or pitch status if applicable
-    if ppc == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-ppc-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.ppc_opp_desc = opp
-    elif ppc == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-ppc-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.ppc_pitched_desc = pitch
-    if seo == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-seo-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.seo_opp_desc = opp
-    elif seo == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-seo-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.seo_pitched_desc = pitch
-    if cro == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-cro-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.cro_opp_desc = opp
-    elif cro == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-cro-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.cro_pitched_desc = pitch
-
     status_range = range(0, len(sales_profile.STATUS_CHOICES))
     if ppc is not None and ppc in status_range:
         sales_profile.ppc_status = ppc
@@ -1469,17 +1412,12 @@ def onboard_account(request, account_id):
             cro_step = OnboardingStep.objects.filter(service=2)
             ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
             s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
-        if account.is_onboarding_strat:
-            strat_step = OnboardingStep.objects.filter(service=3)
-            ac_strat_steps = OnboardingStepAssignment.objects.filter(step__in=strat_step, account=account)
-            s_ac_strat_steps = sorted(ac_strat_steps, key=lambda t: t.step.order)
 
         context = {
             'account': account,
             'ac_ppc_steps': s_ac_ppc_steps,
             'ac_seo_steps': s_ac_seo_steps,
             'ac_cro_steps': s_ac_cro_steps,
-            'ac_strat_steps': s_ac_strat_steps,
         }
 
         return render(request, 'client_area/onboard_account.html', context)
@@ -1515,9 +1453,6 @@ def onboard_account(request, account_id):
                     sp.save()
                 elif step.step.service == 2:
                     sp.cro_status = 1
-                    sp.save()
-                elif step.step.service == 3:
-                    sp.strat_status = 1
                     sp.save()
 
             account.status = 1
