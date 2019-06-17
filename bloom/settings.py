@@ -243,7 +243,7 @@ CRONJOBS = [
     # ('10 14 * * *', 'cron_kw_wastage.main', '> ' + BASE_DIR + '/logs/cron_kw_wastage.log'),
     # ('10 14 * * *', 'bing_kw_wastage.main', '> ' + BASE_DIR + '/logs/bing_kw_wastage.log'),
     ('00 15 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
-    ('10 15 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
+    ('10 11 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
     ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
     ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),
     # Midnight, first day of the month

@@ -6,15 +6,7 @@
 {% block content %}
     <div class="m-content">
         {# Notification stuff #}
-        {% with notifications=request.user|get_unread_notifications %}
-            {% if notifications.count > 0 %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    </button>
-                    <strong>Heads Up!</strong> You have unread notifications.
-                </div>
-            {% endif %}
-        {% endwith %}
+
         {% if backups.count > 0 %}
             <div class="alert alert-info alert-dismissible fade show" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
