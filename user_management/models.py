@@ -112,7 +112,6 @@ class TrainingGroup(models.Model):
     Group of members/roles which will be trained under a specific skill set
     """
     name = models.CharField(max_length=255, default='')
-
     members = models.ManyToManyField('Member', default=None, blank=True)
     roles = models.ManyToManyField('Role', default=None, blank=True)
     skills = models.ManyToManyField('Skill', default=None, blank=True)
