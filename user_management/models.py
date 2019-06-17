@@ -172,10 +172,10 @@ class SkillEntry(models.Model):
     """
     SCORE_OPTIONS = [
         (0, 'Unscored'),
-        (1, 'Terrible'),
-        (2, 'Poor'),
-        (3, 'Good'),
-        (4, 'Excellent'),
+        (1, 'Beginner'),
+        (2, 'Intermediate'),
+        (3, 'Advanced'),
+        (4, 'Expert'),
     ]
 
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
