@@ -101,7 +101,6 @@ class Client(models.Model):
 
     # override ppc hours
     allocated_ppc_override = models.FloatField(default=None, null=True, blank=True)
-    override_difference = models.FloatField(default=None, null=True, blank=True)
     # % buffer
     allocated_ppc_buffer = models.FloatField(default=0.0)
     # management fee override
@@ -778,13 +777,22 @@ class Client(models.Model):
                 self.current_spend) + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
         return fee
 
+    @property
+    def fallback_hours(self):
+        return self.ppc_ignore_override - self.allocated_ppc_override
+
+    @property
+    def ppc_ignore_override(self):
+        fee = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+        if self.status == 0 and self.managementFee is not None:
+            fee += (self.managementFee.initialFee / 125.0)
+        return fee
+
     def get_ppc_allocated_hours(self):
         if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
             unrounded = self.allocated_ppc_override
         else:
-            unrounded = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
-        if self.status == 0 and self.managementFee is not None:
-            unrounded += (self.managementFee.initialFee / 125.0)
+            unrounded = self.ppc_ignore_override
         return round(unrounded, 2)
 
     def get_allocated_hours(self):
