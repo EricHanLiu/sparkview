@@ -1353,8 +1353,9 @@ def adwords_account_change_history(self, customer_id):
 
         # We set a boolean to find the accounts to be added to the e-mail
         if flag:
-            account.ch_flag = True
-            account.save()
+            if account.has_ppc:
+                account.ch_flag = True
+                account.save()
             print('MAIL')
         else:
             account.ch_flag = False
