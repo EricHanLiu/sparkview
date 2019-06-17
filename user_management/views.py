@@ -730,18 +730,20 @@ def members_single_reports(request, id):
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
         Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
     ).filter(status=1).order_by('client_name')
+    non_backups_length = accounts.count()  # for determining where backup accounts are in the list
+
+    accounts = accounts | member.backup_accounts
+    with_backups_length = accounts.count()
 
     first_weekday, days_in_month = calendar.monthrange(now.year, now.month)
 
     if reporting_period:
-        active_accounts = accounts.filter(status=1)
-        # reporting_accounts = active_accounts | member.inactive_lost_accounts_last_month
         if last_month == 0:
             last_month = 12
         if now.day == days_in_month:
             last_month = month  # Last day of month, show the current month so we can set stuff
         # TODO: Fix the following boiler plate
-        for account in active_accounts:
+        for account in accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
                 if account.tier == 1 or account.advanced_reporting:
@@ -765,6 +767,8 @@ def members_single_reports(request, id):
     context = {
         'member': member,
         'reports': reports,
+        'non_backups_length': non_backups_length,
+        'with_backups_length': with_backups_length,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
         'reporting_year': year
@@ -972,7 +976,7 @@ def input_hours_profile(request, id):
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
         ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
-        non_backups_length = len(accounts)  # for knowing where the backup accounts are in the list
+        non_backups_length = accounts.count()  # for knowing where the backup accounts are in the list
 
         accounts = accounts | member.backup_accounts  # add backup accounts
 

@@ -72,7 +72,12 @@
                     {% for report in reports %}
                         <tr>
                             <td>
-                                <a href="/clients/accounts/{{ report.account.id }}">{{ report.report_name }}</a>
+                                <a href="/clients/accounts/{{ report.account.id }}">
+                                    {{ report.report_name }}
+                                </a>
+                                {% if forloop.counter > non_backups_length and forloop.counter <= with_backups_length %}
+                                    <div class="badge badge-info badge-pill">Backup</div>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if report.report_type != None %}
