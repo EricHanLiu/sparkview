@@ -26,7 +26,7 @@ def accounts(request):
     now = datetime.datetime.now()
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backup_accounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -1284,7 +1284,7 @@ def edit_promos(request):
     now = datetime.datetime.now()
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
     backup_accounts = []
 
     for backup in backups:

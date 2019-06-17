@@ -575,7 +575,7 @@ class Member(models.Model):
         All the accounts this member is currently backing up
         """
         if not hasattr(self, '_backupaccounts'):
-            backups = Backup.objects.filter(member=self)
+            backups = Backup.objects.filter(members__in=[self])
             self._backupaccounts = apps.get_model('budget', 'Client').objects.filter(
                 id__in=backups.values('account_id'))
         return self._backupaccounts
@@ -686,7 +686,7 @@ class Backup(models.Model):
     """
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='backup_member')
+    members = models.ManyToManyField(Member, default=None, blank=True)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)

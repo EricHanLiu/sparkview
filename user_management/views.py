@@ -605,7 +605,7 @@ def members_single(request, id=0):
     ).filter(status=0).order_by('client_name')
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
     backing_me = backup_periods.filter(member=member)
 
@@ -1336,8 +1336,8 @@ def backup_event(request, backup_period_id):
     if request.method == 'POST':
         form_type = request.POST.get('type')
         if form_type == 'backup':
-            member_id = request.POST.get('member')
-            member = Member.objects.get(id=member_id)
+            member_ids = request.POST.getlist('members')
+            members = Member.objects.filter(id__in=member_ids)
             account_id = request.POST.get('account')
             try:
                 account = Client.objects.get(id=account_id)
@@ -1353,7 +1353,7 @@ def backup_event(request, backup_period_id):
             except Backup.DoesNotExist:
                 return HttpResponse('That backup does not exist')
             b.account = account
-            b.member = member
+            b.members.set(members)
             b.bc_link = bc_link
             b.save()
 
