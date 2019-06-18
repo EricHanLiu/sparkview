@@ -9,10 +9,10 @@ def prepare_todos():
     """
     Prepare the todolist of each member for the day
     """
-    members = Member.objects.all()
+    members = Member.objects.filter(deactivated=False)
 
     for member in members:
-        member_accounts = member.accounts
+        member_accounts = member.accounts | member.backup_accounts
 
         # PROMOS
         today = datetime.datetime.now().date()
