@@ -7,7 +7,7 @@ from django.utils import timezone
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
-from user_management.models import Member, Team
+from user_management.models import Member, Team, Backup, BackupPeriod
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
     OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord
@@ -652,8 +652,20 @@ class Client(models.Model):
             percentage += self.strat3percent
 
         mandate_hours = self.mandate_hours_this_month_member(member)
+        total_hours = round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
 
-        return round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
+        # check for backup hours distribution
+        potential_backup = Backup.objects.filter(Q(members__in=[member]) | Q(period__member=member), account=self)
+        if potential_backup is not None:
+            backup = potential_backup[0]
+            hours = backup.hours_this_month
+            if member in backup.members.all():  # this member is backing up someone else, add the hours
+                total_hours += hours
+            else:  # this member is being backed up, remove the hours
+                total_hours -= hours
+
+        return total_hours
+
 
     @property
     def current_phase_tasks(self):

@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
     MandateHourRecord
+from client_area.utils import days_in_month_in_daterange
 import datetime
 import calendar
 
@@ -694,6 +695,15 @@ class Backup(models.Model):
     approved_by = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='approved_by',
                                     blank=True)
     approved_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def hours_this_month(self):
+        now = datetime.datetime.now()
+        days_in_period = days_in_month_in_daterange(self.period.start_date, self.period.end_date, now.month, now.year)
+        if days_in_period == 0:
+            return 0.0
+        hours = round(self.account.get_hours_remaining_this_month() / days_in_period, 2)
+        return hours
 
     @property
     def similar_members(self):
