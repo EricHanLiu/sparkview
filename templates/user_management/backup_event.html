@@ -29,6 +29,7 @@
                             <thead>
                             <tr>
                                 <th>Account</th>
+                                <th>Account Status</th>
                                 <th>Similar</th>
                                 <th>Backup</th>
                                 <th>Basecamp link</th>
@@ -41,6 +42,9 @@
                                 <tr>
                                     <td>
                                         <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account }}</a>
+                                    </td>
+                                    <td>
+                                        {{ backup.account.get_status_display }}
                                     </td>
                                     <td>
                                         {{ backup.similar_members_str }}
@@ -67,15 +71,10 @@
                                         {% if backup.approved %}
                                             <button class="btn btn-sm btn-success" disabled>Approved</button>
                                         {% else %}
-                                            {% if backup.members.count != 0 %}
-                                                <button class="btn btn-sm approve-btn" data-bu-id="{{ backup.id }}">
-                                                    Approve
-                                                </button>
-                                            {% else %}
-                                                <button class="btn btn-sm approve-btn" data-bu-id="{{ backup.id }}"
-                                                        disabled>Approve
-                                                </button>
-                                            {% endif %}
+                                            <button class="btn btn-sm approve-btn" data-bu-id="{{ backup.id }}"
+                                                    {% if backup.members.count == 0 %}disabled{% endif %}>
+                                                Approve
+                                            </button>
                                         {% endif %}
                                     </td>
                                 </tr>
