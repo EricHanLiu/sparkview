@@ -243,7 +243,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                             {% endfor %}
                         </div>
                     </div>
@@ -373,40 +372,109 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class="table table-striped table-bordered table-hover dataTable">
-                                <thead>
-                                <tr class="main-table-header">
-                                    <th>
-                                        Client
-                                    </th>
-                                    <th>Account</th>
-                                    <th>
-                                        Total Actual Hours
-                                    </th>
-                                    <th>
-                                        Total Allocated Hours
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody class="text-center">
-                                {% for backup in backups %}
-                                    <tr>
-                                        <td>
-                                            {{ backup.account.parentClient.name }}
-                                        </td>
-                                        <td>
-                                            <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
-                                        </td>
-                                        <td>
-                                            {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
-                                        </td>
-                                        <td>
-                                            {{ backup.account.all_hours|floatformat:2 }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                            {% for backup in backups %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-2">
+                                        <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                                        <p>My hours this month:
+                                            {{ backupAccountHours|get_item_from_list:backup.account.id }}/{{ backupCccountAllocation|get_item_from_list:backup.account.id }}</p>
+                                        <div class="m--space-30">
+                                            {% with aw=backup.account.adwords.all bing=backup.account.bing.all fb=backup.account.facebook.all %}
+                                                <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if aw %}
+                                                            {% for a in aw %}
+                                                          {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No AdWords Account
+                                                        {% endif %}">A</span>
+                                                <span class="m-badge {% if bing %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if bing %}
+                                                            {% for b in bing %}
+
+                                                          {{ b.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Bing Account
+                                                        {% endif %}">B</span>
+                                                <span class="m-badge {% if fb %}m-badge--info{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if fb %}
+                                                            {% for f in fb %}
+
+                                                          {{ f.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Facebook Account
+                                                        {% endif %}">F</span>
+                                            {% endwith %}
+                                        </div>
+                                        <div class="m--space-30">
+                                            Phase {{ backup.account.phase }}, Day {{ backup.account.phase_day }}:
+                                            {% for task in backup.account.current_phase_tasks %}
+                                                <span class="m-badge {% if task.complete %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="{{ task.task.message }}"></span>
+                                            {% endfor %}
+                                        </div>
+                                        <label class="m-checkbox mt-1">
+                                            <input type="checkbox" class="budget-updated"
+                                                   data-account-id="{{ backup.account.id }}"
+                                                   {% if backup.account.budget_updated %}disabled checked{% endif %}/>
+                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-10">
+                                        <div class="row summary-spend-row">
+                                            <div class="col-md-2"><b>Current</b>:
+                                                {{ backup.account.currency }}{{ backup.account.current_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2"><b>Budget</b>:
+                                                {{ backup.account.currency }}{{ backup.account.current_budget|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Avg Projected</b>:
+                                                {{ backup.account.currency }}{{ backup.account.project_average|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Projected</b>:
+                                                {{ backup.account.currency }}{{ backup.account.project_yesterday|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Spend</b>:
+                                                {{ backup.account.currency }}{{ backup.account.yesterday_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Target Daily Spend</b>:
+                                                {{ backup.account.currency }}{{ backup.account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative!important; height:30px !important;">
+                                            <div id="{{ backup.account.id }}_progressbar"
+                                                 class="progress-bar {% if backup.account.underpacing_average %}bg-warning{% elif backup.account.project_average > backup.account.current_budget %}bg-danger{% else %}bg-success{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ backup.account.spend_percentage }}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 aria-valuenow="{{ backup.account.spend_percentage }}"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ backup.account.current_spend }}/{{ backup.account.current_budget }}">
+                                                {{ backup.account.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                            <div class="black-marker"
+                                                 style="width: {{ black_marker }}%"
+                                                 aria-valuenow="{{ black_marker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 {% endif %}
