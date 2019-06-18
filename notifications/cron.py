@@ -26,12 +26,14 @@ def prepare_todos():
                                                 account__in=member_accounts)
 
         for promo in promos_start_today:
-            description = 'Promo Starting Today: ' + str(promo)
+            description = 'Reminder - Promo Starting Today: ' + str(
+                promo) + '. Please check off promo has started in the promo tab.'
             link = '/clients/accounts/' + str(promo.account.id)
             Todo.objects.create(member=member, description=description, link=link, type=1)
 
         for promo in promos_end_today:
-            description = 'Promo Ending Today: ' + str(promo)
+            description = 'Reminder - Promo Ending Today: ' + str(
+                promo) + '. Please check off promo has ended in the promo tab.'
             link = '/clients/accounts/' + str(promo.account.id)
             Todo.objects.create(member=member, description=description, link=link, type=1)
 
@@ -63,7 +65,8 @@ def prepare_todos():
                                                      account__in=member_accounts)
 
         for promo in promos_ended_yesterday:
-            description = 'Reminder! Promo ' + str(promo) + ' ended yesterday. Did you turn it off?'
+            description = 'Reminder! Promo ' + str(
+                promo) + ' ended yesterday. Did you turn it off? Please check in the promo tab.'
             link = '/clients/accounts/' + str(promo.account.id)
             Todo.objects.create(member=member, description=description, link=link, type=1)
 
