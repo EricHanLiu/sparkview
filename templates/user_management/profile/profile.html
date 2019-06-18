@@ -381,9 +381,6 @@
                                     </th>
                                     <th>Account</th>
                                     <th>
-                                        My Actual Hours
-                                    </th>
-                                    <th>
                                         Total Actual Hours
                                     </th>
                                     <th>
@@ -399,9 +396,6 @@
                                         </td>
                                         <td>
                                             <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
-                                        </td>
-                                        <td>
-                                            {# backupHours|get_item_from_list:account.id #} 0
                                         </td>
                                         <td>
                                             {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
