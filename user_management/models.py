@@ -703,6 +703,9 @@ class Backup(models.Model):
         if days_in_period == 0:
             return 0.0
         hours = round(self.account.get_hours_remaining_this_month() / days_in_period, 2)
+        num_members = self.members.all().count()
+        if num_members > 0:
+            hours /= num_members
         return hours
 
     @property

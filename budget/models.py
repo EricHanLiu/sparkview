@@ -655,17 +655,29 @@ class Client(models.Model):
         total_hours = round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
 
         # check for backup hours distribution
-        potential_backup = Backup.objects.filter(Q(members__in=[member]) | Q(period__member=member), account=self)
-        if potential_backup is not None:
-            backup = potential_backup[0]
-            hours = backup.hours_this_month
-            if member in backup.members.all():  # this member is backing up someone else, add the hours
+        now = datetime.datetime.now()
+        # deduct hours from away member
+        try:
+            potential_backup = Backup.objects.get(period__member=member, account=self, period__start_date__lte=now,
+                                                  period__end_date__gte=now)
+            hours_to_deduct = potential_backup.hours_this_month
+            num_members = potential_backup.members.all().count()
+            if num_members > 0:
+                hours_to_deduct *= num_members
+            total_hours -= hours_to_deduct
+        except Backup.DoesNotExist:
+            pass
+
+        # add hours to backup member
+        potential_backups = Backup.objects.filter(members__in=[member], account=self, period__start_date__lte=now,
+                                                  period__end_date__gte=now)
+        print(potential_backups)  # returns 0
+        if potential_backups.count() > 0:
+            for backup in potential_backups:
+                hours = backup.hours_this_month
                 total_hours += hours
-            else:  # this member is being backed up, remove the hours
-                total_hours -= hours
 
         return total_hours
-
 
     @property
     def current_phase_tasks(self):
