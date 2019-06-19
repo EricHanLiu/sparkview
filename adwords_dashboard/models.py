@@ -327,6 +327,7 @@ class Campaign(models.Model):
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
     campaign_serving_status = models.CharField(max_length=255, default='None')
+    master_exclusion = models.BooleanField(default=False)
 
     @property
     def json(self):
