@@ -689,7 +689,7 @@ class Backup(models.Model):
     """
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
-    members = models.ManyToManyField(Member, default=None, blank=True)
+    members = models.ManyToManyField(Member)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)

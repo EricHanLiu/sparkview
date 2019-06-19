@@ -349,12 +349,18 @@ class Client(models.Model):
         return hours
 
     def get_hours_remaining_this_month(self):
+        """
+        Gets the number of hours remaining on the account in the current month
+        """
         if not hasattr(self, '_hoursRemainingMonth'):
             self._hoursRemainingMonth = round(
                 self.allocated_hours_including_mandate - self.get_hours_worked_this_month(), 2)
         return self._hoursRemainingMonth
 
     def get_hours_worked_this_month_member(self, member):
+        """
+        Gets the number of hours worked (inputted) on the account in the current month (sum of all members)
+        """
         now = datetime.datetime.now()
         month = now.month
         year = now.year
@@ -363,6 +369,9 @@ class Client(models.Model):
         return hours if hours is not None else 0
 
     def get_hours_remaining_this_month_member(self, member):
+        """
+        Gets the number of hours remaining on an account for a specific member in the current month
+        """
         total_hours = self.get_allocation_this_month_member_no_backup(member)
         hours_worked = self.get_hours_worked_this_month_member(member)
         return total_hours - hours_worked
@@ -629,6 +638,9 @@ class Client(models.Model):
         return hours
 
     def get_allocation_this_month_member_no_backup(self, member):
+        """
+        Gets the hours allocated for a specific member, excluding hours added/deducted due to backups
+        """
         percentage = 0.0
         # Boilerplate incoming
         if self.cm1 == member:
@@ -659,26 +671,16 @@ class Client(models.Model):
         mandate_hours = self.mandate_hours_this_month_member(member)
         return round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
 
-    def get_allocation_this_month_member(self, member, is_backup=False):
-        if is_backup:
-            total_hours = 0
-        else:
-            total_hours = self.get_allocation_this_month_member_no_backup(member)
-
-        # check for backup hours distribution
+    def get_allocation_this_month_member(self, member, is_backup_account=False):
+        """
+        Gets the hours allocated for a specific member, including hours added/deducted due to backups
+        :param member: the member in question
+        :param is_backup_account: whether or not we're fetching hours for a backup account (ie. an account for
+            a member who currently backing up another member)
+        """
         now = datetime.datetime.now()
-        # deduct hours from away member
-        try:
-            potential_backup = Backup.objects.get(period__member=member, account=self, period__start_date__lte=now,
-                                                  period__end_date__gte=now, approved=True)
-            hours_to_deduct = potential_backup.hours_this_month
-            num_members = potential_backup.members.all().count()
-            hours_to_deduct *= num_members
-            total_hours -= hours_to_deduct
-        except Backup.DoesNotExist:
-            pass
-
-        if is_backup:
+        if is_backup_account:
+            total_hours = 0
             # add hours to backup member
             potential_backups = Backup.objects.filter(members__in=[member], period__start_date__lte=now,
                                                       period__end_date__gte=now, approved=True, account=self)
@@ -686,6 +688,18 @@ class Client(models.Model):
                 for backup in potential_backups:
                     hours = backup.hours_this_month
                     total_hours += hours
+        else:
+            total_hours = self.get_allocation_this_month_member_no_backup(member)
+            # deduct hours from away member
+            try:
+                potential_backup = Backup.objects.get(period__member=member, account=self, period__start_date__lte=now,
+                                                      period__end_date__gte=now, approved=True)
+                hours_to_deduct = potential_backup.hours_this_month
+                num_members = potential_backup.members.all().count()
+                hours_to_deduct *= num_members
+                total_hours -= hours_to_deduct
+            except Backup.DoesNotExist:
+                pass
 
         return total_hours
 
