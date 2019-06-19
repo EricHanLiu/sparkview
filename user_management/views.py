@@ -623,7 +623,7 @@ def members_single(request, id=0):
     for backup in backups:
         hours = backup.account.get_hours_worked_this_month_member(member)
         backupAccountHours[backup.account.id] = hours
-        backupAccountAllocation[backup.account.id] = backup.account.get_allocation_this_month_member(member)
+        backupAccountAllocation[backup.account.id] = backup.account.get_allocation_this_month_member(member, True)
 
     mandate_assignments = member.active_mandate_assignments
     mandates = [assignment.mandate for assignment in mandate_assignments]
