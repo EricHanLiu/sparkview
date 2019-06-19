@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import subprocess
-import calendar
 import json
-import time
-from bloom import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
@@ -13,14 +9,13 @@ from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, Budget, ClientCData, BudgetUpdate
+from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, ClientCData, BudgetUpdate
 from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from itertools import chain
 import calendar
 
 
@@ -192,18 +187,6 @@ def add_client(request):
                     aw_acc.desired_spend = float(spend)
                     budget += float(spend)
 
-                else:
-                    new_budget = Budget.objects.create(
-                        adwords=aw_acc,
-                        budget=float(spend),
-                        networks=networks
-                    )
-
-                    new_budget.spend = aw_acc.current_spend
-                    aw_acc.desired_spend = float(spend)
-                    budget += float(spend)
-                    new_budget.save()
-
                 aw_acc.save()
                 aw.append(aw_acc)
 
@@ -278,7 +261,6 @@ def client_details(request, client_id):
 
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
-        budgets = Budget.objects.all()
         fbudgets = FlightBudget.objects.all()
         cmp_groupings = CampaignGrouping.objects.filter(client=client)
         chdata = ClientCData.objects.filter(client=client)
@@ -299,7 +281,6 @@ def client_details(request, client_id):
             'adwords': DependentAccount.objects.filter(blacklisted=False),
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
-            'budgets': budgets,
             'chdata': chdata_json[0]['fields'] if chdata_json else {},
             'fbudgets': fbudgets,
             'status_badges': status_badges,
@@ -1150,35 +1131,6 @@ def edit_client_name(request):
     response = {
         'client_name': new_name
     }
-    return JsonResponse(response)
-
-
-@login_required
-def add_kpi(request):
-    data = request.POST
-    networks = request.POST.getlist('network_type')
-    budget = request.POST.get('kpi_budget')
-    account = DependentAccount.objects.get(dependent_account_id=data['acc_id'])
-    Budget.objects.create(adwords=account, networks=networks, budget=budget)
-
-    adwords_tasks.adwords_cron_budgets.delay(account.dependent_account_id)
-
-    response = {
-        'account': account.dependent_account_name
-    }
-    return JsonResponse(response)
-
-
-@login_required
-def delete_kpi(request):
-    budget_id = request.POST.get('bid')
-    budget = Budget.objects.get(id=budget_id)
-
-    response = {
-        'kpi': budget.network_type
-    }
-    budget.delete()
-
     return JsonResponse(response)
 
 

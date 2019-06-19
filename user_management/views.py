@@ -1091,10 +1091,12 @@ def training_members(request):
         training_groups = TrainingGroup.objects.all()
 
         score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
+        scores = SkillEntry.SCORE_OPTIONS
 
         context = {
             'training_groups': training_groups,
             'score_badges': score_badges,
+            'scores': scores
         }
 
         return render(request, 'user_management/training.html', context)

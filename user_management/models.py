@@ -112,7 +112,6 @@ class TrainingGroup(models.Model):
     Group of members/roles which will be trained under a specific skill set
     """
     name = models.CharField(max_length=255, default='')
-
     members = models.ManyToManyField('Member', default=None, blank=True)
     roles = models.ManyToManyField('Role', default=None, blank=True)
     skills = models.ManyToManyField('Skill', default=None, blank=True)
@@ -173,10 +172,10 @@ class SkillEntry(models.Model):
     """
     SCORE_OPTIONS = [
         (0, 'Unscored'),
-        (1, 'Terrible'),
-        (2, 'Poor'),
-        (3, 'Good'),
-        (4, 'Excellent'),
+        (1, 'Beginner'),
+        (2, 'Intermediate'),
+        (3, 'Advanced'),
+        (4, 'Expert'),
     ]
 
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)

@@ -101,7 +101,6 @@ class Client(models.Model):
 
     # override ppc hours
     allocated_ppc_override = models.FloatField(default=None, null=True, blank=True)
-    override_difference = models.FloatField(default=None, null=True, blank=True)
     # % buffer
     allocated_ppc_buffer = models.FloatField(default=0.0)
     # management fee override
@@ -777,6 +776,12 @@ class Client(models.Model):
             fee = self.get_fee_by_spend(
                 self.current_spend) + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
         return fee
+
+    @property
+    def fallback_hours(self):
+        if self.allocated_ppc_override is None:
+            return None
+        return self.ppc_ignore_override - self.allocated_ppc_override
 
     @property
     def ppc_ignore_override(self):
@@ -1821,15 +1826,6 @@ class CampaignGrouping(models.Model):
 
     def __str__(self):
         return self.client.client_name + str(self.id)
-
-
-class Budget(models.Model):
-    adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
-    budget = models.FloatField(default=0)
-    # client = models.ForeignKey(Client, related_name='client')
-    network_type = models.CharField(max_length=255, default='ALL')
-    networks = ArrayField(models.CharField(max_length=255), blank=True, null=True)
-    spend = models.FloatField(default=0)
 
 
 class TierChangeProposal(models.Model):

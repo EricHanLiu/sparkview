@@ -480,10 +480,9 @@ def account_edit_temp(request, id):
             if fee_override != 'None':
                 account.management_fee_override = float(fee_override)
             if hours_override != 'None':
-                # calculate difference first before setting the override
-                default_allocated_hours = account.get_ppc_allocated_hours()
-                account.override_difference = default_allocated_hours - float(hours_override)
                 account.allocated_ppc_override = float(hours_override)
+            else:
+                account.allocated_ppc_override = None
             if 'advanced_reporting' in request.POST:
                 account.advanced_reporting = True
             else:
@@ -1367,44 +1366,6 @@ def set_services(request):
         cro = int(request.POST.get('set-cro'))
     except ValueError:
         cro = 6
-
-    # get opp or pitch status if applicable
-    if ppc == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-ppc-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.ppc_opp_desc = opp
-    elif ppc == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-ppc-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.ppc_pitched_desc = pitch
-    if seo == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-seo-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.seo_opp_desc = opp
-    elif seo == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-seo-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.seo_pitched_desc = pitch
-    if cro == 4:
-        try:
-            opp = OpportunityDescription.objects.get(id=request.POST.get('set-cro-opp'))
-        except OpportunityDescription.DoesNotExist:
-            opp = None
-        sales_profile.cro_opp_desc = opp
-    elif cro == 5:
-        try:
-            pitch = PitchedDescription.objects.get(id=request.POST.get('set-cro-pitched'))
-        except PitchedDescription.DoesNotExist:
-            pitch = None
-        sales_profile.cro_pitched_desc = pitch
 
     status_range = range(0, len(sales_profile.STATUS_CHOICES))
     if ppc is not None and ppc in status_range:

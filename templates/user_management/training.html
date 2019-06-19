@@ -102,7 +102,7 @@
                                                                           data-original-title="{{ skill_entry.updated_at }}"
                                                                           data-member="{{ member }}"
                                                                           data-member-id="{{ member.id }}"
-                                                                          data-score="{{ skill_entry.score }}"
+                                                                          data-score="{{ skill_entry.get_score_display }}"
                                                                           data-skill-id="{{ skill_entry.id }}"
                                                                           data-skill-name="{{ skill_entry.skill.name }}">
                                                                         {{ skill_entry.score }}
@@ -197,11 +197,9 @@
                                 <label for="year">New Rating</label>
                                 <select class="form-control m-input"
                                         name="new-score" required>
-                                    {% for badge in score_badges %}
+                                    {% for score_int, score_str in scores %}
                                         <option value="{{ forloop.counter0 }}">
-                                                <span class="badge badge-pill badge-{{ badge }}">
-                                                    {{ forloop.counter0 }}
-                                                </span>
+                                            {{ score_int }} - {{ score_str }}
                                         </option>
                                     {% endfor %}
                                 </select>
@@ -225,7 +223,7 @@
         $skillButtons.click(function () {
             let member = $(this).data('member');
             let memberID = $(this).data('member-id');
-            let score = $(this).data('score');
+            let score = parseInt($(this).text()) + ' - ' + $(this).data('score');
             let skillID = $(this).data('skill-id');
             let skillName = $(this).data('skill-name');
 

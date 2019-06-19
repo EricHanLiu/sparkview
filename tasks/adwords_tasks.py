@@ -10,7 +10,7 @@ from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from adwords_dashboard.cron_scripts import get_accounts
-from budget.models import FlightBudget, Budget, CampaignGrouping, Client, ClientCData
+from budget.models import FlightBudget, CampaignGrouping, Client, ClientCData
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault, GoogleAdsValueError, \
     GoogleAdsSoapTransportError
@@ -700,7 +700,7 @@ def adwords_cron_disapproved_alert(self, customer_id):
                     ad_group_id=ad['ad_group_id'],
                     ad_group_name=ad['ad_group'],
                     ad_headline=ad['headline_1'],
-                    campaignName=ad['campaign'],
+                    campaign_name=ad['campaign'],
                     campaign_id=ad['campaign_id'],
                 )
 
@@ -915,43 +915,6 @@ def adwords_cron_flight_dates(self, customer_id):
         spend = helper.mcv(data[0]['cost'])
         b.current_spend = spend
         b.save()
-
-
-@celery_app.task(bind=True)
-def adwords_networks_spend(self):
-    accounts = DependentAccount.objects.filter(blacklisted=False)
-
-    for account in accounts:
-        adwords_cron_budgets.delay(account.dependent_account_id)
-
-
-@celery_app.task(bind=True)
-def adwords_cron_budgets(self, customer_id):
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    client = get_client()
-    helper = AdwordsReportingService(client)
-
-    budgets = Budget.objects.filter(adwords=account)
-    this_month = helper.get_this_month_daterange()
-
-    data_this_month = helper.get_account_performance(
-        customer_id=account.dependent_account_id,
-        dateRangeType="CUSTOM_DATE",
-        extra_fields=['AdNetworkType1'],
-        **this_month
-    )
-
-    for b in budgets:
-        if b.adwords == account:
-            b.spend = 0
-            for d in data_this_month:
-                if 'All' in b.networks and len(b.networks) == 1:
-                    b.spend += helper.mcv(d['cost'])
-                if d['network'] in b.networks:
-                    b.spend += helper.mcv(d['cost'])
-            b.save()
-        else:
-            print('No budgets found on this account')
 
 
 @celery_app.task(bind=True)
@@ -1352,7 +1315,7 @@ def adwords_account_change_history(self, customer_id):
         flag = all(value == 0 for value in daily.values())
 
         # We set a boolean to find the accounts to be added to the e-mail
-        if flag:
+        if flag and account.has_ppc:
             account.ch_flag = True
             account.save()
             print('MAIL')

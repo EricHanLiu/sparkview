@@ -1083,7 +1083,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {% if account.override_difference is not None %}
+                                    {% if account.fallback_hours is not None %}
                                         <div class="m-widget1__item">
                                             <div class="row m-row--no-padding align-items-center">
                                                 <div class="col">
@@ -1091,7 +1091,7 @@
                                                     <span class="m-widget1__desc">Remaining hours leftover from override</span>
                                                 </div>
                                                 <div class="col m--align-right">
-                                                    <span class="m-widget1__number m--font-danger">{{ account.override_difference|floatformat }}</span>
+                                                    <span class="m-widget1__number m--font-danger">{{ account.fallback_hours|floatformat }}</span>
                                                 </div>
                                             </div>
                                         </div>
