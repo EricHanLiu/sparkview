@@ -362,6 +362,9 @@ class UserTestCase(TestCase):
         self.assertEquals(backup_member.allocated_hours_this_month, 1)
         self.assertEquals(member.allocated_hours_this_month, days_left_in_month - 1)
 
+        # test backup hours_this_month property
+        self.assertEquals(backup.hours_this_month, 1)  # 1 day period should have hours/days_left_in_month == 1
+
         # hours should split between members when adding a member to the backup
         backup_user_2 = User.objects.create_user(username='backup2', password='123456')
         backup_member_2 = Member.objects.create(user=backup_user_2)
@@ -390,3 +393,23 @@ class UserTestCase(TestCase):
         self.assertEquals(backup_member.allocated_hours_this_month, days_left_in_month / 2)
         self.assertEquals(backup_member_2.allocated_hours_this_month, days_left_in_month / 2)
         self.assertEquals(member.allocated_hours_this_month, 0)
+
+        # test backup hours_this_month property
+        self.assertEquals(backup.hours_this_month, days_left_in_month / 2)  # should be all away member's hours
+
+        # period that spans two months
+        start = datetime.date(now.year, now.month, 15)
+        end = datetime.date(now.year, now.month + 1, 15)
+        backup_period.delete()
+        backup.delete()
+        backup_period = BackupPeriod.objects.create(member=member, start_date=start, end_date=end)
+        backup = Backup.objects.create(account=test_account, approved=True, period=backup_period)
+        test_account.allocated_ppc_override = 10  # set hours to 10
+        test_account.save()
+
+        backup.members.add(backup_member)
+        self.assertEqual(backup.hours_this_month, 10)
+
+        backup.members.add(backup_member_2)
+        self.assertEqual(backup.hours_this_month, 5)
+
