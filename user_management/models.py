@@ -702,9 +702,11 @@ class Backup(models.Model):
     def hours_this_month(self):
         now = datetime.datetime.now()
         days_in_period = days_in_month_in_daterange(self.period.start_date, self.period.end_date, now.month, now.year)
-        if days_in_period == 0:
-            return 0.0
-        hours = round(self.account.get_hours_remaining_this_month() / days_in_period, 2)
+        last_day = calendar.monthrange(now.year, now.month)[1]
+        days_left_in_month = last_day - self.period.start_date.day + 1  # include current day
+        hours = round(
+            self.account.get_hours_remaining_this_month_member(self.period.member) * days_in_period / days_left_in_month,
+            2)
         num_members = self.members.all().count()
         hours /= num_members
         return hours

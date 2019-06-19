@@ -362,6 +362,11 @@ class Client(models.Model):
                                                  is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
 
+    def get_hours_remaining_this_month_member(self, member):
+        total_hours = self.get_allocation_this_month_member_no_backup(member)
+        hours_worked = self.get_hours_worked_this_month_member(member)
+        return total_hours - hours_worked
+
     def setup_onboarding_tasks(self):
         """
         Sets up onboarding tasks for this client
@@ -623,7 +628,7 @@ class Client(models.Model):
                         mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
         return hours
 
-    def get_allocation_this_month_member(self, member, is_backup=False):
+    def get_allocation_this_month_member_no_backup(self, member):
         percentage = 0.0
         # Boilerplate incoming
         if self.cm1 == member:
@@ -651,11 +656,14 @@ class Client(models.Model):
         if self.strat3 == member:
             percentage += self.strat3percent
 
+        mandate_hours = self.mandate_hours_this_month_member(member)
+        return round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
+
+    def get_allocation_this_month_member(self, member, is_backup=False):
         if is_backup:
             total_hours = 0
         else:
-            mandate_hours = self.mandate_hours_this_month_member(member)
-            total_hours = round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
+            total_hours = self.get_allocation_this_month_member_no_backup(member)
 
         # check for backup hours distribution
         now = datetime.datetime.now()
