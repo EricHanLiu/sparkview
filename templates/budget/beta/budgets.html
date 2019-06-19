@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Budgets (BETA) - SparkView</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <style>
+        html {
+            background: #efefef;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="{% static 'img/bloom_logo_new.png' %}" alt="SparkView">
+                <strong class="navbar-item is-tagline">
+                    SparkView
+                </strong>
+            </a>
+        </div>
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <a class="navbar-item" href="/profile">
+                    Hi, {{ user.first_name }}
+                </a>
+                {#            <div class="buttons">#}
+                {#                <a class="button is-light" href="/facebook_dashboard">#}
+                {#                    <strong>Facebook Ads</strong>#}
+                {#                </a>#}
+                {#                <a class="button is-light" href="/google_dashboard">#}
+                {#                    <strong>Google Ads</strong>#}
+                {#                </a>#}
+                {#                <a class="button is-danger" href="/logout">#}
+                {#                    <strong>Logout</strong>#}
+                {#                </a>#}
+                {#            </div>#}
+            </div>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <div class="card-content">
+                <div class="columns">
+                    <div class="column is-7">
+                        <h1 class="title">
+                            {{ account }}
+                        </h1>
+                        <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag is-medium">Status</span>
+                                    <p class="tag {{ account_status_class }} is-medium">{{ account.get_status_display }}</p>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag {% if account.adwords.all %}is-success{% endif %} is-medium">Google Ads</span>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag {% if account.facebook.all %}is-success{% endif %} is-medium">Facebook Ads</span>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag {% if account.bing.all %}is-success{% endif %} is-medium">Bing Ads</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="column is-5 has-text-right">
+                        <a class="button is-link" id="sources_btn">Sources</a>
+                        <a class="button is-link" id="add_budget_btn">Add Budget</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="card">
+            <div class="card-content">
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal" id="add_budget_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Add New Budget</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div class="modal" id="sources_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Sources</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<script>
+    document.querySelector('#add_budget_btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        let addBudgetModal = document.querySelector('#add_budget_modal');
+        let html = document.querySelector('html');
+        addBudgetModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        addBudgetModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            addBudgetModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let budgetCloseEls = addBudgetModal.querySelectorAll('.close');
+
+        budgetCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                addBudgetModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+
+    document.querySelector('#sources_btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        let sourcesModal = document.querySelector('#sources_modal');
+        let html = document.querySelector('html');
+        sourcesModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        sourcesModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            sourcesModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = sourcesModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                sourcesModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+</script>
+</body>
+</html>

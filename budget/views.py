@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 import json
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
@@ -342,6 +342,26 @@ def client_details(request, client_id):
         # adwords_tasks.cron_clients.delay()
 
         return JsonResponse(context)
+
+
+@login_required
+def budget_client_beta(request, account_id):
+    """
+    New budgets page
+    :param request:
+    :param account_id:
+    :return:
+    """
+    account = get_object_or_404(Client, id=account_id)
+    account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
+    account_status_class = account_status_classes[account.status]
+
+    context = {
+        'account': account,
+        'account_status_class': account_status_class
+    }
+
+    return render(request, 'budget/beta/budgets.html', context)
 
 
 @login_required
