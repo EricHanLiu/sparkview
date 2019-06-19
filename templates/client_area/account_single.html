@@ -1720,12 +1720,14 @@
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-ppc">
                                         {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.ppc_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ service_str }}
-                                            </option>
+                                            {% if service_num != 6 %}
+                                                <option value="{{ service_num }}"
+                                                        {% if account.sales_profile.ppc_status == service_num %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ service_str }}
+                                                </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -1737,12 +1739,14 @@
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-seo">
                                         {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.seo_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ service_str }}
-                                            </option>
+                                            {% if service_num != 6 %}
+                                                <option value="{{ service_num }}"
+                                                        {% if account.sales_profile.seo_status == service_num %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ service_str }}
+                                                </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -1754,12 +1758,14 @@
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-cro">
                                         {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.cro_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ service_str }}
-                                            </option>
+                                            {% if service_num != 6 %}
+                                                <option value="{{ service_num }}"
+                                                        {% if account.sales_profile.cro_status == service_num %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ service_str }}
+                                                </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
