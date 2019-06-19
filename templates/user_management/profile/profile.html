@@ -53,15 +53,7 @@
     </div>
 
     <div class="m-content">
-        {% with notifications=request.user|get_unread_notifications %}
-            {% if notifications.count > 0 %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    </button>
-                    <strong>Heads Up!</strong> You have unread notifications.
-                </div>
-            {% endif %}
-        {% endwith %}
+
         {% if backups.count > 0 %}
             <div class="alert alert-info alert-dismissible fade show" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -79,7 +71,7 @@
             </div>
         {% endif %}
         <!-- MAIN CONTENT -->
-        <div class="row" id="todoList">
+        <div class="row">
             <div class="col-xl-12">
                 <div class="m-portlet m-portlet--responsive-mobile-">
                     <div class="m-portlet__head">
@@ -96,32 +88,43 @@
                             </div>
                         </div>
                     </div>
-                    <div class="m-portlet__body">
-                        {% for todo in todos %}
-                            <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
-                                <div class="col-md-1">
-                                    <label class="m-checkbox pb-1">
-                                        <input type="checkbox" class="complete-todo"
-                                               data-todo-id="{{ todo.id }}"
-                                               {% if todo.completed %}disabled checked{% endif %}/>
-                                        <span></span>
-                                    </label>
-                                </div>
-                                <div class="col-md-11">
-                                    <div class="row">
-                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                    <div class="m-portlet__body" id="todoList">
+                        <div>
+                            {% for todo in todos %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-md-1">
+                                        <label class="m-checkbox pb-1">
+                                            <input type="checkbox" class="complete-todo"
+                                                   data-todo-id="{{ todo.id }}"
+                                                   {% if todo.completed %}disabled checked{% endif %}/>
+                                            <span></span>
+                                        </label>
                                     </div>
-                                    <div class="row">
+                                    <div class="col-md-10">
+                                        <div class="row">
+                                            <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                        </div>
+                                        <div class="row">
                                             <span class="badge badge-pill badge-{{ todo.colour }}">
                                                 {{ todo.get_type_display }}
                                             </span>
+                                        </div>
                                     </div>
+                                    <!-- if phase task, display resolve button -->
+                                    {% if todo.type == 3 %}
+                                        <div class="col-md-1">
+                                            <button class="btn btn-primary btn-sm"
+                                                    data-task-id="{{ todo.phase_task_id }}"
+                                                    data-toggle="modal" data-target="#resolve_task_modal">Resolve
+                                            </button>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                            </div>
-                        {% endfor %}
-                        {% if todos.count == 0 %}
-                            You're all caught up for the day!
-                        {% endif %}
+                            {% endfor %}
+                            {% if todos.count == 0 %}
+                                You're all caught up for the day!
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
