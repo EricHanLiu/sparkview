@@ -1828,15 +1828,6 @@ class CampaignGrouping(models.Model):
         return self.client.client_name + str(self.id)
 
 
-class Budget(models.Model):
-    adwords = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
-    budget = models.FloatField(default=0)
-    # client = models.ForeignKey(Client, related_name='client')
-    network_type = models.CharField(max_length=255, default='ALL')
-    networks = ArrayField(models.CharField(max_length=255), blank=True, null=True)
-    spend = models.FloatField(default=0)
-
-
 class TierChangeProposal(models.Model):
     """
     Tier change proposed by budget or management fee change

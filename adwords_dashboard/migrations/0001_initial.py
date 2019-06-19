@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('keyWordText', models.TextField(default='None')),
                 ('ad_headline', models.TextField(default='None')),
                 ('campaign_id', models.CharField(default='None', max_length=255)),
-                ('campaignName', models.CharField(default='None', max_length=255)),
+                ('campaign_name', models.CharField(default='None', max_length=255)),
                 ('keyword_match_type', models.CharField(default='None', max_length=255)),
                 ('updated_time', models.DateTimeField(auto_now=True)),
                 ('created_time', models.DateTimeField(auto_now_add=True)),

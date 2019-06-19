@@ -16,8 +16,6 @@ urlpatterns = [
     url(r"^client/accounts/add", views.assign_client_accounts),
     url(r"^client/accounts/delete", views.disconnect_client_account),
     url(r"^client/editname", views.edit_client_name),
-    url(r"^client/kpi/add", views.add_kpi),
-    url(r"^client/kpi/delete", views.delete_kpi),
     url(r"^clients/delete/$", views.delete_clients, name="deliete_clients"),
     url(r"^clientbudget/update/$", views.update_budget, name="client_budget_update"),
     url(r"^groupings/create/$", views.add_groupings, name="campaign_groupings_create"),
