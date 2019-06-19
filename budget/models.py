@@ -1505,6 +1505,29 @@ class Client(models.Model):
         return self.client_name
 
 
+class Budget(models.Model):
+    """
+    Budget object that contains rules for fetching spend from ad networks
+    """
+    GROUPING_TYPES = [(0, 'manual'), (1, 'text'), (2, 'all')]
+
+    account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, related_name='budget_account')
+    is_monthly = models.BooleanField(default=True)
+    has_adwords = models.BooleanField(default=False)
+    has_facebook = models.BooleanField(default=False)
+    has_bing = models.BooleanField(default=False)
+    grouping_type = models.IntegerField(default=2, choices=GROUPING_TYPES)
+    text_includes = models.CharField(max_length=999)
+    text_excludes = models.CharField(max_length=999)
+
+    def __str__(self):
+        return str(self.account) + ' budget'
+
+    @property
+    def is_flight(self):
+        return not self.is_monthly
+
+
 class AccountBudgetSpendHistory(models.Model):
     """
     Keeps historical data for client budget and spend
