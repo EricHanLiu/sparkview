@@ -1512,6 +1512,7 @@ class Budget(models.Model):
     GROUPING_TYPES = [(0, 'manual'), (1, 'text'), (2, 'all')]
 
     account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, related_name='budget_account')
+    budget = models.FloatField(default=0)
     is_monthly = models.BooleanField(default=True)
     has_adwords = models.BooleanField(default=False)
     has_facebook = models.BooleanField(default=False)
@@ -1519,6 +1520,15 @@ class Budget(models.Model):
     grouping_type = models.IntegerField(default=2, choices=GROUPING_TYPES)
     text_includes = models.CharField(max_length=999)
     text_excludes = models.CharField(max_length=999)
+    aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='budget_aw_campaigns')
+    aw_spend = models.FloatField(default=0)
+    aw_yspend = models.FloatField(default=0)
+    bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='budget_bing_campaigns')
+    bing_spend = models.FloatField(default=0)
+    bing_yspend = models.FloatField(default=0)
+    fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='budget_facebook_campaigns')
+    fb_spend = models.FloatField(default=0)
+    fb_yspend = models.FloatField(default=0)
 
     def __str__(self):
         return str(self.account) + ' budget'
