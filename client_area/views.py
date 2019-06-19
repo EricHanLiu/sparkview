@@ -1286,7 +1286,7 @@ def edit_promos(request):
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=backups))
+    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=member.backup_accounts))
 
     if request.method == 'POST':
         promo_id = request.POST.get('promo_id')
