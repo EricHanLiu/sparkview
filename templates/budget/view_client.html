@@ -209,7 +209,7 @@
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="submitFlightBudget()">Submit
+                        <button type="button" class="btn btn-success btn-sm">Submit
                         </button>
                     </div>
                     <div class="col-md-4"></div>
@@ -249,7 +249,7 @@
                 <div class="modal-footer">
                     <div class="col-md-4"></div>
                     <div class="col-md-4 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="updateFlightBudget()">Submit
+                        <button type="button" class="btn btn-success btn-sm" onclick="">Submit
                         </button>
                     </div>
                     <div class="col-md-4"></div>
@@ -272,7 +272,7 @@
                 <div class="modal-footer">
                     <div class="col-md-2"></div>
                     <div class="col-md-8 text-center">
-                        <button type="button" class="btn btn-success btn-sm" onclick="deleteFlightBudget()">Yes</button>
+                        <button type="button" class="btn btn-success btn-sm">Yes</button>
                         <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal" aria-label="No">No
                         </button>
                     </div>
@@ -1098,107 +1098,6 @@
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
-                }
-            });
-        }
-
-        function submitFlightBudget() {
-
-            var modal = $("#m_add_flight_dates");
-            var start_date = $('.sdate').val();
-            var end_date = $('.edate').val();
-            var budget = $('.fbudget').val();
-            var acc_id = $("#fd_acc_id").val();
-            var channel = $("#fd_acc_channel").val();
-
-            var data = JSON.stringify({
-                'sdate': start_date,
-                'edate': end_date,
-                'budget': budget,
-                'acc_id': acc_id,
-                'channel': channel,
-            });
-
-            $.ajax({
-                type: "POST",
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                url: '/budget/fbudget/create/',
-                data: data,
-                complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
-                },
-                success: function () {
-                    modal.modal('hide');
-                    toastr.success("Budget succesfully added to the database.");
-                },
-                error: function (ajaxContext) {
-                    toastr.error(ajaxContext.statusText);
-                }
-            })
-        }
-
-        function updateFlightBudget() {
-
-            var modal = $("#m_edit_flight_date");
-            var start_date = $('#m_datepicker_3').val();
-            var end_date = $('#m_datepicker_4').val();
-            var budget = $('.fbudget_edit').val();
-            var budget_id = $("#fde_budget_id").val();
-
-            var data = JSON.stringify({
-                'sdate': start_date,
-                'edate': end_date,
-                'budget': budget,
-                'budget_id': budget_id,
-            });
-
-            $.ajax({
-                type: "POST",
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                url: '/budget/fbudget/update/',
-                data: data,
-                complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
-                },
-                success: function () {
-                    modal.modal('hide');
-                    toastr.success("Budget succesfully updated.")
-                },
-                error: function (ajaxContext) {
-                    toastr.error(ajaxContext.statusText)
-                }
-            })
-        }
-
-        function deleteFlightBudget() {
-
-            var modal = $("#m_delete_flight_date");
-            var budget_id = $("#fid").val();
-
-            var data = JSON.stringify({
-                'budget_id': budget_id,
-            });
-
-            $.ajax({
-                url: '/budget/fbudget/delete/',
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                type: 'POST',
-                data: data,
-                success: function () {
-                    modal.modal('hide');
-                    toastr.success("Budget succesfully updated.")
-                },
-                error: function (ajaxContext) {
-                    toastr.error(ajaxContext.statusText);
-                },
-                complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1200);
                 }
             });
         }

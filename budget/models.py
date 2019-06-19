@@ -1587,16 +1587,6 @@ class ClientHist(models.Model):
     hist_fb_budget = models.FloatField(default=0)
 
 
-class FlightBudget(models.Model):
-    budget = models.FloatField(default=0)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    current_spend = models.FloatField(default=0)
-    adwords_account = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
-    bing_account = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
-    facebook_account = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
-
-
 class CampaignGrouping(models.Model):
     TYPE_CHOICES = [(0, 'all'), (1, 'manual'), (2, 'text')]
 

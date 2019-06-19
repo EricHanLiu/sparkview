@@ -10,7 +10,7 @@ from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from adwords_dashboard.cron_scripts import get_accounts
-from budget.models import FlightBudget, CampaignGrouping, Client, ClientCData
+from budget.models import CampaignGrouping, Client, ClientCData
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault, GoogleAdsValueError, \
     GoogleAdsSoapTransportError
@@ -887,34 +887,6 @@ def adwords_cron_adgroup_stats(self, customer_id):
         ag.campaign_cost = cost
         ag.adgroup_name = adgroup['ad_group']
         ag.save()
-
-
-@celery_app.task(bind=True)
-def adwords_flight_dates(self):
-    aw = DependentAccount.objects.filter(blacklisted=False)
-
-    for a in aw:
-        adwords_cron_flight_dates.delay(a.dependent_account_id)
-
-
-@celery_app.task(bind=True)
-def adwords_cron_flight_dates(self, customer_id):
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    client = get_client()
-    helper = AdwordsReportingService(client)
-
-    budgets = FlightBudget.objects.filter(adwords_account=account)
-
-    for b in budgets:
-        date_range = helper.create_daterange(b.start_date, b.end_date)
-        data = helper.get_account_performance(
-            customer_id=account.dependent_account_id,
-            dateRangeType="CUSTOM_DATE",
-            **date_range
-        )
-        spend = helper.mcv(data[0]['cost'])
-        b.current_spend = spend
-        b.save()
 
 
 @celery_app.task(bind=True)

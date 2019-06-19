@@ -3,7 +3,6 @@ from bloom import celery_app, settings
 from bloom.utils import FacebookReportingService
 from datetime import datetime
 from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
-from budget.models import FlightBudget, CampaignGrouping, Client
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
 from facebook_business.adobjects.adaccount import AdAccount
@@ -466,42 +465,6 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
             print('Cant find ' + acc_cmp.campaign_name + ', setting cost to $0.0')
             acc_cmp.campaign_cost = 0
             acc_cmp.save()
-
-
-@celery_app.task(bind=True)
-def facebook_flight_dates(self):
-    fb = FacebookAccount.objects.filter(blacklisted=False)
-
-    for f in fb:
-        facebook_cron_flight_dates.delay(f.account_id)
-
-
-@celery_app.task(bind=True)
-def facebook_cron_flight_dates(self, customer_id):
-    fields = [
-        'spend',
-    ]
-
-    account = FacebookAccount.objects.get(account_id=customer_id)
-    helper = FacebookReportingService(facebook_init())
-
-    budgets = FlightBudget.objects.filter(facebook_account=account)
-
-    for b in budgets:
-        date_range = helper.get_custom_date_range(b.start_date, b.end_date)
-        params = helper.set_params(
-            time_range=date_range,
-            level='account',
-        )
-        data = helper.get_account_insights(
-            account.account_id,
-            params=params,
-            extra_fields=fields
-        )
-
-        spend = data[0]['spend']
-        b.current_spend = spend
-        b.save()
 
 
 @celery_app.task(bind=True)

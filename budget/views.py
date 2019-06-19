@@ -9,7 +9,7 @@ from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, ClientCData, BudgetUpdate
+from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate
 from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
@@ -261,7 +261,6 @@ def client_details(request, client_id):
 
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
-        fbudgets = FlightBudget.objects.all()
         cmp_groupings = CampaignGrouping.objects.filter(client=client)
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
@@ -282,7 +281,6 @@ def client_details(request, client_id):
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
             'chdata': chdata_json[0]['fields'] if chdata_json else {},
-            'fbudgets': fbudgets,
             'status_badges': status_badges,
             'groupings': cmp_groupings,
             'budget_updated_for_month': budget_updated_for_month
@@ -485,21 +483,12 @@ def flight_dates(request):
 
         if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
-            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-            #                             adwords_account=account)
-            # adwords_tasks.adwords_cron_flight_dates.delay(account.dependent_account_id)
 
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
-            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-            #                             bing_account=account)
-            # bing_tasks.bing_cron_flight_dates.delay(account.account_id)
 
         elif channel == 'facebook':
             account = FacebookAccount.objects.get(account_id=acc_id)
-            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-            #                             facebook_account=account)
-            # facebook_tasks.facebook_cron_flight_dates.delay(account.account_id)
 
         account.desired_spend_start_date = datetime.strptime(start_date, '%Y-%m-%d')
         account.desired_spend_end_date = datetime.strptime(end_date, '%Y-%m-%d')
@@ -522,21 +511,18 @@ def detailed_flight_dates(request):
     if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
         context['account'] = account
-        context['budgets'] = FlightBudget.objects.filter(adwords_account=account)
         context['platform_type'] = 'AW'
         return render(request, 'budget/flight_dates.html', context)
 
     if channel == 'bing':
         account = BingAccounts.objects.get(account_id=account_id)
         context['account'] = account
-        context['budgets'] = FlightBudget.objects.filter(bing_account=account)
         context['platform_type'] = 'BING'
         return render(request, 'budget/flight_dates.html', context)
 
     if channel == 'facebook':
         account = FacebookAccount.objects.get(account_id=account_id)
         context['account'] = account
-        context['budgets'] = FlightBudget.objects.filter(facebook_account=account)
         context['platform_type'] = 'FACEBOOK'
         return render(request, 'budget/flight_dates.html', context)
 
@@ -964,47 +950,6 @@ def update_budget(request):
         }
 
         # adwords_tasks.cron_clients.delay()
-        return JsonResponse(context)
-
-
-# Update flight budgets
-@login_required
-def update_fbudget(request):
-    context = {}
-
-    if request.method == 'POST':
-
-        data = json.loads(request.body.decode('utf-8'))
-        budget_id = data['budget_id']
-        budget = data['budget']
-        sdate = data['sdate']
-        edate = data['edate']
-        fbudget = FlightBudget.objects.get(id=budget_id)
-        fbudget.budget = budget
-        fbudget.start_date = sdate
-        fbudget.end_date = edate
-        fbudget.save()
-
-        if fbudget.adwords_account is not None:
-            adwords_tasks.adwords_cron_flight_dates.delay(fbudget.adwords_account.dependent_account_id)
-        elif fbudget.bing_account is not None:
-            bing_tasks.bing_cron_flight_dates.delay(fbudget.bing_account.account_id)
-        elif fbudget.facebook_account is not None:
-            facebook_tasks.facebook_cron_flight_dates.delay(fbudget.facebook_account.account_id)
-
-        return JsonResponse(context)
-
-
-# Delete flight budgets
-@login_required
-def delete_fbudget(request):
-    if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
-        fbudget = FlightBudget.objects.get(id=data['budget_id'])
-        fbudget.delete()
-
-        context = {}
-
         return JsonResponse(context)
 
 

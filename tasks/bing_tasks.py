@@ -6,7 +6,6 @@ from bloom.utils.service import BingService
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts, BingCampaign
 from bing_dashboard import auth
 from bingads import ServiceClient
-from budget.models import FlightBudget, CampaignGrouping, Client
 from bloom.settings import EMAIL_HOST_USER, TEMPLATE_DIR
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -416,38 +415,6 @@ def bing_campaigns(self):
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for acc in accounts:
         bing_cron_campaign_stats.delay(acc.account_id)
-
-
-@celery_app.task(bind=True)
-def bing_flight_dates(self):
-    bing = BingAccounts.objects.filter(blacklisted=False)
-    for b in bing:
-        bing_cron_flight_dates.delay(b.account_id)
-
-
-@celery_app.task(bind=True)
-def bing_cron_flight_dates(self, customer_id):
-    fields = [
-        'Spend'
-    ]
-
-    account = BingAccounts.objects.get(account_id=customer_id)
-    helper = BingReportingService()
-
-    budgets = FlightBudget.objects.filter(bing_account=account)
-
-    for b in budgets:
-        date_range = helper.create_daterange(b.start_date, b.end_date)
-        data = helper.get_account_performance(
-            account_id=account.account_id,
-            dateRangeType="CUSTOM_DATE",
-            report_name="account_flight_dates",
-            extra_fields=fields,
-            **date_range
-        )
-        spend = sum([float(item['spend']) for item in data])
-        b.current_spend = spend
-        b.save()
 
 
 @celery_app.task(bind=True)
