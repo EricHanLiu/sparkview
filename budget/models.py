@@ -623,7 +623,7 @@ class Client(models.Model):
                         mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
         return hours
 
-    def get_allocation_this_month_member(self, member):
+    def get_allocation_this_month_member(self, member, is_backup=False):
         percentage = 0.0
         # Boilerplate incoming
         if self.cm1 == member:
@@ -651,31 +651,33 @@ class Client(models.Model):
         if self.strat3 == member:
             percentage += self.strat3percent
 
-        mandate_hours = self.mandate_hours_this_month_member(member)
-        total_hours = round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
+        if is_backup:
+            total_hours = 0
+        else:
+            mandate_hours = self.mandate_hours_this_month_member(member)
+            total_hours = round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
 
         # check for backup hours distribution
         now = datetime.datetime.now()
         # deduct hours from away member
         try:
             potential_backup = Backup.objects.get(period__member=member, account=self, period__start_date__lte=now,
-                                                  period__end_date__gte=now)
+                                                  period__end_date__gte=now, approved=True)
             hours_to_deduct = potential_backup.hours_this_month
             num_members = potential_backup.members.all().count()
-            if num_members > 0:
-                hours_to_deduct *= num_members
+            hours_to_deduct *= num_members
             total_hours -= hours_to_deduct
         except Backup.DoesNotExist:
             pass
 
-        # add hours to backup member
-        potential_backups = Backup.objects.filter(members__in=[member], account=self, period__start_date__lte=now,
-                                                  period__end_date__gte=now)
-        print(potential_backups)  # returns 0
-        if potential_backups.count() > 0:
-            for backup in potential_backups:
-                hours = backup.hours_this_month
-                total_hours += hours
+        if is_backup:
+            # add hours to backup member
+            potential_backups = Backup.objects.filter(members__in=[member], period__start_date__lte=now,
+                                                      period__end_date__gte=now, approved=True, account=self)
+            if potential_backups.count() > 0:
+                for backup in potential_backups:
+                    hours = backup.hours_this_month
+                    total_hours += hours
 
         return total_hours
 

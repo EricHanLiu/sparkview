@@ -364,6 +364,8 @@ class Member(models.Model):
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)
+            for account in self.backup_accounts:
+                hours += account.get_allocation_this_month_member(self, True)
             self._allocated_hours_month = round(hours, 2)
         return self._allocated_hours_month
 
@@ -704,8 +706,7 @@ class Backup(models.Model):
             return 0.0
         hours = round(self.account.get_hours_remaining_this_month() / days_in_period, 2)
         num_members = self.members.all().count()
-        if num_members > 0:
-            hours /= num_members
+        hours /= num_members
         return hours
 
     @property
