@@ -1215,12 +1215,17 @@ def star_account(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    flagged = request.POST.get('flagged') == 'True'
     bc_link = request.POST.get('bc_link')
-    if bc_link is None or bc_link == '':
+    if (bc_link is None or bc_link == '') and flagged:
         return HttpResponse('You need to enter a basecamp link to flag an account')
 
     account = Client.objects.get(id=account_id)
-    # set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
+
+    if not flagged:
+        account.star_flag = False
+        account.save()
+        return redirect('/clients/accounts/' + str(account.id))
 
     now = datetime.datetime.now()
     account.flagged_bc_link = bc_link
