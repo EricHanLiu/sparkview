@@ -611,19 +611,19 @@ def members_single(request, id=0):
 
     star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
 
-    accountHours = {}
-    accountAllocation = {}
+    account_hours = {}
+    account_allocation = {}
     for account in accounts:
         hours = account.get_hours_worked_this_month_member(member)
-        accountHours[account.id] = hours
-        accountAllocation[account.id] = account.get_allocation_this_month_member(member)
+        account_hours[account.id] = hours
+        account_allocation[account.id] = account.get_allocation_this_month_member(member)
 
-    backupAccountHours = {}
-    backupAccountAllocation = {}
+    backup_account_hours = {}
+    backup_account_allocation = {}
     for backup in backups:
         hours = backup.account.get_hours_worked_this_month_member(member)
-        backupAccountHours[backup.account.id] = hours
-        backupAccountAllocation[backup.account.id] = backup.account.get_allocation_this_month_member(member, True)
+        backup_account_hours[backup.account.id] = hours
+        backup_account_allocation[backup.account.id] = backup.account.get_allocation_this_month_member(member, True)
 
     mandate_assignments = member.active_mandate_assignments
     mandates = [assignment.mandate for assignment in mandate_assignments]
@@ -638,10 +638,10 @@ def members_single(request, id=0):
         todos = Todo.objects.filter(member=member, completed=False, date_created=today)
 
     context = {
-        'accountHours': accountHours,
-        'accountAllocation': accountAllocation,
-        'backupAccountAllocation': backupAccountAllocation,
-        'backupAccountHours': backupAccountHours,
+        'account_hours': account_hours,
+        'account_allocation': account_allocation,
+        'backup_account_allocation': backup_account_allocation,
+        'backup_account_hours': backup_account_hours,
         'member': member,
         'accounts': accounts,
         'onboarding_accounts': onboarding_accounts,
