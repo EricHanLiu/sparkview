@@ -11,7 +11,7 @@ nohup.out
 config.sh
 bing_dashboard/bing_creds
 budget/management
-#bing_reports
+bing_reports/*.csv
 response.txt
 dump.rdb
 celerybeat-schedule
