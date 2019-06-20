@@ -289,27 +289,30 @@
                                     </div>
                                 {% endfor %}
                                 {% for backup in backups %}
-                                    <div class="m-card-profile">
-                                        <div class="m-card-profile__pic">
-                                            <div class="m-card-profile__pic-wrapper">
-                                                {% if backup.member.image != None %}
-                                                    <img src="{% static 'img/bloomers/'|add:backup.member.image %}"/>
-                                                {% else %}
-                                                    <img src="{% static 'assets/app/media/img/user4.jpg' %}" alt=""/>
-                                                {% endif %}
+                                    {% for member in backup.members.all %}
+                                        <div class="m-card-profile">
+                                            <div class="m-card-profile__pic">
+                                                <div class="m-card-profile__pic-wrapper">
+                                                    {% if member.image != None %}
+                                                        <img src="{% static 'img/bloomers/'|add:member.image %}"/>
+                                                    {% else %}
+                                                        <img src="{% static 'assets/app/media/img/user4.jpg' %}"
+                                                             alt=""/>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="m-card-profile__details">
+                                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                                    {% if request.user.is_staff %}
+                                                        <a href="/user_management/members/{{ member.id }}">{% endif %}{{ member.user.get_full_name }}
+                                                    {% if request.user.is_staff %}</a>{% endif %}</h3>
+                                                <span class="m-badge m-badge--wide"
+                                                      style="background: #AA43DE; color: white;">Backup</span>
+                                                <br/>
+                                                <span data-toggle="m-tooltip">{{ backup.period.start_date }} - {{ backup.period.end_date }}</span>
                                             </div>
                                         </div>
-                                        <div class="m-card-profile__details">
-                                            <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                                                {% if request.user.is_staff %}
-                                                    <a href="/user_management/members/{{ backup.member.id }}">{% endif %}{{ backup.member.user.get_full_name }}
-                                                {% if request.user.is_staff %}</a>{% endif %}</h3>
-                                            <span class="m-badge m-badge--wide"
-                                                  style="background: #AA43DE; color: white;">Backup</span>
-                                            <br/>
-                                            <span data-toggle="m-tooltip">{{ backup.period.start_date }} - {{ backup.period.end_date }}</span>
-                                        </div>
-                                    </div>
+                                    {% endfor %}
                                 {% endfor %}
                                 {% if account.team_lead_override != None and account.team_lead_override != '' %}
                                     <div class="m-card-profile">
@@ -1722,12 +1725,14 @@
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-ppc">
                                         {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.ppc_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ service_str }}
-                                            </option>
+                                            {% if service_num != 6 %}
+                                                <option value="{{ service_num }}"
+                                                        {% if account.sales_profile.ppc_status == service_num %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ service_str }}
+                                                </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -1739,12 +1744,14 @@
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-seo">
                                         {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.seo_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ service_str }}
-                                            </option>
+                                            {% if service_num != 6 %}
+                                                <option value="{{ service_num }}"
+                                                        {% if account.sales_profile.seo_status == service_num %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ service_str }}
+                                                </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -1756,12 +1763,14 @@
                                 <div class="col-4">
                                     <select class="form-control update-service" name="set-cro">
                                         {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
-                                            <option value="{{ service_num }}"
-                                                    {% if account.sales_profile.cro_status == service_num %}
-                                                    selected
-                                                    {% endif %}>
-                                                {{ service_str }}
-                                            </option>
+                                            {% if service_num != 6 %}
+                                                <option value="{{ service_num }}"
+                                                        {% if account.sales_profile.cro_status == service_num %}
+                                                        selected
+                                                        {% endif %}>
+                                                    {{ service_str }}
+                                                </option>
+                                            {% endif %}
                                         {% endfor %}
                                     </select>
                                 </div>

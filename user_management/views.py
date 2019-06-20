@@ -177,35 +177,6 @@ def member_dashboard(request, id):
     except ZeroDivisionError:
         allocation_ratio = 0.0
 
-    # MONTHLY REPORTS INFO
-    # The following two lines get the month and year of the month before the selected month
-    # For reporting, I believe this is the logic we want to use
-    # Reason: If you select March 2019, it is actually the February 2019 reports being completed that month
-    monthly_report_year = year - 1 if month == 1 else year
-    monthly_report_month = month - 1 if month != 1 else 12
-    reports = MonthlyReport.objects.filter(year=monthly_report_year, month=monthly_report_month, no_report=False,
-                                           account__in=accounts)
-    # get reports that haven't been sent by am (not sent to client)
-    outstanding_reports = reports.filter(date_sent_by_am=None)
-
-    complete_reports = reports.exclude(date_sent_by_am=None).count()
-    report_count = reports.count()
-
-    completion_rate = 0.0
-    if report_count != 0.0:
-        completion_rate = 100.0 * complete_reports / report_count
-
-    ontime_numer = 0.0
-    ontime_denom = 0.0
-    for report in reports:
-        if report.complete_ontime:
-            ontime_numer += 1
-        ontime_denom += 1
-
-    ontime_rate = 0.0
-    if ontime_denom != 0:
-        ontime_rate = 100.0 * ontime_numer / ontime_denom
-
     # PROMO INFO
     today = datetime.datetime.now().date()
     tomorrow = today + datetime.timedelta(1)
@@ -214,13 +185,10 @@ def member_dashboard(request, id):
     this_month = datetime.datetime(today.year, today.month, 1)
     next_month = datetime.datetime(today.year, today.month + 1 if today.month != 12 else 1, 1)
 
-    promos_month = Promo.objects.filter(start_date__gte=this_month,
-                                        end_date__lt=next_month,
-                                        account__in=accounts) if load_everything else None
-    promos_start_today = promos_month.filter(start_date__gte=today_start,
-                                             start_date__lt=today_end) if load_everything else None
-    promos_end_today = promos_month.filter(end_date__gte=today_start,
-                                           end_date__lt=today_end) if load_everything else None
+    promos_start_today = Promo.objects.filter(start_date__gte=today_start,
+                                              start_date__lt=today_end) if load_everything else None
+    promos_end_today = Promo.objects.filter(end_date__gte=today_start,
+                                            end_date__lt=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
@@ -265,9 +233,7 @@ def member_dashboard(request, id):
         for account in underspend_accounts:
             total_projected_loss += account.projected_loss
 
-    # NOTIFICATIONS INFO
-    num_outstanding_notifs = Notification.objects.filter(confirmed=False,
-                                                         member__in=members).count() if load_everything else None
+    # 90 DAYS NOTIFICATIONS INFO
     num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
                                                                  account__in=accounts).count() if load_everything else None
 
@@ -287,12 +253,8 @@ def member_dashboard(request, id):
         'total_hours_trained': training_aggregate,
         'filtered_teams': filtered_teams,
         'filtered_roles': filtered_roles,
-        'completion_rate': completion_rate,
-        'ontime_rate': ontime_rate,
-        'outstanding_reports': outstanding_reports,
         'promos_start_today': promos_start_today,
         'promos_end_today': promos_end_today,
-        'promos_week': promos_month,
         'onboarding_accounts': onboarding_accounts,
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,
@@ -305,7 +267,6 @@ def member_dashboard(request, id):
         'top_five_underspend': top_five_underspend,
         'num_underspend': num_underspend,
         'total_projected_loss': total_projected_loss,
-        'num_outstanding_notifs': num_outstanding_notifs,
         'num_outstanding_90_days': num_outstanding_90_days,
         'flagged_accounts': flagged_accounts,
         'members': members,
@@ -605,18 +566,25 @@ def members_single(request, id=0):
     ).filter(status=0).order_by('client_name')
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
     backing_me = backup_periods.filter(member=member)
 
     star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
 
-    accountHours = {}
-    accountAllocation = {}
+    account_hours = {}
+    account_allocation = {}
     for account in accounts:
         hours = account.get_hours_worked_this_month_member(member)
-        accountHours[account.id] = hours
-        accountAllocation[account.id] = account.get_allocation_this_month_member(member)
+        account_hours[account.id] = hours
+        account_allocation[account.id] = account.get_allocation_this_month_member(member)
+
+    backup_account_hours = {}
+    backup_account_allocation = {}
+    for backup in backups:
+        hours = backup.account.get_hours_worked_this_month_member(member)
+        backup_account_hours[backup.account.id] = hours
+        backup_account_allocation[backup.account.id] = backup.account.get_allocation_this_month_member(member, True)
 
     mandate_assignments = member.active_mandate_assignments
     mandates = [assignment.mandate for assignment in mandate_assignments]
@@ -631,8 +599,10 @@ def members_single(request, id=0):
         todos = Todo.objects.filter(member=member, completed=False, date_created=today)
 
     context = {
-        'accountHours': accountHours,
-        'accountAllocation': accountAllocation,
+        'account_hours': account_hours,
+        'account_allocation': account_allocation,
+        'backup_account_allocation': backup_account_allocation,
+        'backup_account_hours': backup_account_hours,
         'member': member,
         'accounts': accounts,
         'onboarding_accounts': onboarding_accounts,
@@ -724,24 +694,26 @@ def members_single_reports(request, id):
     reporting_period = now.day <= 31
     reports = []
 
-    accounts = Client.objects.filter(
+    accounts = list(Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
         Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=1).order_by('client_name')
+    ).filter(status=1).order_by('client_name'))
+    non_backups_length = len(accounts)  # for determining where backup accounts are in the list
+
+    accounts.extend(list(member.backup_accounts))
+    with_backups_length = len(accounts)
 
     first_weekday, days_in_month = calendar.monthrange(now.year, now.month)
 
     if reporting_period:
-        active_accounts = accounts.filter(status=1)
-        # reporting_accounts = active_accounts | member.inactive_lost_accounts_last_month
         if last_month == 0:
             last_month = 12
         if now.day == days_in_month:
             last_month = month  # Last day of month, show the current month so we can set stuff
         # TODO: Fix the following boiler plate
-        for account in active_accounts:
+        for account in accounts:
             report, created = MonthlyReport.objects.get_or_create(account=account, month=last_month, year=year)
             if created:
                 if account.tier == 1 or account.advanced_reporting:
@@ -765,6 +737,8 @@ def members_single_reports(request, id):
     context = {
         'member': member,
         'reports': reports,
+        'non_backups_length': non_backups_length,
+        'with_backups_length': with_backups_length,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
         'reporting_year': year
@@ -966,12 +940,15 @@ def input_hours_profile(request, id):
         raise Http404('The member associated with this ID does not exist!')
 
     if request.method == 'GET':
-        accounts = Client.objects.filter(
+        accounts = list(Client.objects.filter(
             Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name'))
+        non_backups_length = len(accounts)  # for knowing where the backup accounts are in the list
+
+        accounts.extend(list(member.backup_accounts))  # add backup accounts
 
         all_accounts = Client.objects.all().order_by('client_name')
 
@@ -994,6 +971,7 @@ def input_hours_profile(request, id):
             'member': member,
             'all_accounts': all_accounts,
             'accounts': accounts,
+            'non_backups_length': non_backups_length,
             'months': months,
             'monthnow': monthnow,
             'years': years,
@@ -1010,7 +988,7 @@ def input_hours_profile(request, id):
             Q(am1=member) | Q(am2=member) | Q(am3=member) |
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-        ).filter(Q(status=0) | Q(status=1)).order_by('client_name')
+        ).filter(Q(status=0) | Q(status=1)).order_by('client_name') | member.backup_accounts
         accounts_count = accounts.count()
 
         for i in range(accounts_count):
@@ -1328,8 +1306,8 @@ def backup_event(request, backup_period_id):
     if request.method == 'POST':
         form_type = request.POST.get('type')
         if form_type == 'backup':
-            member_id = request.POST.get('member')
-            member = Member.objects.get(id=member_id)
+            member_ids = request.POST.getlist('members')
+            members = Member.objects.filter(id__in=member_ids)
             account_id = request.POST.get('account')
             try:
                 account = Client.objects.get(id=account_id)
@@ -1345,7 +1323,7 @@ def backup_event(request, backup_period_id):
             except Backup.DoesNotExist:
                 return HttpResponse('That backup does not exist')
             b.account = account
-            b.member = member
+            b.members.set(members)
             b.bc_link = bc_link
             b.save()
 
