@@ -274,87 +274,6 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-xl-6">
-                <div class="m-portlet m-portlet--responsive-mobile-">
-                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#monthly-body">
-                        <div class="m-portlet__head-caption">
-                            <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text">
-                                    Monthly Reports
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="collapse show" id="monthly-body">
-                        <div class="m-portlet__body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded"
-                                         data-toggle="m-tooltip"
-                                         data-original-title="Percentage of reports sent to client before due date">
-                                        <h3 class="text-center text-info p-2">
-                                            On Time Percentage
-                                        </h3>
-                                        <h1 class="text-center text-info" id="ontime-display">
-                                            {{ ontime_rate|floatformat:2 }}%
-                                        </h1>
-                                        <canvas id="ontime-chart" height="200px"></canvas>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded"
-                                         data-toggle="m-tooltip"
-                                         data-original-title="Percentage of reports sent">
-                                        <h3 class="text-center text-danger p-2">
-                                            Completion Percentage
-                                        </h3>
-                                        <h1 class="text-center text-danger" id="completion-display">
-                                            {{ completion_rate|floatformat:2 }}%
-                                        </h1>
-                                        <canvas id="completion-chart" height="200px"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row pt-5">
-                                <div class="col-md-12 table-wrapper">
-                                    <h3 class="text-center">
-                                        Outstanding Monthly Reports
-                                    </h3>
-                                    <table class="table order-column table-hover dataTable my_clients_datatable"
-                                           style="table-layout: fixed;">
-                                        <thead class="thead-light">
-                                        <tr class="main-table-header">
-                                            <th>Report Name</th>
-                                            <th>Due Date</th>
-                                            <th>Date Sent to AM</th>
-                                            <th>Date Sent to Client</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for report in outstanding_reports %}
-                                            <tr>
-                                                <td>
-                                                    {{ report }}
-                                                </td>
-                                                <td>
-                                                    {{ report.due_date }}
-                                                </td>
-                                                <td>
-                                                    {{ report.date_sent_to_am }}
-                                                </td>
-                                                <td>
-                                                    {{ report.date_sent_by_am }}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {% if load_everything %}
                 <div class="col-xl-6">
                     <div class="m-portlet m-portlet--responsive-mobile-">
@@ -456,10 +375,8 @@
                     </div>
                 </div>
             {% endif %}
-        </div>
-        {% if load_everything %}
-            <div class="row">
-                <div class="col-xl-12">
+            {% if load_everything %}
+                <div class="col-xl-6">
                     <div class="m-portlet m-portlet--responsive-mobile-">
                         <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#promos-body">
                             <div class="m-portlet__head-caption">
@@ -576,21 +493,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row pt-5">
-                                    <div class="col-12">
-                                        <h3>
-                                            Promos This Week
-                                        </h3>
-                                        <hr/>
-                                        <div id="calendar-view"></div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+                </div>
+            {% endif %}
         {% if load_everything %}
             <div class="row">
                 <div class="col-xl-12">
@@ -781,7 +689,7 @@
                             <div class="m-portlet__head-caption">
                                 <div class="m-portlet__head-title">
                                     <h3 class="m-portlet__head-text">
-                                        Notifications
+                                        Outstanding 90 Days Notifications
                                     </h3>
                                 </div>
                             </div>
@@ -789,43 +697,6 @@
                         <div class="collapse show" id="notifs-body">
                             <div class="m-portlet__body">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-info p-2">
-                                                Outstanding Notifications
-                                            </h3>
-                                            <h1 class="text-center text-info">
-                                                {{ num_outstanding_notifs }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 table-wrapper">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <table class="table order-column table-hover dataTable my_clients_datatable"
-                                                   style="table-layout: fixed;">
-                                                <thead class="thead-light">
-                                                <tr class="main-table-header">
-                                                    <th>Member</th>
-                                                    <th>Outstanding Notifications</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for member in members %}
-                                                    <tr>
-                                                        <td>
-                                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
-                                                        </td>
-                                                        <td>
-                                                            {{ member.unread_notifications|length }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row mt-5">
                                     <div class="col-md-4">
                                         <div class="bbox shadow p-4 bg-white rounded w-100">
                                             <h3 class="text-center text-danger p-2">
@@ -1051,93 +922,8 @@
             });
         }
 
-        // ontime percentage bar chart
-        let ontimePercentage = parseInt($('#ontime-display').text());
-        // display 100 if greater than
-        ontimePercentage = ontimePercentage > 100 ? 100 : ontimePercentage;
-        let ctx3 = $('#ontime-chart')[0].getContext('2d');
-
-        function buildChartOntime() {
-            new Chart(ctx3, {
-                type: 'horizontalBar',
-                data: {
-                    datasets: [{
-                        data: [ontimePercentage],
-                        backgroundColor: [
-                            'rgb(54, 163, 247, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(54, 163, 247, 0.7)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            barPercentage: 0.5
-                        }],
-                        xAxes: [{
-                            ticks: {
-                                min: 0,
-                                max: 100
-                            }
-                        }]
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        enabled: false
-                    }
-                }
-            });
-        }
-
-        // completion percentage bar chart
-        let completionPercentage = parseInt($('#completion-display').text());
-        // display 100 if greater than
-        completionPercentage = completionPercentage > 100 ? 100 : completionPercentage;
-        let ctx4 = $('#completion-chart')[0].getContext('2d');
-
-        function buildChartCompletion() {
-            new Chart(ctx4, {
-                type: 'horizontalBar',
-                data: {
-                    datasets: [{
-                        data: [completionPercentage],
-                        backgroundColor: [
-                            'rgb(244, 81, 108, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(244, 81, 108, 0.7)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            barPercentage: 0.5
-                        }],
-                        xAxes: [{
-                            ticks: {
-                                min: 0,
-                                max: 100
-                            }
-                        }]
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        enabled: false
-                    }
-                }
-            });
-        }
         {% if load_everything %}
-            // completion percentage bar chart
+            // onboarding percentage bar chart
             let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
             // display 100 if greater than
             onboardingLatePercentage = onboardingLatePercentage > 100 ? 100 : onboardingLatePercentage;
@@ -1226,33 +1012,6 @@
                     }
                 });
             }
-
-            // calendar view of promos
-            $(document).ready(() => {
-                /**
-                 * Calendar
-                 */
-                $('#calendar-view').fullCalendar({
-                    header: {
-                        left: "prev, next",
-                        center: "title",
-                        right: "today"
-                    },
-                    aspectRatio: 2.5,
-                    defaultDate: moment(),
-                    defaultView: 'month',
-                    events: [
-                        {% for promo in promos_week %}
-                            {
-                                title: "{{ promo }}",
-                                description: "{{ promo.desc }}",
-                                start: moment("{{ promo.formatted_start }}"),
-                                end: moment("{{ promo.formatted_end }}")
-                            }{% if not forloop.last %},{% endif %}
-                        {% endfor %}
-                    ]
-                });
-            });
         {% endif %}
         // HANDLE DYNAMIC CHART LOADING
 
@@ -1261,11 +1020,9 @@
         let charts = [
             {id: '#capacity-chart', viewed: false},
             {id: '#utilization-chart', viewed: false},
-            {id: '#ontime-chart', viewed: false},
-            {id: '#completion-chart', viewed: false},
             {id: '#onboarding-late-chart', viewed: false},
             {id: '#budget-updated-chart', viewed: false}];
-        let functionNames = ['Capacity', 'Utilization', 'Ontime', 'Completion', 'Onboarding', 'Budget'];
+        let functionNames = ['Capacity', 'Utilization', 'Onboarding', 'Budget'];
 
         function dynamicLoadChart() {
             for (let i = 0; i < charts.length; i++) {

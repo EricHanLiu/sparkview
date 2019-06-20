@@ -7,7 +7,7 @@ from django.utils import timezone
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
-from user_management.models import Member, Team
+from user_management.models import Member, Team, Backup, BackupPeriod
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
     OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord
@@ -349,18 +349,32 @@ class Client(models.Model):
         return hours
 
     def get_hours_remaining_this_month(self):
+        """
+        Gets the number of hours remaining on the account in the current month
+        """
         if not hasattr(self, '_hoursRemainingMonth'):
             self._hoursRemainingMonth = round(
                 self.allocated_hours_including_mandate - self.get_hours_worked_this_month(), 2)
         return self._hoursRemainingMonth
 
     def get_hours_worked_this_month_member(self, member):
+        """
+        Gets the number of hours worked (inputted) on the account in the current month (sum of all members)
+        """
         now = datetime.datetime.now()
         month = now.month
         year = now.year
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=month, year=year,
                                                  is_unpaid=False).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
+
+    def get_hours_remaining_this_month_member(self, member):
+        """
+        Gets the number of hours remaining on an account for a specific member in the current month
+        """
+        total_hours = self.get_allocation_this_month_member_no_backup(member)
+        hours_worked = self.get_hours_worked_this_month_member(member)
+        return total_hours - hours_worked
 
     def setup_onboarding_tasks(self):
         """
@@ -623,7 +637,10 @@ class Client(models.Model):
                         mandate_assignment.percentage / 100.0)) / mandate_assignment.mandate.hourly_rate)
         return hours
 
-    def get_allocation_this_month_member(self, member):
+    def get_allocation_this_month_member_no_backup(self, member):
+        """
+        Gets the hours allocated for a specific member, excluding hours added/deducted due to backups
+        """
         percentage = 0.0
         # Boilerplate incoming
         if self.cm1 == member:
@@ -652,8 +669,39 @@ class Client(models.Model):
             percentage += self.strat3percent
 
         mandate_hours = self.mandate_hours_this_month_member(member)
-
         return round((self.get_allocated_hours() * percentage / 100.0) + mandate_hours, 2)
+
+    def get_allocation_this_month_member(self, member, is_backup_account=False):
+        """
+        Gets the hours allocated for a specific member, including hours added/deducted due to backups
+        :param member: the member in question
+        :param is_backup_account: whether or not we're fetching hours for a backup account (ie. an account for
+            a member who currently backing up another member)
+        """
+        now = datetime.datetime.now()
+        if is_backup_account:
+            total_hours = 0
+            # add hours to backup member
+            potential_backups = Backup.objects.filter(members__in=[member], period__start_date__lte=now,
+                                                      period__end_date__gte=now, approved=True, account=self)
+            if potential_backups.count() > 0:
+                for backup in potential_backups:
+                    hours = backup.hours_this_month
+                    total_hours += hours
+        else:
+            total_hours = self.get_allocation_this_month_member_no_backup(member)
+            # deduct hours from away member
+            try:
+                potential_backup = Backup.objects.get(period__member=member, account=self, period__start_date__lte=now,
+                                                      period__end_date__gte=now, approved=True)
+                hours_to_deduct = potential_backup.hours_this_month
+                num_members = potential_backup.members.all().count()
+                hours_to_deduct *= num_members
+                total_hours -= hours_to_deduct
+            except Backup.DoesNotExist:
+                pass
+
+        return total_hours
 
     @property
     def current_phase_tasks(self):

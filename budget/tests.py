@@ -5,7 +5,7 @@ from adwords_dashboard.models import DependentAccount, Campaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from client_area.models import Industry, ClientContact, ParentClient, Language, \
-    ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile
+    ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile, AccountHourRecord
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 import calendar
@@ -144,6 +144,27 @@ class AccountTestCase(TestCase):
         account.save()
 
         self.assertEqual(account.all_hours, 22)
+
+    def test_hours_remaining_and_worked(self):
+        user = User.objects.get(username='test')
+        member = Member.objects.get(user=user)
+        now = datetime.datetime.now()
+
+        account = BloomClient.objects.create(client_name='test client 2', cm1=member, cm1percent=100,
+                                             allocated_ppc_override=12)
+
+        self.assertEqual(account.get_hours_remaining_this_month(), 12)
+        self.assertEqual(account.get_hours_worked_this_month(), 0)
+        self.assertEqual(account.get_hours_worked_this_month_member(member), 0)
+
+        AccountHourRecord.objects.create(member=member, account=account, is_unpaid=False, month=now.month,
+                                         year=now.year, hours=5)
+
+        account = BloomClient.objects.get(client_name='test client 2')
+        self.assertEqual(account.get_hours_remaining_this_month(), 7)
+        self.assertEqual(account.get_hours_worked_this_month(), 5)
+        self.assertEqual(account.get_hours_worked_this_month_member(member), 5)
+        self.assertEqual(account.get_hours_remaining_this_month_member(member), 7)
 
     def test_create_new_account(self):
         """Tests new account creation"""
