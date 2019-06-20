@@ -156,3 +156,13 @@ class BingCampaign(models.Model):
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
     master_exclusion = models.BooleanField(default=False)
+
+
+class BingCampaignSpendDateRange(models.Model):
+    """
+    Object for storing spend for a Bing campaign thats part of a budget
+    """
+    campaign = models.ForeignKey(BingCampaign, on_delete=models.CASCADE, default=None, null=True)
+    spend = models.FloatField(default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()

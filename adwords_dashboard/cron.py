@@ -85,6 +85,7 @@ def get_spend_by_campaign_custom(self, campaign, budget):
     Gets campaign spend by custom date range
     :param self:
     :param campaign:
+    :param budget:
     :return:
     """
     client = get_client()
