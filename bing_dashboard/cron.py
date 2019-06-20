@@ -76,7 +76,7 @@ def get_spend_by_bing_campaign_custom(self, campaign, budget):
     report = helper.get_campaign_performance(
         campaign.account.account_id,
         dateRangeType='CUSTOM_DATE',
-        report_name='campaign_stats_tm',
+        report_name='campaign_stats_custom',
         extra_fields=fields,
         **date_range
     )
