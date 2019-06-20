@@ -13,7 +13,7 @@ def get_client():
     except GoogleAdsValueError:
         logger = Logger()
         warning_message = 'Failed to create a session with Google Ads API in adwords_tasks.py'
-        warning_desc = 'Failure in adwords_tasks.py'
+        warning_desc = 'Failure in adwords_dashboard/cron.py'
         logger.send_warning_email(warning_message, warning_desc)
         return
 
