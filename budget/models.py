@@ -1514,12 +1514,14 @@ class Budget(models.Model):
     account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, related_name='budget_account')
     budget = models.FloatField(default=0)
     is_monthly = models.BooleanField(default=True)
+    start_date = models.DateTimeField(null=True, default=None, blank=True)
+    end_date = models.DateTimeField(null=True, default=None, blank=True)
     has_adwords = models.BooleanField(default=False)
     has_facebook = models.BooleanField(default=False)
     has_bing = models.BooleanField(default=False)
     grouping_type = models.IntegerField(default=2, choices=GROUPING_TYPES)
-    text_includes = models.CharField(max_length=999)
-    text_excludes = models.CharField(max_length=999)
+    text_includes = models.CharField(max_length=999, blank=True)
+    text_excludes = models.CharField(max_length=999, blank=True)
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='budget_aw_campaigns')
     aw_spend = models.FloatField(default=0)
     aw_yspend = models.FloatField(default=0)
@@ -1536,6 +1538,30 @@ class Budget(models.Model):
     @property
     def is_flight(self):
         return not self.is_monthly
+
+    @property
+    def calculated_google_ads_spend(self):
+        """
+        Calculates Google Ads spend on the fly
+        :return:
+        """
+        pass
+
+    @property
+    def calculated_facebook_ads_spend(self):
+        """
+        Calculates Facebook Ads spend on the fly
+        :return:
+        """
+        pass
+
+    @property
+    def calculated_bing_ads_spend(self):
+        """
+        Calculates Bing Ads spend on the fly
+        :return:
+        """
+        pass
 
 
 class AccountBudgetSpendHistory(models.Model):

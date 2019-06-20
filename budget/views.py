@@ -339,8 +339,6 @@ def client_details(request, client_id):
                 'error_message': 'Please enter a value greater than 0(zero).',
             }
 
-        # adwords_tasks.cron_clients.delay()
-
         return JsonResponse(context)
 
 

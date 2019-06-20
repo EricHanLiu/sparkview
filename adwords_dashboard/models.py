@@ -345,6 +345,16 @@ class Campaign(models.Model):
         return self.account.dependent_account_name + ' ' + str(self.campaign_name)
 
 
+class CampaignSpendDateRange(models.Model):
+    """
+    Object for storing spend for a campaign thats part of a budget
+    """
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, default=None, null=True)
+    spend = models.FloatField(default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+
+
 class Adgroup(models.Model):
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True, blank=True)
     campaign = models.ForeignKey(Campaign, models.SET_NULL, null=True, blank=True)
