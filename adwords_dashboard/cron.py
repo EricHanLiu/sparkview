@@ -119,9 +119,10 @@ def get_spend_by_campaign_custom(self, campaign, budget):
     start_date = budget.start_date
     end_date = budget.end_date
 
-    campaign_report_query['dateRange'] = self.get_custom_daterange(
-        minDate=start_date, maxDate=end_date
-    )
+    campaign_report_query['dateRange'] = {
+        'min': start_date.strftime('%Y%m%d'),
+        'max': end_date.strftime('%Y%m%d')
+    }
 
     campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
 
