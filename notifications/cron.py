@@ -79,7 +79,7 @@ def prepare_todos():
             if task_assignment.account.status == 0 or task_assignment.account.status == 1:
                 # only create todos for active/onboarding accounts
                 description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
-                Todo.objects.create(member=member, description=description, type=3)
+                Todo.objects.create(member=member, description=description, type=3, phase_task_id=task_assignment.id)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
         yesterday = today - datetime.timedelta(1)
