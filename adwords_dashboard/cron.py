@@ -73,7 +73,7 @@ def get_all_spend_by_campaign_custom():
     Creates celery tasks for each campaign
     :return:
     """
-    budgets = Budget.objects.filter(adwords=True, account__salesprofile__ppc_status=True)
+    budgets = Budget.objects.filter(adwords=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
         for aw_camp in budget.adwords_campaigns:
             get_spend_by_campaign_custom.delay(aw_camp, budget)
