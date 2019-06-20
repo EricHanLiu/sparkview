@@ -75,7 +75,7 @@ def get_all_spend_by_campaign_custom():
     """
     budgets = Budget.objects.filter(adwords=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
-        for aw_camp in budget.adwords_campaigns:
+        for aw_camp in budget.aw_campaigns:
             get_spend_by_campaign_custom.delay(aw_camp, budget)
 
 
