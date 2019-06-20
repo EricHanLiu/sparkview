@@ -3,7 +3,7 @@ from googleads.errors import GoogleAdsValueError
 from bloom import celery_app, settings
 from bloom.utils.reporting import Reporting
 from tasks.logger import Logger
-from .models import DependentAccount, Campaign
+from .models import DependentAccount, Campaign, CampaignSpendDateRange
 from budget.models import Budget
 
 
@@ -125,7 +125,9 @@ def get_spend_by_campaign_custom(self, campaign, budget):
 
     campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
 
-    campaign_spend_object = CampaignSpendDateRange.objects.get()
+    campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
+                                                                                  start_date=start_date,
+                                                                                  end_date=end_date)
 
-
-    pass
+    campaign_spend_object.spend = campaign_report['cost']
+    campaign_spend_object.save()
