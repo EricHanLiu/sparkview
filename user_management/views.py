@@ -177,35 +177,6 @@ def member_dashboard(request, id):
     except ZeroDivisionError:
         allocation_ratio = 0.0
 
-    # MONTHLY REPORTS INFO
-    # The following two lines get the month and year of the month before the selected month
-    # For reporting, I believe this is the logic we want to use
-    # Reason: If you select March 2019, it is actually the February 2019 reports being completed that month
-    monthly_report_year = year - 1 if month == 1 else year
-    monthly_report_month = month - 1 if month != 1 else 12
-    reports = MonthlyReport.objects.filter(year=monthly_report_year, month=monthly_report_month, no_report=False,
-                                           account__in=accounts)
-    # get reports that haven't been sent by am (not sent to client)
-    outstanding_reports = reports.filter(date_sent_by_am=None)
-
-    complete_reports = reports.exclude(date_sent_by_am=None).count()
-    report_count = reports.count()
-
-    completion_rate = 0.0
-    if report_count != 0.0:
-        completion_rate = 100.0 * complete_reports / report_count
-
-    ontime_numer = 0.0
-    ontime_denom = 0.0
-    for report in reports:
-        if report.complete_ontime:
-            ontime_numer += 1
-        ontime_denom += 1
-
-    ontime_rate = 0.0
-    if ontime_denom != 0:
-        ontime_rate = 100.0 * ontime_numer / ontime_denom
-
     # PROMO INFO
     today = datetime.datetime.now().date()
     tomorrow = today + datetime.timedelta(1)
@@ -214,13 +185,10 @@ def member_dashboard(request, id):
     this_month = datetime.datetime(today.year, today.month, 1)
     next_month = datetime.datetime(today.year, today.month + 1 if today.month != 12 else 1, 1)
 
-    promos_month = Promo.objects.filter(start_date__gte=this_month,
-                                        end_date__lt=next_month,
-                                        account__in=accounts) if load_everything else None
-    promos_start_today = promos_month.filter(start_date__gte=today_start,
-                                             start_date__lt=today_end) if load_everything else None
-    promos_end_today = promos_month.filter(end_date__gte=today_start,
-                                           end_date__lt=today_end) if load_everything else None
+    promos_start_today = Promo.objects.filter(start_date__gte=today_start,
+                                              start_date__lt=today_end) if load_everything else None
+    promos_end_today = Promo.objects.filter(end_date__gte=today_start,
+                                            end_date__lt=today_end) if load_everything else None
 
     # ONBOARDING ACCOUNTS INFO
     onboarding_accounts = accounts.filter(status=0)
@@ -265,9 +233,7 @@ def member_dashboard(request, id):
         for account in underspend_accounts:
             total_projected_loss += account.projected_loss
 
-    # NOTIFICATIONS INFO
-    num_outstanding_notifs = Notification.objects.filter(confirmed=False,
-                                                         member__in=members).count() if load_everything else None
+    # 90 DAYS NOTIFICATIONS INFO
     num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
                                                                  account__in=accounts).count() if load_everything else None
 
@@ -287,12 +253,8 @@ def member_dashboard(request, id):
         'total_hours_trained': training_aggregate,
         'filtered_teams': filtered_teams,
         'filtered_roles': filtered_roles,
-        'completion_rate': completion_rate,
-        'ontime_rate': ontime_rate,
-        'outstanding_reports': outstanding_reports,
         'promos_start_today': promos_start_today,
         'promos_end_today': promos_end_today,
-        'promos_week': promos_month,
         'onboarding_accounts': onboarding_accounts,
         'num_onboarding': num_onboarding,
         'average_onboarding_days': avg_onboarding_days,
@@ -305,7 +267,6 @@ def member_dashboard(request, id):
         'top_five_underspend': top_five_underspend,
         'num_underspend': num_underspend,
         'total_projected_loss': total_projected_loss,
-        'num_outstanding_notifs': num_outstanding_notifs,
         'num_outstanding_90_days': num_outstanding_90_days,
         'flagged_accounts': flagged_accounts,
         'members': members,
