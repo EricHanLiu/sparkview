@@ -413,3 +413,40 @@ class UserTestCase(TestCase):
         backup.members.add(backup_member_2)
         self.assertEqual(backup.hours_this_month, 5)
 
+    def test_backup_acquires_accounts(self):
+        """
+        Tests that a backup member successfully acquires all accounts, reports, etc. from the member on leave
+        """
+        user = User.objects.get(username='test2')
+        member = Member.objects.get(user=user)
+        now = datetime.datetime.now()
+
+        account1 = BloomClient.objects.create(client_name="test1", cm1=member, cm1percent=100.0, status=1,
+                                              allocated_ppc_override=10)
+        account2 = BloomClient.objects.create(client_name="test2", cm1=member, cm1percent=100.0, status=1,
+                                              allocated_ppc_override=10)
+        account3 = BloomClient.objects.create(client_name="test3", cm1=member, cm1percent=100.0, status=1,
+                                              allocated_ppc_override=10)
+
+        backup_user = User.objects.create(username='test10')
+        backup_member = Member.objects.create(user=backup_user)
+
+        self.assertEqual(backup_member.has_account(account1.id), False)
+        self.assertEqual(backup_member.has_account(account2.id), False)
+        self.assertEqual(backup_member.has_account(account3.id), False)
+
+        backup_period = BackupPeriod.objects.create(member=member, start_date=now, end_date=now)
+        backup1 = Backup.objects.create(account=account1, approved=True, period=backup_period)
+        backup1.members.add(backup_member)
+        backup2 = Backup.objects.create(account=account2, approved=True, period=backup_period)
+        backup2.members.add(backup_member)
+        backup3 = Backup.objects.create(account=account3, approved=True, period=backup_period)
+        backup3.members.add(backup_member)
+
+        backup_member = Member.objects.get(user=backup_user)
+
+        self.assertEqual(backup_member.has_account(account1.id), True)
+        self.assertEqual(backup_member.has_account(account2.id), True)
+        self.assertEqual(backup_member.has_account(account3.id), True)
+
+
