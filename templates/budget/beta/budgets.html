@@ -7,6 +7,10 @@
     <title>Budgets (BETA) - SparkView</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static 'assets/vendors/base/vendors.bundle.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/demo/default/custom/components/forms/widgets/select2.js' %}"
+            type="text/javascript"></script>
     <style>
         html {
             background: #efefef;
@@ -96,18 +100,131 @@
 
 <div class="modal" id="add_budget_modal">
     <div class="modal-background"></div>
-    <div class="modal-card">
+    <div class="modal-card" style="max-height: 750px;">
         <header class="modal-card-head">
             <p class="modal-card-title">Add New Budget</p>
             <button class="delete close" aria-label="close"></button>
         </header>
-        <section class="modal-card-body">
+        <form method="post" action="/budget/new_budget">
 
-        </section>
-        <footer class="modal-card-foot">
-            <button class="button is-link">Save changes</button>
-            <button class="button close">Cancel</button>
-        </footer>
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <input name="account_id" value="{{ account.id }}" class="is-hidden"/>
+                <div class="columns is-multiline">
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Budget Name</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Budget Name" name="budget_name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Budget</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Budget (in dollars)" name="budget_amount">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Ad Networks</label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="google_ads" class="is-large">
+                                Google Ads
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="facebook_ads">
+                                Facebook Ads
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="bing_ads">
+                                Bing Ads
+                            </label>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <input type="text" name="grouping_type" id="grouping_type" value="all_campaigns"
+                               class="is-hidden"/>
+                        <div class="tabs is-centered is-boxed">
+                            <ul>
+                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-image"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>All Campaigns</span>
+                                    </a>
+                                </li>
+                                <li class="tab" onclick="openTab(event, 'manual')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-music"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>Manual Selection</span>
+                                    </a>
+                                </li>
+                                <li class="tab" onclick="openTab(event, 'text')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-film"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>Text Filters</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="all_campaigns" class="content-tab">
+                            <p>All campaigns will be included in this budget</p>
+                        </div>
+                        <div id="manual" class="content-tab" style="display:none">
+                            <div class="field">
+                                <label class="label">Select Campaigns</label>
+                                <div class="control">
+                                    <div class="form-group" id="campaign_list_across">
+                                        <select class="form-control m-input--large" name="campaigns"
+                                                multiple="multiple" id="campaigns_gr_across" style="width: 100%;">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="text" class="content-tab" style="display:none">
+                            <div class="field">
+                                <label class="label">Include Strings</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Separate by comma"
+                                           name="include_strings">
+                                </div>
+                                <div class="field">
+                                    <label class="label">Exclude Strings</label>
+                                    <div class="control">
+                                        <input class="input" type="text" placeholder="Separate by comma"
+                                               name="exclude_strings">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <hr/>
+                        <div class="control">
+                            <label class="radio">
+                                <input type="radio" name="time_period" value="monthly">
+                                Monthly
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="time_period" value="flight">
+                                Flight
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <input type="submit" class="button is-link" value="Add Budget" />
+                <button class="button close">Cancel</button>
+            </footer>
+        </form>
     </div>
 </div>
 
@@ -176,6 +293,72 @@
             });
         });
     });
+
+    // Tabs
+    let openTab = function (evt, tabName) {
+        let i, x, tablinks;
+        let groupingType = document.getElementById('grouping_type');
+        groupingType.value = tabName;
+        x = document.getElementsByClassName('content-tab');
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = 'none';
+        }
+        tablinks = document.getElementsByClassName('tab');
+        for (i = 0; i < x.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(' is-active', '');
+        }
+        document.getElementById(tabName).style.display = 'block';
+        evt.currentTarget.className += ' is-active';
+        if (tabName === 'manual') {
+            manualCampaigns();
+        }
+    };
+
+    $('#campaigns_gr_across').select2({
+        placeholder: 'Select campaigns...',
+        closeOnSelect: false
+    });
+
+    let manualCampaigns = function () {
+        $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
+
+        let data = {
+            'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
+            'channel': $('#select_accounts_cgr').find(':selected').data('channel')
+        };
+
+        $.ajax({
+            url: '/budget/groupings/get_campaigns/',
+            headers: {'X-CSRFToken': '{{ csrf_token }}' },
+            type: 'POST',
+            data: data,
+            success: function (data) {
+                console.log(data);
+                let campaigns = data['campaigns'];
+                campaigns.forEach(item => {
+                    if (item['model'] === 'adwords_dashboard.campaign') {
+                        let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                    }
+                    if (item['model'] === 'bing_dashboard.bingcampaign') {
+                        let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                    }
+                    if (item['model'] === 'facebook_dashboard.facebookcampaign') {
+                        let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                    }
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+            complete: function () {
+            }
+
+        });
+    };
+
 </script>
 </body>
 </html>
