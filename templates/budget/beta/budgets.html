@@ -92,7 +92,18 @@
         <br/>
         <div class="card">
             <div class="card-content">
+                {% for budget in account.budgets %}
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                {{ budget.name }}
+                            </p>
+                        </header>
+                        <div class="card-content">
 
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -221,7 +232,7 @@
                 </div>
             </section>
             <footer class="modal-card-foot">
-                <input type="submit" class="button is-link" value="Add Budget" />
+                <input type="submit" class="button is-link" value="Add Budget"/>
                 <button class="button close">Cancel</button>
             </footer>
         </form>
@@ -329,7 +340,7 @@
 
         $.ajax({
             url: '/budget/groupings/get_campaigns/',
-            headers: {'X-CSRFToken': '{{ csrf_token }}' },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
             type: 'POST',
             data: data,
             success: function (data) {

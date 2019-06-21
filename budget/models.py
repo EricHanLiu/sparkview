@@ -182,6 +182,10 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     @property
+    def budgets(self):
+        return Budget.objects.filter(account=self)
+
+    @property
     def opportunities(self):
         """
         Returns opportunities
@@ -1559,6 +1563,7 @@ class Budget(models.Model):
     """
     GROUPING_TYPES = [(0, 'manual'), (1, 'text'), (2, 'all')]
 
+    name = models.CharField(max_length=255)
     account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, related_name='budget_account')
     budget = models.FloatField(default=0)
     is_monthly = models.BooleanField(default=True)

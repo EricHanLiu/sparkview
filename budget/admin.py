@@ -1,5 +1,6 @@
 from django.contrib import admin
-from budget.models import ClientCData, Client, ClientHist, TierChangeProposal, CampaignGrouping
+from budget.models import ClientCData, Client, ClientHist, TierChangeProposal, CampaignGrouping, Budget
+
 
 # Register your models here.
 
@@ -11,6 +12,11 @@ class ClientAdmin(admin.ModelAdmin):
 @admin.register(CampaignGrouping)
 class CampaignGroupingAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(Budget)
+class BudgetAdmin(admin.ModelAdmin):
+    exclude = ('aw_campaigns', 'fb_campaigns', 'bing_campaigns')
 
 
 class ClientHistAdmin(admin.ModelAdmin):

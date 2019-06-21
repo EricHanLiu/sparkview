@@ -343,26 +343,6 @@ def client_details(request, client_id):
 
 
 @login_required
-def budget_client_beta(request, account_id):
-    """
-    New budgets page
-    :param request:
-    :param account_id:
-    :return:
-    """
-    account = get_object_or_404(Client, id=account_id)
-    account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
-    account_status_class = account_status_classes[account.status]
-
-    context = {
-        'account': account,
-        'account_status_class': account_status_class
-    }
-
-    return render(request, 'budget/beta/budgets.html', context)
-
-
-@login_required
 @xframe_options_exempt
 def delete_clients(request):
     deleted_clients = []
@@ -1140,6 +1120,26 @@ def confirm_budget(request):
 
 
 @login_required
+def budget_client_beta(request, account_id):
+    """
+    New budgets page
+    :param request:
+    :param account_id:
+    :return:
+    """
+    account = get_object_or_404(Client, id=account_id)
+    account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
+    account_status_class = account_status_classes[account.status]
+
+    context = {
+        'account': account,
+        'account_status_class': account_status_class
+    }
+
+    return render(request, 'budget/beta/budgets.html', context)
+
+
+@login_required
 def new_budget(request):
     """
     Creates new budgets
@@ -1159,6 +1159,7 @@ def new_budget(request):
     budget.name = request.POST.get('budget_name')
     budget.account = account
     budget.budget = request.POST.get('budget_amount')
+    budget.save()
 
     grouping_type = request.POST.get('grouping_type')
 
