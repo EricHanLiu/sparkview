@@ -1802,12 +1802,12 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <button type="button" class="btn w-100" id="good_task_btn">
+                                <button type="button" class="btn btn-outline-success w-100" id="good_task_btn">
                                     Account is good &#128516;
                                 </button>
                             </div>
                             <div class="col-md-6">
-                                <button type="button" id="flag_task_btn" class="btn w-100">
+                                <button type="button" id="flag_task_btn" class="btn btn-outline-danger w-100">
                                     Account needs to be flagged &#128546;
                                 </button>
                             </div>
@@ -2011,7 +2011,6 @@
                 $basecampLinkRow.removeClass('d-none');
 
                 $goodTaskBtn.addClass('btn-success');
-                $goodTaskBtn.removeClass('btn-outline-success');
                 $flagTaskBtn.removeClass('btn-danger');
 
                 $('#bc_link').attr('placeholder', 'Optional');
@@ -2021,7 +2020,6 @@
                 $basecampLinkRow.removeClass('d-none');
 
                 $flagTaskBtn.addClass('btn-danger');
-                $flagTaskBtn.removeClass('btn-outline-danger');
                 $goodTaskBtn.removeClass('btn-success');
 
                 $('#bc_link').attr('placeholder', '');

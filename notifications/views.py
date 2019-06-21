@@ -92,7 +92,7 @@ def cycle_confirm(request):
     todo.save()
 
     event_description = member.user.get_full_name() + ' completed the task: ' + task.task.message + '.'
-    notes = 'Basecamp link: ' + task.bc_link
+    notes = task.bc_link
     lc_event = LifecycleEvent.objects.create(account=account, type=7, description=event_description,
                                              phase=account.phase,
                                              phase_day=account.phase_day, cycle=account.ninety_day_cycle,
