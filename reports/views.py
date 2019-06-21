@@ -141,8 +141,8 @@ def cm_capacity(request):
     # TODO: Make this reasonable
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead') | Q(name='Management'))
-    members = Member.objects.filter(role__in=role).order_by('user__first_name')
+            name='PPC Team Lead') | Q(name='Team Lead'))
+    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25)).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -187,7 +187,8 @@ def am_capacity(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     # Probably has to be changed before production
-    role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager'))
+    role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager') | Q(
+        name='Team Lead - Client Services'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
     actual_aggregate = 0.0
@@ -233,8 +234,8 @@ def seo_capacity(request):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     # Probably has to be changed before production
-    role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern'))
-    members = Member.objects.filter(role__in=role).order_by('user__first_name')
+    role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern') | Q(name='Team Lead - SEO'))
+    members = Member.objects.filter(Q(role__in=role) | Q(id=15)).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
