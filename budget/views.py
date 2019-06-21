@@ -9,7 +9,7 @@ from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate
+from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget
 from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks, bing_tasks, facebook_tasks
@@ -877,6 +877,7 @@ def delete_groupings(request):
 def get_campaigns(request):
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')
+    print(account_ids)
     gr_id = request.POST.get('gr_id')
     channel = request.POST.get('channel')
 
@@ -1136,3 +1137,66 @@ def confirm_budget(request):
     budget_update.save()
 
     return HttpResponse('Success')
+
+
+@login_required
+def new_budget(request):
+    """
+    Creates new budgets
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    budget = Budget()
+    budget.name = request.POST.get('budget_name')
+    budget.account = account
+    budget.budget = request.POST.get('budget_amount')
+
+    grouping_type = request.POST.get('grouping_type')
+
+    if grouping_type == 'manual':
+        budget.grouping_type = 0
+        for c in request.POST.getlist('campaigns'):
+            try:
+                cmp = Campaign.objects.get(campaign_id=c)
+                budget.aw_campaigns.add(cmp)
+                budget.save()
+            except Campaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = BingCampaign.objects.get(campaign_id=c)
+                budget.bing_campaigns.add(cmp)
+                budget.save()
+            except BingCampaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = FacebookCampaign.objects.get(campaign_id=c)
+                budget.fb_campaigns.add(cmp)
+                budget.save()
+            except FacebookCampaign.DoesNotExist:
+                pass
+    elif grouping_type == 'text':
+        budget.grouping_type = 1
+        budget.text_includes = request.POST.get('include_strings')
+        budget.text_excludes = request.POST.get('exclude_strings')
+    else:
+        budget.grouping_type = 2
+
+    if request.POST.get('time_period') == 'monthly':
+        budget.is_monthly = True
+    else:
+        budget.is_monthly = False
+
+    print(request.POST)
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
