@@ -234,3 +234,13 @@ class FacebookAlert(models.Model):
 
     def __str__(self):
         return self.account.account_id
+
+
+class FacebookCampaignSpendDateRange(models.Model):
+    """
+    Object for storing spend for a Facebook campaign thats part of a budget
+    """
+    campaign = models.ForeignKey(FacebookCampaign, on_delete=models.CASCADE, default=None, null=True)
+    spend = models.FloatField(default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
