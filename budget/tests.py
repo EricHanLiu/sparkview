@@ -292,7 +292,7 @@ class AccountTestCase(TestCase):
         account.save()
 
         b1 = Budget.objects.create(account=account, grouping_type=1, text_includes='foo, hello', text_excludes='test',
-                                   has_adwords=True, has_bing=True, has_facebook=True, is_monthly=True)
+                                   has_adwords=True, has_bing=True, has_facebook=True, is_monthly=True, budget=10)
         update_budget_campaigns(b1)
 
         self.assertIn(aw_cmp1, b1.aw_campaigns.all())
@@ -303,6 +303,12 @@ class AccountTestCase(TestCase):
         self.assertEqual(b1.calculated_spend, 5)
         self.assertEqual(b1.calculated_google_ads_spend, 1)
         self.assertEqual(b1.calculated_bing_ads_spend, 4)
+        self.assertEqual(b1.spend_percentage, 50)
+
+        b1.budget = 2.5
+        b1.save()
+
+        self.assertEqual(b1.spend_percentage, 200)
 
         b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup',
                                                    text_excludes='hello', has_adwords=True, has_bing=True,
@@ -405,3 +411,5 @@ class AccountTestCase(TestCase):
         self.assertEqual(b9.calculated_spend,
                          aw_cmp1_sdr.spend + aw_cmp2_sdr.spend + fb_cmp1_sdr.spend + bing_cmp1_sdr.spend)
         self.assertEqual(b9.calculated_spend, 104)
+
+        self.assertEqual(b9.spend_percentage, 52)
