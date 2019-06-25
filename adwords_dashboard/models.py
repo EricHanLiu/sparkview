@@ -345,6 +345,14 @@ class Campaign(models.Model):
         return self.account.dependent_account_name + ' ' + str(self.campaign_name)
 
 
+class GoogleCampaignExclusion(models.Model):
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, null=True, default=None)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.campaign.campaign_name
+
+
 class CampaignSpendDateRange(models.Model):
     """
     Object for storing spend for a campaign thats part of a budget
