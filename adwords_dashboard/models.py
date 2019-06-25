@@ -323,6 +323,7 @@ class Campaign(models.Model):
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
+    spend_until_yesterday = models.FloatField(default=0.0)
     campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
@@ -359,6 +360,7 @@ class CampaignSpendDateRange(models.Model):
     """
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, default=None, null=True)
     spend = models.FloatField(default=0.0)
+    spend_until_yesterday = models.FloatField(default=0.0)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
