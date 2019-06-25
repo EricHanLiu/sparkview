@@ -1,4 +1,5 @@
 {% load static %}
+{% load staticfiles %}
 {% load budget_tags %}
 <!DOCTYPE html>
 <html>
@@ -7,11 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Budgets (BETA) - SparkView</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.min.css">
+    <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="{% static 'assets/vendors/base/vendors.bundle.js' %}" type="text/javascript"></script>
-    <script src="{% static 'assets/demo/default/custom/components/forms/widgets/select2.js' %}"
-            type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/css/datepicker.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/datepicker.min.js"></script>
+    <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
     <style>
         html {
             background: #efefef;
@@ -85,6 +91,8 @@
                     </div>
                     <div class="column is-5 has-text-right">
                         <a class="button is-link" id="sources_btn">Sources</a>
+                        <a class="button is-link" id="exclusion_btn"
+                           onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
                         <a class="button is-link" id="add_budget_btn">Add Budget</a>
                     </div>
                 </div>
@@ -101,9 +109,9 @@
                             </p>
                             <span class="card-header-icon">
                               {% if budget.is_monthly %}
-                                Monthly Budget
+                                  Monthly Budget
                               {% else %}
-                                Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
+                                  Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
                               {% endif %}
                             </span>
                         </header>
@@ -190,11 +198,13 @@
                         <div class="field">
                             <label class="label">Ad Networks</label>
                             <label class="checkbox">
-                                <input type="checkbox" name="google_ads" class="is-large" {% if not account.adwords.all %}disabled{% endif %}>
+                                <input type="checkbox" name="google_ads" class="is-large"
+                                       {% if not account.adwords.all %}disabled{% endif %}>
                                 Google Ads
                             </label>
                             <label class="checkbox">
-                                <input type="checkbox" name="facebook_ads" {% if not account.facebook.all %}disabled{% endif %}>
+                                <input type="checkbox" name="facebook_ads"
+                                       {% if not account.facebook.all %}disabled{% endif %}>
                                 Facebook Ads
                             </label>
                             <label class="checkbox">
@@ -238,10 +248,9 @@
                             <div class="field">
                                 <label class="label">Select Campaigns</label>
                                 <div class="control">
-                                    <div class="form-group" id="campaign_list_across">
-                                        <select class="form-control m-input--large" name="campaigns"
-                                                multiple="multiple" id="campaigns_gr_across" style="width: 100%;">
-                                            <option></option>
+                                    <div class="select is-multiple is-fullwidth" id="campaign_list_across">
+                                        <select name="campaigns"
+                                                multiple="multiple" id="campaigns_gr_across">
                                         </select>
                                     </div>
                                 </div>
@@ -268,13 +277,21 @@
                         <hr/>
                         <div class="control">
                             <label class="radio">
-                                <input type="radio" name="time_period" value="monthly">
+                                <input type="radio" name="time_period" value="monthly" id="monthly_time_period">
                                 Monthly
                             </label>
                             <label class="radio">
-                                <input type="radio" name="time_period" value="flight">
+                                <input type="radio" name="time_period" value="flight" id="flight_time_period">
                                 Flight
                             </label>
+                        </div>
+                    </div>
+                    <div class="column is-12 is-hidden" id="flight_dates">
+                        <div class="control">
+                            <input type="text" class="input datepicker-here" style="width: 100%;"
+                                   name="flight_dates" placeholder="Flight Dates" data-language="en"
+                                   data-range="true" data-multiple-dates-separator=" - "
+                                   data-position="top left">
                         </div>
                     </div>
                 </div>
@@ -295,7 +312,83 @@
             <button class="delete close" aria-label="close"></button>
         </header>
         <section class="modal-card-body">
+            <form id="assign_accounts">
+                <input type="hidden" name="cid" value="{{ client_data.id }}">
+                <div class="row>">
+                    <div class="col-md-12">
+                        <label>AdWords:</label>
+                        <select class="form-control m-input--large" name="adwords"
+                                multiple="multiple" id="m_select2_adwords"
+                                style="width: 100%;">
+                            {% for a in adwords %}
+                                <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row>">
+                    <div class="col-md-12">
+                        <label for="bing" class="form-control-label">Bing: </label>
+                        <select class="form-control m-input--large" name="bing"
+                                multiple="multiple" id="m_select2_bing"
+                                style="width: 100%;">
+                            {% for b in bing %}
+                                <option value="{{ b.account_id }}">{{ b.account_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row>">
+                    <div class="col-md-12">
+                        <label for="facebook" class="form-control-label">Facebook: </label>
+                        <select class="form-control m-input--large" name="facebook"
+                                multiple="multiple" id="m_select2_facebook"
+                                style="width: 100%;">
+                            {% for f in facebook %}
+                                <option value="{{ f.account_id }}">{{ f.account_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
 
+<div class="modal" id="exclusion_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Master Exclusion</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <form id="exclude_campaigns">
+                <input type="hidden" name="cid" value="{{ client_data.id }}">
+                <div class="tabs is-centered is-boxed">
+                    <ul>
+                        <li class="tab">
+                            <a>
+                                Manual Selection
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="field">
+                    <label class="label">Select Campaigns</label>
+                    <div class="control">
+                        <div class="select is-multiple is-fullwidth">
+                            <select name="campaigns"
+                                    multiple="multiple" id="exclude_campaigns_select">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </section>
         <footer class="modal-card-foot">
             <button class="button is-link">Save changes</button>
@@ -305,6 +398,18 @@
 </div>
 
 <script>
+    let $flightRadio = $('#flight_time_period');
+    let $monthRadio = $('#monthly_time_period');
+    let $flightDates = $('#flight_dates');
+
+    $flightRadio.change(function () {
+        $flightDates.removeClass('is-hidden');
+    });
+
+    $monthRadio.change(function () {
+        $flightDates.addClass('is-hidden');
+    });
+
     document.querySelector('#add_budget_btn').addEventListener('click', function (event) {
         event.preventDefault();
         let addBudgetModal = document.querySelector('#add_budget_modal');
@@ -353,6 +458,30 @@
         });
     });
 
+    document.querySelector('#exclusion_btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        let exclusionModal = document.querySelector('#exclusion_modal');
+        let html = document.querySelector('html');
+        exclusionModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        exclusionModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            exclusionModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = exclusionModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                exclusionModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+
     // Tabs
     let openTab = function (evt, tabName) {
         let i, x, tablinks;
@@ -369,18 +498,11 @@
         document.getElementById(tabName).style.display = 'block';
         evt.currentTarget.className += ' is-active';
         if (tabName === 'manual') {
-            manualCampaigns();
+            manualCampaigns('campaigns_gr_across');
         }
     };
 
-    $('#campaigns_gr_across').select2({
-        placeholder: 'Select campaigns...',
-        closeOnSelect: false
-    });
-
-    let manualCampaigns = function () {
-        $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
-
+    let manualCampaigns = function (elementID) {
         let data = {
             'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
             'channel': $('#select_accounts_cgr').find(':selected').data('channel')
@@ -397,16 +519,20 @@
                 campaigns.forEach(item => {
                     if (item['model'] === 'adwords_dashboard.campaign') {
                         let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                        $('#' + elementID).append(new_option).trigger('change');
                     }
                     if (item['model'] === 'bing_dashboard.bingcampaign') {
                         let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                        $('#' + elementID).append(new_option).trigger('change');
                     }
                     if (item['model'] === 'facebook_dashboard.facebookcampaign') {
                         let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                        $('#' + elementID).append(new_option).trigger('change');
                     }
+                });
+
+                $('#' + elementID).selectize({
+                    plugins: ['remove_button']
                 });
             },
             error: function (ajaxContext) {
@@ -417,7 +543,6 @@
 
         });
     };
-
 </script>
 </body>
 </html>

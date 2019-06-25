@@ -1225,6 +1225,19 @@ def star_account(request):
     if not flagged:
         account.star_flag = False
         account.save()
+
+        event_description = account.client_name + ' was marked as good by ' + member.user.get_full_name() + '.'
+        notes = bc_link if bc_link != '' else ''
+        lc_event = LifecycleEvent.objects.create(account=account, type=13, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget, spend=account.current_spend,
+                                                 notes=notes)
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
         return redirect('/clients/accounts/' + str(account.id))
 
     now = datetime.datetime.now()
@@ -1234,7 +1247,7 @@ def star_account(request):
     account.save()
 
     event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'
-    notes = 'Basecamp link: ' + account.flagged_bc_link
+    notes = account.flagged_bc_link
     lc_event = LifecycleEvent.objects.create(account=account, type=8, description=event_description,
                                              phase=account.phase,
                                              phase_day=account.phase_day, cycle=account.ninety_day_cycle,

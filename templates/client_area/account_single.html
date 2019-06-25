@@ -21,7 +21,7 @@
             max-height: 80px;
         }
 
-        .fa-smile:hover, .fa-frown:hover {
+        span:hover {
             cursor: pointer;
         }
     </style>
@@ -153,13 +153,10 @@
                                           data-toggle="m-tooltip"
                                           data-original-title="{{ account.get_status_display }}"></span>
                                     &nbsp;
-                                    <i class="fas {% if account.star_flag %}fa-frown{% else %}fa-smile{% endif %}"
-                                       data-toggle="modal"
-                                       data-target="#flag_account_modal"
-                                       data-flag="{% if account.star_flag %}1{% else %}0{% endif %}"
-                                       {% if account.star_flag %}
-                                       style="color: red;"
-                                       {% else %}style="color: rgb(52, 191, 163)"{% endif %}></i>
+                                    <span data-toggle="modal"
+                                          data-target="#flag_account_modal">
+                                        {% if not account.star_flag %}&#128516;{% else %}&#128546;{% endif %}
+                                    </span>
                                     &nbsp;
                                     <a href="/clients/accounts/{{ account.id }}/edit"
                                        style="color: #000; text-decoration: none;">
@@ -1805,13 +1802,13 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <button type="button" class="btn w-100" id="good_task_btn">
-                                    Account is good <i class="fas fa-smile"></i>
+                                <button type="button" class="btn btn-outline-success w-100" id="good_task_btn">
+                                    Account is good &#128516;
                                 </button>
                             </div>
                             <div class="col-md-6">
-                                <button type="button" id="flag_task_btn" class="btn w-100">
-                                    Account needs to be flagged <i class="fas fa-frown"></i>
+                                <button type="button" id="flag_task_btn" class="btn btn-outline-danger w-100">
+                                    Account needs to be flagged &#128546;
                                 </button>
                             </div>
                         </div>
@@ -2014,7 +2011,6 @@
                 $basecampLinkRow.removeClass('d-none');
 
                 $goodTaskBtn.addClass('btn-success');
-                $goodTaskBtn.removeClass('btn-outline-success');
                 $flagTaskBtn.removeClass('btn-danger');
 
                 $('#bc_link').attr('placeholder', 'Optional');
@@ -2024,7 +2020,6 @@
                 $basecampLinkRow.removeClass('d-none');
 
                 $flagTaskBtn.addClass('btn-danger');
-                $flagTaskBtn.removeClass('btn-outline-danger');
                 $goodTaskBtn.removeClass('btn-success');
 
                 $('#bc_link').attr('placeholder', '');

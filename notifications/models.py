@@ -73,7 +73,7 @@ class Todo(models.Model):
         (0, 'Other'),
         (1, 'Promo'),
         (2, 'Notification'),
-        (3, 'Phase Task'),
+        (3, 'Client Review'),
         (4, 'Change History'),
     ]
 

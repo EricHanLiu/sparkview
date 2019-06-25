@@ -373,7 +373,8 @@ class LifecycleEvent(models.Model):
                           (9, 'Other'),
                           (10, 'Member assigned to flagged account'),
                           (11, 'Changed assigned members'),
-                          (12, 'Late to onboard')]
+                          (12, 'Late to onboard'),
+                          (13, 'Account marked as good')]
 
     account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, null=True, default=None)
     related_task = models.ForeignKey(PhaseTaskAssignment, on_delete=models.CASCADE, null=True, default=None, blank=True)
