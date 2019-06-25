@@ -40,17 +40,6 @@
                 <a class="navbar-item" href="/profile">
                     Hi, {{ user.first_name }}
                 </a>
-                {#            <div class="buttons">#}
-                {#                <a class="button is-light" href="/facebook_dashboard">#}
-                {#                    <strong>Facebook Ads</strong>#}
-                {#                </a>#}
-                {#                <a class="button is-light" href="/google_dashboard">#}
-                {#                    <strong>Google Ads</strong>#}
-                {#                </a>#}
-                {#                <a class="button is-danger" href="/logout">#}
-                {#                    <strong>Logout</strong>#}
-                {#                </a>#}
-                {#            </div>#}
             </div>
         </div>
     </div>
@@ -105,13 +94,13 @@
                     <div class="card">
                         <header class="card-header">
                             <p class="card-header-title">
-                                {{ budget.name }}
+                                {{ budget.name }} - {{ budget.description }}
                             </p>
                             <span class="card-header-icon">
                               {% if budget.is_monthly %}
                                   Monthly Budget
                               {% else %}
-                                  Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
+                                  Flight Dates: {{ budget.pretty_dates }}
                               {% endif %}
                             </span>
                         </header>

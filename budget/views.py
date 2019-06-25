@@ -1205,6 +1205,15 @@ def new_budget(request):
         budget.is_monthly = True
     else:
         budget.is_monthly = False
+        flight_dates_input = request.POST.get('flight_dates').split(' - ')
+        start_date_comps = flight_dates_input[0].split('/')
+        end_date_comps = flight_dates_input[1].split('/')
+
+        start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+
+        budget.start_date = start_date
+        budget.end_date = end_date
 
     budget.save()
 

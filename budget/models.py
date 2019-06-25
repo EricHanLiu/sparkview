@@ -1561,7 +1561,7 @@ class Budget(models.Model):
     """
     Budget object that contains rules for fetching spend from ad networks
     """
-    GROUPING_TYPES = [(0, 'manual'), (1, 'text'), (2, 'all')]
+    GROUPING_TYPES = [(0, 'manual'), (1, 'text strings'), (2, 'all campaigns')]
 
     name = models.CharField(max_length=255)
     account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, related_name='budget_account')
@@ -1591,6 +1591,14 @@ class Budget(models.Model):
     @property
     def is_flight(self):
         return not self.is_monthly
+
+    @property
+    def pretty_dates(self):
+        return self.start_date.strftime('%B %d, %Y') + ' - ' + self.end_date.strftime('%B %d, %Y')
+
+    @property
+    def description(self):
+        return self.get_grouping_type_display().title()
 
     @property
     def calculated_google_ads_spend(self):
