@@ -365,8 +365,8 @@
             <p class="modal-card-title">Master Exclusion</p>
             <button class="delete close" aria-label="close"></button>
         </header>
-        <section class="modal-card-body">
-            <form id="exclude_campaigns">
+        <form method="POST" action="TODO: SAM PUT URL HERE">
+            <section class="modal-card-body">
                 <input type="hidden" name="cid" value="{{ client_data.id }}">
                 <div class="tabs is-centered is-boxed">
                     <ul>
@@ -387,12 +387,12 @@
                         </div>
                     </div>
                 </div>
-            </form>
-        </section>
-        <footer class="modal-card-foot">
-            <button class="button is-link">Save changes</button>
-            <button class="button close">Cancel</button>
-        </footer>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-link" type="submit">Save changes</button>
+                <button class="button close" type="button">Cancel</button>
+            </footer>
+        </form>
     </div>
 </div>
 
