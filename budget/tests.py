@@ -273,10 +273,10 @@ class AccountTestCase(TestCase):
                                                           dependent_account_name='test aw2',
                                                           desired_spend=1000.0)
 
-        cmp1 = Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account)
-        cmp4 = Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account)
-        cmp2 = FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account)
-        cmp3 = BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account)
+        aw_cmp1 = Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account)
+        aw_cmp2 = Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account)
+        fb_cmp1 = FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account)
+        bing_cmp1 = BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account)
 
         aw_accounts = [test_aw_account]
         fb_accounts = [fb_account]
@@ -291,38 +291,38 @@ class AccountTestCase(TestCase):
                                    has_adwords=True, has_bing=True, has_facebook=True)
         update_budget_campaigns(b1)
 
-        self.assertIn(cmp1, b1.aw_campaigns.all())
-        self.assertNotIn(cmp2, b1.fb_campaigns.all())
-        self.assertIn(cmp3, b1.bing_campaigns.all())
-        self.assertNotIn(cmp4, b1.aw_campaigns.all())
+        self.assertIn(aw_cmp1, b1.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b1.fb_campaigns.all())
+        self.assertIn(bing_cmp1, b1.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b1.aw_campaigns.all())
 
         b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup',
                                                    text_excludes='hello', has_adwords=True, has_bing=True,
                                                    has_facebook=True)
         update_budget_campaigns(b2)
 
-        self.assertNotIn(cmp1, b2.aw_campaigns.all())
-        self.assertIn(cmp2, b2.fb_campaigns.all())
-        self.assertNotIn(cmp3, b2.bing_campaigns.all())
-        self.assertNotIn(cmp4, b2.aw_campaigns.all())
+        self.assertNotIn(aw_cmp1, b2.aw_campaigns.all())
+        self.assertIn(fb_cmp1, b2.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b2.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b2.aw_campaigns.all())
 
         b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
                                    has_bing=True, has_facebook=True)
         update_budget_campaigns(b3)
 
-        self.assertIn(cmp1, b3.aw_campaigns.all())
-        self.assertNotIn(cmp2, b3.fb_campaigns.all())
-        self.assertIn(cmp3, b3.bing_campaigns.all())
-        self.assertIn(cmp4, b3.aw_campaigns.all())
+        self.assertIn(aw_cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
+        self.assertIn(bing_cmp1, b3.bing_campaigns.all())
+        self.assertIn(aw_cmp2, b3.aw_campaigns.all())
 
         b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo',
                                    has_adwords=True, has_bing=True, has_facebook=True)
         update_budget_campaigns(b4)
 
-        self.assertNotIn(cmp1, b4.aw_campaigns.all())
-        self.assertNotIn(cmp2, b4.fb_campaigns.all())
-        self.assertNotIn(cmp3, b4.bing_campaigns.all())
-        self.assertNotIn(cmp4, b4.aw_campaigns.all())
+        self.assertNotIn(aw_cmp1, b4.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b4.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b4.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b4.aw_campaigns.all())
 
         b5 = Budget.objects.create(account=account, grouping_type=2, has_adwords=True)
         update_budget_campaigns(b5)
@@ -331,10 +331,10 @@ class AccountTestCase(TestCase):
         self.assertEqual(b5.fb_campaigns.count(), 0)
         self.assertEqual(b5.bing_campaigns.count(), 0)
 
-        self.assertIn(cmp1, b5.aw_campaigns.all())
-        self.assertNotIn(cmp2, b5.fb_campaigns.all())
-        self.assertNotIn(cmp3, b5.bing_campaigns.all())
-        self.assertIn(cmp4, b5.aw_campaigns.all())
+        self.assertIn(aw_cmp1, b5.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b5.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b5.bing_campaigns.all())
+        self.assertIn(aw_cmp2, b5.aw_campaigns.all())
 
         b6 = Budget.objects.create(account=account, grouping_type=2, has_facebook=True)
         update_budget_campaigns(b6)
@@ -343,19 +343,29 @@ class AccountTestCase(TestCase):
         self.assertEqual(b6.fb_campaigns.count(), 1)
         self.assertEqual(b6.bing_campaigns.count(), 0)
 
-        self.assertNotIn(cmp1, b6.aw_campaigns.all())
-        self.assertIn(cmp2, b6.fb_campaigns.all())
-        self.assertNotIn(cmp3, b6.bing_campaigns.all())
-        self.assertNotIn(cmp4, b6.aw_campaigns.all())
+        self.assertNotIn(aw_cmp1, b6.aw_campaigns.all())
+        self.assertIn(fb_cmp1, b6.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b6.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b6.aw_campaigns.all())
 
         b7 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
                                    has_bing=False, has_facebook=True)
         update_budget_campaigns(b7)
 
-        self.assertIn(cmp1, b7.aw_campaigns.all())
-        self.assertNotIn(cmp2, b7.fb_campaigns.all())
-        self.assertNotIn(cmp3, b7.bing_campaigns.all())
-        self.assertIn(cmp4, b7.aw_campaigns.all())
+        self.assertIn(aw_cmp1, b7.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b7.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b7.bing_campaigns.all())
+        self.assertIn(aw_cmp2, b7.aw_campaigns.all())
 
         b8 = Budget.objects.create(account=account, grouping_type=0, has_adwords=True)
-        pass
+        b8.aw_campaigns.set([aw_cmp1, aw_cmp2])
+        aw_cmp1.campaign_cost = 100
+        aw_cmp1.save()
+        aw_cmp2.campaign_cost = 50
+        aw_cmp2.save()
+        fb_cmp1.campaign_cost = 75
+        fb_cmp1.save()
+
+        self.assertEqual(b8.calculated_spend, b8.calculated_google_ads_spend)
+        self.assertEqual(b8.calculated_spend, 150)
+        self.assertEqual(b8.calculated_facebook_ads_spend, 0)
