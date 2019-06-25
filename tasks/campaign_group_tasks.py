@@ -75,11 +75,15 @@ def update_budget_campaigns(self, budget):
     else:
         #  all
         account = budget.account
-        adwords_campaigns = Campaign.objects.filter(account__in=account.adwords.all())
-        facebook_campaigns = FacebookCampaign.objects.filter(account__in=account.facebook.all())
-        bing_campaigns = BingCampaign.objects.filter(account__in=account.bing.all())
 
-        budget.aw_campaigns.set(adwords_campaigns)
-        budget.fb_campaigns.set(facebook_campaigns)
-        budget.bing_campaigns.set(bing_campaigns)
+        if budget.has_adwords:
+            adwords_campaigns = Campaign.objects.filter(account__in=account.adwords.all())
+            budget.aw_campaigns.set(adwords_campaigns)
 
+        if budget.has_facebook:
+            facebook_campaigns = FacebookCampaign.objects.filter(account__in=account.facebook.all())
+            budget.fb_campaigns.set(facebook_campaigns)
+
+        if budget.has_bing:
+            bing_campaigns = BingCampaign.objects.filter(account__in=account.bing.all())
+            budget.bing_campaigns.set(bing_campaigns)

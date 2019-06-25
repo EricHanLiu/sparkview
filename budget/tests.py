@@ -1,11 +1,12 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from budget.models import Client as BloomClient, CampaignGrouping
+from budget.models import Client as BloomClient, CampaignGrouping, Budget
 from adwords_dashboard.models import DependentAccount, Campaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from client_area.models import Industry, ClientContact, ParentClient, Language, \
     ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile, AccountHourRecord
+from tasks.campaign_group_tasks import update_budget_campaigns
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 import calendar
@@ -259,3 +260,65 @@ class AccountTestCase(TestCase):
         self.assertNotIn(cmp2, cg4.fb_campaigns.all())
         self.assertNotIn(cmp3, cg4.bing_campaigns.all())
         self.assertNotIn(cmp4, cg4.aw_campaigns.all())
+
+    def test_budgets(self):
+        """
+        Tests everything related to Budget model
+        :return:
+        """
+        account = BloomClient.objects.create(client_name='test client 3')
+        fb_account = FacebookAccount.objects.create(account_id='45667', account_name='test fb acc2')
+        bing_account = BingAccounts.objects.create(account_id='78912', account_name='test bing acc2')
+        test_aw_account = DependentAccount.objects.create(dependent_account_id='12345',
+                                                          dependent_account_name='test aw2',
+                                                          desired_spend=1000.0)
+
+        Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account)
+        Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account)
+        FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account)
+        BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account)
+
+        aw_accounts = [test_aw_account]
+        fb_accounts = [fb_account]
+        bing_accounts = [bing_account]
+
+        account.adwords.set(aw_accounts)
+        account.facebook.set(fb_accounts)
+        account.bing.set(bing_accounts)
+        account.save()
+
+        b1 = Budget.objects.create(client=account, grouping_type=1, text_includes='foo, hello', text_excludes='test')
+
+        b2, created = Budget.objects.get_or_create(client=account, group_by='+sup,-hello')
+        update_budget_campaigns(b1)
+        update_budget_campaigns(b2)
+
+        b3 = Budget.objects.create(client=account, grouping_type=1, text_excludes='test')
+        update_budget_campaigns(b3)
+        b4 = Budget.objects.create(client=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo')
+        update_budget_campaigns(b4)
+
+        cmp1 = Campaign.objects.get(campaign_id='123')
+        cmp2 = FacebookCampaign.objects.get(campaign_id='456')
+        cmp3 = BingCampaign.objects.get(campaign_id='789')
+        cmp4 = Campaign.objects.get(campaign_id='101112')
+
+        self.assertIn(cmp1, b1.aw_campaigns.all())
+        self.assertNotIn(cmp2, b1.fb_campaigns.all())
+        self.assertIn(cmp3, b1.bing_campaigns.all())
+        self.assertNotIn(cmp4, b1.aw_campaigns.all())
+
+        self.assertNotIn(cmp1, b2.aw_campaigns.all())
+        self.assertIn(cmp2, b2.fb_campaigns.all())
+        self.assertNotIn(cmp3, b2.bing_campaigns.all())
+        self.assertNotIn(cmp4, b2.aw_campaigns.all())
+
+        self.assertIn(cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(cmp2, b3.fb_campaigns.all())
+        self.assertIn(cmp3, b3.bing_campaigns.all())
+        self.assertIn(cmp4, b3.aw_campaigns.all())
+
+        self.assertNotIn(cmp1, b4.aw_campaigns.all())
+        self.assertNotIn(cmp2, b4.fb_campaigns.all())
+        self.assertNotIn(cmp3, b4.bing_campaigns.all())
+        self.assertNotIn(cmp4, b4.aw_campaigns.all())
