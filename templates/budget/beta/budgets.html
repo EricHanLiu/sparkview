@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Budgets (BETA) - SparkView</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="{% static 'assets/vendors/base/vendors.bundle.js' %}" type="text/javascript"></script>
-    <script src="{% static 'assets/demo/default/custom/components/forms/widgets/select2.js' %}"
-            type="text/javascript"></script>
     <style>
         html {
             background: #efefef;
@@ -100,9 +100,9 @@
                             </p>
                             <span class="card-header-icon">
                               {% if budget.is_monthly %}
-                                Monthly Budget
+                                  Monthly Budget
                               {% else %}
-                                Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
+                                  Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
                               {% endif %}
                             </span>
                         </header>
@@ -189,11 +189,13 @@
                         <div class="field">
                             <label class="label">Ad Networks</label>
                             <label class="checkbox">
-                                <input type="checkbox" name="google_ads" class="is-large" {% if not account.adwords.all %}disabled{% endif %}>
+                                <input type="checkbox" name="google_ads" class="is-large"
+                                       {% if not account.adwords.all %}disabled{% endif %}>
                                 Google Ads
                             </label>
                             <label class="checkbox">
-                                <input type="checkbox" name="facebook_ads" {% if not account.facebook.all %}disabled{% endif %}>
+                                <input type="checkbox" name="facebook_ads"
+                                       {% if not account.facebook.all %}disabled{% endif %}>
                                 Facebook Ads
                             </label>
                             <label class="checkbox">
@@ -237,10 +239,9 @@
                             <div class="field">
                                 <label class="label">Select Campaigns</label>
                                 <div class="control">
-                                    <div class="form-group" id="campaign_list_across">
-                                        <select class="form-control m-input--large" name="campaigns"
-                                                multiple="multiple" id="campaigns_gr_across" style="width: 100%;">
-                                            <option></option>
+                                    <div class="select is-multiple is-fullwidth" id="campaign_list_across">
+                                        <select name="campaigns"
+                                                multiple="multiple" id="campaigns_gr_across">
                                         </select>
                                     </div>
                                 </div>
@@ -372,14 +373,7 @@
         }
     };
 
-    $('#campaigns_gr_across').select2({
-        placeholder: 'Select campaigns...',
-        closeOnSelect: false
-    });
-
     let manualCampaigns = function () {
-        $($('#campaigns_gr_across').data('select2').$container).removeClass('hidden');
-
         let data = {
             'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
             'channel': $('#select_accounts_cgr').find(':selected').data('channel')
@@ -407,6 +401,10 @@
                         $('#campaigns_gr_across').append(new_option).trigger('change');
                     }
                 });
+
+                $('#campaigns_gr_across').selectize({
+                    plugins: ['remove_button']
+                });
             },
             error: function (ajaxContext) {
                 toastr.error(ajaxContext.statusText)
@@ -416,7 +414,6 @@
 
         });
     };
-
 </script>
 </body>
 </html>
