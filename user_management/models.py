@@ -577,7 +577,8 @@ class Member(models.Model):
         All the accounts this member is currently backing up
         """
         if not hasattr(self, '_backupaccounts'):
-            backups = Backup.objects.filter(members__in=[self])
+            now = datetime.datetime.now()
+            backups = Backup.objects.filter(members__in=[self], period__start_date__lte=now, period__end_date__gte=now)
             self._backupaccounts = apps.get_model('budget', 'Client').objects.filter(
                 id__in=backups.values('account_id'))
         return self._backupaccounts
