@@ -209,42 +209,6 @@ class FacebookCampaignExclusion(models.Model):
         return self.campaign.campaign_name
 
 
-class FacebookAlert(models.Model):
-    account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
-    alert_type = models.CharField(max_length=255)
-    alert_reason = models.CharField(max_length=255)
-    ad_id = models.CharField(max_length=255)
-    ad_name = models.CharField(max_length=255)
-    adset_id = models.CharField(max_length=255, default="None")
-    adset_name = models.CharField(max_length=255, default="None")
-    campaign_id = models.CharField(max_length=255, default="None")
-    campaign_name = models.CharField(max_length=255, default="None")
-    updated_time = models.DateTimeField(auto_now=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-
-    @property
-    def json(self):
-        return dict(
-            account_id=self.account.account_id,
-            alert_type=self.alert_type,
-            alert_reason=self.alert_reason,
-            ad_id=ad_id,
-            ad_name=ad_name,
-            adset_id=self.adset_id,
-            adset_name=self.adset_name,
-            campaign_id=self.campaign_id,
-            campaign_name=self.campagin_name,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d")
-        )
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
-
-    def __str__(self):
-        return self.account.account_id
-
-
 class FacebookCampaignSpendDateRange(models.Model):
     """
     Object for storing spend for a Facebook campaign thats part of a budget

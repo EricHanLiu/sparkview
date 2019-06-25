@@ -2,7 +2,7 @@ import calendar
 from bloom import celery_app, settings
 from bloom.utils import FacebookReportingService
 from datetime import datetime
-from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookAlert, FacebookCampaign
+from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookCampaign
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
 from facebook_business.adobjects.adaccount import AdAccount
@@ -326,59 +326,6 @@ def facebook_cron_anomalies_campaigns(self, account_id):
             cpc=cpc,
             metadata=cmp_metadata
         )
-
-
-@celery_app.task(bind=True)
-def facebook_alerts(self):
-    accounts = FacebookAccount.objects.filter(blacklisted=False)
-
-    for account in accounts:
-        facebook_cron_alerts.delay(account.account_id)
-
-
-@celery_app.task(bind=True)
-def facebook_cron_alerts(self, account_id):
-    fields = [
-        'ad_name',
-        'ad_id',
-        'adset_id',
-        'adset_name',
-        'campaign_id',
-        'campaign_name',
-    ]
-
-    filtering = [{
-        'field': 'ad.effective_status',
-        'operator': 'IN',
-        'value': ['DISAPPROVED'],
-    }]
-
-    account = FacebookAccount.objects.get(account_id=account_id)
-    helper = FacebookReportingService(facebook_init())
-
-    this_month = helper.set_params(
-        time_range=helper.get_this_month_daterange(),
-        level='ad',
-        filtering=filtering,
-    )
-
-    alert_type = 'DISAPPROVED_AD'
-    FacebookAlert.objects.filter(account=account, alert_type=alert_type).delete()
-
-    ads = helper.get_account_insights(account.account_id, params=this_month, extra_fields=fields)
-
-    for ad in ads:
-        FacebookAlert.objects.create(
-            account=account,
-            alert_type=alert_type,
-            campaign_id=ad['campaign_id'],
-            campaign_name=ad['campaign_name'],
-            adset_id=ad['adset_id'],
-            adset_name=ad['adset_name'],
-            ad_id=ad['ad_id'],
-            ad_name=ad['ad_name']
-        )
-        print('[INFO] Added alert to DB.')
 
 
 @celery_app.task(bind=True)
