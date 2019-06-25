@@ -59,7 +59,7 @@ def update_budget_campaigns(self, budget):
                     if facebook_campaign in fb_campaigns_in_group:
                         fb_campaigns_in_group.remove(facebook_campaign)
 
-        budget.fb_campaigns.set(aw_campaigns_in_group)
+        budget.fb_campaigns.set(fb_campaigns_in_group)
 
         for bing_campaign in bing_campaigns:
             for positive_keyword in positive_keywords:
@@ -71,7 +71,7 @@ def update_budget_campaigns(self, budget):
                     if bing_campaign in bing_campaigns_in_group:
                         bing_campaigns_in_group.remove(bing_campaign)
 
-        budget.bing_campaigns.set(aw_campaigns_in_group)
+        budget.bing_campaigns.set(bing_campaigns_in_group)
     else:
         #  all
         account = budget.account

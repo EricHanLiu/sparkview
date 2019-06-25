@@ -287,21 +287,21 @@ class AccountTestCase(TestCase):
         account.bing.set(bing_accounts)
         account.save()
 
-        b1 = Budget.objects.create(client=account, grouping_type=1, text_includes='foo, hello', text_excludes='test')
+        b1 = Budget.objects.create(account=account, grouping_type=1, text_includes='foo, hello', text_excludes='test')
 
-        b2, created = Budget.objects.get_or_create(client=account, group_by='+sup,-hello')
+        b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup', text_excludes='hello')
         update_budget_campaigns(b1)
         update_budget_campaigns(b2)
 
-        b3 = Budget.objects.create(client=account, grouping_type=1, text_excludes='test')
+        b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test')
         update_budget_campaigns(b3)
-        b4 = Budget.objects.create(client=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo')
+        b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo')
         update_budget_campaigns(b4)
 
-        cmp1 = Campaign.objects.get(campaign_id='123')
-        cmp2 = FacebookCampaign.objects.get(campaign_id='456')
-        cmp3 = BingCampaign.objects.get(campaign_id='789')
-        cmp4 = Campaign.objects.get(campaign_id='101112')
+        cmp1 = Campaign.objects.get(campaign_id='1234')
+        cmp2 = FacebookCampaign.objects.get(campaign_id='4567')
+        cmp3 = BingCampaign.objects.get(campaign_id='7891')
+        cmp4 = Campaign.objects.get(campaign_id='1011123')
 
         self.assertIn(cmp1, b1.aw_campaigns.all())
         self.assertNotIn(cmp2, b1.fb_campaigns.all())
