@@ -273,10 +273,10 @@ class AccountTestCase(TestCase):
                                                           dependent_account_name='test aw2',
                                                           desired_spend=1000.0)
 
-        Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account)
-        Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account)
-        FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account)
-        BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account)
+        cmp1 = Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account)
+        cmp4 = Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account)
+        cmp2 = FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account)
+        cmp3 = BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account)
 
         aw_accounts = [test_aw_account]
         fb_accounts = [fb_account]
@@ -288,37 +288,58 @@ class AccountTestCase(TestCase):
         account.save()
 
         b1 = Budget.objects.create(account=account, grouping_type=1, text_includes='foo, hello', text_excludes='test')
-
-        b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup', text_excludes='hello')
         update_budget_campaigns(b1)
-        update_budget_campaigns(b2)
-
-        b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test')
-        update_budget_campaigns(b3)
-        b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo')
-        update_budget_campaigns(b4)
-
-        cmp1 = Campaign.objects.get(campaign_id='1234')
-        cmp2 = FacebookCampaign.objects.get(campaign_id='4567')
-        cmp3 = BingCampaign.objects.get(campaign_id='7891')
-        cmp4 = Campaign.objects.get(campaign_id='1011123')
 
         self.assertIn(cmp1, b1.aw_campaigns.all())
         self.assertNotIn(cmp2, b1.fb_campaigns.all())
         self.assertIn(cmp3, b1.bing_campaigns.all())
         self.assertNotIn(cmp4, b1.aw_campaigns.all())
 
+        b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup',
+                                                   text_excludes='hello')
+        update_budget_campaigns(b2)
+
         self.assertNotIn(cmp1, b2.aw_campaigns.all())
         self.assertIn(cmp2, b2.fb_campaigns.all())
         self.assertNotIn(cmp3, b2.bing_campaigns.all())
         self.assertNotIn(cmp4, b2.aw_campaigns.all())
+
+        b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test')
+        update_budget_campaigns(b3)
 
         self.assertIn(cmp1, b3.aw_campaigns.all())
         self.assertNotIn(cmp2, b3.fb_campaigns.all())
         self.assertIn(cmp3, b3.bing_campaigns.all())
         self.assertIn(cmp4, b3.aw_campaigns.all())
 
+        b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo')
+        update_budget_campaigns(b4)
+
         self.assertNotIn(cmp1, b4.aw_campaigns.all())
         self.assertNotIn(cmp2, b4.fb_campaigns.all())
         self.assertNotIn(cmp3, b4.bing_campaigns.all())
         self.assertNotIn(cmp4, b4.aw_campaigns.all())
+
+        b5 = Budget.objects.create(account=account, grouping_type=2, has_adwords=True)
+        update_budget_campaigns(b5)
+
+        self.assertEqual(b5.aw_campaigns.count(), 2)
+        self.assertEqual(b5.fb_campaigns.count(), 0)
+        self.assertEqual(b5.bing_campaigns.count(), 0)
+
+        self.assertIn(cmp1, b5.aw_campaigns.all())
+        self.assertNotIn(cmp2, b5.fb_campaigns.all())
+        self.assertNotIn(cmp3, b5.bing_campaigns.all())
+        self.assertIn(cmp4, b5.aw_campaigns.all())
+
+        b6 = Budget.objects.create(account=account, grouping_type=2, has_facebook=True)
+        update_budget_campaigns(b6)
+
+        self.assertEqual(b6.aw_campaigns.count(), 0)
+        self.assertEqual(b6.fb_campaigns.count(), 1)
+        self.assertEqual(b6.bing_campaigns.count(), 0)
+
+        self.assertNotIn(cmp1, b6.aw_campaigns.all())
+        self.assertIn(cmp2, b6.fb_campaigns.all())
+        self.assertNotIn(cmp3, b6.bing_campaigns.all())
+        self.assertNotIn(cmp4, b6.aw_campaigns.all())
