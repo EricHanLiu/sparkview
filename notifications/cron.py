@@ -3,7 +3,8 @@ from client_area.models import Promo
 from adwords_dashboard.models import DependentAccount
 from user_management.models import Member
 from django.db.models import Q
-import datetime, calendar
+import datetime
+import calendar
 
 
 def prepare_todos():
@@ -72,6 +73,8 @@ def prepare_todos():
         for notification in scheduled_notifications:
             description = notification.message
             link = notification.link
+            if 'Review Flagged Accounts' in description:
+                link = '/reports/flagged_accounts'
             Todo.objects.create(member=member, description=description, link=link, type=2)
 
         # 90 DAYS OF AWESOME TASKS
