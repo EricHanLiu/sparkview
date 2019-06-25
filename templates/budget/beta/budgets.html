@@ -90,6 +90,8 @@
                     </div>
                     <div class="column is-5 has-text-right">
                         <a class="button is-link" id="sources_btn">Sources</a>
+                        <a class="button is-link" id="exclusion_btn"
+                           onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
                         <a class="button is-link" id="add_budget_btn">Add Budget</a>
                     </div>
                 </div>
@@ -356,6 +358,44 @@
     </div>
 </div>
 
+<div class="modal" id="exclusion_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Master Exclusion</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <form id="exclude_campaigns">
+                <input type="hidden" name="cid" value="{{ client_data.id }}">
+                <div class="tabs is-centered is-boxed">
+                    <ul>
+                        <li class="tab">
+                            <a>
+                                Manual Selection
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="field">
+                    <label class="label">Select Campaigns</label>
+                    <div class="control">
+                        <div class="select is-multiple is-fullwidth">
+                            <select name="campaigns"
+                                    multiple="multiple" id="exclude_campaigns_select">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
 <script>
     let $flightRadio = $('#flight_time_period');
     let $monthRadio = $('#monthly_time_period');
@@ -417,6 +457,30 @@
         });
     });
 
+    document.querySelector('#exclusion_btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        let exclusionModal = document.querySelector('#exclusion_modal');
+        let html = document.querySelector('html');
+        exclusionModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        exclusionModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            exclusionModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = exclusionModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                exclusionModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+
     // Tabs
     let openTab = function (evt, tabName) {
         let i, x, tablinks;
@@ -433,11 +497,11 @@
         document.getElementById(tabName).style.display = 'block';
         evt.currentTarget.className += ' is-active';
         if (tabName === 'manual') {
-            manualCampaigns();
+            manualCampaigns('campaigns_gr_across');
         }
     };
 
-    let manualCampaigns = function () {
+    let manualCampaigns = function (elementID) {
         let data = {
             'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
             'channel': $('#select_accounts_cgr').find(':selected').data('channel')
@@ -454,19 +518,19 @@
                 campaigns.forEach(item => {
                     if (item['model'] === 'adwords_dashboard.campaign') {
                         let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                        $('#' + elementID).append(new_option).trigger('change');
                     }
                     if (item['model'] === 'bing_dashboard.bingcampaign') {
                         let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                        $('#' + elementID).append(new_option).trigger('change');
                     }
                     if (item['model'] === 'facebook_dashboard.facebookcampaign') {
                         let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
-                        $('#campaigns_gr_across').append(new_option).trigger('change');
+                        $('#' + elementID).append(new_option).trigger('change');
                     }
                 });
 
-                $('#campaigns_gr_across').selectize({
+                $('#' + elementID).selectize({
                     plugins: ['remove_button']
                 });
             },
