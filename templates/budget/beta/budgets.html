@@ -90,7 +90,7 @@
 
                     </div>
                     <div class="column is-5 has-text-right">
-                        <a class="button is-link" id="sources_btn">Sources</a>
+                        <a class="button is-link" id="sources_btn">Pull Sources</a>
                         <a class="button is-link" id="exclusion_btn"
                            onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
                         <a class="button is-link" id="add_budget_btn">Add Budget</a>
@@ -422,6 +422,9 @@
     });
 
     document.querySelector('#sources_btn').addEventListener('click', function (event) {
+        if ($(this).text() !== 'Sources') {
+            return;
+        }
         event.preventDefault();
         let sourcesModal = document.querySelector('#sources_modal');
         let html = document.querySelector('html');
@@ -531,7 +534,9 @@
         });
     };
 
-    $('#sources_btn').one('click', () => {
+    $('#sources_btn').one('click', function () {
+        $(this).addClass('is-loading');
+
         $.ajax({
             url: '/budget/groupings/get_accounts',
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -556,6 +561,9 @@
                 $('.account-multiple').selectize({
                     plugins: ['remove_button']
                 });
+
+                $(this).removeClass('is-loading');
+                $(this).text('Sources');
             },
             error: function (ajaxContext) {
                 toastr.error(ajaxContext.statusText)
