@@ -1598,7 +1598,12 @@ class Budget(models.Model):
         Calculates Google Ads spend on the fly
         :return:
         """
-        pass
+        if not hasattr(self, '_calculated_google_ads_spend'):
+            spend = 0.0
+            for cmp in self.aw_campaigns.all():
+                spend += cmp.campaign_cost
+            self._calculated_google_ads_spend = spend
+        return self._calculated_google_ads_spend
 
     @property
     def calculated_facebook_ads_spend(self):
@@ -1606,7 +1611,12 @@ class Budget(models.Model):
         Calculates Facebook Ads spend on the fly
         :return:
         """
-        pass
+        if not hasattr(self, '_calculated_facebook_ads_spend'):
+            spend = 0.0
+            for cmp in self.fb_campaigns.all():
+                spend += cmp.campaign_cost
+            self._calculated_facebook_ads_spend = spend
+        return self._calculated_facebook_ads_spend
 
     @property
     def calculated_bing_ads_spend(self):
@@ -1614,7 +1624,25 @@ class Budget(models.Model):
         Calculates Bing Ads spend on the fly
         :return:
         """
-        pass
+        if not hasattr(self, '_calculated_bing_ads_spend'):
+            spend = 0.0
+            for cmp in self.bing_campaigns.all():
+                spend += cmp.campaign_cost
+            self._calculated_bing_ads_spend = spend
+        return self._calculated_bing_ads_spend
+
+    @property
+    def calculated_spend(self):
+        return self.calculated_google_ads_spend + self.calculated_facebook_ads_spend \
+               + self.calculated_bing_ads_spend
+
+    @property
+    def spend_percentage(self):
+        """
+        Percentage of budget spend in this period
+        :return:
+        """
+        return self.calculated_spend * 100.0 / self.budget
 
 
 class AccountBudgetSpendHistory(models.Model):

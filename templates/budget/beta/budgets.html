@@ -98,11 +98,58 @@
                             <p class="card-header-title">
                                 {{ budget.name }}
                             </p>
+                            <span class="card-header-icon">
+                              {% if budget.is_monthly %}
+                                Monthly Budget
+                              {% else %}
+                                Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
+                              {% endif %}
+                            </span>
                         </header>
                         <div class="card-content">
-
+                            <div class="columns">
+                                <div class="column is-2">
+                                    Spend: <strong>${{ budget.calculated_spend }}</strong>
+                                </div>
+                                <div class="column is-2">
+                                    Budget: <strong>${{ budget.budget }}</strong>
+                                </div>
+                                <div class="column is-2">
+                                    Average: <strong>Coming Soon</strong>
+                                </div>
+                                <div class="column is-3">
+                                    Rec Daily Spend: <strong>Coming Soon</strong>
+                                </div>
+                                <div class="column is-3">
+                                    <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                                        <div class="control">
+                                            <div class="tags has-addons">
+                                                <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google Ads</span>
+                                            </div>
+                                        </div>
+                                        <div class="control">
+                                            <div class="tags has-addons">
+                                                <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">Facebook Ads</span>
+                                            </div>
+                                        </div>
+                                        <div class="control">
+                                            <div class="tags has-addons">
+                                                <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing Ads</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-12">
+                                    <progress class="progress is-large is-info" max="100" value="60">60%</progress>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    {% if not forloop.last %}
+                        <br/>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -142,15 +189,15 @@
                         <div class="field">
                             <label class="label">Ad Networks</label>
                             <label class="checkbox">
-                                <input type="checkbox" name="google_ads" class="is-large">
+                                <input type="checkbox" name="google_ads" class="is-large" {% if not account.adwords.all %}disabled{% endif %}>
                                 Google Ads
                             </label>
                             <label class="checkbox">
-                                <input type="checkbox" name="facebook_ads">
+                                <input type="checkbox" name="facebook_ads" {% if not account.facebook.all %}disabled{% endif %}>
                                 Facebook Ads
                             </label>
                             <label class="checkbox">
-                                <input type="checkbox" name="bing_ads">
+                                <input type="checkbox" name="bing_ads" {% if not account.bing.all %}disabled{% endif %}>
                                 Bing Ads
                             </label>
                         </div>
