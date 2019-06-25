@@ -37,41 +37,44 @@ def update_budget_campaigns(self, budget):
         fb_campaigns_in_group = []
         bing_campaigns_in_group = []
 
-        for adwords_campaign in adwords_campaigns:
-            for positive_keyword in positive_keywords:
-                if positive_keyword.strip().lower().strip() in adwords_campaign.campaign_name.lower():
-                    if adwords_campaign not in aw_campaigns_in_group:
-                        aw_campaigns_in_group.append(adwords_campaign)
-            for negative_keyword in negative_keywords:
-                if negative_keyword.strip().lower().strip() in adwords_campaign.campaign_name.lower():
-                    if adwords_campaign in aw_campaigns_in_group:
-                        aw_campaigns_in_group.remove(adwords_campaign)
+        if budget.has_adwords:
+            for adwords_campaign in adwords_campaigns:
+                for positive_keyword in positive_keywords:
+                    if positive_keyword.strip().lower().strip() in adwords_campaign.campaign_name.lower():
+                        if adwords_campaign not in aw_campaigns_in_group:
+                            aw_campaigns_in_group.append(adwords_campaign)
+                for negative_keyword in negative_keywords:
+                    if negative_keyword.strip().lower().strip() in adwords_campaign.campaign_name.lower():
+                        if adwords_campaign in aw_campaigns_in_group:
+                            aw_campaigns_in_group.remove(adwords_campaign)
 
-        budget.aw_campaigns.set(aw_campaigns_in_group)
+            budget.aw_campaigns.set(aw_campaigns_in_group)
 
-        for facebook_campaign in facebook_campaigns:
-            for positive_keyword in positive_keywords:
-                if positive_keyword.strip().lower().strip() in facebook_campaign.campaign_name.lower():
-                    if facebook_campaign not in fb_campaigns_in_group:
-                        fb_campaigns_in_group.append(facebook_campaign)
-            for negative_keyword in negative_keywords:
-                if negative_keyword.strip().lower().strip() in facebook_campaign.campaign_name.lower():
-                    if facebook_campaign in fb_campaigns_in_group:
-                        fb_campaigns_in_group.remove(facebook_campaign)
+        if budget.has_facebook:
+            for facebook_campaign in facebook_campaigns:
+                for positive_keyword in positive_keywords:
+                    if positive_keyword.strip().lower().strip() in facebook_campaign.campaign_name.lower():
+                        if facebook_campaign not in fb_campaigns_in_group:
+                            fb_campaigns_in_group.append(facebook_campaign)
+                for negative_keyword in negative_keywords:
+                    if negative_keyword.strip().lower().strip() in facebook_campaign.campaign_name.lower():
+                        if facebook_campaign in fb_campaigns_in_group:
+                            fb_campaigns_in_group.remove(facebook_campaign)
 
-        budget.fb_campaigns.set(fb_campaigns_in_group)
+            budget.fb_campaigns.set(fb_campaigns_in_group)
 
-        for bing_campaign in bing_campaigns:
-            for positive_keyword in positive_keywords:
-                if positive_keyword.strip().lower().strip() in bing_campaign.campaign_name.lower():
-                    if bing_campaign not in bing_campaigns_in_group:
-                        bing_campaigns_in_group.append(bing_campaign)
-            for negative_keyword in negative_keywords:
-                if negative_keyword.strip().lower().strip() in bing_campaign.campaign_name.lower():
-                    if bing_campaign in bing_campaigns_in_group:
-                        bing_campaigns_in_group.remove(bing_campaign)
+        if budget.has_bing:
+            for bing_campaign in bing_campaigns:
+                for positive_keyword in positive_keywords:
+                    if positive_keyword.strip().lower().strip() in bing_campaign.campaign_name.lower():
+                        if bing_campaign not in bing_campaigns_in_group:
+                            bing_campaigns_in_group.append(bing_campaign)
+                for negative_keyword in negative_keywords:
+                    if negative_keyword.strip().lower().strip() in bing_campaign.campaign_name.lower():
+                        if bing_campaign in bing_campaigns_in_group:
+                            bing_campaigns_in_group.remove(bing_campaign)
 
-        budget.bing_campaigns.set(bing_campaigns_in_group)
+            budget.bing_campaigns.set(bing_campaigns_in_group)
     else:
         #  all
         account = budget.account

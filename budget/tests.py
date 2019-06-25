@@ -287,7 +287,8 @@ class AccountTestCase(TestCase):
         account.bing.set(bing_accounts)
         account.save()
 
-        b1 = Budget.objects.create(account=account, grouping_type=1, text_includes='foo, hello', text_excludes='test')
+        b1 = Budget.objects.create(account=account, grouping_type=1, text_includes='foo, hello', text_excludes='test',
+                                   has_adwords=True, has_bing=True, has_facebook=True)
         update_budget_campaigns(b1)
 
         self.assertIn(cmp1, b1.aw_campaigns.all())
@@ -296,7 +297,8 @@ class AccountTestCase(TestCase):
         self.assertNotIn(cmp4, b1.aw_campaigns.all())
 
         b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup',
-                                                   text_excludes='hello')
+                                                   text_excludes='hello', has_adwords=True, has_bing=True,
+                                                   has_facebook=True)
         update_budget_campaigns(b2)
 
         self.assertNotIn(cmp1, b2.aw_campaigns.all())
@@ -304,7 +306,8 @@ class AccountTestCase(TestCase):
         self.assertNotIn(cmp3, b2.bing_campaigns.all())
         self.assertNotIn(cmp4, b2.aw_campaigns.all())
 
-        b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test')
+        b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
+                                   has_bing=True, has_facebook=True)
         update_budget_campaigns(b3)
 
         self.assertIn(cmp1, b3.aw_campaigns.all())
@@ -312,7 +315,8 @@ class AccountTestCase(TestCase):
         self.assertIn(cmp3, b3.bing_campaigns.all())
         self.assertIn(cmp4, b3.aw_campaigns.all())
 
-        b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo')
+        b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo',
+                                   has_adwords=True, has_bing=True, has_facebook=True)
         update_budget_campaigns(b4)
 
         self.assertNotIn(cmp1, b4.aw_campaigns.all())
@@ -343,3 +347,15 @@ class AccountTestCase(TestCase):
         self.assertIn(cmp2, b6.fb_campaigns.all())
         self.assertNotIn(cmp3, b6.bing_campaigns.all())
         self.assertNotIn(cmp4, b6.aw_campaigns.all())
+
+        b7 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
+                                   has_bing=False, has_facebook=True)
+        update_budget_campaigns(b7)
+
+        self.assertIn(cmp1, b7.aw_campaigns.all())
+        self.assertNotIn(cmp2, b7.fb_campaigns.all())
+        self.assertNotIn(cmp3, b7.bing_campaigns.all())
+        self.assertIn(cmp4, b7.aw_campaigns.all())
+
+        b8 = Budget.objects.create(account=account, grouping_type=0, has_adwords=True)
+        pass
