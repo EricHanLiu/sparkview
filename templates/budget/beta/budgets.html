@@ -151,7 +151,9 @@
                             </div>
                             <div class="columns">
                                 <div class="column is-12">
-                                    <progress class="progress is-large is-info" max="100" value="{{ budget.spend_percentage }}">{{ spend_percentage }}%</progress>
+                                    <progress class="progress is-large is-info" max="100"
+                                              value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
+                                    </progress>
                                 </div>
                             </div>
                         </div>
@@ -314,39 +316,24 @@
         <section class="modal-card-body">
             <form id="assign_accounts">
                 <input type="hidden" name="cid" value="{{ client_data.id }}">
-                <div class="row>">
-                    <div class="col-md-12">
-                        <label>AdWords:</label>
-                        <select class="form-control m-input--large" name="adwords"
-                                multiple="multiple" id="m_select2_adwords"
-                                style="width: 100%;">
-                            {% for a in adwords %}
-                                <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
-                            {% endfor %}
+                <div class="column is-12">
+                    <label>AdWords</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="adwords_sources">
                         </select>
                     </div>
                 </div>
-                <div class="row>">
-                    <div class="col-md-12">
-                        <label for="bing" class="form-control-label">Bing: </label>
-                        <select class="form-control m-input--large" name="bing"
-                                multiple="multiple" id="m_select2_bing"
-                                style="width: 100%;">
-                            {% for b in bing %}
-                                <option value="{{ b.account_id }}">{{ b.account_name }}</option>
-                            {% endfor %}
+                <div class="column is-12">
+                    <label>Facebook</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="facebook_sources">
                         </select>
                     </div>
                 </div>
-                <div class="row>">
-                    <div class="col-md-12">
-                        <label for="facebook" class="form-control-label">Facebook: </label>
-                        <select class="form-control m-input--large" name="facebook"
-                                multiple="multiple" id="m_select2_facebook"
-                                style="width: 100%;">
-                            {% for f in facebook %}
-                                <option value="{{ f.account_id }}">{{ f.account_name }}</option>
-                            {% endfor %}
+                <div class="column is-12">
+                    <label>Bing</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="bing_sources">
                         </select>
                     </div>
                 </div>
@@ -543,6 +530,38 @@
 
         });
     };
+
+    $('#sources_btn').one('click', () => {
+        $.ajax({
+            url: '/budget/groupings/get_accounts',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            success: (data) => {
+                let accounts = data['accounts'];
+                accounts.forEach(acc => {
+                    if (acc['model'] === 'adwords_dashboard.dependentaccount') {
+                        let new_option = new Option(acc['fields']['dependent_account_name'], acc['fields']['dependent_account_id'], false, false);
+                        $('#adwords_sources').append(new_option).trigger('change');
+                    }
+                    if (acc['model'] === 'facebook_dashboard.facebookaccount') {
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, false);
+                        $('#facebook_sources').append(new_option).trigger('change');
+                    }
+                    if (acc['model'] === 'bing_dashboard.bingaccounts') {
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, false);
+                        $('#bing_sources').append(new_option).trigger('change');
+                    }
+                });
+
+                $('.account-multiple').selectize({
+                    plugins: ['remove_button']
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+        });
+    });
 </script>
 </body>
 </html>

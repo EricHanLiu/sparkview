@@ -854,6 +854,21 @@ def delete_groupings(request):
         return JsonResponse(context)
 
 
+@login_required
+def get_accounts(request):
+    adwords_accounts = DependentAccount.objects.all()
+    fb_accounts = FacebookAccount.objects.all()
+    bing_accounts = BingAccounts.objects.all()
+
+    accounts = list(adwords_accounts) + list(fb_accounts) + list(bing_accounts)
+
+    response = {
+        'accounts': json.loads(serializers.serialize('json', accounts))
+    }
+
+    return JsonResponse(response)
+
+
 def get_campaigns(request):
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')

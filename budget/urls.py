@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^groupings/update/$', views.update_groupings, name='campaign_groupings_update'),
     url(r'^groupings/delete/$', views.delete_groupings, name='campaign_groupings_delete'),
     url(r'^groupings/get_campaigns/$', views.get_campaigns, name='campaign_groupings_get_campaigns'),
+    url(r'^groupings/get_accounts$', views.get_accounts, name='campaign_groupings_get_accounts'),
     url(r'^fbudget/read/$', views.detailed_flight_dates, name='flight_budget_read'),
     url(r'^gtsorbudget/$', views.gts_or_budget, name='gts_or_budget'),
     url(r'^confirm_budget$', views.confirm_budget, name='confirm_budget'),
