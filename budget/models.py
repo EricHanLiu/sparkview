@@ -1600,8 +1600,12 @@ class Budget(models.Model):
         """
         if not hasattr(self, '_calculated_google_ads_spend'):
             spend = 0.0
-            for cmp in self.aw_campaigns.all():
-                spend += cmp.campaign_cost
+            if self.has_adwords:
+                if self.is_monthly:
+                    for cmp in self.aw_campaigns.all():
+                        spend += cmp.campaign_cost
+                else:
+                    pass  # Get the flight spend
             self._calculated_google_ads_spend = spend
         return self._calculated_google_ads_spend
 
@@ -1613,8 +1617,12 @@ class Budget(models.Model):
         """
         if not hasattr(self, '_calculated_facebook_ads_spend'):
             spend = 0.0
-            for cmp in self.fb_campaigns.all():
-                spend += cmp.campaign_cost
+            if self.has_facebook:
+                if self.is_monthly:
+                    for cmp in self.fb_campaigns.all():
+                        spend += cmp.campaign_cost
+                else:
+                    pass  # Get the flight spend
             self._calculated_facebook_ads_spend = spend
         return self._calculated_facebook_ads_spend
 
@@ -1626,8 +1634,12 @@ class Budget(models.Model):
         """
         if not hasattr(self, '_calculated_bing_ads_spend'):
             spend = 0.0
-            for cmp in self.bing_campaigns.all():
-                spend += cmp.campaign_cost
+            if self.has_bing:
+                if self.is_monthly:
+                    for cmp in self.bing_campaigns.all():
+                        spend += cmp.campaign_cost
+                else:
+                    pass  # Get the flight spend
             self._calculated_bing_ads_spend = spend
         return self._calculated_bing_ads_spend
 

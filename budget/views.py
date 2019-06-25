@@ -1171,6 +1171,7 @@ def new_budget(request):
     grouping_type = request.POST.get('grouping_type')
 
     if grouping_type == 'manual':
+        # Lousy, but it works for now
         budget.grouping_type = 0
         for c in request.POST.getlist('campaigns'):
             try:
