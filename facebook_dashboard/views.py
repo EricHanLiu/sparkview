@@ -1,65 +1,6 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.clickjacking import xframe_options_exempt
-from facebook_dashboard.models import FacebookAccount, FacebookPerformance
-
-
-# Create your views here.
-@login_required
-def index(request):
-    return request(facebook_dashboard)
-
-
-@login_required
-@xframe_options_exempt
-def facebook_dashboard(request):
-    user = request.user
-    items = []
-    accounts = FacebookAccount.objects.filter(blacklisted=False)
-    for account in accounts:
-        item = {}
-        query = FacebookPerformance.objects.filter(account=account.pk, performance_type='ACCOUNT')
-        item['account'] = account
-        item['clicks'] = query[0].clicks if query else 0
-        item['impressions'] = query[0].impressions if query else 0
-        item['ctr'] = query[0].ctr if query else 0
-        item['cpc'] = query[0].cpc if query else 0
-        item['cost'] = query[0].cost if query else 0
-        items.append(item)
-
-    if user.is_authenticated:
-        return render(request, 'facebook/dashboard.html', {'items': items})
-    else:
-        return render(request, 'login/login.html')
-
-
-@login_required
-def campaign_anomalies(request, account_id):
-    account = FacebookAccount.objects.get(account_id=account_id)
-
-    anomalies = FacebookPerformance.objects.filter(account=account,
-                                                   performance_type='CAMPAIGN')
-
-    campaigns = []
-
-    for cmp in anomalies:
-        campaign = {}
-        campaign['id'] = cmp.campaign_id
-        campaign['name'] = cmp.campaign_name
-        campaign['cpc'] = cmp.cpc
-        campaign['clicks'] = cmp.clicks
-        campaign['impressions'] = cmp.impressions
-        campaign['cost'] = cmp.cpc
-        campaign['cost_per_conversions'] = cmp.cpc
-        campaign['ctr'] = cmp.ctr
-        campaigns.append(campaign)
-
-    context = {
-        'account': account,
-        'campaigns': campaigns
-    }
-
-    return render(request, 'facebook/campaign_anomalies.html', context)
+from facebook_dashboard.models import FacebookAccount
 
 
 @login_required

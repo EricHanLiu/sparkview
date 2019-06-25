@@ -136,48 +136,6 @@ class FacebookAccount(models.Model):
         return self.account_name
 
 
-class FacebookPerformance(models.Model):
-    account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
-    performance_type = models.CharField(max_length=255)
-    campaign_id = models.CharField(max_length=255, default='None')
-    campaign_name = models.CharField(max_length=255, default='None')
-    cpc = models.CharField(max_length=255)
-    clicks = models.CharField(max_length=255)
-    conversions = models.CharField(max_length=255)
-    cost = models.CharField(max_length=255, default=0)
-    cost_per_conversions = models.CharField(max_length=255)
-    ctr = models.CharField(max_length=255)
-    impressions = models.CharField(max_length=255)
-    search_impr_share = models.CharField(max_length=255)
-    updated_time = models.DateTimeField(auto_now=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-    metadata = JSONField(default=dict)
-
-    @property
-    def json(self):
-        account = json.loads(serialize("json", [self.account]))[0]["fields"]
-        return dict(
-            account=account,
-            performance_type=self.performance_type,
-            campaign_id=self.campaign_id,
-            campaign_name=self.campaign_name,
-            cpc=self.cpc,
-            clicks=self.clicks,
-            conversions=self.conversions,
-            cost=self.cost,
-            cost_per_conversions=self.cost_per_conversions,
-            ctr=self.ctr,
-            impressions=self.impressions,
-            search_impr_share=self.search_impr_share,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d"),
-            metadata=self.metadata
-        )
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
-
-
 class FacebookCampaign(models.Model):
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
     campaign_id = models.CharField(max_length=255, default='None')

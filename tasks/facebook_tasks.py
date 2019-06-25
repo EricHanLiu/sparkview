@@ -2,7 +2,7 @@ import calendar
 from bloom import celery_app, settings
 from bloom.utils import FacebookReportingService
 from datetime import datetime
-from facebook_dashboard.models import FacebookAccount, FacebookPerformance, FacebookCampaign
+from facebook_dashboard.models import FacebookAccount, FacebookCampaign
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
 from facebook_business.adobjects.adaccount import AdAccount
@@ -247,18 +247,6 @@ def facebook_cron_anomalies(self, account_id):
     acc_metadata['daterange2_max'] = previous_period_daterange['time_range']['until']
     acc_metadata['vals'] = acc_anomalies
 
-    FacebookPerformance.objects.filter(account=account, performance_type='ACCOUNT').delete()
-
-    FacebookPerformance.objects.create(
-        account=account, performance_type='ACCOUNT',
-        clicks=acc_anomalies['clicks'][0],
-        cost=acc_anomalies['spend'][0],
-        impressions=acc_anomalies['impressions'][0],
-        ctr=acc_anomalies['ctr'][0],
-        cpc=acc_anomalies['cpc'][0],
-        metadata=acc_metadata
-    )
-
 
 @celery_app.task(bind=True)
 def facebook_cron_anomalies_campaigns(self, account_id):
@@ -298,8 +286,6 @@ def facebook_cron_anomalies_campaigns(self, account_id):
         previous_period,
     )
 
-    FacebookPerformance.objects.filter(account=account, performance_type='CAMPAIGN').delete()
-
     for cmp in cmp_anomalies:
 
         cmp_metadata = {}
@@ -313,19 +299,6 @@ def facebook_cron_anomalies_campaigns(self, account_id):
             cpc = cmp['cpc'][0]
         else:
             cpc = 0
-
-        FacebookPerformance.objects.create(
-            account=account,
-            performance_type='CAMPAIGN',
-            campaign_name=cmp['campaign_name'][0],
-            campaign_id=cmp['campaign_id'][0],
-            clicks=cmp['clicks'][0],
-            impressions=cmp['impressions'][0],
-            ctr=cmp['ctr'][0],
-            cost=cmp['spend'][0],
-            cpc=cpc,
-            metadata=cmp_metadata
-        )
 
 
 @celery_app.task(bind=True)
