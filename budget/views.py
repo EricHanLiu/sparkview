@@ -1161,9 +1161,17 @@ def new_budget(request):
     budget.budget = request.POST.get('budget_amount')
     budget.save()
 
+    if 'google_ads' in request.POST:
+        budget.has_adwords = True
+    if 'facebook_ads' in request.POST:
+        budget.has_facebook = True
+    if 'bing_ads' in request.POST:
+        budget.has_bing = True
+
     grouping_type = request.POST.get('grouping_type')
 
     if grouping_type == 'manual':
+        # Lousy, but it works for now
         budget.grouping_type = 0
         for c in request.POST.getlist('campaigns'):
             try:
@@ -1198,6 +1206,6 @@ def new_budget(request):
     else:
         budget.is_monthly = False
 
-    print(request.POST)
+    budget.save()
 
     return redirect('/budget/client/' + str(account.id) + '/beta')

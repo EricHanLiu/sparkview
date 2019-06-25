@@ -1,5 +1,6 @@
 {% load static %}
 {% load staticfiles %}
+{% load budget_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -117,10 +118,10 @@
                         <div class="card-content">
                             <div class="columns">
                                 <div class="column is-2">
-                                    Spend: <strong>${{ budget.calculated_spend }}</strong>
+                                    Spend: <strong>{{ budget.calculated_spend|currency }}</strong>
                                 </div>
                                 <div class="column is-2">
-                                    Budget: <strong>${{ budget.budget }}</strong>
+                                    Budget: <strong>{{ budget.budget|currency }}</strong>
                                 </div>
                                 <div class="column is-2">
                                     Average: <strong>Coming Soon</strong>
@@ -150,7 +151,7 @@
                             </div>
                             <div class="columns">
                                 <div class="column is-12">
-                                    <progress class="progress is-large is-info" max="100" value="60">60%</progress>
+                                    <progress class="progress is-large is-info" max="100" value="{{ budget.spend_percentage }}">{{ spend_percentage }}%</progress>
                                 </div>
                             </div>
                         </div>

@@ -158,6 +158,14 @@ class BingCampaign(models.Model):
     master_exclusion = models.BooleanField(default=False)
 
 
+class BingCampaignExclusion(models.Model):
+    campaign = models.ForeignKey(BingCampaign, on_delete=models.CASCADE, null=True, default=None)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.campaign.campaign_name
+
+
 class BingCampaignSpendDateRange(models.Model):
     """
     Object for storing spend for a Bing campaign thats part of a budget

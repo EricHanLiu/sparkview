@@ -200,6 +200,14 @@ class FacebookCampaign(models.Model):
         )
 
 
+class FacebookCampaignExclusion(models.Model):
+    campaign = models.ForeignKey(FacebookCampaign, on_delete=models.CASCADE, null=True, default=None)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.campaign.campaign_name
+
+
 class FacebookAlert(models.Model):
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
     alert_type = models.CharField(max_length=255)

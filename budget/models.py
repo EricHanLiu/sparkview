@@ -1600,8 +1600,16 @@ class Budget(models.Model):
         """
         if not hasattr(self, '_calculated_google_ads_spend'):
             spend = 0.0
-            for cmp in self.aw_campaigns.all():
-                spend += cmp.campaign_cost
+            if self.has_adwords:
+                if self.is_monthly:
+                    for cmp in self.aw_campaigns.all():
+                        spend += cmp.campaign_cost
+                else:
+                    csdrs = adwords_a.CampaignSpendDateRange.objects.filter(campaign__in=self.aw_campaigns.all(),
+                                                                            start_date=self.start_date,
+                                                                            end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend
             self._calculated_google_ads_spend = spend
         return self._calculated_google_ads_spend
 
@@ -1613,8 +1621,16 @@ class Budget(models.Model):
         """
         if not hasattr(self, '_calculated_facebook_ads_spend'):
             spend = 0.0
-            for cmp in self.fb_campaigns.all():
-                spend += cmp.campaign_cost
+            if self.has_facebook:
+                if self.is_monthly:
+                    for cmp in self.fb_campaigns.all():
+                        spend += cmp.campaign_cost
+                else:
+                    csdrs = fb.FacebookCampaignSpendDateRange.objects.filter(campaign__in=self.fb_campaigns.all(),
+                                                                             start_date=self.start_date,
+                                                                             end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend
             self._calculated_facebook_ads_spend = spend
         return self._calculated_facebook_ads_spend
 
@@ -1626,8 +1642,16 @@ class Budget(models.Model):
         """
         if not hasattr(self, '_calculated_bing_ads_spend'):
             spend = 0.0
-            for cmp in self.bing_campaigns.all():
-                spend += cmp.campaign_cost
+            if self.has_bing:
+                if self.is_monthly:
+                    for cmp in self.bing_campaigns.all():
+                        spend += cmp.campaign_cost
+                else:
+                    csdrs = bing_a.BingCampaignSpendDateRange.objects.filter(campaign__in=self.bing_campaigns.all(),
+                                                                             start_date=self.start_date,
+                                                                             end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend
             self._calculated_bing_ads_spend = spend
         return self._calculated_bing_ads_spend
 
