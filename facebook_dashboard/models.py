@@ -159,14 +159,6 @@ class FacebookCampaign(models.Model):
         )
 
 
-class FacebookCampaignExclusion(models.Model):
-    campaign = models.ForeignKey(FacebookCampaign, on_delete=models.CASCADE, null=True, default=None)
-    date_added = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.campaign.campaign_name
-
-
 class FacebookCampaignSpendDateRange(models.Model):
     """
     Object for storing spend for a Facebook campaign thats part of a budget

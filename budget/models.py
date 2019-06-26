@@ -1656,6 +1656,26 @@ class Budget(models.Model):
                self.calculated_yest_bing_ads_spend
 
     @property
+    def average_spend_yest(self):
+        """
+        Calculates the average spend until yesterday
+        :return:
+        """
+        if self.is_monthly:
+            number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
+        else:
+            number_of_days = (self.end_date - self.start_date).days
+        return self.calculated_yest_spend / number_of_days
+
+    @property
+    def rec_spend_yest(self):
+        """
+        Calculates the recommended daily spend based on value until yesterday
+        :return:
+        """
+        pass
+
+    @property
     def spend_percentage(self):
         """
         Percentage of budget spend in this period
@@ -1663,6 +1683,16 @@ class Budget(models.Model):
         """
         return self.calculated_spend * 100.0 / self.budget
 
+
+class CampaignExclusions(models.Model):
+    """
+    Campaign exclusion data
+    """
+    account = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, default=None)
+    aw_campaigns = models.ManyToManyField(adwords_a.Campaign)
+    fb_campaigns = models.ManyToManyField(fb.FacebookCampaign)
+    bing_campaigns = models.ManyToManyField(bing_a.BingCampaign)
+    
 
 class AccountBudgetSpendHistory(models.Model):
     """

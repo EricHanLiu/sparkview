@@ -302,6 +302,7 @@
         </header>
         <section class="modal-card-body">
             <form id="assign_accounts">
+                {% csrf_token %}
                 <input type="hidden" name="cid" value="{{ client_data.id }}">
                 <div class="row>">
                     <div class="col-md-12">
@@ -355,9 +356,10 @@
             <p class="modal-card-title">Master Exclusion</p>
             <button class="delete close" aria-label="close"></button>
         </header>
-        <section class="modal-card-body">
-            <form id="exclude_campaigns">
-                <input type="hidden" name="cid" value="{{ client_data.id }}">
+        <form id="exclude_campaigns" method="post" action="/budget/update_exclusions">
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <input type="hidden" name="account_id" value="{{ account.id }}">
                 <div class="tabs is-centered is-boxed">
                     <ul>
                         <li class="tab">
@@ -377,12 +379,12 @@
                         </div>
                     </div>
                 </div>
-            </form>
-        </section>
-        <footer class="modal-card-foot">
-            <button class="button is-link">Save changes</button>
-            <button class="button close">Cancel</button>
-        </footer>
+            </section>
+            <footer class="modal-card-foot">
+                <input class="button is-link" type="submit" value="Update Exclusions" />
+                <button class="button close">Cancel</button>
+            </footer>
+        </form>
     </div>
 </div>
 
