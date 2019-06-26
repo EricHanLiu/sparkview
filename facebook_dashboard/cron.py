@@ -10,7 +10,7 @@ import datetime
 def get_all_spends_by_facebook_campaign_this_month():
     accounts = FacebookAccount.objects.filter(blacklisted=False)
     for account in accounts:
-        get_spend_by_facebook_campaign_this_month(account)
+        get_spend_by_facebook_campaign_this_month.delay(account)
 
 
 @celery_app.task(bind=True)

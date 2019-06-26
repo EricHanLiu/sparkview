@@ -20,11 +20,11 @@ def get_client():
 
 
 def get_all_spends_by_campaign_this_month():
-    # accounts = DependentAccount.objects.filter(blacklisted=False)
-    accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
+    accounts = DependentAccount.objects.filter(blacklisted=False)
+    # accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
     for account in accounts:
-        # get_spend_by_campaign_this_month.delay(account)
-        get_spend_by_campaign_this_month(account)
+        get_spend_by_campaign_this_month.delay(account)
+        # get_spend_by_campaign_this_month(account)
 
 
 @celery_app.task(bind=True)
@@ -123,7 +123,7 @@ def get_all_spend_by_campaign_custom():
     budgets = Budget.objects.filter(has_adwords=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
         for aw_camp in budget.aw_campaigns_without_excluded:
-            get_spend_by_campaign_custom(aw_camp, budget)
+            get_spend_by_campaign_custom.delay(aw_camp, budget)
 
 
 @celery_app.task(bind=True)
