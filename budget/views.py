@@ -9,10 +9,10 @@ from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget
+from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions
 from user_management.models import Member
 from django.core import serializers
-from tasks import adwords_tasks, bing_tasks, facebook_tasks
+from tasks import adwords_tasks
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -1235,24 +1235,37 @@ def update_exclusions(request):
 
     if account not in member.accounts and not request.user.is_staff:
         return HttpResponseForbidden('You are not allowed to do this')
+    
+    exclusions, created = CampaignExclusions.objects.get_or_create(account=account)
 
     campaign_ids = request.POST.getlist('campaigns')
+
+    aw_cmps = []
+    fb_cmps = []
+    bing_cmps = []
 
     # We don't know which id is from which platform, so we have to try all 3
     for campaign_id in campaign_ids:
         try:
-            cmp = Campaign.objects.get(campaign_id=campaign_id)
+            aw_cmp = Campaign.objects.get(campaign_id=campaign_id)
+            aw_cmps.append(aw_cmp)
         except Campaign.DoesNotExist:
             pass
 
         try:
-            cmp = BingCampaign.objects.get(campaign_id=campaign_id)
+            bing_cmp = BingCampaign.objects.get(campaign_id=campaign_id)
+            bing_cmps.append(bing_cmp)
         except BingCampaign.DoesNotExist:
             pass
 
         try:
-            cmp = FacebookCampaign.objects.get(campaign_id=campaign_id)
+            fb_cmp = FacebookCampaign.objects.get(campaign_id=campaign_id)
+            fb_cmps.append(fb_cmp)
         except FacebookCampaign.DoesNotExist:
             pass
+
+    exclusions.aw_campaigns.set(aw_cmps)
+    exclusions.fb_campaigns.set(fb_cmps)
+    exclusions.bing_campaigns.set(bing_cmps)
 
     return redirect('/budget/client/' + str(account.id) + '/beta')
