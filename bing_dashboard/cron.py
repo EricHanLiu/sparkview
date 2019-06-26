@@ -48,7 +48,7 @@ def get_all_spend_by_bing_campaign_custom():
     """
     budgets = Budget.objects.filter(has_bing=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
-        for bing_camp in budget.bing_campaigns:
+        for bing_camp in budget.bing_campaigns_without_excluded:
             get_spend_by_bing_campaign_custom.delay(bing_camp, budget)
 
 

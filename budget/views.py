@@ -929,7 +929,8 @@ def get_campaigns_in_budget(request):
     budget_id = request.POST.get('budget_id')
     budget = get_object_or_404(Budget, id=budget_id)
 
-    campaigns = list(budget.aw_campaigns.all()) + list(budget.fb_campaigns.all()) + list(budget.bing_campaigns.all())
+    campaigns = list(budget.aw_campaigns_without_excluded) + list(budget.fb_campaigns_without_excluded) + list(
+        budget.bing_campaigns_without_excluded)
 
     response = {
         'campaigns': json.loads(serializers.serialize('json', campaigns))
@@ -1265,7 +1266,7 @@ def update_exclusions(request):
 
     if account not in member.accounts and not request.user.is_staff:
         return HttpResponseForbidden('You are not allowed to do this')
-    
+
     exclusions, created = CampaignExclusions.objects.get_or_create(account=account)
 
     campaign_ids = request.POST.getlist('campaigns')
