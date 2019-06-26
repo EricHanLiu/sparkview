@@ -22,6 +22,10 @@
         html {
             background: #efefef;
         }
+
+        .modal-card-body {
+            height: 30rem;
+        }
     </style>
 </head>
 <body>
@@ -79,7 +83,7 @@
 
                     </div>
                     <div class="column is-5 has-text-right">
-                        <a class="button is-link" id="sources_btn">Sources</a>
+                        <a class="button is-link" id="sources_btn">Pull Sources</a>
                         <a class="button is-link" id="exclusion_btn"
                            onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
                         <a class="button is-link" id="add_budget_btn">Add Budget</a>
@@ -97,11 +101,11 @@
                                 {{ budget.name }} - {{ budget.description }}
                             </p>
                             <span class="card-header-icon">
-                              {% if budget.is_monthly %}
-                                  Monthly Budget
-                              {% else %}
-                                  Flight Dates: {{ budget.pretty_dates }}
-                              {% endif %}
+                                {% if budget.is_monthly %}
+                                    Monthly Budget
+                                {% else %}
+                                    Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
+                                {% endif %}
                             </span>
                         </header>
                         <div class="card-content">
@@ -140,8 +144,15 @@
                             </div>
                             <div class="columns">
                                 <div class="column is-12">
-                                    <progress class="progress is-large is-info" max="100" value="{{ budget.spend_percentage }}">{{ spend_percentage }}%</progress>
+                                    <progress class="progress is-large is-info" max="100"
+                                              value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
+                                    </progress>
                                 </div>
+                            </div>
+                            <div class="level">
+                                <a class="has-text-primary campaigns_in_group_link" data-budget-id="{{ budget.id }}">
+                                    Campaigns in group
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -304,43 +315,45 @@
             <form id="assign_accounts">
                 {% csrf_token %}
                 <input type="hidden" name="cid" value="{{ client_data.id }}">
-                <div class="row>">
-                    <div class="col-md-12">
-                        <label>AdWords:</label>
-                        <select class="form-control m-input--large" name="adwords"
-                                multiple="multiple" id="m_select2_adwords"
-                                style="width: 100%;">
-                            {% for a in adwords %}
-                                <option value="{{ a.dependent_account_id }}">{{ a.dependent_account_name }}</option>
-                            {% endfor %}
+                <div class="column is-12">
+                    <label>AdWords</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="adwords_sources">
                         </select>
                     </div>
                 </div>
-                <div class="row>">
-                    <div class="col-md-12">
-                        <label for="bing" class="form-control-label">Bing: </label>
-                        <select class="form-control m-input--large" name="bing"
-                                multiple="multiple" id="m_select2_bing"
-                                style="width: 100%;">
-                            {% for b in bing %}
-                                <option value="{{ b.account_id }}">{{ b.account_name }}</option>
-                            {% endfor %}
+                <div class="column is-12">
+                    <label>Facebook</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="facebook_sources">
                         </select>
                     </div>
                 </div>
-                <div class="row>">
-                    <div class="col-md-12">
-                        <label for="facebook" class="form-control-label">Facebook: </label>
-                        <select class="form-control m-input--large" name="facebook"
-                                multiple="multiple" id="m_select2_facebook"
-                                style="width: 100%;">
-                            {% for f in facebook %}
-                                <option value="{{ f.account_id }}">{{ f.account_name }}</option>
-                            {% endfor %}
+                <div class="column is-12">
+                    <label>Bing</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="bing_sources">
                         </select>
                     </div>
                 </div>
             </form>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div class="modal" id="campaigns_in_group_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Campaigns In Group</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <ul id="campaigns_in_group_display"></ul>
         </section>
         <footer class="modal-card-foot">
             <button class="button is-link">Save changes</button>
@@ -426,6 +439,9 @@
     });
 
     document.querySelector('#sources_btn').addEventListener('click', function (event) {
+        if ($(this).text() !== 'Sources') {
+            return;
+        }
         event.preventDefault();
         let sourcesModal = document.querySelector('#sources_modal');
         let html = document.querySelector('html');
@@ -470,6 +486,65 @@
                 exclusionModal.classList.remove('is-active');
                 html.classList.remove('is-clipped');
             });
+        });
+    });
+
+    $('.campaigns_in_group_link').click(function (event) {
+        event.preventDefault();
+        let campsInGroupModal = document.querySelector('#campaigns_in_group_modal');
+        let html = document.querySelector('html');
+        campsInGroupModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        campsInGroupModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            campsInGroupModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = campsInGroupModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                campsInGroupModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+
+        // populate div with campaigns in the group
+        let budgetID = $(this).data('budget-id');
+        let $campsInGroupDisplay = $('#campaigns_in_group_display');
+        $campsInGroupDisplay.empty();
+
+        $.ajax({
+            url: '/budget/groupings/get_campaigns_in_budget',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            data: {
+                'budget_id': budgetID
+            },
+            success: (data) => {
+                let campaigns = data['campaigns'];
+                campaigns.forEach(camp => {
+                    let item = document.createElement('li');
+                    let text;
+                    if (camp['model'] === 'adwords_dashboard.campaign') {
+                        text = document.createTextNode('A - ' + camp['fields']['campaign_name']);
+                    }
+                    if (camp['model'] === 'facebook_dashboard.facebookcampaign') {
+                        text = document.createTextNode('F - ' + camp['fields']['campaign_name']);
+                    }
+                    if (camp['model'] === 'bing_dashboard.bingcampaign') {
+                        text = document.createTextNode('B - ' + camp['fields']['campaign_name']);
+                    }
+                    item.appendChild(text);
+                    $campsInGroupDisplay.append(item);
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
         });
     });
 
@@ -534,6 +609,43 @@
 
         });
     };
+
+    $('#sources_btn').one('click', function () {
+        $(this).addClass('is-loading');
+
+        $.ajax({
+            url: '/budget/groupings/get_accounts',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            success: (data) => {
+                let accounts = data['accounts'];
+                accounts.forEach(acc => {
+                    if (acc['model'] === 'adwords_dashboard.dependentaccount') {
+                        let new_option = new Option(acc['fields']['dependent_account_name'], acc['fields']['dependent_account_id'], false, false);
+                        $('#adwords_sources').append(new_option).trigger('change');
+                    }
+                    if (acc['model'] === 'facebook_dashboard.facebookaccount') {
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, false);
+                        $('#facebook_sources').append(new_option).trigger('change');
+                    }
+                    if (acc['model'] === 'bing_dashboard.bingaccounts') {
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, false);
+                        $('#bing_sources').append(new_option).trigger('change');
+                    }
+                });
+
+                $('.account-multiple').selectize({
+                    plugins: ['remove_button']
+                });
+
+                $(this).removeClass('is-loading');
+                $(this).text('Sources');
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+        });
+    });
 </script>
 </body>
 </html>
