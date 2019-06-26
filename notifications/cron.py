@@ -62,13 +62,15 @@ def prepare_todos():
                                                                                negative_day_of_month]) |
                                                                            Q(day_of_week=day_of_week) |
                                                                            Q(every_day=True) |
-                                                                           Q(every_week_day=True))
+                                                                           Q(every_week_day=True),
+                                                                           members__in=[member])
         else:  # weekend
             scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) |
                                                                            Q(days_negative__contains=[
                                                                                negative_day_of_month]) |
                                                                            Q(day_of_week=day_of_week) |
-                                                                           Q(every_day=True))
+                                                                           Q(every_day=True),
+                                                                           members__in=[member])
 
         for notification in scheduled_notifications:
             description = notification.message
