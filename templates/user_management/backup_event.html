@@ -3,282 +3,302 @@
 {% load staticfiles %}
 
 {% block extraCss %}
-<style>
-.approved-btn:hover {
-  cursor: default;
-}
-</style>
+    <style>
+        .approved-btn:hover {
+            cursor: default;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="m-content">
-  <div class="row">
-    <div class="col-xl-12">
-      <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-        <div class="m-portlet__head">
-      		<div class="m-portlet__head-caption">
-      			<div class="m-portlet__head-title">
-      				<h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-      					{{ backup_period }}
-      				</h3>
-      			</div>
-      		</div>
-        </div>
-        <div class="m-portlet__body">
-            <table class="table table-striped m-table m-table--head-separator-bloom dataTable">
-                <thead>
-                    <tr>
-                        <th>Account</th>
-                        <th>Similar</th>
-                        <th>Backup</th>
-                        <th>Basecamp link</th>
-                        <th>Assign</th>
-                        <th>Approved</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for backup in backup_period.backup_set.all %}
-                    <tr>
-                        <td>
-                            <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account }}</a>
-                        </td>
-                        <td>
-                            {{ backup.similar_members_str }}
-                        </td>
-                        <td>
-                            {{ backup.member }}
-                        </td>
-                        <td>
-                            {% if backup.bc_link != None and backup.bc_link != '' %}
-                            <a href="{{ backup.bc_link }}">Basecamp link</a>
-                            {% else %}
-                                None
-                            {% endif %}
-                        </td>
-                        <td>
-                            <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup" data-account="{{ backup.account.id }}" data-bu-id="{{ backup.id }}">Assign</button>
-                        </td>
-                        <td>
-                            {% if backup.approved %}
-                                <button class="btn btn-sm btn-success" disabled>Approved</button>
-                            {% else %}
-                                {% if backup.member != None %}
-                                    <button class="btn btn-sm approve-btn" data-bu-id="{{ backup.id }}">Approve</button>
-                                {% else %}
-                                    <button class="btn btn-sm approve-btn" data-bu-id="{{ backup.id }}" disabled>Approve</button>
-                                {% endif %}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--End::Main Portlet-->
-</div>
-
-<!-- Add backup modal -->
-<div class="modal fade" id="modal_add_backup" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" >Add Backup</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <form class="m-form" method="POST">
-              {% csrf_token %}
-              <input name="type" type="text" value="backup" style="display:none;" />
-              <input name="period" id="period_input" type="text" value="{{ backup_period.id }}" style="display:none;" />
-              <input name="account" id="account_input" type="text" value="" style="display:none;" />
-              <input name="bu_id_add" id="bu_id_add" type="text" value="" style="display:none;" />
-              <div class="modal-body">
-                <div class="m-portlet__body">
-                  <div class="form-group m-form__group">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <label>Member:</label>
-                        <select class="form-control m-input"
-                                name="member"
-                                style="width: 100%;">
-                                {% for member in members %}
-                                <option value="{{ member.id }}">{{ member.user.get_full_name }} - {{ member.hours_available }} hours</option>
-                                {% endfor %}
-                        </select>
-                      </div>
-                      <div class="col-md-6">
-                        <label>Basecamp link:</label>
-                        <input type="text" name="bc_link" class="form-control" placeholder="Basecamp link">
-                      </div>
+    <div class="m-content">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                                    {{ backup_period }}
+                                </h3>
+                            </div>
+                        </div>
                     </div>
-                  </div>
+                    <div class="m-portlet__body">
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Account Status</th>
+                                <th>Similar</th>
+                                <th>Backup</th>
+                                <th>Basecamp link</th>
+                                <th>Assign</th>
+                                <th>Approved</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for backup in backup_period.backup_set.all %}
+                                <tr>
+                                    <td>
+                                        <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account }}</a>
+                                    </td>
+                                    <td>
+                                        {{ backup.account.get_status_display }}
+                                    </td>
+                                    <td>
+                                        {{ backup.similar_members_str }}
+                                    </td>
+                                    <td>
+                                        {% for member in backup.members.all %}
+                                            {{ member.user.get_full_name }}{% if not forloop.last %},{% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if backup.bc_link != None and backup.bc_link != '' %}
+                                            <a href="{{ backup.bc_link }}">Basecamp link</a>
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm" data-toggle="modal" data-target="#modal_add_backup"
+                                                data-account="{{ backup.account.id }}" data-bu-id="{{ backup.id }}">
+                                            Assign
+                                        </button>
+                                    </td>
+                                    <td>
+                                        {% if backup.approved %}
+                                            <button class="btn btn-sm btn-success" disabled>Approved</button>
+                                        {% else %}
+                                            <button class="btn btn-sm approve-btn" data-bu-id="{{ backup.id }}"
+                                                    {% if backup.members.count == 0 %}disabled{% endif %}>
+                                                Approve
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-              </div>
-              <div class="modal-footer">
-                  <input type="submit" value="Add Backup" class="btn btn-brand">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- End Add backup -->
-
-<!-- Edit backup modal -->
-<div class="modal fade" id="modal_edit_backup" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" >Edit Backup <span="edit-backup-str"></span></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
             </div>
-            <form class="m-form" method="POST">
-              {% csrf_token %}
-              <input name="type" type="text" value="edit" style="display:none;" />
-              <input name="edit-bu-id" id="edit_bu_id" type="text" value="" style="display:none;" />
-              <div class="modal-body">
-                <div class="m-portlet__body">
-                  <div class="form-group m-form__group">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <label>Member:</label>
-                        <select class="form-control m-input"
-                                id="edit_bu_member"
-                                name="member"
-                                style="width: 100%;">
-                        </select>
-                      </div>
-                      <div class="col-md-6">
-                        <label>Account:</label>
-                        <select class="form-control m-input"
-                                id="edit_bu_account"
-                                name="account"
-                                style="width: 100%;">
-                        </select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-12">
-                        <label>Basecamp link:</label>
-                        <input type="text" id="edit_bu_bc" name="bc_link" class="form-control" placeholder="Basecamp link">
-                      </div>
-                    </div>
-                  </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+
+    <!-- Add backup modal -->
+    <div class="modal fade" id="modal_add_backup" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Backup</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
                 </div>
-              </div>
-              <div class="modal-footer">
-                  <input type="submit" value="Edit Backup" class="btn btn-brand">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- End Edit backup -->
-
-
-<!-- Delete backup modal -->
-<div class="modal fade" id="modal_delete_backup" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Are you sure you want to delete <code id="delete_backup_str"></code>? This cannot be undone.</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
+                <form class="m-form" method="POST">
+                    {% csrf_token %}
+                    <input name="type" type="text" value="backup" style="display:none;"/>
+                    <input name="period" id="period_input" type="text" value="{{ backup_period.id }}"
+                           style="display:none;"/>
+                    <input name="account" id="account_input" type="text" value="" style="display:none;"/>
+                    <input name="bu_id_add" id="bu_id_add" type="text" value="" style="display:none;"/>
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Member:</label>
+                                        <select class="form-control m-input" multiple
+                                                name="members" id="backup_members"
+                                                style="width: 100%;">
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}">{{ member.user.get_full_name }}
+                                                    - {{ member.hours_available }} hours
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Basecamp link:</label>
+                                        <input type="text" name="bc_link" class="form-control"
+                                               placeholder="Basecamp link">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Add Backup" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
-            <form class="m-form" method="POST">
-              {% csrf_token %}
-              <input name="type" type="text" value="delete" style="display:none;" />
-              <input name="bu_id" id="bu_id_del" type="text" value="" style="display:none;" />
-              <div class="modal-footer">
-                  <input type="submit" value="Delete" class="btn btn-danger">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-            </form>
         </div>
     </div>
-</div>
-<!-- End delete backup -->
+    <!-- End Add backup -->
+
+    <!-- Edit backup modal -->
+    <div class="modal fade" id="modal_edit_backup" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Backup <span="edit-backup-str"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST">
+                    {% csrf_token %}
+                    <input name="type" type="text" value="edit" style="display:none;"/>
+                    <input name="edit-bu-id" id="edit_bu_id" type="text" value="" style="display:none;"/>
+                    <div class="modal-body">
+                        <div class="m-portlet__body">
+                            <div class="form-group m-form__group">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Member:</label>
+                                        <select class="form-control m-input"
+                                                id="edit_bu_member"
+                                                name="member"
+                                                style="width: 100%;">
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Account:</label>
+                                        <select class="form-control m-input"
+                                                id="edit_bu_account"
+                                                name="account"
+                                                style="width: 100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label>Basecamp link:</label>
+                                        <input type="text" id="edit_bu_bc" name="bc_link" class="form-control"
+                                               placeholder="Basecamp link">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Edit Backup" class="btn btn-brand">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End Edit backup -->
+
+
+    <!-- Delete backup modal -->
+    <div class="modal fade" id="modal_delete_backup" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Are you sure you want to delete <code id="delete_backup_str"></code>? This
+                        cannot be undone.</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form class="m-form" method="POST">
+                    {% csrf_token %}
+                    <input name="type" type="text" value="delete" style="display:none;"/>
+                    <input name="bu_id" id="bu_id_del" type="text" value="" style="display:none;"/>
+                    <div class="modal-footer">
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End delete backup -->
 {% endblock %}
 
 {% block extraJs %}
-<script>
-$(document).ready(function () {
-  let $modalAddBackup = $('#modal_add_backup');
-  let $modalDeleteBackup = $('#modal_delete_backup');
-  let $buIdDel = $('#bu_id_del');
-  let $delBuStr = $('#delete_backup_str');
+    <script>
+        $(document).ready(function () {
+            let $backupMembers = $('#backup_members');
+            $backupMembers.select2({
+                closeOnSelect: false,
+                placeholder: "Select..."
+            });
 
-  $modalAddBackup.on('show.bs.modal', function (e) {
-    let account_id = $(e.relatedTarget).data('account');
-    let bu_id = $(e.relatedTarget).data('bu-id');
-    $('#account_input').attr('value', account_id);
-    $('#bu_id_add').attr('value', bu_id);
-  });
+            let $modalAddBackup = $('#modal_add_backup');
+            let $modalDeleteBackup = $('#modal_delete_backup');
+            let $buIdDel = $('#bu_id_del');
+            let $delBuStr = $('#delete_backup_str');
 
-  /**
-   * DOM elements for editing backups
-   */
-  let $editBuId = $('#edit_bu_id');
-  let $editBuMember = $('#edit_bu_member');
-  let $editBuAccount = $('#edit_bu_account');
-  let $editBuBc = $('#edit_bu_bc');
-  let $editModal = $('#modal_edit_backup');
+            $modalAddBackup.on('show.bs.modal', function (e) {
+                let account_id = $(e.relatedTarget).data('account');
+                let bu_id = $(e.relatedTarget).data('bu-id');
+                $('#account_input').attr('value', account_id);
+                $('#bu_id_add').attr('value', bu_id);
+            });
 
-  $editModal.on('show.bs.modal', function (e) {
-      let buId = $(e.relatedTarget).data('backup-id');
-      let buMember = $(e.relatedTarget).data('backup-member');
-      let buAccount = $(e.relatedTarget).data('backup-account');
-      let buBc = $(e.relatedTarget).data('backup-bc');
+            /**
+             * DOM elements for editing backups
+             */
+            let $editBuId = $('#edit_bu_id');
+            let $editBuMember = $('#edit_bu_member');
+            let $editBuAccount = $('#edit_bu_account');
+            let $editBuBc = $('#edit_bu_bc');
+            let $editModal = $('#modal_edit_backup');
 
-      {#console.log(buMember);#}
+            $editModal.on('show.bs.modal', function (e) {
+                let buId = $(e.relatedTarget).data('backup-id');
+                let buMember = $(e.relatedTarget).data('backup-member');
+                let buAccount = $(e.relatedTarget).data('backup-account');
+                let buBc = $(e.relatedTarget).data('backup-bc');
 
-      $editBuId.attr('value', buId);
-      $editBuMember.val(buMember);
-      $editBuAccount.val(buAccount);
-      $editBuBc.attr('value', buBc);
-      // $periodInput.attr('value', period_id);
-  });
+                {#console.log(buMember);#}
 
-  $modalDeleteBackup.on('show.bs.modal', function (e) {
-      let buId = $(e.relatedTarget).data('backup-id');
-      $buIdDel.attr('value', buId);
-      $delBuStr.html($(e.relatedTarget).data('backup-str'));
-  });
+                $editBuId.attr('value', buId);
+                $editBuMember.val(buMember);
+                $editBuAccount.val(buAccount);
+                $editBuBc.attr('value', buBc);
+                // $periodInput.attr('value', period_id);
+            });
 
-  $('body').on('click', '.approve-btn', function () {
-      let buId = $(this).data('bu-id');
-      let $this = $(this);
-      $.ajax({
-          url: '/user_management/backups',
-          data: {
-              'bu_id': buId,
-              'type': 'approval'
-          },
-          headers: {
-              'X-CSRFToken': csrftoken
-          },
-          type: 'POST',
-          success: function (data) {
-              console.log(data);
-              {#$this.removeClass('approve');#}
-              $this.addClass('btn-success');
-              {#$this.addClass('approved-btn');#}
-              {#$this.addClass('approved');#}
-              $this.html('Approved');
-              $this.prop('disabled', 'disabled');
-          }
-      });
-  });
+            $modalDeleteBackup.on('show.bs.modal', function (e) {
+                let buId = $(e.relatedTarget).data('backup-id');
+                $buIdDel.attr('value', buId);
+                $delBuStr.html($(e.relatedTarget).data('backup-str'));
+            });
+
+            $('body').on('click', '.approve-btn', function () {
+                let buId = $(this).data('bu-id');
+                let $this = $(this);
+                $.ajax({
+                    url: '/user_management/backups',
+                    data: {
+                        'bu_id': buId,
+                        'type': 'approval'
+                    },
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    type: 'POST',
+                    success: function (data) {
+                        console.log(data);
+                        {#$this.removeClass('approve');#}
+                        $this.addClass('btn-success');
+                        {#$this.addClass('approved-btn');#}
+                        {#$this.addClass('approved');#}
+                        $this.html('Approved');
+                        $this.prop('disabled', 'disabled');
+                    }
+                });
+            });
 
 
-});
-</script>
+        });
+    </script>
 {% endblock %}

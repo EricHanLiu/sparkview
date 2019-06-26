@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
     MandateHourRecord
+from client_area.utils import days_in_month_in_daterange
 import datetime
 import calendar
 
@@ -363,6 +364,8 @@ class Member(models.Model):
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)
+            for account in self.backup_accounts:
+                hours += account.get_allocation_this_month_member(self, True)
             self._allocated_hours_month = round(hours, 2)
         return self._allocated_hours_month
 
@@ -481,7 +484,7 @@ class Member(models.Model):
             account = client_model.objects.get(id=account_id)
         except client_model.DoesNotExist:
             return False
-        return account in self.accounts
+        return account in self.accounts or account in self.backup_accounts
 
     def teams_have_accounts(self, account_id):
         """
@@ -515,7 +518,6 @@ class Member(models.Model):
             end_date_month = datetime.datetime(now.year, now.month, last_day, 23, 59, 59)
             self._active_mandate_assignments = self.mandateassignment_set.filter(
                 Q(mandate__start_date__lte=end_date_month, mandate__end_date__gte=start_date_month,
-                  mandate__completed=False,
                   mandate__ongoing=False) | Q(
                     mandate__ongoing=True,
                     mandate__completed=False))
@@ -569,14 +571,16 @@ class Member(models.Model):
         """
         return self.accounts.filter(Q(status=0) | Q(status=1))
 
-    def get_backup_accounts(self):
+    @property
+    def backup_accounts(self):
         """
-        Deprecated, will not work
-        :return:
+        All the accounts this member is currently backing up
         """
         if not hasattr(self, '_backupaccounts'):
-            Client = apps.get_model('budget', 'Client')
-            self._backupaccounts = Client.objects.filter(Q(cmb=self) | Q(amb=self) | Q(seob=self) | Q(stratb=self))
+            now = datetime.datetime.now()
+            backups = Backup.objects.filter(members__in=[self], period__start_date__lte=now, period__end_date__gte=now)
+            self._backupaccounts = apps.get_model('budget', 'Client').objects.filter(
+                id__in=backups.values('account_id'))
         return self._backupaccounts
 
     def get_accounts_count(self):
@@ -659,7 +663,6 @@ class Member(models.Model):
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
-    backup_accounts = property(get_backup_accounts)
     account_count = property(get_accounts_count)
 
     def __str__(self):
@@ -686,7 +689,7 @@ class Backup(models.Model):
     """
     Represents a member (the backup), an account, and a period (via backup period fk)
     """
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='backup_member')
+    members = models.ManyToManyField(Member)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True)
     period = models.ForeignKey(BackupPeriod, on_delete=models.SET_NULL, null=True)
     bc_link = models.CharField(max_length=255, null=True, default=None, blank=True)
@@ -694,6 +697,19 @@ class Backup(models.Model):
     approved_by = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, related_name='approved_by',
                                     blank=True)
     approved_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def hours_this_month(self):
+        now = datetime.datetime.now()
+        days_in_period = days_in_month_in_daterange(self.period.start_date, self.period.end_date, now.month, now.year)
+        last_day = calendar.monthrange(now.year, now.month)[1]
+        days_left_in_month = last_day - self.period.start_date.day + 1  # include current day
+        hours = round(
+            self.account.get_hours_remaining_this_month_member(self.period.member) * days_in_period / days_left_in_month,
+            2)
+        num_members = self.members.all().count()
+        hours /= num_members
+        return hours
 
     @property
     def similar_members(self):

@@ -26,7 +26,7 @@ def accounts(request):
     now = datetime.datetime.now()
 
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backup_accounts = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
+    backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
     status_badges = ['info', 'success', 'warning', 'danger']
 
@@ -1215,12 +1215,30 @@ def star_account(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    flagged = request.POST.get('flagged') == 'True'
     bc_link = request.POST.get('bc_link')
-    if bc_link is None or bc_link == '':
+    if (bc_link is None or bc_link == '') and flagged:
         return HttpResponse('You need to enter a basecamp link to flag an account')
 
     account = Client.objects.get(id=account_id)
-    # set_to_star = str(request.POST.get('star_flag')) == '0' # If its 0, then we need to set star to true, else false
+
+    if not flagged:
+        account.star_flag = False
+        account.save()
+
+        event_description = account.client_name + ' was marked as good by ' + member.user.get_full_name() + '.'
+        notes = bc_link if bc_link != '' else ''
+        lc_event = LifecycleEvent.objects.create(account=account, type=13, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb, adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget, spend=account.current_spend,
+                                                 notes=notes)
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+        return redirect('/clients/accounts/' + str(account.id))
 
     now = datetime.datetime.now()
     account.flagged_bc_link = bc_link
@@ -1229,7 +1247,7 @@ def star_account(request):
     account.save()
 
     event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'
-    notes = 'Basecamp link: ' + account.flagged_bc_link
+    notes = account.flagged_bc_link
     lc_event = LifecycleEvent.objects.create(account=account, type=8, description=event_description,
                                              phase=account.phase,
                                              phase_day=account.phase_day, cycle=account.ninety_day_cycle,
@@ -1284,13 +1302,9 @@ def edit_promos(request):
     now = datetime.datetime.now()
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(member=member, period__in=backup_periods, approved=True)
-    backup_accounts = []
+    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    for backup in backups:
-        backup_accounts.append(backup.account)
-
-    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=backup_accounts))
+    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=member.backup_accounts))
 
     if request.method == 'POST':
         promo_id = request.POST.get('promo_id')

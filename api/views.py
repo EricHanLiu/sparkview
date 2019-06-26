@@ -101,3 +101,13 @@ def create_tracking_mandate(request):
 
     return Response({'success': 'Mandate successfully created!'},
                     status=HTTP_200_OK)
+
+
+@api_view(['POST'])
+def get_budget_info(request):
+    """
+    Gets information about a budget
+    :param request:
+    :return:
+    """
+    pass

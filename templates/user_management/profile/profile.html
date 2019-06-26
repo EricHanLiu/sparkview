@@ -149,7 +149,7 @@
                                     <div class="col-2">
                                         <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                         <p>My hours this month:
-                                            {{ accountHours|get_item_from_list:account.id }}/{{ accountAllocation|get_item_from_list:account.id }}</p>
+                                            {{ account_hours|get_item_from_list:account.id }}/{{ account_allocation|get_item_from_list:account.id }}</p>
                                         <div class="m--space-30">
                                             {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
                                                 <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
@@ -246,7 +246,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                             {% endfor %}
                         </div>
                     </div>
@@ -376,46 +375,109 @@
                             </div>
                         </div>
                         <div class="m-portlet__body">
-                            <table class="table table-striped table-bordered table-hover table-checkable dataTable">
-                                <thead class="thead-inverse">
-                                <tr class="main-table-header">
-                                    <th>
-                                        Client
-                                    </th>
-                                    <th>Account</th>
-                                    <th>
-                                        My Actual Hours
-                                    </th>
-                                    <th>
-                                        Total Actual Hours
-                                    </th>
-                                    <th>
-                                        Total Allocated Hours
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for backup in backups %}
-                                    <tr>
-                                        <td>
-                                            {{ backup.account.parentClient.name }}
-                                        </td>
-                                        <td>
-                                            <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
-                                        </td>
-                                        <td>
-                                            {# backupHours|get_item_from_list:account.id #} 0
-                                        </td>
-                                        <td>
-                                            {{ backup.account.hoursWorkedThisMonth|floatformat:2 }}
-                                        </td>
-                                        <td>
-                                            {{ backup.account.all_hours|floatformat:2 }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                            {% for backup in backups %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-2">
+                                        <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                                        <p>My hours this month:
+                                            {{ backup_account_hours|get_item_from_list:backup.account.id }}/{{ backup_account_allocation|get_item_from_list:backup.account.id }}</p>
+                                        <div class="m--space-30">
+                                            {% with aw=backup.account.adwords.all bing=backup.account.bing.all fb=backup.account.facebook.all %}
+                                                <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if aw %}
+                                                            {% for a in aw %}
+                                                          {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No AdWords Account
+                                                        {% endif %}">A</span>
+                                                <span class="m-badge {% if bing %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if bing %}
+                                                            {% for b in bing %}
+
+                                                          {{ b.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Bing Account
+                                                        {% endif %}">B</span>
+                                                <span class="m-badge {% if fb %}m-badge--info{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if fb %}
+                                                            {% for f in fb %}
+
+                                                          {{ f.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Facebook Account
+                                                        {% endif %}">F</span>
+                                            {% endwith %}
+                                        </div>
+                                        <div class="m--space-30">
+                                            Phase {{ backup.account.phase }}, Day {{ backup.account.phase_day }}:
+                                            {% for task in backup.account.current_phase_tasks %}
+                                                <span class="m-badge {% if task.complete %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="{{ task.task.message }}"></span>
+                                            {% endfor %}
+                                        </div>
+                                        <label class="m-checkbox mt-1">
+                                            <input type="checkbox" class="budget-updated"
+                                                   data-account-id="{{ backup.account.id }}"
+                                                   {% if backup.account.budget_updated %}disabled checked{% endif %}/>
+                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-10">
+                                        <div class="row summary-spend-row">
+                                            <div class="col-md-2"><b>Current</b>:
+                                                {{ backup.account.currency }}{{ backup.account.current_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2"><b>Budget</b>:
+                                                {{ backup.account.currency }}{{ backup.account.current_budget|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Avg Projected</b>:
+                                                {{ backup.account.currency }}{{ backup.account.project_average|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Projected</b>:
+                                                {{ backup.account.currency }}{{ backup.account.project_yesterday|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Spend</b>:
+                                                {{ backup.account.currency }}{{ backup.account.yesterday_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Target Daily Spend</b>:
+                                                {{ backup.account.currency }}{{ backup.account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative!important; height:30px !important;">
+                                            <div id="{{ backup.account.id }}_progressbar"
+                                                 class="progress-bar {% if backup.account.underpacing_average %}bg-warning{% elif backup.account.project_average > backup.account.current_budget %}bg-danger{% else %}bg-success{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ backup.account.spend_percentage }}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 aria-valuenow="{{ backup.account.spend_percentage }}"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ backup.account.current_spend }}/{{ backup.account.current_budget }}">
+                                                {{ backup.account.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                            <div class="black-marker"
+                                                 style="width: {{ black_marker }}%"
+                                                 aria-valuenow="{{ black_marker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 {% endif %}
@@ -591,7 +653,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Resolve account task</h5>
+                    <h5 class="modal-title">How are we doing?</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -601,22 +663,28 @@
                     <input name="task_id" id="m_task_id" type="text" value="" style="display:none;"/>
                     <input name="flagged" id="flagged" type="text" value="False" style="display:none;"/>
                     <div class="modal-body">
-                        <div class="m-portlet__body">
-                            <div class="form-group m-form__group">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label>BC Link:</label>
-                                        <input type="text" name="bc_link" id="bc_link" class="form-control m-input"
-                                               maxlength="140" required/>
-                                    </div>
-                                </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-success w-100" id="good_task_btn">
+                                    Account is good &#128516;
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" id="flag_task_btn" class="btn btn-outline-danger w-100">
+                                    Account needs to be flagged &#128546;
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" value="Complete Task" class="btn btn-brand">
-                        <button type="button" id="flag_task_btn" class="btn btn-danger">Flag</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <div class="row mt-3 d-none" id="bc_link_row">
+                            <div class="col-md-12">
+                                <label>Basecamp Link:</label>
+                                <input type="text" name="bc_link" id="bc_link" class="form-control m-input"
+                                       maxlength="140"/>
+                                <button type="submit" class="btn btn-brand mt-3 w-100" id="flag_task_submit">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -679,6 +747,8 @@
 
         $(document).ready(function () {
             let $flagTaskBtn = $('#flag_task_btn');
+            let $goodTaskBtn = $('#good_task_btn');
+            let $basecampLinkRow = $('#bc_link_row');
 
             $('#late_onboard_modal').on('show.bs.modal', function (e) {
                 let account_id = $(e.relatedTarget).data('account-id');
@@ -690,12 +760,43 @@
                 $('#m_task_id').attr('value', task_id);
             });
 
-            $flagTaskBtn.click(function () {
+            $goodTaskBtn.click(function (e) {
+                $basecampLinkRow.removeClass('d-none');
+
+                $goodTaskBtn.addClass('btn-success');
+                $flagTaskBtn.removeClass('btn-danger');
+
+                $('#bc_link').attr('placeholder', 'Optional');
+            });
+
+            $flagTaskBtn.click(function (e) {
+                $basecampLinkRow.removeClass('d-none');
+
+                $flagTaskBtn.addClass('btn-danger');
+                $goodTaskBtn.removeClass('btn-success');
+
+                $('#bc_link').attr('placeholder', '');
+            });
+
+            $('#flag_task_submit').click(function (e) {
+                if ($('#bc_link').attr('placeholder') === 'Optional') { // account is good submission
+                    return;
+                }
+
+                e.preventDefault();
+
+                let $basecampLink = $('#bc_link').val();
+                if ($basecampLink === '') {
+                    e.preventDefault();
+                    toastr.error('Basecamp link is mandatory when flagging the account!');
+                    return;
+                }
+
                 $.ajax({
                     url: '/notifications/cycle/confirm',
                     data: {
                         'task_id': $('#m_task_id').val(),
-                        'bc_link': $('#bc_link').val(),
+                        'bc_link': $basecampLink,
                         'flagged': 'True'
                     },
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},

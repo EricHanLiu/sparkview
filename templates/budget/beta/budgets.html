@@ -1,0 +1,656 @@
+{% load static %}
+{% load staticfiles %}
+{% load budget_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Budgets (BETA) - SparkView</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.min.css">
+    <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static 'assets/vendors/base/vendors.bundle.js' %}" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/css/datepicker.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/datepicker.min.js"></script>
+    <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
+    <style>
+        html {
+            background: #fff;
+        }
+
+        .modal-card-body {
+            height: 30rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar has-shadow">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="{% static 'img/bloom_logo_new.png' %}" alt="SparkView">
+                <strong class="navbar-item is-tagline">
+                    SparkView
+                </strong>
+            </a>
+        </div>
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <a class="navbar-item" href="/profile">
+                    Hi, {{ user.first_name }}
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <div class="card-content">
+                <div class="columns">
+                    <div class="column is-7">
+                        <h1 class="title" style="margin-bottom: 2rem;">
+                            {{ account }}
+                        </h1>
+                        <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag is-medium">Status</span>
+                                    <p class="tag {{ account_status_class }} is-medium">{{ account.get_status_display }}</p>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag {% if account.adwords.all %}is-success{% endif %} is-medium">Google Ads</span>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag {% if account.facebook.all %}is-success{% endif %} is-medium">Facebook Ads</span>
+                                </div>
+                            </div>
+                            <div class="control">
+                                <div class="tags has-addons">
+                                    <span class="tag {% if account.bing.all %}is-success{% endif %} is-medium">Bing Ads</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-5 has-text-right">
+                        <a class="button is-link" id="sources_btn">Pull Sources</a>
+                        <a class="button is-link" id="exclusion_btn"
+                           onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
+                        <a class="button is-link" id="add_budget_btn">Add Budget</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        {% for budget in account.budgets %}
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        {{ budget.name }} - {{ budget.description }}
+                    </p>
+                    <span class="card-header-icon">
+                                {% if budget.is_monthly %}
+                                    Monthly Budget
+                                {% else %}
+                                    Flight Dates: {{ budget.pretty_dates }}
+                                {% endif %}
+                            </span>
+                </header>
+                <div class="card-content">
+                    <div class="columns">
+                        <div class="column is-2">
+                            Spend: <strong>{{ budget.calculated_spend|currency }}</strong>
+                        </div>
+                        <div class="column is-2">
+                            Budget: <strong>{{ budget.budget|currency }}</strong>
+                        </div>
+                        <div class="column is-2">
+                            Average: <strong>Coming Soon</strong>
+                        </div>
+                        <div class="column is-3">
+                            Rec Daily Spend: <strong>Coming Soon</strong>
+                        </div>
+                        <div class="column is-3">
+                            <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google Ads</span>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">Facebook Ads</span>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing Ads</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column is-12">
+                            <progress class="progress is-large is-info" max="100"
+                                      value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
+                            </progress>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <a class="has-text-primary campaigns_in_group_link" data-budget-id="{{ budget.id }}">
+                            Campaigns in group
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% if not forloop.last %}
+                <br/>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</section>
+
+<div class="modal" id="add_budget_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card" style="max-height: 750px;">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Add New Budget</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <form method="post" action="/budget/new_budget">
+
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <input name="account_id" value="{{ account.id }}" class="is-hidden"/>
+                <div class="columns is-multiline">
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Budget Name</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Budget Name" name="budget_name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Budget</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Budget (in dollars)" name="budget_amount">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Ad Networks</label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="google_ads" class="is-large"
+                                       {% if not account.adwords.all %}disabled{% endif %}>
+                                Google Ads
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="facebook_ads"
+                                       {% if not account.facebook.all %}disabled{% endif %}>
+                                Facebook Ads
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="bing_ads" {% if not account.bing.all %}disabled{% endif %}>
+                                Bing Ads
+                            </label>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <input type="text" name="grouping_type" id="grouping_type" value="all_campaigns"
+                               class="is-hidden"/>
+                        <div class="tabs is-centered is-boxed">
+                            <ul>
+                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-image"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>All Campaigns</span>
+                                    </a>
+                                </li>
+                                <li class="tab" onclick="openTab(event, 'manual')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-music"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>Manual Selection</span>
+                                    </a>
+                                </li>
+                                <li class="tab" onclick="openTab(event, 'text')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-film"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>Text Filters</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="all_campaigns" class="content-tab">
+                            <p>All campaigns will be included in this budget</p>
+                        </div>
+                        <div id="manual" class="content-tab" style="display:none">
+                            <div class="field">
+                                <label class="label">Select Campaigns</label>
+                                <div class="control">
+                                    <div class="select is-multiple is-fullwidth" id="campaign_list_across">
+                                        <select name="campaigns"
+                                                multiple="multiple" id="campaigns_gr_across">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="text" class="content-tab" style="display:none">
+                            <div class="field">
+                                <label class="label">Include Strings</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Separate by comma"
+                                           name="include_strings">
+                                </div>
+                                <div class="field">
+                                    <label class="label">Exclude Strings</label>
+                                    <div class="control">
+                                        <input class="input" type="text" placeholder="Separate by comma"
+                                               name="exclude_strings">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <hr/>
+                        <div class="control">
+                            <label class="radio">
+                                <input type="radio" name="time_period" value="monthly" id="monthly_time_period">
+                                Monthly
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="time_period" value="flight" id="flight_time_period">
+                                Flight
+                            </label>
+                        </div>
+                    </div>
+                    <div class="column is-12 is-hidden" id="flight_dates">
+                        <div class="control">
+                            <input type="text" class="input datepicker-here" style="width: 100%;"
+                                   name="flight_dates" placeholder="Flight Dates" data-language="en"
+                                   data-range="true" data-multiple-dates-separator=" - "
+                                   data-position="top left">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <input type="submit" class="button is-link" value="Add Budget"/>
+                <button class="button close">Cancel</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="sources_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Sources</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <form id="assign_accounts">
+                {% csrf_token %}
+                <input type="hidden" name="cid" value="{{ client_data.id }}">
+                <div class="column is-12">
+                    <label>AdWords</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="adwords_sources">
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-12">
+                    <label>Facebook</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="facebook_sources">
+                        </select>
+                    </div>
+                </div>
+                <div class="column is-12">
+                    <label>Bing</label>
+                    <div class="select is-multiple is-fullwidth">
+                        <select name="adwords" class="account-multiple" multiple id="bing_sources">
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link" disabled>Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div class="modal" id="campaigns_in_group_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Campaigns In Group</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <ul id="campaigns_in_group_display"></ul>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div class="modal" id="exclusion_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Master Exclusion</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <form id="exclude_campaigns" method="post" action="/budget/update_exclusions">
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <input type="hidden" name="account_id" value="{{ account.id }}">
+                <div class="tabs is-centered is-boxed">
+                    <ul>
+                        <li class="tab">
+                            <a>
+                                Manual Selection
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="field">
+                    <label class="label">Select Campaigns</label>
+                    <div class="control">
+                        <div class="select is-multiple is-fullwidth">
+                            <select name="campaigns"
+                                    multiple="multiple" id="exclude_campaigns_select">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <input class="button is-link" type="submit" value="Update Exclusions"/>
+                <button class="button close">Cancel</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+<script>
+    let $flightRadio = $('#flight_time_period');
+    let $monthRadio = $('#monthly_time_period');
+    let $flightDates = $('#flight_dates');
+
+    $flightRadio.change(function () {
+        $flightDates.removeClass('is-hidden');
+    });
+
+    $monthRadio.change(function () {
+        $flightDates.addClass('is-hidden');
+    });
+
+    document.querySelector('#add_budget_btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        let addBudgetModal = document.querySelector('#add_budget_modal');
+        let html = document.querySelector('html');
+        addBudgetModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        addBudgetModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            addBudgetModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let budgetCloseEls = addBudgetModal.querySelectorAll('.close');
+
+        budgetCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                addBudgetModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+
+    document.querySelector('#sources_btn').addEventListener('click', function (event) {
+        if ($(this).text() !== 'Sources') {
+            return;
+        }
+        event.preventDefault();
+        let sourcesModal = document.querySelector('#sources_modal');
+        let html = document.querySelector('html');
+        sourcesModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        sourcesModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            sourcesModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = sourcesModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                sourcesModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+
+    document.querySelector('#exclusion_btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        let exclusionModal = document.querySelector('#exclusion_modal');
+        let html = document.querySelector('html');
+        exclusionModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        exclusionModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            exclusionModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = exclusionModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                exclusionModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+    });
+
+    $('.campaigns_in_group_link').click(function (event) {
+        event.preventDefault();
+        let campsInGroupModal = document.querySelector('#campaigns_in_group_modal');
+        let html = document.querySelector('html');
+        campsInGroupModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        campsInGroupModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            campsInGroupModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = campsInGroupModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                campsInGroupModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+
+        // populate div with campaigns in the group
+        let budgetID = $(this).data('budget-id');
+        let $campsInGroupDisplay = $('#campaigns_in_group_display');
+        $campsInGroupDisplay.empty();
+
+        $.ajax({
+            url: '/budget/groupings/get_campaigns_in_budget',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            data: {
+                'budget_id': budgetID
+            },
+            success: (data) => {
+                let campaigns = data['campaigns'];
+                campaigns.forEach(camp => {
+                    let item = document.createElement('li');
+                    let text;
+                    if (camp['model'] === 'adwords_dashboard.campaign') {
+                        text = document.createTextNode('A - ' + camp['fields']['campaign_name']);
+                    }
+                    if (camp['model'] === 'facebook_dashboard.facebookcampaign') {
+                        text = document.createTextNode('F - ' + camp['fields']['campaign_name']);
+                    }
+                    if (camp['model'] === 'bing_dashboard.bingcampaign') {
+                        text = document.createTextNode('B - ' + camp['fields']['campaign_name']);
+                    }
+                    item.appendChild(text);
+                    $campsInGroupDisplay.append(item);
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+        });
+    });
+
+    // Tabs
+    let openTab = function (evt, tabName) {
+        let i, x, tablinks;
+        let groupingType = document.getElementById('grouping_type');
+        groupingType.value = tabName;
+        x = document.getElementsByClassName('content-tab');
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = 'none';
+        }
+        tablinks = document.getElementsByClassName('tab');
+        for (i = 0; i < x.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(' is-active', '');
+        }
+        document.getElementById(tabName).style.display = 'block';
+        evt.currentTarget.className += ' is-active';
+        if (tabName === 'manual') {
+            manualCampaigns('campaigns_gr_across');
+        }
+    };
+
+    let manualCampaigns = function (elementID) {
+        let data = {
+            'account_id': '{{ account.id }}',
+            'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
+            'channel': $('#select_accounts_cgr').find(':selected').data('channel')
+        };
+
+        $.ajax({
+            url: '/budget/groupings/get_campaigns/',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            data: data,
+            success: function (data) {
+                let campaigns = data['campaigns'];
+                let excluded_campaigns = data['excluded_campaigns'].map(a => a.pk);
+                campaigns.forEach(item => {
+                    let selected = excluded_campaigns.includes(item.pk);
+                    if (item['model'] === 'adwords_dashboard.campaign') {
+                        let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, selected);
+                        $('#' + elementID).append(new_option).trigger('change');
+                    }
+                    if (item['model'] === 'bing_dashboard.bingcampaign') {
+                        let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, selected);
+                        $('#' + elementID).append(new_option).trigger('change');
+                    }
+                    if (item['model'] === 'facebook_dashboard.facebookcampaign') {
+                        let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, selected);
+                        $('#' + elementID).append(new_option).trigger('change');
+                    }
+                });
+
+                $('#' + elementID).selectize({
+                    plugins: ['remove_button']
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+            complete: function () {
+            }
+
+        });
+    };
+
+    $('#sources_btn').one('click', function () {
+        $(this).addClass('is-loading');
+
+        $.ajax({
+            url: '/budget/groupings/get_accounts',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            data: {
+                'account_id': '{{ account.id }}'
+            },
+            success: (data) => {
+                let accounts = data['accounts'];
+                let existing_aw = data['existing_aw'].map(a => a.pk);
+                let existing_fb = data['existing_fb'].map(a => a.pk);
+                let existing_bing = data['existing_bing'].map(a => a.pk);
+                accounts.forEach(acc => {
+                    if (acc['model'] === 'adwords_dashboard.dependentaccount') {
+                        let selected = existing_aw.includes(acc.pk);
+                        let new_option = new Option(acc['fields']['dependent_account_name'], acc['fields']['dependent_account_id'], false, selected);
+                        $('#adwords_sources').append(new_option).trigger('change');
+                    } else if (acc['model'] === 'facebook_dashboard.facebookaccount') {
+                        let selected = existing_fb.includes(acc.pk);
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, selected);
+                        $('#facebook_sources').append(new_option).trigger('change');
+                    } else if (acc['model'] === 'bing_dashboard.bingaccounts') {
+                        let selected = existing_bing.includes(acc.pk);
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, selected);
+                        $('#bing_sources').append(new_option).trigger('change');
+                    }
+                });
+
+                $('.account-multiple').selectize({
+                    plugins: ['remove_button'],
+                });
+
+                $(this).removeClass('is-loading');
+                $(this).text('Sources');
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
+        });
+    });
+</script>
+</body>
+</html>

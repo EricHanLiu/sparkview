@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
-from adwords_dashboard.models import DependentAccount, Performance, CampaignStat
+from adwords_dashboard.models import DependentAccount, Performance
 from adwords_dashboard.models import Label, Alert
 from celery.result import AsyncResult
 from tasks.adwords_tasks import  adwords_account_anomalies

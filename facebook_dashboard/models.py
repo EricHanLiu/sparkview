@@ -136,53 +136,12 @@ class FacebookAccount(models.Model):
         return self.account_name
 
 
-class FacebookPerformance(models.Model):
-    account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
-    performance_type = models.CharField(max_length=255)
-    campaign_id = models.CharField(max_length=255, default='None')
-    campaign_name = models.CharField(max_length=255, default='None')
-    cpc = models.CharField(max_length=255)
-    clicks = models.CharField(max_length=255)
-    conversions = models.CharField(max_length=255)
-    cost = models.CharField(max_length=255, default=0)
-    cost_per_conversions = models.CharField(max_length=255)
-    ctr = models.CharField(max_length=255)
-    impressions = models.CharField(max_length=255)
-    search_impr_share = models.CharField(max_length=255)
-    updated_time = models.DateTimeField(auto_now=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-    metadata = JSONField(default=dict)
-
-    @property
-    def json(self):
-        account = json.loads(serialize("json", [self.account]))[0]["fields"]
-        return dict(
-            account=account,
-            performance_type=self.performance_type,
-            campaign_id=self.campaign_id,
-            campaign_name=self.campaign_name,
-            cpc=self.cpc,
-            clicks=self.clicks,
-            conversions=self.conversions,
-            cost=self.cost,
-            cost_per_conversions=self.cost_per_conversions,
-            ctr=self.ctr,
-            impressions=self.impressions,
-            search_impr_share=self.search_impr_share,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d"),
-            metadata=self.metadata
-        )
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
-
-
 class FacebookCampaign(models.Model):
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=455, default='None')
     campaign_cost = models.FloatField(default=0)
+    spend_until_yesterday = models.FloatField(default=0.0)
     campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
@@ -199,37 +158,12 @@ class FacebookCampaign(models.Model):
         )
 
 
-class FacebookAlert(models.Model):
-    account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
-    alert_type = models.CharField(max_length=255)
-    alert_reason = models.CharField(max_length=255)
-    ad_id = models.CharField(max_length=255)
-    ad_name = models.CharField(max_length=255)
-    adset_id = models.CharField(max_length=255, default="None")
-    adset_name = models.CharField(max_length=255, default="None")
-    campaign_id = models.CharField(max_length=255, default="None")
-    campaign_name = models.CharField(max_length=255, default="None")
-    updated_time = models.DateTimeField(auto_now=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-
-    @property
-    def json(self):
-        return dict(
-            account_id=self.account.account_id,
-            alert_type=self.alert_type,
-            alert_reason=self.alert_reason,
-            ad_id=ad_id,
-            ad_name=ad_name,
-            adset_id=self.adset_id,
-            adset_name=self.adset_name,
-            campaign_id=self.campaign_id,
-            campaign_name=self.campagin_name,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d")
-        )
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
-
-    def __str__(self):
-        return self.account.account_id
+class FacebookCampaignSpendDateRange(models.Model):
+    """
+    Object for storing spend for a Facebook campaign thats part of a budget
+    """
+    campaign = models.ForeignKey(FacebookCampaign, on_delete=models.CASCADE, default=None, null=True)
+    spend = models.FloatField(default=0.0)
+    spend_until_yesterday = models.FloatField(default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()

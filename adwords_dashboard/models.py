@@ -280,40 +280,6 @@ class Performance(models.Model):
         ordering = ['created_time', 'updated_time']
 
 
-class CampaignStat(models.Model):
-    dependent_account_id = models.CharField(max_length=255)
-    campaign_id = models.CharField(max_length=255, default="None")
-    campaign_name = models.CharField(max_length=255)
-    ad_group_id = models.CharField(max_length=255)
-    ad_group_name = models.TextField(default="None")
-    ad_url = models.TextField(default="None")
-    ad_headline = models.TextField(default="None")
-    ad_url_code = models.TextField()
-    updated_time = models.DateTimeField(auto_now=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-
-    @property
-    def json(self):
-        return dict(
-            account_id=self.dependent_account_id,
-            campaign_id=self.campaign_id,
-            campaign_name=self.campaign_name,
-            ad_group_id=self.ad_group_id,
-            ad_group_name=self.ad_group_name,
-            ad_url=self.ad_url,
-            ad_headline=self.ad_headline,
-            ad_url_code=self.ad_url_code,
-            update_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d"),
-        )
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
-
-    def __str__(self):
-        return self.campaign_name
-
-
 class Alert(models.Model):
     dependent_account_id = models.CharField(max_length=255)
     alert_type = models.CharField(max_length=255)
@@ -323,7 +289,7 @@ class Alert(models.Model):
     keyWordText = models.TextField(default="None")
     ad_headline = models.TextField(default="None")
     campaign_id = models.CharField(max_length=255, default="None")
-    campaignName = models.CharField(max_length=255, default="None")
+    campaign_name = models.CharField(max_length=255, default="None")
     keyword_match_type = models.CharField(max_length=255, default="None")
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
@@ -357,6 +323,7 @@ class Campaign(models.Model):
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
+    spend_until_yesterday = models.FloatField(default=0.0)
     campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
@@ -375,7 +342,21 @@ class Campaign(models.Model):
         )
 
     def __str__(self):
-        return self.account.dependent_account_name + ' ' + str(self.campaign_name)
+        try:
+            return self.account.dependent_account_name + ' ' + str(self.campaign_name)
+        except AttributeError:
+            return 'Unknown Campaign'
+
+
+class CampaignSpendDateRange(models.Model):
+    """
+    Object for storing spend for a campaign thats part of a budget
+    """
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, default=None, null=True)
+    spend = models.FloatField(default=0.0)
+    spend_until_yesterday = models.FloatField(default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
 
 
 class Adgroup(models.Model):

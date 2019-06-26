@@ -1,9 +1,10 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from user_management.models import Member, MemberHourHistory
+from user_management.models import Member, MemberHourHistory, Backup, BackupPeriod
 from budget.models import Client as BloomClient
-from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate, MandateType
-import datetime
+from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate, MandateType, \
+    AccountHourRecord, ManagementFeesStructure, ManagementFeeInterval
+import datetime, calendar
 
 
 class UserTestCase(TestCase):
@@ -322,3 +323,130 @@ class UserTestCase(TestCase):
 
         self.assertEqual(member.actual_hours_other_month(test_month, test_year), 6)
         self.assertEqual(member.actual_hours_other_month(test_month, test_year), history2.actual_hours)
+
+    def test_member_hour_allocation(self):
+        """
+        Tests hour allocation for a member
+        """
+        test_user = User.objects.get(username='test2')
+        member = Member.objects.get(user=test_user)
+        now = datetime.datetime.now()
+        last_day = calendar.monthrange(now.year, now.month)[1]
+        days_left_in_month = last_day - now.day + 1
+
+        self.assertEquals(member.allocated_hours_this_month, 0)
+
+        fee_interval = ManagementFeeInterval.objects.create(feeStyle=1, fee=5000, lowerBound=1000, upperBound=10000)
+        fee_structure = ManagementFeesStructure.objects.create(name='test', initialFee=5000)
+        fee_structure.feeStructure.add(fee_interval)
+        fee_structure.save()
+        test_account = BloomClient.objects.create(client_name="test", cm1=member, cm1percent=100.0, status=1,
+                                                  managementFee=fee_structure,
+                                                  allocated_ppc_override=days_left_in_month)
+
+        member = Member.objects.get(user=test_user)
+        self.assertEquals(member.allocated_hours_this_month, days_left_in_month)
+
+        backup_user = User.objects.create_user(username='backup', password='123456')
+        backup_member = Member.objects.create(user=backup_user)
+
+        self.assertEquals(backup_member.allocated_hours_this_month, 0)
+
+        backup_period = BackupPeriod.objects.create(member=member, start_date=now, end_date=now)
+        backup = Backup.objects.create(account=test_account, approved=True, period=backup_period)
+        backup.members.add(backup_member)
+
+        backup_member = Member.objects.get(user=backup_user)
+        member = Member.objects.get(user=test_user)
+
+        self.assertEquals(backup_member.allocated_hours_this_month, 1)
+        self.assertEquals(member.allocated_hours_this_month, days_left_in_month - 1)
+
+        # test backup hours_this_month property
+        self.assertEquals(backup.hours_this_month, 1)  # 1 day period should have hours/days_left_in_month == 1
+
+        # hours should split between members when adding a member to the backup
+        backup_user_2 = User.objects.create_user(username='backup2', password='123456')
+        backup_member_2 = Member.objects.create(user=backup_user_2)
+        backup.members.add(backup_member_2)
+
+        backup_member = Member.objects.get(user=backup_user)
+
+        self.assertEquals(backup_member.allocated_hours_this_month, 0.5)
+        self.assertEquals(backup_member_2.allocated_hours_this_month, 0.5)
+        self.assertEquals(member.allocated_hours_this_month, days_left_in_month - 1)
+
+        # test backup period of whole month
+        month_start = datetime.datetime.today().replace(day=1)
+        month_end = datetime.datetime.today().replace(day=last_day)
+        backup_period.delete()
+        backup.delete()
+        backup_period = BackupPeriod.objects.create(member=member, start_date=month_start, end_date=month_end)
+        backup = Backup.objects.create(account=test_account, approved=True, period=backup_period)
+        backup.members.add(backup_member)
+        backup.members.add(backup_member_2)
+
+        member = Member.objects.get(user=test_user)
+        backup_member = Member.objects.get(user=backup_user)
+        backup_member_2 = Member.objects.get(user=backup_user_2)
+
+        self.assertEquals(backup_member.allocated_hours_this_month, days_left_in_month / 2)
+        self.assertEquals(backup_member_2.allocated_hours_this_month, days_left_in_month / 2)
+        self.assertEquals(member.allocated_hours_this_month, 0)
+
+        # test backup hours_this_month property
+        self.assertEquals(backup.hours_this_month, days_left_in_month / 2)  # should be all away member's hours
+
+        # period that spans two months
+        start = datetime.date(now.year, now.month, 15)
+        end = datetime.date(now.year, now.month + 1, 15)
+        backup_period.delete()
+        backup.delete()
+        backup_period = BackupPeriod.objects.create(member=member, start_date=start, end_date=end)
+        backup = Backup.objects.create(account=test_account, approved=True, period=backup_period)
+        test_account.allocated_ppc_override = 10  # set hours to 10
+        test_account.save()
+
+        backup.members.add(backup_member)
+        self.assertEqual(backup.hours_this_month, 10)
+
+        backup.members.add(backup_member_2)
+        self.assertEqual(backup.hours_this_month, 5)
+
+    def test_backup_acquires_accounts(self):
+        """
+        Tests that a backup member successfully acquires all accounts, reports, etc. from the member on leave
+        """
+        user = User.objects.get(username='test2')
+        member = Member.objects.get(user=user)
+        now = datetime.datetime.now()
+
+        account1 = BloomClient.objects.create(client_name="test1", cm1=member, cm1percent=100.0, status=1,
+                                              allocated_ppc_override=10)
+        account2 = BloomClient.objects.create(client_name="test2", cm1=member, cm1percent=100.0, status=1,
+                                              allocated_ppc_override=10)
+        account3 = BloomClient.objects.create(client_name="test3", cm1=member, cm1percent=100.0, status=1,
+                                              allocated_ppc_override=10)
+
+        backup_user = User.objects.create(username='test10')
+        backup_member = Member.objects.create(user=backup_user)
+
+        self.assertEqual(backup_member.has_account(account1.id), False)
+        self.assertEqual(backup_member.has_account(account2.id), False)
+        self.assertEqual(backup_member.has_account(account3.id), False)
+
+        backup_period = BackupPeriod.objects.create(member=member, start_date=now, end_date=now)
+        backup1 = Backup.objects.create(account=account1, approved=True, period=backup_period)
+        backup1.members.add(backup_member)
+        backup2 = Backup.objects.create(account=account2, approved=True, period=backup_period)
+        backup2.members.add(backup_member)
+        backup3 = Backup.objects.create(account=account3, approved=True, period=backup_period)
+        backup3.members.add(backup_member)
+
+        backup_member = Member.objects.get(user=backup_user)
+
+        self.assertEqual(backup_member.has_account(account1.id), True)
+        self.assertEqual(backup_member.has_account(account2.id), True)
+        self.assertEqual(backup_member.has_account(account3.id), True)
+
+

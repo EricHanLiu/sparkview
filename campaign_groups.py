@@ -4,15 +4,24 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 
 django.setup()
-from budget.models import CampaignGrouping
-from tasks.campaign_group_tasks import update_campaigns_in_campaign_group
+from budget.models import CampaignGrouping, Budget
+from tasks.campaign_group_tasks import update_campaigns_in_campaign_group, update_budget_campaigns
+from django.db.models import Q
+import datetime
 
 
 def main():
     groups = CampaignGrouping.objects.all()
 
-    for group in groups:
-        update_campaigns_in_campaign_group(group)
+    # for group in groups:
+    #     update_campaigns_in_campaign_group.delay(group)
+
+    now = datetime.datetime.now()
+    budgets = Budget.objects.filter(Q(is_monthly=True) | Q(is_monthly=False, start_date__lte=now, end_date__gte=now),
+                                    grouping_type__in=[1, 2])
+
+    for budget in budgets:
+        update_budget_campaigns(budget)
 
 
-# main()
+main()
