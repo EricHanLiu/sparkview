@@ -1235,7 +1235,54 @@ def new_budget(request):
         budget.is_monthly = True
     else:
         budget.is_monthly = False
+        flight_dates_input = request.POST.get('flight_dates').split(' - ')
+        start_date_comps = flight_dates_input[0].split('/')
+        end_date_comps = flight_dates_input[1].split('/')
+
+        start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+
+        budget.start_date = start_date
+        budget.end_date = end_date
 
     budget.save()
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
+
+
+@login_required
+def update_exclusions(request):
+    """
+    Updates the exclusion list for a client
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    campaign_ids = request.POST.getlist('campaigns')
+
+    # We don't know which id is from which platform, so we have to try all 3
+    for campaign_id in campaign_ids:
+        try:
+            cmp = Campaign.objects.get(campaign_id=campaign_id)
+        except Campaign.DoesNotExist:
+            pass
+
+        try:
+            cmp = BingCampaign.objects.get(campaign_id=campaign_id)
+        except BingCampaign.DoesNotExist:
+            pass
+
+        try:
+            cmp = FacebookCampaign.objects.get(campaign_id=campaign_id)
+        except FacebookCampaign.DoesNotExist:
+            pass
 
     return redirect('/budget/client/' + str(account.id) + '/beta')

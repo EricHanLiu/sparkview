@@ -323,6 +323,7 @@ class Campaign(models.Model):
     campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
+    spend_until_yesterday = models.FloatField(default=0.0)
     campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
@@ -345,20 +346,13 @@ class Campaign(models.Model):
         return self.account.dependent_account_name + ' ' + str(self.campaign_name)
 
 
-class GoogleCampaignExclusion(models.Model):
-    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, null=True, default=None)
-    date_added = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.campaign.campaign_name
-
-
 class CampaignSpendDateRange(models.Model):
     """
     Object for storing spend for a campaign thats part of a budget
     """
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, default=None, null=True)
     spend = models.FloatField(default=0.0)
+    spend_until_yesterday = models.FloatField(default=0.0)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 

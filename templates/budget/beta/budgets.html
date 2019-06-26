@@ -44,17 +44,6 @@
                 <a class="navbar-item" href="/profile">
                     Hi, {{ user.first_name }}
                 </a>
-                {#            <div class="buttons">#}
-                {#                <a class="button is-light" href="/facebook_dashboard">#}
-                {#                    <strong>Facebook Ads</strong>#}
-                {#                </a>#}
-                {#                <a class="button is-light" href="/google_dashboard">#}
-                {#                    <strong>Google Ads</strong>#}
-                {#                </a>#}
-                {#                <a class="button is-danger" href="/logout">#}
-                {#                    <strong>Logout</strong>#}
-                {#                </a>#}
-                {#            </div>#}
             </div>
         </div>
     </div>
@@ -109,7 +98,7 @@
                     <div class="card">
                         <header class="card-header">
                             <p class="card-header-title">
-                                {{ budget.name }}
+                                {{ budget.name }} - {{ budget.description }}
                             </p>
                             <span class="card-header-icon">
                                 {% if budget.is_monthly %}
@@ -324,6 +313,7 @@
         </header>
         <section class="modal-card-body">
             <form id="assign_accounts">
+                {% csrf_token %}
                 <input type="hidden" name="cid" value="{{ client_data.id }}">
                 <div class="column is-12">
                     <label>AdWords</label>
@@ -379,9 +369,10 @@
             <p class="modal-card-title">Master Exclusion</p>
             <button class="delete close" aria-label="close"></button>
         </header>
-        <form method="POST" action="TODO: SAM PUT URL HERE">
+        <form id="exclude_campaigns" method="post" action="/budget/update_exclusions">
             <section class="modal-card-body">
-                <input type="hidden" name="cid" value="{{ client_data.id }}">
+                {% csrf_token %}
+                <input type="hidden" name="account_id" value="{{ account.id }}">
                 <div class="tabs is-centered is-boxed">
                     <ul>
                         <li class="tab">
@@ -403,8 +394,8 @@
                 </div>
             </section>
             <footer class="modal-card-foot">
-                <button class="button is-link" type="submit">Save changes</button>
-                <button class="button close" type="button">Cancel</button>
+                <input class="button is-link" type="submit" value="Update Exclusions" />
+                <button class="button close">Cancel</button>
             </footer>
         </form>
     </div>
