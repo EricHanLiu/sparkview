@@ -20,7 +20,7 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
     <style>
         html {
-            background: #efefef;
+            background: #fff;
         }
 
         .modal-card-body {
@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar has-shadow">
     <div class="container">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
@@ -54,7 +54,7 @@
             <div class="card-content">
                 <div class="columns">
                     <div class="column is-7">
-                        <h1 class="title">
+                        <h1 class="title" style="margin-bottom: 2rem;">
                             {{ account }}
                         </h1>
                         <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
@@ -92,77 +92,74 @@
             </div>
         </div>
         <br/>
-        <div class="card">
-            <div class="card-content">
-                {% for budget in account.budgets %}
-                    <div class="card">
-                        <header class="card-header">
-                            <p class="card-header-title">
-                                {{ budget.name }} - {{ budget.description }}
-                            </p>
-                            <span class="card-header-icon">
+        {% for budget in account.budgets %}
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        {{ budget.name }} - {{ budget.description }}
+                    </p>
+                    <span class="card-header-icon">
                                 {% if budget.is_monthly %}
                                     Monthly Budget
                                 {% else %}
                                     Flight Dates: {{ budget.pretty_dates }}
                                 {% endif %}
                             </span>
-                        </header>
-                        <div class="card-content">
-                            <div class="columns">
-                                <div class="column is-2">
-                                    Spend: <strong>{{ budget.calculated_spend|currency }}</strong>
+                </header>
+                <div class="card-content">
+                    <div class="columns">
+                        <div class="column is-2">
+                            Spend: <strong>{{ budget.calculated_spend|currency }}</strong>
+                        </div>
+                        <div class="column is-2">
+                            Budget: <strong>{{ budget.budget|currency }}</strong>
+                        </div>
+                        <div class="column is-2">
+                            Average: <strong>Coming Soon</strong>
+                        </div>
+                        <div class="column is-3">
+                            Rec Daily Spend: <strong>Coming Soon</strong>
+                        </div>
+                        <div class="column is-3">
+                            <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google Ads</span>
+                                    </div>
                                 </div>
-                                <div class="column is-2">
-                                    Budget: <strong>{{ budget.budget|currency }}</strong>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">Facebook Ads</span>
+                                    </div>
                                 </div>
-                                <div class="column is-2">
-                                    Average: <strong>Coming Soon</strong>
-                                </div>
-                                <div class="column is-3">
-                                    Rec Daily Spend: <strong>Coming Soon</strong>
-                                </div>
-                                <div class="column is-3">
-                                    <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google Ads</span>
-                                            </div>
-                                        </div>
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">Facebook Ads</span>
-                                            </div>
-                                        </div>
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing Ads</span>
-                                            </div>
-                                        </div>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing Ads</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="columns">
-                                <div class="column is-12">
-                                    <progress class="progress is-large is-info" max="100"
-                                              value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
-                                    </progress>
-                                </div>
-                            </div>
-                            <div class="level">
-                                <a class="has-text-primary campaigns_in_group_link" data-budget-id="{{ budget.id }}">
-                                    Campaigns in group
-                                </a>
-                            </div>
                         </div>
                     </div>
-                    {% if not forloop.last %}
-                        <br/>
-                    {% endif %}
-                {% endfor %}
+                    <div class="columns">
+                        <div class="column is-12">
+                            <progress class="progress is-large is-info" max="100"
+                                      value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
+                            </progress>
+                        </div>
+                    </div>
+                    <div class="level">
+                        <a class="has-text-primary campaigns_in_group_link" data-budget-id="{{ budget.id }}">
+                            Campaigns in group
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+            {% if not forloop.last %}
+                <br/>
+            {% endif %}
+        {% endfor %}
     </div>
+
 </section>
 
 <div class="modal" id="add_budget_modal">

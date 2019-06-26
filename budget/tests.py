@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from budget.models import Client as BloomClient, CampaignGrouping, Budget
+from budget.models import Client as BloomClient, CampaignGrouping, Budget, CampaignExclusions
 from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
@@ -413,3 +413,14 @@ class AccountTestCase(TestCase):
         self.assertEqual(b9.calculated_spend, 104)
 
         self.assertEqual(b9.spend_percentage, 52)
+
+        campaign_exclusion = CampaignExclusions.objects.create(account=account)
+        campaign_exclusion.aw_campaigns.set([aw_cmp2])
+
+        b10 = Budget.objects.create(account=account, grouping_type=0, has_adwords=True, is_monthly=True)
+        b10.aw_campaigns.set([aw_cmp1, aw_cmp2])
+
+        self.assertNotEqual(b10.aw_campaigns.all(), b10.aw_campaigns_without_excluded)
+        self.assertEqual(b10.calculated_spend, aw_cmp1.campaign_cost)
+        self.assertIn(aw_cmp1, b10.aw_campaigns_without_excluded)
+        self.assertNotIn(aw_cmp2, b10.aw_campaigns_without_excluded)
