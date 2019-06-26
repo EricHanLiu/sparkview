@@ -869,6 +869,7 @@ def get_accounts(request):
     return JsonResponse(response)
 
 
+@login_required
 def get_campaigns(request):
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')
@@ -913,12 +914,26 @@ def get_campaigns(request):
             except (ValueError, ObjectDoesNotExist):
                 pass
 
-        response['campaigns'] = json.loads(serializers.serialize("json", campaigns))
+        response['campaigns'] = json.loads(serializers.serialize('json', campaigns))
 
     if gr_id:
         gr = CampaignGrouping.objects.filter(id=gr_id)
         gr_json = json.loads(serializers.serialize("json", gr))
         response['group'] = gr_json
+
+    return JsonResponse(response)
+
+
+@login_required
+def get_campaigns_in_budget(request):
+    budget_id = request.POST.get('budget_id')
+    budget = get_object_or_404(Budget, id=budget_id)
+
+    campaigns = list(budget.aw_campaigns.all()) + list(budget.fb_campaigns.all()) + list(budget.bing_campaigns.all())
+
+    response = {
+        'campaigns': json.loads(serializers.serialize('json', campaigns))
+    }
 
     return JsonResponse(response)
 

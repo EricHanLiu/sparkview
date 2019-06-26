@@ -22,6 +22,10 @@
         html {
             background: #efefef;
         }
+
+        .modal-card-body {
+            height: 30rem;
+        }
     </style>
 </head>
 <body>
@@ -108,11 +112,11 @@
                                 {{ budget.name }}
                             </p>
                             <span class="card-header-icon">
-                              {% if budget.is_monthly %}
-                                  Monthly Budget
-                              {% else %}
-                                  Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
-                              {% endif %}
+                                {% if budget.is_monthly %}
+                                    Monthly Budget
+                                {% else %}
+                                    Flight Dates: {{ budget.start_date }} - {{ budget.end_date }}
+                                {% endif %}
                             </span>
                         </header>
                         <div class="card-content">
@@ -155,6 +159,11 @@
                                               value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
                                     </progress>
                                 </div>
+                            </div>
+                            <div class="level">
+                                <a class="has-text-primary campaigns_in_group_link" data-budget-id="{{ budget.id }}">
+                                    Campaigns in group
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -346,6 +355,23 @@
     </div>
 </div>
 
+<div class="modal" id="campaigns_in_group_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Campaigns In Group</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+            <ul id="campaigns_in_group_display"></ul>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-link">Save changes</button>
+            <button class="button close">Cancel</button>
+        </footer>
+    </div>
+</div>
+
 <div class="modal" id="exclusion_modal">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -469,6 +495,65 @@
                 exclusionModal.classList.remove('is-active');
                 html.classList.remove('is-clipped');
             });
+        });
+    });
+
+    $('.campaigns_in_group_link').click(function (event) {
+        event.preventDefault();
+        let campsInGroupModal = document.querySelector('#campaigns_in_group_modal');
+        let html = document.querySelector('html');
+        campsInGroupModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        campsInGroupModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            campsInGroupModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = campsInGroupModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                campsInGroupModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
+        });
+
+        // populate div with campaigns in the group
+        let budgetID = $(this).data('budget-id');
+        let $campsInGroupDisplay = $('#campaigns_in_group_display');
+        $campsInGroupDisplay.empty();
+
+        $.ajax({
+            url: '/budget/groupings/get_campaigns_in_budget',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            type: 'POST',
+            data: {
+                'budget_id': budgetID
+            },
+            success: (data) => {
+                let campaigns = data['campaigns'];
+                campaigns.forEach(camp => {
+                    let item = document.createElement('li');
+                    let text;
+                    if (camp['model'] === 'adwords_dashboard.campaign') {
+                        text = document.createTextNode('A - ' + camp['fields']['campaign_name']);
+                    }
+                    if (camp['model'] === 'facebook_dashboard.facebookcampaign') {
+                        text = document.createTextNode('F - ' + camp['fields']['campaign_name']);
+                    }
+                    if (camp['model'] === 'bing_dashboard.bingcampaign') {
+                        text = document.createTextNode('B - ' + camp['fields']['campaign_name']);
+                    }
+                    item.appendChild(text);
+                    $campsInGroupDisplay.append(item);
+                });
+            },
+            error: function (ajaxContext) {
+                toastr.error(ajaxContext.statusText)
+            },
         });
     });
 
