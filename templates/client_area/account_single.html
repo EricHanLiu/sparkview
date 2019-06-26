@@ -21,11 +21,9 @@
             max-height: 80px;
         }
 
-        {% if not account.star_flag %}
-            .fa-flag:hover {
-                cursor: pointer;
-            }
-        {% endif %}
+        span:hover {
+            cursor: pointer;
+        }
     </style>
 {% endblock %}
 
@@ -155,10 +153,10 @@
                                           data-toggle="m-tooltip"
                                           data-original-title="{{ account.get_status_display }}"></span>
                                     &nbsp;
-                                    <i class="fa fa-flag" {% if not account.star_flag %}data-toggle="modal"
-                                       data-target="#flag_account_modal"{% endif %}
-                                       data-flag="{% if account.star_flag %}1{% else %}0{% endif %}"
-                                       {% if account.star_flag %}style="color:#ff5733;"{% endif %}></i>
+                                    <span data-toggle="modal"
+                                          data-target="#flag_account_modal">
+                                        {% if not account.star_flag %}&#128516;{% else %}&#128546;{% endif %}
+                                    </span>
                                     &nbsp;
                                     <a href="/clients/accounts/{{ account.id }}/edit"
                                        style="color: #000; text-decoration: none;">
@@ -1020,6 +1018,11 @@
                                         Manage Budget
                                     </a>
                                 </li>
+                                <li class="m-portlet__nav-item">
+                                    <a class="btn btn-info m-btn" href="/budget/client/{{ account.id }}/beta">
+                                        Budgets (BETA)
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -1787,7 +1790,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Flag Account {{ account.client_name }}</h5>
+                    <h5 class="modal-title">How are we doing?</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -1795,21 +1798,30 @@
                 <form class="m-form" method="POST" action="/clients/accounts/flag">
                     {% csrf_token %}
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="flagged" type="text" value="False" style="display:none;"/>
                     <div class="modal-body">
-                        <div class="m-portlet__body">
-                            <div class="form-group m-form__group">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label>Basecamp Link:</label>
-                                        <input type="text" name="bc_link" class="form-control m-input" required/>
-                                    </div>
-                                </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-success w-100" id="good_task_btn">
+                                    Account is good &#128516;
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" id="flag_task_btn" class="btn btn-outline-danger w-100">
+                                    Account needs to be flagged &#128546;
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" value="Flag Account" class="btn btn-brand">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <div class="row mt-3 d-none" id="bc_link_row">
+                            <div class="col-md-12">
+                                <label>Basecamp Link:</label>
+                                <input type="text" name="bc_link" id="bc_link" class="form-control m-input"
+                                       maxlength="140"/>
+                                <button type="submit" class="btn btn-brand mt-3 w-100" id="flag_task_submit">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -1991,6 +2003,57 @@
 
 
         $(document).ready(function () {
+            let $flagTaskBtn = $('#flag_task_btn');
+            let $goodTaskBtn = $('#good_task_btn');
+            let $basecampLinkRow = $('#bc_link_row');
+
+            $goodTaskBtn.click(function (e) {
+                $basecampLinkRow.removeClass('d-none');
+
+                $goodTaskBtn.addClass('btn-success');
+                $flagTaskBtn.removeClass('btn-danger');
+
+                $('#bc_link').attr('placeholder', 'Optional');
+            });
+
+            $flagTaskBtn.click(function (e) {
+                $basecampLinkRow.removeClass('d-none');
+
+                $flagTaskBtn.addClass('btn-danger');
+                $goodTaskBtn.removeClass('btn-success');
+
+                $('#bc_link').attr('placeholder', '');
+            });
+
+            $('#flag_task_submit').click(function (e) {
+                if ($('#bc_link').attr('placeholder') === 'Optional') { // account is good submission
+                    return;
+                }
+
+                e.preventDefault();
+
+                let $basecampLink = $('#bc_link').val();
+                if ($basecampLink === '') {
+                    e.preventDefault();
+                    toastr.error('Basecamp link is mandatory when flagging the account!');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/clients/accounts/flag',
+                    data: {
+                        'account_id': '{{ account.id }}',
+                        'bc_link': $basecampLink,
+                        'flagged': 'True'
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    success: function () {
+                        window.location.href = '/clients/accounts/{{ account.id }}';
+                    }
+                });
+            });
+
             let $distrubteHoursBtn = $('#distribute_hours_btn');
             {#let $starIcon = $('.fa-flag');#}
             let $promoCheck = $('.confirm-promo');

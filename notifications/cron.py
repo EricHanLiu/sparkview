@@ -1,8 +1,10 @@
-from .models import Todo, Notification
+from .models import Todo, Notification, ScheduledNotification
 from client_area.models import Promo
 from adwords_dashboard.models import DependentAccount
 from user_management.models import Member
+from django.db.models import Q
 import datetime
+import calendar
 
 
 def prepare_todos():
@@ -47,12 +49,42 @@ def prepare_todos():
             link = notification.link
             Todo.objects.create(member=member, description=description, link=link, type=2)
 
+        # SCHEDULED NOTIFICATIONS
+        now = datetime.datetime.now()
+        day_of_month = now.day
+        first_weekday, num_in_month = calendar.monthrange(now.year, now.month)
+        negative_day_of_month = num_in_month - now.day + 1
+        day_of_week = now.weekday()
+
+        if day_of_week < 5:  # weekday
+            scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) |
+                                                                           Q(days_negative__contains=[
+                                                                               negative_day_of_month]) |
+                                                                           Q(day_of_week=day_of_week) |
+                                                                           Q(every_day=True) |
+                                                                           Q(every_week_day=True),
+                                                                           members__in=[member])
+        else:  # weekend
+            scheduled_notifications = ScheduledNotification.objects.filter(Q(days_positive__contains=[day_of_month]) |
+                                                                           Q(days_negative__contains=[
+                                                                               negative_day_of_month]) |
+                                                                           Q(day_of_week=day_of_week) |
+                                                                           Q(every_day=True),
+                                                                           members__in=[member])
+
+        for notification in scheduled_notifications:
+            description = notification.message
+            link = notification.link
+            if 'Review Flagged Accounts' in description:
+                link = '/reports/flagged_accounts'
+            Todo.objects.create(member=member, description=description, link=link, type=2)
+
         # 90 DAYS OF AWESOME TASKS
         for task_assignment in member.phase_tasks:
             if task_assignment.account.status == 0 or task_assignment.account.status == 1:
                 # only create todos for active/onboarding accounts
                 description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
-                Todo.objects.create(member=member, description=description, type=3)
+                Todo.objects.create(member=member, description=description, type=3, phase_task_id=task_assignment.id)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
         yesterday = today - datetime.timedelta(1)

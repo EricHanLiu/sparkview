@@ -653,7 +653,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Resolve account task</h5>
+                    <h5 class="modal-title">How are we doing?</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -663,22 +663,28 @@
                     <input name="task_id" id="m_task_id" type="text" value="" style="display:none;"/>
                     <input name="flagged" id="flagged" type="text" value="False" style="display:none;"/>
                     <div class="modal-body">
-                        <div class="m-portlet__body">
-                            <div class="form-group m-form__group">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <label>BC Link:</label>
-                                        <input type="text" name="bc_link" id="bc_link" class="form-control m-input"
-                                               maxlength="140" required/>
-                                    </div>
-                                </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-outline-success w-100" id="good_task_btn">
+                                    Account is good &#128516;
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="button" id="flag_task_btn" class="btn btn-outline-danger w-100">
+                                    Account needs to be flagged &#128546;
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" value="Complete Task" class="btn btn-brand">
-                        <button type="button" id="flag_task_btn" class="btn btn-danger">Flag</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <div class="row mt-3 d-none" id="bc_link_row">
+                            <div class="col-md-12">
+                                <label>Basecamp Link:</label>
+                                <input type="text" name="bc_link" id="bc_link" class="form-control m-input"
+                                       maxlength="140"/>
+                                <button type="submit" class="btn btn-brand mt-3 w-100" id="flag_task_submit">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -741,6 +747,8 @@
 
         $(document).ready(function () {
             let $flagTaskBtn = $('#flag_task_btn');
+            let $goodTaskBtn = $('#good_task_btn');
+            let $basecampLinkRow = $('#bc_link_row');
 
             $('#late_onboard_modal').on('show.bs.modal', function (e) {
                 let account_id = $(e.relatedTarget).data('account-id');
@@ -752,12 +760,43 @@
                 $('#m_task_id').attr('value', task_id);
             });
 
-            $flagTaskBtn.click(function () {
+            $goodTaskBtn.click(function (e) {
+                $basecampLinkRow.removeClass('d-none');
+
+                $goodTaskBtn.addClass('btn-success');
+                $flagTaskBtn.removeClass('btn-danger');
+
+                $('#bc_link').attr('placeholder', 'Optional');
+            });
+
+            $flagTaskBtn.click(function (e) {
+                $basecampLinkRow.removeClass('d-none');
+
+                $flagTaskBtn.addClass('btn-danger');
+                $goodTaskBtn.removeClass('btn-success');
+
+                $('#bc_link').attr('placeholder', '');
+            });
+
+            $('#flag_task_submit').click(function (e) {
+                if ($('#bc_link').attr('placeholder') === 'Optional') { // account is good submission
+                    return;
+                }
+
+                e.preventDefault();
+
+                let $basecampLink = $('#bc_link').val();
+                if ($basecampLink === '') {
+                    e.preventDefault();
+                    toastr.error('Basecamp link is mandatory when flagging the account!');
+                    return;
+                }
+
                 $.ajax({
                     url: '/notifications/cycle/confirm',
                     data: {
                         'task_id': $('#m_task_id').val(),
-                        'bc_link': $('#bc_link').val(),
+                        'bc_link': $basecampLink,
                         'flagged': 'True'
                     },
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},

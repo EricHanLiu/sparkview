@@ -4,17 +4,20 @@
 # Feb 2019
 
 import os
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 
 django.setup()
 from budget.models import Client, AccountBudgetSpendHistory
 from client_area.models import AccountAllocatedHoursHistory
+from user_management.models import Member, MemberHourHistory
 from datetime import datetime
 
 
 def main():
     accounts = Client.objects.all()
+    members = Member.objects.all()
 
     for account in accounts:
         # First do the allocated hours
@@ -51,6 +54,17 @@ def main():
         account_budget_history.management_fee = account.current_fee
         account_budget_history.status = account.status
         account_budget_history.save()
+
+    now = datetime.now()
+    month = now.month
+    year = now.year
+
+    for member in members:
+        record, created = MemberHourHistory.objects.get_or_create(member=member, month=month, year=year)
+        record.allocated_hours = member.allocated_hours_month
+        record.actual_hours = member.actual_hours_month
+        record.available_hours = member.hours_available
+        record.save()
 
 
 main()

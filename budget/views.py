@@ -2,17 +2,17 @@
 from __future__ import unicode_literals
 import json
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign
 from bing_dashboard.models import BingAccounts, BingCampaign
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, FlightBudget, CampaignGrouping, ClientCData, BudgetUpdate
+from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions
 from user_management.models import Member
 from django.core import serializers
-from tasks import adwords_tasks, bing_tasks, facebook_tasks
+from tasks import adwords_tasks
 from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -261,7 +261,6 @@ def client_details(request, client_id):
 
     if request.method == 'GET':
         client = Client.objects.get(id=client_id)
-        fbudgets = FlightBudget.objects.all()
         cmp_groupings = CampaignGrouping.objects.filter(client=client)
         chdata = ClientCData.objects.filter(client=client)
         chdata_json = json.loads(serializers.serialize("json", chdata))
@@ -282,7 +281,6 @@ def client_details(request, client_id):
             'bing': BingAccounts.objects.filter(blacklisted=False),
             'facebook': FacebookAccount.objects.filter(blacklisted=False),
             'chdata': chdata_json[0]['fields'] if chdata_json else {},
-            'fbudgets': fbudgets,
             'status_badges': status_badges,
             'groupings': cmp_groupings,
             'budget_updated_for_month': budget_updated_for_month
@@ -340,8 +338,6 @@ def client_details(request, client_id):
                 'target_spend': client.target_spend,
                 'error_message': 'Please enter a value greater than 0(zero).',
             }
-
-        # adwords_tasks.cron_clients.delay()
 
         return JsonResponse(context)
 
@@ -485,21 +481,12 @@ def flight_dates(request):
 
         if channel == 'adwords':
             account = DependentAccount.objects.get(dependent_account_id=acc_id)
-            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-            #                             adwords_account=account)
-            # adwords_tasks.adwords_cron_flight_dates.delay(account.dependent_account_id)
 
         elif channel == 'bing':
             account = BingAccounts.objects.get(account_id=acc_id)
-            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-            #                             bing_account=account)
-            # bing_tasks.bing_cron_flight_dates.delay(account.account_id)
 
         elif channel == 'facebook':
             account = FacebookAccount.objects.get(account_id=acc_id)
-            # FlightBudget.objects.create(budget=budget, start_date=start_date, end_date=end_date,
-            #                             facebook_account=account)
-            # facebook_tasks.facebook_cron_flight_dates.delay(account.account_id)
 
         account.desired_spend_start_date = datetime.strptime(start_date, '%Y-%m-%d')
         account.desired_spend_end_date = datetime.strptime(end_date, '%Y-%m-%d')
@@ -522,21 +509,18 @@ def detailed_flight_dates(request):
     if channel == 'adwords':
         account = DependentAccount.objects.get(dependent_account_id=account_id)
         context['account'] = account
-        context['budgets'] = FlightBudget.objects.filter(adwords_account=account)
         context['platform_type'] = 'AW'
         return render(request, 'budget/flight_dates.html', context)
 
     if channel == 'bing':
         account = BingAccounts.objects.get(account_id=account_id)
         context['account'] = account
-        context['budgets'] = FlightBudget.objects.filter(bing_account=account)
         context['platform_type'] = 'BING'
         return render(request, 'budget/flight_dates.html', context)
 
     if channel == 'facebook':
         account = FacebookAccount.objects.get(account_id=account_id)
         context['account'] = account
-        context['budgets'] = FlightBudget.objects.filter(facebook_account=account)
         context['platform_type'] = 'FACEBOOK'
         return render(request, 'budget/flight_dates.html', context)
 
@@ -870,9 +854,34 @@ def delete_groupings(request):
         return JsonResponse(context)
 
 
+@login_required
+def get_accounts(request):
+    adwords_accounts = DependentAccount.objects.all()
+    fb_accounts = FacebookAccount.objects.all()
+    bing_accounts = BingAccounts.objects.all()
+
+    accounts = list(adwords_accounts) + list(fb_accounts) + list(bing_accounts)
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    existing_aw = account.adwords.all()
+    existing_fb = account.facebook.all()
+    existing_bing = account.bing.all()
+
+    response = {
+        'accounts': json.loads(serializers.serialize('json', accounts)),
+        'existing_aw': json.loads(serializers.serialize('json', existing_aw)),
+        'existing_fb': json.loads(serializers.serialize('json', existing_fb)),
+        'existing_bing': json.loads(serializers.serialize('json', existing_bing))
+    }
+
+    return JsonResponse(response)
+
+
+@login_required
 def get_campaigns(request):
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')
+    print(account_ids)
     gr_id = request.POST.get('gr_id')
     channel = request.POST.get('channel')
 
@@ -913,12 +922,37 @@ def get_campaigns(request):
             except (ValueError, ObjectDoesNotExist):
                 pass
 
-        response['campaigns'] = json.loads(serializers.serialize("json", campaigns))
+        response['campaigns'] = json.loads(serializers.serialize('json', campaigns))
 
     if gr_id:
         gr = CampaignGrouping.objects.filter(id=gr_id)
         gr_json = json.loads(serializers.serialize("json", gr))
         response['group'] = gr_json
+
+    # get excluded campaigns
+    account = Client.objects.get(id=account_id)
+    try:
+        exclusion = CampaignExclusions.objects.get(account=account)
+        excluded_campaigns = list(exclusion.aw_campaigns.all()) + list(exclusion.fb_campaigns.all()) + list(
+            exclusion.bing_campaigns.all())
+    except CampaignExclusions.DoesNotExist:
+        excluded_campaigns = []
+    response['excluded_campaigns'] = json.loads(serializers.serialize('json', excluded_campaigns))
+
+    return JsonResponse(response)
+
+
+@login_required
+def get_campaigns_in_budget(request):
+    budget_id = request.POST.get('budget_id')
+    budget = get_object_or_404(Budget, id=budget_id)
+
+    campaigns = list(budget.aw_campaigns_without_excluded) + list(budget.fb_campaigns_without_excluded) + list(
+        budget.bing_campaigns_without_excluded)
+
+    response = {
+        'campaigns': json.loads(serializers.serialize('json', campaigns))
+    }
 
     return JsonResponse(response)
 
@@ -964,47 +998,6 @@ def update_budget(request):
         }
 
         # adwords_tasks.cron_clients.delay()
-        return JsonResponse(context)
-
-
-# Update flight budgets
-@login_required
-def update_fbudget(request):
-    context = {}
-
-    if request.method == 'POST':
-
-        data = json.loads(request.body.decode('utf-8'))
-        budget_id = data['budget_id']
-        budget = data['budget']
-        sdate = data['sdate']
-        edate = data['edate']
-        fbudget = FlightBudget.objects.get(id=budget_id)
-        fbudget.budget = budget
-        fbudget.start_date = sdate
-        fbudget.end_date = edate
-        fbudget.save()
-
-        if fbudget.adwords_account is not None:
-            adwords_tasks.adwords_cron_flight_dates.delay(fbudget.adwords_account.dependent_account_id)
-        elif fbudget.bing_account is not None:
-            bing_tasks.bing_cron_flight_dates.delay(fbudget.bing_account.account_id)
-        elif fbudget.facebook_account is not None:
-            facebook_tasks.facebook_cron_flight_dates.delay(fbudget.facebook_account.account_id)
-
-        return JsonResponse(context)
-
-
-# Delete flight budgets
-@login_required
-def delete_fbudget(request):
-    if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
-        fbudget = FlightBudget.objects.get(id=data['budget_id'])
-        fbudget.delete()
-
-        context = {}
-
         return JsonResponse(context)
 
 
@@ -1173,3 +1166,155 @@ def confirm_budget(request):
     budget_update.save()
 
     return HttpResponse('Success')
+
+
+@login_required
+def budget_client_beta(request, account_id):
+    """
+    New budgets page
+    :param request:
+    :param account_id:
+    :return:
+    """
+    account = get_object_or_404(Client, id=account_id)
+    account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
+    account_status_class = account_status_classes[account.status]
+
+    context = {
+        'account': account,
+        'account_status_class': account_status_class
+    }
+
+    return render(request, 'budget/beta/budgets.html', context)
+
+
+@login_required
+def new_budget(request):
+    """
+    Creates new budgets
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    budget = Budget()
+    budget.name = request.POST.get('budget_name')
+    budget.account = account
+    budget.budget = request.POST.get('budget_amount')
+    budget.save()
+
+    if 'google_ads' in request.POST:
+        budget.has_adwords = True
+    if 'facebook_ads' in request.POST:
+        budget.has_facebook = True
+    if 'bing_ads' in request.POST:
+        budget.has_bing = True
+
+    grouping_type = request.POST.get('grouping_type')
+
+    if grouping_type == 'manual':
+        # Lousy, but it works for now
+        budget.grouping_type = 0
+        for c in request.POST.getlist('campaigns'):
+            try:
+                cmp = Campaign.objects.get(campaign_id=c)
+                budget.aw_campaigns.add(cmp)
+                budget.save()
+            except Campaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = BingCampaign.objects.get(campaign_id=c)
+                budget.bing_campaigns.add(cmp)
+                budget.save()
+            except BingCampaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = FacebookCampaign.objects.get(campaign_id=c)
+                budget.fb_campaigns.add(cmp)
+                budget.save()
+            except FacebookCampaign.DoesNotExist:
+                pass
+    elif grouping_type == 'text':
+        budget.grouping_type = 1
+        budget.text_includes = request.POST.get('include_strings')
+        budget.text_excludes = request.POST.get('exclude_strings')
+    else:
+        budget.grouping_type = 2
+
+    if request.POST.get('time_period') == 'monthly':
+        budget.is_monthly = True
+    else:
+        budget.is_monthly = False
+        flight_dates_input = request.POST.get('flight_dates').split(' - ')
+        start_date_comps = flight_dates_input[0].split('/')
+        end_date_comps = flight_dates_input[1].split('/')
+
+        start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+
+        budget.start_date = start_date
+        budget.end_date = end_date
+
+    budget.save()
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
+
+
+@login_required
+def update_exclusions(request):
+    """
+    Updates the exclusion list for a client
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    exclusions, created = CampaignExclusions.objects.get_or_create(account=account)
+
+    campaign_ids = request.POST.getlist('campaigns')
+
+    aw_cmps = []
+    fb_cmps = []
+    bing_cmps = []
+
+    # We don't know which id is from which platform, so we have to try all 3
+    for campaign_id in campaign_ids:
+        try:
+            aw_cmp = Campaign.objects.get(campaign_id=campaign_id)
+            aw_cmps.append(aw_cmp)
+        except Campaign.DoesNotExist:
+            pass
+
+        try:
+            bing_cmp = BingCampaign.objects.get(campaign_id=campaign_id)
+            bing_cmps.append(bing_cmp)
+        except BingCampaign.DoesNotExist:
+            pass
+
+        try:
+            fb_cmp = FacebookCampaign.objects.get(campaign_id=campaign_id)
+            fb_cmps.append(fb_cmp)
+        except FacebookCampaign.DoesNotExist:
+            pass
+
+    exclusions.aw_campaigns.set(aw_cmps)
+    exclusions.fb_campaigns.set(fb_cmps)
+    exclusions.bing_campaigns.set(bing_cmps)
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')

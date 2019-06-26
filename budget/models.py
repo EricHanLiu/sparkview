@@ -182,6 +182,10 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     @property
+    def budgets(self):
+        return Budget.objects.filter(account=self)
+
+    @property
     def opportunities(self):
         """
         Returns opportunities
@@ -432,56 +436,16 @@ class Client(models.Model):
 
             try:
                 kpid['cpa'] = cost / conversions
-            except:
+            except ZeroDivisionError:
                 kpid['cpa'] = 0.0
 
             try:
                 kpid['roas'] = conversion_value / cost
-            except:
+            except ZeroDivisionError:
                 kpid['roas'] = 0.0
 
             self._google_cpa_month = kpid
         return self._google_cpa_month
-
-    @property
-    def facebook_kpi_month(self):
-        """
-        Returns facebook ads kpi info this month
-        """
-        if not hasattr(self, '_facebook_cpa_month'):
-            kpid = {}
-            conversions = 0.0
-            cost = 0.0
-            conversion_value = 0.0
-
-            for fa in self.facebook.all():
-                fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
-                recent_perf = fb_perf[0].metadata if fb_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf[
-                    'vals']:  # We have CPA info
-                    conversions += float(recent_perf['vals']['conversions'][1])
-                    cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
-                kpid['roas'] = 0.0
-                if 'vals' in recent_perf and 'all_conv_value' in recent_perf['vals']:  # we have conversion value info
-                    conversion_value += float(
-                        recent_perf['vals']['all_conv_value'][1])  # TODO: it's not called this in facebook ads
-
-            kpid['conversions'] = conversions
-            kpid['cost'] = cost
-            kpid['conversion_value'] = conversion_value
-
-            try:
-                kpid['cpa'] = cost / conversions
-            except:
-                kpid['cpa'] = 0.0
-
-            try:
-                kpid['roas'] = conversion_value / cost
-            except:
-                kpid['roas'] = 0.0
-
-            self._facebook_cpa_month = kpid
-        return self._facebook_cpa_month
 
     @property
     def kpi_info(self):
@@ -510,42 +474,9 @@ class Client(models.Model):
             total_conversion_value = 0.0
             roas = 0.0
 
-            """
-            Parse adwords performance object
-            """
-            # for aa in self.adwords.all():
-            #     aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
-            #     recent_perf = aw_perf[0].metadata if aw_perf else {}
-            #     if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']: # We have CPA info
-            #         conversions += float(recent_perf['vals']['conversions'][1])
-            #         cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
-
             conversions += self.google_kpi_month['conversions']
             cost += self.google_kpi_month['cost']
             total_conversion_value += self.google_kpi_month['conversion_value']
-
-            """
-            Facebook
-            """
-            # for fa in self.facebook.all():
-            #     fb_perf = fb.FacebookPerformance.objects.filter(account=fa, performance_type='ACCOUNT')
-            #     recent_perf = fb_perf[0].metadata if fb_perf else {}
-            #     if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'spend' in recent_perf['vals']: # We have CPA info
-            #         conversions += float(recent_perf['vals']['conversions'][1])
-            #         cost += float(recent_perf['vals']['spend'][1]) / 1000000.0
-
-            conversions += self.facebook_kpi_month['conversions']
-            cost += self.facebook_kpi_month['cost']
-            total_conversion_value += self.facebook_kpi_month['conversion_value']
-
-            # """
-            # Parse Bing performance object
-            # """
-            # for ba in self.bing.all():
-            #     bing_perf = bing_a.BingAnomalies.objects.filter(account=ba, performance_type='ACCOUNT')
-            #     recent_perf = bing_perf[0] if bing_perf else {}
-            #     conversions += float(recent_perf.conversions)
-            #     cost += float(recent_perf.cost)
 
             try:
                 final_cpa = cost / conversions
@@ -561,14 +492,6 @@ class Client(models.Model):
             if len(kpid) == 0:
                 self._kpi_info = kpid
                 return self._kpi_info
-
-            # kpid['cpa'] = 0.0
-            # if 'cost__conv' in kpid['kpi']['vals']:
-            #     kpid['cpa'] = float(kpid['kpi']['vals']['cost__conv'][1]) / 1000000.0
-            #
-            # kpid['roas'] = 0.0
-            # if 'all_conv_value' in kpid['kpi']['vals']:
-            #     kpid['roas'] = float(kpid['kpi']['vals']['all_conv_value'][1]) / (float(kpid['kpi']['vals']['cost'][1]) / 1000000.0)
 
             self._kpi_info = kpid
         return self._kpi_info
@@ -1553,6 +1476,269 @@ class Client(models.Model):
         return self.client_name
 
 
+class Budget(models.Model):
+    """
+    Budget object that contains rules for fetching spend from ad networks
+    """
+    GROUPING_TYPES = [(0, 'manual'), (1, 'text strings'), (2, 'all campaigns')]
+
+    name = models.CharField(max_length=255)
+    account = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True, related_name='budget_account')
+    budget = models.FloatField(default=0)
+    is_monthly = models.BooleanField(default=True)
+    start_date = models.DateTimeField(null=True, default=None, blank=True)
+    end_date = models.DateTimeField(null=True, default=None, blank=True)
+    has_adwords = models.BooleanField(default=False)
+    has_facebook = models.BooleanField(default=False)
+    has_bing = models.BooleanField(default=False)
+    grouping_type = models.IntegerField(default=2, choices=GROUPING_TYPES)
+    text_includes = models.CharField(max_length=999, blank=True)
+    text_excludes = models.CharField(max_length=999, blank=True)
+    aw_campaigns = models.ManyToManyField(adwords_a.Campaign, blank=True, related_name='budget_aw_campaigns')
+    aw_spend = models.FloatField(default=0)
+    aw_yspend = models.FloatField(default=0)
+    bing_campaigns = models.ManyToManyField(bing_a.BingCampaign, blank=True, related_name='budget_bing_campaigns')
+    bing_spend = models.FloatField(default=0)
+    bing_yspend = models.FloatField(default=0)
+    fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='budget_facebook_campaigns')
+    fb_spend = models.FloatField(default=0)
+    fb_yspend = models.FloatField(default=0)
+
+    def __str__(self):
+        return str(self.account) + ' budget'
+
+    @property
+    def is_flight(self):
+        return not self.is_monthly
+
+    @property
+    def pretty_dates(self):
+        return self.start_date.strftime('%B %d, %Y') + ' - ' + self.end_date.strftime('%B %d, %Y')
+
+    @property
+    def description(self):
+        return self.get_grouping_type_display().title()
+
+    @property
+    def campaign_exclusions(self):
+        if not hasattr(self, '_campaign_exclusions'):
+            try:
+                self._campaign_exclusions = self.account.campaignexclusions_set.first()
+            except AttributeError:
+                self._campaign_exclusions = None
+        return self._campaign_exclusions
+
+    @property
+    def aw_campaigns_without_excluded(self):
+        """
+        All aw campaigns without the excluded ones
+        :return:
+        """
+        if self.campaign_exclusions is not None:
+            return self.aw_campaigns.exclude(id__in=[o.id for o in self.campaign_exclusions.aw_campaigns.all()])
+        return self.aw_campaigns.all()
+
+    @property
+    def fb_campaigns_without_excluded(self):
+        """
+        All fb campaigns without the excluded ones
+        :return:
+        """
+        if self.campaign_exclusions is not None:
+            return self.fb_campaigns.exclude(id__in=[o.id for o in self.campaign_exclusions.fb_campaigns.all()])
+        return self.fb_campaigns.all()
+
+    @property
+    def bing_campaigns_without_excluded(self):
+        """
+        All bing campaigns without the excluded ones
+        :return:
+        """
+        if self.campaign_exclusions is not None:
+            return self.bing_campaigns.exclude(id__in=[o.id for o in self.campaign_exclusions.bing_campaigns.all()])
+        return self.bing_campaigns.all()
+
+    @property
+    def calculated_google_ads_spend(self):
+        """
+        Calculates Google Ads spend on the fly
+        :return:
+        """
+        if not hasattr(self, '_calculated_google_ads_spend'):
+            spend = 0.0
+            if self.has_adwords:
+                campaigns = self.aw_campaigns_without_excluded
+                if self.is_monthly:
+                    for cmp in campaigns:
+                        spend += cmp.campaign_cost
+                else:
+                    csdrs = adwords_a.CampaignSpendDateRange.objects.filter(campaign__in=campaigns,
+                                                                            start_date=self.start_date,
+                                                                            end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend
+            self._calculated_google_ads_spend = spend
+        return self._calculated_google_ads_spend
+
+    @property
+    def calculated_facebook_ads_spend(self):
+        """
+        Calculates Facebook Ads spend on the fly
+        :return:
+        """
+        if not hasattr(self, '_calculated_facebook_ads_spend'):
+            spend = 0.0
+            if self.has_facebook:
+                campaigns = self.fb_campaigns_without_excluded
+                if self.is_monthly:
+                    for cmp in campaigns:
+                        spend += cmp.campaign_cost
+                else:
+                    csdrs = fb.FacebookCampaignSpendDateRange.objects.filter(campaign__in=campaigns,
+                                                                             start_date=self.start_date,
+                                                                             end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend
+            self._calculated_facebook_ads_spend = spend
+        return self._calculated_facebook_ads_spend
+
+    @property
+    def calculated_bing_ads_spend(self):
+        """
+        Calculates Bing Ads spend on the fly
+        :return:
+        """
+        if not hasattr(self, '_calculated_bing_ads_spend'):
+            spend = 0.0
+            if self.has_bing:
+                campaigns = self.bing_campaigns_without_excluded
+                if self.is_monthly:
+                    for cmp in campaigns:
+                        spend += cmp.campaign_cost
+                else:
+                    csdrs = bing_a.BingCampaignSpendDateRange.objects.filter(campaign__in=campaigns,
+                                                                             start_date=self.start_date,
+                                                                             end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend
+            self._calculated_bing_ads_spend = spend
+        return self._calculated_bing_ads_spend
+
+    @property
+    def calculated_spend(self):
+        return self.calculated_google_ads_spend + self.calculated_facebook_ads_spend \
+               + self.calculated_bing_ads_spend
+
+    @property
+    def calculated_yest_google_ads_spend(self):
+        """
+        Calculates Google Ads spend on the fly
+        :return:
+        """
+        if not hasattr(self, '_calculated_yest_google_ads_spend'):
+            spend = 0.0
+            if self.has_adwords:
+                campaigns = self.aw_campaigns_without_excluded
+                if self.is_monthly:
+                    for cmp in campaigns:
+                        spend += cmp.spend_until_yesterday
+                else:
+                    csdrs = adwords_a.CampaignSpendDateRange.objects.filter(campaign__in=campaigns,
+                                                                            start_date=self.start_date,
+                                                                            end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend_until_yesterday
+            self._calculated_yest_google_ads_spend = spend
+        return self._calculated_yest_google_ads_spend
+
+    @property
+    def calculated_yest_facebook_ads_spend(self):
+        """
+        Calculates Facebook Ads spend on the fly
+        :return:
+        """
+        if not hasattr(self, '_calculated_yest_facebook_ads_spend'):
+            spend = 0.0
+            if self.has_facebook:
+                campaigns = self.fb_campaigns_without_excluded
+                if self.is_monthly:
+                    for cmp in campaigns:
+                        spend += cmp.spend_until_yesterday
+                else:
+                    csdrs = fb.FacebookCampaignSpendDateRange.objects.filter(campaign__in=campaigns,
+                                                                             start_date=self.start_date,
+                                                                             end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend_until_yesterday
+            self._calculated_yest_facebook_ads_spend = spend
+        return self._calculated_yest_facebook_ads_spend
+
+    @property
+    def calculated_yest_bing_ads_spend(self):
+        """
+        Calculates Bing Ads spend on the fly
+        :return:
+        """
+        if not hasattr(self, '_calculated_yest_bing_ads_spend'):
+            spend = 0.0
+            if self.has_bing:
+                campaigns = self.bing_campaigns_without_excluded
+                if self.is_monthly:
+                    for cmp in campaigns:
+                        spend += cmp.spend_until_yesterday
+                else:
+                    csdrs = bing_a.BingCampaignSpendDateRange.objects.filter(campaign__in=campaigns,
+                                                                             start_date=self.start_date,
+                                                                             end_date=self.end_date)
+                    for csdr in csdrs:
+                        spend += csdr.spend_until_yesterday
+            self._calculated_yest_bing_ads_spend = spend
+        return self._calculated_yest_bing_ads_spend
+
+    @property
+    def calculated_yest_spend(self):
+        return self.calculated_yest_google_ads_spend + self.calculated_yest_facebook_ads_spend + \
+               self.calculated_yest_bing_ads_spend
+
+    @property
+    def average_spend_yest(self):
+        """
+        Calculates the average spend until yesterday
+        :return:
+        """
+        if self.is_monthly:
+            number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
+        else:
+            number_of_days = (self.end_date - self.start_date).days
+        return self.calculated_yest_spend / number_of_days
+
+    @property
+    def rec_spend_yest(self):
+        """
+        Calculates the recommended daily spend based on value until yesterday
+        :return:
+        """
+        pass
+
+    @property
+    def spend_percentage(self):
+        """
+        Percentage of budget spend in this period
+        :return:
+        """
+        return self.calculated_spend * 100.0 / self.budget
+
+
+class CampaignExclusions(models.Model):
+    """
+    Campaign exclusion data
+    """
+    account = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, default=None)
+    aw_campaigns = models.ManyToManyField(adwords_a.Campaign)
+    fb_campaigns = models.ManyToManyField(fb.FacebookCampaign)
+    bing_campaigns = models.ManyToManyField(bing_a.BingCampaign)
+
+
 class AccountBudgetSpendHistory(models.Model):
     """
     Keeps historical data for client budget and spend
@@ -1633,16 +1819,6 @@ class ClientHist(models.Model):
     hist_aw_budget = models.FloatField(default=0)
     hist_bing_budget = models.FloatField(default=0)
     hist_fb_budget = models.FloatField(default=0)
-
-
-class FlightBudget(models.Model):
-    budget = models.FloatField(default=0)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    current_spend = models.FloatField(default=0)
-    adwords_account = models.ForeignKey(adwords_a.DependentAccount, models.SET_NULL, blank=True, null=True)
-    bing_account = models.ForeignKey(bing_a.BingAccounts, models.SET_NULL, blank=True, null=True)
-    facebook_account = models.ForeignKey(fb.FacebookAccount, models.SET_NULL, blank=True, null=True)
 
 
 class CampaignGrouping(models.Model):

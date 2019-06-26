@@ -7,7 +7,6 @@ import django
 django.setup()
 from bing_dashboard import auth
 from bingads import ServiceClient
-from bloom import settings
 from bing_dashboard import models
 import logging
 
@@ -16,9 +15,6 @@ from tasks.logger import Logger
 
 
 def get_accounts():
-    data = {}
-    account_list = []
-
     try:
         authentication = auth.BingAuth().get_auth()
     except FileNotFoundError:
@@ -50,11 +46,6 @@ def get_accounts():
                 'Value': user.Id,
             },
         ]
-    }
-
-    search_accounts_request = {
-        'PageInfo': paging,
-        'Predicates': predicates
     }
 
     accounts = customer_service.SearchAccounts(

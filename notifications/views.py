@@ -64,8 +64,8 @@ def cycle_confirm(request):
     flagged = request.POST.get('flagged') == 'True'
 
     bc_link = request.POST.get('bc_link')
-    if bc_link == '' or bc_link is None:
-        return HttpResponse('You must enter a basecamp link to flag or confirm a task.')
+    if (bc_link == '' or bc_link is None) and flagged:
+        return HttpResponse('You must enter a basecamp link to flag a task.')
 
     if task.complete:
         return HttpResponse('This task is already confirmed!')
@@ -92,7 +92,7 @@ def cycle_confirm(request):
     todo.save()
 
     event_description = member.user.get_full_name() + ' completed the task: ' + task.task.message + '.'
-    notes = 'Basecamp link: ' + task.bc_link
+    notes = task.bc_link
     lc_event = LifecycleEvent.objects.create(account=account, type=7, description=event_description,
                                              phase=account.phase,
                                              phase_day=account.phase_day, cycle=account.ninety_day_cycle,

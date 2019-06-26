@@ -198,6 +198,11 @@
                                                             <div class="col-12">
                                                                 {{ event.description }}
                                                             </div>
+                                                            <div class="col-12">
+                                                                {% if event.notes != '' %}
+                                                                    <a href="{{ event.notes }}">Basecamp Link</a>
+                                                                {% endif %}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

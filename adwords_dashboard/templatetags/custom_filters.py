@@ -27,11 +27,11 @@ def cgap(value, arg):
 
 @register.filter("get_dict_value")
 def get_dict_value(data, key):
-
     try:
         return data[key]
     except TypeError:
-        return [0,0,0]
+        return [0, 0, 0]
+
 
 @register.filter
 def slugify_(string):
@@ -39,10 +39,13 @@ def slugify_(string):
     string = re.sub('[^\w.-]', '', string)
     return string.strip('_.- ').lower()
 
+
 @register.filter("addf")
 def addf(value, arg):
     """Adds the arg to the value."""
     return float(value) + float(arg)
+
+
 addf.is_safe = False
 
 
@@ -57,6 +60,7 @@ def mcv(value):
         return float(value) / 1000000
     except ValueError:
         return 0
+
 
 @register.filter("ideal_day_spend")
 def ideal_day_spend(spend, budget):
@@ -86,12 +90,14 @@ def div(value, div):
     except ZeroDivisionError:
         return 0
 
+
 @register.filter
 def divide(value, arg):
     try:
         return float(value) / float(arg)
     except (ValueError, ZeroDivisionError):
         return 0
+
 
 @register.filter('startswith')
 def startswith(text, starts):
@@ -104,13 +110,14 @@ def startswith(text, starts):
 def get_type(value):
     return type(value)
 
+
 @register.filter(name='date_or_string')
 def date_or_string(value):
-
     if isinstance(value, str):
         return value
     else:
         return value.strftime("%A, %d %B %Y")
+
 
 @register.filter(name='uni2float')
 def uni2float(value):
@@ -126,6 +133,7 @@ def uni2int(value):
         return int(value)
     except ValueError:
         return value
+
 
 @register.filter(name='str2int')
 def str2int(value):
@@ -169,7 +177,6 @@ def get_bg_class_by_percentage(spend, budget):
 
 @register.filter(name='daily_spend')
 def daily_spend(spend):
-
     today = datetime.datetime.today() - relativedelta(days=1)
 
     value = spend / today.day
@@ -179,7 +186,6 @@ def daily_spend(spend):
 
 @register.filter(name='projected')
 def projected(spend, yspend):
-
     today = datetime.datetime.today() - relativedelta(days=1)
     lastday_month = monthrange(today.year, today.month)
     remaining = lastday_month[1] - today.day
@@ -187,12 +193,13 @@ def projected(spend, yspend):
     # projected value
     rval = spend + (yspend * remaining)
 
-    return round(rval ,2)
+    return round(rval, 2)
 
 
 @register.filter(name='gap')
 def gap(spend):
     return spend - projected(spend)
+
 
 @register.filter(name='subtract')
 def subtract(value, arg):
@@ -206,12 +213,13 @@ def calculate_ovu(estimated_spend, desired_spend):
     except ZeroDivisionError:
         return 0
 
+
 @register.filter
-def replace ( string, args ):
-    search  = args.split(args[0])[1]
+def replace(string, args):
+    search = args.split(args[0])[1]
     replace = args.split(args[0])[2]
 
-    return re.sub( search, replace, string )
+    return re.sub(search, replace, string)
 
 
 @register.filter(name='pcolor')

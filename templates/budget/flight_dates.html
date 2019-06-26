@@ -24,7 +24,7 @@
                                         onclick="toggleFlightDates('flight-{{ account.dependent_account_id }}')">Add
                                     budget
                                 </button>
-                                <button type="button" class="btn btn-danger add-client" onclick="deleteFlightBudget()">
+                                <button type="button" class="btn btn-danger add-client">
                                     Delete budget(s)
                                 </button>
                             </div>
@@ -50,8 +50,7 @@
                                                placeholder="Desired budget" required>
                                     </div>
                                     <div class="col-md-3">
-                                        <button type="button" class="btn btn-success"
-                                                onclick="submitFlightBudget({{ account.dependent_account_id }})">Submit
+                                        <button type="button" class="btn btn-success">Submit
                                         </button>
                                     </div>
                                 </div>
@@ -108,7 +107,6 @@
                                         </td>
                                         <td style="text-align: center">
                                             <input id="f_budget-{{ budget.id }}" type="number" class="table-number"
-                                                   onkeypress="updateFlightBudget(event, {{ budget.id }})"
                                                    value="{{ budget.budget }}">
                                         </td>
                                         <td style="text-align: center; width: 15%">
@@ -137,7 +135,7 @@
                                 <button type="button" class="btn btn-info add-client"
                                         onclick="toggleFlightDates('flight-{{ account.account_id }}')">Add budget
                                 </button>
-                                <button type="button" class="btn btn-danger add-client" onclick="deleteFlightBudget()">
+                                <button type="button" class="btn btn-danger add-client">
                                     Delete budget(s)
                                 </button>
                             </div>
@@ -160,8 +158,7 @@
                                                min="0" placeholder="Desired budget" required>
                                     </div>
                                     <div class="col-md-3">
-                                        <button type="button" class="btn btn-success"
-                                                onclick="submitFlightBudget({{ account.account_id }})">Submit
+                                        <button type="button" class="btn btn-success">Submit
                                         </button>
                                     </div>
                                 </div>
@@ -218,7 +215,6 @@
                                         </td>
                                         <td style="text-align: center">
                                             <input id="f_budget-{{ budget.id }}" type="number" class="table-number"
-                                                   onkeypress="updateFlightBudget(event, {{ budget.id }})"
                                                    value="{{ budget.budget }}">
                                         </td>
                                         <td style="text-align: center; width: 15%">
@@ -310,147 +306,6 @@
         function toggleFlightDates(acc_id) {
             event.preventDefault();
             $("#" + acc_id).slideToggle('slow');
-        }
-
-        function submitFlightBudget(acc_id) {
-            var start_date = $('.sdate-' + acc_id).val();
-            var end_date = $('.edate-' + acc_id).val();
-            var budget = $('.fbudget-' + acc_id).val();
-            var channel = getUrlParameter('channel');
-
-            var data = JSON.stringify({
-                'sdate': start_date,
-                'edate': end_date,
-                'budget': budget,
-                'acc_id': acc_id,
-                'channel': channel
-            });
-
-            $.ajax({
-                type: "POST",
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                url: '/budget/fbudget/create/',
-                data: data,
-                complete: function () {
-                    setTimeout(function () {
-                        location.reload();
-                    }, 2500);
-                },
-                success: function () {
-                    swal({
-                        "title": "SUCCESS",
-                        "text": "Budget succesfully added to the database.",
-                        "type": "success",
-                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                    });
-                },
-                error: function (ajaxContext) {
-                    swal({
-                        "title": "ERROR",
-                        "text": ajaxContext.statusText,
-                        "type": "error",
-                        "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                    });
-                }
-            })
-        }
-
-        function updateFlightBudget(e, budget_id) {
-
-            var keycode;
-
-            if (window.event)
-                keycode = window.event.keyCode;
-            else if (e)
-                keycode = e.which;
-
-            if (keycode === 13) {
-
-                var start_date = $('.sdate-' + budget_id).val();
-                var end_date = $('.edate-' + budget_id).val();
-                var budget = $('#f_budget-' + budget_id).val();
-
-                var data = JSON.stringify({
-                    'sdate': start_date,
-                    'edate': end_date,
-                    'budget': budget,
-                    'budget_id': budget_id
-                });
-
-                $.ajax({
-                    url: '/budget/fbudget/update/',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    type: 'POST',
-                    data: data,
-                    success: function () {
-                        swal({
-                            "title": "SUCCESS",
-                            "text": "Budget succesfully updated.",
-                            "type": "success",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
-                    },
-                    error: function (ajaxContext) {
-                        swal({
-                            "title": "ERROR",
-                            "text": ajaxContext.statusText,
-                            "type": "error",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
-                    },
-                    complete: function () {
-                        setTimeout(function () {
-                            location.reload();
-                        }, 2500);
-                    }
-                });
-
-            } else {
-                return false;
-            }
-        }
-
-        function deleteFlightBudget() {
-
-            var data = $('input[type="checkbox"]').serialize();
-
-            if (data) {
-                $.ajax({
-                    url: '/budget/fbudget/delete/',
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    type: 'POST',
-                    data: data,
-                    success: function () {
-                        swal({
-                            "title": "SUCCESS",
-                            "text": "Budget(s) succesfully deleted.",
-                            "type": "success",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
-                    },
-                    error: function (ajaxContext) {
-                        swal({
-                            "title": "ERROR",
-                            "text": ajaxContext.statusText,
-                            "type": "error",
-                            "confirmButtonClass": "btn btn-secondary m-btn m-btn--wide"
-                        });
-                    },
-                    complete: function () {
-                        setTimeout(function () {
-                            location.reload();
-                        }, 2500);
-                    }
-                });
-
-            } else {
-                swal({
-                    'title': 'ERROR',
-                    'text': 'Please select at least one budget to delete.',
-                    'type': 'error',
-                    'confirmButtonClass': 'btn btn-secondary m-btn m-btn--wide'
-                });
-            }
         }
 
     </script>
