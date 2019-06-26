@@ -929,6 +929,16 @@ def get_campaigns(request):
         gr_json = json.loads(serializers.serialize("json", gr))
         response['group'] = gr_json
 
+    # get excluded campaigns
+    account = Client.objects.get(id=account_id)
+    try:
+        exclusion = CampaignExclusions.objects.get(account=account)
+        excluded_campaigns = list(exclusion.aw_campaigns.all()) + list(exclusion.fb_campaigns.all()) + list(
+            exclusion.bing_campaigns.all())
+    except CampaignExclusions.DoesNotExist:
+        excluded_campaigns = []
+    response['excluded_campaigns'] = json.loads(serializers.serialize('json', excluded_campaigns))
+
     return JsonResponse(response)
 
 
@@ -1273,7 +1283,7 @@ def update_exclusions(request):
 
     if account not in member.accounts and not request.user.is_staff:
         return HttpResponseForbidden('You are not allowed to do this')
-    
+
     exclusions, created = CampaignExclusions.objects.get_or_create(account=account)
 
     campaign_ids = request.POST.getlist('campaigns')
