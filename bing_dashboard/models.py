@@ -156,7 +156,6 @@ class BingCampaign(models.Model):
     campaign_yesterday_cost = models.FloatField(default=0)
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
-    master_exclusion = models.BooleanField(default=False)
 
 
 class BingCampaignSpendDateRange(models.Model):
