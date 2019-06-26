@@ -862,8 +862,16 @@ def get_accounts(request):
 
     accounts = list(adwords_accounts) + list(fb_accounts) + list(bing_accounts)
 
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    existing_aw = account.adwords.all()
+    existing_fb = account.facebook.all()
+    existing_bing = account.bing.all()
+
     response = {
-        'accounts': json.loads(serializers.serialize('json', accounts))
+        'accounts': json.loads(serializers.serialize('json', accounts)),
+        'existing_aw': json.loads(serializers.serialize('json', existing_aw)),
+        'existing_fb': json.loads(serializers.serialize('json', existing_fb)),
+        'existing_bing': json.loads(serializers.serialize('json', existing_bing))
     }
 
     return JsonResponse(response)
@@ -920,6 +928,16 @@ def get_campaigns(request):
         gr = CampaignGrouping.objects.filter(id=gr_id)
         gr_json = json.loads(serializers.serialize("json", gr))
         response['group'] = gr_json
+
+    # get excluded campaigns
+    account = Client.objects.get(id=account_id)
+    try:
+        exclusion = CampaignExclusions.objects.get(account=account)
+        excluded_campaigns = list(exclusion.aw_campaigns.all()) + list(exclusion.fb_campaigns.all()) + list(
+            exclusion.bing_campaigns.all())
+    except CampaignExclusions.DoesNotExist:
+        excluded_campaigns = []
+    response['excluded_campaigns'] = json.loads(serializers.serialize('json', excluded_campaigns))
 
     return JsonResponse(response)
 

@@ -336,7 +336,7 @@
             </form>
         </section>
         <footer class="modal-card-foot">
-            <button class="button is-link">Save changes</button>
+            <button class="button is-link" disabled>Save changes</button>
             <button class="button close">Cancel</button>
         </footer>
     </div>
@@ -391,7 +391,7 @@
                 </div>
             </section>
             <footer class="modal-card-foot">
-                <input class="button is-link" type="submit" value="Update Exclusions" />
+                <input class="button is-link" type="submit" value="Update Exclusions"/>
                 <button class="button close">Cancel</button>
             </footer>
         </form>
@@ -567,6 +567,7 @@
 
     let manualCampaigns = function (elementID) {
         let data = {
+            'account_id': '{{ account.id }}',
             'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
             'channel': $('#select_accounts_cgr').find(':selected').data('channel')
         };
@@ -577,19 +578,20 @@
             type: 'POST',
             data: data,
             success: function (data) {
-                console.log(data);
                 let campaigns = data['campaigns'];
+                let excluded_campaigns = data['excluded_campaigns'].map(a => a.pk);
                 campaigns.forEach(item => {
+                    let selected = excluded_campaigns.includes(item.pk);
                     if (item['model'] === 'adwords_dashboard.campaign') {
-                        let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        let new_option = new Option('A - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, selected);
                         $('#' + elementID).append(new_option).trigger('change');
                     }
                     if (item['model'] === 'bing_dashboard.bingcampaign') {
-                        let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        let new_option = new Option('B - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, selected);
                         $('#' + elementID).append(new_option).trigger('change');
                     }
                     if (item['model'] === 'facebook_dashboard.facebookcampaign') {
-                        let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, false);
+                        let new_option = new Option('F - ' + item['fields']['campaign_name'], item['fields']['campaign_id'], false, selected);
                         $('#' + elementID).append(new_option).trigger('change');
                     }
                 });
@@ -614,25 +616,32 @@
             url: '/budget/groupings/get_accounts',
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             type: 'POST',
+            data: {
+                'account_id': '{{ account.id }}'
+            },
             success: (data) => {
                 let accounts = data['accounts'];
+                let existing_aw = data['existing_aw'].map(a => a.pk);
+                let existing_fb = data['existing_fb'].map(a => a.pk);
+                let existing_bing = data['existing_bing'].map(a => a.pk);
                 accounts.forEach(acc => {
                     if (acc['model'] === 'adwords_dashboard.dependentaccount') {
-                        let new_option = new Option(acc['fields']['dependent_account_name'], acc['fields']['dependent_account_id'], false, false);
+                        let selected = existing_aw.includes(acc.pk);
+                        let new_option = new Option(acc['fields']['dependent_account_name'], acc['fields']['dependent_account_id'], false, selected);
                         $('#adwords_sources').append(new_option).trigger('change');
-                    }
-                    if (acc['model'] === 'facebook_dashboard.facebookaccount') {
-                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, false);
+                    } else if (acc['model'] === 'facebook_dashboard.facebookaccount') {
+                        let selected = existing_fb.includes(acc.pk);
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, selected);
                         $('#facebook_sources').append(new_option).trigger('change');
-                    }
-                    if (acc['model'] === 'bing_dashboard.bingaccounts') {
-                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, false);
+                    } else if (acc['model'] === 'bing_dashboard.bingaccounts') {
+                        let selected = existing_bing.includes(acc.pk);
+                        let new_option = new Option(acc['fields']['account_name'], acc['fields']['account_id'], false, selected);
                         $('#bing_sources').append(new_option).trigger('change');
                     }
                 });
 
                 $('.account-multiple').selectize({
-                    plugins: ['remove_button']
+                    plugins: ['remove_button'],
                 });
 
                 $(this).removeClass('is-loading');
