@@ -8,7 +8,7 @@ import datetime
 def get_all_spends_by_bing_campaign_this_month():
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for account in accounts:
-        get_spend_by_bing_campaign_this_month(account.id)
+        get_spend_by_bing_campaign_this_month.delay(account.id)
         # get_spend_by_bing_campaign_this_month(account)
 
 

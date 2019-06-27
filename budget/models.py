@@ -1702,6 +1702,10 @@ class Budget(models.Model):
                self.calculated_yest_bing_ads_spend
 
     @property
+    def calculated_budget_remaining_yest(self):
+        return self.budget - self.calculated_yest_spend
+
+    @property
     def average_spend_yest(self):
         """
         Calculates the average spend until yesterday
@@ -1719,7 +1723,13 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
-        pass
+        now = datetime.datetime.now()
+        if self.is_monthly:
+            days_in_month = calendar.monthrange(now.year, now.month)[1]
+            number_of_days_remaining = days_in_month - now.day
+        else:
+            number_of_days_remaining = (self.end_date - now).days
+        return self.calculated_budget_remaining_yest - number_of_days_remaining
 
     @property
     def spend_percentage(self):
