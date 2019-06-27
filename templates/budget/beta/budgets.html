@@ -95,7 +95,8 @@
             <div class="card">
                 <header class="card-header">
                     <p class="card-header-title">
-                        {{ budget.name }} - {{ budget.description }}
+                        {{ budget.name }} - {{ budget.description }} {% if budget.is_new %}&nbsp;
+                        <span class="tag is-warning">This budget is still new, please check back in about an hour</span>{% endif %}
                     </p>
                     <span class="card-header-icon">
                                 {% if budget.is_monthly %}
