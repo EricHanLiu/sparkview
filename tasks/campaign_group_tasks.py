@@ -3,11 +3,12 @@ from bloom import celery_app
 from adwords_dashboard.models import Campaign
 from facebook_dashboard.models import FacebookCampaign
 from bing_dashboard.models import BingCampaign
-from budget.models import Budget
+from budget.models import Budget, CampaignGrouping
 
 
 @celery_app.task(bind=True)
-def update_campaigns_in_campaign_group(self, group):
+def update_campaigns_in_campaign_group(self, group_id):
+    group = CampaignGrouping.objects.get(id=group_id)
     if group.group_by != 'all' and group.group_by != 'manual':
         group.update_text_grouping()
     if group.group_by == 'all':
@@ -25,6 +26,9 @@ def update_budget_campaigns(self, budget_id):
         budget = Budget.objects.get(id=budget_id)
     except Budget.DoesNotExist:
         return
+    print('Updating campaigns for budget ' + str(budget))
+    budget.is_new = False
+    budget.save()
     if budget.grouping_type == 0:
         #  manual, do not have to do anything
         pass
