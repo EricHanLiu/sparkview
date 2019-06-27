@@ -1222,6 +1222,7 @@ def new_budget(request):
     if grouping_type == 'manual':
         # Lousy, but it works for now
         budget.grouping_type = 0
+        budget.is_new = False
         for c in request.POST.getlist('campaigns'):
             try:
                 cmp = Campaign.objects.get(campaign_id=c)

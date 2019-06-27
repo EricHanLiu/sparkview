@@ -131,7 +131,7 @@ def get_all_spend_by_campaign_custom():
     Creates celery tasks for each campaign
     :return:
     """
-    budgets = Budget.objects.filter(has_adwords=True, account__salesprofile__ppc_status=True, is_monthly=False)
+    budgets = Budget.objects.filter(has_adwords=True, is_monthly=False)
     for budget in budgets:
         for aw_camp in budget.aw_campaigns_without_excluded:
             get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
@@ -184,7 +184,7 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     start_date = budget.start_date
     end_date = budget.end_date
 
-    campaign_report_query['dateRange'] = {
+    campaign_report_selector['dateRange'] = {
         'min': start_date.strftime('%Y%m%d'),
         'max': end_date.strftime('%Y%m%d')
     }
@@ -195,7 +195,7 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
                                                                                   start_date=start_date,
                                                                                   end_date=end_date)
 
-    campaign_spend_object.spend = campaign_report['cost']
+    campaign_spend_object.spend = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()
 
     yest_campaign_report_selector = {
@@ -225,7 +225,7 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     start_date = budget.start_date
     end_date = datetime.datetime.now() - datetime.timedelta(1)
 
-    yest_campaign_report_query['dateRange'] = {
+    yest_campaign_report_selector['dateRange'] = {
         'min': start_date.strftime('%Y%m%d'),
         'max': end_date.strftime('%Y%m%d')
     }
@@ -237,5 +237,5 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
                                                                                   start_date=start_date,
                                                                                   end_date=end_date)
 
-    campaign_spend_object.spend_until_yesterday = campaign_report['cost']
+    campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()
