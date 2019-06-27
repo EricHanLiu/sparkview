@@ -2,12 +2,13 @@ from bloom import celery_app
 from bloom.utils.reporting import BingReportingService
 from .models import BingAccounts, BingCampaign
 from budget.models import Budget
+import datetime
 
 
 def get_all_spends_by_bing_campaign_this_month():
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for account in accounts:
-        get_spend_by_bing_campaign_this_month.delay(account.id)
+        get_spend_by_bing_campaign_this_month(account.id)
         # get_spend_by_bing_campaign_this_month(account)
 
 
@@ -35,7 +36,6 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
     )
 
     for campaign_row in report:
-        print(campaign_row)
         campaign_id = campaign_row['campaignid']
         campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
         campaign.campaign_name = campaign_row['campaignname']
@@ -43,13 +43,30 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
         campaign.save()
         print('Bing Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
 
+    this_month_until_yesterday = this_month
+    this_month_until_yesterday['maxDate'] = datetime.date.today() - datetime.timedelta(days=1)
+
+    report = helper.get_campaign_performance(
+        account.account_id,
+        dateRangeType='CUSTOM_DATE',
+        report_name='campaign_stats_tm',
+        extra_fields=fields,
+        **this_month_until_yesterday
+    )
+
+    for campaign_row in report:
+        campaign_id = campaign_row['campaignid']
+        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
+        campaign.spend_until_yesterday = float(campaign_row['spend'])
+        campaign.save()
+
 
 def get_all_spend_by_bing_campaign_custom():
     """
     Creates celery tasks for each campaign
     :return:
     """
-    budgets = Budget.objects.filter(has_bing=True, account__salesprofile__ppc_status=True, is_monthly=False)
+    budgets = Budget.objects.filter(has_bing=True, is_monthly=False)
     for budget in budgets:
         for bing_camp in budget.bing_campaigns_without_excluded:
             get_spend_by_bing_campaign_custom.delay(bing_camp.id, budget.id)
@@ -91,10 +108,26 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
     )
 
     for campaign_row in report:
-        print(campaign_row)
         campaign_id = campaign_row['campaignid']
         campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
         campaign.campaign_name = campaign_row['campaignname']
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
         print('Bing Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
+
+    range_until_yesterday = date_range
+    range_until_yesterday['maxDate'] = datetime.date.today() - datetime.timedelta(days=1)
+
+    report = helper.get_campaign_performance(
+        campaign.account.account_id,
+        dateRangeType='CUSTOM_DATE',
+        report_name='campaign_stats_tm',
+        extra_fields=fields,
+        **range_until_yesterday
+    )
+
+    for campaign_row in report:
+        campaign_id = campaign_row['campaignid']
+        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
+        campaign.spend_until_yesterday = float(campaign_row['spend'])
+        campaign.save()

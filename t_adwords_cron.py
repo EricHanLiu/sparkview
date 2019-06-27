@@ -8,7 +8,8 @@ from adwords_dashboard.cron import get_all_spends_by_campaign_this_month, get_al
 
 
 def main():
-    get_all_spends_by_campaign_this_month()
-    # get_all_spend_by_campaign_custom()
+    # get_all_spends_by_campaign_this_month()
+    get_all_spend_by_campaign_custom()
+
 
 main()

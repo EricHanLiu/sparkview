@@ -8,8 +8,8 @@ from bing_dashboard.cron import get_all_spends_by_bing_campaign_this_month, get_
 
 
 def main():
-    # get_all_spends_by_bing_campaign_this_month()
-    get_all_spend_by_bing_campaign_custom()
+    get_all_spends_by_bing_campaign_this_month()
+    # get_all_spend_by_bing_campaign_custom()
 
 
 main()
