@@ -1503,6 +1503,7 @@ class Budget(models.Model):
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign, blank=True, related_name='budget_facebook_campaigns')
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
+    is_new = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.account) + ' budget'

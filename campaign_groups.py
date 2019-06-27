@@ -14,14 +14,14 @@ def main():
     groups = CampaignGrouping.objects.all()
 
     for group in groups:
-        update_campaigns_in_campaign_group.delay(group)
+        update_campaigns_in_campaign_group.delay(group.id)
 
     now = datetime.datetime.now()
     budgets = Budget.objects.filter(Q(is_monthly=True) | Q(is_monthly=False, start_date__lte=now, end_date__gte=now),
                                     grouping_type__in=[1, 2])
 
     for budget in budgets:
-        update_budget_campaigns.delay(budget)
+        update_budget_campaigns.delay(budget.id)
 
 
 main()
