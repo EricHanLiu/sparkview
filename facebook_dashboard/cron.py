@@ -65,7 +65,7 @@ def get_all_spend_by_facebook_campaign_custom():
     Creates celery tasks for each campaign
     :return:
     """
-    budgets = Budget.objects.filter(has_facebook=True, account__salesprofile__ppc_status=True, is_monthly=False)
+    budgets = Budget.objects.filter(has_facebook=True, is_monthly=False)
     for budget in budgets:
         for fb_camp in budget.fb_campaigns_without_excluded:
             get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
