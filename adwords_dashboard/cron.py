@@ -23,12 +23,23 @@ def get_all_spends_by_campaign_this_month():
     accounts = DependentAccount.objects.filter(blacklisted=False)
     # accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
     for account in accounts:
-        get_spend_by_campaign_this_month.delay(account)
+        get_spend_by_campaign_this_month.delay(account.id)
         # get_spend_by_campaign_this_month(account)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_campaign_this_month(self, account):
+def get_spend_by_campaign_this_month(self, account_id):
+    """
+    Gets spend for all campaigns for this dependent account this month
+    :param self:
+    :param account_id:
+    :return:
+    """
+    try:
+        account = DependentAccount.objects.get(id=account_id)
+    except DependentAccount.DoesNotExist:
+        return
+
     client = get_client()
     client.client_customer_id = account.dependent_account_id
 
@@ -123,18 +134,24 @@ def get_all_spend_by_campaign_custom():
     budgets = Budget.objects.filter(has_adwords=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
         for aw_camp in budget.aw_campaigns_without_excluded:
-            get_spend_by_campaign_custom.delay(aw_camp, budget)
+            get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_campaign_custom(self, campaign, budget):
+def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     """
     Gets campaign spend by custom date range
     :param self:
-    :param campaign:
-    :param budget:
+    :param campaign_id:
+    :param budget_id:
     :return:
     """
+    try:
+        campaign = Campaign.objects.get(id=campaign_id)
+        budget = Budget.objects.get(id=budget_id)
+    except (Campaign.DoesNotExist, Budget.DoesNotExist):
+        return
+
     client = get_client()
     client.client_customer_id = campaign.account.dependent_account_id
 

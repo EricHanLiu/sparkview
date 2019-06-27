@@ -10,11 +10,16 @@ import datetime
 def get_all_spends_by_facebook_campaign_this_month():
     accounts = FacebookAccount.objects.filter(blacklisted=False)
     for account in accounts:
-        get_spend_by_facebook_campaign_this_month.delay(account)
+        get_spend_by_facebook_campaign_this_month.delay(account.id)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_facebook_campaign_this_month(self, account):
+def get_spend_by_facebook_campaign_this_month(self, account_id):
+    try:
+        account = FacebookAccount.objects.get(id=account_id)
+    except FacebookAccount.DoesNotExist:
+        return
+
     helper = FacebookReportingService(facebook_init())
     this_month = helper.get_this_month_daterange()
 
@@ -63,18 +68,24 @@ def get_all_spend_by_facebook_campaign_custom():
     budgets = Budget.objects.filter(has_facebook=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
         for fb_camp in budget.fb_campaigns_without_excluded:
-            get_spend_by_facebook_campaign_custom.delay(fb_camp, budget)
+            get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_facebook_campaign_custom(self, campaign, budget):
+def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
     """
     Gets campaign spend by custom date range
     :param self:
-    :param campaign:
-    :param budget:
+    :param campaign_id:
+    :param budget_id:
     :return:
     """
+    try:
+        budget = Budget.objects.get(id=budget_id)
+        campaign = FacebookCampaign.objects.get(id=campaign_id)
+    except (Budget.DoesNotExist, FacebookCampaign.DoesNotExist):
+        return
+
     helper = FacebookReportingService(facebook_init())
     date_range = {
         'min_date': budget.start_date.strftime('%Y%m%d'),

@@ -1,19 +1,22 @@
 from bloom import celery_app
 from bloom.utils.reporting import BingReportingService
-from .models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
+from .models import BingAccounts, BingCampaign
 from budget.models import Budget
-import datetime
 
 
 def get_all_spends_by_bing_campaign_this_month():
     accounts = BingAccounts.objects.filter(blacklisted=False)
     for account in accounts:
-        get_spend_by_bing_campaign_this_month.delay(account)
+        get_spend_by_bing_campaign_this_month.delay(account.id)
         # get_spend_by_bing_campaign_this_month(account)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_bing_campaign_this_month(self, account):
+def get_spend_by_bing_campaign_this_month(self, account_id):
+    try:
+        account = BingAccounts.objects.get(id=account_id)
+    except BingAccounts.DoesNotExist:
+        return
     helper = BingReportingService()
     this_month = helper.get_this_month_daterange()
 
@@ -49,18 +52,24 @@ def get_all_spend_by_bing_campaign_custom():
     budgets = Budget.objects.filter(has_bing=True, account__salesprofile__ppc_status=True, is_monthly=False)
     for budget in budgets:
         for bing_camp in budget.bing_campaigns_without_excluded:
-            get_spend_by_bing_campaign_custom.delay(bing_camp, budget)
+            get_spend_by_bing_campaign_custom.delay(bing_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_bing_campaign_custom(self, campaign, budget):
+def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
     """
     Gets campaign spend by custom date range
     :param self:
-    :param campaign:
-    :param budget:
+    :param campaign_id:
+    :param budget_id:
     :return:
     """
+    try:
+        budget = Budget.objects.get(id=budget_id)
+        campaign = BingCampaign.objects.get(id=campaign_id)
+    except (Budget.DoesNotExist, BingCampaign.DoesNotExist):
+        return
+
     helper = BingReportingService()
     date_range = {
         'minDate': budget.start_date.strftime('%Y%m%d'),
