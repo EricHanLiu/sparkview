@@ -581,14 +581,25 @@
     };
 
     let manualCampaigns = function (elementID) {
+        let ids = '';
+        {% for a in account.adwords.all %}
+            ids += '{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}';
+        {% endfor %}
+        {% for a in account.facebook.all %}
+            ids += ',{{ a.account_id }}';
+        {% endfor %}
+        {% for a in account.bing.all %}
+            ids += ',{% if not forloop.last %},{% endif %}';
+        {% endfor %}
+
         let data = {
             'account_id': '{{ account.id }}',
-            'account_ids': '{% for a in account.adwords.all %}{{ a.dependent_account_id }}{% if not forloop.last %},{% endif %}{% endfor %}',
+            'account_ids': ids,
             'channel': $('#select_accounts_cgr').find(':selected').data('channel')
         };
 
         $.ajax({
-            url: '/budget/groupings/get_campaigns/',
+            url: '/budget/groupings/get_campaigns',
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             type: 'POST',
             data: data,

@@ -402,7 +402,7 @@ $(document).ready(function () {
             }
 
             $.ajax({
-                url: '/budget/groupings/get_campaigns/',
+                url: '/budget/groupings/get_campaigns',
                 headers: {'X-CSRFToken': csrftoken},
                 type: 'POST',
                 data: data,
@@ -640,7 +640,7 @@ $(document).ready(function () {
         };
 
         $.ajax({
-            url: '/budget/groupings/get_campaigns/',
+            url: '/budget/groupings/get_campaigns',
             headers: {'X-CSRFToken': csrftoken},
             type: 'POST',
             data: data,

@@ -11,6 +11,7 @@ from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 import calendar
 import datetime
+import json
 
 
 class AccountTestCase(TestCase):
@@ -66,6 +67,8 @@ class AccountTestCase(TestCase):
         account.has_budget = True
 
         account.save()
+
+        self.client = Client()
 
     def test_budget(self):
         """Makes sure the budget calculating feature is working correctly"""
@@ -461,3 +464,89 @@ class AccountTestCase(TestCase):
         self.assertEqual(b11.projected_spend_avg,
                          b11.calculated_yest_spend + (b11.average_spend_yest * b11.days_remaining))
 
+    def test_get_campaigns_view(self):
+        """
+        Test add budget manual selection and master exclusion campaigns are pulled properly
+        """
+        account = BloomClient.objects.create(client_name='test client 420')
+        fb_account = FacebookAccount.objects.create(account_id='4242', account_name='testing fb 123')
+        bing_account = BingAccounts.objects.create(account_id='6969', account_name='test bing 123')
+        aw_account = DependentAccount.objects.create(dependent_account_id='2401',
+                                                     dependent_account_name='test aw 123')
+
+        account.adwords.add(aw_account)
+        account.bing.add(bing_account)
+        account.facebook.add(fb_account)
+
+        aw_camp = Campaign.objects.create(campaign_id='123123123123', campaign_name='sam123', account=aw_account,
+                                          campaign_cost=2)
+        FacebookCampaign.objects.create(campaign_id='123123123124', campaign_name='foo test sup', account=fb_account,
+                                        campaign_cost=3)
+        BingCampaign.objects.create(campaign_id='123123123125', campaign_name='hello sup', account=bing_account,
+                                    campaign_cost=4)
+
+        account_ids = fb_account.account_id + ',' + bing_account.account_id + ',' + aw_account.dependent_account_id
+
+        self.client.login(username='test4', password='123456')
+
+        account_dict = {
+            'account_id': account.id,
+            'account_ids': account_ids
+        }
+
+        response = self.client.post('/budget/groupings/get_campaigns', account_dict)
+        self.assertEqual(response.status_code, 200)
+
+        response_content = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(len(response_content['campaigns']), 3)  # 3 campaigns loaded
+        self.assertEqual(len(response_content['excluded_campaigns']), 0)  # none excluded
+        # first campaign is facebook, so id should be 123123123124
+        self.assertEqual(response_content['campaigns'][0]['fields']['campaign_id'], '123123123124')
+
+        # test campaign exclusion
+        exclusion = CampaignExclusions.objects.create(account=account)
+        exclusion.aw_campaigns.add(aw_camp)
+
+        account_dict = {
+            'account_id': account.id,
+            'account_ids': account_ids
+        }
+
+        response = self.client.post('/budget/groupings/get_campaigns', account_dict)
+        self.assertEqual(response.status_code, 200)
+
+        response_content = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(len(response_content['excluded_campaigns']), 1)  # 1 excluded
+        # adwords campaign should be excluded
+        self.assertEqual(response_content['excluded_campaigns'][0]['fields']['campaign_id'], '123123123123')
+
+    def test_get_accounts_view(self):
+        """
+        Tests add_accounts view (called by Pull Sources)
+        """
+        account = BloomClient.objects.create(client_name='test client 420')
+        fb_account = FacebookAccount.objects.create(account_id='4242', account_name='testing fb 123')
+        bing_account = BingAccounts.objects.create(account_id='6969', account_name='test bing 123')
+        aw_account = DependentAccount.objects.create(dependent_account_id='2401',
+                                                     dependent_account_name='test aw 123')
+
+        account.adwords.add(aw_account)
+
+        self.client.login(username='test4', password='123456')
+
+        account_dict = {
+            'account_id': account.id,
+        }
+
+        response = self.client.post('/budget/groupings/get_accounts', account_dict)
+        self.assertEqual(response.status_code, 200)
+
+        response_content = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(len(response_content['accounts']), 4)  # theres one account created in setup, so 4 total
+        self.assertEqual(len(response_content['existing_aw']), 1)  # account has one adwords acc already
+        self.assertEqual(response_content['existing_aw'][0]['fields']['dependent_account_id'], '2401')
+        # bing accounts are added last
+        self.assertEqual(response_content['accounts'][3]['fields']['account_id'], '6969')

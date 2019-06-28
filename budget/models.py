@@ -1325,12 +1325,15 @@ class Client(models.Model):
         return self._sales_profile
 
     @property
-    def services(self):
+    def services_str(self):
         profile = self.sales_profile
         if profile is None:
             return {}
 
-        services = {}
+        services = profile.active_services_str
+        if len(self.active_mandates) > 0:
+            services += ', ' + ', '.join([mandate.mandate_type.name for mandate in self.active_mandates])
+
         return services
 
     @property

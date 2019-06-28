@@ -5,6 +5,7 @@ from user_management.models import Member
 from django.db.models import Q
 import datetime
 import calendar
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 
 
 def prepare_todos():
