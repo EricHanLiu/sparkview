@@ -584,7 +584,7 @@
         };
 
         $.ajax({
-            url: '/budget/groupings/get_campaigns/',
+            url: '/budget/groupings/get_campaigns',
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             type: 'POST',
             data: data,

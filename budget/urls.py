@@ -23,7 +23,7 @@ urlpatterns = [
     url(r'^groupings/read/$', views.campaign_groupings, name='campaign_groupings_read'),
     url(r'^groupings/update/$', views.update_groupings, name='campaign_groupings_update'),
     url(r'^groupings/delete/$', views.delete_groupings, name='campaign_groupings_delete'),
-    url(r'^groupings/get_campaigns/$', views.get_campaigns, name='campaign_groupings_get_campaigns'),
+    url(r'^groupings/get_campaigns$', views.get_campaigns, name='campaign_groupings_get_campaigns'),
     url(r'^groupings/get_campaigns_in_budget$', views.get_campaigns_in_budget,
         name='campaign_groupings_get_campaigns_in_budget'),
     url(r'^groupings/get_accounts$', views.get_accounts, name='campaign_groupings_get_accounts'),
