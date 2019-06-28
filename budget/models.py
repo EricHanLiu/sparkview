@@ -1710,6 +1710,16 @@ class Budget(models.Model):
         return self.budget - self.calculated_yest_spend
 
     @property
+    def days_remaining(self):
+        now = make_aware(datetime.datetime.now())
+        if self.is_monthly:
+            days_in_month = calendar.monthrange(now.year, now.month)[1]
+            number_of_days_remaining = days_in_month - now.day
+        else:
+            number_of_days_remaining = (self.end_date - now).days
+        return number_of_days_remaining
+
+    @property
     def average_spend_yest(self):
         """
         Calculates the average spend until yesterday
@@ -1727,13 +1737,16 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
-        now = make_aware(datetime.datetime.now())
-        if self.is_monthly:
-            days_in_month = calendar.monthrange(now.year, now.month)[1]
-            number_of_days_remaining = days_in_month - now.day
-        else:
-            number_of_days_remaining = (self.end_date - now).days
-        return self.calculated_budget_remaining_yest - number_of_days_remaining
+        rec_spend = self.calculated_budget_remaining_yest / self.days_remaining
+        return rec_spend if rec_spend > 0 else 0
+
+    @property
+    def projected_spend_avg(self):
+        """
+        Projects spend based on spend up until yesterday + average spend * days remaining
+        :return:
+        """
+        return self.calculated_yest_spend + (self.average_spend_yest * self.days_remaining)
 
     @property
     def spend_percentage(self):
