@@ -5,6 +5,7 @@ from bloom.utils.reporting import Reporting
 from tasks.logger import Logger
 from .models import DependentAccount, Campaign, CampaignSpendDateRange
 from budget.models import Budget
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 import datetime
 
 
@@ -20,7 +21,7 @@ def get_client():
 
 
 def get_all_spends_by_campaign_this_month():
-    accounts = DependentAccount.objects.filter(blacklisted=False)
+    accounts = ppc_active_accounts_for_platform('adwords')
     # accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
     for account in accounts:
         get_spend_by_campaign_this_month.delay(account.id)

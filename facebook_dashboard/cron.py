@@ -4,11 +4,12 @@ from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDate
 from budget.models import Budget
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 import datetime
 
 
 def get_all_spends_by_facebook_campaign_this_month():
-    accounts = FacebookAccount.objects.filter(blacklisted=False)
+    accounts = ppc_active_accounts_for_platform('facebook')
     for account in accounts:
         get_spend_by_facebook_campaign_this_month.delay(account.id)
 

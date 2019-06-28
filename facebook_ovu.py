@@ -8,12 +8,11 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 django.setup()
 from tasks.facebook_tasks import facebook_cron_ovu
 from tasks.logger import Logger
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 
 
 def main():
-    clients = Client.objects.filter(salesprofile__ppc_status=1)
-    # flat_list = [item for sublist in l for item in sublist]
-    accounts = [acc for client in clients for acc in client.facebook.all()]
+    accounts = ppc_active_accounts_for_platform('facebook')
 
     for account in accounts:
         try:
