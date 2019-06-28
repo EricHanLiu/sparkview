@@ -296,7 +296,7 @@ class AccountTestCase(TestCase):
 
         b1 = Budget.objects.create(account=account, grouping_type=1, text_includes='foo, hello', text_excludes='test',
                                    has_adwords=True, has_bing=True, has_facebook=True, is_monthly=True, budget=10)
-        update_budget_campaigns(b1)
+        update_budget_campaigns(b1.id)
 
         self.assertIn(aw_cmp1, b1.aw_campaigns.all())
         self.assertNotIn(fb_cmp1, b1.fb_campaigns.all())
@@ -316,7 +316,7 @@ class AccountTestCase(TestCase):
         b2, created = Budget.objects.get_or_create(account=account, grouping_type=1, text_includes='sup',
                                                    text_excludes='hello', has_adwords=True, has_bing=True,
                                                    has_facebook=True, is_monthly=True)
-        update_budget_campaigns(b2)
+        update_budget_campaigns(b2.id)
 
         self.assertNotIn(aw_cmp1, b2.aw_campaigns.all())
         self.assertIn(fb_cmp1, b2.fb_campaigns.all())
@@ -325,7 +325,7 @@ class AccountTestCase(TestCase):
 
         b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
                                    has_bing=True, has_facebook=True, is_monthly=True)
-        update_budget_campaigns(b3)
+        update_budget_campaigns(b3.id)
 
         self.assertIn(aw_cmp1, b3.aw_campaigns.all())
         self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
@@ -334,7 +334,7 @@ class AccountTestCase(TestCase):
 
         b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo',
                                    has_adwords=True, has_bing=True, has_facebook=True, is_monthly=True)
-        update_budget_campaigns(b4)
+        update_budget_campaigns(b4.id)
 
         self.assertNotIn(aw_cmp1, b4.aw_campaigns.all())
         self.assertNotIn(fb_cmp1, b4.fb_campaigns.all())
@@ -342,7 +342,7 @@ class AccountTestCase(TestCase):
         self.assertNotIn(aw_cmp2, b4.aw_campaigns.all())
 
         b5 = Budget.objects.create(account=account, grouping_type=2, has_adwords=True, is_monthly=True)
-        update_budget_campaigns(b5)
+        update_budget_campaigns(b5.id)
 
         self.assertEqual(b5.aw_campaigns.count(), 2)
         self.assertEqual(b5.fb_campaigns.count(), 0)
@@ -354,7 +354,7 @@ class AccountTestCase(TestCase):
         self.assertIn(aw_cmp2, b5.aw_campaigns.all())
 
         b6 = Budget.objects.create(account=account, grouping_type=2, has_facebook=True, is_monthly=True)
-        update_budget_campaigns(b6)
+        update_budget_campaigns(b6.id)
 
         self.assertEqual(b6.aw_campaigns.count(), 0)
         self.assertEqual(b6.fb_campaigns.count(), 1)
@@ -367,7 +367,7 @@ class AccountTestCase(TestCase):
 
         b7 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
                                    has_bing=False, has_facebook=True, is_monthly=True)
-        update_budget_campaigns(b7)
+        update_budget_campaigns(b7.id)
 
         self.assertIn(aw_cmp1, b7.aw_campaigns.all())
         self.assertNotIn(fb_cmp1, b7.fb_campaigns.all())
@@ -428,6 +428,29 @@ class AccountTestCase(TestCase):
         self.assertIn(aw_cmp1, b10.aw_campaigns_without_excluded)
         self.assertNotIn(aw_cmp2, b10.aw_campaigns_without_excluded)
 
+        b11 = Budget.objects.create(account=account, grouping_type=1, text_includes='sup', has_adwords=True,
+                                    has_bing=False, has_facebook=True, is_monthly=True)
+        update_budget_campaigns(b11.id)
+        self.assertIn(fb_cmp1, b11.fb_campaigns_without_excluded)
+        self.assertNotIn(aw_cmp1, b11.aw_campaigns_without_excluded)
+        self.assertNotIn(aw_cmp2, b11.aw_campaigns_without_excluded)
+        self.assertNotIn(bing_cmp1, b11.bing_campaigns_without_excluded)
+
+        fb_cmp1.campaign_cost = 30
+        fb_cmp1.spend_until_yesterday = 28
+        fb_cmp1.budget = 100
+        fb_cmp1.save()
+
+        self.assertEqual(b11.calculated_spend, 30)
+        self.assertEqual(b11.calculated_yest_spend, 28)
+
+        now = datetime.datetime.now()
+        number_of_days_elapsed_in_month = (now - datetime.timedelta(1)).day
+        number_of_days_in_month = calendar.monthrange(now.year, now.month)[1]
+
+        self.assertEqual(b11.average_spend_yest, 28 / number_of_days_elapsed_in_month)
+        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day))
+
     def test_get_campaigns_view(self):
         """
         Test add budget manual selection and master exclusion campaigns are pulled properly
@@ -442,11 +465,11 @@ class AccountTestCase(TestCase):
         account.bing.add(bing_account)
         account.facebook.add(fb_account)
 
-        aw_camp = Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=aw_account,
+        aw_camp = Campaign.objects.create(campaign_id='123123123123', campaign_name='sam123', account=aw_account,
                                           campaign_cost=2)
-        FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account,
+        FacebookCampaign.objects.create(campaign_id='123123123124', campaign_name='foo test sup', account=fb_account,
                                         campaign_cost=3)
-        BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account,
+        BingCampaign.objects.create(campaign_id='123123123125', campaign_name='hello sup', account=bing_account,
                                     campaign_cost=4)
 
         account_ids = fb_account.account_id + ',' + bing_account.account_id + ',' + aw_account.dependent_account_id
@@ -465,8 +488,8 @@ class AccountTestCase(TestCase):
 
         self.assertEqual(len(response_content['campaigns']), 3)  # 3 campaigns loaded
         self.assertEqual(len(response_content['excluded_campaigns']), 0)  # none excluded
-        # first campaign is facebook, so id should be 4567
-        self.assertEqual(response_content['campaigns'][0]['fields']['campaign_id'], '4567')
+        # first campaign is facebook, so id should be 123123123124
+        self.assertEqual(response_content['campaigns'][0]['fields']['campaign_id'], '123123123124')
 
         # test campaign exclusion
         exclusion = CampaignExclusions.objects.create(account=account)
@@ -484,7 +507,7 @@ class AccountTestCase(TestCase):
 
         self.assertEqual(len(response_content['excluded_campaigns']), 1)  # 1 excluded
         # adwords campaign should be excluded
-        self.assertEqual(response_content['excluded_campaigns'][0]['fields']['campaign_id'], '1011123')
+        self.assertEqual(response_content['excluded_campaigns'][0]['fields']['campaign_id'], '123123123123')
 
     def test_get_accounts_view(self):
         """
