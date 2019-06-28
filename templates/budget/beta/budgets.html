@@ -130,24 +130,27 @@
                         <div class="column is-2">
                             Average: <strong>{{ budget.average_spend_yest|currency }}</strong>
                         </div>
-                        <div class="column is-3">
+                        <div class="column is-2">
                             Rec Daily Spend: <strong>{{ budget.rec_spend_yest|currency }}</strong>
                         </div>
-                        <div class="column is-3">
+                        <div class="column is-2">
+                            Projected Spend: <strong>{{ budget.rec_spend_yest|currency }}</strong>
+                        </div>
+                        <div class="column is-2">
                             <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                                 <div class="control">
                                     <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google Ads</span>
+                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google</span>
                                     </div>
                                 </div>
                                 <div class="control">
                                     <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">Facebook Ads</span>
+                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">FB</span>
                                     </div>
                                 </div>
                                 <div class="control">
                                     <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing Ads</span>
+                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing</span>
                                     </div>
                                 </div>
                             </div>

@@ -435,8 +435,10 @@ class AccountTestCase(TestCase):
 
         fb_cmp1.campaign_cost = 30
         fb_cmp1.spend_until_yesterday = 28
-        fb_cmp1.budget = 100
         fb_cmp1.save()
+
+        b11.budget = 100
+        b11.save()
 
         self.assertEqual(b11.calculated_spend, 30)
         self.assertEqual(b11.calculated_yest_spend, 28)
