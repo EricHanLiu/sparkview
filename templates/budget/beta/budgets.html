@@ -27,6 +27,19 @@
             height: 30rem;
         }
     </style>
+    {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      {% if request.user.is_authenticated %}
+      gtag('set', {'user_id': '{{ request.user.member.id }}'});
+      {% endif %}
+      gtag('config', 'UA-127221597-1');
+    </script>
+    {% endif %}
 </head>
 <body>
 <nav class="navbar has-shadow">
@@ -115,26 +128,29 @@
                             Budget: <strong>{{ budget.budget|currency }}</strong>
                         </div>
                         <div class="column is-2">
-                            Average: <strong>Coming Soon</strong>
+                            Average: <strong>{{ budget.average_spend_yest|currency }}</strong>
                         </div>
-                        <div class="column is-3">
-                            Rec Daily Spend: <strong>Coming Soon</strong>
+                        <div class="column is-2">
+                            Rec Daily Spend: <strong>{{ budget.rec_spend_yest|currency }}</strong>
                         </div>
-                        <div class="column is-3">
+                        <div class="column is-2">
+                            Projected Spend: <strong>{{ budget.projected_spend_avg|currency }}</strong>
+                        </div>
+                        <div class="column is-2">
                             <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                                 <div class="control">
                                     <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google Ads</span>
+                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google</span>
                                     </div>
                                 </div>
                                 <div class="control">
                                     <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">Facebook Ads</span>
+                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">FB</span>
                                     </div>
                                 </div>
                                 <div class="control">
                                     <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing Ads</span>
+                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing</span>
                                     </div>
                                 </div>
                             </div>

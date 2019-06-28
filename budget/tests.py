@@ -425,6 +425,15 @@ class AccountTestCase(TestCase):
         self.assertIn(aw_cmp1, b10.aw_campaigns_without_excluded)
         self.assertNotIn(aw_cmp2, b10.aw_campaigns_without_excluded)
 
+        aw_cmp1.spend_until_yesterday = 100000
+        aw_cmp1.save()
+
+        b10.budget = 10
+        b10.save()
+
+        self.assertEqual(b10.calculated_yest_spend, 100000)
+        self.assertEqual(b10.rec_spend_yest, 0)
+
         b11 = Budget.objects.create(account=account, grouping_type=1, text_includes='sup', has_adwords=True,
                                     has_bing=False, has_facebook=True, is_monthly=True)
         update_budget_campaigns(b11.id)
@@ -432,3 +441,23 @@ class AccountTestCase(TestCase):
         self.assertNotIn(aw_cmp1, b11.aw_campaigns_without_excluded)
         self.assertNotIn(aw_cmp2, b11.aw_campaigns_without_excluded)
         self.assertNotIn(bing_cmp1, b11.bing_campaigns_without_excluded)
+
+        fb_cmp1.campaign_cost = 30
+        fb_cmp1.spend_until_yesterday = 28
+        fb_cmp1.save()
+
+        b11.budget = 100
+        b11.save()
+
+        self.assertEqual(b11.calculated_spend, 30)
+        self.assertEqual(b11.calculated_yest_spend, 28)
+
+        now = datetime.datetime.now()
+        number_of_days_elapsed_in_month = (now - datetime.timedelta(1)).day
+        number_of_days_in_month = calendar.monthrange(now.year, now.month)[1]
+
+        self.assertEqual(b11.average_spend_yest, 28 / number_of_days_elapsed_in_month)
+        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day))
+        self.assertEqual(b11.projected_spend_avg,
+                         b11.calculated_yest_spend + (b11.average_spend_yest * b11.days_remaining))
+
