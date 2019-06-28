@@ -14,6 +14,7 @@ from client_area.models import Service, Industry, Language, ClientType, ClientCo
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
 from django.db.models import Q
+from django.utils.timezone import make_aware
 
 
 class Client(models.Model):
@@ -1723,7 +1724,7 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
-        now = datetime.datetime.now()
+        now = make_aware(datetime.datetime.now())
         if self.is_monthly:
             days_in_month = calendar.monthrange(now.year, now.month)[1]
             number_of_days_remaining = days_in_month - now.day
