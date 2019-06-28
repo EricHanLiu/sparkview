@@ -14,6 +14,7 @@ from client_area.models import Service, Industry, Language, ClientType, ClientCo
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
 from django.db.models import Q
+from django.utils.timezone import make_aware
 
 
 class Client(models.Model):
@@ -1324,12 +1325,15 @@ class Client(models.Model):
         return self._sales_profile
 
     @property
-    def services(self):
+    def services_str(self):
         profile = self.sales_profile
         if profile is None:
             return {}
 
-        services = {}
+        services = profile.active_services_str
+        if len(self.active_mandates) > 0:
+            services += ', ' + ', '.join([mandate.mandate_type.name for mandate in self.active_mandates])
+
         return services
 
     @property
@@ -1702,6 +1706,20 @@ class Budget(models.Model):
                self.calculated_yest_bing_ads_spend
 
     @property
+    def calculated_budget_remaining_yest(self):
+        return self.budget - self.calculated_yest_spend
+
+    @property
+    def days_remaining(self):
+        now = make_aware(datetime.datetime.now())
+        if self.is_monthly:
+            days_in_month = calendar.monthrange(now.year, now.month)[1]
+            number_of_days_remaining = days_in_month - now.day
+        else:
+            number_of_days_remaining = (self.end_date - now).days
+        return number_of_days_remaining
+
+    @property
     def average_spend_yest(self):
         """
         Calculates the average spend until yesterday
@@ -1719,7 +1737,16 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
-        pass
+        rec_spend = self.calculated_budget_remaining_yest / self.days_remaining
+        return rec_spend if rec_spend > 0 else 0
+
+    @property
+    def projected_spend_avg(self):
+        """
+        Projects spend based on spend up until yesterday + average spend * days remaining
+        :return:
+        """
+        return self.calculated_yest_spend + (self.average_spend_yest * self.days_remaining)
 
     @property
     def spend_percentage(self):
