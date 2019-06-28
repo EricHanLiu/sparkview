@@ -10,17 +10,8 @@
             width: 100%;
         }
 
-        th {
-            white-space: nowrap;
-        }
-
         .m-table.m-table--head-separator-bloom thead th {
             border: 0;
-        }
-
-        td {
-            /* text-align: center; */
-            white-space: nowrap;
         }
     </style>
 {% endblock %}
@@ -53,6 +44,9 @@
                                 <th>Account</th>
                                 <th>
                                     Industry
+                                </th>
+                                <th>
+                                    Platforms
                                 </th>
                                 <th>
                                     Services
@@ -104,6 +98,9 @@
                                     </td>
                                     <td>
                                         {{ account.service_str }}
+                                    </td>
+                                    <td>
+                                        {{ account.services_str }}
                                     </td>
                                     <td>
                                         {{ account.tier }}
