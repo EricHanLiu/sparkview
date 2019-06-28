@@ -1734,7 +1734,8 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
-        return self.calculated_budget_remaining_yest / self.days_remaining
+        rec_spend = self.calculated_budget_remaining_yest / self.days_remaining
+        return rec_spend if rec_spend > 0 else 0
 
     @property
     def projected_spend_avg(self):
@@ -1742,8 +1743,7 @@ class Budget(models.Model):
         Projects spend based on spend up until yesterday + average spend * days remaining
         :return:
         """
-        # now = make_aware(date)
-        pass
+        return self.calculated_yest_spend + (self.average_spend_yest * self.days_remaining)
 
     @property
     def spend_percentage(self):

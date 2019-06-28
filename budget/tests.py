@@ -425,6 +425,15 @@ class AccountTestCase(TestCase):
         self.assertIn(aw_cmp1, b10.aw_campaigns_without_excluded)
         self.assertNotIn(aw_cmp2, b10.aw_campaigns_without_excluded)
 
+        aw_cmp1.spend_until_yesterday = 100000
+        aw_cmp1.save()
+
+        b10.budget = 10
+        b10.save()
+
+        self.assertEqual(b10.calculated_yest_spend, 100000)
+        self.assertEqual(b10.rec_spend_yest, 0)
+
         b11 = Budget.objects.create(account=account, grouping_type=1, text_includes='sup', has_adwords=True,
                                     has_bing=False, has_facebook=True, is_monthly=True)
         update_budget_campaigns(b11.id)
@@ -449,3 +458,6 @@ class AccountTestCase(TestCase):
 
         self.assertEqual(b11.average_spend_yest, 28 / number_of_days_elapsed_in_month)
         self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day))
+        self.assertEqual(b11.projected_spend_avg,
+                         b11.calculated_yest_spend + (b11.average_spend_yest * b11.days_remaining))
+
