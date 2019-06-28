@@ -6,13 +6,16 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 
 django.setup()
-from adwords_dashboard.models import DependentAccount
 from tasks.adwords_tasks import adwords_cron_ovu
 from tasks.logger import Logger
+from budget.models import Client
 
 
 def main():
-    accounts = DependentAccount.objects.filter(blacklisted=False)
+    clients = Client.objects.filter(salesprofile__ppc_status=1)
+    # flat_list = [item for sublist in l for item in sublist]
+    accounts = [acc for client in clients for acc in client.adwords.all()]
+
     for account in accounts:
         try:
             adwords_cron_ovu.delay(account.dependent_account_id)

@@ -6,13 +6,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 
 django.setup()
-from bing_dashboard.models import BingAccounts
 from tasks.bing_tasks import bing_cron_ovu
 from tasks.logger import Logger
 
 
 def main():
-    accounts = BingAccounts.objects.filter(blacklisted=False)
+    clients = Client.objects.filter(salesprofile__ppc_status=1)
+    # flat_list = [item for sublist in l for item in sublist]
+    accounts = [acc for client in clients for acc in client.bing.all()]
 
     for acc in accounts:
         try:
