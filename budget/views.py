@@ -881,7 +881,7 @@ def get_accounts(request):
 def get_campaigns(request):
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')
-    print(account_ids)
+
     gr_id = request.POST.get('gr_id')
     channel = request.POST.get('channel')
 
