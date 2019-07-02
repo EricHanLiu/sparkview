@@ -36,8 +36,11 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
         **this_month
     )
 
+    in_use_ids = []
+
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
+        in_use_ids.append(campaign_id)
         campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
         campaign.campaign_name = campaign_row['campaignname']
         campaign.campaign_cost = float(campaign_row['spend'])
@@ -60,6 +63,12 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
         campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
         campaign.spend_until_yesterday = float(campaign_row['spend'])
         campaign.save()
+
+    not_in_use_camps = BingCampaign.objects.exclude(campaign_id__in=in_use_ids)
+    for cmp in not_in_use_camps:
+        cmp.campaign_cost = 0.0
+        cmp.spend_until_yesterday = 0.0
+        cmp.save()
 
 
 def get_all_spend_by_bing_campaign_custom():

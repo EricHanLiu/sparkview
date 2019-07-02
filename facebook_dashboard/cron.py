@@ -49,16 +49,25 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
     except FacebookRequestError:
         return
 
+    in_use_ids = []
+
     for campaign_row in report:
         print(campaign_row)
         campaign_name = campaign_row['campaign_name']
         campaign_id = campaign_row['campaign_id']
+        in_use_ids.append(campaign_id)
         campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
                                                                    campaign_name=campaign_name)
         campaign.campaign_name = campaign_row['campaign_name']
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
+
+    not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
+    for cmp in not_in_use_camps:
+        cmp.campaign_cost = 0.0
+        cmp.spend_until_yesterday = 0.0
+        cmp.save()
 
 
 def get_all_spend_by_facebook_campaign_custom():
