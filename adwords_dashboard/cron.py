@@ -22,10 +22,9 @@ def get_client():
 
 def get_all_spends_by_campaign_this_month():
     accounts = ppc_active_accounts_for_platform('adwords')
-    # accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
     for account in accounts:
         get_spend_by_campaign_this_month.delay(account.id)
-        # get_spend_by_campaign_this_month(account)
+        # get_spend_by_campaign_this_month(account.id)
 
 
 @celery_app.task(bind=True)
@@ -80,6 +79,7 @@ def get_spend_by_campaign_this_month(self, account_id):
         # This is the cost for this month
         cost = int(campaign_row['cost']) / 1000000
         campaign.campaign_cost = cost
+        campaign.campaign_name = campaign_row['campaign']
         campaign.save()
         print('Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
 
@@ -122,7 +122,7 @@ def get_spend_by_campaign_this_month(self, account_id):
         report_downloader.DownloadReportAsString(campaign_report_query))
     for campaign_row in campaign_yest_report:
         campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id)
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account)
         # This is the cost for this month until yesterday
         spend_until_yesterday = int(campaign_row['cost']) / 1000000
         campaign.spend_until_yesterday = spend_until_yesterday

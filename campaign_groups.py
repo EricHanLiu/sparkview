@@ -20,10 +20,11 @@ def main():
     # budgets = Budget.objects.filter(Q(is_monthly=True) | Q(is_monthly=False, start_date__lte=now, end_date__gte=now),
                                     # grouping_type__in=[1, 2])
 
+    # budgets = Budget.objects.filter(account_id=7)
     budgets = Budget.objects.all()
 
     for budget in budgets:
-        update_budget_campaigns(budget.id)
+        update_budget_campaigns.delay(budget.id)
 
 
 main()
