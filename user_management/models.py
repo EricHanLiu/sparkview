@@ -132,6 +132,7 @@ class Skill(models.Model):
     """
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default='', blank=True)
+    skill_index = models.IntegerField(blank=True, null=True, default=None)
 
     @property
     def get_score_0(self):
@@ -152,6 +153,9 @@ class Skill(models.Model):
     @property
     def get_score_4(self):
         return SkillEntry.objects.filter(skill=self, score=4)
+
+    class Meta:
+        ordering = ['skill_index']
 
     def __str__(self):
         return self.name
