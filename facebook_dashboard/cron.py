@@ -52,7 +52,6 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
     in_use_ids = []
 
     for campaign_row in report:
-        print(campaign_row)
         campaign_name = campaign_row['campaign_name']
         campaign_id = campaign_row['campaign_id']
         in_use_ids.append(campaign_id)
@@ -62,6 +61,29 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
+
+    yesterday = datetime.datetime.now() - datetime.timedelta(1)
+    until_yest_params_date_range = helper.get_custom_date_range(this_month.since, yesterday)
+    until_yest_params = helper.set_params(
+        time_range=until_yest_params_date_range,
+        level='campaign',
+        filtering=filtering
+    )
+
+    try:
+        report = helper.get_account_insights(account.account_id, params=until_yest_params, extra_fields=fields)
+    except FacebookRequestError:
+        return
+
+    for campaign_row in report:
+        campaign_name = campaign_row['campaign_name']
+        campaign_id = campaign_row['campaign_id']
+        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account)
+        campaign.campaign_name = campaign_name
+        campaign.spend_until_yesterday = float(campaign_row['spend'])
+        campaign.save()
+        print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month (until yesterday) of $' + str(
+            campaign.campaign_cost))
 
     not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
     for cmp in not_in_use_camps:
