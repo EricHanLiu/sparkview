@@ -117,5 +117,6 @@ def update_budget_campaigns(self, budget_id):
             budget.fb_campaigns.set(facebook_campaigns)
 
         if budget.has_bing:
+            print('budget ' + str(budget.id) + ' has bing')
             bing_campaigns = BingCampaign.objects.filter(account__in=account.bing.all())
             budget.bing_campaigns.set(bing_campaigns)
