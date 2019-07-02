@@ -708,7 +708,10 @@ class Backup(models.Model):
             self.account.get_hours_remaining_this_month_member(self.period.member) * days_in_period / days_left_in_month,
             2)
         num_members = self.members.all().count()
-        hours /= num_members
+        try:
+            hours /= num_members
+        except ZeroDivisionError:
+            hours = 0
         return hours
 
     @property
