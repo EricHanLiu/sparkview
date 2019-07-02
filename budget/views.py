@@ -950,6 +950,8 @@ def get_campaigns_in_budget(request):
     campaigns = list(budget.aw_campaigns_without_excluded) + list(budget.fb_campaigns_without_excluded) + list(
         budget.bing_campaigns_without_excluded)
 
+    campaigns = sorted(campaigns, key=lambda c: c.campaign_cost, reverse=True)
+
     response = {
         'campaigns': json.loads(serializers.serialize('json', campaigns))
     }
