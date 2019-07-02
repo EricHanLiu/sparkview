@@ -712,7 +712,7 @@ class Backup(models.Model):
             hours /= num_members
         except ZeroDivisionError:
             hours = 0
-        return hours
+        return round(hours, 2)
 
     @property
     def similar_members(self):
