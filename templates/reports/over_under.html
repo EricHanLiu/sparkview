@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load humanize %}
+{% load template_filters %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                            Over/Under report
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="m-portlet__body">
+                <form class="m-form" method="get">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="month">Month:</label>
+                            <select class="form-control m-input"
+                                    name="month"
+                                    style="width: 100%;">
+                                {% for month_num, month_name in months %}
+                                    <option value="{{ month_num }}"
+                                            {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="year">Year:</label>
+                            <select class="form-control m-input"
+                                    name="year"
+                                    style="width: 100%;">
+                                {% for year in years %}
+                                    <option value="{{ year }}"
+                                            {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                                <!-- should add to this -->
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <br/>
+                            <input type="submit" value="Submit">
+                        </div>
+                    </div>
+                </form>
+                <hr/>
+                {% if overspenders.count > 0 %}
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                    <div class="col-12">
+                        <h5>Overspenders</h5>
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'>
+                            <thead class="thead-inverse">
+                            <tr class="main-table-header">
+                                <th>Account</th>
+                                <th>Actual Hours</th>
+                                <th>
+                                    Allocated Hours
+                                </th>
+                                <th>
+                                    Ratio
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for account in overspenders %}
+                                <tr>
+                                    <td>
+                                        <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
+                                    </td>
+                                    <td>
+                                        {{ account.2|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        {{ account.1|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        {{ account.3|floatformat:2 }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+                {% endif %}
+                {% if underspenders.count > 0 %}
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                    <div class="col-12">
+                        <h5>Underspenders</h5>
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'>
+                            <thead class="thead-inverse">
+                            <tr class="main-table-header">
+                                <th>Account</th>
+                                <th>Actual Hours</th>
+                                <th>
+                                    Allocated Hours
+                                </th>
+                                <th>
+                                    Ratio
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for account in underspenders %}
+                                <tr>
+                                    <td>
+                                        <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
+                                    </td>
+                                    <td>
+                                        {{ account.2|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        {{ account.1|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        {{ account.3|floatformat:2 }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
