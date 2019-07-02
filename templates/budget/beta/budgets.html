@@ -317,6 +317,146 @@
     </div>
 </div>
 
+<div class="modal" id="edit_budget_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card" style="max-height: 750px;">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Edit Budget</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <form method="post" action="/budget/edit_budget">
+
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <input name="account_id" value="{{ account.id }}" class="is-hidden"/>
+                <input name="budget_id" id="edit_budget_id" class="is-hidden" />
+                <div class="columns is-multiline">
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Budget Name</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Budget Name" name="budget_name" id="edit_budget_name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Budget</label>
+                            <div class="control">
+                                <input class="input" type="text" placeholder="Budget (in dollars)" name="budget_amount" id="edit_budget_amount">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="field">
+                            <label class="label">Ad Networks</label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="google_ads" class="is-large"
+                                       {% if not account.adwords.all %}disabled{% endif %}>
+                                Google Ads
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="facebook_ads"
+                                       {% if not account.facebook.all %}disabled{% endif %}>
+                                Facebook Ads
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="bing_ads" {% if not account.bing.all %}disabled{% endif %}>
+                                Bing Ads
+                            </label>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <input type="text" name="grouping_type" id="edit_grouping_type" value="all_campaigns"
+                               class="is-hidden"/>
+                        <div class="tabs is-centered is-boxed">
+                            <ul>
+                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-image"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>All Campaigns</span>
+                                    </a>
+                                </li>
+                                <li class="tab" onclick="openTab(event, 'manual')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-music"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>Manual Selection</span>
+                                    </a>
+                                </li>
+                                <li class="tab" onclick="openTab(event, 'text')">
+                                    <a>
+                                        <span class="icon is-small"><i class="fas fa-film"
+                                                                       aria-hidden="true"></i></span>
+                                        <span>Text Filters</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="all_campaigns" class="content-tab">
+                            <p>All campaigns will be included in this budget</p>
+                        </div>
+                        <div id="manual" class="content-tab" style="display:none">
+                            <div class="field">
+                                <label class="label">Select Campaigns</label>
+                                <div class="control">
+                                    <div class="select is-multiple is-fullwidth" id="campaign_list_across">
+                                        <select name="campaigns"
+                                                multiple="multiple" id="campaigns_gr_across">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="text" class="content-tab" style="display:none">
+                            <div class="field">
+                                <label class="label">Include Strings</label>
+                                <div class="control">
+                                    <input class="input" type="text" placeholder="Separate by comma"
+                                           name="include_strings">
+                                </div>
+                                <div class="field">
+                                    <label class="label">Exclude Strings</label>
+                                    <div class="control">
+                                        <input class="input" type="text" placeholder="Separate by comma"
+                                               name="exclude_strings">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <hr/>
+                        <div class="control">
+                            <label class="radio">
+                                <input type="radio" name="time_period" value="monthly" id="monthly_time_period">
+                                Monthly
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="time_period" value="flight" id="flight_time_period">
+                                Flight
+                            </label>
+                        </div>
+                    </div>
+                    <div class="column is-12 is-hidden" id="flight_dates">
+                        <div class="control">
+                            <input type="text" class="input datepicker-here" style="width: 100%;"
+                                   name="flight_dates" placeholder="Flight Dates" data-language="en"
+                                   data-range="true" data-multiple-dates-separator=" - "
+                                   data-position="top left">
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <input type="submit" class="button is-info" value="Add Budget"/>
+                <button class="button close">Cancel</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
 <div class="modal" id="sources_modal">
     <div class="modal-background"></div>
     <div class="modal-card">
@@ -366,7 +506,21 @@
             <button class="delete close" aria-label="close"></button>
         </header>
         <section class="modal-card-body">
-            <ul id="campaigns_in_group_display"></ul>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>
+                        Campaign
+                    </th>
+                    <th>
+                        Spend
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="campaigns_in_group_display">
+
+                </tbody>
+            </table>
         </section>
         <footer class="modal-card-foot">
             <button class="button close">Cancel</button>
@@ -539,7 +693,8 @@
             success: (data) => {
                 let campaigns = data['campaigns'];
                 campaigns.forEach(camp => {
-                    let item = document.createElement('li');
+                    let row = document.createElement('tr');
+
                     let text;
                     if (camp['model'] === 'adwords_dashboard.campaign') {
                         text = document.createTextNode('A - ' + camp['fields']['campaign_name']);
@@ -550,8 +705,17 @@
                     if (camp['model'] === 'bing_dashboard.bingcampaign') {
                         text = document.createTextNode('B - ' + camp['fields']['campaign_name']);
                     }
-                    item.appendChild(text);
-                    $campsInGroupDisplay.append(item);
+
+                    let td1 = document.createElement('td');
+                    td1.appendChild(text);
+
+                    let td2 = document.createElement('td');
+                    let spend = document.createTextNode(camp['fields']['campaign_cost']);
+                    td2.appendChild(spend);
+
+                    row.appendChild(td1);
+                    row.appendChild(td2);
+                    $campsInGroupDisplay.append(row);
                 });
             },
             error: function (ajaxContext) {

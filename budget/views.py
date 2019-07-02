@@ -881,7 +881,7 @@ def get_accounts(request):
 def get_campaigns(request):
     account_id = request.POST.get('account_id')
     account_ids = request.POST.get('account_ids')
-    print(account_ids)
+
     gr_id = request.POST.get('gr_id')
     channel = request.POST.get('channel')
 
@@ -949,6 +949,8 @@ def get_campaigns_in_budget(request):
 
     campaigns = list(budget.aw_campaigns_without_excluded) + list(budget.fb_campaigns_without_excluded) + list(
         budget.bing_campaigns_without_excluded)
+
+    campaigns = sorted(campaigns, key=lambda c: c.campaign_cost, reverse=True)
 
     response = {
         'campaigns': json.loads(serializers.serialize('json', campaigns))

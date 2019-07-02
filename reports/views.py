@@ -1104,3 +1104,89 @@ def promo_ads(request):
     }
 
     return render(request, 'reports/promo_ads.html', context)
+
+
+@login_required
+def over_under(request):
+    """
+    Over/under report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    first = now.replace(day=1)
+    # Default to last month
+    last_month = first - datetime.timedelta(days=1)
+
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+    years = [str(i) for i in range(2018, now.year + 1)]
+
+    month = request.GET.get('month') if 'month' in request.GET else last_month.month
+    year = request.GET.get('year') if 'year' in request.GET else last_month.year
+
+    selected = {
+        'month': str(month),
+        'year': str(year)
+    }
+
+    all_accounts = Client.objects.all().order_by('client_name')
+
+    # Contain the accounts that overspent hours or underspend hours
+    overspenders = []
+    underspenders = []
+
+    for account in all_accounts:
+        allocated_history = AccountAllocatedHoursHistory.objects.filter(month=month, year=year, account=account).values(
+            'account', 'year', 'month').annotate(sum_hours=Sum('allocated_hours'))
+        allocated_hours = 0.0
+        if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+            allocated_hours = allocated_history[0]['sum_hours']
+
+        all_hours = account.all_hours_month_year(month, year)
+
+        if allocated_hours == 0:
+            continue
+
+        try:
+            actual_hours_ratio = all_hours / allocated_hours
+        except ZeroDivisionError:
+            actual_hours_ratio = 0.0
+
+        tmpa = []
+        tmpa.append(account)
+        tmpa.append(allocated_hours)
+        tmpa.append(all_hours)
+        tmpa.append(actual_hours_ratio)
+
+        if float(actual_hours_ratio) >= 1.2:
+            overspenders.append(tmpa)
+        elif float(actual_hours_ratio) <= 0.8:
+            underspenders.append(tmpa)
+
+        # value_added_hours = account.value_hours_month_year(month, year)
+        # mandate_hours = account.actual_mandate_hours(month, year)
+        # actual_hours_sum = account.actual_hours_month_year(month, year)
+        #
+        # tmpa = []
+        # tmpa.append(account)  # 0
+        # tmpa.append(bh)  # 1
+        # tmpa.append(allocated_hours)  # 2
+        # tmpa.append(all_hours)  # 3
+        # tmpa.append(actual_hours_ratio)  # 4
+        # tmpa.append(value_added_hours)  # 5
+        # tmpa.append(mandate_hours)  # 6
+        # tmpa.append(actual_hours_sum)  # 7
+        # accounts_array.append(tmpa)
+
+    context = {
+        'months': months,
+        'years': years,
+        'selected': selected,
+        'overspenders': overspenders,
+        'underspenders': underspenders
+    }
+
+    return render(request, 'reports/over_under.html', context)

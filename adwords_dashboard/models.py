@@ -328,6 +328,7 @@ class Campaign(models.Model):
     campaign_budget = models.FloatField(default=0)
     campaign_status = models.CharField(max_length=255, default='None')
     campaign_serving_status = models.CharField(max_length=255, default='None')
+    updated = models.DateTimeField(auto_now=True)
 
     @property
     def json(self):

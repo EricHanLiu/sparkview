@@ -1,6 +1,7 @@
 from django import template
-from user_management.models import SkillEntry
+from user_management.models import SkillEntry, Backup
 import calendar
+import datetime
 
 register = template.Library()
 
@@ -39,7 +40,14 @@ def get_allocation_this_month_member(account, member):
     """
     Called from template by an account, it fetches how many allocated hours a member has this month
     """
-    return account.get_allocation_this_month_member(member)
+    # for client page backup hours
+    is_backup = False
+    now = datetime.datetime.now()
+    if Backup.objects.filter(members__in=[member], period__start_date__lte=now, period__end_date__gte=now,
+                             approved=True, account=account).count() > 0:
+        is_backup = True
+
+    return account.get_allocation_this_month_member(member, is_backup)
 
 
 @register.filter
