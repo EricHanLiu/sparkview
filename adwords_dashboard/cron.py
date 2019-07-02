@@ -70,9 +70,12 @@ def get_spend_by_campaign_this_month(self, account_id):
         'selector': campaign_report_selector
     }
 
+    in_use_ids = []
+
     campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))
     for campaign_row in campaign_report:
         campaign_id = campaign_row['campaign_id']
+        in_use_ids.append(campaign_row['campaign_id'])
         campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account)
         # This is the cost for this month
         cost = int(campaign_row['cost']) / 1000000
@@ -125,6 +128,12 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.spend_until_yesterday = spend_until_yesterday
         campaign.save()
         print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
+
+    not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
+    for cmp in not_in_use_camps:
+        cmp.campaign_cost = 0.0
+        cmp.spend_until_yesterday = 0.0
+        cmp.save()
 
 
 def get_all_spend_by_campaign_custom():
