@@ -193,6 +193,9 @@
                                         <th>
                                             Justification
                                         </th>
+                                        <th>
+                                            Approved
+                                        </th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -245,6 +248,9 @@
                                                 <div style="max-height: 70px; overflow: auto;">
                                                     {{ incident.justification }}
                                                 </div>
+                                            </td>
+                                            <td>
+                                                {{ incident.approved }}
                                             </td>
                                         </tr>
                                     {% endfor %}

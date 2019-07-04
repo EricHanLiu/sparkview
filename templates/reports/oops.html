@@ -73,6 +73,9 @@
                                 <th>
                                     Refund Amount
                                 </th>
+                                <th>
+                                    Approved
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -131,6 +134,9 @@
                                     </td>
                                     <td>
                                         {{ incident.refund_amount }}
+                                    </td>
+                                    <td>
+                                        {{ incident.approved }}
                                     </td>
                                 </tr>
                             {% endfor %}
