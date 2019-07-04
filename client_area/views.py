@@ -727,7 +727,7 @@ def account_single(request, account_id):
             'opp_reasons': opp_reasons
         }
 
-        return render(request, 'client_area/refactor/account_single.html', context)
+        return render(request, 'client_area/refactor/client_profile.html', context)
     elif request.method == 'POST':
         account = Client.objects.get(id=account_id)
         member = Member.objects.get(user=request.user)

@@ -44,7 +44,7 @@ def get_allocation_this_month_member(account, member):
     is_backup = False
     now = datetime.datetime.now()
     if Backup.objects.filter(members__in=[member], period__start_date__lte=now, period__end_date__gte=now,
-                             approved=True, account=account).count() > 0:
+                             approved=True, account=account).count() > 0 :
         is_backup = True
 
     return account.get_allocation_this_month_member(member, is_backup)

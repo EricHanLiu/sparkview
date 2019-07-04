@@ -10,14 +10,23 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
           integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        .menu-list a.is-active {
+            background-color: lightskyblue;
+        }
 
+        .card-header {
+            height: 5em;
+            padding: 1em;
+        }
+    </style>
     {% block extraCss %}
     {% endblock %}
 </head>
 <body class="has-navbar-spaced">
-<!-- NAVBAR -->
+<!-- NAVBAR START -->
 <nav class="navbar has-shadow is-spaced">
-    <div class="container">
+    <div class="container is-fluid">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
                 <img src="{% static 'img/bloom_logo_new.png' %}" alt="SparkView">
@@ -34,20 +43,35 @@
                 </a>
                 <div class="navbar-dropdown">
                     <a class="navbar-item" href="/clients">
-                        My Accounts
+                        <span class="icon has-text-bootstrap">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <strong>My Accounts</strong>
                     </a>
                     {% if request.user.is_staff %}
                         <a class="navbar-item" href="/clients/accounts/all">
-                            Active Accounts
+                            <span class="icon">
+                                <i class="fas fa-chart-line"></i>
+                            </span>
+                            <strong>Active Accounts</strong>
                         </a>
                         <a class="navbar-item" href="/clients/accounts/inactive">
-                            Inactive Accounts
+                            <span class="icon">
+                                <i class="fas fa-book-dead"></i>
+                            </span>
+                            <strong>Inactive Accounts</strong>
                         </a>
                         <a class="navbar-item" href="/clients/accounts/lost">
-                            Lost Accounts
+                            <span class="icon">
+                                <i class="fas fa-heart-broken"></i>
+                            </span>
+                            <strong>Lost Accounts</strong>
                         </a>
                         <a class="navbar-item" href="/clients/accounts/new">
-                            Add New Account
+                            <span class="icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </span>
+                            <strong>Add New Account</strong>
                         </a>
                     {% endif %}
                 </div>
@@ -166,11 +190,23 @@
         </div>
     </div>
 </nav>
-
-<!-- SIDE MENU -->
-{% block leftMenu %}
-
-{% endblock %}
+<!-- NAVBAR END -->
+<div class="section">
+    <div class="container is-fluid">
+        <div class="columns">
+            <div class="column is-2">
+                <!-- SIDE MENU START -->
+                {% block leftAside %}
+                {% endblock %}
+                <!-- SIDE MENU END -->
+            </div>
+            <div class="column is-10">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
 
 {% block extraJs %}
 {% endblock %}
