@@ -38,47 +38,32 @@
         <div class="navbar-start">
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
-                    <i class="fas fa-briefcase has-text-primary" style="margin-right: 0.5em;"></i>
+                    <i class="fas fa-briefcase" style="margin-right: 0.5em;"></i>
                     Clients
                 </a>
                 <div class="navbar-dropdown">
                     <a class="navbar-item" href="/clients">
-                        <span class="icon has-text-bootstrap">
-                            <i class="fas fa-user"></i>
-                        </span>
-                        <strong>My Accounts</strong>
+                        My Accounts
                     </a>
                     {% if request.user.is_staff %}
                         <a class="navbar-item" href="/clients/accounts/all">
-                            <span class="icon">
-                                <i class="fas fa-chart-line"></i>
-                            </span>
-                            <strong>Active Accounts</strong>
+                            Active Accounts
                         </a>
                         <a class="navbar-item" href="/clients/accounts/inactive">
-                            <span class="icon">
-                                <i class="fas fa-book-dead"></i>
-                            </span>
-                            <strong>Inactive Accounts</strong>
+                            Inactive Accounts
                         </a>
                         <a class="navbar-item" href="/clients/accounts/lost">
-                            <span class="icon">
-                                <i class="fas fa-heart-broken"></i>
-                            </span>
-                            <strong>Lost Accounts</strong>
+                            Lost Accounts
                         </a>
                         <a class="navbar-item" href="/clients/accounts/new">
-                            <span class="icon">
-                                <i class="fas fa-plus-circle"></i>
-                            </span>
-                            <strong>Add New Account</strong>
+                            Add New Account
                         </a>
                     {% endif %}
                 </div>
             </div>
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
-                    <i class="fas fa-user-friends has-text-info" style="margin-right: 0.5em;"></i>
+                    <i class="fas fa-user-friends" style="margin-right: 0.5em;"></i>
                     Members
                 </a>
                 <div class="navbar-dropdown">
@@ -110,7 +95,7 @@
             {% if request.user.is_staff %}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
-                        <i class="fas fa-book has-text-danger" style="margin-right: 0.5em;"></i>
+                        <i class="fas fa-book" style="margin-right: 0.5em;"></i>
                         Admin
                     </a>
                     <div class="navbar-dropdown">

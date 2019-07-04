@@ -16,6 +16,10 @@
         p.subtitle.is-6 {
             margin-bottom: 0.2em;
         }
+
+        .icon {
+            cursor: pointer;
+        }
     </style>
 {% endblock %}
 
@@ -109,9 +113,37 @@
     <!-- ASSIGNED MEMBERS START -->
     <div class="card">
         <div class="card-header">
-            <p class="card-header-title title is-5">
-                {{ account.client_name }} Team
-            </p>
+            <div class="card-header-title">
+                <div class="title is-5 level">
+                    <!-- Account info and edit icons -->
+                    {{ account.client_name }} Team
+                    <div class="tag is-{{ status_badges|get_item_from_list:account.status }} is-rounded"
+                         style="margin-left: 1em;">
+                        {{ account.get_status_display }}
+                    </div>
+                    <div class="icon" style="margin-left: 0.5em;">
+                        <i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
+                           data-target="#flag_account_modal"></i>
+                    </div>
+                    <div class="icon" style="margin-left: 0.5em;">
+                        <i class="far fa-clock" data-target="#quickAddModal"></i>
+                    </div>
+                    <div class="icon" style="margin-left: 0.5em;">
+                        <a href="/clients/accounts/{{ account.id }}/edit" style="color: black;">
+                            <i class="far fa-edit"></i>
+                        </a>
+                    </div>
+                    <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle"
+                       style="margin-left: 0.5em;">
+                        Lifecycle
+                    </a>
+                </div>
+            </div>
+            <div class="card-header-icon">
+                <button class="button is-info">
+                    Assign Members
+                </button>
+            </div>
         </div>
         <div class="card-content">
             <div class="columns is-multiline" id="assigned-members-display">
@@ -143,7 +175,7 @@
                                     {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
                                     / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
                                 </p>
-                                <p class="has-text-primary">
+                                <p class="has-text-grey">
                                     {{ assigned_member.allocated_percentage }}%
                                 </p>
                             </div>
@@ -178,7 +210,7 @@
                                     {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
                                     / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
                                 </p>
-                                <p class="has-text-primary">
+                                <p class="has-text-grey">
                                     {{ assigned_member.allocated_percentage }}%
                                 </p>
                             </div>
@@ -213,7 +245,7 @@
                                     {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
                                     / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
                                 </p>
-                                <p class="has-text-primary">
+                                <p class="has-text-grey">
                                     {{ assigned_member.allocated_percentage }}%
                                 </p>
                             </div>
@@ -248,7 +280,7 @@
                                     {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
                                     / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
                                 </p>
-                                <p class="has-text-primary">
+                                <p class="has-text-grey">
                                     {{ assigned_member.allocated_percentage }}%
                                 </p>
                             </div>
@@ -286,7 +318,7 @@
                                         {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
                                         / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
                                     </p>
-                                    <p class="has-text-primary">
+                                    <p class="has-text-grey">
                                         {{ assigned_member.allocated_percentage }}%
                                     </p>
                                     <p>
@@ -389,7 +421,7 @@
                                     <p>
                                         {{ assignment.worked_this_month }}/{{ assignment.hours }}hr
                                     </p>
-                                    <p class="has-text-primary">
+                                    <p class="has-text-grey">
                                         {{ assignment.mandate.start_date_pretty }}
                                         - {{ assignment.mandate.end_date_pretty }}
                                     </p>
@@ -429,12 +461,58 @@
         </div>
     </div>
     <!-- ASSIGNED MEMBERS END -->
+
+    <!-- MODALS -->
+    <!-- FLAG ACCOUNT MODAL START -->
+    <div class="modal" id="flag_account_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <form method="POST" action="/clients/accounts/flag">
+                {% csrf_token %}
+                <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                <input name="flagged" type="text" value="False" style="display:none;"/>
+                <div class="columns">
+                    <div class="column">
+                        <button type="button" class="button is-outlined is-success is-fullwidth" id="good_task_btn">
+                            Account is good <i class="fas fa-smile has-text-success"></i>
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button type="button" id="flag_task_btn" class="button is-danger is-outlined is-fullwidth">
+                            Account needs to be flagged <i class="fas fa-frown has-text-danger"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="columns" id="bc_link_row">
+                    <div class="column">
+                        <label>Basecamp Link:</label>
+                        <input type="text" name="bc_link" id="bc_link" class="input"
+                               maxlength="140"/>
+                        <button type="submit" class="button is-fullwidth" id="flag_task_submit">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <button class="modal-close is-large"></button>
+    </div>
+    <!-- FLAG ACCOUNT MODAL END -->
 {% endblock %}
 
 {% block extraJs %}
     <script>
         $('.delete').click(function () {
             $(this).closest('.message').addClass('is-hidden');
+        });
+
+        $('.modal-trigger').click(function () {
+            let $modal = $($(this).data('target'));
+            $modal.addClass('is-active');
+        });
+
+        $('.modal-close, .modal-background').click(() => {
+            $('.modal').removeClass('is-active');
         });
     </script>
 {% endblock %}
