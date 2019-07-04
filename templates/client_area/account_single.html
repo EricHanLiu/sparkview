@@ -307,7 +307,7 @@
                                                 <span class="m-badge m-badge--wide"
                                                       style="background: #AA43DE; color: white;">Backup</span>
                                                 <br/>
-                                                <span>{{ member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:member }}hr</span><br>
+                                                <span>{{ member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_backup_member:member }}hr</span><br>
                                                 <span data-toggle="m-tooltip">{{ backup.period.start_date }} - {{ backup.period.end_date }}</span>
                                             </div>
                                         </div>
