@@ -466,31 +466,37 @@
     <!-- FLAG ACCOUNT MODAL START -->
     <div class="modal" id="flag_account_modal">
         <div class="modal-background"></div>
-        <div class="modal-content">
+        <div class="modal-card">
             <form method="POST" action="/clients/accounts/flag">
                 {% csrf_token %}
-                <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                <input name="flagged" type="text" value="False" style="display:none;"/>
-                <div class="columns">
-                    <div class="column">
-                        <button type="button" class="button is-outlined is-success is-fullwidth" id="good_task_btn">
-                            Account is good <i class="fas fa-smile has-text-success"></i>
-                        </button>
-                    </div>
-                    <div class="column">
-                        <button type="button" id="flag_task_btn" class="button is-danger is-outlined is-fullwidth">
-                            Account needs to be flagged <i class="fas fa-frown has-text-danger"></i>
-                        </button>
-                    </div>
+                <div class="modal-card-head">
+                    <div class="modal-card-title">How are we doing?</div>
+                    <button class="delete"></button>
                 </div>
-                <div class="columns" id="bc_link_row">
-                    <div class="column">
-                        <label>Basecamp Link:</label>
-                        <input type="text" name="bc_link" id="bc_link" class="input"
-                               maxlength="140"/>
-                        <button type="submit" class="button is-fullwidth" id="flag_task_submit">
-                            Submit
-                        </button>
+                <div class="modal-card-body">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="flagged" type="text" value="False" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column">
+                            <button type="button" class="button is-outlined is-success is-fullwidth" id="good_task_btn">
+                                Account is good <i class="far fa-smile"></i>
+                            </button>
+                        </div>
+                        <div class="column">
+                            <button type="button" id="flag_task_btn" class="button is-danger is-outlined is-fullwidth">
+                                Account needs to be flagged <i class="far fa-frown"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="columns is-hidden" id="bc_link_row">
+                        <div class="column">
+                            <label>Basecamp Link:</label>
+                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"/>
+                            <button type="submit" class="button is-fullwidth" id="flag_task_submit"
+                                    style="margin-top: 1em;">
+                                Submit
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -513,6 +519,55 @@
 
         $('.modal-close, .modal-background').click(() => {
             $('.modal').removeClass('is-active');
+        });
+
+        let $flagTaskBtn = $('#flag_task_btn');
+        let $goodTaskBtn = $('#good_task_btn');
+        let $basecampLinkRow = $('#bc_link_row');
+
+        $goodTaskBtn.click(function (e) {
+            $basecampLinkRow.removeClass('is-hidden');
+            $goodTaskBtn.removeClass('is-outlined');
+            $flagTaskBtn.addClass('is-outlined');
+
+            $('#bc_link').attr('placeholder', 'Optional');
+        });
+
+        $flagTaskBtn.click(function (e) {
+            $basecampLinkRow.removeClass('is-hidden');
+            $flagTaskBtn.removeClass('is-outlined');
+            $goodTaskBtn.addClass('is-outlined');
+
+            $('#bc_link').attr('placeholder', '');
+        });
+
+        $('#flag_task_submit').click(function (e) {
+            if ($('#bc_link').attr('placeholder') === 'Optional') { // account is good submission
+                return;
+            }
+
+            e.preventDefault();
+
+            let $basecampLink = $('#bc_link').val();
+            if ($basecampLink === '') {
+                e.preventDefault();
+                toastr.error('Basecamp link is mandatory when flagging the account!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/accounts/flag',
+                data: {
+                    'account_id': '{{ account.id }}',
+                    'bc_link': $basecampLink,
+                    'flagged': 'True'
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: function () {
+                    window.location.href = '/clients/accounts/{{ account.id }}';
+                }
+            });
         });
     </script>
 {% endblock %}
