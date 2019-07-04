@@ -94,6 +94,7 @@ class Incident(models.Model):
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
     addressed_with_member = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False)
     justification = models.CharField(max_length=2000, default='')
 
     @property
@@ -104,8 +105,16 @@ class Incident(models.Model):
     def platform_name(self):
         return self.get_platform_display()
 
+    @property
+    def members_string(self):
+        if self.members.count() == 0:
+            return ''
+        members_arr = [member.user.get_full_name() for member in self.members.all()]
+        return ', '.join(members_arr)
+
     def __str__(self):
-        return 'Incident on ' + str(self.date)
+        return self.members_string + ' incident on ' + str(
+            self.date) + '. Reported by ' + self.reporter.user.get_full_name()
 
 
 class TrainingGroup(models.Model):
@@ -709,7 +718,8 @@ class Backup(models.Model):
         last_day = calendar.monthrange(now.year, now.month)[1]
         days_left_in_month = last_day - self.period.start_date.day + 1  # include current day
         hours = round(
-            self.account.get_hours_remaining_this_month_member(self.period.member) * days_in_period / days_left_in_month,
+            self.account.get_hours_remaining_this_month_member(
+                self.period.member) * days_in_period / days_left_in_month,
             2)
         num_members = self.members.all().count()
         try:
