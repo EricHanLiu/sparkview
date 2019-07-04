@@ -885,8 +885,8 @@ def member_oops(request, id):
     if not request.user.is_staff and int(id) != request_member.id:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    member = Member.objects.get(id=id)
-    oops = member.incident_members.all()
+    member = get_object_or_404(Member, id=id)
+    oops = member.incident_members.filter(approved=True)
     incidents_reported = Incident.objects.filter(reporter=member)
 
     context = {

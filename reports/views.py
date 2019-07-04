@@ -967,9 +967,9 @@ def new_incident(request):
         except ValueError:
             platform = 3  # set to other by default
 
-        client_aware = r.get('client-aware') == 'Yes'
-        client_at_risk = r.get('client-at-risk') == 'Yes'
-        members_addressed = r.get('members-addressed') == 'Yes'
+        client_aware = r.get('client-aware') == '1'
+        client_at_risk = r.get('client-at-risk') == '1'
+        members_addressed = r.get('members-addressed') == '1'
         justification = r.get('justification')
 
         # create incident

@@ -8,9 +8,10 @@ import datetime
 
 def get_all_spends_by_bing_campaign_this_month():
     accounts = ppc_active_accounts_for_platform('bing')
+    # accounts = BingAccounts.objects.filter(account_name='ACCEO Solutions')
     for account in accounts:
         get_spend_by_bing_campaign_this_month.delay(account.id)
-        # get_spend_by_bing_campaign_this_month(account)
+        # get_spend_by_bing_campaign_this_month(account.id)
 
 
 @celery_app.task(bind=True)
@@ -41,7 +42,12 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
         in_use_ids.append(campaign_id)
-        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
+        try:
+            campaign, created = BingCampaign.objects.get_or_create(account=account, campaign_id=campaign_id,
+                                                                   campaign_name=campaign_row['campaignname'])
+        except BingCampaign.MultipleObjectsReturned:
+            campaign = BingCampaign.objects.filter(account=account, campaign_id=campaign_id,
+                                                   campaign_name=campaign_row['campaignname'])[0]
         campaign.campaign_name = campaign_row['campaignname']
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
@@ -60,15 +66,20 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
 
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
-        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
+        try:
+            campaign, created = BingCampaign.objects.get_or_create(account=account, campaign_id=campaign_id,
+                                                                   campaign_name=campaign_row['campaignname'])
+        except BingCampaign.MultipleObjectsReturned:
+            campaign = BingCampaign.objects.filter(account=account, campaign_id=campaign_id,
+                                                   campaign_name=campaign_row['campaignname'])[0]
         campaign.spend_until_yesterday = float(campaign_row['spend'])
         campaign.save()
 
-    not_in_use_camps = BingCampaign.objects.exclude(campaign_id__in=in_use_ids)
-    for cmp in not_in_use_camps:
-        cmp.campaign_cost = 0.0
-        cmp.spend_until_yesterday = 0.0
-        cmp.save()
+    # not_in_use_camps = BingCampaign.objects.exclude(campaign_id__in=in_use_ids)
+    # for cmp in not_in_use_camps:
+    #     cmp.campaign_cost = 0.0
+    #     cmp.spend_until_yesterday = 0.0
+    #     cmp.save()
 
 
 def get_all_spend_by_bing_campaign_custom():
