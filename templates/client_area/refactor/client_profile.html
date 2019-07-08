@@ -786,7 +786,7 @@
                             </div>
                         </div>
                         <div class="modal-card-foot">
-                            <p>Total percentage: <span id="percentage_total">0.00</span>%</p>
+                            <p>Total percentage: <span id="percentage_total"></span>%</p>
                             <button type="button" class="button is-primary" id="distribute_hours_button"
                                     style="margin-left: auto;">
                                 Distribute hours proportionately
@@ -969,6 +969,8 @@
             seos.forEach(function (i) {
                 $('[name=seo' + i + '_percent]').val(eachSeo);
             });
+
+            setPercentageSum();
         }
 
         // check percentage form validity
@@ -979,7 +981,6 @@
 
             let $percentageInputs = $('.percentage-assignment');
             let validForm = true;
-            let percentageSum = 0.0;
             $percentageInputs.each((i, part) => {
                 let value = parseFloat(part.value);
                 if (value > 0) {
@@ -990,7 +991,6 @@
                             'an assigned member!');
                         validForm = false;
                     }
-                    percentageSum += value;
                 }
             });
 
@@ -998,12 +998,31 @@
                 return;
             }
 
-            if (percentageSum < 98 || percentageSum > 102) {
-                toastr.warning('Your percentages do not add up to 100%');
-                return;
-            }
-
             $assignMembersForm.submit();
         });
+
+        function getPercentageSum() {
+            let $percentageInputs = $('.percentage-assignment');
+            let percentageSum = 0.0;
+
+            $percentageInputs.each((i, part) => {
+                let value = parseFloat(part.value);
+                percentageSum += value;
+            });
+
+            return percentageSum.toFixed(2);
+        }
+
+        function setPercentageSum() {
+            $('#percentage_total').text(getPercentageSum());
+        }
+
+        $('.percentage-assignment').on('input', () => {
+            setPercentageSum();
+        });
+
+        $(document).ready(() => {
+            setPercentageSum();
+        })
     </script>
 {% endblock %}
