@@ -10,8 +10,9 @@ import datetime
 
 def get_all_spends_by_facebook_campaign_this_month():
     accounts = ppc_active_accounts_for_platform('facebook')
+    accounts = FacebookAccount.objects.filter(id=187)
     for account in accounts:
-        get_spend_by_facebook_campaign_this_month.delay(account.id)
+        get_spend_by_facebook_campaign_this_month(account.id)
 
 
 @celery_app.task(bind=True)
@@ -63,7 +64,9 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
 
     yesterday = datetime.datetime.now() - datetime.timedelta(1)
-    until_yest_params_date_range = helper.get_custom_date_range(this_month.since, yesterday)
+    # until_yest_params_date_range = helper.get_custom_date_range(this_month['since'], yesterday)
+    until_yest_params_date_range = dict(since=this_month['since'],
+                                        until=yesterday.strftime('%Y-%m-%d'))
     until_yest_params = helper.set_params(
         time_range=until_yest_params_date_range,
         level='campaign',
@@ -100,6 +103,7 @@ def get_all_spend_by_facebook_campaign_custom():
     budgets = Budget.objects.filter(has_facebook=True, is_monthly=False)
     for budget in budgets:
         for fb_camp in budget.fb_campaigns_without_excluded:
+            # get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
             get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
 
 
@@ -119,10 +123,6 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         return
 
     helper = FacebookReportingService(facebook_init())
-    date_range = {
-        'min_date': budget.start_date.strftime('%Y%m%d'),
-        'max_date': budget.end_date.strftime('%Y%m%d')
-    }
 
     fields = [
         'campaign_id',
@@ -137,7 +137,7 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
     }]
 
     custom_params = helper.set_params(
-        time_range=helper.get_custom_date_range(date_range['min_date'], date_range['max_date']),
+        time_range=helper.get_custom_date_range(budget.start_date, budget.end_date),
         level='campaign',
         filtering=filtering
     )
@@ -150,12 +150,13 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         return
 
     for campaign_row in report:
-        print(campaign_row)
         campaign_id = campaign_row['campaign_id']
-        campaign, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign_id=campaign_id,
-                                                                                 start_date=budget.start_date,
-                                                                                 end_date=budget.end_date)
-        campaign.campaign_name = campaign_row['campaign_name']
-        campaign.campaign_cost = float(campaign_row['spend'])
-        campaign.save()
-        print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
+        tmp_cmp = FacebookCampaign.objects.get(campaign_id=campaign_id)
+        fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
+                                                                              start_date=budget.start_date,
+                                                                              end_date=budget.end_date)
+        fcsdr.campaign_name = campaign_row['campaign_name']
+        fcsdr.campaign_cost = float(campaign_row['spend'])
+        fcsdr.save()
+        print('Facebook Campaign: ' + str(campaign) + ' now has a spend of $' + str(
+            campaign.campaign_cost) + ' for dates ' + str(fcsdr.start_date) + ' to ' + str(fcsdr.end_date))

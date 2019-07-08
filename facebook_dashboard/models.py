@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
+from django.core.serializers import serialize
 import json
 import datetime
 import calendar
@@ -64,23 +65,23 @@ class FacebookAccount(models.Model):
     def json(self):
         assigneds = {}
         if self.assigned_to:
-            assigneds["assigned_to"] = json.loads(
-                serialize("json", [self.assigned_to])
-            )[0]["fields"]
+            assigneds['assigned_to'] = json.loads(
+                serialize('json', [self.assigned_to])
+            )[0]['fields']
 
         if self.assigned_cm2:
-            assigneds["assigned_cm2"] = json.loads(
-                serialize("json", [self.assigned_cm2])
-            )[0]["fields"]
+            assigneds['assigned_cm2'] = json.loads(
+                serialize('json', [self.assigned_cm2])
+            )[0]['fields']
 
         if self.assigned_cm3:
-            assigneds["assigned_cm3"] = json.loads(
-                serialize("json", [self.assigned_cm3])
-            )[0]["fields"]
+            assigneds['assigned_cm3'] = json.loads(
+                serialize('json', [self.assigned_cm3])
+            )[0]['fields']
 
         return dict(
-            created_time=self.created_time.strftime("%Y%m%d"),
-            updated_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.created_time.strftime('%Y%m%d'),
+            updated_time=self.updated_time.strftime('%Y%m%d'),
             customer_id=self.account_id,
             customer_name=self.account_name,
             desired_spend=self.desired_spend,
@@ -157,6 +158,9 @@ class FacebookCampaign(models.Model):
             campaign_budget=self.campaign_budget,
             groupped=self.groupped
         )
+
+    def __str__(self):
+        return self.account.account_name + ' ' + str(self.campaign_name)
 
 
 class FacebookCampaignSpendDateRange(models.Model):

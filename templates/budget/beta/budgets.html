@@ -515,6 +515,9 @@
                     <th>
                         Spend
                     </th>
+                    <th>
+                        Last Updated
+                    </th>
                 </tr>
                 </thead>
                 <tbody id="campaigns_in_group_display">
@@ -713,8 +716,13 @@
                     let spend = document.createTextNode(camp['fields']['campaign_cost']);
                     td2.appendChild(spend);
 
+                    let td3 = document.createElement('td');
+                    let last_updated = document.createTextNode(camp['fields']['updated'].split('.')[0]);
+                    td3.appendChild(last_updated);
+
                     row.appendChild(td1);
                     row.appendChild(td2);
+                    row.appendChild(td3);
                     $campsInGroupDisplay.append(row);
                 });
             },

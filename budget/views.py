@@ -6,9 +6,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
-from adwords_dashboard.models import DependentAccount, Campaign
-from bing_dashboard.models import BingAccounts, BingCampaign
-from facebook_dashboard.models import FacebookAccount, FacebookCampaign
+from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
+from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
+from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions
 from user_management.models import Member
 from django.core import serializers
@@ -951,9 +951,43 @@ def get_campaigns_in_budget(request):
         budget.bing_campaigns_without_excluded)
 
     campaigns = sorted(campaigns, key=lambda c: c.campaign_cost, reverse=True)
+    corresponding_daterange_spends = {}
+    corresponding_updated = {}
 
+    if not budget.is_monthly:
+        for campaign in campaigns:
+            if isinstance(campaign, Campaign):
+                try:
+                    csdr = CampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                              end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.objects.get(
+                        campaign=campaign, start_date=budget.start_date, end_date=budget.end_date).spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except CampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
+            if isinstance(campaign, FacebookCampaign):
+                try:
+                    csdr = FacebookCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                                      end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except FacebookCampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
+            if isinstance(campaign, BingCampaign):
+                try:
+                    csdr = BingCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                                  end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except BingCampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
     response = {
-        'campaigns': json.loads(serializers.serialize('json', campaigns))
+        'campaigns': json.loads(serializers.serialize('json', campaigns)),
+        'cdrs': json.loads(serializers.serialize('json', corresponding_daterange_spends)),
+        'cupdate': json.loads(serializers.serialize('json', corresponding_updated))
     }
 
     return JsonResponse(response)
