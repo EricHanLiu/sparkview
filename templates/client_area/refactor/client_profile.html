@@ -23,493 +23,791 @@
     </style>
 {% endblock %}
 
-{% block leftAside %}
-    <aside class="menu">
-        <p class="menu-label">
-            Client Profile
-        </p>
-        <ul class="menu-list">
-            <li><a class="is-active">
-                <div class="icon"><i class="fas fa-info"></i></div>
-                Account Details</a></li>
-            <li><a>
-                <div class="icon"><i class="fas fa-dollar-sign"></i></div>
-                Budget</a></li>
-            <li><a>
-                <div class="icon"><i class="fas fa-ad"></i></div>
-                Promos</a></li>
-            <li><a>
-                <div class="icon"><i class="fas fa-hourglass-half"></i></div>
-                Hours</a></li>
-            <li><a>
-                <div class="icon"><i class="fas fa-heartbeat"></i></div>
-                Lifecycle</a></li>
-        </ul>
-    </aside>
-{% endblock %}
-
-{% block content %}
-    <!-- ALERTS START -->
-    {% if account.has_blacklisted_accounts %}
-        <article class="message is-danger">
-            <div class="message-body">
-                <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                blacklisted. They are not retrieving any new spend information.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
-    {% if account.status == 2 %}
-        <article class="message is-warning">
-            <div class="message-body">
-                <strong>Heads Up!</strong> This account is inactive. The reason
-                is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is
-                supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
-    {% if account.status == 3 %}
-        <article class="message is-danger">
-            <div class="message-body">
-                <strong>Warning!</strong> This account is lost. The reason
-                is {{ account.get_lost_reason_display }}.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
-    {% if account.has_blacklisted_accounts %}
-        <article class="message is-danger">
-            <div class="message-body">
-                <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                blacklisted. They are not retrieving any new spend information.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
-    {% if account.status == 0 %}
-        <article class="message is-info">
-            <div class="message-body">
-                <strong>Notice:</strong> This account is in the onboarding phase. Go
-                <a href="/clients/accounts/onboard/{{ account.id }}">here</a> to view the
-                progress.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-        {% if account.is_late_to_onboard %}
-            <article class="message is-info">
-                <div class="message-body">
-                    <strong>Warning!</strong> This account is late to onboard.
-                    It has been in the onboarding phase for {{ account.onboarding_duration_elapsed }} days.
-                    {% if account.late_onboard_reason != None and account.late_onboard_reason != '' %}
-                        The reason is {{ account.late_onboard_reason }}.
-                    {% endif %}
-                    <button class="delete" style="float:right;"></button>
-                </div>
-            </article>
-        {% endif %}
-    {% endif %}
-    <!-- ALERTS END -->
-    <!-- ASSIGNED MEMBERS START -->
-    <div class="card">
-        <div class="card-header">
-            <div class="card-header-title">
-                <div class="title is-5 level">
-                    <!-- Account info and edit icons -->
-                    {{ account.client_name }} Team
-                    <div class="tag is-{{ status_badges|get_item_from_list:account.status }} is-rounded"
-                         style="margin-left: 1em;">
-                        {{ account.get_status_display }}
-                    </div>
-                    <div class="icon" style="margin-left: 0.5em;">
-                        <i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
-                           data-target="#flag_account_modal"></i>
-                    </div>
-                    <div class="icon" style="margin-left: 0.5em;">
-                        <i class="far fa-clock" data-target="#quickAddModal"></i>
-                    </div>
-                    <div class="icon" style="margin-left: 0.5em;">
-                        <a href="/clients/accounts/{{ account.id }}/edit" style="color: black;">
-                            <i class="far fa-edit"></i>
-                        </a>
-                    </div>
-                    <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle"
-                       style="margin-left: 0.5em;">
-                        Lifecycle
-                    </a>
-                </div>
-            </div>
-            <div class="card-header-icon">
-                <button class="button is-info">
-                    Assign Members
-                </button>
-            </div>
+{% block main_body %}
+    <div class="columns">
+        <div class="column is-2">
+            <!-- SIDE MENU START -->
+            <aside class="menu">
+                <p class="menu-label">
+                    Client Profile
+                </p>
+                <ul class="menu-list">
+                    <li><a class="is-active">
+                        <div class="icon"><i class="fas fa-info"></i></div>
+                        Account Details</a></li>
+                    <li><a>
+                        <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+                        Budget</a></li>
+                    <li><a>
+                        <div class="icon"><i class="fas fa-ad"></i></div>
+                        Promos</a></li>
+                    <li><a>
+                        <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+                        Hours</a></li>
+                    <li><a>
+                        <div class="icon"><i class="fas fa-heartbeat"></i></div>
+                        Lifecycle</a></li>
+                </ul>
+            </aside>
+            <!-- SIDE MENU END -->
         </div>
-        <div class="card-content">
-            <div class="columns is-multiline" id="assigned-members-display">
-                {% for role, assigned_member in account.assigned_ams.items %}
-                    <div class="column is-one-fifth">
-                        <article class="media">
-                            <figure class="media-left">
-                                <p class="image is-128x128">
-                                    {% if assigned_member.member.image != None %}
-                                        <img class="is-rounded"
-                                             src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                    {% else %}
-                                        <img class="is-rounded"
-                                             src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                    {% endif %}
-                                </p>
-                            </figure>
-                            <div class="media-content" style="padding-top: 1em;">
-                                <p class="title is-5">
-                                    {% if request.user.is_staff %}
-                                        <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                    {% endif %}
-                                    {{ assigned_member.member.user.get_full_name }}
-                                    {% if request.user.is_staff %}</a>{% endif %}</p>
-                                <p class="subtitle is-6">
-                                    <span class="tag is-rounded is-info">{{ role }}</span>
-                                </p>
-                                <p>
-                                    {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                    / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                </p>
-                                <p class="has-text-grey">
-                                    {{ assigned_member.allocated_percentage }}%
-                                </p>
-                            </div>
-                        </article>
+        <!-- MAIN CONTENT START -->
+        <div class="column is-10">
+            <!-- ALERTS START -->
+            {% if account.has_blacklisted_accounts %}
+                <article class="message is-danger">
+                    <div class="message-body">
+                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are
+                        blacklisted. They are not retrieving any new spend information.
+                        <button class="delete" style="float:right;"></button>
                     </div>
-                {% endfor %}
-                {% for role, assigned_member in account.assigned_cms.items %}
-                    <div class="column is-one-fifth">
-                        <article class="media">
-                            <figure class="media-left">
-                                <p class="image is-128x128">
-                                    {% if assigned_member.member.image != None %}
-                                        <img class="is-rounded"
-                                             src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                    {% else %}
-                                        <img class="is-rounded"
-                                             src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                    {% endif %}
-                                </p>
-                            </figure>
-                            <div class="media-content" style="padding-top: 1em;">
-                                <p class="title is-5">
-                                    {% if request.user.is_staff %}
-                                        <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                    {% endif %}
-                                    {{ assigned_member.member.user.get_full_name }}
-                                    {% if request.user.is_staff %}</a>{% endif %}</p>
-                                <p class="subtitle is-6">
-                                    <span class="tag is-rounded is-success">{{ role }}</span>
-                                </p>
-                                <p>
-                                    {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                    / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                </p>
-                                <p class="has-text-grey">
-                                    {{ assigned_member.allocated_percentage }}%
-                                </p>
-                            </div>
-                        </article>
+                </article>
+            {% endif %}
+            {% if account.status == 2 %}
+                <article class="message is-warning">
+                    <div class="message-body">
+                        <strong>Heads Up!</strong> This account is inactive. The reason
+                        is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is
+                        supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
+                        <button class="delete" style="float:right;"></button>
                     </div>
-                {% endfor %}
-                {% for role, assigned_member in account.assigned_seos.items %}
-                    <div class="column is-one-fifth">
-                        <article class="media">
-                            <figure class="media-left">
-                                <p class="image is-128x128">
-                                    {% if assigned_member.member.image != None %}
-                                        <img class="is-rounded"
-                                             src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                    {% else %}
-                                        <img class="is-rounded"
-                                             src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                    {% endif %}
-                                </p>
-                            </figure>
-                            <div class="media-content" style="padding-top: 1em;">
-                                <p class="title is-5">
-                                    {% if request.user.is_staff %}
-                                        <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                    {% endif %}
-                                    {{ assigned_member.member.user.get_full_name }}
-                                    {% if request.user.is_staff %}</a>{% endif %}</p>
-                                <p class="subtitle is-6">
-                                    <span class="tag is-rounded is-warning">{{ role }}</span>
-                                </p>
-                                <p>
-                                    {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                    / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                </p>
-                                <p class="has-text-grey">
-                                    {{ assigned_member.allocated_percentage }}%
-                                </p>
-                            </div>
-                        </article>
+                </article>
+            {% endif %}
+            {% if account.status == 3 %}
+                <article class="message is-danger">
+                    <div class="message-body">
+                        <strong>Warning!</strong> This account is lost. The reason
+                        is {{ account.get_lost_reason_display }}.
+                        <button class="delete" style="float:right;"></button>
                     </div>
-                {% endfor %}
-                {% for role, assigned_member in account.assigned_strats.items %}
-                    <div class="column is-one-fifth">
-                        <article class="media">
-                            <figure class="media-left">
-                                <p class="image is-128x128">
-                                    {% if assigned_member.member.image != None %}
-                                        <img class="is-rounded"
-                                             src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                    {% else %}
-                                        <img class="is-rounded"
-                                             src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                    {% endif %}
-                                </p>
-                            </figure>
-                            <div class="media-content" style="padding-top: 1em;">
-                                <p class="title is-5">
-                                    {% if request.user.is_staff %}
-                                        <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                    {% endif %}
-                                    {{ assigned_member.member.user.get_full_name }}
-                                    {% if request.user.is_staff %}</a>{% endif %}</p>
-                                <p class="subtitle is-6">
-                                    <span class="tag is-rounded is-danger">{{ role }}</span>
-                                </p>
-                                <p>
-                                    {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                    / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                </p>
-                                <p class="has-text-grey">
-                                    {{ assigned_member.allocated_percentage }}%
-                                </p>
-                            </div>
-                        </article>
+                </article>
+            {% endif %}
+            {% if account.has_blacklisted_accounts %}
+                <article class="message is-danger">
+                    <div class="message-body">
+                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are
+                        blacklisted. They are not retrieving any new spend information.
+                        <button class="delete" style="float:right;"></button>
                     </div>
-                {% endfor %}
-                {% for backup in backups %}
-                    {% for member in backup.members.all %}
-                        <div class="column is-one-fifth">
-                            <article class="media">
-                                <figure class="media-left">
-                                    <p class="image is-128x128">
-                                        {% if assigned_member.member.image != None %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                        {% else %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                        {% endif %}
-                                    </p>
-                                </figure>
-                                <div class="media-content" style="padding-top: 1em;">
-                                    <p class="title is-5">
-                                        {% if request.user.is_staff %}
-                                            <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                        {% endif %}
-                                        {{ assigned_member.member.user.get_full_name }}
-                                        {% if request.user.is_staff %}</a>{% endif %}</p>
-                                    <p class="subtitle is-6">
+                </article>
+            {% endif %}
+            {% if account.status == 0 %}
+                <article class="message is-info">
+                    <div class="message-body">
+                        <strong>Notice:</strong> This account is in the onboarding phase. Go
+                        <a href="/clients/accounts/onboard/{{ account.id }}">here</a> to view the
+                        progress.
+                        <button class="delete" style="float:right;"></button>
+                    </div>
+                </article>
+                {% if account.is_late_to_onboard %}
+                    <article class="message is-info">
+                        <div class="message-body">
+                            <strong>Warning!</strong> This account is late to onboard.
+                            It has been in the onboarding phase for {{ account.onboarding_duration_elapsed }} days.
+                            {% if account.late_onboard_reason != None and account.late_onboard_reason != '' %}
+                                The reason is {{ account.late_onboard_reason }}.
+                            {% endif %}
+                            <button class="delete" style="float:right;"></button>
+                        </div>
+                    </article>
+                {% endif %}
+            {% endif %}
+            <!-- ALERTS END -->
+            <!-- ASSIGNED MEMBERS START -->
+            <div class="card" id="assigned_members_display">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <div class="title is-5 level">
+                            <!-- Account info and edit icons -->
+                            {{ account.client_name }} Team
+                            <div class="tag is-{{ status_badges|get_item_from_list:account.status }} is-rounded"
+                                 style="margin-left: 1em;">
+                                {{ account.get_status_display }}
+                            </div>
+                            <div class="icon" style="margin-left: 0.5em;">
+                                <i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
+                                   data-target="#flag_account_modal"></i>
+                            </div>
+                            <div class="icon" style="margin-left: 0.5em;">
+                                <i class="far fa-clock modal-trigger" data-target="#quick_add_modal"></i>
+                            </div>
+                            <div class="icon" style="margin-left: 0.5em;">
+                                <a href="/clients/accounts/{{ account.id }}/edit" style="color: black;">
+                                    <i class="far fa-edit"></i>
+                                </a>
+                            </div>
+                            <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle"
+                               style="margin-left: 0.5em;">
+                                Lifecycle
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-header-icon">
+                        <button class="button is-info modal-trigger" data-target="#assign_members_modal">
+                            Assign Members
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="columns is-multiline" id="assigned-members-display">
+                        {% for role, assigned_member in account.assigned_ams.items %}
+                            <div class="column is-one-fifth">
+                                <article class="media">
+                                    <figure class="media-left">
+                                        <p class="image is-128x128">
+                                            {% if assigned_member.member.image != None %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                            {% else %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                            {% endif %}
+                                        </p>
+                                    </figure>
+                                    <div class="media-content" style="padding-top: 1em;">
+                                        <p class="title is-5">
+                                            {% if request.user.is_staff %}
+                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                            {% endif %}
+                                            {{ assigned_member.member.user.get_full_name }}
+                                            {% if request.user.is_staff %}</a>{% endif %}</p>
+                                        <p class="subtitle is-6">
+                                            <span class="tag is-rounded is-info">{{ role }}</span>
+                                        </p>
+                                        <p>
+                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
+                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                        </p>
+                                        <p class="has-text-grey">
+                                            {{ assigned_member.allocated_percentage }}%
+                                        </p>
+                                    </div>
+                                </article>
+                            </div>
+                        {% endfor %}
+                        {% for role, assigned_member in account.assigned_cms.items %}
+                            <div class="column is-one-fifth">
+                                <article class="media">
+                                    <figure class="media-left">
+                                        <p class="image is-128x128">
+                                            {% if assigned_member.member.image != None %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                            {% else %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                            {% endif %}
+                                        </p>
+                                    </figure>
+                                    <div class="media-content" style="padding-top: 1em;">
+                                        <p class="title is-5">
+                                            {% if request.user.is_staff %}
+                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                            {% endif %}
+                                            {{ assigned_member.member.user.get_full_name }}
+                                            {% if request.user.is_staff %}</a>{% endif %}</p>
+                                        <p class="subtitle is-6">
+                                            <span class="tag is-rounded is-success">{{ role }}</span>
+                                        </p>
+                                        <p>
+                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
+                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                        </p>
+                                        <p class="has-text-grey">
+                                            {{ assigned_member.allocated_percentage }}%
+                                        </p>
+                                    </div>
+                                </article>
+                            </div>
+                        {% endfor %}
+                        {% for role, assigned_member in account.assigned_seos.items %}
+                            <div class="column is-one-fifth">
+                                <article class="media">
+                                    <figure class="media-left">
+                                        <p class="image is-128x128">
+                                            {% if assigned_member.member.image != None %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                            {% else %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                            {% endif %}
+                                        </p>
+                                    </figure>
+                                    <div class="media-content" style="padding-top: 1em;">
+                                        <p class="title is-5">
+                                            {% if request.user.is_staff %}
+                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                            {% endif %}
+                                            {{ assigned_member.member.user.get_full_name }}
+                                            {% if request.user.is_staff %}</a>{% endif %}</p>
+                                        <p class="subtitle is-6">
+                                            <span class="tag is-rounded is-warning">{{ role }}</span>
+                                        </p>
+                                        <p>
+                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
+                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                        </p>
+                                        <p class="has-text-grey">
+                                            {{ assigned_member.allocated_percentage }}%
+                                        </p>
+                                    </div>
+                                </article>
+                            </div>
+                        {% endfor %}
+                        {% for role, assigned_member in account.assigned_strats.items %}
+                            <div class="column is-one-fifth">
+                                <article class="media">
+                                    <figure class="media-left">
+                                        <p class="image is-128x128">
+                                            {% if assigned_member.member.image != None %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                            {% else %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                            {% endif %}
+                                        </p>
+                                    </figure>
+                                    <div class="media-content" style="padding-top: 1em;">
+                                        <p class="title is-5">
+                                            {% if request.user.is_staff %}
+                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                            {% endif %}
+                                            {{ assigned_member.member.user.get_full_name }}
+                                            {% if request.user.is_staff %}</a>{% endif %}</p>
+                                        <p class="subtitle is-6">
+                                            <span class="tag is-rounded is-danger">{{ role }}</span>
+                                        </p>
+                                        <p>
+                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
+                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                        </p>
+                                        <p class="has-text-grey">
+                                            {{ assigned_member.allocated_percentage }}%
+                                        </p>
+                                    </div>
+                                </article>
+                            </div>
+                        {% endfor %}
+                        {% for backup in backups %}
+                            {% for member in backup.members.all %}
+                                <div class="column is-one-fifth">
+                                    <article class="media">
+                                        <figure class="media-left">
+                                            <p class="image is-128x128">
+                                                {% if assigned_member.member.image != None %}
+                                                    <img class="is-rounded"
+                                                         src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                                {% else %}
+                                                    <img class="is-rounded"
+                                                         src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                                {% endif %}
+                                            </p>
+                                        </figure>
+                                        <div class="media-content" style="padding-top: 1em;">
+                                            <p class="title is-5">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                                {% endif %}
+                                                {{ assigned_member.member.user.get_full_name }}
+                                                {% if request.user.is_staff %}</a>{% endif %}</p>
+                                            <p class="subtitle is-6">
                                         <span class="tag is-rounded" style="background: #AA43DE; color: white;">
                                             Backup
                                         </span>
-                                    </p>
-                                    <p>
-                                        {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                        / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                    </p>
-                                    <p class="has-text-grey">
-                                        {{ assigned_member.allocated_percentage }}%
-                                    </p>
-                                    <p>
-                                        {{ backup.period.start_date }} - {{ backup.period.end_date }}
-                                    </p>
+                                            </p>
+                                            <p>
+                                                {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
+                                                / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                            </p>
+                                            <p class="has-text-grey">
+                                                {{ assigned_member.allocated_percentage }}%
+                                            </p>
+                                            <p>
+                                                {{ backup.period.start_date }} - {{ backup.period.end_date }}
+                                            </p>
+                                        </div>
+                                    </article>
                                 </div>
-                            </article>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-                {% if account.team_lead_override != None and account.team_lead_override != '' %}
-                    <div class="column is-one-fifth">
-                        <article class="media">
-                            <figure class="media-left">
-                                <p class="image is-128x128">
-                                    {% if account.team_lead_override.image != None %}
-                                        <img class="is-rounded"
-                                             src="{% static 'img/bloomers/'|add:account.team_lead_override.image %}"/>
-                                    {% else %}
-                                        <img class="is-rounded"
-                                             src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                    {% endif %}
-                                </p>
-                            </figure>
-                            <div class="media-content" style="padding-top: 1em;">
-                                <p class="title is-5">
-                                    {% if request.user.is_staff %}
-                                        <a href="/user_management/members/{{ account.team_lead_override.id }}">
-                                    {% endif %}
-                                    {{ account.team_lead_override.user.get_full_name }}
-                                    {% if request.user.is_staff %}</a>{% endif %}</p>
-                                <p class="subtitle is-6">
+                            {% endfor %}
+                        {% endfor %}
+                        {% if account.team_lead_override != None and account.team_lead_override != '' %}
+                            <div class="column is-one-fifth">
+                                <article class="media">
+                                    <figure class="media-left">
+                                        <p class="image is-128x128">
+                                            {% if account.team_lead_override.image != None %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'img/bloomers/'|add:account.team_lead_override.image %}"/>
+                                            {% else %}
+                                                <img class="is-rounded"
+                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                            {% endif %}
+                                        </p>
+                                    </figure>
+                                    <div class="media-content" style="padding-top: 1em;">
+                                        <p class="title is-5">
+                                            {% if request.user.is_staff %}
+                                                <a href="/user_management/members/{{ account.team_lead_override.id }}">
+                                            {% endif %}
+                                            {{ account.team_lead_override.user.get_full_name }}
+                                            {% if request.user.is_staff %}</a>{% endif %}</p>
+                                        <p class="subtitle is-6">
                                     <span class="tag is-rounded" style="background: rgb(255, 153, 51); color: white;">
                                         Team Lead
                                     </span>
-                                </p>
+                                        </p>
+                                    </div>
+                                </article>
                             </div>
-                        </article>
-                    </div>
-                {% else %}
-                    {% for assigned_member in account.team_leads %}
-                        <div class="column is-one-fifth">
-                            <article class="media">
-                                <figure class="media-left">
-                                    <p class="image is-128x128">
-                                        {% if assigned_member.member.image != None %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                        {% else %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                        {% endif %}
-                                    </p>
-                                </figure>
-                                <div class="media-content" style="padding-top: 1em;">
-                                    <p class="title is-5">
-                                        {% if request.user.is_staff %}
-                                            <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                        {% endif %}
-                                        {{ assigned_member.member.user.get_full_name }}
-                                        {% if request.user.is_staff %}</a>{% endif %}</p>
-                                    <p class="subtitle is-6">
+                        {% else %}
+                            {% for assigned_member in account.team_leads %}
+                                <div class="column is-one-fifth">
+                                    <article class="media">
+                                        <figure class="media-left">
+                                            <p class="image is-128x128">
+                                                {% if assigned_member.member.image != None %}
+                                                    <img class="is-rounded"
+                                                         src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                                {% else %}
+                                                    <img class="is-rounded"
+                                                         src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                                {% endif %}
+                                            </p>
+                                        </figure>
+                                        <div class="media-content" style="padding-top: 1em;">
+                                            <p class="title is-5">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                                {% endif %}
+                                                {{ assigned_member.member.user.get_full_name }}
+                                                {% if request.user.is_staff %}</a>{% endif %}</p>
+                                            <p class="subtitle is-6">
                                     <span class="tag is-rounded" style="background: rgb(255, 153, 51); color: white;">
                                         Team Lead
                                     </span>
-                                    </p>
+                                            </p>
+                                        </div>
+                                    </article>
                                 </div>
-                            </article>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                {% for assignment in account.active_mandate_assignments %}
-                    {% with assigned_member=assignment.member %}
-                        <div class="column is-one-fifth">
-                            <article class="media">
-                                <figure class="media-left">
-                                    <p class="image is-128x128">
-                                        {% if assigned_member.member.image != None %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                        {% else %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                        {% endif %}
-                                    </p>
-                                </figure>
-                                <div class="media-content" style="padding-top: 1em;">
-                                    <p class="title is-5">
-                                        {% if request.user.is_staff %}
-                                            <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                        {% endif %}
-                                        {{ assigned_member.user.get_full_name }}
-                                        {% if request.user.is_staff %}</a>{% endif %}</p>
-                                    <p class="subtitle is-6">
+                            {% endfor %}
+                        {% endif %}
+                        {% for assignment in account.active_mandate_assignments %}
+                            {% with assigned_member=assignment.member %}
+                                <div class="column is-one-fifth">
+                                    <article class="media">
+                                        <figure class="media-left">
+                                            <p class="image is-128x128">
+                                                {% if assigned_member.member.image != None %}
+                                                    <img class="is-rounded"
+                                                         src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
+                                                {% else %}
+                                                    <img class="is-rounded"
+                                                         src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                                {% endif %}
+                                            </p>
+                                        </figure>
+                                        <div class="media-content" style="padding-top: 1em;">
+                                            <p class="title is-5">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                                {% endif %}
+                                                {{ assigned_member.user.get_full_name }}
+                                                {% if request.user.is_staff %}</a>{% endif %}</p>
+                                            <p class="subtitle is-6">
                                         <span class="tag is-rounded"
                                               style="background: rgb(255, 153, 51); color: white;">
                                             Mandate - {{ assignment.mandate.mandate_type.name }}
                                         </span>
+                                            </p>
+                                            <p>
+                                                {{ assignment.worked_this_month }}/{{ assignment.hours }}hr
+                                            </p>
+                                            <p class="has-text-grey">
+                                                {{ assignment.mandate.start_date_pretty }}
+                                                - {{ assignment.mandate.end_date_pretty }}
+                                            </p>
+                                        </div>
+                                    </article>
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+                        <div class="column is-one-fifth">
+                            <article class="media">
+                                <figure class="media-left">
+                                    <p class="image is-128x128">
+                                        {% if account.soldBy.image != None %}
+                                            <img class="is-rounded"
+                                                 src="{% static 'img/bloomers/'|add:account.soldBy.image %}"/>
+                                        {% else %}
+                                            <img class="is-rounded"
+                                                 src="{% static 'assets/app/media/img/user4.jpg' %}"/>
+                                        {% endif %}
                                     </p>
-                                    <p>
-                                        {{ assignment.worked_this_month }}/{{ assignment.hours }}hr
-                                    </p>
-                                    <p class="has-text-grey">
-                                        {{ assignment.mandate.start_date_pretty }}
-                                        - {{ assignment.mandate.end_date_pretty }}
+                                </figure>
+                                <div class="media-content" style="padding-top: 1em;">
+                                    <p class="title is-5">
+                                        {% if request.user.is_staff %}
+                                            <a href="/user_management/members/{{ account.soldBy.id }}">
+                                        {% endif %}
+                                        {{ account.soldBy.user.get_full_name }}
+                                        {% if request.user.is_staff %}</a>{% endif %}</p>
+                                    <p class="subtitle is-6">
+                                <span class="tag is-rounded" style="background: rgb(0, 153, 151); color: white;">
+                                    Sales
+                                </span>
                                     </p>
                                 </div>
                             </article>
                         </div>
-                    {% endwith %}
-                {% endfor %}
-                <div class="column is-one-fifth">
-                    <article class="media">
-                        <figure class="media-left">
-                            <p class="image is-128x128">
-                                {% if account.soldBy.image != None %}
-                                    <img class="is-rounded"
-                                         src="{% static 'img/bloomers/'|add:account.soldBy.image %}"/>
-                                {% else %}
-                                    <img class="is-rounded" src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                {% endif %}
-                            </p>
-                        </figure>
-                        <div class="media-content" style="padding-top: 1em;">
-                            <p class="title is-5">
-                                {% if request.user.is_staff %}
-                                    <a href="/user_management/members/{{ account.soldBy.id }}">
-                                {% endif %}
-                                {{ account.soldBy.user.get_full_name }}
-                                {% if request.user.is_staff %}</a>{% endif %}</p>
-                            <p class="subtitle is-6">
-                                <span class="tag is-rounded" style="background: rgb(0, 153, 151); color: white;">
-                                    Sales
-                                </span>
-                            </p>
-                        </div>
-                    </article>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- ASSIGNED MEMBERS END -->
+            <!-- ASSIGNED MEMBERS END -->
 
-    <!-- MODALS -->
-    <!-- FLAG ACCOUNT MODAL START -->
-    <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
-        <div class="modal-background"></div>
-        <div class="modal-card">
-            <form method="POST" action="/clients/accounts/flag">
-                {% csrf_token %}
-                <div class="modal-card-head">
-                    <div class="modal-card-title">How are we doing?</div>
-                    <button class="delete"></button>
+            <!-- MODALS -->
+            <!-- FLAG ACCOUNT MODAL START -->
+            <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <form method="POST" action="/clients/accounts/flag">
+                        {% csrf_token %}
+                        <div class="modal-card-head">
+                            <div class="modal-card-title">How are we doing?</div>
+                            <button class="delete"></button>
+                        </div>
+                        <div class="modal-card-body">
+                            <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                            <input name="flagged" type="text" value="False" style="display:none;"/>
+                            <div class="columns">
+                                <div class="column">
+                                    <button type="button" class="button is-outlined is-primary is-fullwidth"
+                                            id="good_task_btn">
+                                        Account is good <i class="far fa-smile" style="margin-left: 0.5em;"></i>
+                                    </button>
+                                </div>
+                                <div class="column">
+                                    <button type="button" id="flag_task_btn"
+                                            class="button is-danger is-outlined is-fullwidth">
+                                        Account needs to be flagged <i class="far fa-frown"
+                                                                       style="margin-left: 0.5em;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="columns is-hidden" id="bc_link_row">
+                                <div class="column">
+                                    <label>Basecamp Link:</label>
+                                    <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"/>
+                                    <button type="submit" class="button is-fullwidth is-info" id="flag_task_submit"
+                                            style="margin-top: 1em;">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-card-body">
-                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                    <input name="flagged" type="text" value="False" style="display:none;"/>
-                    <div class="columns">
-                        <div class="column">
-                            <button type="button" class="button is-outlined is-success is-fullwidth" id="good_task_btn">
-                                Account is good <i class="far fa-smile" style="margin-left: 0.5em;"></i>
-                            </button>
-                        </div>
-                        <div class="column">
-                            <button type="button" id="flag_task_btn" class="button is-danger is-outlined is-fullwidth">
-                                Account needs to be flagged <i class="far fa-frown" style="margin-left: 0.5em;"></i>
-                            </button>
-                        </div>
+                <button class="modal-close is-large"></button>
+            </div>
+            <!-- FLAG ACCOUNT MODAL END -->
+            <!-- QUICKADD HOURS MODAL START -->
+            <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <div class="modal-card-head">
+                        <div class="modal-card-title">Quick Add Hours</div>
+                        <button class="delete"></button>
                     </div>
-                    <div class="columns is-hidden" id="bc_link_row">
-                        <div class="column">
-                            <label>Basecamp Link:</label>
-                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"/>
-                            <button type="submit" class="button is-fullwidth" id="flag_task_submit"
-                                    style="margin-top: 1em;">
-                                Submit
-                            </button>
-                        </div>
+                    <div class="modal-card-body">
+                        <form id="quick_add_form">
+                            <div class="columns">
+                                <div class="column">
+                                    <label>Hours:</label>
+                                    <input type="text" name="quick_add_hours"
+                                           class="input" required>
+                                </div>
+                                <div class="column">
+                                    <label>Month:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="quick_add_month" required>
+                                            {% for monthNum, monthName in months %}
+                                                <option value="{{ monthNum }}"
+                                                        {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
+                                                    {{ monthName }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <label>Year:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="quick_add_year" required>
+                                            {% for year in years %}
+                                                <option value="{{ year }}"
+                                                        {% if year == current_year %}selected{% endif %}>
+                                                    {{ year }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column">
+                                    <button type="submit" class="button is-info is-fullwidth">Submit</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </form>
+                <button class="modal-close is-large"></button>
+            </div>
+            <!-- QUICKADD HOURS MODAL END -->
+            <!-- ASSIGN MEMBERS MODAL START -->
+            <div class="modal modal-fx-fadeInScale" id="assign_members_modal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <div class="modal-card-head">
+                        <div class="modal-card-title">Assign Members to {{ account.client_name }}</div>
+                        <button class="delete"></button>
+                    </div>
+                    <form id="assign_members_form" method="POST" action="/clients/accounts/assign_members">
+                        {% csrf_token %}
+                        <div class="modal-card-body">
+                            <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                            <div class="columns">
+                                <div class="column">
+                                    <label>AM 1:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="am1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.am1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="am1_percent" class="input percentage-assignment"
+                                           value="{{ account.am1percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>AM 2:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="am2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.am2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="am2_percent" class="input percentage-assignment"
+                                           value="{{ account.am2percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>AM 3:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="am3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.am3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="am3_percent" class="input percentage-assignment"
+                                           value="{{ account.am3percent|floatformat:2 }}"/>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column">
+                                    <label>CM 1:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="cm1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.cm1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="cm1_percent" class="input percentage-assignment"
+                                           value="{{ account.cm1percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>CM 2:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="cm2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.cm2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="cm2_percent" class="input percentage-assignment"
+                                           value="{{ account.cm2percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>CM 3:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="cm3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.cm3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="cm3_percent" class="input percentage-assignment"
+                                           value="{{ account.cm3percent|floatformat:2 }}"/>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column">
+                                    <label>Strat 1:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="strat1_assign"
+                                                {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.strat1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="strat1_percent" class="input percentage-assignment"
+                                           value="{{ account.strat1percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>Strat 2:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="strat2_assign"
+                                                {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.strat2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="strat2_percent" class="input percentage-assignment"
+                                           value="{{ account.strat2percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>Strat 3:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="strat3_assign"
+                                                {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.strat3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="strat3_percent" class="input percentage-assignment"
+                                           value="{{ account.strat3percent|floatformat:2 }}"/>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column">
+                                    <label>SEO 1:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="seo1_assign"
+                                                {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.seo1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="seo1_percent" class="input percentage-assignment"
+                                           value="{{ account.seo1percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>SEO 2:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="seo2_assign"
+                                                {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.seo2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="seo2_percent" class="input percentage-assignment"
+                                           value="{{ account.seo2percent|floatformat:2 }}"/>
+                                </div>
+                                <div class="column">
+                                    <label>SEO 3:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="seo3_assign"
+                                                {% if not request.user.is_staff %}disabled{% endif %}>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if member.id == account.seo3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <input type="text" name="seo3_percent" class="input percentage-assignment"
+                                           value="{{ account.seo3percent|floatformat:2 }}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-card-foot">
+                            <p>Total percentage: <span id="percentage_total">0.00</span>%</p>
+                            <button type="button" class="button is-primary" id="distribute_hours_button"
+                                    style="margin-left: auto;">
+                                Distribute hours proportionately
+                            </button>
+                            <button type="submit" class="button is-info" id="submit_assign_form_button">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <button class="modal-close is-large"></button>
+            </div>
+            <!-- ASSIGN MEMBERS MODAL END -->
         </div>
-        <button class="modal-close is-large"></button>
+        <!-- MAIN CONTENT END -->
     </div>
-    <!-- FLAG ACCOUNT MODAL END -->
 {% endblock %}
 
 {% block extraJs %}
     <script>
         $('.delete').click(function () {
             $(this).closest('.message').addClass('is-hidden');
+            $('.modal').removeClass('is-active');
         });
 
         $('.modal-trigger').click(function () {
@@ -568,6 +866,144 @@
                     window.location.href = '/clients/accounts/{{ account.id }}';
                 }
             });
+        });
+
+        // quick adding hours
+        let $quickAddForm = $('#quick_add_form');
+        $quickAddForm.submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/clients/accounts/{{ account.id }}',
+                data: $quickAddForm.serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                error: function (jqXHR, error, errorString) {
+                    let message = "Error";
+                    if (errorString === "Forbidden") {
+                        message = "You don't have permission to add hours to this account!";
+                    }
+                    toastr.error(message);
+                    $('#quick_add_modal').removeClass('is-active');
+                },
+                success: function () {
+                    $('#quick_add_modal').removeClass('is-active');
+                    toastr.success("Hours submitted successfully!");
+                    let assignedMembersDisplay = $('#assigned_members_display');
+                    // refresh the team display to update hours
+                    assignedMembersDisplay.load(location.href + " #assigned_members_display>*", "");
+                }
+            });
+        });
+
+        // proportional hours distribution
+        $('#distribute_hours_button').click(distributeHours);
+
+        function distributeHours() {
+            let hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
+            let seoHours = {{ account.seo_hours|escapejs }};
+            let hasCro = {% if account.has_cro %}true{% else %}false{% endif %};
+            let croHours = {{ account.cro_hours|escapejs }};
+            let totalHours = {{ account.all_hours|escapejs }};
+            let ppc_hours = {{ account.ppc_hours|escapejs }};
+
+            // Cms
+            let cms = [];
+            {% if account.cm1 != None %}cms.push(1);{% endif %}
+            {% if account.cm2 != None %}cms.push(2);{% endif %}
+            {% if account.cm3 != None %}cms.push(3);{% endif %}
+            // Ams
+            let ams = [];
+            {% if account.am1 != None %}ams.push(1);{% endif %}
+            {% if account.am2 != None %}ams.push(2);{% endif %}
+            {% if account.am3 != None %}ams.push(3);{% endif %}
+            // strats
+            let strats = [];
+            {% if account.strat1 != None %}strats.push(1);{% endif %}
+            {% if account.strat2 != None %}strats.push(2);{% endif %}
+            {% if account.strat3 != None %}strats.push(3);{% endif %}
+            // seos
+            let seos = [];
+            {% if account.seo1 != None %}seos.push(1);{% endif %}
+            {% if account.seo2 != None %}seos.push(2);{% endif %}
+            {% if account.seo3 != None %}seos.push(3);{% endif %}
+
+            /**
+             * Calculate hour percentages
+             */
+            let cmPortion = 0.75;
+            let amPortion = 0.25;
+            let seoPortion = 0.0;
+
+            if (hasSeo || hasCro) {
+                let seoTotalPortion = ((seoHours + croHours) / totalHours);
+                seoPortion = seoTotalPortion * 0.9;
+                let remainingPortion = 1.0 - seoTotalPortion;
+                cmPortion = remainingPortion * 0.75;
+                amPortion = (remainingPortion * 0.25) + (seoPortion * 0.1);
+            }
+
+            let eachCm = (100.0 * cmPortion / cms.length).toFixed(2);
+            let eachAm = (100.0 * amPortion / ams.length).toFixed(2);
+            let eachSeo = (100.0 * seoPortion / seos.length).toFixed(2);
+
+            /**
+             * First set all to 0
+             */
+            for (let i = 1; i <= 3; i++) {
+                $('[name=cm' + i + '_percent]').val('0.0');
+                $('[name=am' + i + '_percent]').val('0.0');
+                $('[name=strat' + i + '_percent]').val('0.0');
+                $('[name=seo' + i + '_percent]').val('0.0');
+            }
+
+            cms.forEach(function (i) {
+                $('[name=cm' + i + '_percent]').val(eachCm);
+            });
+
+            ams.forEach(function (i) {
+                $('[name=am' + i + '_percent]').val(eachAm);
+            });
+
+            seos.forEach(function (i) {
+                $('[name=seo' + i + '_percent]').val(eachSeo);
+            });
+        }
+
+        // check percentage form validity
+        let $assignMembersForm = $('#assign_members_form');
+        let $assignMembersSubmit = $('#submit_assign_form_button');
+        $assignMembersSubmit.click(function (e) {
+            e.preventDefault();
+
+            let $percentageInputs = $('.percentage-assignment');
+            let validForm = true;
+            let percentageSum = 0.0;
+            $percentageInputs.each((i, part) => {
+                let value = parseFloat(part.value);
+                if (value > 0) {
+                    let type = part.name.split('_')[0]; // cm1, am2, etc.
+                    let $memberField = $('[name=' + type + '_assign]');
+                    if ($memberField.val() === '0') {
+                        toastr.error('You attempted to assign a percentage to ' + type.toUpperCase() + ' without ' +
+                            'an assigned member!');
+                        validForm = false;
+                    }
+                    percentageSum += value;
+                }
+            });
+
+            if (!validForm) {
+                return;
+            }
+
+            if (percentageSum < 98 || percentageSum > 102) {
+                toastr.warning('Your percentages do not add up to 100%');
+                return;
+            }
+
+            $assignMembersForm.submit();
         });
     </script>
 {% endblock %}

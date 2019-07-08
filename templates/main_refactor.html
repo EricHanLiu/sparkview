@@ -182,18 +182,8 @@
 <!-- NAVBAR END -->
 <div class="section">
     <div class="container is-fluid">
-        <div class="columns">
-            <div class="column is-2">
-                <!-- SIDE MENU START -->
-                {% block leftAside %}
-                {% endblock %}
-                <!-- SIDE MENU END -->
-            </div>
-            <div class="column is-10">
-                {% block content %}
-                {% endblock %}
-            </div>
-        </div>
+        {% block main_body %}
+        {% endblock %}
     </div>
 </div>
 
