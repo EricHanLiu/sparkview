@@ -515,6 +515,9 @@
                     <th>
                         Spend
                     </th>
+                    <th>
+                        Last Updated
+                    </th>
                 </tr>
                 </thead>
                 <tbody id="campaigns_in_group_display">
@@ -692,6 +695,7 @@
             },
             success: (data) => {
                 let campaigns = data['campaigns'];
+                console.log(data);
                 campaigns.forEach(camp => {
                     let row = document.createElement('tr');
 
@@ -710,11 +714,26 @@
                     td1.appendChild(text);
 
                     let td2 = document.createElement('td');
-                    let spend = document.createTextNode(camp['fields']['campaign_cost']);
+                    let spend;
+                    if (data['is_monthly']) {
+                        spend = document.createTextNode(camp['fields']['campaign_cost']);
+                    } else {
+                        spend = document.createTextNode(data['cdrs'][camp['fields']['campaign_id']]);
+                    }
                     td2.appendChild(spend);
+
+                    let td3 = document.createElement('td');
+                    let last_updated;
+                    if (data['is_monthly']) {
+                        last_updated = document.createTextNode(camp['fields']['updated'].split('.')[0]);
+                    } else {
+                        last_updated = document.createTextNode(data['cupdate'][camp['fields']['campaign_id']]);
+                    }
+                    td3.appendChild(last_updated);
 
                     row.appendChild(td1);
                     row.appendChild(td2);
+                    row.appendChild(td3);
                     $campsInGroupDisplay.append(row);
                 });
             },
