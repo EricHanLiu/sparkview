@@ -90,11 +90,11 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month (until yesterday) of $' + str(
             campaign.campaign_cost))
 
-    not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
-    for cmp in not_in_use_camps:
-        cmp.campaign_cost = 0.0
-        cmp.spend_until_yesterday = 0.0
-        cmp.save()
+    # not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
+    # for cmp in not_in_use_camps:
+    #     cmp.campaign_cost = 0.0
+    #     cmp.spend_until_yesterday = 0.0
+    #     cmp.save()
 
 
 def get_all_spend_by_facebook_campaign_custom():

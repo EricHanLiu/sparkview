@@ -1522,6 +1522,10 @@ class Budget(models.Model):
 
     @property
     def description(self):
+        type_display = self.get_grouping_type_display().title()
+        if self.grouping_type == 1:
+            if self.text_includes is not None:
+                type_display += ' - Including strings: '
         return self.get_grouping_type_display().title()
 
     @property

@@ -33,5 +33,6 @@ urlpatterns = [
     url(r'^sales$', views.sales, name='sales'),
     url(r'^jamie$', views.jamie, name='jamie'),
     url(r'^promo_ads$', views.promo_ads, name='promo_ads'),
-    url(r'^over_under$', views.over_under, name='over_under')
+    url(r'^over_under$', views.over_under, name='over_under'),
+    url(r'^month_over_month$', views.month_over_month, name='month_over_month')
 ]

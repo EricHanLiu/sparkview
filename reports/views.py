@@ -1190,3 +1190,48 @@ def over_under(request):
     }
 
     return render(request, 'reports/over_under.html', context)
+
+
+@login_required
+def month_over_month(request):
+    """
+    Month over month report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    first = now.replace(day=1)
+    # Default to last month
+    last_month = first - datetime.timedelta(days=1)
+
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+    years = [str(i) for i in range(2018, now.year + 1)]
+
+    month = request.GET.get('month') if 'month' in request.GET else last_month.month
+    year = request.GET.get('year') if 'year' in request.GET else last_month.year
+
+    selected = {
+        'month': str(month),
+        'year': str(year)
+    }
+
+    month_strs = []
+    cur_month = month
+    cur_year = year
+
+    for i in range(10):
+        month_strs.insert(0, str(calendar.month_name[cur_month]) + ', ' + str(cur_year))
+        cur_month -= 1
+        if cur_month == 0:
+            cur_month = 12
+            cur_year -= 1
+
+    context = {
+        'selected': selected,
+        'month_strs': month_strs
+    }
+
+    return render(request, 'reports/month_over_month.html', context)
