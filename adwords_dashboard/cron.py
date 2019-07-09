@@ -132,11 +132,11 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.save()
         print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
-    not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
-    for cmp in not_in_use_camps:
-        cmp.campaign_cost = 0.0
-        cmp.spend_until_yesterday = 0.0
-        cmp.save()
+    # not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
+    # for cmp in not_in_use_camps:
+    #     cmp.campaign_cost = 0.0
+    #     cmp.spend_until_yesterday = 0.0
+    #     cmp.save()
 
 
 def get_all_spend_by_campaign_custom():
@@ -148,7 +148,7 @@ def get_all_spend_by_campaign_custom():
     for budget in budgets:
         for aw_camp in budget.aw_campaigns_without_excluded:
             if settings.DEBUG:
-                get_spend_by_campaign_this_month(aw_camp.id, budget.id)
+                get_spend_by_campaign_custom(aw_camp.id, budget.id)
             else:
                 get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
 

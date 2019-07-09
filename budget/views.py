@@ -984,6 +984,7 @@ def get_campaigns_in_budget(request):
                     corresponding_daterange_spends[campaign.campaign_id] = 0.0
                     corresponding_updated[campaign.campaign_id] = 'N/A'
     response = {
+        'is_monthly': budget.is_monthly,
         'campaigns': json.loads(serializers.serialize('json', campaigns)),
         'cdrs': corresponding_daterange_spends,
         'cupdate': corresponding_updated

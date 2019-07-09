@@ -1737,6 +1737,8 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
+        if self.days_remaining <= 0:
+            return 0
         rec_spend = self.calculated_budget_remaining_yest / self.days_remaining
         return rec_spend if rec_spend > 0 else 0
 
