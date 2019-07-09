@@ -1,4 +1,4 @@
-from bloom import celery_app
+from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Budget
@@ -10,9 +10,11 @@ import datetime
 
 def get_all_spends_by_facebook_campaign_this_month():
     accounts = ppc_active_accounts_for_platform('facebook')
-    accounts = FacebookAccount.objects.filter(id=187)
     for account in accounts:
-        get_spend_by_facebook_campaign_this_month(account.id)
+        if settings.DEBUG:
+            get_spend_by_facebook_campaign_this_month(account.id)
+        else:
+            get_spend_by_facebook_campaign_this_month.delay(account.id)
 
 
 @celery_app.task(bind=True)
@@ -103,8 +105,10 @@ def get_all_spend_by_facebook_campaign_custom():
     budgets = Budget.objects.filter(has_facebook=True, is_monthly=False)
     for budget in budgets:
         for fb_camp in budget.fb_campaigns_without_excluded:
-            # get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
-            get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
+            if settings.DEBUG:
+                get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
+            else:
+                get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
