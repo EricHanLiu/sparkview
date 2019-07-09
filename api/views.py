@@ -11,8 +11,10 @@ from rest_framework.status import (
 from bloom import settings
 from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
-from budget.models import Client
+from budget.models import Client, Team, Industry, Service, ClientContact
 from user_management.models import Member
+from django.core.serializers import serialize
+import json
 import datetime
 
 
@@ -111,3 +113,41 @@ def get_budget_info(request):
     :return:
     """
     pass
+
+
+@csrf_exempt
+@api_view(['GET'])
+def get_client_details_objects(request):
+    teams = Team.objects.all()
+    industries = Industry.objects.all()
+
+    data = {
+        'teams': json.loads(serialize('json', teams)),
+        'industries': json.loads(serialize('json', industries)),
+    }
+    return Response(data, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def set_client_details(request):
+    account_id = request.POST.get('account_id')
+    bc_link = request.POST.get('bc_link')
+    description = request.POST.get('description')
+    notes = request.POST.get('notes')
+    url = request.POST.get('url')
+    contact_names = request.POST.getlist('contact_names')
+    contact_emails = request.POST.getlist('contact_emails')
+    contact_phones = request.POST.getlist('contact_phones')
+    industry = request.POST.get('industry')
+    teams = request.POST.getlist('teams')
+
+    account = Client.objects.get(id=account_id)
+    account.bc_link = bc_link
+    account.description = description
+    account.notes = notes
+    account.url = url
+    account.industry = Industry.objects.get(pk=industry)
+    account.save()
+
+    return Response(status=HTTP_200_OK)

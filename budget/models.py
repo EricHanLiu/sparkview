@@ -116,6 +116,9 @@ class Client(models.Model):
     clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
     tier = models.IntegerField(default=1)
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
+    bc_link = models.CharField(max_length=255, default=None, null=True, blank=True)
+    description = models.CharField(max_length=255, default=None, null=True, blank=True)
+    notes = models.CharField(max_length=255, default=None, null=True, blank=True)
     # maybe do services another way?
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)

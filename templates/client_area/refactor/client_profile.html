@@ -18,7 +18,23 @@
         }
 
         .icon {
-            cursor: pointer;
+            margin-left: 0.5em;
+        }
+
+        .icon a {
+            color: black;
+        }
+
+        .icon a:hover {
+            color: tomato;
+        }
+
+        .is-static {
+            width: 30%;
+        }
+
+        .is-expanded {
+            width: 70%;
         }
     </style>
 {% endblock %}
@@ -125,20 +141,20 @@
                                  style="margin-left: 1em;">
                                 {{ account.get_status_display }}
                             </div>
-                            <div class="icon" style="margin-left: 0.5em;">
-                                <i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
-                                   data-target="#flag_account_modal"></i>
+                            <div class="icon">
+                                <a><i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
+                                      data-target="#flag_account_modal"></i></a>
                             </div>
-                            <div class="icon" style="margin-left: 0.5em;">
-                                <i class="far fa-clock modal-trigger" data-target="#quick_add_modal"></i>
+                            <div class="icon">
+                                <a><i class="far fa-clock modal-trigger" data-target="#quick_add_modal"></i></a>
                             </div>
-                            <div class="icon" style="margin-left: 0.5em;">
-                                <a href="/clients/accounts/{{ account.id }}/edit" style="color: black;">
+                            <div class="icon">
+                                <a href="/clients/accounts/{{ account.id }}/edit">
                                     <i class="far fa-edit"></i>
                                 </a>
                             </div>
                             <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle"
-                               style="margin-left: 0.5em;">
+                               style="margin-left: 0.7em;">
                                 Lifecycle
                             </a>
                         </div>
@@ -466,6 +482,166 @@
                 </div>
             </div>
             <!-- ASSIGNED MEMBERS END -->
+            <div class="columns" style="margin-top: 1em;">
+                <div class="column is-5">
+                    <!-- CLIENT DETAILS START -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-header-title">
+                                <div class="title is-5 level">
+                                    Client Details
+                                </div>
+                            </div>
+                            <div class="card-header-icon">
+                                <button class="button" id="edit_client_details">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <form id="client_details">
+                                <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Basecamp Link</button>
+                                    <div class="control is-expanded">
+                                        <input class="input" type="text" name="bc_link"
+                                               value="{{ account.bc_link }}">
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Client Description</button>
+                                    <div class="control is-expanded">
+                                        <input class="input" type="text" name="description"
+                                               value="{{ account.description }}">
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Client Notes</button>
+                                    <div class="control is-expanded">
+                                        <input class="input" type="text" name="notes"
+                                               value="{{ account.notes }}">
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">URL</button>
+                                    <div class="control is-expanded">
+                                        <input class="input" type="text" name="url"
+                                               value="{{ account.url }}">
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Tier</button>
+                                    <div class="control is-expanded">
+                                        <input class="input" type="text"
+                                               value="{{ account.tier }}">
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">
+                                        Contact Name{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                                    </button>
+                                    <div class="control is-expanded">
+                                        {% for clientContact in account.contactInfo.all %}
+                                            <input class="input" type="text" name="contact_name_{{ forloop.counter }}"
+                                                   value="{{ clientContact.name }}">
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">
+                                        Contact Email{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                                    </button>
+                                    <div class="control is-expanded">
+                                        {% for clientContact in account.contactInfo.all %}
+                                            <input class="input" type="text" name="contact_email_{{ forloop.counter }}"
+                                                   value="{{ clientContact.email }}">
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">
+                                        Contact Phone{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                                    </button>
+                                    <div class="control is-expanded">
+                                        {% for clientContact in account.contactInfo.all %}
+                                            <input class="input" type="text" name="contact_phone_{{ forloop.counter }}"
+                                                   value="{{ clientContact.phone }}">
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Industry</button>
+                                    <div class="control is-expanded">
+                                        <div class="select is-fullwidth">
+                                            <select id="select_industries" name="industry">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Platforms</button>
+                                    <div class="control is-expanded">
+                                        <div class="select is-multiple is-fullwidth">
+                                            <select multiple class="selectable-details" name="platforms">
+                                                <option value="Adwords"
+                                                        {% if account.aw_budget != 0.0 %}selected{% endif %}>
+                                                    Adwords
+                                                </option>
+                                                <option value="Bing"
+                                                        {% if account.bing_budget != 0.0 %}selected{% endif %}>
+                                                    Bing
+                                                </option>
+                                                <option value="Facebook"
+                                                        {% if account.fb_budget != 0.0 %}selected{% endif %}>
+                                                    Facebook
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Services</button>
+                                    <div class="control is-expanded">
+                                        <div class="select is-multiple is-fullwidth">
+                                            <select multiple class="selectable-details" name="services">
+                                                <option value="SEO" {% if account.has_seo %}selected{% endif %}>
+                                                    SEO
+                                                </option>
+                                                <option value="CRO" {% if account.has_cro %}selected{% endif %}>
+                                                    CRO
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
+                                    <button class="button is-static" type="button">Team</button>
+                                    <div class="control is-expanded">
+                                        <div class="select is-multiple is-fullwidth">
+                                            <select multiple class="selectable-details" id="select_teams" name="teams">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-7">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-header-title">
+                                <div class="title is-5 level">
+                                    Services
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- CLIENT DETAILS END -->
 
             <!-- MODALS -->
             <!-- FLAG ACCOUNT MODAL START -->
@@ -485,14 +661,14 @@
                                 <div class="column">
                                     <button type="button" class="button is-outlined is-primary is-fullwidth"
                                             id="good_task_btn">
-                                        Account is good <i class="far fa-smile" style="margin-left: 0.5em;"></i>
+                                        Account is good <i class="far fa-smile"></i>
                                     </button>
                                 </div>
                                 <div class="column">
                                     <button type="button" id="flag_task_btn"
                                             class="button is-danger is-outlined is-fullwidth">
                                         Account needs to be flagged <i class="far fa-frown"
-                                                                       style="margin-left: 0.5em;"></i>
+                                    ></i>
                                     </button>
                                 </div>
                             </div>
@@ -898,7 +1074,9 @@
         });
 
         // proportional hours distribution
-        $('#distribute_hours_button').click(distributeHours);
+        $('#distribute_hours_button').click(() => {
+            distributeHours();
+        });
 
         function distributeHours() {
             let hasSeo = {% if account.has_seo %}true{% else %}false{% endif %};
@@ -1001,6 +1179,7 @@
             $assignMembersForm.submit();
         });
 
+        // calculate total assigned percentage
         function getPercentageSum() {
             let $percentageInputs = $('.percentage-assignment');
             let percentageSum = 0.0;
@@ -1017,12 +1196,67 @@
             $('#percentage_total').text(getPercentageSum());
         }
 
+        // set this percentage to the span on input change
         $('.percentage-assignment').on('input', () => {
             setPercentageSum();
         });
 
+        function getClientDetailsObjects() {
+            let clientTeams = [];
+            {% for team in account.team.all %}
+                clientTeams.push('{{ team.pk }}');
+            {% endfor %}
+
+            $.ajax({
+                url: '/api/get_client_details_objects',
+                type: 'GET',
+                success: function (data) {
+                    let teams = data['teams'];
+                    let industries = data['industries'];
+
+                    let selectIndustries = $('#select_industries');
+                    let selectTeams = $('#select_teams');
+
+                    teams.forEach((team) => {
+                        let selected = clientTeams.includes(team['pk'].toString());
+                        let opt = new Option(team['fields']['name'], team['pk'], false, selected);
+                        selectTeams.append(opt);
+                    });
+                    industries.forEach((industry) => {
+                        let selected = '{{ account.industry.pk }}' === industry['pk'].toString();
+                        let opt = new Option(industry['fields']['name'], industry['pk'], false, selected);
+                        selectIndustries.append(opt);
+                    });
+
+                    $('.selectable-details').selectize({
+                        plugins: ['remove_button']
+                    });
+                }
+            });
+        }
+
+        // client details save changes
+        $('#edit_client_details').click(function () {
+            let $form = $('#client_details');
+
+            $.ajax({
+                url: '/api/set_client_details',
+                type: 'POST',
+                data: $form.serialize(),
+                success: () => {
+                    $(this).attr('disabled', '');
+                    setTimeout(() => {
+                        $(this).removeAttr('disabled');
+                    }, 2000);
+                }
+            })
+        });
+
+
+        // document ready events
         $(document).ready(() => {
             setPercentageSum();
-        })
+            getClientDetailsObjects();
+        });
     </script>
 {% endblock %}
