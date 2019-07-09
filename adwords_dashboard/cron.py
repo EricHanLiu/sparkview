@@ -23,8 +23,10 @@ def get_client():
 def get_all_spends_by_campaign_this_month():
     accounts = ppc_active_accounts_for_platform('adwords')
     for account in accounts:
-        get_spend_by_campaign_this_month.delay(account.id)
-        # get_spend_by_campaign_this_month(account.id)
+        if settings.DEBUG:
+            get_spend_by_campaign_this_month(account.id)
+        else:
+            get_spend_by_campaign_this_month.delay(account.id)
 
 
 @celery_app.task(bind=True)
@@ -130,11 +132,11 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.save()
         print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
-    not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
-    for cmp in not_in_use_camps:
-        cmp.campaign_cost = 0.0
-        cmp.spend_until_yesterday = 0.0
-        cmp.save()
+    # not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
+    # for cmp in not_in_use_camps:
+    #     cmp.campaign_cost = 0.0
+    #     cmp.spend_until_yesterday = 0.0
+    #     cmp.save()
 
 
 def get_all_spend_by_campaign_custom():
@@ -145,7 +147,10 @@ def get_all_spend_by_campaign_custom():
     budgets = Budget.objects.filter(has_adwords=True, is_monthly=False)
     for budget in budgets:
         for aw_camp in budget.aw_campaigns_without_excluded:
-            get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
+            if settings.DEBUG:
+                get_spend_by_campaign_custom(aw_camp.id, budget.id)
+            else:
+                get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
