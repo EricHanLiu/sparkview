@@ -960,8 +960,7 @@ def get_campaigns_in_budget(request):
                 try:
                     csdr = CampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
                                                               end_date=budget.end_date)
-                    corresponding_daterange_spends[campaign.campaign_id] = csdr.objects.get(
-                        campaign=campaign, start_date=budget.start_date, end_date=budget.end_date).spend
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
                     corresponding_updated[campaign.campaign_id] = csdr.updated
                 except CampaignSpendDateRange.DoesNotExist:
                     corresponding_daterange_spends[campaign.campaign_id] = 0.0
@@ -986,8 +985,8 @@ def get_campaigns_in_budget(request):
                     corresponding_updated[campaign.campaign_id] = 'N/A'
     response = {
         'campaigns': json.loads(serializers.serialize('json', campaigns)),
-        'cdrs': json.loads(serializers.serialize('json', corresponding_daterange_spends)),
-        'cupdate': json.loads(serializers.serialize('json', corresponding_updated))
+        'cdrs': corresponding_daterange_spends,
+        'cupdate': corresponding_updated
     }
 
     return JsonResponse(response)

@@ -1819,16 +1819,16 @@ class BudgetUpdate(models.Model):
 
 class ClientCData(models.Model):
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
-    aw_budget = JSONField(default=dict)
-    aw_projected = JSONField(default=dict)
-    aw_spend = JSONField(default=dict)
-    bing_budget = JSONField(default=dict)
-    bing_projected = JSONField(default=dict)
-    bing_spend = JSONField(default=dict)
-    fb_budget = JSONField(default=dict)
-    fb_projected = JSONField(default=dict)
-    fb_spend = JSONField(default=dict)
-    global_target_spend = JSONField(default=dict)
+    aw_budget = JSONField(default=dict, blank=True)
+    aw_projected = JSONField(default=dict, blank=True)
+    aw_spend = JSONField(default=dict, blank=True)
+    bing_budget = JSONField(default=dict, blank=True)
+    bing_projected = JSONField(default=dict, blank=True)
+    bing_spend = JSONField(default=dict, blank=True)
+    fb_budget = JSONField(default=dict, blank=True)
+    fb_projected = JSONField(default=dict, blank=True)
+    fb_spend = JSONField(default=dict, blank=True)
+    global_target_spend = JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.client.client_name

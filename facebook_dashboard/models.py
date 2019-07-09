@@ -16,9 +16,9 @@ class FacebookAccount(models.Model):
     desired_spend_start_date = models.DateTimeField(default=None, null=True,
                                                     blank=True)  # These are the start dates and end dates for the desired spend. Default should be this month.
     desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
-    segmented_spend = JSONField(default=dict)
+    segmented_spend = JSONField(default=dict, blank=True)
     channel = models.CharField(max_length=255, default='None')
-    trends = JSONField(default=dict)
+    trends = JSONField(default=dict, blank=True)
     hist_spend = models.FloatField(default=0)
     hist_budget = models.FloatField(default=0)
     ds1 = models.IntegerField(default=0)
@@ -42,7 +42,7 @@ class FacebookAccount(models.Model):
     assigned = models.BooleanField(default=False)
     blacklisted = models.BooleanField(default=False)
     protected = models.BooleanField(default=False)
-    metadata = JSONField(default=dict)
+    metadata = JSONField(default=dict, blank=True)
 
     @property
     def has_custom_dates(self):
@@ -172,3 +172,4 @@ class FacebookCampaignSpendDateRange(models.Model):
     spend_until_yesterday = models.FloatField(default=0.0)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    updated = models.DateTimeField(auto_now=True)

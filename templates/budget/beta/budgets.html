@@ -695,6 +695,7 @@
             },
             success: (data) => {
                 let campaigns = data['campaigns'];
+                console.log(data);
                 campaigns.forEach(camp => {
                     let row = document.createElement('tr');
 
