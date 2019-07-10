@@ -5,7 +5,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
     <style>
         #app1 {
-            max-height: 85vh;
+            max-height: 80vh;
             overflow: auto;
         }
 
@@ -32,7 +32,7 @@
                         </a>
                     </li>
                 </ul>
-                <progress class="progress" max="100" v-if="loading===true"></progress>
+                <div v-if="loading===true">Loading...</div>
             </aside>
             <!-- SIDE MENU END -->
         </div>
@@ -41,9 +41,27 @@
                 <p class="title">
                     {{ account }}
                 </p>
-                <p class="subtitle">
-
+                <p class="subtitle is-6">
+                    Insights
                 </p>
+                <div class="tile is-ancestor">
+                    <div class="tile is-parent">
+                        <article class="tile is-child box">
+                            <p class="title is-4">Insight 1</p>
+                        </article>
+                    </div>
+                    <div class="tile is-parent">
+                        <article class="tile is-child box">
+                            <p class="title is-4">Insight 2</p>
+                        </article>
+                    </div>
+                    <div class="tile is-parent">
+                        <article class="tile is-child box">
+                            <p class="title is-4">Insight 3</p>
+                        </article>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
