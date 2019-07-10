@@ -8,6 +8,30 @@ class GoogleAnalyticsAuth(models.Model):
     """
     account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
     auth_string = models.CharField(max_length=99999, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.account.client_name
+
+
+class GoogleAnalyticsReport(models.Model):
+    """
+    Google Analytics stored report
+    """
+    account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
+    report = models.CharField(max_length=99999, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.account.client_name
+
+
+class Opportunity(models.Model):
+    """
+    Logs an opportunity
+    """
+    report = models.ForeignKey(GoogleAnalyticsReport, on_delete=models.SET_NULL, null=True, default=None)
+    description = models.CharField(max_length=999, default='')
+
+    def __str__(self):
+        return self.report + ' ' + self.description
