@@ -10,9 +10,9 @@ from oauth2client import file
 from oauth2client import tools
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
-DISCOVERY_URI = ('https://analyticsreporting.googleapis.com/$discovery/rest')
+DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
 CLIENT_SECRETS_PATH = 'client_secrets.json'  # Path to client_secrets.json file.
-VIEW_ID = '196639334'
+VIEW_ID = '183146840'
 
 
 def initialize_analyticsreporting():
@@ -48,24 +48,16 @@ def initialize_analyticsreporting():
     return analytics
 
 
-def get_report(analytics):
+def get_report(analytics, report_definition):
     # Use the Analytics Service Object to query the Analytics Reporting API V4.
-    return analytics.reports().batchGet(
-        body={
-            'reportRequests': [
-                {
-                    'viewId': VIEW_ID,
-                    'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-                    'metrics': [{'expression': 'ga:sessions'}]
-                }]
-        }
-    ).execute()
+    return analytics.reports().batchGet(body=report_definition).execute()
 
 
 def print_response(response):
     """Parses and prints the Analytics Reporting API V4 response"""
 
     for report in response.get('reports', []):
+        print(report)
         columnHeader = report.get('columnHeader', {})
         dimensionHeaders = columnHeader.get('dimensions', [])
         metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
@@ -86,7 +78,15 @@ def print_response(response):
 
 def main():
     analytics = initialize_analyticsreporting()
-    response = get_report(analytics)
+    report_definition = body = {
+        'reportRequests': [
+            {
+                'viewId': VIEW_ID,
+                'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
+                'metrics': [{'expression': 'ga:sessions'}]
+            }]
+    }
+    response = get_report(analytics, report_definition)
     print_response(response)
 
 
