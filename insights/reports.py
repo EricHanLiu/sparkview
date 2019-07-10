@@ -13,7 +13,9 @@ from insights.models import GoogleAnalyticsAuth
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
 CLIENT_SECRETS_PATH = 'client_secrets.json'
-VIEW_ID = '183146840'
+
+# Mondou
+VIEW_ID = '54904496'
 
 
 def initialize_analytics(account):
