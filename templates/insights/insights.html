@@ -1,7 +1,53 @@
 {% extends 'layout.html' %}
 
-{% block body %}
-    <section class="section">
+{% block extraCss %}
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+{% endblock %}
 
-    </section>
+{% block main_body %}
+    <div class="columns">
+        <div class="column is-2">
+            <!-- SIDE MENU START -->
+            <aside class="menu">
+                <p class="menu-label">
+                    Insights
+                </p>
+                <ul class="menu-list" id="app1">
+                    <li v-for="account in accounts">
+                        <a v-bind:href="'/insights/' + [[ account.id ]]">
+                            <div class="icon"><i class="fas fa-info"></i></div>
+                            [[ account.name ]]
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            <!-- SIDE MENU END -->
+        </div>
+        <div class="column is-10">
+            <div class="container">
+                <p class="title">
+                    {{ account }}
+                </p>
+                <p class="subtitle">
+                    Placeholder
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        let app1 = new Vue({
+            delimiters: ['[[', ']]'],
+            el: '#app1',
+            data: {
+                accounts: [  // todo: dynamically generate from ajax request or from django template
+                    {name: 'Gadsden and Culpeper', id: '200'},
+                    {name: 'Dynamite', id: '241'},
+                    {name: 'Structube', id: '324'},
+                ]
+            }
+        })
+    </script>
 {% endblock %}
