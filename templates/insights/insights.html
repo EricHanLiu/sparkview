@@ -2,28 +2,40 @@
 
 {% block extraCss %}
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <style>
+        #app1 {
+            max-height: 50vh;
+            overflow: auto;
+            ::-webkit-scrollbar {
+                width: 0;
+                background: transparent;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block main_body %}
     <div class="columns">
-        <div class="column is-2">
+        <div class="column is-3">
             <!-- SIDE MENU START -->
-            <aside class="menu">
+            <aside class="menu" id="app1">
                 <p class="menu-label">
-                    Insights
+                    Accounts
                 </p>
-                <ul class="menu-list" id="app1">
+                <ul class="menu-list">
                     <li v-for="account in accounts">
-                        <a v-bind:href="'/insights/' + [[ account.id ]]">
+                        <a v-bind:href="'/insights/' + [[ account.pk ]]">
                             <div class="icon"><i class="fas fa-info"></i></div>
-                            [[ account.name ]]
+                            [[ account.fields.client_name ]]
                         </a>
                     </li>
                 </ul>
+                <progress class="progress" max="100" v-if="loading===true"></progress>
             </aside>
             <!-- SIDE MENU END -->
         </div>
-        <div class="column is-10">
+        <div class="column is-9">
             <div class="container">
                 <p class="title">
                     {{ account }}
@@ -42,12 +54,18 @@
             delimiters: ['[[', ']]'],
             el: '#app1',
             data: {
-                accounts: [  // todo: dynamically generate from ajax request or from django template
-                    {name: 'Gadsden and Culpeper', id: '200'},
-                    {name: 'Dynamite', id: '241'},
-                    {name: 'Structube', id: '324'},
-                ]
+                accounts: [],
+                loading: false
+            },
+            mounted: function () {
+                this.loading = true;
+                this.$http.get('/api/get_accounts').then(successResponse => {
+                    this.accounts = successResponse.body.accounts;
+                    this.loading = false;
+                }, errorResponse => {
+                    console.log(errorResponse);
+                });
             }
-        })
+        });
     </script>
 {% endblock %}

@@ -6,5 +6,5 @@ app_name = "reports"
 
 urlpatterns = [
     url(r'^$', views.insights, name='insights'),
-    url(r'^(?P<account_id>\d+)$', views.insights, name='insights')
+    url(r'^(?P<account_pk>\d+)$', views.insights, name='insights')
 ]
