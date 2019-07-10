@@ -8,7 +8,7 @@ Babel==2.5.3
 billiard==3.5.0.3
 bingads==12.0.3.1
 cached-property==1.4.3
-cachetools==2.1.0
+cachetools==3.1.1
 celery==4.2.1
 certifi==2018.11.29
 chardet==3.0.4
@@ -31,11 +31,13 @@ enum34==1.1.6
 facebook-business==3.0.0
 facebookads==2.11.4
 future==0.17.1
-google-auth==1.5.0
+google-api-python-client==1.7.9
+google-auth==1.6.3
+google-auth-httplib2==0.0.3
 google-auth-oauthlib==0.2.0
 googleads==15.0.2
 gunicorn==19.9.0
-httplib2==0.10.3
+httplib2==0.13.0
 idna==2.8
 ipython-genutils==0.2.0
 isodate==0.6.0
@@ -52,8 +54,8 @@ pip-upgrader==1.4.6
 prompt-toolkit==1.0.15
 psycopg2==2.7.3.2
 ptyprocess==0.5.2
-pyasn1==0.4.3
-pyasn1-modules==0.2.2
+pyasn1==0.4.5
+pyasn1-modules==0.2.5
 Pygments==2.2.0
 PyJWT==1.6.4
 pyparsing==2.3.1
@@ -68,7 +70,7 @@ redis==2.10.6
 requests==2.21.0
 requests-oauthlib==1.0.0
 requests-toolbelt==0.8.0
-rsa==3.4.2
+rsa==4.0
 simplegeneric==0.8.1
 six==1.12.0
 social-auth-app-django==2.1.0
@@ -78,6 +80,7 @@ terminaltables==3.1.0
 tornado==4.5.2
 traitlets==4.3.2
 typing==3.6.2
+uritemplate==3.0.0
 urllib3==1.24.1
 vine==1.1.4
 wcwidth==0.1.7
