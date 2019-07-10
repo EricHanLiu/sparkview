@@ -13,7 +13,6 @@ from notifications.models import Notification
 from django.conf import settings
 import datetime
 import calendar
-from urllib.parse import parse_qs
 
 
 # Create your views here.
