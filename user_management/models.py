@@ -562,7 +562,7 @@ class Member(models.Model):
                 Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
                 Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
             ) | self.active_mandate_accounts
-        return set(self._accounts)
+        return self._accounts.distinct()
 
     @property
     def accounts_not_lost(self):
