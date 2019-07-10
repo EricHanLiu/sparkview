@@ -532,7 +532,7 @@
                                 <div class="field has-addons">
                                     <button class="button is-static" type="button">Tier</button>
                                     <div class="control is-expanded">
-                                        <input class="input" type="text"
+                                        <input class="input" type="text" disabled style="pointer-events: none;"
                                                value="{{ account.tier }}">
                                     </div>
                                 </div>
@@ -542,7 +542,7 @@
                                     </button>
                                     <div class="control is-expanded">
                                         {% for clientContact in account.contactInfo.all %}
-                                            <input class="input" type="text" name="contact_name_{{ forloop.counter }}"
+                                            <input class="input" type="text" name="contact_names"
                                                    value="{{ clientContact.name }}">
                                         {% endfor %}
                                     </div>
@@ -553,7 +553,7 @@
                                     </button>
                                     <div class="control is-expanded">
                                         {% for clientContact in account.contactInfo.all %}
-                                            <input class="input" type="text" name="contact_email_{{ forloop.counter }}"
+                                            <input class="input" type="text" name="contact_emails"
                                                    value="{{ clientContact.email }}">
                                         {% endfor %}
                                     </div>
@@ -564,7 +564,7 @@
                                     </button>
                                     <div class="control is-expanded">
                                         {% for clientContact in account.contactInfo.all %}
-                                            <input class="input" type="text" name="contact_phone_{{ forloop.counter }}"
+                                            <input class="input" type="text" name="contact_phones"
                                                    value="{{ clientContact.phone }}">
                                         {% endfor %}
                                     </div>
@@ -579,10 +579,19 @@
                                     </div>
                                 </div>
                                 <div class="field has-addons">
+                                    <button class="button is-static" type="button">Team</button>
+                                    <div class="control is-expanded">
+                                        <div class="select is-multiple is-fullwidth">
+                                            <select multiple class="selectable-details" id="select_teams" name="teams">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field has-addons">
                                     <button class="button is-static" type="button">Platforms</button>
                                     <div class="control is-expanded">
                                         <div class="select is-multiple is-fullwidth">
-                                            <select multiple class="selectable-details" name="platforms">
+                                            <select multiple class="set-details" name="platforms" disabled>
                                                 <option value="Adwords"
                                                         {% if account.aw_budget != 0.0 %}selected{% endif %}>
                                                     Adwords
@@ -603,22 +612,13 @@
                                     <button class="button is-static" type="button">Services</button>
                                     <div class="control is-expanded">
                                         <div class="select is-multiple is-fullwidth">
-                                            <select multiple class="selectable-details" name="services">
+                                            <select multiple class="set-details" name="services" disabled>
                                                 <option value="SEO" {% if account.has_seo %}selected{% endif %}>
                                                     SEO
                                                 </option>
                                                 <option value="CRO" {% if account.has_cro %}selected{% endif %}>
                                                     CRO
                                                 </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Team</button>
-                                    <div class="control is-expanded">
-                                        <div class="select is-multiple is-fullwidth">
-                                            <select multiple class="selectable-details" id="select_teams" name="teams">
                                             </select>
                                         </div>
                                     </div>
@@ -1231,6 +1231,7 @@
                     $('.selectable-details').selectize({
                         plugins: ['remove_button']
                     });
+                    $('.set-details').selectize();
                 }
             });
         }
@@ -1247,7 +1248,11 @@
                     $(this).attr('disabled', '');
                     setTimeout(() => {
                         $(this).removeAttr('disabled');
-                    }, 2000);
+                    }, 1000)
+                    toastr.success('Successfully updated client details!');
+                },
+                error: () => {
+                    toastr.error('Error');
                 }
             })
         });

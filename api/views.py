@@ -131,6 +131,7 @@ def get_client_details_objects(request):
 @csrf_exempt
 @api_view(['POST'])
 def set_client_details(request):
+    # TODO: add validation
     account_id = request.POST.get('account_id')
     bc_link = request.POST.get('bc_link')
     description = request.POST.get('description')
@@ -139,15 +140,25 @@ def set_client_details(request):
     contact_names = request.POST.getlist('contact_names')
     contact_emails = request.POST.getlist('contact_emails')
     contact_phones = request.POST.getlist('contact_phones')
-    industry = request.POST.get('industry')
-    teams = request.POST.getlist('teams')
+    industry_id = request.POST.get('industry')
+    team_ids = request.POST.getlist('teams')
 
     account = Client.objects.get(id=account_id)
     account.bc_link = bc_link
     account.description = description
     account.notes = notes
     account.url = url
-    account.industry = Industry.objects.get(pk=industry)
+    account.industry = Industry.objects.get(pk=industry_id)
+    teams = Team.objects.filter(pk__in=team_ids)
+    account.team.set(teams)
+
+    for i, contact in enumerate(account.contactInfo.all()):
+        contact.name = contact_names[i]
+        contact.email = contact_emails[i]
+        if contact_phones and contact_phones[i]:
+            contact.phone = contact_phones[i]
+        contact.save()
+
     account.save()
 
     return Response(status=HTTP_200_OK)
