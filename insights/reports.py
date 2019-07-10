@@ -8,11 +8,50 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
+from insights.models import GoogleAnalyticsAuth
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-CLIENT_SECRETS_PATH = 'client_secrets.json'  # Path to client_secrets.json file.
+CLIENT_SECRETS_PATH = 'client_secrets.json'
 VIEW_ID = '183146840'
+
+
+def initialize_analytics(account):
+    """
+    Initialize analytics API
+    :return:
+    """
+    try:
+        credentials = GoogleAnalyticsAuth.objects.get(account=account).auth_string
+    except GoogleAnalyticsAuth.DoesNotExist:
+        parser = argparse.ArgumentParser(
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            parents=[tools.argparser])
+        flags = parser.parse_args([])
+
+        # Set up a Flow object to be used if we need to authenticate.
+        flow = client.flow_from_clientsecrets(
+            CLIENT_SECRETS_PATH, scope=SCOPES,
+            message=tools.message_if_missing(CLIENT_SECRETS_PATH))
+
+        storage = file.Storage('analyticsreporting.dat')
+        credentials = tools.run_flow(flow, storage, flags)
+
+    # Prepare credentials, and authorize HTTP object with them.
+    # If the credentials don't exist or are invalid run through the native client
+    # flow. The Storage object will ensure that if successful the good
+    # credentials will get written back to a file.
+    # storage = file.Storage('analyticsreporting.dat')
+    # credentials = storage.get()
+    # if credentials is None or credentials.invalid:
+    #     credentials = tools.run_flow(flow, storage, flags)
+
+    http = credentials.authorize(http=httplib2.Http())
+
+    # Build the service object.
+    analytics = google_build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
+
+    return analytics
 
 
 def initialize_analyticsreporting():
@@ -49,7 +88,6 @@ def initialize_analyticsreporting():
 
 
 def get_report(analytics, report_definition):
-    # Use the Analytics Service Object to query the Analytics Reporting API V4.
     return analytics.reports().batchGet(body=report_definition).execute()
 
 
@@ -76,9 +114,17 @@ def print_response(response):
                     print(metricHeader.get('name') + ': ' + value)
 
 
+def get_ppc_best_performers_query():
+    """
+    Gets some queries for the best performers
+    :return:
+    """
+    pass
+
+
 def main():
     analytics = initialize_analyticsreporting()
-    report_definition = body = {
+    report_definition = {
         'reportRequests': [
             {
                 'viewId': VIEW_ID,
