@@ -483,7 +483,7 @@
             </div>
             <!-- ASSIGNED MEMBERS END -->
             <div class="columns" style="margin-top: 1em;">
-                <div class="column is-5">
+                <div class="column">
                     <!-- CLIENT DETAILS START -->
                     <div class="card">
                         <div class="card-header">
@@ -627,7 +627,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="column is-7">
+                <div class="column">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-header-title">
@@ -635,8 +635,97 @@
                                     Services
                                 </div>
                             </div>
+                            <div class="card-header-icon">
+                                <button type="button" class="button modal-trigger"
+                                        data-target="">
+                                    New Opportunity
+                                </button>
+                                <button type="button" class="button modal-trigger"
+                                        data-target="">
+                                    Update
+                                </button>
+                            </div>
                         </div>
                         <div class="card-content">
+                            <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+                                <div class="m-portlet__body">
+                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
+                                           id="account_change_datatable">
+                                        <thead class="thead-inverse">
+                                        <tr class="main-table-header">
+                                            <th>
+                                                Service
+                                            </th>
+                                            <th>
+                                                Status
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                PPC
+                                            </td>
+                                            <td>
+                                                {% if account.sales_profile.ppc_status == 0 %}
+                                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_ppc_status_display }}</a>
+                                                {% else %}
+                                                    {{ account.sales_profile.get_ppc_status_display }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                SEO
+                                            </td>
+                                            <td>
+                                                {% if account.sales_profile.seo_status == 0 %}
+                                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_seo_status_display }}</a>
+                                                {% else %}
+                                                    {{ account.sales_profile.get_seo_status_display }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                CRO
+                                            </td>
+                                            <td>
+                                                {% if account.sales_profile.cro_status == 0 %}
+                                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_cro_status_display }}</a>
+                                                {% else %}
+                                                    {{ account.sales_profile.get_cro_status_display }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {#                            <tr>#}
+                                        {#                                <td>#}
+                                        {#                                    Strat#}
+                                        {#                                </td>#}
+                                        {#                                <td>#}
+                                        {#                                    {{ account.sales_profile.get_strat_status_display }}#}
+                                        {#                                </td>#}
+                                        {#                            </tr>#}
+                                        {#                            <tr>#}
+                                        {#                                <td>#}
+                                        {#                                    Email Marketing#}
+                                        {#                                </td>#}
+                                        {#                                <td>#}
+                                        {#                                    {{ account.sales_profile.get_email_status_display }}#}
+                                        {#                                </td>#}
+                                        {#                            </tr>#}
+                                        {#                            <tr>#}
+                                        {#                                <td>#}
+                                        {#                                    Feed Management#}
+                                        {#                                </td>#}
+                                        {#                                <td>#}
+                                        {#                                    {{ account.sales_profile.get_feed_status_display }}#}
+                                        {#                                </td>#}
+                                        {#                            </tr>#}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
