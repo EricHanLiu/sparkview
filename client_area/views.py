@@ -372,7 +372,8 @@ def account_edit_temp(request, id):
             inactive_reason = request.POST.get('account_inactive_reason')
             inactive_bc = request.POST.get('inactive_bc')
             inactive_return = request.POST.get('account_inactive_return')
-            account.inactive_reason = inactive_reason
+            if inactive_return != '0':
+                account.inactive_reason = inactive_reason
 
             if inactive_bc != '':
                 account.inactive_bc_link = inactive_bc
@@ -414,7 +415,8 @@ def account_edit_temp(request, id):
             Account is now lost
             """
             lost_reason = request.POST.get('account_lost_reason')
-            account.lost_reason = lost_reason
+            if lost_reason != '0':
+                account.lost_reason = lost_reason
             lost_bc = request.POST.get('lost_bc')
             if lost_bc != '':
                 account.lost_bc_link = lost_bc
