@@ -1,49 +1,22 @@
 {% extends 'layout.html' %}
 
 {% block extraCss %}
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
-    <style>
-        #app1 {
-            max-height: 80vh;
-            overflow: auto;
-        }
-
-        ::-webkit-scrollbar {
-            width: 0;
-            background: transparent;
-        }
-    </style>
 {% endblock %}
 
 {% block main_body %}
-    <div class="columns">
-        <div class="column is-3">
-            <!-- SIDE MENU START -->
-            <aside class="menu" id="app1">
-                <p class="menu-label">
-                    Accounts
-                </p>
-                <ul class="menu-list">
-                    <li v-for="account in accounts">
-                        <a v-bind:href="'/insights/' + [[ account.pk ]]">
-                            <div class="icon"><i class="fas fa-info"></i></div>
-                            [[ account.fields.client_name ]]
-                        </a>
-                    </li>
-                </ul>
-                <div v-if="loading===true">Loading...</div>
-            </aside>
-            <!-- SIDE MENU END -->
-        </div>
-        <div class="column is-9">
+    <section class="hero">
+        <div class="hero-body">
             <div class="container">
-                <p class="title">
-                    {{ account }}
-                </p>
-                <p class="subtitle is-6">
+                <h1 class="title">
                     Insights
-                </p>
+                </h1>
+                <h2 class="subtitle">
+                    {% if account is None %}
+                        All Accounts
+                    {% else %}
+                        {{ account }}
+                    {% endif %}
+                </h2>
                 <div class="tile is-ancestor">
                     <div class="tile is-parent">
                         <article class="tile is-child box">
@@ -61,30 +34,10 @@
                         </article>
                     </div>
                 </div>
-
             </div>
         </div>
-    </div>
+    </section>
 {% endblock %}
 
 {% block extra_js %}
-    <script>
-        let app1 = new Vue({
-            delimiters: ['[[', ']]'],
-            el: '#app1',
-            data: {
-                accounts: [],
-                loading: false
-            },
-            mounted: function () {
-                this.loading = true;
-                this.$http.get('/api/get_accounts').then(successResponse => {
-                    this.accounts = successResponse.body.accounts;
-                    this.loading = false;
-                }, errorResponse => {
-                    console.log(errorResponse);
-                });
-            }
-        });
-    </script>
 {% endblock %}
