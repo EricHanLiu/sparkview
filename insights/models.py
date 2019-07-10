@@ -34,4 +34,4 @@ class Opportunity(models.Model):
     description = models.CharField(max_length=999, default='')
 
     def __str__(self):
-        return self.report + ' ' + self.description
+        return str(self.report) + ' ' + self.description
