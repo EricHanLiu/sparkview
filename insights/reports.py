@@ -88,7 +88,6 @@ def initialize_analyticsreporting():
 
 
 def get_report(analytics, report_definition):
-    # Use the Analytics Service Object to query the Analytics Reporting API V4.
     return analytics.reports().batchGet(body=report_definition).execute()
 
 
