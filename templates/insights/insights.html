@@ -17,22 +17,15 @@
                         {{ account }}
                     {% endif %}
                 </h2>
-                <div class="tile is-ancestor">
-                    <div class="tile is-parent">
-                        <article class="tile is-child box">
-                            <p class="title is-4">Insight 1</p>
-                        </article>
-                    </div>
-                    <div class="tile is-parent">
-                        <article class="tile is-child box">
-                            <p class="title is-4">Insight 2</p>
-                        </article>
-                    </div>
-                    <div class="tile is-parent">
-                        <article class="tile is-child box">
-                            <p class="title is-4">Insight 3</p>
-                        </article>
-                    </div>
+                <div class="columns is-multiline">
+                    {% for opp in opportunities %}
+                        <div class="column is-3">
+                            <div class="box">
+                                <p class="title is-4 has-text-danger">Insight</p>
+                                {{ opp.report.report }}
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

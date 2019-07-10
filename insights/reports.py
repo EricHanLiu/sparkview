@@ -130,7 +130,7 @@ def get_ppc_best_performers_query():
     pass
 
 
-def get_seo_twelve_month_trend_query():
+def get_searches_twelve_month_trend_query():
     """
     Gets the SEO trend for a client over the last twelve months (on a per week tick)
     :return:
@@ -183,8 +183,12 @@ def get_seo_twelve_month_trend_query():
         #                                                       'last year.')
 
 
+def get_page_load_time_query():
+    pass
+
+
 def main():
-    get_seo_twelve_month_trend_query()
+    get_searches_twelve_month_trend_query()
 
 
 if __name__ == '__main__':
