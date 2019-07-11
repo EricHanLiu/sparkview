@@ -39,15 +39,15 @@
         $getInsightsButton.one('click', () => {
             // pulls all insights for this account
             $.ajax({
-                url: '/api/get_insights',
+                url: '/api/get_insights/{{ account.id }}',
                 success: data => {
                     let insights = data['insights'];
                     insights.forEach(insight => {
-                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-danger">' +
+                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
                             'Insight</p>' + insight.fields.description + '</div></div>';
                         $insightsDiv.append(insightBox);
-                        $getInsightsButton.addClass('is-hidden');
                     });
+                    $getInsightsButton.addClass('is-hidden');
                 },
                 error: error => {
                     console.log(error);

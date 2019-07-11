@@ -128,8 +128,8 @@ def get_accounts(request):
 
 
 @api_view(['GET'])
-def get_insights(request):
-    insights = Opportunity.objects.all()
+def get_insights(request, account_id):
+    insights = Opportunity.objects.filter(report__account=account_id)
 
     data = {
         'insights': json.loads(serializers.serialize('json', insights))
