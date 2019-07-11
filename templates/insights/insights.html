@@ -136,10 +136,21 @@
                     $insightsDiv.append(column);
                     $getInsightsButton.removeClass('is-loading');
 
+                    let months = [];
+                    let monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'];
+                    let thisMonth = new Date().getMonth();
+                    for (let i = 0; i < googleSearches.length; i++) {
+                        months.unshift(monthNames[thisMonth]);
+                        thisMonth--;
+                        if (thisMonth === 0) {
+                            thisMonth = 11;
+                        }
+                    }
+
                     new Chart(document.querySelector('#googleChart'), {
                         type: 'line',
                         data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'],
+                            labels: months,
                             datasets: [
                                 {
                                     data: googleSearches,
@@ -160,7 +171,7 @@
                     new Chart(document.querySelector('#bingChart'), {
                         type: 'line',
                         data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'],
+                            labels: months,
                             datasets: [
                                 {
                                     data: bingSearches,
