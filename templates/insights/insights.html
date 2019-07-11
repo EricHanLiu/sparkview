@@ -48,7 +48,7 @@
                     </div>
                     <div class="column is-3">
                         <div class="field">
-                            <label class="label">Get Insights</label>
+                            <label class="label">&nbsp</label>
                             <div class="control">
                                 <button class="button is-link" id="get_insights" disabled>
                                     Get Insights
@@ -249,8 +249,6 @@
                 success: (data) => {
                     let gaViews = data['items'];
                     $viewSelect.html('');
-                    let defaultOption = '<option selected hidden disabled>--</option>';
-                    $viewSelect.append(defaultOption);
                     gaViews.forEach(view => {
                         let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
                         $viewSelect.append(markup);
