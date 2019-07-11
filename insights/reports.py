@@ -151,18 +151,14 @@ def get_organic_searches_by_region_query(view_id):
                     {'expression': 'ga:organicSearches'},
                     {'expression': 'ga:avgPageLoadTime'}
                 ],
-                'metricFilterClauses': [{
-                    'filters': [{
-                        'metricName': 'ga:organicSearches',
-                        'operator': 'GREATER_THAN',
-                        'comparisonValue': '500'
-                    }]
-                }],
                 'dimensions': [
                     {'name': 'ga:region'},
-                    {'name': 'ga:nthMonth'}
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:organicSearches', 'sortOrder': 'DESCENDING'}
                 ]
-            }]
+            }
+        ]
     }
 
     return report_definition
@@ -214,6 +210,34 @@ def get_organic_searches_over_time_by_medium_query(view_id):
                         ]
                     }
                 ]
+            }
+        ]
+    }
+
+    return report_definition
+
+
+def get_content_group_query(view_id):
+    """
+    Gets content group info
+    :return:
+    """
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '365daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:contentGroupUniqueViewsXX'},
+                ],
+                'dimensions': [
+                    {'name': 'ga:landingContentGroupXX'},
+                    {'name': 'ga:contentGroupXX'}
+                ],
             }
         ]
     }
@@ -273,7 +297,7 @@ def get_b2c_ppc_best_demographics_query():
 
 def main():
     analytics = initialize_analyticsreporting()
-    response = get_report(analytics, get_ecom_ppc_best_ad_groups_query())
+    response = get_report(analytics, get_content_group_query(54904496))
     print_response(response)
     # response = get_report(analytics, report_definition)
     # get_searches_twelve_month_trend_query()
