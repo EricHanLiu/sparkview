@@ -8,7 +8,7 @@ import json
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-CLIENT_SECRETS_PATH = '/home/sam/Projects/bloom-master/insights/client_secrets.json'
+CLIENT_SECRETS_PATH = '/home/eric/repositories/bloom-master/insights/client_secrets.json'
 
 # Mondou
 # VIEW_ID = '54904496'
@@ -44,7 +44,7 @@ def get_service(api_name, api_version, scope, client_secrets_path=CLIENT_SECRETS
     # If the credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # credentials will get written back to a file.
-    storage = file.Storage('/home/sam/Projects/bloom-master/insights/' + api_name + '.dat')
+    storage = file.Storage('/home/eric/repositories/bloom-master/insights/' + api_name + '.dat')
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(flow, storage, flags)
