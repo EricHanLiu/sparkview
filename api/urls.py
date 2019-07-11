@@ -8,5 +8,4 @@ urlpatterns = [
     url(r'^sample$', views.sample_api, name='sample'),
     url(r'^create_tracking_mandate$', views.create_tracking_mandate, name='create_tracking_mandate'),
     url(r'^get_accounts$', views.get_accounts, name='get_accounts'),
-    url(r'^get_insights/(\d*)$', views.get_insights, name='get_insights')
 ]

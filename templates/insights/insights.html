@@ -37,9 +37,57 @@
         let $getInsightsButton = $('#get_insights');
         let $insightsDiv = $('#insights');
         $getInsightsButton.one('click', () => {
-            // pulls all insights for this account
+            // pulls all insights for this account, all separate requests
             $.ajax({
-                url: '/api/get_insights/{{ account.id }}',
+                url: '/insights/get_ecom_best_demographics_insights/54904496',  // mondou for test
+                success: data => {
+                    let insights = data['insights'];
+                    insights.forEach(insight => {
+                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
+                            'Insight</p>' + insight.fields.description + '</div></div>';
+                        $insightsDiv.append(insightBox);
+                    });
+                    $getInsightsButton.addClass('is-hidden');
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+
+            $.ajax({
+                url: '/insights/get_organic_searches_by_region_insight/54904496',  // mondou for test
+                success: data => {
+                    let insights = data['insights'];
+                    insights.forEach(insight => {
+                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
+                            'Insight</p>' + insight.fields.description + '</div></div>';
+                        $insightsDiv.append(insightBox);
+                    });
+                    $getInsightsButton.addClass('is-hidden');
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+
+            $.ajax({
+                url: '/insights/get_organic_searches_over_time_by_medium_insight/54904496',  // mondou for test
+                success: data => {
+                    let insights = data['insights'];
+                    insights.forEach(insight => {
+                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
+                            'Insight</p>' + insight.fields.description + '</div></div>';
+                        $insightsDiv.append(insightBox);
+                    });
+                    $getInsightsButton.addClass('is-hidden');
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+
+            $.ajax({
+                url: '/insights/get_ecom_ppc_best_ad_groups_insight/54904496',  // mondou for test
                 success: data => {
                     let insights = data['insights'];
                     insights.forEach(insight => {

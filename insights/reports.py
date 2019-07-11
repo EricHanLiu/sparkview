@@ -9,10 +9,7 @@ from oauth2client import tools
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-CLIENT_SECRETS_PATH = 'client_secrets.json'
-
-# Mondou
-VIEW_ID = '54904496'
+CLIENT_SECRETS_PATH = '/home/eric/repositories/bloom-master/insights/client_secrets.json'
 
 
 def initialize_analyticsreporting():
@@ -36,7 +33,7 @@ def initialize_analyticsreporting():
     # If the credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # credentials will get written back to a file.
-    storage = file.Storage('analyticsreporting.dat')
+    storage = file.Storage('/home/eric/repositories/bloom-master/insights/analyticsreporting.dat')
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(flow, storage, flags)
@@ -76,7 +73,7 @@ def print_response(response):
             print('====================================')
 
 
-def get_ecom_best_demographics_query():
+def get_ecom_best_demographics_query(view_id):
     """
     Gets some queries for the best performers
     :return:
@@ -84,7 +81,7 @@ def get_ecom_best_demographics_query():
     report_definition = {
         'reportRequests': [
             {
-                'viewId': VIEW_ID,
+                'viewId': view_id,
                 'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],
                 'metrics': [{'expression': 'ga:sessions'}, {'expression': 'ga:transactionRevenue'},
                             {'expression': 'ga:transactions'}, {'expression': 'ga:revenuePerTransaction'},
@@ -97,16 +94,15 @@ def get_ecom_best_demographics_query():
     return report_definition
 
 
-def get_organic_searches_by_region_query():
+def get_organic_searches_by_region_query(view_id):
     """
     Gets the number of organic searches per month over the last year, split by region
     :return:
     """
-    analytics = initialize_analyticsreporting()
     report_definition = {
         'reportRequests': [
             {
-                'viewId': VIEW_ID,
+                'viewId': view_id,
                 'dateRanges': [
                     {
                         'startDate': '365daysAgo', 'endDate': 'today'
@@ -129,21 +125,19 @@ def get_organic_searches_by_region_query():
                 ]
             }]
     }
-    response = get_report(analytics, report_definition)
-    print_response(response)
+
     return report_definition
 
 
-def get_organic_searches_over_time_by_medium_query():
+def get_organic_searches_over_time_by_medium_query(view_id):
     """
     Gets the number of organic searches by medium over the last year, split by month
     :return:
     """
-    analytics = initialize_analyticsreporting()
     report_definition = {
         'reportRequests': [
             {
-                'viewId': VIEW_ID,
+                'viewId': view_id,
                 'dateRanges': [
                     {
                         'startDate': '365daysAgo', 'endDate': 'today'
@@ -184,21 +178,19 @@ def get_organic_searches_over_time_by_medium_query():
             }
         ]
     }
-    response = get_report(analytics, report_definition)
-    print_response(response)
+
     return report_definition
 
 
-def get_ecom_ppc_best_ad_groups_query():
+def get_ecom_ppc_best_ad_groups_query(view_id):
     """
     Gets info about paid media
     :return:
     """
-
     report_definition = {
         'reportRequests': [
             {
-                'viewId': VIEW_ID,
+                'viewId': view_id,
                 'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],
                 'metrics': [{'expression': 'ga:sessions'}, {'expression': 'ga:transactionRevenue'},
                             {'expression': 'ga:transactions'}, {'expression': 'ga:revenuePerTransaction'},
