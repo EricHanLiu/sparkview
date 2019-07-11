@@ -52,7 +52,7 @@
                     </div>
                     <div class="column is-3">
                         <div class="field">
-                            <label class="label">Get Insights</label>
+                            <label class="label">&nbsp</label>
                             <div class="control">
                                 <button class="button is-link is-fullwidth" id="get_insights" disabled>
                                     Get Insights
@@ -71,10 +71,12 @@
     <script>
         let $getInsightsButton = $('#get_insights');
         let $insightsDiv = $('#insights');
-        let accountId = $('#view_select').val();
 
-        $getInsightsButton.one('click', () => {
+        $getInsightsButton.click(() => {
+            let accountId = $viewSelect.val();
             $getInsightsButton.addClass('is-loading');
+            $insightsDiv.html('');
+
             // pulls all insights for this account, all separate requests
             $.ajax({
                 url: '/insights/get_ecom_best_demographics_insights/' + accountId,  // mondou for test
@@ -132,7 +134,6 @@
                     box.appendChild(bingChart);
                     column.appendChild(box);
                     $insightsDiv.append(column);
-                    $getInsightsButton.prop('disabled', true);
                     $getInsightsButton.removeClass('is-loading');
 
                     new Chart(document.querySelector('#googleChart'), {
@@ -253,8 +254,6 @@
                 success: (data) => {
                     let gaViews = data['items'];
                     $viewSelect.html('');
-                    let defaultOption = '<option selected hidden disabled>--</option>';
-                    $viewSelect.append(defaultOption);
                     gaViews.forEach(view => {
                         let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
                         $viewSelect.append(markup);
