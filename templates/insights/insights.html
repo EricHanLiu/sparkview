@@ -1,7 +1,36 @@
 {% extends 'layout.html' %}
 
-{% block body %}
-    <section class="section">
+{% block extraCss %}
+{% endblock %}
 
+{% block main_body %}
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    Insights
+                </h1>
+                <h2 class="subtitle">
+                    {% if account is None %}
+                        All Accounts
+                    {% else %}
+                        {{ account }}
+                    {% endif %}
+                </h2>
+                <div class="columns is-multiline">
+                    {% for opp in opportunities %}
+                        <div class="column is-3">
+                            <div class="box">
+                                <p class="title is-4 has-text-danger">Insight</p>
+                                {{ opp.report.report }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </section>
+{% endblock %}
+
+{% block extra_js %}
 {% endblock %}
