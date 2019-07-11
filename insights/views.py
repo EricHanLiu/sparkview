@@ -3,7 +3,7 @@ from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required
 from budget.models import Client
 from .management import initialize_analyticsmanagement, get_accounts as get_ga_accounts, \
-    get_properties as get_ga_properties
+    get_properties as get_ga_properties, get_views as get_ga_views
 from .models import Opportunity
 
 
@@ -55,3 +55,20 @@ def get_properties(request):
 
     analytics = initialize_analyticsmanagement()
     return JsonResponse(get_ga_properties(analytics, account_id))
+
+
+@login_required
+def get_views(request):
+    """
+    Gets all accounts that bloom has
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    prop_id = request.POST.get('prop_id')
+    account_id = request.POST.get('account_id')
+
+    analytics = initialize_analyticsmanagement()
+    return JsonResponse(get_ga_views(analytics, account_id, prop_id))

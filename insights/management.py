@@ -86,6 +86,17 @@ def get_properties(analytics, account_id):
     return properties
 
 
+def get_views(analytics, account_id, prop_id):
+    """
+    Gets views for a property
+    :param analytics:
+    :param prop_id:
+    :return:
+    """
+    views = analytics.management().profiles().list(accountId=account_id, webPropertyId=prop_id).execute()
+    return views
+
+
 def get_report(analytics, report_definition):
     return analytics.reports().batchGet(body=report_definition).execute()
 

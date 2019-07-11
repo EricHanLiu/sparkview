@@ -35,7 +35,6 @@
                             <div class="control">
                                 <div class="select is-fullwidth">
                                     <select id="property_select" disabled>
-                                        <option>Select an account</option>
                                     </select>
                                 </div>
                             </div>
@@ -47,7 +46,6 @@
                             <div class="control">
                                 <div class="select is-fullwidth">
                                     <select id="view_select" disabled>
-                                        <option>Select a property</option>
                                     </select>
                                 </div>
                             </div>
@@ -98,31 +96,45 @@
                 type: 'POST',
                 data: {'account_id': accountId},
                 success: (data) => {
-                    console.log(data);
-                    {#let gaAccs = data['items'];#}
-                    {#gaAccs.forEach(acc => {#}
-                    {#    let markup = '<option value="' + acc['id'] + '">' + acc['name'] + '</option>';#}
-                    {#    $accountSelect.append(markup);#}
-                    {# });#}
-                    {#$accountSelect.prop('disabled', false);#}
+                    let gaProps = data['items'];
+                    gaProps.forEach(prop => {
+                        let markup = '<option value="' + prop['id'] + '">' + prop['name'] + '</option>';
+                        $propertySelect.append(markup);
+                    });
+                    $propertySelect.prop('disabled', false);
                 }
             });
         };
 
-        let setupViewSelect = function () {
-
+        let setupViewSelect = function (accountId, propId) {
+            $.ajax({
+                url: '/insights/get_views',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'account_id': accountId,
+                    'prop_id': propId
+                },
+                success: (data) => {
+                    let gaViews = data['items'];
+                    gaViews.forEach(view => {
+                        let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
+                        $viewSelect.append(markup);
+                    });
+                    $viewSelect.prop('disabled', false);
+                }
+            });
         };
 
         $(document).ready(function () {
             setupAccountsSelect();
 
             $accountSelect.change(function () {
-                console.log($(this).val());
                 setupPropertySelect($(this).val());
             });
 
             $propertySelect.change(function () {
-                setupViewSelect($(this).val());
+                setupViewSelect($accountSelect.val(), $(this).val());
             });
         });
     </script>
