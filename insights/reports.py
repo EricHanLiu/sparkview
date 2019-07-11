@@ -143,6 +143,7 @@ def get_organic_searches_over_time_by_medium_query():
     report_definition = {
         'reportRequests': [
             {
+                'viewId': VIEW_ID,
                 'dateRanges': [
                     {
                         'startDate': '365daysAgo', 'endDate': 'today'
