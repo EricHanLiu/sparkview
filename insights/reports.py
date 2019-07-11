@@ -77,7 +77,7 @@ def print_response(response):
             print('====================================')
 
 
-def get_ecom_best_performers_query():
+def get_ecom_best_demographics_query():
     """
     Gets some queries for the best performers
     :return:
@@ -98,7 +98,7 @@ def get_ecom_best_performers_query():
     return report_definition
 
 
-def get_ecom_ppc_best_campaigns_query():
+def get_ecom_ppc_best_ad_groups_query():
     """
     Gets info about paid media
     :return:
@@ -131,17 +131,25 @@ def get_ecom_ppc_best_campaigns_query():
     return report_definition
 
 
+def get_b2b_ppc_best_demographics_query():
+    """
+    Gets info about b2b account
+    :return:
+    """
+    pass
+
+
+def get_b2c_ppc_best_demographics_query():
+    """
+    Gets info about b2c account
+    :return:
+    """
+    pass
+
+
 def main():
     analytics = initialize_analyticsreporting()
-    report_definition = {
-        'reportRequests': [
-            {
-                'viewId': VIEW_ID,
-                'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-                'metrics': [{'expression': 'ga:sessions'}]
-            }]
-    }
-    response = get_report(analytics, get_ecom_ppc_best_campaigns_query())
+    response = get_report(analytics, get_ecom_ppc_best_ad_groups_query())
     print_response(response)
 
 
