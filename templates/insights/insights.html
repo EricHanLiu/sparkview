@@ -110,23 +110,93 @@
             $getInsightsButton.addClass('is-loading');
             $insightsDiv.html('');
 
-            // pulls all insights for this account, all separate requests
-            {#$.ajax({#}
-            {#    url: '/insights/get_organic_searches_by_region_insight/' + accountId,  // mondou for test#}
-            {#    success: data => {#}
-            {#        let insights = data['insights'];#}
-            {#        insights.forEach(insight => {#}
-            {#            let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +#}
-            {#                'Insight</p>' + insight.fields.description + '</div></div>';#}
-            {#            $insightsDiv.append(insightBox);#}
-            {#        });#}
-            {#        $getInsightsButton.addClass('is-hidden');#}
-            {#    },#}
-            {#    error: error => {#}
-            {#        console.log(error);#}
-            {#    }#}
-            {# });#}
+            // hackathon solution to wait till last ajax before button change
+            // todo: sam set these to true in your ajax success callback
+            let done1, done2, done3, done4;
+            done1 = done2 = done3 = done4 = false;
 
+            // pulls all insights for this account, all separate requests
+            $.ajax({
+                url: '/insights/get_organic_searches_by_region_insight/' + accountId,  // mondou for test
+                success: data => {
+                    let regionData = data['regionData'];
+                    let regions = regionData.map(x => x['region']);
+                    let searches = regionData.map(x => parseInt(x['searches']));
+                    let avgPageLoads = regionData.map(x => parseFloat(x['avgPageLoad']));
+
+                    // create box
+                    let column = document.createElement('div');
+                    column.className = 'column is-6';
+                    let box = document.createElement('box');
+                    box.className = 'box';
+                    let p = document.createElement('p');
+                    p.className = 'title is-4 has-text-info has-text-centered';
+                    p.appendChild(document.createTextNode('Organic Searches & Average Page Load Time by Region (Top 5), Over the Last Year'));
+                    let searchChart = document.createElement('canvas');
+                    searchChart.id = 'searchChart';
+                    let timeChart = document.createElement('canvas');
+                    timeChart.id = 'timeChart';
+
+                    box.appendChild(p);
+                    box.appendChild(searchChart);
+                    box.appendChild(timeChart);
+                    column.appendChild(box);
+                    $insightsDiv.append(column);
+
+                    done1 = true;
+                    if (done1 && done2 && done3 && done4) {
+                        $getInsightsButton.removeClass('is-loading');
+                    }
+
+                    new Chart(document.querySelector('#searchChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: regions,
+                            datasets: [
+                                {
+                                    data: searches,
+                                    borderColor: 'tomato',
+                                    backgroundColor: 'tomato'
+                                },
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Searches'
+                            }
+                        }
+                    });
+                    new Chart(document.querySelector('#timeChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: regions,
+                            datasets: [
+                                {
+                                    data: avgPageLoads,
+                                    borderColor: 'lightskyblue',
+                                    backgroundColor: 'lightskyblue'
+                                },
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Average Load Time (secs)'
+                            }
+                        }
+                    });
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
             /**
              * Eric's requests
              */
@@ -142,7 +212,7 @@
                     let box = document.createElement('box');
                     box.className = 'box';
                     let p = document.createElement('p');
-                    p.className = 'title is-4 has-text-info';
+                    p.className = 'title is-4 has-text-info has-text-centered';
                     p.appendChild(document.createTextNode('Organic Searches Over Time by Medium'));
                     let bingChart = document.createElement('canvas');
                     bingChart.id = 'bingChart';
@@ -154,12 +224,27 @@
                     box.appendChild(bingChart);
                     column.appendChild(box);
                     $insightsDiv.append(column);
-                    $getInsightsButton.removeClass('is-loading');
+
+                    done2 = true;
+                    if (done1 && done2 && done3 && done4) {
+                        $getInsightsButton.removeClass('is-loading');
+                    }
+
+                    let months = [];
+                    let monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'];
+                    let thisMonth = new Date().getMonth();
+                    for (let i = 0; i < googleSearches.length; i++) {
+                        months.unshift(monthNames[thisMonth]);
+                        thisMonth--;
+                        if (thisMonth === 0) {
+                            thisMonth = 11;
+                        }
+                    }
 
                     new Chart(document.querySelector('#googleChart'), {
                         type: 'line',
                         data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'],
+                            labels: months,
                             datasets: [
                                 {
                                     data: googleSearches,
@@ -180,7 +265,7 @@
                     new Chart(document.querySelector('#bingChart'), {
                         type: 'line',
                         data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'],
+                            labels: months,
                             datasets: [
                                 {
                                     data: bingSearches,

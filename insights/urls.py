@@ -8,6 +8,8 @@ urlpatterns = [
     url(r'^$', views.insights, name='client_insights'),
     url(r'^get_organic_searches_by_region_insight/(\d*)$', views.get_organic_searches_by_region_insight,
         name='get_organic_searches_by_region_insight'),
+    url(r'^get_content_group_insight/(\d*)$', views.get_content_group_insight,
+        name='get_content_group_insight'),
     url(r'^get_organic_searches_over_time_by_medium_insight/(\d*)$',
         views.get_organic_searches_over_time_by_medium_insight,
         name='get_organic_searches_over_time_by_medium_insight'),
