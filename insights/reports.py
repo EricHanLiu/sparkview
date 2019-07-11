@@ -7,7 +7,7 @@ from oauth2client import tools
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-CLIENT_SECRETS_PATH = '/home/eric/repositories/bloom-master/insights/client_secrets.json'
+CLIENT_SECRETS_PATH = '/home/sam/Projects/bloom-master/insights/client_secrets.json'
 
 
 def initialize_analyticsreporting():
@@ -31,7 +31,7 @@ def initialize_analyticsreporting():
     # If the credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # credentials will get written back to a file.
-    storage = file.Storage('/home/eric/repositories/bloom-master/insights/analyticsreporting.dat')
+    storage = file.Storage('/home/sam/Projects/bloom-master/insights/analyticsreporting.dat')
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(flow, storage, flags)
@@ -41,47 +41,6 @@ def initialize_analyticsreporting():
     analytics = google_build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
 
     return analytics
-
-
-def initialize_analyticsmanagement():
-    """
-    Get the management API. This is for account operations and will not be able to access data.
-    :return:
-    """
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[tools.argparser])
-    flags = parser.parse_args([])
-
-    # Set up a Flow object to be used if we need to authenticate.
-    flow = client.flow_from_clientsecrets(
-        CLIENT_SECRETS_PATH, scope=SCOPES,
-        message=tools.message_if_missing(CLIENT_SECRETS_PATH))
-
-    # Prepare credentials, and authorize HTTP object with them.
-    # If the credentials don't exist or are invalid run through the native client
-    # flow. The Storage object will ensure that if successful the good
-    # credentials will get written back to a file.
-    storage = file.Storage('analyticsreporting.dat')
-    credentials = storage.get()
-    if credentials is None or credentials.invalid:
-        credentials = tools.run_flow(flow, storage, flags)
-    http = credentials.authorize(http=httplib2.Http())
-
-    # Build the service object.
-    analytics = google_build('analytics', 'v3', http=http, discoveryServiceUrl=DISCOVERY_URI)
-
-    return analytics
-
-
-def get_accounts(analytics):
-    """
-    Returns list of accounts from this GA account
-    :param analytics:
-    :return:
-    """
-    accounts = analytics.management().accounts().list().execute()
-    return accounts
 
 
 def get_report(analytics, report_definition):
@@ -125,8 +84,15 @@ def get_ecom_best_demographics_query(view_id):
                 'metrics': [{'expression': 'ga:sessions'}, {'expression': 'ga:transactionRevenue'},
                             {'expression': 'ga:transactions'}, {'expression': 'ga:revenuePerTransaction'},
                             {'expression': 'ga:transactionsPerSession'}],
-                'dimensions': [{'name': 'ga:country'}, {'name': 'ga:userAgeBracket'}, {'name': 'ga:sourceMedium'}],
-                'orderBys': [{'fieldName': 'ga:transactionRevenue', 'sortOrder': 'DESCENDING'}]
+                'dimensions': [{'name': 'ga:country'}, {'name': 'ga:userAgeBracket'}, {'name': 'ga:userGender'}],
+                'orderBys': [{'fieldName': 'ga:transactionRevenue', 'sortOrder': 'DESCENDING'}],
+                'metricFilterClauses': [{
+                    'filters': [{
+                        'metricName': 'ga:transactionRevenue',
+                        'operator': 'GREATER_THAN',
+                        'comparisonValue': '50'
+                    }]
+                }],
             }]
     }
 

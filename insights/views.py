@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from .management import initialize_analyticsmanagement, get_accounts as get_ga_accounts, \
     get_properties as get_ga_properties, get_views as get_ga_views
@@ -18,7 +18,10 @@ def insights(request):
 
 
 @login_required
-def get_ecom_best_demographics_insight(request, view_id):
+def get_ecom_best_demographics_insight(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
     report_def = get_ecom_best_demographics_query(view_id)
     report = get_report(initialize_analyticsreporting(), report_def)
 
@@ -33,6 +36,9 @@ def get_ecom_best_demographics_insight(request, view_id):
 
 @login_required
 def get_organic_searches_by_region_insight(request, view_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
     report_def = get_organic_searches_by_region_query(view_id)
     report = get_report(initialize_analyticsreporting(), report_def)
 
@@ -47,15 +53,20 @@ def get_organic_searches_by_region_insight(request, view_id):
 
 @login_required
 def get_organic_searches_over_time_by_medium_insight(request, view_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
     report_def = get_organic_searches_over_time_by_medium_query(view_id)
     report = get_report(initialize_analyticsreporting(), report_def)
 
-    print(json.dumps(report, indent=4))
+    # print(json.dumps(report, indent=4))
     data = report['reports'][0]['data']
+    if 'rows' not in data:
+        return HttpResponseBadRequest('nobody home')
     rows = data['rows']
     bing_searches = [row['metrics'][0]['values'][0] for i, row in enumerate(rows) if i % 2 == 0]  # bing in even rows
     google_searches = [row['metrics'][0]['values'][0] for i, row in enumerate(rows) if i % 2 == 1]  # google in odd rows
-    print(bing_searches, google_searches)
+    # print(bing_searches, google_searches)
 
     data = {
         'bing_searches': bing_searches,
@@ -66,7 +77,12 @@ def get_organic_searches_over_time_by_medium_insight(request, view_id):
 
 
 @login_required
-def get_ecom_ppc_best_ad_groups_insight(request, view_id):
+def get_ecom_ppc_best_ad_groups_insight(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    view_id = request.POST.get('view_id')
+
     report_def = get_ecom_ppc_best_ad_groups_query(view_id)
     report = get_report(initialize_analyticsreporting(), report_def)
 
@@ -79,6 +95,7 @@ def get_ecom_ppc_best_ad_groups_insight(request, view_id):
     return JsonResponse(data)
 
 
+@login_required
 def get_accounts(request):
     """
     Gets all accounts that bloom has
@@ -104,7 +121,6 @@ def get_properties(request):
 
     account_id = request.POST.get('account_id')
 
-
     analytics = initialize_analyticsmanagement()
     return JsonResponse(get_ga_properties(analytics, account_id))
 
@@ -124,3 +140,20 @@ def get_views(request):
 
     analytics = initialize_analyticsmanagement()
     return JsonResponse(get_ga_views(analytics, account_id, prop_id))
+
+
+@login_required
+def get_ecom_best_demographics(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    view_id = request.POST.get('view_id')
+
+    report_def = get_ecom_best_demographics_query(view_id)
+    report = get_report(initialize_analyticsreporting(), report_def)
+
+    data = {
+        'report': report['reports'][0]['data']
+    }
+
+    return JsonResponse(data)

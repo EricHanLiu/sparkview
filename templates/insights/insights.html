@@ -61,6 +61,42 @@
             </div>
         </div>
     </section>
+
+    <template id="ecom_best_demo_template">
+        <div class="column is-6">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">Best E-Com Demographics - Last 30 Days</p>
+                </header>
+                <div class="card-content">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Country
+                            </th>
+                            <th>
+                                Age
+                            </th>
+                            <th>
+                                Gender
+                            </th>
+                            <th>
+                                Revenue
+                            </th>
+                            <th>
+                                Avg Value
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="ecom_demo_tbody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
 {% endblock %}
 
 {% block extra_js %}
@@ -70,42 +106,30 @@
 
         $getInsightsButton.click(() => {
             let accountId = $viewSelect.val();
+            let viewId = $viewSelect.val();
             $getInsightsButton.addClass('is-loading');
             $insightsDiv.html('');
 
             // pulls all insights for this account, all separate requests
-            $.ajax({
-                url: '/insights/get_ecom_best_demographics_insights/' + accountId,  // mondou for test
-                success: data => {
-                    let insights = data['insights'];
-                    insights.forEach(insight => {
-                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
-                            'Insight</p>' + insight.fields.description + '</div></div>';
-                        $insightsDiv.append(insightBox);
-                    });
-                    $getInsightsButton.addClass('is-hidden');
-                },
-                error: error => {
-                    console.log(error);
-                }
-            });
+            {#$.ajax({#}
+            {#    url: '/insights/get_organic_searches_by_region_insight/' + accountId,  // mondou for test#}
+            {#    success: data => {#}
+            {#        let insights = data['insights'];#}
+            {#        insights.forEach(insight => {#}
+            {#            let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +#}
+            {#                'Insight</p>' + insight.fields.description + '</div></div>';#}
+            {#            $insightsDiv.append(insightBox);#}
+            {#        });#}
+            {#        $getInsightsButton.addClass('is-hidden');#}
+            {#    },#}
+            {#    error: error => {#}
+            {#        console.log(error);#}
+            {#    }#}
+            {# });#}
 
-            $.ajax({
-                url: '/insights/get_organic_searches_by_region_insight/' + accountId,  // mondou for test
-                success: data => {
-                    let insights = data['insights'];
-                    insights.forEach(insight => {
-                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
-                            'Insight</p>' + insight.fields.description + '</div></div>';
-                        $insightsDiv.append(insightBox);
-                    });
-                    $getInsightsButton.addClass('is-hidden');
-                },
-                error: error => {
-                    console.log(error);
-                }
-            });
-
+            /**
+             * Eric's requests
+             */
             $.ajax({
                 url: '/insights/get_organic_searches_over_time_by_medium_insight/' + accountId,  // mondou for test
                 success: data => {
@@ -180,22 +204,55 @@
                     console.log(error);
                 }
             });
+            /**
+             * End of Eric's requests
+             */
 
+            /**
+             * Sam's requests
+             */
             $.ajax({
-                url: '/insights/get_ecom_ppc_best_ad_groups_insight/' + accountId,  // mondou for test
+                url: '/insights/get_ecom_best_demographics',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'view_id': viewId
+                },
                 success: data => {
-                    let insights = data['insights'];
-                    insights.forEach(insight => {
-                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-info">' +
-                            'Insight</p>' + insight.fields.description + '</div></div>';
-                        $insightsDiv.append(insightBox);
+
+                    let template = document.getElementById('ecom_best_demo_template').content;
+                    let tbody = template.querySelector('.ecom_demo_tbody');
+                    data['report']['rows'].forEach(row => {
+                        console.log(row);
+                        let tmpRow = tbody.insertRow();
+                        let country = tmpRow.insertCell();
+                        country.appendChild(document.createTextNode(row['dimensions'][0]));
+
+                        let age = tmpRow.insertCell();
+                        age.appendChild(document.createTextNode(row['dimensions'][1]));
+
+                        let gender = tmpRow.insertCell();
+                        gender.appendChild(document.createTextNode(row['dimensions'][2]));
+
+                        let revenue = tmpRow.insertCell();
+                        revenue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][1]).toFixed(2)));
+
+                        let avgValue = tmpRow.insertCell();
+                        avgValue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][3]).toFixed(2)));
                     });
-                    $getInsightsButton.addClass('is-hidden');
+
+                    const clone = document.importNode(template, true);
+                    $insightsDiv.append(clone);
+                    $getInsightsButton.removeClass('is-loading');
                 },
                 error: error => {
                     console.log(error);
                 }
             });
+            /**
+             * End of Sam's requests
+             */
+
         });
 
         let $accountSelect = $('#account_select');
