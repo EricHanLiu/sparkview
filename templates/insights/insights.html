@@ -48,9 +48,9 @@
                     </div>
                     <div class="column is-3">
                         <div class="field">
-                            <label class="label" style="color:#fff;">Get Insights</label>
+                            <label class="label">Get Insights</label>
                             <div class="control">
-                                <button class="button is-link" id="get_insights" disabled>
+                                <button class="button is-link is-fullwidth" id="get_insights" disabled>
                                     Get Insights
                                 </button>
                             </div>
@@ -226,6 +226,8 @@
                 success: (data) => {
                     let gaProps = data['items'];
                     $propertySelect.html('');
+                    let defaultOption = '<option selected hidden disabled>--</option>';
+                    $propertySelect.append(defaultOption);
                     gaProps.forEach(prop => {
                         let markup = '<option value="' + prop['id'] + '">' + prop['name'] + '</option>';
                         $propertySelect.append(markup);
@@ -247,6 +249,8 @@
                 success: (data) => {
                     let gaViews = data['items'];
                     $viewSelect.html('');
+                    let defaultOption = '<option selected hidden disabled>--</option>';
+                    $viewSelect.append(defaultOption);
                     gaViews.forEach(view => {
                         let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
                         $viewSelect.append(markup);
