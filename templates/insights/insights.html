@@ -34,7 +34,6 @@
                             <div class="control">
                                 <div class="select is-fullwidth">
                                     <select id="property_select" disabled>
-                                        <option selected hidden disabled>--</option>
                                     </select>
                                 </div>
                             </div>
@@ -46,7 +45,6 @@
                             <div class="control">
                                 <div class="select is-fullwidth">
                                     <select id="view_select" disabled>
-                                        <option selected hidden disabled>--</option>
                                     </select>
                                 </div>
                             </div>
@@ -232,6 +230,8 @@
                 success: (data) => {
                     let gaProps = data['items'];
                     $propertySelect.html('');
+                    let defaultOption = '<option selected hidden disabled>--</option>';
+                    $propertySelect.append(defaultOption);
                     gaProps.forEach(prop => {
                         let markup = '<option value="' + prop['id'] + '">' + prop['name'] + '</option>';
                         $propertySelect.append(markup);
@@ -253,6 +253,8 @@
                 success: (data) => {
                     let gaViews = data['items'];
                     $viewSelect.html('');
+                    let defaultOption = '<option selected hidden disabled>--</option>';
+                    $viewSelect.append(defaultOption);
                     gaViews.forEach(view => {
                         let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
                         $viewSelect.append(markup);
