@@ -11,6 +11,7 @@ from rest_framework.status import (
 from bloom import settings
 from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
+from insights.models import Opportunity
 from budget.models import Client
 from user_management.models import Member
 from django.core import serializers
@@ -121,6 +122,17 @@ def get_accounts(request):
 
     data = {
         'accounts': json.loads(serializers.serialize('json', accounts))
+    }
+
+    return Response(data, status=HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_insights(request):
+    insights = Opportunity.objects.all()
+
+    data = {
+        'insights': json.loads(serializers.serialize('json', insights))
     }
 
     return Response(data, status=HTTP_200_OK)

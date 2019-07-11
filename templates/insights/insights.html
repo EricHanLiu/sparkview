@@ -8,16 +8,16 @@
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">
-                    Insights
-                </h1>
-                <h2 class="subtitle">
                     {% if account is None %}
                         All Accounts
                     {% else %}
                         {{ account }}
                     {% endif %}
+                </h1>
+                <h2 class="subtitle">
+                    <button class="button" id="get_insights">Get Insights</button>
                 </h2>
-                <div class="columns is-multiline">
+                <div class="columns is-multiline" id="insights">
                     {% for opp in opportunities %}
                         <div class="column is-3">
                             <div class="box">
@@ -33,4 +33,26 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script>
+        let $getInsightsButton = $('#get_insights');
+        let $insightsDiv = $('#insights');
+        $getInsightsButton.one('click', () => {
+            // pulls all insights for this account
+            $.ajax({
+                url: '/api/get_insights',
+                success: data => {
+                    let insights = data['insights'];
+                    insights.forEach(insight => {
+                        let insightBox = '<div class="column is-3"><div class="box"><p class="title is-4 has-text-danger">' +
+                            'Insight</p>' + insight.fields.description + '</div></div>';
+                        $insightsDiv.append(insightBox);
+                        $getInsightsButton.addClass('is-hidden');
+                    });
+                },
+                error: error => {
+                    console.log(error);
+                }
+            })
+        });
+    </script>
 {% endblock %}
