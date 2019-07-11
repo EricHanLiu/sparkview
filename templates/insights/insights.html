@@ -50,7 +50,9 @@
                         <div class="field">
                             <label class="label" style="color:#fff;">Get Insights</label>
                             <div class="control">
-                                <button class="button is-link" id="get_insights_btn" disabled>Get Insights</button>
+                                <button class="button is-link" id="get_insights" disabled>
+                                    Get Insights
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -65,13 +67,13 @@
     <script>
         let $getInsightsButton = $('#get_insights');
         let $insightsDiv = $('#insights');
-        let $insightsText = $('#insights_text');
+        let accountId = $('#view_select').val();
 
         $getInsightsButton.one('click', () => {
             $getInsightsButton.addClass('is-loading');
             // pulls all insights for this account, all separate requests
             $.ajax({
-                url: '/insights/get_ecom_best_demographics_insights/54904496',  // mondou for test
+                url: '/insights/get_ecom_best_demographics_insights/' + accountId,  // mondou for test
                 success: data => {
                     let insights = data['insights'];
                     insights.forEach(insight => {
@@ -87,7 +89,7 @@
             });
 
             $.ajax({
-                url: '/insights/get_organic_searches_by_region_insight/54904496',  // mondou for test
+                url: '/insights/get_organic_searches_by_region_insight/' + accountId,  // mondou for test
                 success: data => {
                     let insights = data['insights'];
                     insights.forEach(insight => {
@@ -103,7 +105,7 @@
             });
 
             $.ajax({
-                url: '/insights/get_organic_searches_over_time_by_medium_insight/54904496',  // mondou for test
+                url: '/insights/get_organic_searches_over_time_by_medium_insight/' + accountId,  // mondou for test
                 success: data => {
                     let googleSearches = data['google_searches'].map(x => parseInt(x));
                     let bingSearches = data['bing_searches'].map(x => parseInt(x));
@@ -126,8 +128,8 @@
                     box.appendChild(bingChart);
                     column.appendChild(box);
                     $insightsDiv.append(column);
-                    $getInsightsButton.addClass('is-hidden');
-                    $insightsText.removeClass('is-hidden');
+                    $getInsightsButton.prop('disabled', true);
+                    $getInsightsButton.removeClass('is-loading');
 
                     new Chart(document.querySelector('#googleChart'), {
                         type: 'line',
@@ -179,7 +181,7 @@
             });
 
             $.ajax({
-                url: '/insights/get_ecom_ppc_best_ad_groups_insight/54904496',  // mondou for test
+                url: '/insights/get_ecom_ppc_best_ad_groups_insight/' + accountId,  // mondou for test
                 success: data => {
                     let insights = data['insights'];
                     insights.forEach(insight => {
@@ -250,6 +252,7 @@
                         $viewSelect.append(markup);
                     });
                     $viewSelect.prop('disabled', false);
+                    $getInsightsButton.prop('disabled', false);
                 }
             });
         };

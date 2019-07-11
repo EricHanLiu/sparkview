@@ -1,7 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required
-from budget.models import Client
 from .management import initialize_analyticsmanagement, get_accounts as get_ga_accounts, \
     get_properties as get_ga_properties, get_views as get_ga_views
 from .reports import get_ecom_ppc_best_ad_groups_query, get_organic_searches_by_region_query, \
@@ -11,20 +10,11 @@ import json
 
 
 @login_required
-def insights(request, account_id=None):
+def insights(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('Bye')
 
-    if account_id is None:
-        account = None
-    else:
-        account = get_object_or_404(Client, id=account_id)
-
-    context = {
-        'account': account,
-    }
-
-    return render(request, 'insights/insights.html', context)
+    return render(request, 'insights/insights.html')
 
 
 @login_required
@@ -113,6 +103,7 @@ def get_properties(request):
         return HttpResponseForbidden('Bye')
 
     account_id = request.POST.get('account_id')
+
 
     analytics = initialize_analyticsmanagement()
     return JsonResponse(get_ga_properties(analytics, account_id))
