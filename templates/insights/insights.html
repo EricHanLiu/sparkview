@@ -21,7 +21,7 @@
                     <button class="button" id="get_insights">Get Insights</button>
                 </h2>
                 <div class="columns">
-                    <div class="column is-4">
+                    <div class="column is-3">
                         <div class="field">
                             <label class="label">Account</label>
                             <div class="control">
@@ -32,7 +32,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="column is-4">
+                    <div class="column is-3">
                         <div class="field">
                             <label class="label">Property</label>
                             <div class="control">
@@ -43,7 +43,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="column is-4">
+                    <div class="column is-3">
                         <div class="field">
                             <label class="label">View</label>
                             <div class="control">
@@ -51,6 +51,14 @@
                                     <select id="view_select" disabled>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">Get Insights</label>
+                            <div class="control">
+                                <button class="button is-link" id="get_insights_btn">Get Insights</button>
                             </div>
                         </div>
                     </div>
@@ -223,6 +231,7 @@
                 data: {'account_id': accountId},
                 success: (data) => {
                     let gaProps = data['items'];
+                    $propertySelect.html('');
                     gaProps.forEach(prop => {
                         let markup = '<option value="' + prop['id'] + '">' + prop['name'] + '</option>';
                         $propertySelect.append(markup);
@@ -243,6 +252,7 @@
                 },
                 success: (data) => {
                     let gaViews = data['items'];
+                    $viewSelect.html('');
                     gaViews.forEach(view => {
                         let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
                         $viewSelect.append(markup);
