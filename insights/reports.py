@@ -130,9 +130,9 @@ def get_ppc_best_performers_query():
     pass
 
 
-def get_searches_twelve_month_trend_query():
+def get_organic_searches_by_region_query():
     """
-    Gets the SEO trend for a client over the last twelve months (on a per week tick)
+    Gets the number of organic searches per month over the last year, split by region
     :return:
     """
     analytics = initialize_analyticsreporting()
@@ -142,53 +142,88 @@ def get_searches_twelve_month_trend_query():
                 'viewId': VIEW_ID,
                 'dateRanges': [
                     {
-                        'startDate': '760daysAgo', 'endDate': 'today'
+                        'startDate': '365daysAgo', 'endDate': 'today'
                     }
                 ],
                 'metrics': [
-                    {'expression': 'ga:organicSearches'}
+                    {'expression': 'ga:organicSearches'},
+                    {'expression': 'ga:avgPageLoadTime'}
                 ],
+                'metricFilterClauses': [{
+                    'filters': [{
+                        'metricName': 'ga:organicSearches',
+                        'operator': 'GREATER_THAN',
+                        'comparisonValue': '500'
+                    }]
+                }],
                 'dimensions': [
-                    # {'name': 'ga:sourceMedium'},
+                    {'name': 'ga:region'},
                     {'name': 'ga:nthMonth'}
                 ]
             }]
     }
     response = get_report(analytics, report_definition)
-    # print_response(response)
-
-    # print(json.dumps(response, sort_keys=True, indent=4))
-
-    # list of return values for organic searches
-    data = response['reports'][0]['data']
-    searches = [int(row['metrics'][0]['values'][0]) for row in data['rows']]
-    year_one_searches = searches[0:12]
-    year_two_searches = searches[12:24]
-    year_one_avg = sum(year_one_searches) / len(year_one_searches)
-    year_two_avg = sum(year_two_searches) / len(year_two_searches)
-
-    yearly_decrease_opp = year_two_avg < year_one_avg  # drop in searches from last year to this
-    yearly_drop_opp = year_one_avg - year_two_avg > year_one_avg * 0.2  # 20% drop in searches since last year
-
-    print(year_one_avg, year_two_avg)
-    if yearly_drop_opp:
-        print('Large drop in searches')
-        # report = GoogleAnalyticsReport.objects.create(report=response)
-        # Opportunity.objects.create(report=report, description='Organic search totals this year have dropped by more '
-        #                                                       'than 20% since last year.')
-    elif yearly_decrease_opp:  # softer condition than the previous
-        print('Drop in searches')
-        # report = GoogleAnalyticsReport.objects.create(report=response)
-        # Opportunity.objects.create(report=report, description='Organic search totals this year have dropped since '
-        #                                                       'last year.')
+    print_response(response)
+    return report_definition
 
 
-def get_page_load_time_query():
-    pass
+def get_organic_searches_over_time_by_medium_query():
+    """
+    Gets the number of organic searches by medium over the last year, split by month
+    :return:
+    """
+    analytics = initialize_analyticsreporting()
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': VIEW_ID,
+                'dateRanges': [
+                    {
+                        'startDate': '365daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:organicSearches'},
+                ],
+                'metricFilterClauses': [{
+                    'filters': [
+                        {
+                            'metricName': 'ga:organicSearches',
+                            'operator': 'GREATER_THAN',
+                            'comparisonValue': '500'
+                        },
+                    ]
+                }],
+                'dimensions': [
+                    {'name': 'ga:nthMonth'},
+                    {'name': 'ga:source'}
+                ],
+                'dimensionFilterClauses': [
+                    {
+                        'filters': [
+                            {
+                                'dimensionName': 'ga:source',
+                                'operator': 'EXACT',
+                                'expressions': ['bing']
+                            },
+                            {
+                                'dimensionName': 'ga:source',
+                                'operator': 'EXACT',
+                                'expressions': ['google']
+                            }
+                        ]
+                    }
+                ]
+            }]
+    }
+    response = get_report(analytics, report_definition)
+    print_response(response)
+    return report_definition
 
 
 def main():
-    get_searches_twelve_month_trend_query()
+    get_organic_searches_by_region_query()
+    get_organic_searches_over_time_by_medium_query()
 
 
 if __name__ == '__main__':
