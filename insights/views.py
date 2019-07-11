@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required
 from budget.models import Client
+from .management import initialize_analyticsmanagement, get_accounts as get_ga_accounts, \
+    get_properties as get_ga_properties, get_views as get_ga_views
 from .reports import get_ecom_ppc_best_ad_groups_query, get_organic_searches_by_region_query, \
     get_ecom_best_demographics_query, get_organic_searches_over_time_by_medium_query, get_report, \
     initialize_analyticsreporting
@@ -85,3 +87,49 @@ def get_ecom_ppc_best_ad_groups_insight(request, view_id):
     }
 
     return JsonResponse(data)
+
+
+def get_accounts(request):
+    """
+    Gets all accounts that bloom has
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    analytics = initialize_analyticsmanagement()
+    return JsonResponse(get_ga_accounts(analytics))
+
+
+@login_required
+def get_properties(request):
+    """
+    Gets all accounts that bloom has
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    account_id = request.POST.get('account_id')
+
+    analytics = initialize_analyticsmanagement()
+    return JsonResponse(get_ga_properties(analytics, account_id))
+
+
+@login_required
+def get_views(request):
+    """
+    Gets all accounts that bloom has
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    prop_id = request.POST.get('prop_id')
+    account_id = request.POST.get('account_id')
+
+    analytics = initialize_analyticsmanagement()
+    return JsonResponse(get_ga_views(analytics, account_id, prop_id))

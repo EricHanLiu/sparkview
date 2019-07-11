@@ -5,8 +5,6 @@ from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
 
-# from .models import GoogleAnalyticsAuth
-
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
 CLIENT_SECRETS_PATH = '/home/eric/repositories/bloom-master/insights/client_secrets.json'
@@ -43,6 +41,47 @@ def initialize_analyticsreporting():
     analytics = google_build('analytics', 'v4', http=http, discoveryServiceUrl=DISCOVERY_URI)
 
     return analytics
+
+
+def initialize_analyticsmanagement():
+    """
+    Get the management API. This is for account operations and will not be able to access data.
+    :return:
+    """
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        parents=[tools.argparser])
+    flags = parser.parse_args([])
+
+    # Set up a Flow object to be used if we need to authenticate.
+    flow = client.flow_from_clientsecrets(
+        CLIENT_SECRETS_PATH, scope=SCOPES,
+        message=tools.message_if_missing(CLIENT_SECRETS_PATH))
+
+    # Prepare credentials, and authorize HTTP object with them.
+    # If the credentials don't exist or are invalid run through the native client
+    # flow. The Storage object will ensure that if successful the good
+    # credentials will get written back to a file.
+    storage = file.Storage('analyticsreporting.dat')
+    credentials = storage.get()
+    if credentials is None or credentials.invalid:
+        credentials = tools.run_flow(flow, storage, flags)
+    http = credentials.authorize(http=httplib2.Http())
+
+    # Build the service object.
+    analytics = google_build('analytics', 'v3', http=http, discoveryServiceUrl=DISCOVERY_URI)
+
+    return analytics
+
+
+def get_accounts(analytics):
+    """
+    Returns list of accounts from this GA account
+    :param analytics:
+    :return:
+    """
+    accounts = analytics.management().accounts().list().execute()
+    return accounts
 
 
 def get_report(analytics, report_definition):
@@ -233,8 +272,11 @@ def get_b2c_ppc_best_demographics_query():
 
 
 def main():
-    get_organic_searches_by_region_query()
-    get_organic_searches_over_time_by_medium_query()
+    analytics = initialize_analyticsreporting()
+    response = get_report(analytics, get_ecom_ppc_best_ad_groups_query())
+    print_response(response)
+    # response = get_report(analytics, report_definition)
+    # get_searches_twelve_month_trend_query()
 
 
 if __name__ == '__main__':
