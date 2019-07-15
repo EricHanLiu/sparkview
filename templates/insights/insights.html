@@ -97,6 +97,36 @@
             </div>
         </div>
     </template>
+
+    <template id="ecom_best_ad_group_template">
+        <div class="column is-6">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">Best E-Com Ad Groups - Last 30 Days</p>
+                </header>
+                <div class="card-content">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Ad Group
+                            </th>
+                            <th>
+                                Revenue
+                            </th>
+                            <th>
+                                Avg Value
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="ecom_adg_tbody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
 {% endblock %}
 
 {% block extra_js %}
@@ -304,11 +334,9 @@
                     'view_id': viewId
                 },
                 success: data => {
-
                     let template = document.getElementById('ecom_best_demo_template').content;
                     let tbody = template.querySelector('.ecom_demo_tbody');
                     data['report']['rows'].forEach(row => {
-                        console.log(row);
                         let tmpRow = tbody.insertRow();
                         let country = tmpRow.insertCell();
                         country.appendChild(document.createTextNode(row['dimensions'][0]));
@@ -329,6 +357,37 @@
                     const clone = document.importNode(template, true);
                     $insightsDiv.append(clone);
                     $getInsightsButton.removeClass('is-loading');
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+
+            $.ajax({
+                url: '/insights/get_ecom_ppc_best_ad_groups',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'view_id': viewId
+                },
+                success: data => {
+                    console.log(data);
+                    let template = document.getElementById('ecom_best_ad_group_template').content;
+                    let tbody = template.querySelector('.ecom_adg_tbody');
+                    data['report']['rows'].forEach(row => {
+                        let tmpRow = tbody.insertRow();
+                        let adg = tmpRow.insertCell();
+                        adg.appendChild(document.createTextNode(row['dimensions'][0]));
+
+                        let revenue = tmpRow.insertCell();
+                        revenue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][1]).toFixed(2)));
+
+                        let avgValue = tmpRow.insertCell();
+                        avgValue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][3]).toFixed(2)));
+                    });
+
+                    const clone = document.importNode(template, true);
+                    $insightsDiv.append(clone);
                 },
                 error: error => {
                     console.log(error);

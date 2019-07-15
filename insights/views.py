@@ -162,3 +162,20 @@ def get_ecom_best_demographics(request):
     }
 
     return JsonResponse(data)
+
+
+@login_required
+def get_ecom_ppc_best_ad_groups(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Bye')
+
+    view_id = request.POST.get('view_id')
+
+    report_def = get_ecom_ppc_best_ad_groups_query(view_id)
+    report = get_report(initialize_analyticsreporting(), report_def)
+
+    data = {
+        'report': report['reports'][0]['data']
+    }
+
+    return JsonResponse(data)

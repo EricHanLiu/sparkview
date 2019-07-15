@@ -225,7 +225,7 @@ def get_ecom_ppc_best_ad_groups_query(view_id):
                             {'expression': 'ga:transactions'}, {'expression': 'ga:revenuePerTransaction'},
                             {'expression': 'ga:transactionsPerSession'}, {'expression': 'ga:CTR'},
                             {'expression': 'ga:costPerTransaction'}, {'expression': 'ga:ROAS'}],
-                'dimensions': [{'name': 'ga:adGroup'}],
+                'dimensions': [{'name': 'ga:interestAffinityCategory'}],
                 'dimensionFilterClauses': [
                     {
                         'filters': [
@@ -237,7 +237,14 @@ def get_ecom_ppc_best_ad_groups_query(view_id):
                         ]
                     }
                 ],
-                'orderBys': [{'fieldName': 'ga:transactionRevenue', 'sortOrder': 'DESCENDING'}]
+                'orderBys': [{'fieldName': 'ga:transactionRevenue', 'sortOrder': 'DESCENDING'}],
+                'metricFilterClauses': [{
+                    'filters': [{
+                        'metricName': 'ga:transactionRevenue',
+                        'operator': 'GREATER_THAN',
+                        'comparisonValue': '50'
+                    }]
+                }],
             }
         ]
     }
@@ -263,7 +270,7 @@ def get_b2c_ppc_best_demographics_query():
 
 def main():
     analytics = initialize_analyticsreporting()
-    response = get_report(analytics, get_content_group_query(54904496))
+    response = get_report(analytics, get_ecom_ppc_best_ad_groups_query('76955979'))
     print_response(response)
     # response = get_report(analytics, report_definition)
     # get_searches_twelve_month_trend_query()
