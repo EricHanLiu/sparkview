@@ -14,6 +14,18 @@ class GoogleAnalyticsAuth(models.Model):
         return self.account.client_name
 
 
+class GoogleAnalyticsAccount(models.Model):
+    """
+    Stores a Google Analytics account
+    """
+    account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
+    ga_account_id = models.CharField(max_length=30, default='')
+    ga_account_view = models.CharField(max_length=50, default='')
+
+    def __str__(self):
+        return self.account.client_name
+
+
 class GoogleAnalyticsReport(models.Model):
     """
     Google Analytics stored report
