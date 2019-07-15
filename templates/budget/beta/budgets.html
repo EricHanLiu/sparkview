@@ -28,17 +28,21 @@
         }
     </style>
     {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      {% if request.user.is_authenticated %}
-      gtag('set', {'user_id': '{{ request.user.member.id }}'});
-      {% endif %}
-      gtag('config', 'UA-127221597-1');
-    </script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+            {% if request.user.is_authenticated %}
+                gtag('set', {'user_id': '{{ request.user.member.id }}'});
+            {% endif %}
+            gtag('config', 'UA-127221597-1');
+        </script>
     {% endif %}
 </head>
 <body>
@@ -110,13 +114,32 @@
                     <p class="card-header-title">
                         {{ budget.name }} - {{ budget.description }} {% if budget.is_new %}&nbsp;
                         <span class="tag is-warning">This budget is still new, please check back in about an hour</span>{% endif %}
+
                     </p>
                     <span class="card-header-icon">
-                                {% if budget.is_monthly %}
-                                    Monthly Budget
-                                {% else %}
-                                    Flight Dates: {{ budget.pretty_dates }}
-                                {% endif %}
+                    <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google</span>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">FB</span>
+                                    </div>
+                                </div>
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing</span>
+                                    </div>
+                                </div>
+                            </div>
+                    &nbsp;&nbsp;
+                        {% if budget.is_monthly %}
+                            Monthly Budget
+                        {% else %}
+                            Flight Dates: {{ budget.pretty_dates }}
+                        {% endif %}
                             </span>
                 </header>
                 <div class="card-content">
@@ -134,26 +157,10 @@
                             Rec Daily Spend: <strong>{{ budget.rec_spend_yest|currency }}</strong>
                         </div>
                         <div class="column is-2">
-                            Projected Spend: <strong>{{ budget.projected_spend_avg|currency }}</strong>
+                            Yesterday Spend: <strong>{{ budget.yesterday_spend|currency }}</strong>
                         </div>
                         <div class="column is-2">
-                            <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
-                                <div class="control">
-                                    <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google</span>
-                                    </div>
-                                </div>
-                                <div class="control">
-                                    <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">FB</span>
-                                    </div>
-                                </div>
-                                <div class="control">
-                                    <div class="tags has-addons">
-                                        <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing</span>
-                                    </div>
-                                </div>
-                            </div>
+                            Projected Spend: <strong>{{ budget.projected_spend_avg|currency }}</strong>
                         </div>
                     </div>
                     <div class="columns">
@@ -164,7 +171,8 @@
                         </div>
                     </div>
                     <div class="level">
-                        <a class="button is-small is-info is-outlined campaigns_in_group_link" data-budget-id="{{ budget.id }}">
+                        <a class="button is-small is-info is-outlined campaigns_in_group_link"
+                           data-budget-id="{{ budget.id }}">
                             Campaigns in group
                         </a>
                     </div>
@@ -175,7 +183,6 @@
             {% endif %}
         {% endfor %}
     </div>
-
 </section>
 
 <div class="modal" id="add_budget_modal">
@@ -329,13 +336,14 @@
             <section class="modal-card-body">
                 {% csrf_token %}
                 <input name="account_id" value="{{ account.id }}" class="is-hidden"/>
-                <input name="budget_id" id="edit_budget_id" class="is-hidden" />
+                <input name="budget_id" id="edit_budget_id" class="is-hidden"/>
                 <div class="columns is-multiline">
                     <div class="column is-12">
                         <div class="field">
                             <label class="label">Budget Name</label>
                             <div class="control">
-                                <input class="input" type="text" placeholder="Budget Name" name="budget_name" id="edit_budget_name">
+                                <input class="input" type="text" placeholder="Budget Name" name="budget_name"
+                                       id="edit_budget_name">
                             </div>
                         </div>
                     </div>
@@ -343,7 +351,8 @@
                         <div class="field">
                             <label class="label">Budget</label>
                             <div class="control">
-                                <input class="input" type="text" placeholder="Budget (in dollars)" name="budget_amount" id="edit_budget_amount">
+                                <input class="input" type="text" placeholder="Budget (in dollars)" name="budget_amount"
+                                       id="edit_budget_amount">
                             </div>
                         </div>
                     </div>
