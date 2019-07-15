@@ -9,10 +9,13 @@ django.setup()
 from bing_dashboard.models import BingAccounts
 from tasks.bing_tasks import bing_cron_campaign_stats
 from tasks.logger import Logger
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 
 
 def main():
-    accounts = BingAccounts.objects.filter(blacklisted=False)
+    # accounts = BingAccounts.objects.filter(blacklisted=False)
+    accounts = ppc_active_accounts_for_platform('bing')
+
     for acc in accounts:
         try:
             client_id = acc.bing.all()[0].id
