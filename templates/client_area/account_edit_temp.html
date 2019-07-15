@@ -63,6 +63,7 @@
                             name="account_inactive_reason"
                             id="account_inactive_reason"
                             style="width: 100%;" disabled>
+                            <option value="0" selected>None</option>
                             {% for num, name in inactive_reasons %}
                                 <option value="{{ num }}">{{ name }}</option>
                             {% endfor %}
@@ -78,6 +79,7 @@
                             name="account_lost_reason"
                             id="account_lost_reason"
                             style="width: 100%;" disabled>
+                            <option value="0" selected>None</option>
                             {% for num, name in lost_reasons %}
                                 <option value="{{ num }}">{{ name }}</option>
                             {% endfor %}

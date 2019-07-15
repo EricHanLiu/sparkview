@@ -1522,7 +1522,13 @@ class Budget(models.Model):
 
     @property
     def description(self):
-        return self.get_grouping_type_display().title()
+        type_display = self.get_grouping_type_display().title()
+        if self.grouping_type == 1:
+            if self.text_includes is not None and self.text_includes != '':
+                type_display += ' - Including strings: ' + self.text_includes
+            if self.text_excludes is not None and self.text_excludes != '':
+                type_display += ' - Excluding strings: ' + self.text_excludes
+        return type_display
 
     @property
     def campaign_exclusions(self):

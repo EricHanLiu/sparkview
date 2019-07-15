@@ -369,8 +369,8 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
             campaign_id=campaign_id,
             campaign_name=campaign_name
         )
-        cmp.campaign_cost = campaign_cost
-        cmp.save()
+        # cmp.campaign_cost = campaign_cost
+        # cmp.save()
 
         cmps.append(cmp)
         if created:
