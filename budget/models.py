@@ -1757,6 +1757,19 @@ class Budget(models.Model):
         return self.calculated_yest_spend + (self.average_spend_yest * self.days_remaining)
 
     @property
+    def yesterday_spend(self):
+        if not hasattr(self, '_yesterday_spend'):
+            spend = 0.0
+            for a in self.aw_campaigns_without_excluded:
+                spend += a.campaign_yesterday_cost
+            for f in self.fb_campaigns_without_excluded:
+                spend += f.campaign_yesterday_cost
+            for b in self.bing_campaigns_without_excluded:
+                spend += b.campaign_yesterday_cost
+            self._yesterday_spend = spend
+        return self._yesterday_spend
+
+    @property
     def spend_percentage(self):
         """
         Percentage of budget spend in this period
