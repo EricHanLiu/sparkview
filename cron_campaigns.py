@@ -8,11 +8,13 @@ django.setup()
 from adwords_dashboard.models import DependentAccount
 from tasks.adwords_tasks import adwords_cron_campaign_stats
 from tasks.logger import Logger
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 
 
 def main():
     # accounts = DependentAccount.objects.filter(blacklisted=False)
-    accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
+    # accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
+    accounts = ppc_active_accounts_for_platform('adwords')
     for account in accounts:
         try:
             client_id = account.adwords.all()[0].id
