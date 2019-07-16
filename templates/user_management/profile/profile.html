@@ -184,6 +184,12 @@
                                                         {% else %}
                                                             No Facebook Account
                                                         {% endif %}">F</span>
+                                                {% if account.has_backup_members %}
+                                                    <span class="m-badge m-badge--danger" data-toggle="m-tooltip"
+                                                          data-original-title="Backup on Account">
+                                                    BoA
+                                                    </span>
+                                                {% endif %}
                                             {% endwith %}
                                         </div>
                                         <div class="m--space-30">
