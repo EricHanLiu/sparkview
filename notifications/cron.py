@@ -28,16 +28,18 @@ def prepare_todos():
                                                 account__in=member_accounts)
 
         for promo in promos_start_today:
-            description = 'Reminder - Promo Starting Today: ' + str(
-                promo) + '. Please check off promo has started in the promo tab.'
-            link = '/clients/accounts/' + str(promo.account.id)
-            Todo.objects.create(member=member, description=description, link=link, type=1)
+            if 'strat' not in member.role.name.lower():
+                description = 'Reminder - Promo Starting Today: ' + str(
+                    promo) + '. Please check off promo has started in the promo tab.'
+                link = '/clients/accounts/' + str(promo.account.id)
+                Todo.objects.create(member=member, description=description, link=link, type=1)
 
         for promo in promos_end_today:
-            description = 'Reminder - Promo Ending Today: ' + str(
-                promo) + '. Please check off promo has ended in the promo tab.'
-            link = '/clients/accounts/' + str(promo.account.id)
-            Todo.objects.create(member=member, description=description, link=link, type=1)
+            if 'strat' not in member.role.name.lower():
+                description = 'Reminder - Promo Ending Today: ' + str(
+                    promo) + '. Please check off promo has ended in the promo tab.'
+                link = '/clients/accounts/' + str(promo.account.id)
+                Todo.objects.create(member=member, description=description, link=link, type=1)
 
         # NOTIFICATIONS
         notifications = Notification.objects.filter(member=member, created__gte=today_start, created__lte=today_end)
@@ -97,15 +99,17 @@ def prepare_todos():
                                                      account__in=member_accounts)
 
         for promo in promos_ended_yesterday:
-            description = 'Reminder! Promo ' + str(
-                promo) + ' ended yesterday. Did you turn it off? Please check in the promo tab.'
-            link = '/clients/accounts/' + str(promo.account.id)
-            Todo.objects.create(member=member, description=description, link=link, type=1)
+            if 'strat' not in member.role.name.lower():
+                description = 'Reminder! Promo ' + str(
+                    promo) + ' ended yesterday. Did you turn it off? Please check in the promo tab.'
+                link = '/clients/accounts/' + str(promo.account.id)
+                Todo.objects.create(member=member, description=description, link=link, type=1)
 
         for promo in promos_start_tomorrow:
-            description = 'Reminder! Promo ' + str(promo) + ' starts tomorrow.'
-            link = '/clients/accounts/' + str(promo.account.id)
-            Todo.objects.create(member=member, description=description, link=link, type=1)
+            if 'strat' not in member.role.name.lower():
+                description = 'Reminder! Promo ' + str(promo) + ' starts tomorrow.'
+                link = '/clients/accounts/' + str(promo.account.id)
+                Todo.objects.create(member=member, description=description, link=link, type=1)
 
         # CHANGE HISTORY 5 DAYS
         all_unchanged_accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
