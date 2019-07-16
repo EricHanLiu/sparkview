@@ -9,9 +9,7 @@ import datetime
 
 
 def get_all_spends_by_facebook_campaign_this_month():
-    # accounts = ppc_active_accounts_for_platform('facebook')
-    agro = Client.objects.get(id=14)
-    accounts = agro.facebook.all()
+    accounts = ppc_active_accounts_for_platform('facebook')
     for account in accounts:
         if settings.DEBUG:
             get_spend_by_facebook_campaign_this_month(account.id)
