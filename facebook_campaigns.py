@@ -10,6 +10,7 @@ from facebook_dashboard.models import FacebookAccount
 from tasks.facebook_tasks import facebook_cron_campaign_stats
 from tasks.logger import Logger
 from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from budget.models import Client
 
 
 def main():

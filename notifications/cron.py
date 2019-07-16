@@ -5,7 +5,6 @@ from user_management.models import Member
 from django.db.models import Q
 import datetime
 import calendar
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 
 
 def prepare_todos():
@@ -15,7 +14,7 @@ def prepare_todos():
     members = Member.objects.filter(deactivated=False)
 
     for member in members:
-        member_accounts = member.accounts | member.backup_accounts
+        member_accounts = member.accounts
 
         # PROMOS
         today = datetime.datetime.now().date()

@@ -1,7 +1,7 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
-from budget.models import Budget
+from budget.models import Budget, Client
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
 from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
@@ -154,13 +154,16 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         return
 
     for campaign_row in report:
-        campaign_id = campaign_row['campaign_id']
-        tmp_cmp = FacebookCampaign.objects.get(campaign_id=campaign_id)
+        campaign_id_report = campaign_row['campaign_id']
+        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
+                                                                  account=campaign.account,
+                                                                  campaign_name=campaign_row['campaign_name'])
+        tmp_cmp.campaign_name = campaign_row['campaign_name']
+        tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
                                                                               end_date=budget.end_date)
-        fcsdr.campaign_name = campaign_row['campaign_name']
-        fcsdr.campaign_cost = float(campaign_row['spend'])
+        fcsdr.spend = float(campaign_row['spend'])
         fcsdr.save()
-        print('Facebook Campaign: ' + str(campaign) + ' now has a spend of $' + str(
-            campaign.campaign_cost) + ' for dates ' + str(fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
+        print('Facebook Campaign: ' + str(tmp_cmp) + ' now has a spend of $' + str(fcsdr.spend) + ' for dates ' + str(
+            fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
