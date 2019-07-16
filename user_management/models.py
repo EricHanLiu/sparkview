@@ -644,8 +644,8 @@ class Member(models.Model):
         """
         if not hasattr(self, '_phase_tasks'):
             tasks = PhaseTask.objects.filter(roles__in=[self.role])
-            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, account__in=self.accounts,
-                                                                  complete=False)
+            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, complete=False,
+                                                                  account__in=self.onboard_active_accounts)
             self._phase_tasks = task_assignments
         return self._phase_tasks
 
