@@ -1,5 +1,6 @@
 from .models import Todo, Notification, ScheduledNotification
 from client_area.models import Promo
+from budget.models import Client
 from adwords_dashboard.models import DependentAccount
 from user_management.models import Member
 from django.db.models import Q
@@ -14,7 +15,12 @@ def prepare_todos():
     members = Member.objects.filter(deactivated=False)
 
     for member in members:
-        member_accounts = member.accounts
+        member_accounts = Client.objects.filter(
+            Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
+            Q(am1=member) | Q(am2=member) | Q(am3=member) |
+            Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
+            Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
+        ) | member.active_mandate_accounts | member.backup_accounts
 
         # PROMOS
         today = datetime.datetime.now().date()
