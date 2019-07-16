@@ -234,8 +234,9 @@ def member_dashboard(request, id):
             total_projected_loss += account.projected_loss
 
     # 90 DAYS NOTIFICATIONS INFO
+    onboard_active_accounts = accounts.filter(Q(status=0) | Q(status=1))
     num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
-                                                                 account__in=accounts).count() if load_everything else None
+                                                                 account__in=onboard_active_accounts).count() if load_everything else None
 
     # FLAGGED ACCOUNTS INFO
     flagged_accounts = accounts.filter(star_flag=True) if load_everything else None
