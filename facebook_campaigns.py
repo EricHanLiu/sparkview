@@ -10,6 +10,7 @@ from facebook_dashboard.models import FacebookAccount
 from tasks.facebook_tasks import facebook_cron_campaign_stats
 from tasks.logger import Logger
 from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from budget.models import Client
 
 
 def main():
@@ -19,10 +20,10 @@ def main():
         try:
             client_id = account.facebook.all()[0].id
         except:
-            client_id = None
+            client_id = 14
 
         try:
-            facebook_cron_campaign_stats.delay(account.account_id, client_id)
+            facebook_cron_campaign_stats(account.account_id, client_id)
         except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
             logger = Logger()
             warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
