@@ -13,10 +13,8 @@ from notifications.models import Notification
 from django.conf import settings
 import datetime
 import calendar
-from urllib.parse import parse_qs
 
 
-# Create your views here.
 @login_required
 def agency_overview(request):
     if not request.user.is_staff:
@@ -1207,11 +1205,15 @@ def month_over_month(request):
     # Default to last month
     last_month = first - datetime.timedelta(days=1)
 
-    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
-    years = [str(i) for i in range(2018, now.year + 1)]
+    month = int(request.GET.get('month')) if 'month' in request.GET else last_month.month
+    year = int(request.GET.get('year')) if 'year' in request.GET else last_month.year
+    account_id = int(request.GET.get('account_id')) if 'account_id' in request.GET else None
+    accounts = Client.objects.all()
 
-    month = request.GET.get('month') if 'month' in request.GET else last_month.month
-    year = request.GET.get('year') if 'year' in request.GET else last_month.year
+    try:
+        account = accounts.get(id=account_id) if account_id is not None else None
+    except Client.DoesNotExist:
+        account = None
 
     selected = {
         'month': str(month),
@@ -1222,16 +1224,49 @@ def month_over_month(request):
     cur_month = month
     cur_year = year
 
+    # Prepare the report
+    report = []
+
     for i in range(10):
         month_strs.insert(0, str(calendar.month_name[cur_month]) + ', ' + str(cur_year))
+        if account is not None:
+            tmpd = {}
+            try:
+                bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
+                tmpd['fee'] = round(bh.management_fee, 2)
+                tmpd['spend'] = round(bh.spend, 2)
+            except AccountBudgetSpendHistory.DoesNotExist:
+                tmpd['fee'] = 0.0
+                tmpd['spend'] = 0.0
+
+            tmpd['actual'] = account.all_hours_month_year(cur_month, cur_year)
+            allocated_history = AccountAllocatedHoursHistory.objects.filter(month=cur_month, year=cur_year,
+                                                                            account=account).values('account', 'year',
+                                                                                                    'month').annotate(
+                sum_hours=Sum('allocated_hours'))
+            allocated_hours = 0.0
+            if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+                allocated_hours = allocated_history[0]['sum_hours']
+
+            tmpd['allocated'] = allocated_hours
+            try:
+                tmpd['ratio'] = tmpd['actual'] / tmpd['allocated']
+            except ZeroDivisionError:
+                tmpd['ratio'] = 0.0
+
+            report.insert(0, tmpd)
+
         cur_month -= 1
         if cur_month == 0:
             cur_month = 12
             cur_year -= 1
 
     context = {
+        'accounts': accounts,
+        'account': account,
         'selected': selected,
-        'month_strs': month_strs
+        'month_strs': month_strs,
+        'report': report
     }
 
     return render(request, 'reports/month_over_month.html', context)

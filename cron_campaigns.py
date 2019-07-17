@@ -22,7 +22,7 @@ def main():
             client_id = None
 
         try:
-            adwords_cron_campaign_stats(account.dependent_account_id, client_id)
+            adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
         except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
             logger = Logger()
             warning_message = 'Failed to created celery task for cron_campaigns.py for account ' + str(
