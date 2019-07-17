@@ -8,6 +8,7 @@ from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
 from bloom.utils.ppc_accounts import active_adwords_accounts
 
 
+
 def main():
     mail_list = {
         'xurxo@makeitbloom.com',
