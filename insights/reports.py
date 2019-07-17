@@ -4,6 +4,7 @@ import httplib2
 from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
+import itertools
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
@@ -266,6 +267,19 @@ def get_b2c_ppc_best_demographics_query():
     :return:
     """
     pass
+
+
+def get_best_insights():
+    """
+    Loops through various combinations of dimensions
+    :return:
+    """
+    dimensions = ['a', 'b', 'c']
+    dimension_combinations = list(itertools.combinations(dimensions, 3))
+
+    for i in range(len(dimensions)):
+        for j in range(i + 1, len(dimensions)):
+            print(dimensions[i], dimensions[j])
 
 
 def main():
