@@ -2,11 +2,10 @@ import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 django.setup()
-from adwords_dashboard.models import DependentAccount
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_adwords_accounts
 
 
 def main():
@@ -19,10 +18,7 @@ def main():
         'avi@makeitbloom.com'
     }
 
-    accounts = ppc_active_accounts_for_platform('adwords')
-    accounts = [acc for acc in accounts if acc.ch_flag]
-
-    # accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
+    accounts = [acc for acc in active_adwords_accounts() if acc.ch_flag]
 
     mail_details = {
         'accounts': accounts,

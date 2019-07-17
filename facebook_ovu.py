@@ -8,11 +8,11 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 django.setup()
 from tasks.facebook_tasks import facebook_cron_ovu
 from tasks.logger import Logger
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_facebook_accounts
 
 
 def main():
-    accounts = ppc_active_accounts_for_platform('facebook')
+    accounts = active_facebook_accounts()
 
     for account in accounts:
         try:
