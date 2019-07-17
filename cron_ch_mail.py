@@ -6,6 +6,7 @@ from adwords_dashboard.models import DependentAccount
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 
 
 def main():
@@ -18,7 +19,10 @@ def main():
         'avi@makeitbloom.com'
     }
 
-    accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
+    accounts = ppc_active_accounts_for_platform('adwords')
+    accounts = [acc for acc in accounts if acc.ch_flag]
+
+    # accounts = DependentAccount.objects.filter(ch_flag=True, blacklisted=False)
 
     mail_details = {
         'accounts': accounts,
