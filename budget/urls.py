@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^gtsorbudget/$', views.gts_or_budget, name='gts_or_budget'),
     url(r'^confirm_budget$', views.confirm_budget, name='confirm_budget'),
     url(r'^new_budget$', views.new_budget, name='new_budget'),
-    url(r'^update_exclusions$', views.update_exclusions, name='update_exclusions')
+    url(r'^update_exclusions$', views.update_exclusions, name='update_exclusions'),
+    url(r'^get_info$', views.get_info, name='get_info')
 ]

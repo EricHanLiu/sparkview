@@ -1233,8 +1233,8 @@ def month_over_month(request):
             tmpd = {}
             try:
                 bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
-                tmpd['fee'] = bh.management_fee
-                tmpd['spend'] = bh.spend
+                tmpd['fee'] = round(bh.management_fee, 2)
+                tmpd['spend'] = round(bh.spend, 2)
             except AccountBudgetSpendHistory.DoesNotExist:
                 tmpd['fee'] = 0.0
                 tmpd['spend'] = 0.0
@@ -1260,8 +1260,6 @@ def month_over_month(request):
         if cur_month == 0:
             cur_month = 12
             cur_year -= 1
-
-    print(report)
 
     context = {
         'accounts': accounts,
