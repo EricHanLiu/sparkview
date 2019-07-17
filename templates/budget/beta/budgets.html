@@ -994,7 +994,11 @@
     // Tabs
     let openTab = function (evt, tabName) {
         let i, x, tablinks;
-        let groupingType = document.getElementById('grouping_type');
+        let groupingSelector = 'grouping_type';
+        if (tabName.includes('edit')) {
+            groupingSelector = 'edit_grouping_type';
+        }
+        let groupingType = document.getElementById(groupingSelector);
         groupingType.value = tabName;
         x = document.getElementsByClassName('content-tab');
         for (i = 0; i < x.length; i++) {

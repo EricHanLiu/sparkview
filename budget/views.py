@@ -1025,7 +1025,7 @@ def edit_budget(request):
     if 'bing_ads' in request.POST:
         budget.has_bing = True
 
-    grouping_type = request.POST.get('grouping_type')
+    grouping_type = request.POST.get('grouping_type').split('_')[1]  # grouping type has edit in it
 
     if grouping_type == 'manual':
         # Lousy, but it works for now
