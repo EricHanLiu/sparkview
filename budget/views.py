@@ -1452,4 +1452,12 @@ def get_info(request):
     budget_id = request.POST.get('budget_id')
     budget = Budget.objects.filter(id=budget_id)
 
-    return JsonResponse({'budget': json.loads(serializers.serialize('json', budget))})
+    campaigns = list(budget[0].aw_campaigns.all()) + list(budget[0].fb_campaigns.all()) + list(
+        budget[0].bing_campaigns.all())
+
+    response = {
+        'budget': json.loads(serializers.serialize('json', budget)),
+        'campaigns': json.loads(serializers.serialize('json', campaigns))
+    }
+
+    return JsonResponse(response)
