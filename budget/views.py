@@ -1078,6 +1078,26 @@ def edit_budget(request):
     return redirect('/budget/client/' + str(account.id) + '/beta')
 
 
+@login_required
+def delete_budget(request):
+    """
+    Deletes a budget
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    budget = get_object_or_404(Budget, id=request.POST.get('budget_id'))
+    budget.delete()
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
+
+
 # Update client budgets
 @login_required
 def update_budget(request):

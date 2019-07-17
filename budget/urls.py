@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^confirm_budget$', views.confirm_budget, name='confirm_budget'),
     url(r'^new_budget$', views.new_budget, name='new_budget'),
     url(r'^edit_budget$', views.edit_budget, name='edit_budget'),
+    url(r'^delete_budget$', views.delete_budget, name='delete_budget'),
     url(r'^update_exclusions$', views.update_exclusions, name='update_exclusions'),
     url(r'^get_info$', views.get_info, name='get_info')
 ]

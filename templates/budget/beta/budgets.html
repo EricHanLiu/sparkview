@@ -24,7 +24,7 @@
             background: #fff;
         }
 
-        .modal-card-body {
+        .modal-card-body:not(#delete_budget_modal .modal-card-body) {
             height: 30rem;
         }
     </style>
@@ -718,6 +718,28 @@
     </div>
 </div>
 
+<div class="modal" id="delete_budget_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Delete Budget</p>
+            <button class="delete close" aria-label="close"></button>
+        </header>
+        <form method="post" action="/budget/delete_budget">
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <input type="hidden" name="budget_id" id="budget_id">
+                <input type="hidden" name="account_id" value="{{ account.id }}">
+                Are you sure you want to delete this budget?
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-danger" type="submit">Delete</button>
+                <button class="button">Cancel</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
 <script>
     let $flightRadio = $('#flight_time_period');
     let $monthRadio = $('#monthly_time_period');
@@ -1116,6 +1138,32 @@
             error: function (ajaxContext) {
                 toastr.error(ajaxContext.statusText)
             },
+        });
+    });
+
+    $('.delete-budget-btn').click(function () {
+        let budgetID = $(this).data('budget-id');
+        $('#budget_id').val(budgetID);
+
+        let deleteBudgetModal = document.querySelector('#delete_budget_modal');
+        let html = document.querySelector('html');
+        deleteBudgetModal.classList.add('is-active');
+        html.classList.add('is-clipped');
+
+        deleteBudgetModal.querySelector('.modal-background').addEventListener('click', function (e) {
+            e.preventDefault();
+            deleteBudgetModal.classList.remove('is-active');
+            html.classList.remove('is-clipped');
+        });
+
+        let sourceCloseEls = deleteBudgetModal.querySelectorAll('.close');
+
+        sourceCloseEls.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                deleteBudgetModal.classList.remove('is-active');
+                html.classList.remove('is-clipped');
+            });
         });
     });
 </script>
