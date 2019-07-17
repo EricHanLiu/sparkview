@@ -10,7 +10,7 @@ from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from adwords_dashboard.cron_scripts import get_accounts
-from budget.models import CampaignGrouping, Client, ClientCData
+from budget.models import Client, ClientCData
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault, GoogleAdsValueError, \
     GoogleAdsSoapTransportError
