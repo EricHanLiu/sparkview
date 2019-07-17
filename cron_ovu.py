@@ -8,11 +8,11 @@ import django
 django.setup()
 from tasks.adwords_tasks import adwords_cron_ovu
 from tasks.logger import Logger
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_adwords_accounts
 
 
 def main():
-    accounts = ppc_active_accounts_for_platform('adwords')
+    accounts = active_adwords_accounts()
 
     for account in accounts:
         try:

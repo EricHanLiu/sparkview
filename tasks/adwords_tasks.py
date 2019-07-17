@@ -10,7 +10,7 @@ from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from adwords_dashboard.cron_scripts import get_accounts
-from budget.models import CampaignGrouping, Client, ClientCData
+from budget.models import Client, ClientCData
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault, GoogleAdsValueError, \
     GoogleAdsSoapTransportError
@@ -1696,66 +1696,6 @@ def cron_clients(self):
 
         new_client_cdata.save()
         client.save()
-
-
-@celery_app.task(bind=True)
-def adwords_not_running(self):
-    accounts = DependentAccount.objects.filter(blacklisted=False)
-
-    for account in accounts:
-        adwords_account_not_running.delay(account.dependent_account_id)
-
-
-@celery_app.task(bind=True)
-def adwords_account_not_running(self, customer_id):
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    client = get_client()
-    helper = AdwordsReportingService(client)
-
-    nr_data = []
-
-    campaign_yesterday = helper.get_campaign_performance(
-        customer_id=account.dependent_account_id,
-        dateRangeType="YESTERDAY",
-    )
-
-    for item in campaign_yesterday:
-        if item['impressions'] == '0':
-            nr_data.append({
-                'campaign': remove_accents(item['campaign']),
-                'impressions': item['impressions'],
-                'cost': helper.mcv(item['cost'])
-            })
-
-    nr_no = len(nr_data)
-    nr_score = 0
-
-    if nr_no == 0:
-        nr_score = 100
-    elif nr_no == 1:
-        nr_score = 90
-    elif nr_no == 2:
-        nr_score = 80
-    elif nr_no == 3:
-        nr_score = 70
-    elif nr_no == 4:
-        nr_score = 60
-    elif nr_no == 5:
-        nr_score = 50
-    elif nr_no == 6:
-        nr_score = 40
-    elif nr_no == 7:
-        nr_score = 30
-    elif nr_no == 8:
-        nr_score = 20
-    elif nr_no == 9:
-        nr_score = 10
-    elif nr_no >= 10:
-        nr_score = 0
-
-    account.nr_data = nr_data
-    account.nr_score = nr_score
-    account.save()
 
 
 @celery_app.task(bind=True)

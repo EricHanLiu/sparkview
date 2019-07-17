@@ -5,7 +5,7 @@ from bloom.utils.reporting import Reporting
 from tasks.logger import Logger
 from .models import DependentAccount, Campaign, CampaignSpendDateRange
 from budget.models import Budget
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_adwords_accounts
 import datetime
 
 
@@ -21,7 +21,7 @@ def get_client():
 
 
 def get_all_spends_by_campaign_this_month():
-    accounts = ppc_active_accounts_for_platform('adwords')
+    accounts = active_adwords_accounts()
     for account in accounts:
         if settings.DEBUG:
             get_spend_by_campaign_this_month(account.id)
@@ -252,11 +252,11 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     }
 
     start_date = budget.start_date
-    end_date = datetime.datetime.now() - datetime.timedelta(1)
+    yest_end_date = datetime.datetime.now() - datetime.timedelta(1)
 
     yest_campaign_report_selector['dateRange'] = {
         'min': start_date.strftime('%Y%m%d'),
-        'max': end_date.strftime('%Y%m%d')
+        'max': yest_end_date.strftime('%Y%m%d')
     }
 
     try:
@@ -266,8 +266,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         return
 
     campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
-                                                                                  start_date=start_date,
-                                                                                  end_date=end_date)
+                                                                                  start_date=budget.start_date,
+                                                                                  end_date=budget.end_date)
 
     campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()

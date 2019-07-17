@@ -8,13 +8,11 @@ django.setup()
 from adwords_dashboard.models import DependentAccount
 from tasks.adwords_tasks import adwords_cron_campaign_stats
 from tasks.logger import Logger
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_adwords_accounts
 
 
 def main():
-    # accounts = DependentAccount.objects.filter(blacklisted=False)
-    # accounts = DependentAccount.objects.filter(dependent_account_id='2997298659')
-    accounts = ppc_active_accounts_for_platform('adwords')
+    accounts = active_adwords_accounts()
     for account in accounts:
         try:
             client_id = account.adwords.all()[0].id
@@ -22,7 +20,7 @@ def main():
             client_id = None
 
         try:
-            adwords_cron_campaign_stats(account.dependent_account_id, client_id)
+            adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
         except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
             logger = Logger()
             warning_message = 'Failed to created celery task for cron_campaigns.py for account ' + str(
