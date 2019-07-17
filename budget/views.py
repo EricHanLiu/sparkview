@@ -1025,7 +1025,7 @@ def edit_budget(request):
     if 'bing_ads' in request.POST:
         budget.has_bing = True
 
-    grouping_type = request.POST.get('grouping_type')
+    grouping_type = request.POST.get('grouping_type').split('_')[1]  # grouping type has edit in it
 
     if grouping_type == 'manual':
         # Lousy, but it works for now
@@ -1074,6 +1074,26 @@ def edit_budget(request):
         budget.end_date = end_date
 
     budget.save()
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
+
+
+@login_required
+def delete_budget(request):
+    """
+    Deletes a budget
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    budget = get_object_or_404(Budget, id=request.POST.get('budget_id'))
+    budget.delete()
 
     return redirect('/budget/client/' + str(account.id) + '/beta')
 
@@ -1452,4 +1472,12 @@ def get_info(request):
     budget_id = request.POST.get('budget_id')
     budget = Budget.objects.filter(id=budget_id)
 
-    return JsonResponse({'budget': json.loads(serializers.serialize('json', budget))})
+    campaigns = list(budget[0].aw_campaigns.all()) + list(budget[0].fb_campaigns.all()) + list(
+        budget[0].bing_campaigns.all())
+
+    response = {
+        'budget': json.loads(serializers.serialize('json', budget)),
+        'campaigns': json.loads(serializers.serialize('json', campaigns))
+    }
+
+    return JsonResponse(response)
