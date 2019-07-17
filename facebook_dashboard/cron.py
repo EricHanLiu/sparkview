@@ -1,15 +1,15 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
-from budget.models import Budget, Client
+from budget.models import Budget
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_facebook_accounts
 import datetime
 
 
 def get_all_spends_by_facebook_campaign_this_month():
-    accounts = ppc_active_accounts_for_platform('facebook')
+    accounts = active_facebook_accounts()
     for account in accounts:
         if settings.DEBUG:
             get_spend_by_facebook_campaign_this_month(account.id)

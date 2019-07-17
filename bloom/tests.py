@@ -4,7 +4,8 @@ from client_area.models import SalesProfile
 from adwords_dashboard.models import DependentAccount
 from facebook_dashboard.models import FacebookAccount
 from bing_dashboard.models import BingAccounts
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform, active_adwords_accounts, active_bing_accounts, \
+    active_facebook_accounts
 
 
 class UtilTestCase(TestCase):
@@ -34,6 +35,7 @@ class UtilTestCase(TestCase):
 
         # returned accounts should be aw1, aw3, and aw4
         aw_accounts = ppc_active_accounts_for_platform('adwords')
+        self.assertEqual(aw_accounts, active_adwords_accounts())
         self.assertEqual(len(aw_accounts), 3)
         self.assertTrue(aw1 in aw_accounts)
         self.assertFalse(aw2 in aw_accounts)
@@ -52,6 +54,7 @@ class UtilTestCase(TestCase):
 
         # returned accounts should be bing1 and bing2
         bing_accounts = ppc_active_accounts_for_platform('bing')
+        self.assertEqual(bing_accounts, active_bing_accounts())
         self.assertEqual(len(bing_accounts), 2)
         self.assertTrue(bing1 in bing_accounts)
         self.assertTrue(bing2 in bing_accounts)
@@ -70,6 +73,7 @@ class UtilTestCase(TestCase):
 
         # returned accounts should be fb1, fb2, fb3, fb4
         fb_accounts = ppc_active_accounts_for_platform('facebook')
+        self.assertEqual(fb_accounts, active_facebook_accounts())
         self.assertEqual(len(fb_accounts), 4)
         self.assertTrue(fb1 in fb_accounts)
         self.assertTrue(fb2 in fb_accounts)
