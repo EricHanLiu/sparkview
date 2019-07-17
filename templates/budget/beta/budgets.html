@@ -472,11 +472,11 @@
             <p class="modal-card-title">Edit Budget</p>
             <button class="delete close" aria-label="close"></button>
         </header>
-        <form method="post" action="/budget/edit_budget">
-
+        <form method="POST" action="/budget/edit_budget">
             <section class="modal-card-body">
                 {% csrf_token %}
                 <input name="budget_id" id="edit_budget_id" class="is-hidden"/>
+                <input name="account_id" value="{{ account.id }}" class="is-hidden"/>
                 <div class="columns is-multiline">
                     <div class="column is-12">
                         <div class="field">
