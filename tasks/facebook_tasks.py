@@ -384,6 +384,7 @@ def facebook_cron_campaign_stats(self, account_id, client_id=None):
         if acc_cmp not in cmps:
             print('Cant find ' + acc_cmp.campaign_name + ', setting cost to $0.0')
             acc_cmp.campaign_cost = 0
+            acc_cmp.campaign_cost_yesterday = 0
             acc_cmp.save()
 
 
