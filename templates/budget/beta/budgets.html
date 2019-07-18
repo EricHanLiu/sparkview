@@ -23,10 +23,6 @@
         html {
             background: #fff;
         }
-
-        .modal-card-body:not(#delete_budget_modal .modal-card-body) {
-            height: 30rem;
-        }
     </style>
     {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -328,7 +324,7 @@
 
 <div class="modal" id="add_budget_modal">
     <div class="modal-background"></div>
-    <div class="modal-card" style="max-height: 950px;">
+    <div class="modal-card" style="max-height: 100vh;">
         <header class="modal-card-head">
             <p class="modal-card-title">Add New Budget</p>
             <button class="delete close" aria-label="close"></button>
@@ -379,21 +375,21 @@
                                class="is-hidden"/>
                         <div class="tabs is-centered is-boxed">
                             <ul>
-                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')">
+                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')" id="all_campaigns_tab">
                                     <a>
                                         <span class="icon is-small"><i class="fas fa-image"
                                                                        aria-hidden="true"></i></span>
                                         <span>All Campaigns</span>
                                     </a>
                                 </li>
-                                <li class="tab" onclick="openTab(event, 'manual')">
+                                <li class="tab" onclick="openTab(event, 'manual')" id="manual_tab">
                                     <a>
                                         <span class="icon is-small"><i class="fas fa-music"
                                                                        aria-hidden="true"></i></span>
                                         <span>Manual Selection</span>
                                     </a>
                                 </li>
-                                <li class="tab" onclick="openTab(event, 'text')">
+                                <li class="tab" onclick="openTab(event, 'text')" id="text_tab">
                                     <a>
                                         <span class="icon is-small"><i class="fas fa-film"
                                                                        aria-hidden="true"></i></span>
@@ -467,7 +463,7 @@
 
 <div class="modal" id="edit_budget_modal">
     <div class="modal-background"></div>
-    <div class="modal-card" style="max-height: 950px;">
+    <div class="modal-card" style="max-height: 100vh;">
         <header class="modal-card-head">
             <p class="modal-card-title">Edit Budget</p>
             <button class="delete close" aria-label="close"></button>
