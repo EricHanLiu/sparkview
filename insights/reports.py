@@ -72,6 +72,57 @@ def print_response(response):
             print('====================================')
 
 
+def seo_three_months_yoy_report(analytics, view_id):
+    """
+    Runs SEO three months YOY report
+    https://docs.google.com/document/d/1egoiy3U4KkeRHhP9B_FbqkT66xUwVE8eqa8NoDBhrSw/edit
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    date_ranges = []
+
+    results = {
+
+    }
+
+    for date_range in date_ranges:
+        report_definition = {
+            'reportRequests': [
+                {
+                    'viewId': view_id,
+                    'dateRanges': [date_range],
+                    'metrics': [{'expression': 'ga:sessions'},
+                                {'expression': 'ga:bounceRate'},
+                                {'expression': 'ga:sessionDuration'}],
+                }
+            ]
+        }
+
+        report_response = get_report(analytics, view_id)
+
+        results[date_range] = {}
+
+        for report in report_response.get('reports', []):
+            column_header = report.get('columnHeader', {})
+            dimension_headers = column_header.get('dimensions', [])
+            metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
+            rows = report.get('data', {}).get('rows', [])
+
+            for row in rows:
+                dims = row.get('dimensions', [])
+                date_range_values = row.get('metrics', [])
+
+                for header, dimension in zip(dimension_headers, dims):
+                    print(header + ': ' + dimension)
+
+                for i, values in enumerate(date_range_values):
+                    for metricHeader, value in zip(metric_headers, values.get('values')):
+                        print(metricHeader.get('name') + ': ' + value)
+
+                print('====================================')
+
+
 def get_ecom_best_demographics_query(view_id):
     """
     Gets some queries for the best performers
@@ -267,6 +318,14 @@ def get_b2c_ppc_best_demographics_query():
     :return:
     """
     pass
+
+
+def seo_insight_test():
+    return {
+        'dimensions': [],
+        'metrics': [],
+        'n': 3
+    }
 
 
 def insight_example():
