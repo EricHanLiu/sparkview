@@ -6,9 +6,11 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 django.setup()
 from adwords_dashboard.models import DependentAccount
+from budget.models import Client
 from tasks.adwords_tasks import adwords_cron_campaign_stats
 from tasks.logger import Logger
 from bloom.utils.ppc_accounts import active_adwords_accounts
+from bloom import settings
 
 
 def main():
@@ -20,7 +22,10 @@ def main():
             client_id = None
 
         try:
-            adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
+            if settings.DEBUG:
+                adwords_cron_campaign_stats(account.dependent_account_id, client_id)
+            else:
+                adwords_cron_campaign_stats.delay(account.dependent_account_id, client_id)
         except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
             logger = Logger()
             warning_message = 'Failed to created celery task for cron_campaigns.py for account ' + str(
