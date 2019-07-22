@@ -8,11 +8,11 @@ import django
 django.setup()
 from tasks.bing_tasks import bing_cron_ovu
 from tasks.logger import Logger
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_bing_accounts
 
 
 def main():
-    accounts = ppc_active_accounts_for_platform('bing')
+    accounts = active_bing_accounts()
 
     for acc in accounts:
         try:

@@ -160,7 +160,10 @@ class FacebookCampaign(models.Model):
         )
 
     def __str__(self):
-        return self.account.account_name + ' ' + str(self.campaign_name)
+        try:
+            return self.account.account_name + ' ' + str(self.campaign_name)
+        except AttributeError:
+            return 'No account attached to Facebook campaign'
 
 
 class FacebookCampaignSpendDateRange(models.Model):
@@ -173,3 +176,6 @@ class FacebookCampaignSpendDateRange(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.campaign.campaign_name + ' dates: ' + str(self.start_date) + ' until ' + str(self.end_date)

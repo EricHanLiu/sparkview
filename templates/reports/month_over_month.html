@@ -18,16 +18,20 @@
                 </div>
             </div>
             <div class="m-portlet__body">
+                <div class="alert alert-warning" role="alert">
+                    <strong>Warning:</strong> December 2018 and February 2019 data is only partly accurate. Only data
+                    that can be completely trusted is actual hours.
+                </div>
                 <form class="m-form" method="get">
                     <div class="row">
                         <div class="col-md-2">
                             <label for="month">Account:</label>
                             <select class="form-control m-input"
-                                    name="month"
+                                    name="account_id"
                                     style="width: 100%;">
                                 {% for account in accounts %}
-                                    <option value="{{ month_num }}"
-                                            {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                    <option value="{{ account.id }}"
+                                            {% if selected.account_id == account.id %}selected{% endif %}>{{ account }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -56,26 +60,51 @@
                                     <td>
                                         Actual Hours
                                     </td>
+                                    {% for r in report %}
+                                        <td>
+                                            {{ r.actual }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td>
                                         Allocated Hours
                                     </td>
+                                    {% for r in report %}
+                                        <td>
+                                            {{ r.allocated }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td>
                                         Actual/Allocated
                                     </td>
+                                    {% for r in report %}
+                                        <td>
+                                            {{ r.ratio }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td>
                                         Spend
                                     </td>
+                                    {% for r in report %}
+                                        <td>
+                                            {{ r.spend }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                                 <tr>
                                     <td>
                                         Fee
                                     </td>
+                                    {% for r in report %}
+                                        <td>
+                                            {{ r.fee }}
+                                        </td>
+                                    {% endfor %}
                                 </tr>
                             </tbody>
                         </table>
