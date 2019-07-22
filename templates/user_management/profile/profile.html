@@ -210,7 +210,7 @@
                                     <div class="col-10">
                                         <div class="row summary-spend-row">
                                             <div class="col-md-2"><b>Current</b>:
-                                                {{ account.currency }}{{ account.current_spend|format_money }}
+                                                {{ account.currency }}{{ account.calculated_spend|format_money }}
                                             </div>
                                             <div class="col-md-2"><b>Budget</b>:
                                                 {{ account.currency }}{{ account.current_budget|format_money }}
