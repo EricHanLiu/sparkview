@@ -273,7 +273,7 @@ def insight_example():
     return {
         'dimensions': ['ga:country'],
         'metrics': ['ga:sessions'],
-        'n': 3
+        'n': 1
     }
 
 
@@ -300,17 +300,17 @@ def get_best_insights(analytics, view_id, dimensions, metrics, n):
         report_response = get_report(analytics, report_definition)
 
         for report in report_response.get('reports', []):
-            print('Parsing report with dimensions: ' + dimensions)
+            print('Parsing report with dimensions: ' + ', '.join(dimensions))
             column_header = report.get('columnHeader', {})
             dimension_headers = column_header.get('dimensions', [])
             metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
             rows = report.get('data', {}).get('rows', [])
 
             for row in rows:
-                dimensions = row.get('dimensions', [])
+                dims = row.get('dimensions', [])
                 date_range_values = row.get('metrics', [])
 
-                for header, dimension in zip(dimension_headers, dimensions):
+                for header, dimension in zip(dimension_headers, dims):
                     print(header + ': ' + dimension)
 
                 for i, values in enumerate(date_range_values):
@@ -322,8 +322,12 @@ def get_best_insights(analytics, view_id, dimensions, metrics, n):
 
 def main():
     analytics = initialize_analyticsreporting()
-    response = get_report(analytics, get_ecom_ppc_best_ad_groups_query('76955979'))
-    print_response(response)
+
+    example = insight_example()
+    get_best_insights(analytics, '5149326', example['dimensions'], example['metrics'], example['n'])
+
+    # response = get_report(analytics, get_ecom_ppc_best_ad_groups_query('76955979'))
+    # print_response(response)
     # response = get_report(analytics, report_definition)
     # get_searches_twelve_month_trend_query()
 
