@@ -269,17 +269,55 @@ def get_b2c_ppc_best_demographics_query():
     pass
 
 
-def get_best_insights():
+def insight_example():
+    return {
+        'dimensions': ['ga:country'],
+        'metrics': ['ga:sessions'],
+        'n': 3
+    }
+
+
+def get_best_insights(analytics, view_id, dimensions, metrics, n):
     """
-    Loops through various combinations of dimensions
+    Loops through various combinations of n dimensions from the list of dimensions
     :return:
     """
-    dimensions = ['a', 'b', 'c']
-    dimension_combinations = list(itertools.combinations(dimensions, 3))
+    dimension_combinations = list(itertools.combinations(dimensions, n))
 
-    for i in range(len(dimensions)):
-        for j in range(i + 1, len(dimensions)):
-            print(dimensions[i], dimensions[j])
+    for dimension_combination in dimension_combinations:
+        # 1) Build the report
+        report_definition = {
+            'reportRequests': [
+                {
+                    'viewId': view_id,
+                    'dateRanges': [{'startDate': '30daysAgo', 'endDate': 'today'}],  # This could be changed
+                    'metrics': [{'expression': metric} for metric in metrics],
+                    'dimensions': [{'name': dimension} for dimension in dimension_combination]
+                }
+            ]
+        }
+
+        report_response = get_report(analytics, report_definition)
+
+        for report in report_response.get('reports', []):
+            print('Parsing report with dimensions: ' + dimensions)
+            column_header = report.get('columnHeader', {})
+            dimension_headers = column_header.get('dimensions', [])
+            metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
+            rows = report.get('data', {}).get('rows', [])
+
+            for row in rows:
+                dimensions = row.get('dimensions', [])
+                date_range_values = row.get('metrics', [])
+
+                for header, dimension in zip(dimension_headers, dimensions):
+                    print(header + ': ' + dimension)
+
+                for i, values in enumerate(date_range_values):
+                    for metricHeader, value in zip(metric_headers, values.get('values')):
+                        print(metricHeader.get('name') + ': ' + value)
+
+                print('====================================')
 
 
 def main():
