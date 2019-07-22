@@ -16,6 +16,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
+from tasks.logger import Logger
 
 
 @login_required
@@ -381,10 +382,14 @@ def account_edit_temp(request, id):
                 account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%Y-%m-%d')
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+            message = str(account.client_name) + ' is now inactive (paused).'
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            logger = Logger()
+            short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
+            logger.send_warning_email(short_desc, message)
 
             sp = account.sales_profile
 
@@ -422,10 +427,14 @@ def account_edit_temp(request, id):
                 account.lost_bc_link = lost_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+            message = str(account.client_name) + ' has been lost.'
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            logger = Logger()
+            short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
+            logger.send_warning_email(short_desc, message)
 
             sp = account.sales_profile
 

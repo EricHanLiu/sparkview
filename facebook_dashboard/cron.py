@@ -60,7 +60,6 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         in_use_ids.append(campaign_id)
         campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
                                                                    campaign_name=campaign_name)
-        campaign.campaign_name = campaign_row['campaign_name']
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
@@ -83,8 +82,8 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
     for campaign_row in report:
         campaign_name = campaign_row['campaign_name']
         campaign_id = campaign_row['campaign_id']
-        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account)
-        campaign.campaign_name = campaign_name
+        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
+                                                                   campaign_name=campaign_name)
         campaign.spend_until_yesterday = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month (until yesterday) of $' + str(

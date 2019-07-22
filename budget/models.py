@@ -1711,12 +1711,16 @@ class Budget(models.Model):
 
     @property
     def days_remaining(self):
+        """
+        Should include today
+        :return:
+        """
         now = make_aware(datetime.datetime.now())
         if self.is_monthly:
             days_in_month = calendar.monthrange(now.year, now.month)[1]
-            number_of_days_remaining = days_in_month - now.day
+            number_of_days_remaining = days_in_month - now.day + 1
         else:
-            number_of_days_remaining = (self.end_date - now).days
+            number_of_days_remaining = (self.end_date - now).days + 1
         return number_of_days_remaining
 
     @property
