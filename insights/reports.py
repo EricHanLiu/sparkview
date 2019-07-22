@@ -284,6 +284,8 @@ def get_best_insights(analytics, view_id, dimensions, metrics, n):
     """
     dimension_combinations = list(itertools.combinations(dimensions, n))
 
+    saved_reports = []
+
     for dimension_combination in dimension_combinations:
         # 1) Build the report
         report_definition = {
@@ -318,6 +320,11 @@ def get_best_insights(analytics, view_id, dimensions, metrics, n):
                         print(metricHeader.get('name') + ': ' + value)
 
                 print('====================================')
+
+        saved_reports.append(report_response)
+        continue
+
+    return saved_reports
 
 
 def main():
