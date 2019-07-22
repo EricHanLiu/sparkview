@@ -51,12 +51,7 @@ def get_spend_by_campaign_this_month(self, account_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
             }
@@ -92,12 +87,7 @@ def get_spend_by_campaign_this_month(self, account_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
             }
@@ -177,12 +167,7 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
             },
@@ -226,12 +211,7 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
             },

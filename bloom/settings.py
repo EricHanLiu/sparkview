@@ -298,6 +298,19 @@ else:
                              'eric@makeitbloom.com']
 
 if DEBUG:
+    LOST_ACCOUNT_EMAILS = ['sam@makeitbloom.com', 'lexi@makeitbloom.com']
+else:
+    LOST_ACCOUNT_EMAILS = ['lexi@makeitbloom.com',
+                           'xurxo@makeitbloom.com',
+                           'phil@makeitbloom.com',
+                           'mike@makeitbloom.com',
+                           'nick@makeitbloom.com',
+                           'martin@makeitbloom.com',
+                           'jeff@makeitbloom.com',
+                           'jamie@makeitbloom.com',
+                           'pascal@makeitbloom.com']
+
+if DEBUG:
     OOPS_HF_MAILING_LIST = {
         'lexi@makeitbloom.com',
         'eric@makeitbloom.com',

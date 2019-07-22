@@ -463,7 +463,7 @@ class AccountTestCase(TestCase):
         number_of_days_in_month = calendar.monthrange(now.year, now.month)[1]
 
         self.assertEqual(b11.average_spend_yest, 28 / number_of_days_elapsed_in_month)
-        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day))
+        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day + 1))
         self.assertEqual(b11.projected_spend_avg,
                          b11.calculated_yest_spend + (b11.average_spend_yest * b11.days_remaining))
 
