@@ -386,7 +386,7 @@
                                     <div class="col-2">
                                         <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
                                         <p>My hours this month:
-                                            {{ backup_account_hours|get_item_from_list:backup.account.id }}/{{ backup_account_allocation|get_item_from_list:backup.account.id }}</p>
+                                            {{ backup_account_hours|get_item_from_list:backup.account.id|floatformat:2 }}/{{ backup_account_allocation|get_item_from_list:backup.account.id|floatformat:2 }}</p>
                                         <div class="m--space-30">
                                             {% with aw=backup.account.adwords.all bing=backup.account.bing.all fb=backup.account.facebook.all %}
                                                 <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
