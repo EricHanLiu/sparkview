@@ -24,5 +24,6 @@ app = Celery(
     backend='redis://localhost:6379',
     result_expires=1800,
     include=['tasks.adwords_tasks', 'tasks.bing_tasks', 'tasks.facebook_tasks', 'tasks.notification_tasks',
-             'tasks.campaign_group_tasks', 'adwords_dashboard.cron', 'facebook_dashboard.cron', 'bing_dashboard.cron']
+             'tasks.campaign_group_tasks', 'adwords_dashboard.cron', 'facebook_dashboard.cron', 'bing_dashboard.cron',
+             'budget.cron']
 )

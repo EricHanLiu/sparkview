@@ -790,8 +790,6 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
 
     cmps = []
 
-    yesterday_spend = 0
-
     client = get_client()
     helper = AdwordsReportingService(client)
 
@@ -815,6 +813,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
             campaign_id=c['campaign_id']
         )
         cmp.campaign_yesterday_cost = helper.mcv(c['cost'])
+        cmps.append(cmp)
         cmp.save()
 
     for campaign in campaign_this_month:
@@ -828,7 +827,6 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
         cmp.campaign_serving_status = campaign['campaign_serving_status']
         cmp.save()
 
-        cmps.append(cmp)
         if created:
             print('Added to DB - [' + cmp.campaign_name + '].')
         else:
@@ -839,7 +837,6 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     for acc_cmp in all_cmps_this_account:
         if acc_cmp not in cmps:
             print('Cant find ' + acc_cmp.campaign_name + ', setting cost to $0.0')
-            acc_cmp.campaign_cost = 0.0
             acc_cmp.campaign_yesterday_cost = 0.0
             acc_cmp.save()
 
