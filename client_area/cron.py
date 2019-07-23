@@ -2,6 +2,7 @@ from tasks.promo_tasks import get_ads_in_promos, get_bad_ad_group_ads
 from .models import Promo
 from django.db.models import Q
 from adwords_dashboard.models import DependentAccount
+from bloom.utils.ppc_accounts import active_adwords_accounts
 import datetime
 
 
@@ -27,7 +28,7 @@ def bad_ads():
     Get bad ads
     :return:
     """
-    google_ads_accounts = DependentAccount.objects.filter(deactivated=False)
+    google_ads_accounts = active_adwords_accounts()
 
     for google_ads_account in google_ads_accounts:
         get_bad_ad_group_ads.delay(google_ads_account.id)

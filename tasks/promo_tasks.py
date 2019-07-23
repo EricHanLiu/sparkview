@@ -185,7 +185,7 @@ def get_bad_ad_group_ads(self, account_id):
         return
 
     client = get_client()
-    client.client_customer_id = account_id
+    client.client_customer_id = account.dependent_account_id
 
     ad_group_ad_service = client.GetService('AdGroupAdService', version=settings.API_VERSION)
 

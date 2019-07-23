@@ -490,6 +490,7 @@ class AccountTestCase(TestCase):
 
         reset_bing_campaign(bing_cmp2.id)
         self.assertEqual(b12.calculated_bing_ads_spend, 0)
+        self.assertEqual(b12.yesterday_spend, 0)
 
     def test_get_campaigns_view(self):
         """
