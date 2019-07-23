@@ -5,6 +5,7 @@ from oauth2client import client
 from oauth2client import file
 from oauth2client import tools
 import itertools
+import datetime
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
@@ -80,47 +81,77 @@ def seo_three_months_yoy_report(analytics, view_id):
     :param view_id:
     :return:
     """
-    date_ranges = []
-
-    results = {
-
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [{'startDate': '730daysAgo', 'endDate': 'today'}],
+                'dimensions': [{'name': 'ga:month'}, {'name': 'ga:year'}],
+                'metrics': [{'expression': 'ga:sessions'},
+                            {'expression': 'ga:bounceRate'},
+                            {'expression': 'ga:sessionDuration'}],
+                'orderBys': [{'fieldName': 'ga:month', 'sortOrder': 'DESCENDING'}],
+                'dimensionFilterClauses': [
+                    {
+                        'filters': [
+                            {
+                                'dimensionName': 'ga:medium',
+                                'operator': 'EXACT',
+                                'expressions': ['organic']
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     }
 
-    for date_range in date_ranges:
-        report_definition = {
-            'reportRequests': [
-                {
-                    'viewId': view_id,
-                    'dateRanges': [date_range],
-                    'metrics': [{'expression': 'ga:sessions'},
-                                {'expression': 'ga:bounceRate'},
-                                {'expression': 'ga:sessionDuration'}],
-                }
-            ]
-        }
+    report_response = get_report(analytics, report_definition)
 
-        report_response = get_report(analytics, view_id)
+    now = datetime.datetime.now()
+    last_month = now.replace(day=1) - datetime.timedelta(days=1)
+    two_months_ago = last_month.replace(day=1) - datetime.timedelta(days=1)
+    three_months_ago = two_months_ago.replace(day=1) - datetime.timedelta(days=1)
 
-        results[date_range] = {}
+    last_three_months = [[last_month.month, last_month.year], [last_month.month, last_month.year - 1],
+                         [two_months_ago.month, two_months_ago.year], [two_months_ago.month, two_months_ago.year - 1],
+                         [three_months_ago.month, three_months_ago.year],
+                         [three_months_ago.month, three_months_ago.year - 1]]
 
-        for report in report_response.get('reports', []):
-            column_header = report.get('columnHeader', {})
-            dimension_headers = column_header.get('dimensions', [])
-            metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
-            rows = report.get('data', {}).get('rows', [])
+    results = {}
 
-            for row in rows:
-                dims = row.get('dimensions', [])
-                date_range_values = row.get('metrics', [])
+    for month_entry in last_three_months:
+        results[str(month_entry[0]) + '/' + str(month_entry[1])] = {}
 
-                for header, dimension in zip(dimension_headers, dims):
-                    print(header + ': ' + dimension)
+    # Parse the report
+    for report in report_response.get('reports', []):
+        column_header = report.get('columnHeader', {})
+        dimension_headers = column_header.get('dimensions', [])
+        metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
+        rows = report.get('data', {}).get('rows', [])
 
-                for i, values in enumerate(date_range_values):
-                    for metricHeader, value in zip(metric_headers, values.get('values')):
-                        print(metricHeader.get('name') + ': ' + value)
+        for row in rows:
+            dims = row.get('dimensions', [])
+            date_range_values = row.get('metrics', [])
+            t_month = dims[0].lstrip('0')
+            t_year = dims[1]
 
-                print('====================================')
+            t_my_string = t_month + '/' + t_year
+            if t_my_string not in results:
+                continue
+
+            for i, values in enumerate(date_range_values):
+                for metricHeader, value in zip(metric_headers, values.get('values')):
+                    results[t_my_string][metricHeader.get('name')] = value
+
+    for i in range(0, len(last_three_months), 2):
+        t_my_string1 = str(last_three_months[i][0]) + '/' + str(last_three_months[i][1])
+        t_my_string2 = str(last_three_months[i + 1][0]) + '/' + str(last_three_months[i + 1][1])
+
+        if int(results[t_my_string1]['ga:sessions']) > int(results[t_my_string2]['ga:sessions']):
+            return False
+
+    return True
 
 
 def get_ecom_best_demographics_query(view_id):
@@ -389,8 +420,10 @@ def get_best_insights(analytics, view_id, dimensions, metrics, n):
 def main():
     analytics = initialize_analyticsreporting()
 
-    example = insight_example()
-    get_best_insights(analytics, '5149326', example['dimensions'], example['metrics'], example['n'])
+    # example = insight_example()
+    # get_best_insights(analytics, '5149326', example['dimensions'], example['metrics'], example['n'])
+
+    print(seo_three_months_yoy_report(analytics, '5149326'))
 
     # response = get_report(analytics, get_ecom_ppc_best_ad_groups_query('76955979'))
     # print_response(response)

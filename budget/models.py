@@ -20,7 +20,8 @@ from django.utils.timezone import make_aware
 class Client(models.Model):
     """
     This should really be called 'Account' based on Bloom's business logic
-    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
+    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account'
+    in any front end view where a user sees it
     """
     STATUS_CHOICES = [(0, 'Onboarding'),
                       (1, 'Active'),

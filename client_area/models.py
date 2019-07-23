@@ -131,7 +131,10 @@ class MonthlyReport(models.Model):
 
     @property
     def report_name(self):
-        return self.account.client_name + ' ' + calendar.month_name[self.month] + ' Report'
+        try:
+            return self.account.client_name + ' ' + calendar.month_name[self.month] + ' Report'
+        except AttributeError:
+            return 'No name report'
 
     @property
     def received_by_am(self):
