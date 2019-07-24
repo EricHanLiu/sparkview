@@ -103,7 +103,7 @@
                                                                           data-member="{{ member }}"
                                                                           data-member-id="{{ member.id }}"
                                                                           data-score="{{ skill_entry.get_score_display }}"
-                                                                          data-skill-id="{{ skill_entry.id }}"
+                                                                          id="{{ skill_entry.id }}"
                                                                           data-skill-name="{{ skill_entry.skill.name }}">
                                                                         {{ skill_entry.score }}
                                                                     </span>
@@ -168,7 +168,7 @@
     </div>
 
     <!-- Update skill rating modal -->
-    <div class="modal fade" id="updateSkillModal" tabindex="-1" role="dialog" aria-labelledby="quickAddModal">
+    <div class="modal fade" id="updateSkillModal">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -218,13 +218,13 @@
 {% endblock %}
 
 {% block extraJs %}
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
     <script>
-        let $skillButtons = $('.skill-badge');
-        $skillButtons.click(function () {
+        $('.skill-badge').click(function () {
             let member = $(this).data('member');
             let memberID = $(this).data('member-id');
             let score = parseInt($(this).text()) + ' - ' + $(this).data('score');
-            let skillID = $(this).data('skill-id');
+            let skillID = this.id;
             let skillName = $(this).data('skill-name');
 
             $('#currentMember').val(member);
@@ -232,6 +232,33 @@
             $('#currentRating').val(score);
             $('#skillID').val(skillID);
             $('#skillName').text(skillName);
+        });
+
+        let $updateSkillForm = $('#updateSkillForm');
+        let scoreBadges = ['secondary', 'dark', 'danger', 'warning', 'success'];
+        $updateSkillForm.submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: $updateSkillForm.serialize(),
+                success: () => {
+                    toastr.success('Skill updated successfully!');
+                    $('#updateSkillModal').modal('toggle');
+                    let $skillBadge = $('#' + $('#skillID').val()); // get skillbadge object
+                    let oldBadge = $skillBadge[0].classList[3].split('-')[1]; // old badge name
+                    let newScore = $('[name=new-score]').val();
+                    let newBadge = scoreBadges[parseInt(newScore)];
+                    // update skillbadge with new skill values
+                    $skillBadge.text(newScore);
+                    $skillBadge.removeClass('badge-' + oldBadge);
+                    $skillBadge.addClass('badge-' + newBadge);
+                }
+            })
         });
     </script>
 {% endblock %}

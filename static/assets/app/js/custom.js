@@ -141,6 +141,10 @@ $(document).ready(function () {
     });
 
     $(".training_datatable").DataTable({
+        fixedColumns: {
+            leftColumns: 1
+        },
+        scrollX: true,
         "bPaginate": true,
         "bLengthChange": false,
         "bFilter": true,
@@ -148,8 +152,7 @@ $(document).ready(function () {
         "bAutoWidth": true,
         'language': {
             'sSearch': '<i class="fa fa-search"></i>',
-        }
-
+        },
     });
 
     $("#my_skills_datatable, #account_change_datatable, #fee_structure_datatable").DataTable({
