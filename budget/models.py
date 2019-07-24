@@ -1503,6 +1503,9 @@ class Budget(models.Model):
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return str(self.account) + ' budget'
 
