@@ -167,6 +167,8 @@ def is_ad_bad_promo(ad):
     promo_month, promo_day, promo_year = int(date_components[0]), int(date_components[1]), now.year
     if len(date_components) == 3:
         promo_year = int(date_components[2])
+        if promo_year < 100:
+            promo_year += 2000  # The most disgusting line of code I've ever written
 
     promo_end_date = datetime.datetime(promo_year, promo_month, promo_day)
     if now > promo_end_date:
