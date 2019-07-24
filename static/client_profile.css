@@ -1,0 +1,44 @@
+.icon a {
+    color: black;
+}
+
+.icon a:hover {
+    color: tomato;
+}
+
+img.is-rounded {
+    padding: 2em;
+}
+
+.tag {
+    display: table;
+    margin: -3.5em auto 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    position: absolute;
+}
+
+.media {
+    margin-top: -2em;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    margin: 0.5em;
+    word-break: break-word;
+}
+
+table td {
+    /*padding-top: 1em;*/
+}
+
+#contact_details_card {
+    margin-top: 4em;
+    box-shadow: 0 1px 1px rgba(0 ,0 ,0 , 1), 0 0 0 1px rgba(0 ,0 ,0 , 1);
+}
+
+.card:not(#contact_details_card) {
+    box-shadow: none;
+}

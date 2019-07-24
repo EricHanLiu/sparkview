@@ -4,1068 +4,798 @@
 {% load template_filters %}
 
 {% block extraCss %}
-    <style>
-        img.is-rounded {
-            padding: 1em;
-        }
-
-        .media-content {
-            padding-top: 1em;
-        }
-
-        p.subtitle.is-6 {
-            margin-bottom: 0.2em;
-        }
-
-        .icon {
-            margin-left: 0.5em;
-        }
-
-        .icon a {
-            color: black;
-        }
-
-        .icon a:hover {
-            color: tomato;
-        }
-
-        .is-static {
-            width: 30%;
-        }
-
-        .is-expanded {
-            width: 70%;
-        }
-    </style>
+    <link href="{% static 'client_profile.css' %}" type="text/css" rel="stylesheet"/>
 {% endblock %}
 
 {% block main_body %}
+    <!-- MAIN CONTENT START -->
+    <!-- ALERTS START -->
+    {% if account.has_blacklisted_accounts %}
+        <article class="message is-danger">
+            <div class="message-body">
+                <strong>Warning!</strong> One or more of the ad accounts associated with this account are
+                blacklisted. They are not retrieving any new spend information.
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+    {% endif %}
+    {% if account.status == 2 %}
+        <article class="message is-warning">
+            <div class="message-body">
+                <strong>Heads Up!</strong> This account is inactive. The reason
+                is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is
+                supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+    {% endif %}
+    {% if account.status == 3 %}
+        <article class="message is-danger">
+            <div class="message-body">
+                <strong>Warning!</strong> This account is lost. The reason
+                is {{ account.get_lost_reason_display }}.
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+    {% endif %}
+    {% if account.has_blacklisted_accounts %}
+        <article class="message is-danger">
+            <div class="message-body">
+                <strong>Warning!</strong> One or more of the ad accounts associated with this account are
+                blacklisted. They are not retrieving any new spend information.
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+    {% endif %}
+    {% if account.status == 0 %}
+        <article class="message is-info">
+            <div class="message-body">
+                <strong>Notice:</strong> This account is in the onboarding phase. Go
+                <a href="/clients/accounts/onboard/{{ account.id }}">here</a> to view the
+                progress.
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+        {% if account.is_late_to_onboard %}
+            <article class="message is-info">
+                <div class="message-body">
+                    <strong>Warning!</strong> This account is late to onboard.
+                    It has been in the onboarding phase for {{ account.onboarding_duration_elapsed }} days.
+                    {% if account.late_onboard_reason != None and account.late_onboard_reason != '' %}
+                        The reason is {{ account.late_onboard_reason }}.
+                    {% endif %}
+                    <button class="delete" style="float:right;"></button>
+                </div>
+            </article>
+        {% endif %}
+    {% endif %}
+    <!-- ALERTS END -->
     <div class="columns">
-        <div class="column is-2">
-            <!-- SIDE MENU START -->
-            <aside class="menu">
-                <p class="menu-label">
-                    Client Profile
-                </p>
-                <ul class="menu-list">
-                    <li><a class="is-active">
-                        <div class="icon"><i class="fas fa-info"></i></div>
-                        Account Details</a></li>
-                    <li><a>
-                        <div class="icon"><i class="fas fa-dollar-sign"></i></div>
-                        Budget</a></li>
-                    <li><a>
-                        <div class="icon"><i class="fas fa-ad"></i></div>
-                        Promos</a></li>
-                    <li><a>
-                        <div class="icon"><i class="fas fa-hourglass-half"></i></div>
-                        Hours</a></li>
-                    <li><a>
-                        <div class="icon"><i class="fas fa-heartbeat"></i></div>
-                        Lifecycle</a></li>
-                </ul>
-            </aside>
-            <!-- SIDE MENU END -->
-        </div>
-        <!-- MAIN CONTENT START -->
-        <div class="column is-10">
-            <!-- ALERTS START -->
-            {% if account.has_blacklisted_accounts %}
-                <article class="message is-danger">
-                    <div class="message-body">
-                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                        blacklisted. They are not retrieving any new spend information.
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-            {% endif %}
-            {% if account.status == 2 %}
-                <article class="message is-warning">
-                    <div class="message-body">
-                        <strong>Heads Up!</strong> This account is inactive. The reason
-                        is {{ account.get_inactive_reason_display }}. {% if account.inactive_return_date != None %}It is
-                        supposed to return on {{ account.inactive_return_date|just_date }}{% endif %}
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-            {% endif %}
-            {% if account.status == 3 %}
-                <article class="message is-danger">
-                    <div class="message-body">
-                        <strong>Warning!</strong> This account is lost. The reason
-                        is {{ account.get_lost_reason_display }}.
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-            {% endif %}
-            {% if account.has_blacklisted_accounts %}
-                <article class="message is-danger">
-                    <div class="message-body">
-                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                        blacklisted. They are not retrieving any new spend information.
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-            {% endif %}
-            {% if account.status == 0 %}
-                <article class="message is-info">
-                    <div class="message-body">
-                        <strong>Notice:</strong> This account is in the onboarding phase. Go
-                        <a href="/clients/accounts/onboard/{{ account.id }}">here</a> to view the
-                        progress.
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-                {% if account.is_late_to_onboard %}
-                    <article class="message is-info">
-                        <div class="message-body">
-                            <strong>Warning!</strong> This account is late to onboard.
-                            It has been in the onboarding phase for {{ account.onboarding_duration_elapsed }} days.
-                            {% if account.late_onboard_reason != None and account.late_onboard_reason != '' %}
-                                The reason is {{ account.late_onboard_reason }}.
-                            {% endif %}
-                            <button class="delete" style="float:right;"></button>
-                        </div>
-                    </article>
-                {% endif %}
-            {% endif %}
-            <!-- ALERTS END -->
-            <!-- ASSIGNED MEMBERS START -->
-            <div class="card" id="assigned_members_display">
-                <div class="card-header">
-                    <div class="card-header-title">
-                        <div class="title is-5 level">
-                            <!-- Account info and edit icons -->
-                            {{ account.client_name }} Team
-                            <div class="tag is-{{ status_badges|get_item_from_list:account.status }} is-rounded"
-                                 style="margin-left: 1em;">
+        <div class="column is-8">
+            <div class="title is-4">
+                {{ account.client_name }} Team
+            </div>
+            <!--<div class="subtitle">
+                <div class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <div class="tag is-{{ status_badges|get_item_from_list:account.status }} is-rounded">
                                 {{ account.get_status_display }}
                             </div>
+                        </div>
+                        <div class="level-item">
                             <div class="icon">
                                 <a><i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
                                       data-target="#flag_account_modal"></i></a>
                             </div>
+                        </div>
+                        <div class="level-item">
                             <div class="icon">
                                 <a><i class="far fa-clock modal-trigger" data-target="#quick_add_modal"></i></a>
                             </div>
+                        </div>
+                        <div class="level-item">
                             <div class="icon">
                                 <a href="/clients/accounts/{{ account.id }}/edit">
                                     <i class="far fa-edit"></i>
                                 </a>
                             </div>
-                            <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle"
-                               style="margin-left: 0.7em;">
+                        </div>
+                        <div class="level-item">
+                            <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle">
                                 Lifecycle
                             </a>
                         </div>
-                    </div>
-                    <div class="card-header-icon">
-                        <button class="button is-info modal-trigger" data-target="#assign_members_modal">
-                            Assign Members
-                        </button>
+                        <div class="level-item">
+                            <button class="button is-info is-rounded is-small modal-trigger"
+                                    data-target="#assign_members_modal">
+                                Assign Members
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="card-content">
-                    <div class="columns is-multiline" id="assigned-members-display">
-                        {% for role, assigned_member in account.assigned_ams.items %}
-                            <div class="column is-one-fifth">
-                                <article class="media">
-                                    <figure class="media-left">
-                                        <p class="image is-128x128">
-                                            {% if assigned_member.member.image != None %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                            {% else %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                            {% endif %}
-                                        </p>
-                                    </figure>
-                                    <div class="media-content" style="padding-top: 1em;">
-                                        <p class="title is-5">
-                                            {% if request.user.is_staff %}
-                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                            {% endif %}
-                                            {{ assigned_member.member.user.get_full_name }}
-                                            {% if request.user.is_staff %}</a>{% endif %}</p>
-                                        <p class="subtitle is-6">
-                                            <span class="tag is-rounded is-info">{{ role }}</span>
-                                        </p>
-                                        <p>
-                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                        </p>
-                                        <p class="has-text-grey">
-                                            {{ assigned_member.allocated_percentage }}%
-                                        </p>
-                                    </div>
-                                </article>
-                            </div>
-                        {% endfor %}
-                        {% for role, assigned_member in account.assigned_cms.items %}
-                            <div class="column is-one-fifth">
-                                <article class="media">
-                                    <figure class="media-left">
-                                        <p class="image is-128x128">
-                                            {% if assigned_member.member.image != None %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                            {% else %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                            {% endif %}
-                                        </p>
-                                    </figure>
-                                    <div class="media-content" style="padding-top: 1em;">
-                                        <p class="title is-5">
-                                            {% if request.user.is_staff %}
-                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                            {% endif %}
-                                            {{ assigned_member.member.user.get_full_name }}
-                                            {% if request.user.is_staff %}</a>{% endif %}</p>
-                                        <p class="subtitle is-6">
-                                            <span class="tag is-rounded is-success">{{ role }}</span>
-                                        </p>
-                                        <p>
-                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                        </p>
-                                        <p class="has-text-grey">
-                                            {{ assigned_member.allocated_percentage }}%
-                                        </p>
-                                    </div>
-                                </article>
-                            </div>
-                        {% endfor %}
-                        {% for role, assigned_member in account.assigned_seos.items %}
-                            <div class="column is-one-fifth">
-                                <article class="media">
-                                    <figure class="media-left">
-                                        <p class="image is-128x128">
-                                            {% if assigned_member.member.image != None %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                            {% else %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                            {% endif %}
-                                        </p>
-                                    </figure>
-                                    <div class="media-content" style="padding-top: 1em;">
-                                        <p class="title is-5">
-                                            {% if request.user.is_staff %}
-                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                            {% endif %}
-                                            {{ assigned_member.member.user.get_full_name }}
-                                            {% if request.user.is_staff %}</a>{% endif %}</p>
-                                        <p class="subtitle is-6">
-                                            <span class="tag is-rounded is-warning">{{ role }}</span>
-                                        </p>
-                                        <p>
-                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                        </p>
-                                        <p class="has-text-grey">
-                                            {{ assigned_member.allocated_percentage }}%
-                                        </p>
-                                    </div>
-                                </article>
-                            </div>
-                        {% endfor %}
-                        {% for role, assigned_member in account.assigned_strats.items %}
-                            <div class="column is-one-fifth">
-                                <article class="media">
-                                    <figure class="media-left">
-                                        <p class="image is-128x128">
-                                            {% if assigned_member.member.image != None %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                            {% else %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                            {% endif %}
-                                        </p>
-                                    </figure>
-                                    <div class="media-content" style="padding-top: 1em;">
-                                        <p class="title is-5">
-                                            {% if request.user.is_staff %}
-                                                <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                            {% endif %}
-                                            {{ assigned_member.member.user.get_full_name }}
-                                            {% if request.user.is_staff %}</a>{% endif %}</p>
-                                        <p class="subtitle is-6">
-                                            <span class="tag is-rounded is-danger">{{ role }}</span>
-                                        </p>
-                                        <p>
-                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                            / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                        </p>
-                                        <p class="has-text-grey">
-                                            {{ assigned_member.allocated_percentage }}%
-                                        </p>
-                                    </div>
-                                </article>
-                            </div>
-                        {% endfor %}
-                        {% for backup in backups %}
-                            {% for member in backup.members.all %}
-                                <div class="column is-one-fifth">
-                                    <article class="media">
-                                        <figure class="media-left">
-                                            <p class="image is-128x128">
-                                                {% if assigned_member.member.image != None %}
-                                                    <img class="is-rounded"
-                                                         src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                                {% else %}
-                                                    <img class="is-rounded"
-                                                         src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                                {% endif %}
-                                            </p>
-                                        </figure>
-                                        <div class="media-content" style="padding-top: 1em;">
-                                            <p class="title is-5">
-                                                {% if request.user.is_staff %}
-                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                                {% endif %}
-                                                {{ assigned_member.member.user.get_full_name }}
-                                                {% if request.user.is_staff %}</a>{% endif %}</p>
-                                            <p class="subtitle is-6">
-                                        <span class="tag is-rounded" style="background: #AA43DE; color: white;">
-                                            Backup
-                                        </span>
-                                            </p>
-                                            <p>
-                                                {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
-                                                / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
-                                            </p>
-                                            <p class="has-text-grey">
-                                                {{ assigned_member.allocated_percentage }}%
-                                            </p>
-                                            <p>
-                                                {{ backup.period.start_date }} - {{ backup.period.end_date }}
-                                            </p>
-                                        </div>
-                                    </article>
-                                </div>
-                            {% endfor %}
-                        {% endfor %}
-                        {% if account.team_lead_override != None and account.team_lead_override != '' %}
-                            <div class="column is-one-fifth">
-                                <article class="media">
-                                    <figure class="media-left">
-                                        <p class="image is-128x128">
-                                            {% if account.team_lead_override.image != None %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'img/bloomers/'|add:account.team_lead_override.image %}"/>
-                                            {% else %}
-                                                <img class="is-rounded"
-                                                     src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                            {% endif %}
-                                        </p>
-                                    </figure>
-                                    <div class="media-content" style="padding-top: 1em;">
-                                        <p class="title is-5">
-                                            {% if request.user.is_staff %}
-                                                <a href="/user_management/members/{{ account.team_lead_override.id }}">
-                                            {% endif %}
-                                            {{ account.team_lead_override.user.get_full_name }}
-                                            {% if request.user.is_staff %}</a>{% endif %}</p>
-                                        <p class="subtitle is-6">
-                                    <span class="tag is-rounded" style="background: rgb(255, 153, 51); color: white;">
-                                        Team Lead
-                                    </span>
-                                        </p>
-                                    </div>
-                                </article>
-                            </div>
-                        {% else %}
-                            {% for assigned_member in account.team_leads %}
-                                <div class="column is-one-fifth">
-                                    <article class="media">
-                                        <figure class="media-left">
-                                            <p class="image is-128x128">
-                                                {% if assigned_member.member.image != None %}
-                                                    <img class="is-rounded"
-                                                         src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                                {% else %}
-                                                    <img class="is-rounded"
-                                                         src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                                {% endif %}
-                                            </p>
-                                        </figure>
-                                        <div class="media-content" style="padding-top: 1em;">
-                                            <p class="title is-5">
-                                                {% if request.user.is_staff %}
-                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                                {% endif %}
-                                                {{ assigned_member.member.user.get_full_name }}
-                                                {% if request.user.is_staff %}</a>{% endif %}</p>
-                                            <p class="subtitle is-6">
-                                    <span class="tag is-rounded" style="background: rgb(255, 153, 51); color: white;">
-                                        Team Lead
-                                    </span>
-                                            </p>
-                                        </div>
-                                    </article>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        {% for assignment in account.active_mandate_assignments %}
-                            {% with assigned_member=assignment.member %}
-                                <div class="column is-one-fifth">
-                                    <article class="media">
-                                        <figure class="media-left">
-                                            <p class="image is-128x128">
-                                                {% if assigned_member.member.image != None %}
-                                                    <img class="is-rounded"
-                                                         src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                                {% else %}
-                                                    <img class="is-rounded"
-                                                         src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                                {% endif %}
-                                            </p>
-                                        </figure>
-                                        <div class="media-content" style="padding-top: 1em;">
-                                            <p class="title is-5">
-                                                {% if request.user.is_staff %}
-                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                                {% endif %}
-                                                {{ assigned_member.user.get_full_name }}
-                                                {% if request.user.is_staff %}</a>{% endif %}</p>
-                                            <p class="subtitle is-6">
-                                        <span class="tag is-rounded"
-                                              style="background: rgb(255, 153, 51); color: white;">
-                                            Mandate - {{ assignment.mandate.mandate_type.name }}
-                                        </span>
-                                            </p>
-                                            <p>
-                                                {{ assignment.worked_this_month }}/{{ assignment.hours }}hr
-                                            </p>
-                                            <p class="has-text-grey">
-                                                {{ assignment.mandate.start_date_pretty }}
-                                                - {{ assignment.mandate.end_date_pretty }}
-                                            </p>
-                                        </div>
-                                    </article>
-                                </div>
-                            {% endwith %}
-                        {% endfor %}
-                        <div class="column is-one-fifth">
-                            <article class="media">
-                                <figure class="media-left">
-                                    <p class="image is-128x128">
-                                        {% if account.soldBy.image != None %}
+            </div>-->
+            <!-- ASSIGNED MEMBERS START -->
+            <div class="columns">
+                {% for role, assigned_member in account.assigned_members.items %}
+                    {% if role != 'Sold by' %}
+                        <div class="column is-2">
+                            <div class="card has-background-light" style="box-shadow: none;">
+                                <div class="card-image">
+                                    <p class="image">
+                                        {% if assigned_member.member.image != None %}
                                             <img class="is-rounded"
-                                                 src="{% static 'img/bloomers/'|add:account.soldBy.image %}"/>
+                                                 src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
                                         {% else %}
                                             <img class="is-rounded"
                                                  src="{% static 'assets/app/media/img/user4.jpg' %}"/>
                                         {% endif %}
-                                    </p>
-                                </figure>
-                                <div class="media-content" style="padding-top: 1em;">
-                                    <p class="title is-5">
-                                        {% if request.user.is_staff %}
-                                            <a href="/user_management/members/{{ account.soldBy.id }}">
-                                        {% endif %}
-                                        {{ account.soldBy.user.get_full_name }}
-                                        {% if request.user.is_staff %}</a>{% endif %}</p>
-                                    <p class="subtitle is-6">
-                                <span class="tag is-rounded" style="background: rgb(0, 153, 151); color: white;">
-                                    Sales
-                                </span>
+                                        <span class="tag is-rounded is-{% if 'CM' in role %}primary{% elif 'AM' in role %}danger{% elif 'SEO' in role %}info{% else %}warning{% endif %}">
+                                            {{ role }}
+                                        </span>
                                     </p>
                                 </div>
-                            </article>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- ASSIGNED MEMBERS END -->
-            <div class="columns" style="margin-top: 1em;">
-                <div class="column">
-                    <!-- CLIENT DETAILS START -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-header-title">
-                                <div class="title is-5 level">
-                                    Client Details
-                                </div>
-                            </div>
-                            <div class="card-header-icon">
-                                <button class="button" id="edit_client_details">
-                                    Save Changes
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <form id="client_details">
-                                <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Basecamp Link</button>
-                                    <div class="control is-expanded">
-                                        <input class="input" type="text" name="bc_link"
-                                               value="{{ account.bc_link }}">
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Client Description</button>
-                                    <div class="control is-expanded">
-                                        <input class="input" type="text" name="description"
-                                               value="{{ account.description }}">
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Client Notes</button>
-                                    <div class="control is-expanded">
-                                        <input class="input" type="text" name="notes"
-                                               value="{{ account.notes }}">
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">URL</button>
-                                    <div class="control is-expanded">
-                                        <input class="input" type="text" name="url"
-                                               value="{{ account.url }}">
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Tier</button>
-                                    <div class="control is-expanded">
-                                        <input class="input" type="text" disabled style="pointer-events: none;"
-                                               value="{{ account.tier }}">
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">
-                                        Contact Name{% if account.contactInfo.all.count > 1 %}s{% endif %}
-                                    </button>
-                                    <div class="control is-expanded">
-                                        {% for clientContact in account.contactInfo.all %}
-                                            <input class="input" type="text" name="contact_names"
-                                                   value="{{ clientContact.name }}">
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">
-                                        Contact Email{% if account.contactInfo.all.count > 1 %}s{% endif %}
-                                    </button>
-                                    <div class="control is-expanded">
-                                        {% for clientContact in account.contactInfo.all %}
-                                            <input class="input" type="text" name="contact_emails"
-                                                   value="{{ clientContact.email }}">
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">
-                                        Contact Phone{% if account.contactInfo.all.count > 1 %}s{% endif %}
-                                    </button>
-                                    <div class="control is-expanded">
-                                        {% for clientContact in account.contactInfo.all %}
-                                            <input class="input" type="text" name="contact_phones"
-                                                   value="{{ clientContact.phone }}">
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Industry</button>
-                                    <div class="control is-expanded">
-                                        <div class="select is-fullwidth">
-                                            <select id="select_industries" name="industry">
-                                            </select>
+                                <div class="card-content">
+                                    <div class="media">
+                                        <div class="media-content">
+                                            <p class="title is-6 has-text-centered">{{ assigned_member.member.user.get_full_name }}</p>
+                                            <p class="subtitle is-6 has-text-centered">
+                                                {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
+                                                / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Team</button>
-                                    <div class="control is-expanded">
-                                        <div class="select is-multiple is-fullwidth">
-                                            <select multiple class="selectable-details" id="select_teams" name="teams">
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Platforms</button>
-                                    <div class="control is-expanded">
-                                        <div class="select is-multiple is-fullwidth">
-                                            <select multiple class="set-details" name="platforms" disabled>
-                                                <option value="Adwords"
-                                                        {% if account.aw_budget != 0.0 %}selected{% endif %}>
-                                                    Adwords
-                                                </option>
-                                                <option value="Bing"
-                                                        {% if account.bing_budget != 0.0 %}selected{% endif %}>
-                                                    Bing
-                                                </option>
-                                                <option value="Facebook"
-                                                        {% if account.fb_budget != 0.0 %}selected{% endif %}>
-                                                    Facebook
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="field has-addons">
-                                    <button class="button is-static" type="button">Services</button>
-                                    <div class="control is-expanded">
-                                        <div class="select is-multiple is-fullwidth">
-                                            <select multiple class="set-details" name="services" disabled>
-                                                <option value="SEO" {% if account.has_seo %}selected{% endif %}>
-                                                    SEO
-                                                </option>
-                                                <option value="CRO" {% if account.has_cro %}selected{% endif %}>
-                                                    CRO
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-header-title">
-                                <div class="title is-5 level">
-                                    Services
-                                </div>
-                            </div>
-                            <div class="card-header-icon">
-                                <button type="button" class="button modal-trigger"
-                                        data-target="">
-                                    New Opportunity
-                                </button>
-                                <button type="button" class="button modal-trigger"
-                                        data-target="">
-                                    Update
-                                </button>
                             </div>
                         </div>
-                        <div class="card-content">
-                            <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-                                <div class="m-portlet__body">
-                                    <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'
-                                           id="account_change_datatable">
-                                        <thead class="thead-inverse">
-                                        <tr class="main-table-header">
-                                            <th>
-                                                Service
-                                            </th>
-                                            <th>
-                                                Status
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td>
-                                                PPC
-                                            </td>
-                                            <td>
-                                                {% if account.sales_profile.ppc_status == 0 %}
-                                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_ppc_status_display }}</a>
-                                                {% else %}
-                                                    {{ account.sales_profile.get_ppc_status_display }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                SEO
-                                            </td>
-                                            <td>
-                                                {% if account.sales_profile.seo_status == 0 %}
-                                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_seo_status_display }}</a>
-                                                {% else %}
-                                                    {{ account.sales_profile.get_seo_status_display }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                CRO
-                                            </td>
-                                            <td>
-                                                {% if account.sales_profile.cro_status == 0 %}
-                                                    <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_cro_status_display }}</a>
-                                                {% else %}
-                                                    {{ account.sales_profile.get_cro_status_display }}
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {#                            <tr>#}
-                                        {#                                <td>#}
-                                        {#                                    Strat#}
-                                        {#                                </td>#}
-                                        {#                                <td>#}
-                                        {#                                    {{ account.sales_profile.get_strat_status_display }}#}
-                                        {#                                </td>#}
-                                        {#                            </tr>#}
-                                        {#                            <tr>#}
-                                        {#                                <td>#}
-                                        {#                                    Email Marketing#}
-                                        {#                                </td>#}
-                                        {#                                <td>#}
-                                        {#                                    {{ account.sales_profile.get_email_status_display }}#}
-                                        {#                                </td>#}
-                                        {#                            </tr>#}
-                                        {#                            <tr>#}
-                                        {#                                <td>#}
-                                        {#                                    Feed Management#}
-                                        {#                                </td>#}
-                                        {#                                <td>#}
-                                        {#                                    {{ account.sales_profile.get_feed_status_display }}#}
-                                        {#                                </td>#}
-                                        {#                            </tr>#}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    {% endif %}
+                {% endfor %}
             </div>
-            <!-- CLIENT DETAILS END -->
-
-            <!-- MODALS -->
-            <!-- FLAG ACCOUNT MODAL START -->
-            <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
-                <div class="modal-background"></div>
-                <div class="modal-card">
-                    <form method="POST" action="/clients/accounts/flag">
-                        {% csrf_token %}
-                        <div class="modal-card-head">
-                            <div class="modal-card-title">How are we doing?</div>
-                            <button class="delete"></button>
-                        </div>
-                        <div class="modal-card-body">
-                            <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                            <input name="flagged" type="text" value="False" style="display:none;"/>
-                            <div class="columns">
-                                <div class="column">
-                                    <button type="button" class="button is-outlined is-primary is-fullwidth"
-                                            id="good_task_btn">
-                                        Account is good <i class="far fa-smile"></i>
-                                    </button>
-                                </div>
-                                <div class="column">
-                                    <button type="button" id="flag_task_btn"
-                                            class="button is-danger is-outlined is-fullwidth">
-                                        Account needs to be flagged <i class="far fa-frown"
-                                    ></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="columns is-hidden" id="bc_link_row">
-                                <div class="column">
-                                    <label>Basecamp Link:</label>
-                                    <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"/>
-                                    <button type="submit" class="button is-fullwidth is-info" id="flag_task_submit"
-                                            style="margin-top: 1em;">
-                                        Submit
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <button class="modal-close is-large"></button>
-            </div>
-            <!-- FLAG ACCOUNT MODAL END -->
-            <!-- QUICKADD HOURS MODAL START -->
-            <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
-                <div class="modal-background"></div>
-                <div class="modal-card">
-                    <div class="modal-card-head">
-                        <div class="modal-card-title">Quick Add Hours</div>
-                        <button class="delete"></button>
-                    </div>
-                    <div class="modal-card-body">
-                        <form id="quick_add_form">
-                            <div class="columns">
-                                <div class="column">
-                                    <label>Hours:</label>
-                                    <input type="text" name="quick_add_hours"
-                                           class="input" required>
-                                </div>
-                                <div class="column">
-                                    <label>Month:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="quick_add_month" required>
-                                            {% for monthNum, monthName in months %}
-                                                <option value="{{ monthNum }}"
-                                                        {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
-                                                    {{ monthName }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <label>Year:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="quick_add_year" required>
-                                            {% for year in years %}
-                                                <option value="{{ year }}"
-                                                        {% if year == current_year %}selected{% endif %}>
-                                                    {{ year }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">
-                                    <button type="submit" class="button is-info is-fullwidth">Submit</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <button class="modal-close is-large"></button>
-            </div>
-            <!-- QUICKADD HOURS MODAL END -->
-            <!-- ASSIGN MEMBERS MODAL START -->
-            <div class="modal modal-fx-fadeInScale" id="assign_members_modal">
-                <div class="modal-background"></div>
-                <div class="modal-card">
-                    <div class="modal-card-head">
-                        <div class="modal-card-title">Assign Members to {{ account.client_name }}</div>
-                        <button class="delete"></button>
-                    </div>
-                    <form id="assign_members_form" method="POST" action="/clients/accounts/assign_members">
-                        {% csrf_token %}
-                        <div class="modal-card-body">
-                            <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                            <div class="columns">
-                                <div class="column">
-                                    <label>AM 1:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="am1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.am1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="am1_percent" class="input percentage-assignment"
-                                           value="{{ account.am1percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>AM 2:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="am2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.am2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="am2_percent" class="input percentage-assignment"
-                                           value="{{ account.am2percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>AM 3:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="am3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.am3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="am3_percent" class="input percentage-assignment"
-                                           value="{{ account.am3percent|floatformat:2 }}"/>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">
-                                    <label>CM 1:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="cm1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.cm1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="cm1_percent" class="input percentage-assignment"
-                                           value="{{ account.cm1percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>CM 2:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="cm2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.cm2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="cm2_percent" class="input percentage-assignment"
-                                           value="{{ account.cm2percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>CM 3:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="cm3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.cm3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="cm3_percent" class="input percentage-assignment"
-                                           value="{{ account.cm3percent|floatformat:2 }}"/>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">
-                                    <label>Strat 1:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="strat1_assign"
-                                                {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.strat1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="strat1_percent" class="input percentage-assignment"
-                                           value="{{ account.strat1percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>Strat 2:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="strat2_assign"
-                                                {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.strat2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="strat2_percent" class="input percentage-assignment"
-                                           value="{{ account.strat2percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>Strat 3:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="strat3_assign"
-                                                {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.strat3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="strat3_percent" class="input percentage-assignment"
-                                           value="{{ account.strat3percent|floatformat:2 }}"/>
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column">
-                                    <label>SEO 1:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="seo1_assign"
-                                                {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.seo1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="seo1_percent" class="input percentage-assignment"
-                                           value="{{ account.seo1percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>SEO 2:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="seo2_assign"
-                                                {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.seo2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="seo2_percent" class="input percentage-assignment"
-                                           value="{{ account.seo2percent|floatformat:2 }}"/>
-                                </div>
-                                <div class="column">
-                                    <label>SEO 3:</label>
-                                    <div class="select is-fullwidth">
-                                        <select name="seo3_assign"
-                                                {% if not request.user.is_staff %}disabled{% endif %}>
-                                            <option value="0">
-                                                None
-                                            </option>
-                                            {% for member in members %}
-                                                <option value="{{ member.id }}"
-                                                        {% if member.id == account.seo3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <input type="text" name="seo3_percent" class="input percentage-assignment"
-                                           value="{{ account.seo3percent|floatformat:2 }}"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-card-foot">
-                            <p>Total percentage: <span id="percentage_total"></span>%</p>
-                            <button type="button" class="button is-primary" id="distribute_hours_button"
-                                    style="margin-left: auto;">
-                                Distribute hours proportionately
-                            </button>
-                            <button type="submit" class="button is-info" id="submit_assign_form_button">Submit</button>
-                        </div>
-                    </form>
-                </div>
-                <button class="modal-close is-large"></button>
-            </div>
-            <!-- ASSIGN MEMBERS MODAL END -->
         </div>
-        <!-- MAIN CONTENT END -->
+        <div class="column is-4">
+            <!-- CLIENT DETAILS START -->
+            <div class="card has-background-light" id="contact_details_card">
+                <div class="card-content">
+                    <table>
+                        <tr>
+                            <td>
+                                <p class="title is-6" style="padding-right: 1.5em;">Name:</p>
+                                {{ account.contactInfo.all.0.name }}
+                            </td>
+                            <td>
+                                <p class="title is-6">Phone:</p>
+                                {{ account.contactInfo.all.0.phone }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 1.5em; padding-right: 1.5em;">
+                                <p class="title is-6">Email:</p>
+                                {{ account.contactInfo.all.0.email }}
+                            </td>
+                            <td style="padding-top: 1.5em;">
+                                <p class="title is-6">Industry:</p>
+                                {{ account.industry }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <!--<div class="card">
+                <div class="card-header">
+                    <div class="card-header-title">
+                        <div class="title is-5 level">
+                            Client Details
+                        </div>
+                    </div>
+                    <div class="card-header-icon">
+                        <button class="button" id="edit_client_details">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <form id="client_details">
+                        <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Basecamp Link</button>
+                            <div class="control is-expanded">
+                                <input class="input" type="text" name="bc_link"
+                                       value="{{ account.bc_link }}">
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Client Description</button>
+                            <div class="control is-expanded">
+                                <input class="input" type="text" name="description"
+                                       value="{{ account.description }}">
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Client Notes</button>
+                            <div class="control is-expanded">
+                                <input class="input" type="text" name="notes"
+                                       value="{{ account.notes }}">
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">URL</button>
+                            <div class="control is-expanded">
+                                <input class="input" type="text" name="url"
+                                       value="{{ account.url }}">
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Tier</button>
+                            <div class="control is-expanded">
+                                <input class="input" type="text" disabled style="pointer-events: none;"
+                                       value="{{ account.tier }}">
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">
+                                Contact Name{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                            </button>
+                            <div class="control is-expanded">
+                                {% for clientContact in account.contactInfo.all %}
+                                    <input class="input" type="text" name="contact_names"
+                                           value="{{ clientContact.name }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">
+                                Contact Email{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                            </button>
+                            <div class="control is-expanded">
+                                {% for clientContact in account.contactInfo.all %}
+                                    <input class="input" type="text" name="contact_emails"
+                                           value="{{ clientContact.email }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">
+                                Contact Phone{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                            </button>
+                            <div class="control is-expanded">
+                                {% for clientContact in account.contactInfo.all %}
+                                    <input class="input" type="text" name="contact_phones"
+                                           value="{{ clientContact.phone }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Industry</button>
+                            <div class="control is-expanded">
+                                <div class="select is-fullwidth">
+                                    <select id="select_industries" name="industry">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Team</button>
+                            <div class="control is-expanded">
+                                <div class="select is-multiple is-fullwidth">
+                                    <select multiple class="selectable-details" id="select_teams" name="teams">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Platforms</button>
+                            <div class="control is-expanded">
+                                <div class="select is-multiple is-fullwidth">
+                                    <select multiple class="set-details" name="platforms" disabled>
+                                        <option value="Adwords"
+                                                {% if account.aw_budget != 0.0 %}selected{% endif %}>
+                                            Adwords
+                                        </option>
+                                        <option value="Bing"
+                                                {% if account.bing_budget != 0.0 %}selected{% endif %}>
+                                            Bing
+                                        </option>
+                                        <option value="Facebook"
+                                                {% if account.fb_budget != 0.0 %}selected{% endif %}>
+                                            Facebook
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field has-addons">
+                            <button class="button is-static" type="button">Services</button>
+                            <div class="control is-expanded">
+                                <div class="select is-multiple is-fullwidth">
+                                    <select multiple class="set-details" name="services" disabled>
+                                        <option value="SEO" {% if account.has_seo %}selected{% endif %}>
+                                            SEO
+                                        </option>
+                                        <option value="CRO" {% if account.has_cro %}selected{% endif %}>
+                                            CRO
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>-->
+        </div>
     </div>
+    <div class="columns">
+        <div class="column is-4">
+            <div class="card">
+                <div class="card-content">
+                    <p class="title is-5">Services</p>
+                </div>
+            </div>
+        </div>
+        <div class="column is-4">
+            <div class="card">
+                <div class="card-content">
+                    <p class="title is-5">Monthly Budget Information</p>
+                </div>
+            </div>
+        </div>
+        <div class="column is-4">
+            <div class="card">
+                <div class="card-content">
+                    <p class="title is-5">Upcoming Promos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column">
+            <div class="card">
+                <div class="card-content">
+                    <p class="title is-5">Budgets</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {#    <!-- ASSIGNED MEMBERS END -->#}
+    {#    <div class="columns" style="margin-top: 1em;">#}
+    {#        <div class="column">#}
+    {#        </div>#}
+    {#        <div class="column">#}
+    {#            <div class="card">#}
+    {#                <div class="card-header">#}
+    {#                    <div class="card-header-title">#}
+    {#                        <div class="title is-5 level">#}
+    {#                            Services#}
+    {#                        </div>#}
+    {#                    </div>#}
+    {#                    <div class="card-header-icon">#}
+    {#                        <button type="button" class="button modal-trigger"#}
+    {#                                data-target="">#}
+    {#                            New Opportunity#}
+    {#                        </button>#}
+    {#                        <button type="button" class="button modal-trigger"#}
+    {#                                data-target="">#}
+    {#                            Update#}
+    {#                        </button>#}
+    {#                    </div>#}
+    {#                </div>#}
+    {#                <div class="card-content">#}
+    {#                    <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">#}
+    {#                        <div class="m-portlet__body">#}
+    {#                            <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'#}
+    {#                                   id="account_change_datatable">#}
+    {#                                <thead class="thead-inverse">#}
+    {#                                <tr class="main-table-header">#}
+    {#                                    <th>#}
+    {#                                        Service#}
+    {#                                    </th>#}
+    {#                                    <th>#}
+    {#                                        Status#}
+    {#                                    </th>#}
+    {#                                </tr>#}
+    {#                                </thead>#}
+    {#                                <tbody>#}
+    {#                                <tr>#}
+    {#                                    <td>#}
+    {#                                        PPC#}
+    {#                                    </td>#}
+    {#                                    <td>#}
+    {#                                        {% if account.sales_profile.ppc_status == 0 %}#}
+    {#                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_ppc_status_display }}</a>#}
+    {#                                        {% else %}#}
+    {#                                            {{ account.sales_profile.get_ppc_status_display }}#}
+    {#                                        {% endif %}#}
+    {#                                    </td>#}
+    {#                                </tr>#}
+    {#                                <tr>#}
+    {#                                    <td>#}
+    {#                                        SEO#}
+    {#                                    </td>#}
+    {#                                    <td>#}
+    {#                                        {% if account.sales_profile.seo_status == 0 %}#}
+    {#                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_seo_status_display }}</a>#}
+    {#                                        {% else %}#}
+    {#                                            {{ account.sales_profile.get_seo_status_display }}#}
+    {#                                        {% endif %}#}
+    {#                                    </td>#}
+    {#                                </tr>#}
+    {#                                <tr>#}
+    {#                                    <td>#}
+    {#                                        CRO#}
+    {#                                    </td>#}
+    {#                                    <td>#}
+    {#                                        {% if account.sales_profile.cro_status == 0 %}#}
+    {#                                            <a href="/clients/accounts/onboard/{{ account.id }}">{{ account.sales_profile.get_cro_status_display }}</a>#}
+    {#                                        {% else %}#}
+    {#                                            {{ account.sales_profile.get_cro_status_display }}#}
+    {#                                        {% endif %}#}
+    {#                                    </td>#}
+    {#                                </tr>#}
+    {#                            <tr>#}
+    {#                                <td>#}
+    {#                                    Strat#}
+    {#                                </td>#}
+    {#                                <td>#}
+    {#                                    {{ account.sales_profile.get_strat_status_display }}#}
+    {#                                </td>#}
+    {#                            </tr>#}
+    {#                            <tr>#}
+    {#                                <td>#}
+    {#                                    Email Marketing#}
+    {#                                </td>#}
+    {#                                <td>#}
+    {#                                    {{ account.sales_profile.get_email_status_display }}#}
+    {#                                </td>#}
+    {#                            </tr>#}
+    {#                            <tr>#}
+    {#                                <td>#}
+    {#                                    Feed Management#}
+    {#                                </td>#}
+    {#                                <td>#}
+    {#                                    {{ account.sales_profile.get_feed_status_display }}#}
+    {#                                </td>#}
+    {#                            </tr>#}
+    {#                                </tbody>#}
+    {#                            </table>#}
+    {#                        </div>#}
+    {#                    </div>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
+    <!-- CLIENT DETAILS END -->
+
+    <!-- MODALS -->
+    <!-- FLAG ACCOUNT MODAL START -->
+    <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <form method="POST" action="/clients/accounts/flag">
+                {% csrf_token %}
+                <div class="modal-card-head">
+                    <div class="modal-card-title">How are we doing?</div>
+                    <button class="delete"></button>
+                </div>
+                <div class="modal-card-body">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="flagged" type="text" value="False" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column">
+                            <button type="button" class="button is-outlined is-primary is-fullwidth"
+                                    id="good_task_btn">
+                                Account is good <i class="far fa-smile"></i>
+                            </button>
+                        </div>
+                        <div class="column">
+                            <button type="button" id="flag_task_btn"
+                                    class="button is-danger is-outlined is-fullwidth">
+                                Account needs to be flagged <i class="far fa-frown"
+                            ></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="columns is-hidden" id="bc_link_row">
+                        <div class="column">
+                            <label>Basecamp Link:</label>
+                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"/>
+                            <button type="submit" class="button is-fullwidth is-info" id="flag_task_submit"
+                                    style="margin-top: 1em;">
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <button class="modal-close is-large"></button>
+    </div>
+    <!-- FLAG ACCOUNT MODAL END -->
+    <!-- QUICKADD HOURS MODAL START -->
+    <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <div class="modal-card-head">
+                <div class="modal-card-title">Quick Add Hours</div>
+                <button class="delete"></button>
+            </div>
+            <div class="modal-card-body">
+                <form id="quick_add_form">
+                    <div class="columns">
+                        <div class="column">
+                            <label>Hours:</label>
+                            <input type="text" name="quick_add_hours"
+                                   class="input" required>
+                        </div>
+                        <div class="column">
+                            <label>Month:</label>
+                            <div class="select is-fullwidth">
+                                <select name="quick_add_month" required>
+                                    {% for monthNum, monthName in months %}
+                                        <option value="{{ monthNum }}"
+                                                {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
+                                            {{ monthName }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <label>Year:</label>
+                            <div class="select is-fullwidth">
+                                <select name="quick_add_year" required>
+                                    {% for year in years %}
+                                        <option value="{{ year }}"
+                                                {% if year == current_year %}selected{% endif %}>
+                                            {{ year }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column">
+                            <button type="submit" class="button is-info is-fullwidth">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <button class="modal-close is-large"></button>
+    </div>
+    <!-- QUICKADD HOURS MODAL END -->
+    <!-- ASSIGN MEMBERS MODAL START -->
+    <div class="modal modal-fx-fadeInScale" id="assign_members_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <div class="modal-card-head">
+                <div class="modal-card-title">Assign Members to {{ account.client_name }}</div>
+                <button class="delete"></button>
+            </div>
+            <form id="assign_members_form" method="POST" action="/clients/accounts/assign_members">
+                {% csrf_token %}
+                <div class="modal-card-body">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column">
+                            <label>AM 1:</label>
+                            <div class="select is-fullwidth">
+                                <select name="am1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.am1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="am1_percent" class="input percentage-assignment"
+                                   value="{{ account.am1percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>AM 2:</label>
+                            <div class="select is-fullwidth">
+                                <select name="am2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.am2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="am2_percent" class="input percentage-assignment"
+                                   value="{{ account.am2percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>AM 3:</label>
+                            <div class="select is-fullwidth">
+                                <select name="am3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.am3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="am3_percent" class="input percentage-assignment"
+                                   value="{{ account.am3percent|floatformat:2 }}"/>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column">
+                            <label>CM 1:</label>
+                            <div class="select is-fullwidth">
+                                <select name="cm1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.cm1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="cm1_percent" class="input percentage-assignment"
+                                   value="{{ account.cm1percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>CM 2:</label>
+                            <div class="select is-fullwidth">
+                                <select name="cm2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.cm2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="cm2_percent" class="input percentage-assignment"
+                                   value="{{ account.cm2percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>CM 3:</label>
+                            <div class="select is-fullwidth">
+                                <select name="cm3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.cm3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="cm3_percent" class="input percentage-assignment"
+                                   value="{{ account.cm3percent|floatformat:2 }}"/>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column">
+                            <label>Strat 1:</label>
+                            <div class="select is-fullwidth">
+                                <select name="strat1_assign"
+                                        {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.strat1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="strat1_percent" class="input percentage-assignment"
+                                   value="{{ account.strat1percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>Strat 2:</label>
+                            <div class="select is-fullwidth">
+                                <select name="strat2_assign"
+                                        {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.strat2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="strat2_percent" class="input percentage-assignment"
+                                   value="{{ account.strat2percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>Strat 3:</label>
+                            <div class="select is-fullwidth">
+                                <select name="strat3_assign"
+                                        {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.strat3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="strat3_percent" class="input percentage-assignment"
+                                   value="{{ account.strat3percent|floatformat:2 }}"/>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column">
+                            <label>SEO 1:</label>
+                            <div class="select is-fullwidth">
+                                <select name="seo1_assign"
+                                        {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.seo1.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="seo1_percent" class="input percentage-assignment"
+                                   value="{{ account.seo1percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>SEO 2:</label>
+                            <div class="select is-fullwidth">
+                                <select name="seo2_assign"
+                                        {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.seo2.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="seo2_percent" class="input percentage-assignment"
+                                   value="{{ account.seo2percent|floatformat:2 }}"/>
+                        </div>
+                        <div class="column">
+                            <label>SEO 3:</label>
+                            <div class="select is-fullwidth">
+                                <select name="seo3_assign"
+                                        {% if not request.user.is_staff %}disabled{% endif %}>
+                                    <option value="0">
+                                        None
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}"
+                                                {% if member.id == account.seo3.id %}selected{% endif %}>{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="text" name="seo3_percent" class="input percentage-assignment"
+                                   value="{{ account.seo3percent|floatformat:2 }}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-card-foot">
+                    <p>Total percentage: <span id="percentage_total"></span>%</p>
+                    <button type="button" class="button is-primary" id="distribute_hours_button"
+                            style="margin-left: auto;">
+                        Distribute hours proportionately
+                    </button>
+                    <button type="submit" class="button is-info" id="submit_assign_form_button">Submit</button>
+                </div>
+            </form>
+        </div>
+        <button class="modal-close is-large"></button>
+    </div>
+    <!-- ASSIGN MEMBERS MODAL END -->
+    <!-- MAIN CONTENT END -->
 {% endblock %}
 
 {% block extraJs %}
