@@ -171,7 +171,7 @@ def is_ad_bad_promo(ad):
             promo_year += 2000  # The most disgusting line of code I've ever written
 
     promo_end_date = datetime.datetime(promo_year, promo_month, promo_day)
-    if now > promo_end_date:
+    if datetime.datetime.combine(now, datetime.time.min) > promo_end_date:
         return True
 
     return False
