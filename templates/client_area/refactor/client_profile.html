@@ -122,7 +122,7 @@
                         <div class="column is-2">
                             <div class="card has-background-light member-card">
                                 <div class="card-image">
-                                    <p class="image">
+                                    <div class="image">
                                         {% if assigned_member.member.image != None %}
                                             <img class="is-rounded"
                                                  src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
@@ -130,11 +130,12 @@
                                             <img class="is-rounded"
                                                  src="{% static 'assets/app/media/img/user4.jpg' %}"/>
                                         {% endif %}
-                                        <span class="tag is-rounded is-{% if 'CM' in role %}primary{% elif 'AM' in role %}danger{% elif 'SEO' in role %}info{% else %}warning{% endif %}">
+                                        <div class="tag member-role-tag is-rounded is-{% if 'CM' in role %}primary
+                                            {% elif 'AM' in role %}danger{% elif 'SEO' in role %}info{% else %}warning{% endif %}">
                                             {{ role }}
-                                        </span>
-                                    <div class="profile-circle"></div>
-                                    </p>
+                                        </div>
+                                        <div class="profile-circle"></div>
+                                    </div>
                                 </div>
                                 <div class="card-content">
                                     <div class="media">
@@ -165,7 +166,7 @@
                         </div>
                         <div class="level-right">
                             <button class="button is-rounded is-small" id="view_contact_details_modal">
-                                View More
+                                <strong>View More</strong>
                             </button>
                         </div>
                     </div>
@@ -342,7 +343,60 @@
         <div class="column is-4">
             <div class="card">
                 <div class="card-content">
-                    <p class="title is-5">Services</p>
+                    <div class="level">
+                        <div class="level-left">
+                            <p class="title is-5">Services</p>
+                        </div>
+                        <div class="level-right">
+                            <button class="button level-item is-rounded is-small">
+                                <strong>New Service</strong>
+                            </button>
+                            <button class="button level-item is-rounded is-small">
+                                <strong>New Opportunity</strong>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="columns">
+                        <div class="column is-4">
+                            <div class="box">
+                                <div class="icon">
+                                    <i class="fas fa-circle {% if account.sales_profile.ppc_status == 1 %}
+                                        has-text-primary{% elif account.sales_profile.ppc_status == 0 %}has-text-black
+                                        {% else %}has-text-danger{% endif %}"></i>
+                                </div>
+                                PPC
+                                <p class="has-text-grey">
+                                    Active
+                                </p>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <div class="box">
+                                <div class="icon">
+                                    <i class="fas fa-circle {% if account.sales_profile.seo_status == 1 %}
+                                        has-text-primary{% elif account.sales_profile.seo_status == 0 %}has-text-black
+                                        {% else %}has-text-danger{% endif %}"></i>
+                                </div>
+                                SEO
+                                <p class="has-text-grey">
+                                    Onboarding
+                                </p>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <div class="box">
+                                <div class="icon">
+                                    <i class="fas fa-circle {% if account.sales_profile.cro_status == 1 %}
+                                        has-text-primary{% elif account.sales_profile.cro_status == 0 %}has-text-black
+                                        {% else %}has-text-danger{% endif %}"></i>
+                                </div>
+                                CRO
+                                <p class="has-text-grey">
+                                    None
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

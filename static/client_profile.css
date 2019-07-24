@@ -10,7 +10,7 @@ img.is-rounded {
     padding: 2em;
 }
 
-.tag {
+.member-role-tag {
     margin: -3.5em auto 0 auto;
     left: 50%;
     transform: translateX(-50%);
