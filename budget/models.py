@@ -1737,6 +1737,8 @@ class Budget(models.Model):
             number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
         else:
             number_of_days = (make_aware(datetime.datetime.now()) - self.start_date).days
+        if number_of_days == 0:
+            return 0
         return self.calculated_yest_spend / number_of_days
 
     @property
