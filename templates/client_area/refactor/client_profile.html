@@ -468,45 +468,39 @@
                             </button>
                         </div>
                     </div>
-                    <table class="table">
-                        <tbody>
-                        {% for promo in promos %}
-                            <tr>
-                                <td>
-                                    <div class="columns">
-                                        <div class="column is-8">
-                                            <strong>{{ promo }}</strong>
-                                            <p style="margin-top: 0.5em;">
-                                                {% if promo.confirmed_started %}
-                                                    End Date: {{ promo.end_date }}
-                                                {% else %}
-                                                    Start Date: {{ promo.start_date }}
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="column is-4">
-                                            {% if promo.confirmed_started and not promo.confirmed_ended %}
-                                                <button class="button is-rounded is-primary is-fullwidth confirm-promo"
-                                                        data-promo-id="{{ promo.id }}" data-confirmation-type="1">
-                                                    Confirm Ended
-                                                </button>
-                                            {% elif promo.confirmed_ended %}
-                                                <button class="button is-fullwidth is-rounded" disabled>
-                                                    Promo Ended
-                                                </button>
-                                            {% else %}
-                                                <button class="button is-rounded is-success is-fullwidth confirm-promo"
-                                                        data-promo-id="{{ promo.id }}" data-confirmation-type="0">
-                                                    Confirm Started
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    {% for promo in promos %}
+                        <div class="columns">
+                            <div class="column is-8">
+                                <strong>{{ promo }}</strong>
+                                <p style="margin-top: 0.5em;">
+                                    {% if promo.confirmed_started %}
+                                        End Date: {{ promo.end_date }}
+                                    {% else %}
+                                        Start Date: {{ promo.start_date }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="column is-4">
+                                {% if promo.confirmed_started and not promo.confirmed_ended %}
+                                    <button class="button is-rounded is-primary is-fullwidth confirm-promo"
+                                            data-promo-id="{{ promo.id }}" data-confirmation-type="1">
+                                        Confirm Ended
+                                    </button>
+                                {% elif promo.confirmed_ended %}
+                                    <button class="button is-fullwidth is-rounded is-fullwidth" disabled>
+                                        Promo Ended
+                                    </button>
+                                {% else %}
+                                    <button class="button is-rounded is-success is-fullwidth confirm-promo"
+                                            data-promo-id="{{ promo.id }}" data-confirmation-type="0">
+                                        Confirm Started
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if not forloop.last %}
+                            <hr>{% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
