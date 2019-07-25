@@ -28,9 +28,9 @@ def prepare_todos():
         today_start = datetime.datetime.combine(today, datetime.time())
         today_end = datetime.datetime.combine(tomorrow, datetime.time())
 
-        promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lte=today_end,
+        promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lt=today_end,
                                                   account__in=member_accounts)
-        promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lte=today_end,
+        promos_end_today = Promo.objects.filter(end_date__gte=today_start, end_date__lt=today_end,
                                                 account__in=member_accounts)
 
         for promo in promos_start_today:
@@ -99,9 +99,9 @@ def prepare_todos():
         yesterday_start = datetime.datetime.combine(yesterday, datetime.time())
         tomorrow_end = datetime.datetime.combine(tomorrow + datetime.timedelta(1), datetime.time())
 
-        promos_ended_yesterday = Promo.objects.filter(end_date__gte=yesterday_start, end_date__lte=today_start,
+        promos_ended_yesterday = Promo.objects.filter(end_date__gte=yesterday_start, end_date__lt=today_start,
                                                       account__in=member_accounts)
-        promos_start_tomorrow = Promo.objects.filter(start_date__gte=today_end, start_date__lte=tomorrow_end,
+        promos_start_tomorrow = Promo.objects.filter(start_date__gte=today_end, start_date__lt=tomorrow_end,
                                                      account__in=member_accounts)
 
         for promo in promos_ended_yesterday:
