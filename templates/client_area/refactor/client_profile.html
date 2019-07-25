@@ -7,7 +7,8 @@
 {% block extraCss %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
     <link href="{% static 'client_profile.css' %}" type="text/css" rel="stylesheet"/>
-    <link href="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet"
+          type="text/css"/>
     <script defer src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
     <script src="{% static 'assets/app/js/moment.js' %}"></script>
 {% endblock %}
@@ -122,26 +123,20 @@
                     {% if role != 'Sold by' %}
                         <div class="column is-2">
                             <div class="card has-background-light member-card">
-                                <div class="card-image">
-                                    <div class="image">
-                                        {% if assigned_member.member.image != None %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"/>
-                                        {% else %}
-                                            <img class="is-rounded"
-                                                 src="{% static 'assets/app/media/img/user4.jpg' %}"/>
-                                        {% endif %}
-                                        <div class="tag member-role-tag is-rounded is-{% if 'CM' in role %}primary
-                                            {% elif 'AM' in role %}danger{% elif 'SEO' in role %}info{% else %}warning{% endif %}">
-                                            {{ role }}
-                                        </div>
-                                        <div class="profile-circle"></div>
-                                    </div>
+                                <div class="has-text-centered">
+                                    <img {% if assigned_member.member.image != None %}src="{% static 'img/bloomers/'|add:assigned_member.member.image %}"
+                                         {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}width="75%"/>
                                 </div>
-                                <div class="card-content">
+                                <div class="card-content" style="margin-top: 1em; position: relative;">
                                     <div class="media">
                                         <div class="media-content">
-                                            <p class="title is-6 has-text-centered">{{ assigned_member.member.user.get_full_name }}</p>
+                                            <div class="tag member-role-tag is-rounded is-{% if 'CM' in role %}primary
+                                            {% elif 'AM' in role %}danger{% elif 'SEO' in role %}info{% else %}warning{% endif %}">
+                                                {{ role }}
+                                            </div>
+                                            <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
+                                                {{ assigned_member.member.user.get_full_name }}
+                                            </p>
                                             <p class="subtitle is-6 has-text-centered">
                                                 {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
                                                 / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
@@ -1930,9 +1925,9 @@
             generateHoursChart();
             $('#calendar').fullCalendar({
                 header: {
-                    left: "prev, next, today",
-                    center: "title",
-                    right: "month, listWeek"
+                    left: 'prev, next, today',
+                    center: 'title',
+                    right: 'month, listWeek'
                 },
                 aspectRatio: 2,
                 defaultDate: moment(),
@@ -1940,11 +1935,12 @@
                 events: [
                     {% for promo in promos %}
                         {
-                            title: "{{ promo.name }}",
-                            description: "{{ promo.desc }}",
-                            start: moment("{{ promo.formatted_start }}"),
-                            end: moment("{{ promo.formatted_end }}"),
-                            className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+                            title: '{{ promo.name }}',
+                            description: '{{ promo.desc }}',
+                            start: moment('{{ promo.formatted_start }}'),
+                            end: moment('{{ promo.formatted_end }}'),
+                            className: {% if promo.is_active %}'m-fc-event--success'
+                                {% else %}'m-fc - event--warning'{% endif %}
                         }{% if not forloop.last %},{% endif %}
                     {% endfor %}
                 ]

@@ -6,12 +6,14 @@
     color: tomato;
 }
 
-img.is-rounded {
-    padding: 2em;
+img {
+    border-radius: 100%;
+    border: 1px solid black;
+    box-shadow: 0 0 0 3px hsl(0, 0%, 100%), 0 0 0 6px hsl(0, 0%, 90%);
 }
 
 .member-role-tag {
-    margin: -3.5em auto 0 auto;
+    top: -35px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1;
@@ -41,22 +43,14 @@ table {
     box-shadow: none;
 }
 
-.profile-circle {
-    border-radius: 50%;
-    border: 1px solid black;
-    height: 8em;
-    width: 8em;
-    left: 50%;
-    top: 50%;
-    transform: translateX(-50%);
-    position: absolute;
-    margin-top: -4em;
-}
-
 .is-static {
     width: 30%;
 }
 
 .is-expanded {
     width: 70%;
+}
+
+p {
+    word-break: break-word;
 }
