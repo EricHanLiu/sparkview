@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
-from adwords_dashboard.models import DependentAccount, Campaign
-from bing_dashboard.models import BingAccounts, BingCampaign
-from facebook_dashboard.models import FacebookAccount, FacebookCampaign
+from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
+from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
+from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions
 from user_management.models import Member
 from django.core import serializers
@@ -951,12 +951,151 @@ def get_campaigns_in_budget(request):
         budget.bing_campaigns_without_excluded)
 
     campaigns = sorted(campaigns, key=lambda c: c.campaign_cost, reverse=True)
+    corresponding_daterange_spends = {}
+    corresponding_updated = {}
 
+    if not budget.is_monthly:
+        for campaign in campaigns:
+            if isinstance(campaign, Campaign):
+                try:
+                    csdr = CampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                              end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except CampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
+            if isinstance(campaign, FacebookCampaign):
+                try:
+                    csdr = FacebookCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                                      end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except FacebookCampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
+            if isinstance(campaign, BingCampaign):
+                try:
+                    csdr = BingCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                                  end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except BingCampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
     response = {
-        'campaigns': json.loads(serializers.serialize('json', campaigns))
+        'is_monthly': budget.is_monthly,
+        'campaigns': json.loads(serializers.serialize('json', campaigns)),
+        'cdrs': corresponding_daterange_spends,
+        'cupdate': corresponding_updated
     }
 
     return JsonResponse(response)
+
+
+@login_required
+def edit_budget(request):
+    """
+    Edits a budget
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    try:
+        budget = Budget.objects.get(id=request.POST.get('budget_id'))
+    except Budget.DoesNotExist:
+        return HttpResponseNotFound('Not found')
+    budget.name = request.POST.get('budget_name')
+    budget.account = account
+    budget.budget = request.POST.get('budget_amount')
+    budget.save()
+
+    if 'google_ads' in request.POST:
+        budget.has_adwords = True
+    if 'facebook_ads' in request.POST:
+        budget.has_facebook = True
+    if 'bing_ads' in request.POST:
+        budget.has_bing = True
+
+    grouping_type = request.POST.get('grouping_type').split('_')[1]  # grouping type has edit in it
+
+    if grouping_type == 'manual':
+        # Lousy, but it works for now
+        budget.grouping_type = 0
+        budget.is_new = False
+        for c in request.POST.getlist('campaigns'):
+            try:
+                cmp = Campaign.objects.get(campaign_id=c)
+                budget.aw_campaigns.add(cmp)
+                budget.save()
+            except Campaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = BingCampaign.objects.get(campaign_id=c)
+                budget.bing_campaigns.add(cmp)
+                budget.save()
+            except BingCampaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = FacebookCampaign.objects.get(campaign_id=c)
+                budget.fb_campaigns.add(cmp)
+                budget.save()
+            except FacebookCampaign.DoesNotExist:
+                pass
+    elif grouping_type == 'text':
+        budget.grouping_type = 1
+        budget.text_includes = request.POST.get('include_strings')
+        budget.text_excludes = request.POST.get('exclude_strings')
+    else:
+        budget.grouping_type = 2
+
+    if request.POST.get('time_period') == 'monthly':
+        budget.is_monthly = True
+    else:
+        budget.is_monthly = False
+        flight_dates_input = request.POST.get('flight_dates').split(' - ')
+        start_date_comps = flight_dates_input[0].split('/')
+        end_date_comps = flight_dates_input[1].split('/')
+
+        start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+
+        budget.start_date = start_date
+        budget.end_date = end_date
+
+    budget.save()
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
+
+
+@login_required
+def delete_budget(request):
+    """
+    Deletes a budget
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    budget = get_object_or_404(Budget, id=request.POST.get('budget_id'))
+    budget.delete()
+
+    return redirect('/budget/client/' + str(account.id) + '/beta')
 
 
 # Update client budgets
@@ -1321,3 +1460,24 @@ def update_exclusions(request):
     exclusions.bing_campaigns.set(bing_cmps)
 
     return redirect('/budget/client/' + str(account.id) + '/beta')
+
+
+@login_required
+def get_info(request):
+    """
+    Just returns information about a budget
+    :param request:
+    :return:
+    """
+    budget_id = request.POST.get('budget_id')
+    budget = Budget.objects.filter(id=budget_id)
+
+    campaigns = list(budget[0].aw_campaigns.all()) + list(budget[0].fb_campaigns.all()) + list(
+        budget[0].bing_campaigns.all())
+
+    response = {
+        'budget': json.loads(serializers.serialize('json', budget)),
+        'campaigns': json.loads(serializers.serialize('json', campaigns))
+    }
+
+    return JsonResponse(response)

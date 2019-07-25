@@ -214,7 +214,7 @@ class SkillHistory(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(date) + ': ' + str(self.skill_entry)
+        return str(self.date) + ': ' + str(self.skill_entry)
 
 
 class Member(models.Model):
@@ -562,7 +562,7 @@ class Member(models.Model):
                 Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
                 Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
             ) | self.active_mandate_accounts
-        return self._accounts
+        return self._accounts.distinct()
 
     @property
     def accounts_not_lost(self):
@@ -644,8 +644,8 @@ class Member(models.Model):
         """
         if not hasattr(self, '_phase_tasks'):
             tasks = PhaseTask.objects.filter(roles__in=[self.role])
-            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, account__in=self.accounts,
-                                                                  complete=False)
+            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, complete=False,
+                                                                  account__in=self.onboard_active_accounts)
             self._phase_tasks = task_assignments
         return self._phase_tasks
 

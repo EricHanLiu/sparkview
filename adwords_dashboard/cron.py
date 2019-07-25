@@ -5,7 +5,7 @@ from bloom.utils.reporting import Reporting
 from tasks.logger import Logger
 from .models import DependentAccount, Campaign, CampaignSpendDateRange
 from budget.models import Budget
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_adwords_accounts
 import datetime
 
 
@@ -21,10 +21,12 @@ def get_client():
 
 
 def get_all_spends_by_campaign_this_month():
-    accounts = ppc_active_accounts_for_platform('adwords')
+    accounts = active_adwords_accounts()
     for account in accounts:
-        get_spend_by_campaign_this_month.delay(account.id)
-        # get_spend_by_campaign_this_month(account.id)
+        if settings.DEBUG:
+            get_spend_by_campaign_this_month(account.id)
+        else:
+            get_spend_by_campaign_this_month.delay(account.id)
 
 
 @celery_app.task(bind=True)
@@ -49,12 +51,7 @@ def get_spend_by_campaign_this_month(self, account_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
             }
@@ -90,12 +87,7 @@ def get_spend_by_campaign_this_month(self, account_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
             }
@@ -130,11 +122,11 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.save()
         print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
-    not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
-    for cmp in not_in_use_camps:
-        cmp.campaign_cost = 0.0
-        cmp.spend_until_yesterday = 0.0
-        cmp.save()
+    # not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
+    # for cmp in not_in_use_camps:
+    #     cmp.campaign_cost = 0.0
+    #     cmp.spend_until_yesterday = 0.0
+    #     cmp.save()
 
 
 def get_all_spend_by_campaign_custom():
@@ -145,7 +137,10 @@ def get_all_spend_by_campaign_custom():
     budgets = Budget.objects.filter(has_adwords=True, is_monthly=False)
     for budget in budgets:
         for aw_camp in budget.aw_campaigns_without_excluded:
-            get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
+            if settings.DEBUG:
+                get_spend_by_campaign_custom(aw_camp.id, budget.id)
+            else:
+                get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
@@ -172,14 +167,14 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
+            },
+            {
+                'field': 'CampaignId',
+                'operator': 'EQUALS',
+                'values': campaign.campaign_id
             }
         ]
     }
@@ -200,7 +195,10 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'max': end_date.strftime('%Y%m%d')
     }
 
-    campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
+    try:
+        campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
+    except IndexError:
+        return
 
     campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                                   start_date=start_date,
@@ -213,14 +211,14 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
         'predicates': [
             {
-                'field': 'CampaignStatus',
-                'operator': 'EQUALS',
-                'values': 'ENABLED'
-            },
-            {
-                'field': 'Impressions',
+                'field': 'Cost',
                 'operator': 'GREATER_THAN',
                 'values': '0'
+            },
+            {
+                'field': 'CampaignId',
+                'operator': 'EQUALS',
+                'values': campaign.campaign_id
             }
         ]
     }
@@ -234,19 +232,22 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     }
 
     start_date = budget.start_date
-    end_date = datetime.datetime.now() - datetime.timedelta(1)
+    yest_end_date = datetime.datetime.now() - datetime.timedelta(1)
 
     yest_campaign_report_selector['dateRange'] = {
         'min': start_date.strftime('%Y%m%d'),
-        'max': end_date.strftime('%Y%m%d')
+        'max': yest_end_date.strftime('%Y%m%d')
     }
 
-    campaign_report = \
-        Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(yest_campaign_report_query))[0]
+    try:
+        campaign_report = \
+            Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(yest_campaign_report_query))[0]
+    except IndexError:
+        return
 
     campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
-                                                                                  start_date=start_date,
-                                                                                  end_date=end_date)
+                                                                                  start_date=budget.start_date,
+                                                                                  end_date=budget.end_date)
 
     campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()

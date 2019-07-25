@@ -1,17 +1,20 @@
-from bloom import celery_app
+from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Budget
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_facebook_accounts
 import datetime
 
 
 def get_all_spends_by_facebook_campaign_this_month():
-    accounts = ppc_active_accounts_for_platform('facebook')
+    accounts = active_facebook_accounts()
     for account in accounts:
-        get_spend_by_facebook_campaign_this_month.delay(account.id)
+        if settings.DEBUG:
+            get_spend_by_facebook_campaign_this_month(account.id)
+        else:
+            get_spend_by_facebook_campaign_this_month.delay(account.id)
 
 
 @celery_app.task(bind=True)
@@ -57,13 +60,14 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         in_use_ids.append(campaign_id)
         campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
                                                                    campaign_name=campaign_name)
-        campaign.campaign_name = campaign_row['campaign_name']
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
 
     yesterday = datetime.datetime.now() - datetime.timedelta(1)
-    until_yest_params_date_range = helper.get_custom_date_range(this_month.since, yesterday)
+    # until_yest_params_date_range = helper.get_custom_date_range(this_month['since'], yesterday)
+    until_yest_params_date_range = dict(since=this_month['since'],
+                                        until=yesterday.strftime('%Y-%m-%d'))
     until_yest_params = helper.set_params(
         time_range=until_yest_params_date_range,
         level='campaign',
@@ -78,18 +82,18 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
     for campaign_row in report:
         campaign_name = campaign_row['campaign_name']
         campaign_id = campaign_row['campaign_id']
-        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account)
-        campaign.campaign_name = campaign_name
+        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
+                                                                   campaign_name=campaign_name)
         campaign.spend_until_yesterday = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month (until yesterday) of $' + str(
             campaign.campaign_cost))
 
-    not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
-    for cmp in not_in_use_camps:
-        cmp.campaign_cost = 0.0
-        cmp.spend_until_yesterday = 0.0
-        cmp.save()
+    # not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
+    # for cmp in not_in_use_camps:
+    #     cmp.campaign_cost = 0.0
+    #     cmp.spend_until_yesterday = 0.0
+    #     cmp.save()
 
 
 def get_all_spend_by_facebook_campaign_custom():
@@ -100,7 +104,10 @@ def get_all_spend_by_facebook_campaign_custom():
     budgets = Budget.objects.filter(has_facebook=True, is_monthly=False)
     for budget in budgets:
         for fb_camp in budget.fb_campaigns_without_excluded:
-            get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
+            if settings.DEBUG:
+                get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
+            else:
+                get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
 
 
 @celery_app.task(bind=True)
@@ -119,10 +126,6 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         return
 
     helper = FacebookReportingService(facebook_init())
-    date_range = {
-        'min_date': budget.start_date.strftime('%Y%m%d'),
-        'max_date': budget.end_date.strftime('%Y%m%d')
-    }
 
     fields = [
         'campaign_id',
@@ -134,10 +137,14 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         'field': 'campaign.spend',
         'operator': 'GREATER_THAN',
         'value': 0,
+    }, {
+        'field': 'campaign.id',
+        'operator': 'EQUAL',
+        'value': campaign.campaign_id
     }]
 
     custom_params = helper.set_params(
-        time_range=helper.get_custom_date_range(date_range['min_date'], date_range['max_date']),
+        time_range=helper.get_custom_date_range(budget.start_date, budget.end_date),
         level='campaign',
         filtering=filtering
     )
@@ -146,16 +153,50 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
     # support this operation
     try:
         report = helper.get_account_insights(campaign.account.account_id, params=custom_params, extra_fields=fields)
+    except FacebookRequestError as e:
+        print(e)
+        return
+
+    for campaign_row in report:
+        campaign_id_report = campaign_row['campaign_id']
+        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
+                                                                  account=campaign.account,
+                                                                  campaign_name=campaign_row['campaign_name'])
+        tmp_cmp.campaign_name = campaign_row['campaign_name']
+        tmp_cmp.save()
+        fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
+                                                                              start_date=budget.start_date,
+                                                                              end_date=budget.end_date)
+        fcsdr.spend = float(campaign_row['spend'])
+        fcsdr.save()
+        print('Facebook Campaign: ' + str(tmp_cmp) + ' now has a spend of $' + str(fcsdr.spend) + ' for dates ' + str(
+            fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
+
+    yesterday = datetime.datetime.now() - datetime.timedelta(1)
+    custom_params_yest = helper.set_params(
+        time_range=helper.get_custom_date_range(budget.start_date, yesterday),
+        level='campaign',
+        filtering=filtering
+    )
+
+    try:
+        report = helper.get_account_insights(campaign.account.account_id, params=custom_params_yest,
+                                             extra_fields=fields)
     except FacebookRequestError:
         return
 
     for campaign_row in report:
-        print(campaign_row)
-        campaign_id = campaign_row['campaign_id']
-        campaign, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign_id=campaign_id,
-                                                                                 start_date=budget.start_date,
-                                                                                 end_date=budget.end_date)
-        campaign.campaign_name = campaign_row['campaign_name']
-        campaign.campaign_cost = float(campaign_row['spend'])
-        campaign.save()
-        print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
+        campaign_id_report = campaign_row['campaign_id']
+        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
+                                                                  account=campaign.account,
+                                                                  campaign_name=campaign_row['campaign_name'])
+        tmp_cmp.campaign_name = campaign_row['campaign_name']
+        tmp_cmp.save()
+        fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
+                                                                              start_date=budget.start_date,
+                                                                              end_date=budget.end_date)
+        fcsdr.spend_until_yesterday = float(campaign_row['spend'])
+        fcsdr.save()
+        print('Facebook Campaign: ' + str(tmp_cmp) + ' now has a spend until yesterday of $' + str(
+            fcsdr.spend) + ' for dates ' + str(
+            fcsdr.start_date) + ' to ' + str(fcsdr.end_date))

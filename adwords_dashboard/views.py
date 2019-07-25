@@ -8,7 +8,8 @@ from adwords_dashboard.models import DependentAccount, Performance
 from adwords_dashboard.models import Label, Alert
 from celery.result import AsyncResult
 from tasks.adwords_tasks import adwords_account_anomalies
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_adwords_accounts
+
 
 # from decorators import cache_on_auth
 
@@ -17,12 +18,12 @@ from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
 def index(request):
     return redirect(adwords_dashboard)
 
+
 @login_required
 def adwords_dashboard(request):
-
     user = request.user
     items = []
-    accounts = ppc_active_accounts_for_platform('adwords')
+    accounts = active_adwords_accounts()
     for account in accounts:
         item = {}
         query = Performance.objects.filter(account=account.pk, performance_type='ACCOUNT')
@@ -36,9 +37,9 @@ def adwords_dashboard(request):
     else:
         return render(request, 'login/login.html')
 
+
 @login_required
 def account_anomalies(request, account_id):
-
     if request.method == 'GET':
 
         account = DependentAccount.objects.get(dependent_account_id=account_id)
@@ -73,13 +74,12 @@ def account_anomalies(request, account_id):
         data = request.POST
         print(data['fmin'], data['smin'])
 
-
         response = {}
         return JsonResponse(response)
 
+
 @login_required
 def campaign_404(request, acc_id):
-
     current_account = DependentAccount.objects.get(dependent_account_id=acc_id)
 
     try:
@@ -91,7 +91,7 @@ def campaign_404(request, acc_id):
     context = {
         'account': current_account,
         'campaigns': current_campaigns
-        }
+    }
     return render(request, "adwords/404_list.html", context)
 
 
@@ -107,6 +107,7 @@ def account_alerts(request, account_id):
     }
     return render(request, 'adwords/account_alerts.html', context)
 
+
 @login_required
 def anomalies_view(request):
     if request.method == 'GET' and 'task_id' in request.GET:
@@ -117,7 +118,7 @@ def anomalies_view(request):
                 {
                     'tresult': taskt.result,
                     'tstate': taskt.state
-                 }
+                }
             )
         return JsonResponse({'tid': taskt.id, 'tstate': taskt.state})
 

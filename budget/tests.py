@@ -7,6 +7,7 @@ from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendD
 from client_area.models import Industry, ClientContact, ParentClient, Language, \
     ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile, AccountHourRecord
 from tasks.campaign_group_tasks import update_budget_campaigns
+from .cron import reset_google_ads_campaign, reset_bing_campaign, reset_facebook_campaign
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 import calendar
@@ -277,11 +278,11 @@ class AccountTestCase(TestCase):
                                                           desired_spend=1000.0)
 
         aw_cmp1 = Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account,
-                                          campaign_cost=1)
+                                          campaign_cost=1, campaign_yesterday_cost=3)
         aw_cmp2 = Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account,
                                           campaign_cost=2)
         fb_cmp1 = FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account,
-                                                  campaign_cost=3)
+                                                  campaign_cost=3, campaign_yesterday_cost=2)
         bing_cmp1 = BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account,
                                                 campaign_cost=4)
 
@@ -307,6 +308,7 @@ class AccountTestCase(TestCase):
         self.assertEqual(b1.calculated_google_ads_spend, 1)
         self.assertEqual(b1.calculated_bing_ads_spend, 4)
         self.assertEqual(b1.spend_percentage, 50)
+        self.assertEqual(b1.yesterday_spend, 3)
 
         b1.budget = 2.5
         b1.save()
@@ -322,6 +324,7 @@ class AccountTestCase(TestCase):
         self.assertIn(fb_cmp1, b2.fb_campaigns.all())
         self.assertNotIn(bing_cmp1, b2.bing_campaigns.all())
         self.assertNotIn(aw_cmp2, b2.aw_campaigns.all())
+        self.assertEqual(b2.yesterday_spend, 2)
 
         b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
                                    has_bing=True, has_facebook=True, is_monthly=True)
@@ -340,6 +343,7 @@ class AccountTestCase(TestCase):
         self.assertNotIn(fb_cmp1, b4.fb_campaigns.all())
         self.assertNotIn(bing_cmp1, b4.bing_campaigns.all())
         self.assertNotIn(aw_cmp2, b4.aw_campaigns.all())
+        self.assertEqual(b4.yesterday_spend, 0.0)
 
         b5 = Budget.objects.create(account=account, grouping_type=2, has_adwords=True, is_monthly=True)
         update_budget_campaigns(b5.id)
@@ -460,9 +464,32 @@ class AccountTestCase(TestCase):
         number_of_days_in_month = calendar.monthrange(now.year, now.month)[1]
 
         self.assertEqual(b11.average_spend_yest, 28 / number_of_days_elapsed_in_month)
-        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day))
+        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day + 1))
         self.assertEqual(b11.projected_spend_avg,
                          b11.calculated_yest_spend + (b11.average_spend_yest * b11.days_remaining))
+
+        aw_cmp3 = Campaign.objects.create(campaign_id='1234555', campaign_name='foo hello', account=test_aw_account,
+                                          campaign_cost=1, campaign_yesterday_cost=3)
+        fb_cmp2 = FacebookCampaign.objects.create(campaign_id='4567555', campaign_name='foo test sup',
+                                                  account=fb_account,
+                                                  campaign_cost=2, campaign_yesterday_cost=2)
+        bing_cmp2 = BingCampaign.objects.create(campaign_id='7891555', campaign_name='hello sup', account=bing_account,
+                                                campaign_cost=3)
+
+        b12 = Budget.objects.create(account=account, grouping_type=0, has_adwords=True, has_facebook=True,
+                                    has_bing=True, is_monthly=True)
+        b12.aw_campaigns.set([aw_cmp3])
+        b12.fb_campaigns.set([fb_cmp2])
+        b12.bing_campaigns.set([bing_cmp2])
+
+        reset_google_ads_campaign(aw_cmp3.id)
+        self.assertEqual(b12.calculated_google_ads_spend, 0)
+
+        reset_facebook_campaign(fb_cmp2.id)
+        self.assertEqual(b12.calculated_facebook_ads_spend, 0)
+
+        reset_bing_campaign(bing_cmp2.id)
+        self.assertEqual(b12.calculated_bing_ads_spend, 0)
 
     def test_get_campaigns_view(self):
         """

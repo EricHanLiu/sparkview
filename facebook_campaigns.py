@@ -6,13 +6,13 @@ from redis.exceptions import ConnectionError as ReddisConnectionError
 from kombu.exceptions import OperationalError as KombuOperationalError
 
 django.setup()
-from facebook_dashboard.models import FacebookAccount
 from tasks.facebook_tasks import facebook_cron_campaign_stats
 from tasks.logger import Logger
+from bloom.utils.ppc_accounts import active_facebook_accounts
 
 
 def main():
-    accounts = FacebookAccount.objects.filter(blacklisted=False)
+    accounts = active_facebook_accounts()
     for account in accounts:
         try:
             client_id = account.facebook.all()[0].id

@@ -455,8 +455,9 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
             campaign_id=campaign_id,
             campaign_name=campaign_name
         )
+        cmps.append(cmp)
 
-        cmp.campaign_yesterday_cost_cost = campaign_cost
+        cmp.campaign_yesterday_cost = campaign_cost
         cmp.save()
 
     report = helper.get_campaign_performance(
@@ -481,10 +482,9 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
             campaign_name=campaign_name
         )
 
-        cmp.campaign_cost = campaign_cost
-        cmp.save()
+        # cmp.campaign_cost = campaign_cost
+        # cmp.save()
 
-        cmps.append(cmp)
         if created:
             print('Added to DB - [' + cmp.campaign_name + '].')
         else:
@@ -495,7 +495,7 @@ def bing_cron_campaign_stats(self, account_id, client_id=None):
     for acc_cmp in all_cmps_this_account:
         if acc_cmp not in cmps:
             print('Cant find ' + acc_cmp.campaign_name + ', setting cost to $0.0')
-            acc_cmp.campaign_cost = 0
+            acc_cmp.campaign_yesterday_cost = 0.0
             acc_cmp.save()
 
 

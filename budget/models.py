@@ -788,22 +788,16 @@ class Client(models.Model):
             hours += mandate.hours_in_month(now.month, now.year)
         return self.get_allocated_hours() + hours
 
-    def days_in_month_in_daterange(self, start, end, month):
+    @property
+    def has_backup_members(self):
         """
-        Calculates how many days are in a certain month within a daterange.
-        Example: Oct 28th to Nov 5th has 4 days in October,  this would return 4 for (2018-10-28, 2018-11-05, 10)
+        Determines if this account has backup members assigned (ie. someone on the account is on vacation
+        and a backup has been established)
         """
-        one_day = datetime.timedelta(1)
-        date_counter = 0
-        cur_date = start
-        while cur_date <= end:
-            if cur_date.month == month:
-                date_counter += 1
-            elif cur_date.month > month:
-                break
-            cur_date = cur_date + one_day
-
-        return date_counter
+        now = datetime.datetime.now()
+        backups = Backup.objects.filter(account=self, period__start_date__lte=now, period__end_date__gte=now).exclude(
+            members=None)
+        return backups.count() > 0
 
     @property
     def adwords_budget_this_month(self):
@@ -816,8 +810,8 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date,
-                                                                       aa.desired_spend_end_date, yesterday.month) / (
+                    portion_of_spend = days_in_month_in_daterange(aa.desired_spend_start_date,
+                                                                  aa.desired_spend_end_date, yesterday.month) / (
                                                aa.desired_spend_end_date - aa.desired_spend_start_date).days
                     budget += round(portion_of_spend * aa.desired_spend, 2)
                 else:
@@ -876,8 +870,8 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date,
-                                                                       ba.desired_spend_end_date, yesterday.month) / (
+                    portion_of_spend = days_in_month_in_daterange(ba.desired_spend_start_date,
+                                                                  ba.desired_spend_end_date, yesterday.month) / (
                                                ba.desired_spend_end_date - ba.desired_spend_start_date).days
                     budget += round(portion_of_spend * ba.desired_spend, 2)
                 else:
@@ -896,8 +890,8 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date,
-                                                                       fa.desired_spend_end_date, yesterday.month) / (
+                    portion_of_spend = days_in_month_in_daterange(fa.desired_spend_start_date,
+                                                                  fa.desired_spend_end_date, yesterday.month) / (
                                                fa.desired_spend_end_date - fa.desired_spend_start_date).days
                     budget += round(portion_of_spend * fa.desired_spend, 2)
                 else:
@@ -1512,6 +1506,9 @@ class Budget(models.Model):
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return str(self.account) + ' budget'
 
@@ -1525,7 +1522,13 @@ class Budget(models.Model):
 
     @property
     def description(self):
-        return self.get_grouping_type_display().title()
+        type_display = self.get_grouping_type_display().title()
+        if self.grouping_type == 1:
+            if self.text_includes is not None and self.text_includes != '':
+                type_display += ' - Including strings: ' + self.text_includes
+            if self.text_excludes is not None and self.text_excludes != '':
+                type_display += ' - Excluding strings: ' + self.text_excludes
+        return type_display
 
     @property
     def campaign_exclusions(self):
@@ -1714,12 +1717,16 @@ class Budget(models.Model):
 
     @property
     def days_remaining(self):
+        """
+        Should include today
+        :return:
+        """
         now = make_aware(datetime.datetime.now())
         if self.is_monthly:
             days_in_month = calendar.monthrange(now.year, now.month)[1]
-            number_of_days_remaining = days_in_month - now.day
+            number_of_days_remaining = days_in_month - now.day + 1
         else:
-            number_of_days_remaining = (self.end_date - now).days
+            number_of_days_remaining = (self.end_date - now).days + 1
         return number_of_days_remaining
 
     @property
@@ -1731,7 +1738,7 @@ class Budget(models.Model):
         if self.is_monthly:
             number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
         else:
-            number_of_days = (self.end_date - self.start_date).days
+            number_of_days = (make_aware(datetime.datetime.now()) - self.start_date).days
         return self.calculated_yest_spend / number_of_days
 
     @property
@@ -1740,6 +1747,8 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
+        if self.days_remaining <= 0:
+            return 0
         rec_spend = self.calculated_budget_remaining_yest / self.days_remaining
         return rec_spend if rec_spend > 0 else 0
 
@@ -1750,6 +1759,19 @@ class Budget(models.Model):
         :return:
         """
         return self.calculated_yest_spend + (self.average_spend_yest * self.days_remaining)
+
+    @property
+    def yesterday_spend(self):
+        if not hasattr(self, '_yesterday_spend'):
+            spend = 0.0
+            for a in self.aw_campaigns_without_excluded:
+                spend += a.campaign_yesterday_cost
+            for f in self.fb_campaigns_without_excluded:
+                spend += f.campaign_yesterday_cost
+            for b in self.bing_campaigns_without_excluded:
+                spend += b.campaign_yesterday_cost
+            self._yesterday_spend = spend
+        return self._yesterday_spend
 
     @property
     def spend_percentage(self):
@@ -1822,16 +1844,16 @@ class BudgetUpdate(models.Model):
 
 class ClientCData(models.Model):
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
-    aw_budget = JSONField(default=dict)
-    aw_projected = JSONField(default=dict)
-    aw_spend = JSONField(default=dict)
-    bing_budget = JSONField(default=dict)
-    bing_projected = JSONField(default=dict)
-    bing_spend = JSONField(default=dict)
-    fb_budget = JSONField(default=dict)
-    fb_projected = JSONField(default=dict)
-    fb_spend = JSONField(default=dict)
-    global_target_spend = JSONField(default=dict)
+    aw_budget = JSONField(default=dict, blank=True)
+    aw_projected = JSONField(default=dict, blank=True)
+    aw_spend = JSONField(default=dict, blank=True)
+    bing_budget = JSONField(default=dict, blank=True)
+    bing_projected = JSONField(default=dict, blank=True)
+    bing_spend = JSONField(default=dict, blank=True)
+    fb_budget = JSONField(default=dict, blank=True)
+    fb_projected = JSONField(default=dict, blank=True)
+    fb_spend = JSONField(default=dict, blank=True)
+    global_target_spend = JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.client.client_name

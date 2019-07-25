@@ -1,17 +1,18 @@
-from bloom import celery_app
+from bloom import celery_app, settings
 from bloom.utils.reporting import BingReportingService
 from .models import BingAccounts, BingCampaign
 from budget.models import Budget
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_bing_accounts
 import datetime
 
 
 def get_all_spends_by_bing_campaign_this_month():
-    accounts = ppc_active_accounts_for_platform('bing')
-    # accounts = BingAccounts.objects.filter(account_name='ACCEO Solutions')
+    accounts = active_bing_accounts()
     for account in accounts:
-        get_spend_by_bing_campaign_this_month.delay(account.id)
-        # get_spend_by_bing_campaign_this_month(account.id)
+        if settings.DEBUG:
+            get_spend_by_bing_campaign_this_month(account.id)
+        else:
+            get_spend_by_bing_campaign_this_month.delay(account.id)
 
 
 @celery_app.task(bind=True)
