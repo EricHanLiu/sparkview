@@ -1186,7 +1186,7 @@ class Client(models.Model):
     def spend_percentage(self):
         if self.current_budget == 0.0:
             return 0.0
-        return 100.0 * self.current_spend / self.current_budget
+        return 100.0 * self.calculated_spend / self.current_budget
 
     @property
     def is_late_to_onboard(self):
@@ -1770,14 +1770,6 @@ class Budget(models.Model):
                 spend += b.campaign_yesterday_cost
             self._yesterday_spend = spend
         return self._yesterday_spend
-
-    @property
-    def spend_percentage(self):
-        """
-        Percentage of budget spend in this period
-        :return:
-        """
-        return self.calculated_spend * 100.0 / self.budget
 
 
 class CampaignExclusions(models.Model):
