@@ -10,8 +10,6 @@
 {% endblock %}
 
 {% block main_body %}
-    <!-- MAIN CONTENT START -->
-    <!-- ALERTS START -->
     {% if account.has_blacklisted_accounts %}
         <article class="message is-danger">
             <div class="message-body">
@@ -71,7 +69,6 @@
             </article>
         {% endif %}
     {% endif %}
-    <!-- ALERTS END -->
     <div class="columns">
         <div class="column is-8">
             <div class="title is-4">
@@ -117,7 +114,6 @@
                     </div>
                 </div>
             </div>-->
-            <!-- ASSIGNED MEMBERS START -->
             <div class="columns">
                 {% for role, assigned_member in account.assigned_members.items %}
                     {% if role != 'Sold by' %}
@@ -157,7 +153,6 @@
             </div>
         </div>
         <div class="column is-4">
-            <!-- CLIENT DETAILS START -->
             <div class="card page-card" id="contact_details_card">
                 <div class="card-content">
                     <div class="level">
@@ -167,7 +162,7 @@
                             </h5>
                         </div>
                         <div class="level-right">
-                            <button class="button is-rounded is-small" id="view_contact_details_modal">
+                            <button class="button is-rounded is-small" id="contact_details_button">
                                 <strong>View More</strong>
                             </button>
                         </div>
@@ -206,12 +201,12 @@
                                 <h5 class="title is-5">Client Details</h5>
                             </div>
                             <div class="level-right">
-                                <button class="button" id="edit_client_details">
+                                <button class="button" id="update_client_details_button">
                                     Save Changes
                                 </button>
                             </div>
                         </div>
-                        <form id="client_details">
+                        <form id="client_details_form">
                             <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
                             <div class="field has-addons">
                                 <button class="button is-static" type="button">Basecamp Link</button>
@@ -343,17 +338,17 @@
     </div>
     <div class="columns">
         <div class="column is-4">
-            <div class="card page-card">
+            <div class="card page-card" id="services_card">
                 <div class="card-content">
                     <div class="level">
                         <div class="level-left">
                             <h5 class="title is-5">Services</h5>
                         </div>
                         <div class="level-right">
-                            <button class="button level-item is-rounded is-small">
-                                <strong>New Service</strong>
+                            <button class="button level-item is-rounded is-small" id="update_services_button">
+                                <strong>Update Services</strong>
                             </button>
-                            <button class="button level-item is-rounded is-small">
+                            <button class="button level-item is-rounded is-small" id="new_opportunity_button">
                                 <strong>New Opportunity</strong>
                             </button>
                         </div>
@@ -547,10 +542,10 @@
                                     </div>
                                 </div>
                                 <div class="column is-5 has-text-right">
-                                    <a class="button is-info" id="sources_btn">Pull Sources</a>
-                                    <a class="button is-info" id="exclusion_btn"
+                                    <a class="button is-primary" id="sources_btn">Pull Sources</a>
+                                    <a class="button is-primary" id="exclusion_btn"
                                        onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
-                                    <a class="button is-info" id="add_budget_btn">Add Budget</a>
+                                    <a class="button is-primary" id="add_budget_btn">Add Budget</a>
                                 </div>
                             </div>
                         </div>
@@ -633,7 +628,6 @@
     </div>
 
     <!-- MODALS -->
-    <!-- FLAG ACCOUNT MODAL START -->
     <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -676,8 +670,6 @@
         </div>
         <button class="modal-close is-large"></button>
     </div>
-    <!-- FLAG ACCOUNT MODAL END -->
-    <!-- QUICKADD HOURS MODAL START -->
     <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -730,8 +722,6 @@
         </div>
         <button class="modal-close is-large"></button>
     </div>
-    <!-- QUICKADD HOURS MODAL END -->
-    <!-- ASSIGN MEMBERS MODAL START -->
     <div class="modal modal-fx-fadeInScale" id="assign_members_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -962,8 +952,79 @@
         </div>
         <button class="modal-close is-large"></button>
     </div>
-    <!-- ASSIGN MEMBERS MODAL END -->
-    <!-- MAIN CONTENT END -->
+    <div class="modal modal-fx-fadeInScale" id="update_services_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Update Services</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="update_services_confirm_button">
+                            Update
+                        </button>
+                    </div>
+                </div>
+                <form method="POST" action="/clients/accounts/set_services" id="update_services_form">{% csrf_token %}
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column is-4">
+                            <label class="label">PPC</label>
+                            <div class="select is-fullwidth">
+                                <select class="update-service" name="set-ppc">
+                                    {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                        {% if service_num != 6 %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.ppc_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ service_str }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <label class="label">SEO</label>
+                            <div class="select is-fullwidth">
+                                <select class="pdate-service" name="set-seo">
+                                    {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                        {% if service_num != 6 %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.seo_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ service_str }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <label class="label">CRO</label>
+                            <div class="select is-fullwidth">
+                                <select class="update-service" name="set-cro">
+                                    {% for service_num, service_str in account.sales_profile.STATUS_CHOICES %}
+                                        {% if service_num != 6 %}
+                                            <option value="{{ service_num }}"
+                                                    {% if account.sales_profile.cro_status == service_num %}
+                                                    selected
+                                                    {% endif %}>
+                                                {{ service_str }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extraJs %}
@@ -1102,19 +1163,19 @@
         });
 
         // client details save changes
-        $('#edit_client_details').click(function () {
-            let $form = $('#client_details');
+        $('#update_client_details_button').click(function () {
+            let $form = $('#client_details_form');
 
             $.ajax({
                 url: '/api/set_client_details',
                 type: 'POST',
                 data: $form.serialize(),
                 success: () => {
-                    $(this).attr('disabled', '');
-                    setTimeout(() => {
-                        $(this).removeAttr('disabled');
-                    }, 1000)
+                    $('.modal').removeClass('is-active');
                     toastr.success('Successfully updated client details!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 },
                 error: () => {
                     toastr.error('Error');
@@ -1122,12 +1183,37 @@
             })
         });
 
-        $('#view_contact_details_modal').click(() => {
+        $('#contact_details_button').click(() => {
             $('#contact_details_modal').addClass('is-active');
+        });
+
+        $('#update_services_button').click(() => {
+            $('#update_services_modal').addClass('is-active');
         });
 
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
+        });
+
+
+        $('#update_services_confirm_button').click(e => {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/clients/accounts/set_services',
+                data: $('#update_services_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully updated services!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            });
         });
 
 
