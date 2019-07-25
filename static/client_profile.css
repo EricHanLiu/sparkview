@@ -32,12 +32,13 @@ table {
     margin-top: 2em;
 }
 
-.card {
+.page-card {
     box-shadow: none;
+    padding: 0.3em;
 }
 
-.card:not(.member-card) {
-    padding: 0.3em;
+.member-card {
+    box-shadow: none;
 }
 
 .profile-circle {
