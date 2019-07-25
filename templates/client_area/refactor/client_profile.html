@@ -7,6 +7,9 @@
 {% block extraCss %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
     <link href="{% static 'client_profile.css' %}" type="text/css" rel="stylesheet"/>
+    <link href="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet" type="text/css" />
+    <script defer src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
+    <script src="{% static 'assets/app/js/moment.js' %}"></script>
 {% endblock %}
 
 {% block main_body %}
@@ -465,7 +468,7 @@
                             <h5 class="title is-5">Promos</h5>
                         </div>
                         <div class="level-right">
-                            <button class="button level-item is-rounded is-small">
+                            <button class="button level-item is-rounded is-small" id="view_calendar_button">
                                 <strong>View Calendar</strong>
                             </button>
                         </div>
@@ -488,17 +491,22 @@
                                         </div>
                                         <div class="column is-4">
                                             {% if promo.confirmed_started and not promo.confirmed_ended %}
-                                                <button class="button is-rounded is-primary is-fullwidth">
+                                                <button class="button is-rounded is-primary is-fullwidth confirm-promo"
+                                                        data-promo-id="{{ promo.id }}" data-confirmation-type="1">
                                                     Confirm Ended
                                                 </button>
+                                            {% elif promo.confirmed_ended %}
+                                                <button class="button is-fullwidth is-rounded" disabled>
+                                                    Promo Ended
+                                                </button>
                                             {% else %}
-                                                <button class="button is-rounded is-success is-fullwidth">
+                                                <button class="button is-rounded is-success is-fullwidth confirm-promo"
+                                                        data-promo-id="{{ promo.id }}" data-confirmation-type="0">
                                                     Confirm Started
                                                 </button>
                                             {% endif %}
                                         </div>
                                     </div>
-
                                 </td>
                             </tr>
                         {% endfor %}
@@ -1112,6 +1120,15 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="view_calendar_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content" style="width: 75vw;">
+            <div class="box">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+    <!-- BUDGET MODALS -->
     <div class="modal" id="add_budget_modal">
         <div class="modal-background"></div>
         <div class="modal-card" style="max-height: 100vh;">
@@ -1456,44 +1473,40 @@
     </div>
     <div class="modal" id="exclusion_modal">
         <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <div class="level">
-                    <div class="level-left">
-                        <h5 class="title is-5">Master Exclusion</h5>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Master Exclusion</p>
+                <button class="delete close" aria-label="close"></button>
+            </header>
+            <form id="exclude_campaigns" method="post" action="/budget/update_exclusions">
+                <section class="modal-card-body" style="height: 40vh;">
+                    {% csrf_token %}
+                    <input type="hidden" name="account_id" value="{{ account.id }}">
+                    <div class="tabs is-centered is-boxed">
+                        <ul>
+                            <li class="tab">
+                                <a>
+                                    Manual Selection
+                                </a>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="level-right">
-                        <button class="button" id="update_exclusions_confirm_button">
-                            Update Exclusions
-                        </button>
-                    </div>
-                </div>
-                <form id="exclude_campaigns_form">
-                    <div style="height: 35vh;">
-                        {% csrf_token %}
-                        <input type="hidden" name="account_id" value="{{ account.id }}">
-                        <div class="tabs is-centered is-boxed">
-                            <ul>
-                                <li class="tab">
-                                    <a>
-                                        Manual Selection
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="field">
-                            <label class="label">Select Campaigns</label>
-                            <div class="control">
-                                <div class="select is-multiple is-fullwidth">
-                                    <select name="campaigns"
-                                            multiple="multiple" id="exclude_campaigns_select">
-                                    </select>
-                                </div>
+                    <div class="field">
+                        <label class="label">Select Campaigns</label>
+                        <div class="control">
+                            <div class="select is-multiple is-fullwidth">
+                                <select name="campaigns"
+                                        multiple="multiple" id="exclude_campaigns_select">
+                                </select>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <input class="button is-info" type="submit" value="Update Exclusions"/>
+                    <button class="button close">Cancel</button>
+                </footer>
+            </form>
         </div>
     </div>
     <div class="modal" id="delete_budget_modal">
@@ -1687,6 +1700,10 @@
             $('#new_opportunity_modal').addClass('is-active');
         });
 
+        $('#view_calendar_button').click(() => {
+            $('#view_calendar_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -1727,17 +1744,21 @@
             });
         });
 
-        $('#update_exclusions_confirm_button').click(() => {
+        $('.confirm-promo').click(function () {
+            let confirmationType = $(this).data('confirmation-type');
+            let promoID = $(this).data('promo-id');
             $.ajax({
-                url: '/budget/update_exclusions',
-                data: $('#exclude_campaigns_form').serialize(),
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
+                url: '/clients/promos/confirm',
+                data: {
+                    'account_id': {{ account.id }},
+                    'promo_id': promoID,
+                    'confirmation_type': confirmationType
                 },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 type: 'POST',
                 success: () => {
-                    $('.modal').removeClass('is-active');
-                    toastr.success('Successfully updated campaign exclusions!');
+                    let startedOrEnded = confirmationType === '0' ? 'started' : 'ended';
+                    toastr.success('Successfully marked promo as ' + startedOrEnded + '!');
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
@@ -1894,6 +1915,7 @@
                         display: false
                     },
                     rotation: -1 * Math.PI,
+                    animation: false
                 }
             });
         }
@@ -1906,6 +1928,27 @@
             setPercentageSum();
             getClientDetailsObjects();
             generateHoursChart();
+            $('#calendar').fullCalendar({
+                header: {
+                    left: "prev, next, today",
+                    center: "title",
+                    right: "month, listWeek"
+                },
+                aspectRatio: 2,
+                defaultDate: moment(),
+                defaultView: 'month',
+                events: [
+                    {% for promo in promos %}
+                        {
+                            title: "{{ promo.name }}",
+                            description: "{{ promo.desc }}",
+                            start: moment("{{ promo.formatted_start }}"),
+                            end: moment("{{ promo.formatted_end }}"),
+                            className: "{% if promo.is_active %}m-fc-event--success{% else %}m-fc-event--warning{% endif %}"
+                        }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            });
         });
 
 
@@ -2238,8 +2281,6 @@
                     $('#' + elementID).selectize({
                         plugins: ['remove_button']
                     });
-
-                    $('#' + elementID)[0].selectize.open();
                 },
                 error: function (ajaxContext) {
                     toastr.error(ajaxContext.statusText)
