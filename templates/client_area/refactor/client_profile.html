@@ -642,6 +642,7 @@
                                             <div class="progress-value">
                                                 {{ budget.spend_percentage|floatformat:2 }}%
                                             </div>
+                                            <div class="budget-pacer"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1945,6 +1946,14 @@
                     {% endfor %}
                 ]
             });
+            // budget pacer calculations
+            let now = new Date();
+            let today = now.getDate();
+            let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            console.log(today, daysInMonth);
+            let percentage = today * 100.0 / daysInMonth;
+            percentage = parseFloat(percentage).toFixed(2).toString();
+            $('.budget-pacer').css('left', percentage + '%');
         });
 
 

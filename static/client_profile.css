@@ -74,3 +74,12 @@ p {
     font-size: calc(1.25rem / 1.5);
     line-height: 1.5rem;
 }
+
+.budget-pacer {
+    height: 1.5rem;
+    background-color: black;
+    width: 0.2rem;
+    position: absolute;
+    top: 0;
+    left: 1%;
+}
