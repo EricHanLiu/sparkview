@@ -7,6 +7,7 @@ from oauth2client import tools
 import itertools
 import datetime
 
+
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
 CLIENT_SECRETS_PATH = '/home/sam/Projects/bloom-master/insights/client_secrets.json'
@@ -427,6 +428,11 @@ def main():
 
     # response = get_report(analytics, get_ecom_ppc_best_ad_groups_query('76955979'))
     # print_response(response)
+=======
+def main():
+    analytics = initialize_analyticsreporting()
+    response = get_report(analytics, get_ecom_ppc_best_ad_groups_query('76955979'))
+    print_response(response)
     # response = get_report(analytics, report_definition)
     # get_searches_twelve_month_trend_query()
 
