@@ -79,50 +79,29 @@
     {% endif %}
     <div class="columns">
         <div class="column is-8">
-            <div class="title is-4">
-                {{ account.client_name }} Team
-            </div>
-            <!--<div class="subtitle">
-                <div class="level">
-                    <div class="level-left">
-                        <div class="level-item">
-                            <div class="tag is-{{ status_badges|get_item_from_list:account.status }} is-rounded">
-                                {{ account.get_status_display }}
-                            </div>
-                        </div>
-                        <div class="level-item">
-                            <div class="icon">
-                                <a><i class="far fa-{% if not account.star_flag %}smile{% else %}frown{% endif %} modal-trigger"
-                                      data-target="#flag_account_modal"></i></a>
-                            </div>
-                        </div>
-                        <div class="level-item">
-                            <div class="icon">
-                                <a><i class="far fa-clock modal-trigger" data-target="#quick_add_modal"></i></a>
-                            </div>
-                        </div>
-                        <div class="level-item">
-                            <div class="icon">
-                                <a href="/clients/accounts/{{ account.id }}/edit">
-                                    <i class="far fa-edit"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="level-item">
-                            <a class="button is-rounded is-small" href="/clients/accounts/{{ account.id }}/lifecycle">
-                                Lifecycle
-                            </a>
-                        </div>
-                        <div class="level-item">
-                            <button class="button is-info is-rounded is-small modal-trigger"
-                                    data-target="#assign_members_modal">
-                                Assign Members
-                            </button>
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <div class="title is-4">
+                            {{ account.client_name }}
                         </div>
                     </div>
+                    <div class="level-item">
+                        <strong>
+                            <a class="button is-rounded is-small button-color" href="/clients/accounts/{{ account.id }}/lifecycle">
+                                Lifecycle
+                            </a>
+                        </strong>
+                    </div>
+                    <div class="level-item">
+                        <strong><a class="button is-rounded is-small button-color">Status</a></strong>
+                    </div>
+                    <div class="level-item">
+                        <strong><a class="button is-rounded is-small button-color" id="assign_members_button">Team</a></strong>
+                    </div>
                 </div>
-            </div>-->
-            <div class="columns">
+            </div>
+            <div class="columns" style="margin-top: 1em;">
                 {% for role, assigned_member in account.assigned_members.items %}
                     {% if role != 'Sold by' %}
                         <div class="column is-2">
@@ -134,8 +113,9 @@
                                 <div class="card-content" style="margin-top: 1em; position: relative;">
                                     <div class="media">
                                         <div class="media-content">
-                                            <div class="tag member-role-tag is-rounded is-{% if 'CM' in role %}primary
-                                            {% elif 'AM' in role %}danger{% elif 'SEO' in role %}info{% else %}warning{% endif %}">
+                                            <div class="tag member-role-tag is-rounded {% if 'CM' in role %}cm-color
+                                            {% elif 'AM' in role %}am-color{% elif 'SEO' in role %}seo-color{% else %}
+                                            strat-color{% endif %}">
                                                 {{ role }}
                                             </div>
                                             <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
@@ -164,7 +144,7 @@
                             </h5>
                         </div>
                         <div class="level-right">
-                            <button class="button is-rounded is-small" id="contact_details_button">
+                            <button class="button is-rounded is-small button-color" id="contact_details_button">
                                 <strong>View More</strong>
                             </button>
                         </div>
@@ -203,7 +183,7 @@
                                 <h5 class="title is-5">Client Details</h5>
                             </div>
                             <div class="level-right">
-                                <button class="button" id="update_client_details_button">
+                                <button class="button button-color" id="update_client_details_button">
                                     Save Changes
                                 </button>
                             </div>
@@ -347,10 +327,12 @@
                             <h5 class="title is-5">Services</h5>
                         </div>
                         <div class="level-right">
-                            <button class="button level-item is-rounded is-small" id="update_services_button">
+                            <button class="button level-item is-rounded is-small button-color"
+                                    id="update_services_button">
                                 <strong>Update Services</strong>
                             </button>
-                            <button class="button level-item is-rounded is-small" id="new_opportunity_button">
+                            <button class="button level-item is-rounded is-small button-color"
+                                    id="new_opportunity_button">
                                 <strong>New Opportunity</strong>
                             </button>
                         </div>
@@ -360,11 +342,13 @@
                             <div class="box">
                                 <div class="icon">
                                     <i class="fas fa-circle {% if account.sales_profile.ppc_status == 1 %}
-                                        has-text-primary{% elif account.sales_profile.ppc_status == 0 %}has-text-info
+                                        has-text-success{% elif account.sales_profile.ppc_status == 0 %}has-text-info
+                                        {% elif account.sales_profile.ppc_status == 2 %}has-text-warning
+                                        {% elif account.sales_profile.ppc_status == 6 %}has-text-grey
                                         {% else %}has-text-danger{% endif %}"></i>
                                 </div>
                                 PPC
-                                <p class="has-text-grey" style="margin-left: 1.8em;">
+                                <p class="has-text-grey">
                                     {{ account.sales_profile.get_ppc_status_display }}
                                 </p>
                             </div>
@@ -373,11 +357,13 @@
                             <div class="box">
                                 <div class="icon">
                                     <i class="fas fa-circle {% if account.sales_profile.seo_status == 1 %}
-                                        has-text-primary{% elif account.sales_profile.seo_status == 0 %}has-text-info
+                                        has-text-success{% elif account.sales_profile.seo_status == 0 %}has-text-info
+                                        {% elif account.sales_profile.seo_status == 2 %}has-text-warning
+                                        {% elif account.sales_profile.seo_status == 6 %}has-text-grey
                                         {% else %}has-text-danger{% endif %}"></i>
                                 </div>
                                 SEO
-                                <p class="has-text-grey" style="margin-left: 1.8em;">
+                                <p class="has-text-grey">
                                     {{ account.sales_profile.get_seo_status_display }}
                                 </p>
                             </div>
@@ -386,18 +372,20 @@
                             <div class="box">
                                 <div class="icon">
                                     <i class="fas fa-circle {% if account.sales_profile.cro_status == 1 %}
-                                        has-text-primary{% elif account.sales_profile.cro_status == 0 %}has-text-info
+                                        has-text-success{% elif account.sales_profile.cro_status == 0 %}has-text-info
+                                        {% elif account.sales_profile.cro_status == 2 %}has-text-warning
+                                        {% elif account.sales_profile.cro_status == 6 %}has-text-grey
                                         {% else %}has-text-danger{% endif %}"></i>
                                 </div>
                                 CRO
-                                <p class="has-text-grey" style="margin-left: 1.8em;">
+                                <p class="has-text-grey">
                                     {{ account.sales_profile.get_cro_status_display }}
                                 </p>
                             </div>
                         </div>
                     </div>
                     {% if account.active_mandates.count > 0 %}
-                        <table class="table is-hoverable">
+                        <table class="table is-hoverable" id="services_table">
                             <tr>
                                 <th>
                                     Type
@@ -467,7 +455,8 @@
                             <h5 class="title is-5">Promos</h5>
                         </div>
                         <div class="level-right">
-                            <button class="button level-item is-rounded is-small" id="view_calendar_button">
+                            <button class="button level-item is-rounded is-small button-color"
+                                    id="view_calendar_button">
                                 <strong>View Calendar</strong>
                             </button>
                         </div>
@@ -486,7 +475,7 @@
                             </div>
                             <div class="column is-4">
                                 {% if promo.confirmed_started and not promo.confirmed_ended %}
-                                    <button class="button is-rounded is-primary is-fullwidth confirm-promo"
+                                    <button class="button is-rounded button-color-3 is-fullwidth confirm-promo"
                                             data-promo-id="{{ promo.id }}" data-confirmation-type="1">
                                         Confirm Ended
                                     </button>
@@ -495,7 +484,7 @@
                                         Promo Ended
                                     </button>
                                 {% else %}
-                                    <button class="button is-rounded is-success is-fullwidth confirm-promo"
+                                    <button class="button is-rounded button-color-2 is-fullwidth confirm-promo"
                                             data-promo-id="{{ promo.id }}" data-confirmation-type="0">
                                         Confirm Started
                                     </button>
@@ -527,24 +516,21 @@
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium"
-                                          {% if account.adwords.all %}style="background-color: #13a365; color: white;"{% endif %}>
+                                    <span class="tag is-medium {% if account.adwords.all %}is-success{% endif %}">
                                         Google Ads
                                     </span>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium"
-                                          {% if account.facebook.all %}style="background-color: #4267B2; color: white;"{% endif %}>
+                                    <span class="tag is-medium {% if account.facebook.all %}is-success{% endif %}">
                                         Facebook Ads
                                     </span>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium"
-                                          {% if account.bing.all %}style="background-color: #00887E; color: white;"{% endif %}>
+                                    <span class="tag is-medium {% if account.bing.all %}is-success{% endif %}">
                                         Bing Ads
                                     </span>
                                             </div>
@@ -552,10 +538,10 @@
                                     </div>
                                 </div>
                                 <div class="column is-5 has-text-right">
-                                    <a class="button is-primary" id="sources_btn">Pull Sources</a>
-                                    <a class="button is-primary" id="exclusion_btn"
+                                    <a class="button button-color" id="sources_btn">Pull Sources</a>
+                                    <a class="button button-color" id="exclusion_btn"
                                        onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
-                                    <a class="button is-primary" id="add_budget_btn">Add Budget</a>
+                                    <a class="button button-color" id="add_budget_btn">Add Budget</a>
                                 </div>
                             </div>
                         </div>
@@ -584,24 +570,21 @@
                     <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag is-small"
-                                      {% if budget.has_adwords %}style="background-color: #13a365; color: white;"{% endif %}>
+                                <span class="tag is-small {% if budget.has_adwords %}is-success{% endif %}">
                                     Google
                                 </span>
                             </div>
                         </div>
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag is-small"
-                                      {% if budget.has_facebook %}style="background-color: #4267B2; color: white;"{% endif %}>
+                                <span class="tag is-small {% if budget.has_facebook %}is-success{% endif %}">
                                     FB
                                 </span>
                             </div>
                         </div>
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag is-small"
-                                      {% if budget.has_bing %}style="background-color: #00887E; color: white;"{% endif %}>
+                                <span class="tag is-small" {% if budget.has_bing %}is-success{% endif %}>
                                     Bing
                                 </span>
                             </div>
@@ -639,7 +622,7 @@
                                 <div class="columns">
                                     <div class="column is-12">
                                         <div class="progress-wrapper">
-                                            <progress class="progress is-large {% if budget.underpacing_average %}is-warning{% elif budget.overpacing_average %}is-danger{% else %}is-primary{% endif %}"
+                                            <progress class="progress is-large {% if budget.underpacing_average %}is-warning{% elif budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
                                                       max="100"
                                                       value="{{ budget.spend_percentage }}">
                                             </progress>
@@ -766,8 +749,7 @@
         <div class="modal-background"></div>
         <div class="modal-card">
             <div class="modal-card-head">
-                <div class="modal-card-title">Assign Members to {{ account.client_name }}</div>
-                <button class="delete"></button>
+                <div class="modal-card-title title is-5">Assign Members to {{ account.client_name }}</div>
             </div>
             <form id="assign_members_form" method="POST" action="/clients/accounts/assign_members">
                 {% csrf_token %}
@@ -775,7 +757,7 @@
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="columns">
                         <div class="column">
-                            <label>AM 1:</label>
+                            <label class="label">AM 1:</label>
                             <div class="select is-fullwidth">
                                 <select name="am1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
                                     <option value="0">
@@ -791,7 +773,7 @@
                                    value="{{ account.am1percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>AM 2:</label>
+                            <label class="label">AM 2:</label>
                             <div class="select is-fullwidth">
                                 <select name="am2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
                                     <option value="0">
@@ -807,7 +789,7 @@
                                    value="{{ account.am2percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>AM 3:</label>
+                            <label class="label">AM 3:</label>
                             <div class="select is-fullwidth">
                                 <select name="am3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
                                     <option value="0">
@@ -825,7 +807,7 @@
                     </div>
                     <div class="columns">
                         <div class="column">
-                            <label>CM 1:</label>
+                            <label class="label">CM 1:</label>
                             <div class="select is-fullwidth">
                                 <select name="cm1_assign" {% if not request.user.is_staff %}disabled{% endif %}>
                                     <option value="0">
@@ -841,7 +823,7 @@
                                    value="{{ account.cm1percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>CM 2:</label>
+                            <label class="label">CM 2:</label>
                             <div class="select is-fullwidth">
                                 <select name="cm2_assign" {% if not request.user.is_staff %}disabled{% endif %}>
                                     <option value="0">
@@ -857,7 +839,7 @@
                                    value="{{ account.cm2percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>CM 3:</label>
+                            <label class="label">CM 3:</label>
                             <div class="select is-fullwidth">
                                 <select name="cm3_assign" {% if not request.user.is_staff %}disabled{% endif %}>
                                     <option value="0">
@@ -875,7 +857,7 @@
                     </div>
                     <div class="columns">
                         <div class="column">
-                            <label>Strat 1:</label>
+                            <label class="label">Strat 1:</label>
                             <div class="select is-fullwidth">
                                 <select name="strat1_assign"
                                         {% if not request.user.is_staff %}disabled{% endif %}>
@@ -892,7 +874,7 @@
                                    value="{{ account.strat1percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>Strat 2:</label>
+                            <label class="label">Strat 2:</label>
                             <div class="select is-fullwidth">
                                 <select name="strat2_assign"
                                         {% if not request.user.is_staff %}disabled{% endif %}>
@@ -909,7 +891,7 @@
                                    value="{{ account.strat2percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>Strat 3:</label>
+                            <label class="label">Strat 3:</label>
                             <div class="select is-fullwidth">
                                 <select name="strat3_assign"
                                         {% if not request.user.is_staff %}disabled{% endif %}>
@@ -928,7 +910,7 @@
                     </div>
                     <div class="columns">
                         <div class="column">
-                            <label>SEO 1:</label>
+                            <label class="label">SEO 1:</label>
                             <div class="select is-fullwidth">
                                 <select name="seo1_assign"
                                         {% if not request.user.is_staff %}disabled{% endif %}>
@@ -945,7 +927,7 @@
                                    value="{{ account.seo1percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>SEO 2:</label>
+                            <label class="label">SEO 2:</label>
                             <div class="select is-fullwidth">
                                 <select name="seo2_assign"
                                         {% if not request.user.is_staff %}disabled{% endif %}>
@@ -962,7 +944,7 @@
                                    value="{{ account.seo2percent|floatformat:2 }}"/>
                         </div>
                         <div class="column">
-                            <label>SEO 3:</label>
+                            <label class="label">SEO 3:</label>
                             <div class="select is-fullwidth">
                                 <select name="seo3_assign"
                                         {% if not request.user.is_staff %}disabled{% endif %}>
@@ -981,12 +963,11 @@
                     </div>
                 </div>
                 <div class="modal-card-foot">
-                    <p>Total percentage: <span id="percentage_total"></span>%</p>
-                    <button type="button" class="button is-primary" id="distribute_hours_button"
-                            style="margin-left: auto;">
+                    <p>Total percentage: <strong id="percentage_total"></strong></p>
+                    <button type="button" class="button" id="distribute_hours_button" style="margin-left: auto;">
                         Distribute hours proportionately
                     </button>
-                    <button type="submit" class="button is-info" id="submit_assign_form_button">Submit</button>
+                    <button type="submit" class="button button-color" id="submit_assign_form_button">Submit</button>
                 </div>
             </form>
         </div>
@@ -1001,7 +982,7 @@
                         <h5 class="title is-5">Update Services</h5>
                     </div>
                     <div class="level-right">
-                        <button class="button" id="update_services_confirm_button">
+                        <button class="button button-color" id="update_services_confirm_button">
                             Update
                         </button>
                     </div>
@@ -1074,7 +1055,7 @@
                         <h5 class="title is-5">New Opportunity</h5>
                     </div>
                     <div class="level-right">
-                        <button class="button" id="new_opportunity_confirm_button">
+                        <button class="button button-color" id="new_opportunity_confirm_button">
                             Confirm
                         </button>
                     </div>
@@ -1133,8 +1114,7 @@
         <div class="modal-background"></div>
         <div class="modal-card" style="max-height: 100vh;">
             <header class="modal-card-head">
-                <p class="modal-card-title">Add New Budget</p>
-                <button class="delete close" aria-label="close"></button>
+                <h5 class="title is-5">Add New Budget</h5>
             </header>
             <form method="post" action="/budget/new_budget">
 
@@ -1268,8 +1248,7 @@
         <div class="modal-background"></div>
         <div class="modal-card" style="max-height: 100vh;">
             <header class="modal-card-head">
-                <p class="modal-card-title">Edit Budget</p>
-                <button class="delete close" aria-label="close"></button>
+                <h5 class="title is-5">Edit Budget</h5>
             </header>
             <form method="POST" action="/budget/edit_budget">
                 <section class="modal-card-body">
@@ -1403,8 +1382,7 @@
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-                <p class="modal-card-title">Sources</p>
-                <button class="delete close" aria-label="close"></button>
+                <h5 class="title is-5">Sources</h5>
             </header>
             <section class="modal-card-body">
                 <form id="assign_accounts">
@@ -1443,8 +1421,7 @@
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-                <p class="modal-card-title">Campaigns In Group</p>
-                <button class="delete close" aria-label="close"></button>
+                <h5 class="title is-5">Campaigns In Group</h5>
             </header>
             <section class="modal-card-body">
                 <table class="table is-fullwidth">
@@ -1475,8 +1452,7 @@
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-                <p class="modal-card-title">Master Exclusion</p>
-                <button class="delete close" aria-label="close"></button>
+                <h5 class="title is-5">Master Exclusion</h5>
             </header>
             <form id="exclude_campaigns" method="post" action="/budget/update_exclusions">
                 <section class="modal-card-body" style="height: 40vh;">
@@ -1513,8 +1489,7 @@
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-                <p class="modal-card-title">Delete Budget</p>
-                <button class="delete close" aria-label="close"></button>
+                <h5 class="title is-5">Delete Budget</h5>
             </header>
             <form method="post" action="/budget/delete_budget">
                 <section class="modal-card-body">
@@ -1704,6 +1679,10 @@
             $('#view_calendar_modal').addClass('is-active');
         });
 
+        $('#assign_members_button').click(() => {
+            $('#assign_members_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -1857,7 +1836,7 @@
         }
 
         function setPercentageSum() {
-            $('#percentage_total').text(getPercentageSum());
+            $('#percentage_total').text(getPercentageSum() + '%');
         }
 
         function getClientDetailsObjects() {
@@ -1907,7 +1886,7 @@
                     labels: ['Allocated Hours', 'Actual Hours', 'Remaining Hours'],
                     datasets: [{
                         data: [allocatedHours, actualHours, remainingHours],
-                        backgroundColor: ['#FFD8D8', '#FBB9B9', '#D3B4B4']
+                        backgroundColor: ['#cc4b93', '#a946be', '#35375a']
                     }]
                 },
                 options: {

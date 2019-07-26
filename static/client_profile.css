@@ -1,3 +1,48 @@
+/* COLORS */
+.button-color {
+    background-color: #35375a;
+    color: white;
+}
+
+.button-color-2 {
+    background-color: #dc4e76;
+    color: white;
+}
+
+.button-color-3 {
+    background-color: #cc4b93;
+    color: white;
+}
+
+.button-color:hover, .button-color-2:hover, .button-color-3:hover {
+    color: navajowhite;
+}
+
+.button-color:focus, .button-color-2:focus, .button-color-3:focus {
+    color: white;
+}
+
+.tag.cm-color {
+    background-color: #35375a;
+    color: white;
+}
+
+.tag.am-color {
+    background-color: #dc4e76;
+    color: white;
+}
+
+.tag.seo-color {
+    background-color: #a946be;
+    color: white;
+}
+
+.tag.strat-color {
+    background-color: #cc4b93;
+    color: white;
+}
+
+
 .icon a {
     color: black;
 }
@@ -25,7 +70,7 @@ img {
 }
 
 table {
-    table-layout: fixed;
+    table-layout: auto;
     width: 100%;
     word-break: break-word;
 }
