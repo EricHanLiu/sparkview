@@ -54,3 +54,23 @@ table {
 p {
     word-break: break-word;
 }
+
+/* Progress bar percentage text styling */
+.progress-wrapper {
+    position: relative;
+}
+
+.progress-value {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: calc(1rem / 1.5);
+    line-height: 1rem;
+    font-weight: bold;
+}
+
+.progress.is-large+.progress-value {
+    font-size: calc(1.25rem / 1.5);
+    line-height: 1.5rem;
+}

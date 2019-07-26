@@ -1175,14 +1175,26 @@ class Client(models.Model):
     @property
     def underpacing_yesterday(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_yesterday / self.current_budget < 0.95
 
     @property
     def underpacing_average(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_average / self.current_budget < 0.95
+
+    @property
+    def overpacing_yesterday(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_yesterday / self.current_budget > 1.05
+
+    @property
+    def overpacing_average(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_average / self.current_budget > 1.05
 
     @property
     def spend_percentage(self):
@@ -1780,6 +1792,18 @@ class Budget(models.Model):
         :return:
         """
         return self.calculated_spend * 100.0 / self.budget
+
+    @property
+    def overpacing_average(self):
+        if self.budget == 0.0:
+            return False
+        return self.projected_spend_avg / self.budget > 1.05
+
+    @property
+    def underpacing_average(self):
+        if self.budget == 0.0:
+            return False
+        return self.projected_spend_avg / self.budget < 0.95
 
 
 class CampaignExclusions(models.Model):

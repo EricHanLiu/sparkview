@@ -634,9 +634,15 @@
                                 </div>
                                 <div class="columns">
                                     <div class="column is-12">
-                                        <progress class="progress is-large is-info" max="100"
-                                                  value="{{ budget.spend_percentage }}">{{ spend_percentage }}%
-                                        </progress>
+                                        <div class="progress-wrapper">
+                                            <progress class="progress is-large {% if budget.underpacing_average %}is-warning{% elif budget.overpacing_average %}is-danger{% else %}is-primary{% endif %}"
+                                                      max="100"
+                                                      value="{{ budget.spend_percentage }}">
+                                            </progress>
+                                            <div class="progress-value">
+                                                {{ budget.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="level">

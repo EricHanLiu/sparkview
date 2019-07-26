@@ -1075,7 +1075,7 @@ def edit_budget(request):
 
     budget.save()
 
-    return redirect('/budget/client/' + str(account.id) + '/beta')
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 @login_required
@@ -1095,7 +1095,7 @@ def delete_budget(request):
     budget = get_object_or_404(Budget, id=request.POST.get('budget_id'))
     budget.delete()
 
-    return redirect('/budget/client/' + str(account.id) + '/beta')
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 # Update client budgets
@@ -1408,7 +1408,7 @@ def new_budget(request):
 
     budget.save()
 
-    return redirect('/budget/client/' + str(account.id) + '/beta')
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 @login_required
@@ -1459,7 +1459,7 @@ def update_exclusions(request):
     exclusions.fb_campaigns.set(fb_cmps)
     exclusions.bing_campaigns.set(bing_cmps)
 
-    return redirect('/budget/client/' + str(account.id) + '/beta')
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 @login_required
