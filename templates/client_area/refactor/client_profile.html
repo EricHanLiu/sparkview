@@ -609,7 +609,7 @@
                     </div>
                     &nbsp;&nbsp;
                                     {% if budget.is_monthly %}
-                                        Monthly Budget
+                                        Monthly Budget - <span class="budget-date" style="margin-left: 0.3em;"></span>
                                     {% else %}
                                         Flight Dates: {{ budget.pretty_dates }}
                                     {% endif %}
@@ -1958,6 +1958,7 @@
             let percentage = today * 100.0 / daysInMonth;
             percentage = parseFloat(percentage).toFixed(2).toString();
             $('.budget-pacer').css('left', percentage + '%');
+            $('.budget-date').text(today + '/' + daysInMonth);
         });
 
 
