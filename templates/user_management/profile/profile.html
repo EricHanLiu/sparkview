@@ -200,12 +200,6 @@
                                                       data-original-title="{{ task.task.message }}"></span>
                                             {% endfor %}
                                         </div>
-                                        <label class="m-checkbox mt-1">
-                                            <input type="checkbox" class="budget-updated"
-                                                   data-account-id="{{ account.id }}"
-                                                   {% if account.budget_updated %}disabled checked{% endif %}/>
-                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
-                                        </label>
                                     </div>
                                     <div class="col-10">
                                         <div class="row summary-spend-row">
@@ -431,12 +425,6 @@
                                                       data-original-title="{{ task.task.message }}"></span>
                                             {% endfor %}
                                         </div>
-                                        <label class="m-checkbox mt-1">
-                                            <input type="checkbox" class="budget-updated"
-                                                   data-account-id="{{ backup.account.id }}"
-                                                   {% if backup.account.budget_updated %}disabled checked{% endif %}/>
-                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
-                                        </label>
                                     </div>
                                     <div class="col-10">
                                         <div class="row summary-spend-row">

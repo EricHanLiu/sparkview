@@ -117,6 +117,9 @@ class Client(models.Model):
     clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
     tier = models.IntegerField(default=1)
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
+    bc_link = models.CharField(max_length=255, default=None, null=True, blank=True)
+    description = models.CharField(max_length=255, default=None, null=True, blank=True)
+    notes = models.CharField(max_length=255, default=None, null=True, blank=True)
     # maybe do services another way?
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
@@ -1174,20 +1177,32 @@ class Client(models.Model):
     @property
     def underpacing_yesterday(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_yesterday / self.current_budget < 0.95
 
     @property
     def underpacing_average(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_average / self.current_budget < 0.95
+
+    @property
+    def overpacing_yesterday(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_yesterday / self.current_budget > 1.05
+
+    @property
+    def overpacing_average(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_average / self.current_budget > 1.05
 
     @property
     def spend_percentage(self):
         if self.current_budget == 0.0:
             return 0.0
-        return 100.0 * self.calculated_spend / self.current_budget
+        return 100.0 * self.current_spend / self.current_budget
 
     @property
     def is_late_to_onboard(self):

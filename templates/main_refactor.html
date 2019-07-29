@@ -1,0 +1,206 @@
+{% load staticfiles %}
+{% load member_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <!-- Bulma -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bulma-modal-fx/dist/css/modal-fx.min.css"/>
+    <!-- Fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+          integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"/>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+            type="text/javascript"></script>
+    <!-- Selectize -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.css"/>
+    <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
+    <style>
+        html body {
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .menu-list a.is-active {
+            background-color: lightskyblue;
+        }
+
+        .card-header {
+            height: 5em;
+            padding: 1em;
+        }
+    </style>
+    {% block extraCss %}
+    {% endblock %}
+</head>
+<body class="has-navbar-spaced has-background-light">
+<!-- NAVBAR START -->
+<nav class="navbar has-shadow is-spaced">
+    <div class="container is-fluid">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="{% static 'img/bloom_logo_new.png' %}" alt="SparkView">
+                <strong class="navbar-item is-tagline">
+                    SparkView
+                </strong>
+            </a>
+        </div>
+        <div class="navbar-start">
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    <i class="fas fa-briefcase" style="margin-right: 0.5em;"></i>
+                    Clients
+                </a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/clients">
+                        My Accounts
+                    </a>
+                    {% if request.user.is_staff %}
+                        <a class="navbar-item" href="/clients/accounts/all">
+                            Active Accounts
+                        </a>
+                        <a class="navbar-item" href="/clients/accounts/inactive">
+                            Inactive Accounts
+                        </a>
+                        <a class="navbar-item" href="/clients/accounts/lost">
+                            Lost Accounts
+                        </a>
+                        <a class="navbar-item" href="/clients/accounts/new">
+                            Add New Account
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    <i class="fas fa-user-friends" style="margin-right: 0.5em;"></i>
+                    Members
+                </a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="/user_management/profile">
+                        Profile
+                    </a>
+                    {% if request.user.is_staff %}
+                        <a class="navbar-item" href="/user_management/backups">
+                            Backups
+                        </a>
+                        <a class="navbar-item" href="/user_management/members">
+                            Members
+                        </a>
+                        <a class="navbar-item" href="/user_management/members/training">
+                            Member Training
+                        </a>
+                        <a class="navbar-item" href="/user_management/members/new">
+                            Add New Member
+                        </a>
+                        <a class="navbar-item" href="/user_management/skills">
+                            Skills
+                        </a>
+                        <a class="navbar-item" href="/user_management/teams">
+                            Teams
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if request.user.is_staff %}
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">
+                        <i class="fas fa-book" style="margin-right: 0.5em;"></i>
+                        Admin
+                    </a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/reports/agency_overview">
+                            Agency Overview
+                        </a>
+                        <a class="navbar-item" href="/reports/account_spend_progression">
+                            PPC Account Spend Progression
+                        </a>
+                        <a class="navbar-item" href="/reports/cm_capacity">
+                            Paid Capacity
+                        </a>
+                        <a class="navbar-item" href="/reports/am_capacity">
+                            AM Capacity
+                        </a>
+                        <a class="navbar-item" href="/reports/seo_capacity">
+                            SEO Capacity
+                        </a>
+                        <a class="navbar-item" href="/reports/strat_capacity">
+                            Strat Capacity
+                        </a>
+                        <a class="navbar-item" href="/reports/account_capacity">
+                            Account Capacity
+                        </a>
+                        <a class="navbar-item" href="/reports/hour_log">
+                            Hour Reporting
+                        </a>
+                        <a class="navbar-item" href="/reports/promos">
+                            Promos
+                        </a>
+                        <a class="navbar-item" href="/reports/actual_hours">
+                            Actual Hours
+                        </a>
+                        <a class="navbar-item" href="/reports/account_history">
+                            Account History
+                        </a>
+                        <a class="navbar-item" href="/reports/monthly_reporting">
+                            Monthly Reporting
+                        </a>
+                        <a class="navbar-item" href="/reports/flagged_accounts">
+                            Flagged Accounts
+                        </a>
+                        <a class="navbar-item" href="/reports/performance_anomalies">
+                            Performance Anomalies
+                        </a>
+                        <a class="navbar-item" href="/reports/outstanding_notifications">
+                            Outstanding Notifications
+                        </a>
+                        <a class="navbar-item" href="/reports/oops">
+                            Oops
+                        </a>
+                        <a class="navbar-item" href="/reports/high_fives">
+                            High Fives
+                        </a>
+                        <a class="navbar-item" href="/reports/onboarding">
+                            Onboarding
+                        </a>
+                        <a class="navbar-item" href="/reports/sales">
+                            Sales
+                        </a>
+                        <a class="navbar-item" href="/reports/promo_ads">
+                            Bad Promo Ads
+                        </a>
+                        <a class="navbar-item" href="/reports/over_under">
+                            Overspend/Underspend Report
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <a class="navbar-item" href="/">
+                    Hi, {{ user.first_name }}
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- NAVBAR END -->
+<div class="section">
+    <div class="container is-fluid">
+        {% block main_body %}
+        {% endblock %}
+    </div>
+</div>
+
+{% block extraJs %}
+{% endblock %}
+</body>
+</html>
