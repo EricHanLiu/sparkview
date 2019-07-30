@@ -309,6 +309,40 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="field has-addons">
+                                <button class="button is-static" type="button">Fee Structure</button>
+                                <div class="control is-expanded">
+                                    {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
+                                        <p>Manual Override: ${{ account.management_fee_override }}</p>
+                                    {% else %}
+                                        <table class='table is-hoverable is-striped is-fullwidth is-bordered'>
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    Monthly Media Spend
+                                                </th>
+                                                <th>
+                                                    Monthly Fee
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for interval in account.managementFee.feeStructure.all %}
+                                                <tr>
+                                                    <td>
+                                                        ${{ interval.lowerBound }} - ${{ interval.upperBound }}
+                                                    </td>
+                                                    <td>
+                                                        {% if interval.feeStyle == 1 %}${{ interval.fee|format_money }}{% endif %}
+                                                        {% if interval.feeStyle == 0 %}{{ interval.fee }}%{% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
