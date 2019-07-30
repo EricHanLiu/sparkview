@@ -167,9 +167,11 @@ def is_ad_bad_promo(ad):
     promo_month, promo_day, promo_year = int(date_components[0]), int(date_components[1]), now.year
     if len(date_components) == 3:
         promo_year = int(date_components[2])
+        if promo_year < 100:
+            promo_year += 2000  # The most disgusting line of code I've ever written
 
     promo_end_date = datetime.datetime(promo_year, promo_month, promo_day)
-    if now > promo_end_date:
+    if datetime.datetime.combine(now, datetime.time.min) > promo_end_date:
         return True
 
     return False
@@ -185,7 +187,7 @@ def get_bad_ad_group_ads(self, account_id):
         return
 
     client = get_client()
-    client.client_customer_id = account_id
+    client.client_customer_id = account.dependent_account_id
 
     ad_group_ad_service = client.GetService('AdGroupAdService', version=settings.API_VERSION)
 

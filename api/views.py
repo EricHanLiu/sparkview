@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
 from budget.models import Client, Team, Industry, Service, ClientContact
 from user_management.models import Member
-from django.core.serializers import serialize
+from django.core import serializers
 import json
 import datetime
 
@@ -115,6 +115,17 @@ def get_budget_info(request):
     pass
 
 
+@api_view(['GET'])
+def get_accounts(request):
+    accounts = Client.objects.all()
+
+    data = {
+        'accounts': json.loads(serializers.serialize('json', accounts))
+    }
+
+    return Response(data, status=HTTP_200_OK)
+
+
 @csrf_exempt
 @api_view(['GET'])
 def get_client_details_objects(request):
@@ -122,8 +133,8 @@ def get_client_details_objects(request):
     industries = Industry.objects.all()
 
     data = {
-        'teams': json.loads(serialize('json', teams)),
-        'industries': json.loads(serialize('json', industries)),
+        'teams': json.loads(serializers.serialize('json', teams)),
+        'industries': json.loads(serializers.serialize('json', industries)),
     }
     return Response(data, status=HTTP_200_OK)
 

@@ -20,7 +20,8 @@ from django.utils.timezone import make_aware
 class Client(models.Model):
     """
     This should really be called 'Account' based on Bloom's business logic
-    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
+    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account'
+    in any front end view where a user sees it
     """
     STATUS_CHOICES = [(0, 'Onboarding'),
                       (1, 'Active'),
@@ -345,6 +346,7 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
+        extra_fees = self.extra_fees_month(month, year)
         return hours
 
     def value_hours_month_year(self, month, year):
@@ -1470,6 +1472,55 @@ class Client(models.Model):
 
         return members
 
+    @property
+    def budget_updated_this_month(self):
+        """
+        Is the budget updated this month?
+        :return:
+        """
+        now = datetime.datetime.now()
+        return self.budget_updated_month(now.month, now.year)
+
+    def budget_updated_month(self, month, year):
+        """
+        Boolean, returns True if the budget was updated for that month
+        :param month:
+        :param year:
+        :return:
+        """
+        try:
+            budget = BudgetUpdate.objects.get(account=self, month=month, year=year)
+        except BudgetUpdate.DoesNotExist:
+            return False
+        return budget.updated
+
+    @property
+    def additional_fees_this_month(self):
+        """
+        Any additional fees this month
+        :return:
+        """
+        if not hasattr(self, '_additional_fees_this_month'):
+            now = datetime.datetime.now()
+            self._additional_fees_this_month = self.additional_fees_month(now.month, now.year)
+        return self._additional_fees_this_month
+
+    def additional_fees_month(self, month, year):
+        """
+        Gets extra fees from a month and year
+        :param month:
+        :param year:
+        :return:
+        """
+        try:
+            additional_fees = AdditionalFee.objects.filter(account=self, month=month, year=year)
+        except AdditionalFee.DoesNotExist:
+            return 0.0
+        total_additional_fee = 0.0
+        for f in additional_fees:
+            total_additional_fee += f.fee
+        return total_additional_fee
+
     remainingBudget = property(get_remaining_budget)
 
     yesterday_spend = property(get_yesterday_spend)
@@ -1487,6 +1538,24 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
+
+
+class AdditionalFee(models.Model):
+    """
+    Add an additional fee to a client for a month
+    """
+    account = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, default=None)
+    fee = models.FloatField(default=0.0)
+    month = models.IntegerField(default=0)
+    year = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.account is None:
+            return 'No name account had an additional fee of $' + str(self.fee) + ' in ' + str(self.month) + '/' + str(
+                self.year)
+        return self.account.client_name + ' had an additional fee of $' + str(self.fee) + ' in ' + str(
+            self.month) + '/' + str(self.year)
 
 
 class Budget(models.Model):
@@ -1751,6 +1820,8 @@ class Budget(models.Model):
             number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
         else:
             number_of_days = (make_aware(datetime.datetime.now()) - self.start_date).days
+        if number_of_days == 0:
+            return 0
         return self.calculated_yest_spend / number_of_days
 
     @property
@@ -1784,26 +1855,6 @@ class Budget(models.Model):
                 spend += b.campaign_yesterday_cost
             self._yesterday_spend = spend
         return self._yesterday_spend
-
-    @property
-    def spend_percentage(self):
-        """
-        Percentage of budget spend in this period
-        :return:
-        """
-        return self.calculated_spend * 100.0 / self.budget
-
-    @property
-    def overpacing_average(self):
-        if self.budget == 0.0:
-            return False
-        return self.projected_spend_avg / self.budget > 1.05
-
-    @property
-    def underpacing_average(self):
-        if self.budget == 0.0:
-            return False
-        return self.projected_spend_avg / self.budget < 0.95
 
 
 class CampaignExclusions(models.Model):

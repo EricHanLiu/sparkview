@@ -111,7 +111,7 @@ def main():
                         aw_temp = aw_temp + float(v['cost'])
                     else:
                         aw_temp = aw_temp + float(int(v['cost']) / 1000000)
-                    aw_spend[v['day']] = round(aw_temp, 2)
+                    # aw_spend[v['day']] = round(aw_temp, 2)
                 aw_s_final['A - ' + remove_accents(account_name) + ' Spend'] = aw_spend
 
                 aw_projected_val = projected(a.current_spend, a.yesterday_spend)

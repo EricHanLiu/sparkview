@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ title }}</title>
+    <title>Bloom</title>
     <!-- Bulma -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bulma-modal-fx/dist/css/modal-fx.min.css"/>
@@ -22,16 +22,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.css"/>
     <script defer
             src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
     <style>
-        html body {
-            font-family: 'Rubik', sans-serif;
-        }
-
         .menu-list a.is-active {
             background-color: lightskyblue;
         }
-
         .card-header {
             height: 5em;
             padding: 1em;
@@ -40,7 +34,7 @@
     {% block extraCss %}
     {% endblock %}
 </head>
-<body class="has-navbar-spaced has-background-light">
+<body class="has-navbar-spaced">
 <!-- NAVBAR START -->
 <nav class="navbar has-shadow is-spaced">
     <div class="container is-fluid">
@@ -199,8 +193,7 @@
         {% endblock %}
     </div>
 </div>
-
-{% block extraJs %}
+{% block extra_js %}
 {% endblock %}
 </body>
 </html>

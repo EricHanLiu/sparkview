@@ -382,6 +382,7 @@ def account_edit_temp(request, id):
                 account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%Y-%m-%d')
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+            account.save()
             message = str(account.client_name) + ' is now inactive (paused).'
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
@@ -389,7 +390,7 @@ def account_edit_temp(request, id):
 
             logger = Logger()
             short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
-            logger.send_warning_email(short_desc, message)
+            logger.send_account_lost_email(short_desc, message)
 
             sp = account.sales_profile
 
@@ -428,13 +429,15 @@ def account_edit_temp(request, id):
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
             message = str(account.client_name) + ' has been lost.'
+            account.save()
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
             logger = Logger()
+            print(account.get_lost_reason_display())
             short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
-            logger.send_warning_email(short_desc, message)
+            logger.send_account_lost_email(short_desc, message)
 
             sp = account.sales_profile
 
@@ -735,7 +738,8 @@ def account_single(request, account_id):
             'years': years,
             'current_year': current_year,
             'additional_services': additional_services,
-            'opp_reasons': opp_reasons
+            'opp_reasons': opp_reasons,
+            'title': str(account) + ' - SparkView'
         }
 
         return render(request, 'client_area/refactor/client_profile.html', context)
