@@ -94,9 +94,6 @@
                         </strong>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color">Status</a></strong>
-                    </div>
-                    <div class="level-item">
                         <strong><a class="button is-rounded is-small button-color" id="assign_members_button">Team</a></strong>
                     </div>
                 </div>
@@ -384,6 +381,10 @@
                             </div>
                         </div>
                     </div>
+                    <button class="button is-rounded is-small button-color"
+                            id="new_mandate_button">
+                        <strong>New Mandate</strong>
+                    </button>
                     {% if account.active_mandates.count > 0 %}
                         <table class="table is-hoverable" id="services_table">
                             <tr>
@@ -1101,6 +1102,118 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="new_mandate_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content" style="overflow: hidden;">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">New Mandate</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="new_mandate_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <form id="new_mandate_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="num_members" type="text" value="0" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column is-9">
+                            <label class="label">Additional Service Type:</label>
+                            <div class="select is-fullwidth">
+                                <select name="mandate_type" id="mandate_type">
+                                    {% for mandate_type in mandate_types %}
+                                        <option value="{{ mandate_type.id }}"
+                                                data-hourly="{{ mandate_type.hourly_rate }}">
+                                            {{ mandate_type }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Ongoing Service</label>
+                            <label class="label">
+                                <input name="ongoing_check" id="ongoing_check" type="checkbox">
+                            </label>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div id="set_duration_form">
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Cost:</label>
+                                <input type="text" name="cost" class="input"/>
+                            </div>
+                            <div class="column is-6">
+                                <label class="label">Hourly rate:</label>
+                                <input type="text" name="hourly_rate" id="mandate_hourly_rate"
+                                       class="input" value="{{ first_mandate_rate }}"
+                                />
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Start Date:</label>
+                                <input type="text" name="start_date"
+                                       class="input datepicker-here" data-language="en"/>
+                            </div>
+                            <div class="column is-6">
+                                <label class="label">End Date:</label>
+                                <input type="text" name="end_date"
+                                       class="input datepicker-here" data-language="en"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ongoing_form" style="display: none;">
+                        <div class="columns">
+                            <div class="column is-2">
+                                <label class="label">Hour bank</label>
+                            </div>
+                            <div class="column is-2">
+                                <label class="checkbox">
+                                    <input name="hourly_check" id="hourly_check" type="checkbox">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Monthly Cost:</label>
+                                <input type="text" name="monthly_cost" id="monthly_cost"
+                                       class="input"/>
+                            </div>
+                            <div class="column is-6">
+                                <label class="label">Hourly rate:</label>
+                                <input type="text" name="monthly_hourly_rate" id="monthly_hourly_rate"
+                                       class="input" value="{{ first_mandate_rate }}"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Monthly Hours:</label>
+                                <input type="text" name="monthly_hours" id="monthly_hours"
+                                       class="input" disabled/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br/>
+                    <div class="columns">
+                        <div class="column is-3">
+                            <button type="button" id="add_member_btn" class="button">Add Member
+                            </button>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="columns" id="mandate_members"></div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="view_calendar_modal">
         <div class="modal-background"></div>
         <div class="modal-content" style="width: 75vw;">
@@ -1109,6 +1222,26 @@
             </div>
         </div>
     </div>
+    <template id="member_in_mandate_template">
+        <div class="columns">
+            <div class="column is-9">
+                <label class="label">Member:</label>
+                <div class="select is-fullwidth">
+                    <select name="mandate_member">
+                        {% for member in members %}
+                            <option value="{{ member.id }}">
+                                {{ member }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-3">
+                <label class="label">Percentage:</label>
+                <input type="text" name="percentage" class="input is-fullwidth" required/>
+            </div>
+        </div>
+    </template>
     <!-- BUDGET MODALS -->
     <div class="modal" id="add_budget_modal">
         <div class="modal-background"></div>
@@ -1546,64 +1679,6 @@
             $('#bc_link').attr('placeholder', '');
         });
 
-        $('#flag_task_submit').click(function (e) {
-            if ($('#bc_link').attr('placeholder') === 'Optional') { // account is good submission
-                return;
-            }
-
-            e.preventDefault();
-
-            let $basecampLink = $('#bc_link').val();
-            if ($basecampLink === '') {
-                e.preventDefault();
-                toastr.error('Basecamp link is mandatory when flagging the account!');
-                return;
-            }
-
-            $.ajax({
-                url: '/clients/accounts/flag',
-                data: {
-                    'account_id': '{{ account.id }}',
-                    'bc_link': $basecampLink,
-                    'flagged': 'True'
-                },
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                type: 'POST',
-                success: function () {
-                    window.location.href = '/clients/accounts/{{ account.id }}';
-                }
-            });
-        });
-
-        // quick adding hours
-        let $quickAddForm = $('#quick_add_form');
-        $quickAddForm.submit(function (e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/clients/accounts/{{ account.id }}',
-                data: $quickAddForm.serialize(),
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                type: 'POST',
-                error: function (jqXHR, error, errorString) {
-                    let message = "Error";
-                    if (errorString === "Forbidden") {
-                        message = "You don't have permission to add hours to this account!";
-                    }
-                    toastr.error(message);
-                    $('#quick_add_modal').removeClass('is-active');
-                },
-                success: function () {
-                    $('#quick_add_modal').removeClass('is-active');
-                    toastr.success("Hours submitted successfully!");
-                    let assignedMembersDisplay = $('#assigned_members_display');
-                    // refresh the team display to update hours
-                    assignedMembersDisplay.load(location.href + " #assigned_members_display>*", "");
-                }
-            });
-        });
-
         // proportional hours distribution
         $('#distribute_hours_button').click(() => {
             distributeHours();
@@ -1683,6 +1758,10 @@
             $('#assign_members_modal').addClass('is-active');
         });
 
+        $('#new_mandate_button').click(() => {
+            $('#new_mandate_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -1738,6 +1817,24 @@
                 success: () => {
                     let startedOrEnded = confirmationType === '0' ? 'started' : 'ended';
                     toastr.success('Successfully marked promo as ' + startedOrEnded + '!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        });
+
+        $('#new_mandate_confirm_button').click(() => {
+            $.ajax({
+                url: '/clients/accounts/mandates/new',
+                data: $('#new_mandate_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully created a new mandate!');
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
@@ -1821,6 +1918,52 @@
 
             setPercentageSum();
         }
+
+        // new mandate modal controls
+        let $mandateType = $('#mandate_type');
+        let $mandateHourlyRate = $('#mandate_hourly_rate');
+        let $addMemberBtn = $('#add_member_btn');
+        let mandateMembersDiv = document.querySelector('#mandate_members');
+
+        $mandateType.change(function () {
+            let init_hourly_rate = $(this).find(':selected').data('hourly');
+            console.log(init_hourly_rate);
+            $mandateHourlyRate.val(init_hourly_rate);
+        });
+
+        $addMemberBtn.click(function () {
+            const memberMandateTemplate = document.getElementById('member_in_mandate_template').content;
+            const clone = document.importNode(memberMandateTemplate, true);
+            mandateMembersDiv.appendChild(clone);
+        });
+
+        let $ongoingCheck = $('#ongoing_check');
+        let $setDurationForm = $('#set_duration_form');
+        let $ongoingForm = $('#ongoing_form');
+        let $hourlyCheck = $('#hourly_check');
+
+        let $monthlyCost = $('#monthly_cost');
+        let $monthlyHours = $('#monthly_hours');
+
+        $ongoingCheck.change(function () {
+            if ($(this).is(':checked')) {
+                $setDurationForm.hide();
+                $ongoingForm.show();
+            } else {
+                $ongoingForm.hide();
+                $setDurationForm.show();
+            }
+        });
+
+        $hourlyCheck.change(function () {
+            if ($(this).is(':checked')) {
+                $monthlyCost.prop('disabled', true);
+                $monthlyHours.prop('disabled', false);
+            } else {
+                $monthlyHours.prop('disabled', true);
+                $monthlyCost.prop('disabled', false);
+            }
+        });
 
         // calculate total assigned percentage
         function getPercentageSum() {
