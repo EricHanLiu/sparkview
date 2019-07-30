@@ -17,6 +17,7 @@ from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import calendar
+from bloom import settings
 
 
 @login_required
@@ -1208,18 +1209,21 @@ def assign_client_accounts(request):
     client = Client.objects.get(id=client_id)
 
     if adwords:
+        client.adwords.clear()
         for a in adwords:
             acc = DependentAccount.objects.get(dependent_account_id=a)
             client.adwords.add(acc)
             client.save()
 
     if bing:
+        client.bing.clear()
         for b in bing:
             acc = BingAccounts.objects.get(account_id=b)
             client.bing.add(acc)
             client.save()
 
     if facebook:
+        client.facebook.clear()
         for f in facebook:
             acc = FacebookAccount.objects.get(account_id=f)
             client.facebook.add(acc)
@@ -1229,7 +1233,8 @@ def assign_client_accounts(request):
         'client': client.client_name
     }
 
-    adwords_tasks.cron_clients.delay()
+    if not settings.DEBUG:
+        adwords_tasks.cron_clients.delay()
     return JsonResponse(response)
 
 

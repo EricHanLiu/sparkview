@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import AllowAny
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
@@ -141,6 +142,7 @@ def get_client_details_objects(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@login_required
 def set_client_details(request):
     # TODO: add validation
     account_id = request.POST.get('account_id')

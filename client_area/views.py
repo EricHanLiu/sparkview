@@ -1148,8 +1148,12 @@ def new_promo(request):
     promo = Promo()
     promo.name = promo_name
     promo.account = account
-    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
-    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+    try:
+        promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
+        promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+    except ValueError:  # to handle new (refactored) client profile datepicker and old one simultaneously
+        promo.start_date = datetime.datetime.strptime(promo_start_date, "%m/%d/%Y %H:%M")
+        promo.end_date = datetime.datetime.strptime(promo_end_date, "%m/%d/%Y %H:%M")
     promo.desc = promo_desc
     if promo_has_aw:
         promo.has_aw = True
