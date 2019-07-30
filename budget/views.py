@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound
+from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound, \
+    HttpResponseBadRequest
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
 from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
 from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
-from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions
-from user_management.models import Member
+from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions, \
+    AdditionalFee
 from django.core import serializers
 from tasks import adwords_tasks
 from datetime import datetime
@@ -18,8 +18,6 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 import calendar
 
-
-# Create your views here.
 
 @login_required
 @xframe_options_exempt
@@ -1481,3 +1479,53 @@ def get_info(request):
     }
 
     return JsonResponse(response)
+
+
+@login_required
+def create_additional_fee(request):
+    """
+    Creates an additional fee
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    name = request.POST.get('name')
+    fee = request.POST.get('fee')
+    month, year = request.POST.get('month'), request.POST.get('year')
+
+    AdditionalFee.objects.create(account=account, name=name, fee=fee, month=month, year=year)
+    return HttpResponse('Successfully created additional fee')
+
+
+@login_required
+def renew_last_month_budget(request):
+    """
+    Renews the last months budgets (excluding additional fees)
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    now = datetime.now()
+    BudgetUpdate.objects.create(account=account, month=now.month, year=now.year, updated=True)
