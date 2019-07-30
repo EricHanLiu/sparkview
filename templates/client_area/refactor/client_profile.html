@@ -94,9 +94,6 @@
                         </strong>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color">Status</a></strong>
-                    </div>
-                    <div class="level-item">
                         <strong><a class="button is-rounded is-small button-color" id="assign_members_button">Team</a></strong>
                     </div>
                 </div>
@@ -312,6 +309,40 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="field has-addons">
+                                <button class="button is-static" type="button">Fee Structure</button>
+                                <div class="control is-expanded">
+                                    {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
+                                        <p>Manual Override: ${{ account.management_fee_override }}</p>
+                                    {% else %}
+                                        <table class='table is-hoverable is-striped is-fullwidth is-bordered'>
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    Monthly Media Spend
+                                                </th>
+                                                <th>
+                                                    Monthly Fee
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for interval in account.managementFee.feeStructure.all %}
+                                                <tr>
+                                                    <td>
+                                                        ${{ interval.lowerBound }} - ${{ interval.upperBound }}
+                                                    </td>
+                                                    <td>
+                                                        {% if interval.feeStyle == 1 %}${{ interval.fee|format_money }}{% endif %}
+                                                        {% if interval.feeStyle == 0 %}{{ interval.fee }}%{% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -384,6 +415,10 @@
                             </div>
                         </div>
                     </div>
+                    <button class="button is-rounded is-small button-color"
+                            id="new_mandate_button">
+                        <strong>New Mandate</strong>
+                    </button>
                     {% if account.active_mandates.count > 0 %}
                         <table class="table is-hoverable" id="services_table">
                             <tr>
@@ -502,7 +537,27 @@
         <div class="column">
             <div class="card page-card">
                 <div class="card-content">
-                    <h5 class="title is-5">Budgets</h5>
+                    <div class="level">
+                        <div class="level-left">
+                            <h5 class="title is-5">Budgets</h5>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <span class="tag is-small is-rounded am-color">AdWords: {{ account.aw_budget }}</span>
+                            </div>
+                            <div class="level-item">
+                                <span class="tag is-small is-rounded am-color">Facebook: {{ account.fb_budget }}</span>
+                            </div>
+                            <div class="level-item">
+                                <span class="tag is-small is-rounded am-color">Bing: {{ account.bing_budget }}</span>
+                            </div>
+                            <div class="level-item">
+                                <button class="button button-color is-rounded is-small" id="overall_budget_button">
+                                    <strong>Overall Budget</strong>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-content">
                             <div class="columns">
@@ -510,27 +565,27 @@
                                     <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                                         <div class="control">
                                             <div class="tags has-addons">
-                                                <span class="tag is-medium">Status</span>
-                                                <p class="tag {{ account_status_class }} is-medium">{{ account.get_status_display }}</p>
+                                                <span class="tag is-small">Status</span>
+                                                <p class="tag {{ account_status_class }} is-small">{{ account.get_status_display }}</p>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium {% if account.adwords.all %}is-success{% endif %}">
+                                    <span class="tag is-small {% if account.adwords.all %}is-success{% endif %}">
                                         Google Ads
                                     </span>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium {% if account.facebook.all %}is-success{% endif %}">
+                                    <span class="tag is-small {% if account.facebook.all %}is-success{% endif %}">
                                         Facebook Ads
                                     </span>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium {% if account.bing.all %}is-success{% endif %}">
+                                    <span class="tag is-small {% if account.bing.all %}is-success{% endif %}">
                                         Bing Ads
                                     </span>
                                             </div>
@@ -538,10 +593,12 @@
                                     </div>
                                 </div>
                                 <div class="column is-5 has-text-right">
-                                    <a class="button button-color" id="sources_btn">Pull Sources</a>
-                                    <a class="button button-color" id="exclusion_btn"
+                                    <a class="button button-color is-rounded is-small" id="sources_btn">Pull Sources</a>
+                                    <a class="button button-color is-rounded is-small" id="exclusion_btn"
                                        onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
-                                    <a class="button button-color" id="add_budget_btn">Add Budget</a>
+                                    <a class="button button-color is-rounded is-small" id="add_budget_btn">
+                                        Add Budget
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -651,99 +708,42 @@
     </div>
 
     <!-- MODALS -->
-    <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
+    <div class="modal modal-fx-fadeInScale" id="overall_budget_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
-            <form method="POST" action="/clients/accounts/flag">
-                {% csrf_token %}
-                <div class="modal-card-head">
-                    <div class="modal-card-title">How are we doing?</div>
-                    <button class="delete"></button>
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Overall Budget</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="overall_budget_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
                 </div>
-                <div class="modal-card-body">
+                <form id="overall_budget_form">
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                    <input name="flagged" type="text" value="False" style="display:none;"/>
                     <div class="columns">
-                        <div class="column">
-                            <button type="button" class="button is-outlined is-primary is-fullwidth"
-                                    id="good_task_btn">
-                                Account is good <i class="far fa-smile"></i>
-                            </button>
+                        <div class="column is-4">
+                            <label class="label">AdWords</label>
+                            <input class="input is-fullwidth" name="aw_budget" type="text"
+                                   value="{{ account.aw_budget }}"/>
                         </div>
-                        <div class="column">
-                            <button type="button" id="flag_task_btn"
-                                    class="button is-danger is-outlined is-fullwidth">
-                                Account needs to be flagged <i class="far fa-frown"
-                            ></i>
-                            </button>
+                        <div class="column is-4">
+                            <label class="label">Facebook</label>
+                            <input class="input is-fullwidth" name="fb_budget" type="text"
+                                   value="{{ account.fb_budget }}"/>
                         </div>
-                    </div>
-                    <div class="columns is-hidden" id="bc_link_row">
-                        <div class="column">
-                            <label>Basecamp Link:</label>
-                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"/>
-                            <button type="submit" class="button is-fullwidth is-info" id="flag_task_submit"
-                                    style="margin-top: 1em;">
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <button class="modal-close is-large"></button>
-    </div>
-    <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
-        <div class="modal-background"></div>
-        <div class="modal-card">
-            <div class="modal-card-head">
-                <div class="modal-card-title">Quick Add Hours</div>
-                <button class="delete"></button>
-            </div>
-            <div class="modal-card-body">
-                <form id="quick_add_form">
-                    <div class="columns">
-                        <div class="column">
-                            <label>Hours:</label>
-                            <input type="text" name="quick_add_hours"
-                                   class="input" required>
-                        </div>
-                        <div class="column">
-                            <label>Month:</label>
-                            <div class="select is-fullwidth">
-                                <select name="quick_add_month" required>
-                                    {% for monthNum, monthName in months %}
-                                        <option value="{{ monthNum }}"
-                                                {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
-                                            {{ monthName }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <label>Year:</label>
-                            <div class="select is-fullwidth">
-                                <select name="quick_add_year" required>
-                                    {% for year in years %}
-                                        <option value="{{ year }}"
-                                                {% if year == current_year %}selected{% endif %}>
-                                            {{ year }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="columns">
-                        <div class="column">
-                            <button type="submit" class="button is-info is-fullwidth">Submit</button>
+                        <div class="column is-4">
+                            <label class="label">Bing</label>
+                            <input class="input is-fullwidth" name="bing_budget" type="text"
+                                   value="{{ account.bing_budget }}"/>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        <button class="modal-close is-large"></button>
     </div>
     <div class="modal modal-fx-fadeInScale" id="assign_members_modal">
         <div class="modal-background"></div>
@@ -769,8 +769,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="am1_percent" class="input percentage-assignment"
-                                   value="{{ account.am1percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="am1_percent" class="input percentage-assignment"
+                                           value="{{ account.am1percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">AM 2:</label>
@@ -785,8 +790,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="am2_percent" class="input percentage-assignment"
-                                   value="{{ account.am2percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="am2_percent" class="input percentage-assignment"
+                                           value="{{ account.am2percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">AM 3:</label>
@@ -801,8 +811,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="am3_percent" class="input percentage-assignment"
-                                   value="{{ account.am3percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="am3_percent" class="input percentage-assignment"
+                                           value="{{ account.am3percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                     </div>
                     <div class="columns">
@@ -819,8 +834,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="cm1_percent" class="input percentage-assignment"
-                                   value="{{ account.cm1percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="cm1_percent" class="input percentage-assignment"
+                                           value="{{ account.cm1percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">CM 2:</label>
@@ -835,8 +855,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="cm2_percent" class="input percentage-assignment"
-                                   value="{{ account.cm2percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="cm2_percent" class="input percentage-assignment"
+                                           value="{{ account.cm2percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">CM 3:</label>
@@ -851,8 +876,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="cm3_percent" class="input percentage-assignment"
-                                   value="{{ account.cm3percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="cm3_percent" class="input percentage-assignment"
+                                           value="{{ account.cm3percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                     </div>
                     <div class="columns">
@@ -870,8 +900,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="strat1_percent" class="input percentage-assignment"
-                                   value="{{ account.strat1percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="strat1_percent" class="input percentage-assignment"
+                                           value="{{ account.strat1percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">Strat 2:</label>
@@ -887,8 +922,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="strat2_percent" class="input percentage-assignment"
-                                   value="{{ account.strat2percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="strat2_percent" class="input percentage-assignment"
+                                           value="{{ account.strat2percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">Strat 3:</label>
@@ -904,8 +944,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="strat3_percent" class="input percentage-assignment"
-                                   value="{{ account.strat3percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="strat3_percent" class="input percentage-assignment"
+                                           value="{{ account.strat3percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                     </div>
                     <div class="columns">
@@ -923,8 +968,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="seo1_percent" class="input percentage-assignment"
-                                   value="{{ account.seo1percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="seo1_percent" class="input percentage-assignment"
+                                           value="{{ account.seo1percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">SEO 2:</label>
@@ -940,8 +990,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="seo2_percent" class="input percentage-assignment"
-                                   value="{{ account.seo2percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="seo2_percent" class="input percentage-assignment"
+                                           value="{{ account.seo2percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                         <div class="column">
                             <label class="label">SEO 3:</label>
@@ -957,8 +1012,13 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <input type="text" name="seo3_percent" class="input percentage-assignment"
-                                   value="{{ account.seo3percent|floatformat:2 }}"/>
+                            <div class="field has-addons">
+                                <div class="control is-expanded">
+                                    <input type="text" name="seo3_percent" class="input percentage-assignment"
+                                           value="{{ account.seo3percent|floatformat:2 }}"/>
+                                </div>
+                                <button class="button is-static" type="button">%</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1101,6 +1161,118 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="new_mandate_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content" style="overflow: auto;">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">New Mandate</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="new_mandate_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <form id="new_mandate_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="num_members" type="text" value="0" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column is-9">
+                            <label class="label">Additional Service Type:</label>
+                            <div class="select is-fullwidth">
+                                <select name="mandate_type" id="mandate_type">
+                                    {% for mandate_type in mandate_types %}
+                                        <option value="{{ mandate_type.id }}"
+                                                data-hourly="{{ mandate_type.hourly_rate }}">
+                                            {{ mandate_type }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Ongoing Service</label>
+                            <label class="label">
+                                <input name="ongoing_check" id="ongoing_check" type="checkbox">
+                            </label>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div id="set_duration_form">
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Cost:</label>
+                                <input type="text" name="cost" class="input"/>
+                            </div>
+                            <div class="column is-6">
+                                <label class="label">Hourly rate:</label>
+                                <input type="text" name="hourly_rate" id="mandate_hourly_rate"
+                                       class="input" value="{{ first_mandate_rate }}"
+                                />
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Start Date:</label>
+                                <input type="text" name="start_date"
+                                       class="input datepicker-here" data-language="en"/>
+                            </div>
+                            <div class="column is-6">
+                                <label class="label">End Date:</label>
+                                <input type="text" name="end_date"
+                                       class="input datepicker-here" data-language="en"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ongoing_form" style="display: none;">
+                        <div class="columns">
+                            <div class="column is-2">
+                                <label class="label">Hour bank</label>
+                            </div>
+                            <div class="column is-2">
+                                <label class="checkbox">
+                                    <input name="hourly_check" id="hourly_check" type="checkbox">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Monthly Cost:</label>
+                                <input type="text" name="monthly_cost" id="monthly_cost"
+                                       class="input"/>
+                            </div>
+                            <div class="column is-6">
+                                <label class="label">Hourly rate:</label>
+                                <input type="text" name="monthly_hourly_rate" id="monthly_hourly_rate"
+                                       class="input" value="{{ first_mandate_rate }}"/>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="columns">
+                            <div class="column is-6">
+                                <label class="label">Monthly Hours:</label>
+                                <input type="text" name="monthly_hours" id="monthly_hours"
+                                       class="input" disabled/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br/>
+                    <div class="columns">
+                        <div class="column is-3">
+                            <button type="button" id="add_member_btn" class="button">Add Member
+                            </button>
+                        </div>
+                    </div>
+                    <br/>
+                    <div id="mandate_members"></div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="view_calendar_modal">
         <div class="modal-background"></div>
         <div class="modal-content" style="width: 75vw;">
@@ -1109,6 +1281,26 @@
             </div>
         </div>
     </div>
+    <template id="member_in_mandate_template">
+        <div class="columns">
+            <div class="column is-9">
+                <label class="label">Member:</label>
+                <div class="select is-fullwidth">
+                    <select name="mandate_member">
+                        {% for member in members %}
+                            <option value="{{ member.id }}">
+                                {{ member }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="column is-3">
+                <label class="label">Percentage:</label>
+                <input type="text" name="percentage" class="input is-fullwidth" required/>
+            </div>
+        </div>
+    </template>
     <!-- BUDGET MODALS -->
     <div class="modal" id="add_budget_modal">
         <div class="modal-background"></div>
@@ -1546,64 +1738,6 @@
             $('#bc_link').attr('placeholder', '');
         });
 
-        $('#flag_task_submit').click(function (e) {
-            if ($('#bc_link').attr('placeholder') === 'Optional') { // account is good submission
-                return;
-            }
-
-            e.preventDefault();
-
-            let $basecampLink = $('#bc_link').val();
-            if ($basecampLink === '') {
-                e.preventDefault();
-                toastr.error('Basecamp link is mandatory when flagging the account!');
-                return;
-            }
-
-            $.ajax({
-                url: '/clients/accounts/flag',
-                data: {
-                    'account_id': '{{ account.id }}',
-                    'bc_link': $basecampLink,
-                    'flagged': 'True'
-                },
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                type: 'POST',
-                success: function () {
-                    window.location.href = '/clients/accounts/{{ account.id }}';
-                }
-            });
-        });
-
-        // quick adding hours
-        let $quickAddForm = $('#quick_add_form');
-        $quickAddForm.submit(function (e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/clients/accounts/{{ account.id }}',
-                data: $quickAddForm.serialize(),
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                type: 'POST',
-                error: function (jqXHR, error, errorString) {
-                    let message = "Error";
-                    if (errorString === "Forbidden") {
-                        message = "You don't have permission to add hours to this account!";
-                    }
-                    toastr.error(message);
-                    $('#quick_add_modal').removeClass('is-active');
-                },
-                success: function () {
-                    $('#quick_add_modal').removeClass('is-active');
-                    toastr.success("Hours submitted successfully!");
-                    let assignedMembersDisplay = $('#assigned_members_display');
-                    // refresh the team display to update hours
-                    assignedMembersDisplay.load(location.href + " #assigned_members_display>*", "");
-                }
-            });
-        });
-
         // proportional hours distribution
         $('#distribute_hours_button').click(() => {
             distributeHours();
@@ -1683,6 +1817,14 @@
             $('#assign_members_modal').addClass('is-active');
         });
 
+        $('#new_mandate_button').click(() => {
+            $('#new_mandate_modal').addClass('is-active');
+        });
+
+        $('#overall_budget_button').click(() => {
+            $('#overall_budget_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -1723,6 +1865,24 @@
             });
         });
 
+        $('#overall_budget_confirm_button').click(() => {
+            $.ajax({
+                url: '/budget/set_overall_budget',
+                data: $('#overall_budget_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully updated the overall budget!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        });
+
         $('.confirm-promo').click(function () {
             let confirmationType = $(this).data('confirmation-type');
             let promoID = $(this).data('promo-id');
@@ -1738,6 +1898,24 @@
                 success: () => {
                     let startedOrEnded = confirmationType === '0' ? 'started' : 'ended';
                     toastr.success('Successfully marked promo as ' + startedOrEnded + '!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        });
+
+        $('#new_mandate_confirm_button').click(() => {
+            $.ajax({
+                url: '/clients/accounts/mandates/new',
+                data: $('#new_mandate_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully created a new mandate!');
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
@@ -1801,10 +1979,10 @@
              * First set all to 0
              */
             for (let i = 1; i <= 3; i++) {
-                $('[name=cm' + i + '_percent]').val('0.0');
-                $('[name=am' + i + '_percent]').val('0.0');
-                $('[name=strat' + i + '_percent]').val('0.0');
-                $('[name=seo' + i + '_percent]').val('0.0');
+                $('[name=cm' + i + '_percent]').val('0.00');
+                $('[name=am' + i + '_percent]').val('0.00');
+                $('[name=strat' + i + '_percent]').val('0.00');
+                $('[name=seo' + i + '_percent]').val('0.00');
             }
 
             cms.forEach(function (i) {
@@ -1821,6 +1999,52 @@
 
             setPercentageSum();
         }
+
+        // new mandate modal controls
+        let $mandateType = $('#mandate_type');
+        let $mandateHourlyRate = $('#mandate_hourly_rate');
+        let $addMemberBtn = $('#add_member_btn');
+        let mandateMembersDiv = document.querySelector('#mandate_members');
+
+        $mandateType.change(function () {
+            let init_hourly_rate = $(this).find(':selected').data('hourly');
+            console.log(init_hourly_rate);
+            $mandateHourlyRate.val(init_hourly_rate);
+        });
+
+        $addMemberBtn.click(function () {
+            const memberMandateTemplate = document.getElementById('member_in_mandate_template').content;
+            const clone = document.importNode(memberMandateTemplate, true);
+            mandateMembersDiv.appendChild(clone);
+        });
+
+        let $ongoingCheck = $('#ongoing_check');
+        let $setDurationForm = $('#set_duration_form');
+        let $ongoingForm = $('#ongoing_form');
+        let $hourlyCheck = $('#hourly_check');
+
+        let $monthlyCost = $('#monthly_cost');
+        let $monthlyHours = $('#monthly_hours');
+
+        $ongoingCheck.change(function () {
+            if ($(this).is(':checked')) {
+                $setDurationForm.hide();
+                $ongoingForm.show();
+            } else {
+                $ongoingForm.hide();
+                $setDurationForm.show();
+            }
+        });
+
+        $hourlyCheck.change(function () {
+            if ($(this).is(':checked')) {
+                $monthlyCost.prop('disabled', true);
+                $monthlyHours.prop('disabled', false);
+            } else {
+                $monthlyHours.prop('disabled', true);
+                $monthlyCost.prop('disabled', false);
+            }
+        });
 
         // calculate total assigned percentage
         function getPercentageSum() {

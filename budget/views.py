@@ -1077,6 +1077,32 @@ def edit_budget(request):
 
 
 @login_required
+def set_overall_budget(request):
+    """
+    Sets the overall budget for an account
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    aw_budget = request.POST.get('aw_budget') or 0.0
+    fb_budget = request.POST.get('fb_budget') or 0.0
+    bing_budget = request.POST.get('bing_budget') or 0.0
+
+    account.aw_budget = aw_budget
+    account.fb_budget = fb_budget
+    account.bing_budget = bing_budget
+    account.save()
+
+    return HttpResponse()
+
+
+@login_required
 def delete_budget(request):
     """
     Deletes a budget
