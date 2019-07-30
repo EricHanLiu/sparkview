@@ -1529,3 +1529,5 @@ def renew_last_month_budget(request):
 
     now = datetime.now()
     BudgetUpdate.objects.create(account=account, month=now.month, year=now.year, updated=True)
+
+    return HttpResponse('Budget updated')
