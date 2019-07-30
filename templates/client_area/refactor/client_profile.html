@@ -46,15 +46,6 @@
             </div>
         </article>
     {% endif %}
-    {% if account.has_blacklisted_accounts %}
-        <article class="message is-danger">
-            <div class="message-body">
-                <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                blacklisted. They are not retrieving any new spend information.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
     {% if account.status == 0 %}
         <article class="message is-info">
             <div class="message-body">
@@ -1302,7 +1293,7 @@
         </div>
     </template>
     <!-- BUDGET MODALS -->
-    <div class="modal" id="add_budget_modal">
+    <div class="modal modal-fx-fadeInScale" id="add_budget_modal">
         <div class="modal-background"></div>
         <div class="modal-card" style="max-height: 100vh;">
             <header class="modal-card-head">
@@ -1436,7 +1427,7 @@
             </form>
         </div>
     </div>
-    <div class="modal" id="edit_budget_modal">
+    <div class="modal modal-fx-fadeInScale" id="edit_budget_modal">
         <div class="modal-background"></div>
         <div class="modal-card" style="max-height: 100vh;">
             <header class="modal-card-head">
@@ -1570,16 +1561,15 @@
             </form>
         </div>
     </div>
-    <div class="modal" id="sources_modal">
+    <div class="modal modal-fx-fadeInScale" id="assign_accounts_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
                 <h5 class="title is-5">Sources</h5>
             </header>
             <section class="modal-card-body">
-                <form id="assign_accounts">
-                    {% csrf_token %}
-                    <input type="hidden" name="cid" value="{{ client_data.id }}">
+                <form id="assign_accounts_form">
+                    <input type="hidden" name="cid" value="{{ account.id }}">
                     <div class="column is-12">
                         <label>AdWords</label>
                         <div class="select is-multiple is-fullwidth">
@@ -1590,26 +1580,26 @@
                     <div class="column is-12">
                         <label>Facebook</label>
                         <div class="select is-multiple is-fullwidth">
-                            <select name="adwords" class="account-multiple" multiple id="facebook_sources">
+                            <select name="facebook" class="account-multiple" multiple id="facebook_sources">
                             </select>
                         </div>
                     </div>
                     <div class="column is-12">
                         <label>Bing</label>
                         <div class="select is-multiple is-fullwidth">
-                            <select name="adwords" class="account-multiple" multiple id="bing_sources">
+                            <select name="bing" class="account-multiple" multiple id="bing_sources">
                             </select>
                         </div>
                     </div>
                 </form>
             </section>
             <footer class="modal-card-foot">
-                <button class="button is-info" disabled>Save changes</button>
+                <button class="button is-info" id="assign_accounts_confirm_button">Save changes</button>
                 <button class="button close">Cancel</button>
             </footer>
         </div>
     </div>
-    <div class="modal" id="campaigns_in_group_modal">
+    <div class="modal modal-fx-fadeInScale" id="campaigns_in_group_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
@@ -1640,7 +1630,7 @@
             </footer>
         </div>
     </div>
-    <div class="modal" id="exclusion_modal">
+    <div class="modal modal-fx-fadeInScale" id="exclusion_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
@@ -1677,7 +1667,7 @@
             </form>
         </div>
     </div>
-    <div class="modal" id="delete_budget_modal">
+    <div class="modal modal-fx-fadeInScale" id="delete_budget_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
@@ -1920,6 +1910,22 @@
                         location.reload();
                     }, 1000);
                 }
+            });
+        });
+
+        $('#assign_accounts_confirm_button').click(() => {
+            $.ajax({
+                type: "POST",
+                url: "/budget/client/accounts/add",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $('#assign_accounts_form').serialize(),
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully assigned sources to account {{ account.client_name }}!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                },
             });
         });
 
@@ -2217,7 +2223,7 @@
                 return;
             }
             event.preventDefault();
-            let sourcesModal = document.querySelector('#sources_modal');
+            let sourcesModal = document.querySelector('#assign_accounts_modal');
             sourcesModal.classList.add('is-active');
 
             sourcesModal.querySelector('.modal-background').addEventListener('click', function (e) {
