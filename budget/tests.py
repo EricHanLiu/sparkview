@@ -39,7 +39,8 @@ class AccountTestCase(TestCase):
         test_fee_structure.feeStructure.set(intervals)
         test_fee_structure.save()
 
-        account = BloomClient.objects.create(client_name='test client', industry=test_industry, soldBy=test_member)
+        account = BloomClient.objects.create(client_name='test client', industry=test_industry, soldBy=test_member,
+                                             aw_budget=1000.0)
         SalesProfile.objects.create(account=account, ppc_status=0, seo_status=0, cro_status=0)
 
         account.managementFee = test_fee_structure
@@ -126,6 +127,7 @@ class AccountTestCase(TestCase):
             client_name='test client')  # Same object but need to reload because of caching
 
         self.assertEqual(account2.total_fee, account2.ppc_fee + account2.seo_fee + account2.cro_fee)
+        self.assertEqual(account2.ppc_fee, 50.0)
         self.assertEqual(account2.total_fee, 1050.0)
 
         account2.status = 2

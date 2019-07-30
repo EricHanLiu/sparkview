@@ -68,9 +68,9 @@ def main():
         client.aw_spend = 0
         client.bing_spend = 0
         client.fb_spend = 0
-        client.aw_budget = 0
-        client.bing_budget = 0
-        client.fb_budget = 0
+        # client.aw_budget = 0
+        # client.bing_budget = 0
+        # client.fb_budget = 0
         client.aw_yesterday = 0
         client.bing_yesterday = 0
         client.fb_yesterday = 0
@@ -103,7 +103,7 @@ def main():
                 client.current_spend += a.current_spend
                 client.aw_spend += a.current_spend
                 client.aw_yesterday += a.yesterday_spend
-                client.aw_budget += a.desired_spend
+                # client.aw_budget += a.desired_spend
                 client.aw_current_ds += a.current_spend / today.day
 
                 for k, v in sorted(a.segmented_spend.items()):
@@ -194,7 +194,7 @@ def main():
                 client.current_spend += b.current_spend
                 client.bing_spend += b.current_spend
                 client.bing_yesterday += b.yesterday_spend
-                client.bing_budget += b.desired_spend
+                # client.bing_budget += b.desired_spend
                 client.bing_current_ds += b.current_spend / today.day
 
                 # for k, v in sorted(b.segmented_spend.items()):
@@ -265,7 +265,7 @@ def main():
                 client.current_spend += f.current_spend
                 client.fb_spend += f.current_spend
                 client.fb_yesterday += f.yesterday_spend
-                client.fb_budget += f.desired_spend
+                # client.fb_budget += f.desired_spend
                 client.fb_current_ds += f.current_spend / today.day
 
                 for k, v in sorted(f.segmented_spend.items()):
