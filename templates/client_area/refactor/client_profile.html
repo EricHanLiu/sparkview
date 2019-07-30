@@ -15,6 +15,11 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/datepicker.min.js"></script>
     <script defer
             src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
+    <style>
+    .middle-row .card {
+        min-height: 356px;
+    }
+    </style>
 {% endblock %}
 
 {% block main_body %}
@@ -340,7 +345,7 @@
             </div>
         </div>
     </div>
-    <div class="columns">
+    <div class="columns middle-row">
         <div class="column is-4">
             <div class="card page-card" id="services_card">
                 <div class="card-content">
