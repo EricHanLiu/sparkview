@@ -1,6 +1,5 @@
 import os
 import django
-import collections
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 django.setup()
