@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from budget.models import Client as BloomClient, CampaignGrouping, Budget, CampaignExclusions
+from budget.models import Client as BloomClient, CampaignGrouping, Budget, CampaignExclusions, AdditionalFee
 from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
@@ -87,7 +87,9 @@ class AccountTestCase(TestCase):
         self.assertEqual(account.calculated_daily_recommended, round(500.0 / remaining_days, 2))
 
     def test_management_fee(self):
-        """Tests all things related to management fee"""
+        """
+        Tests all things related to management fee
+        """
         account = BloomClient.objects.get(client_name='test client')
 
         account.sales_profile.ppc_status = 0
@@ -130,6 +132,18 @@ class AccountTestCase(TestCase):
         account2.save()  # Don't have to worry about caching because having status as 2 (inactive)
 
         self.assertEqual(account2.total_fee, 0.0)
+
+        account3 = BloomClient.objects.get(client_name='test client')
+        account3.status = 1
+        account3.save()
+        now = datetime.datetime.now()
+        AdditionalFee.objects.create(account=account3, fee=100, month=now.month, year=now.year)
+        AdditionalFee.objects.create(account=account3, fee=50, month=now.month, year=now.year - 1)
+
+        self.assertEqual(account3.additional_fees_this_month, 100)
+        self.assertEqual(account3.total_fee, 1150.0)
+        self.assertEqual(account3.additional_fees_month(now.month, now.year), 100)
+        self.assertEqual(account3.additional_fees_month(now.month, now.year - 1), 50)
 
     def test_allocated_hours(self):
         """Tests hour allocation"""
