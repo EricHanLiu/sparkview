@@ -545,27 +545,27 @@
                                     <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                                         <div class="control">
                                             <div class="tags has-addons">
-                                                <span class="tag is-medium">Status</span>
-                                                <p class="tag {{ account_status_class }} is-medium">{{ account.get_status_display }}</p>
+                                                <span class="tag is-small">Status</span>
+                                                <p class="tag {{ account_status_class }} is-small">{{ account.get_status_display }}</p>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium {% if account.adwords.all %}is-success{% endif %}">
+                                    <span class="tag is-small {% if account.adwords.all %}is-success{% endif %}">
                                         Google Ads
                                     </span>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium {% if account.facebook.all %}is-success{% endif %}">
+                                    <span class="tag is-small {% if account.facebook.all %}is-success{% endif %}">
                                         Facebook Ads
                                     </span>
                                             </div>
                                         </div>
                                         <div class="control">
                                             <div class="tags has-addons">
-                                    <span class="tag is-medium {% if account.bing.all %}is-success{% endif %}">
+                                    <span class="tag is-small {% if account.bing.all %}is-success{% endif %}">
                                         Bing Ads
                                     </span>
                                             </div>
@@ -573,10 +573,12 @@
                                     </div>
                                 </div>
                                 <div class="column is-5 has-text-right">
-                                    <a class="button button-color" id="sources_btn">Pull Sources</a>
-                                    <a class="button button-color" id="exclusion_btn"
+                                    <a class="button button-color is-rounded is-small" id="sources_btn">Pull Sources</a>
+                                    <a class="button button-color is-rounded is-small" id="exclusion_btn"
                                        onclick="manualCampaigns('exclude_campaigns_select')">Master Exclusion</a>
-                                    <a class="button button-color" id="add_budget_btn">Add Budget</a>
+                                    <a class="button button-color is-rounded is-small" id="add_budget_btn">
+                                        Add Budget
+                                    </a>
                                 </div>
                             </div>
                         </div>
