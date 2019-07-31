@@ -17,6 +17,8 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
 from tasks.logger import Logger
+import json
+from django.core.serializers import serialize
 
 
 @login_required
@@ -714,10 +716,13 @@ def account_single(request, account_id):
         additional_services = MandateType.objects.all()
         opp_reasons = OpportunityDescription.objects.all()
 
+        management_fee_structures = ManagementFeesStructure.objects.all()
+
         context = {
             'account': account,
             'members': members,
             'backups': backups,
+            'management_fee_structures': management_fee_structures,
             'accountHoursMember': accountsHoursThisMonthByMember,
             'value_hours_member': accountsValueHoursThisMonthByMember,
             'changes': changes,
@@ -1720,8 +1725,12 @@ def create_mandate(request):
         cost = request.POST.get('cost')
         hourly_rate = request.POST.get('hourly_rate')
 
-        start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        try:
+            start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+            end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        except ValueError:
+            start_date_dt = datetime.datetime.strptime(start_date, "%m/%d/%Y")
+            end_date_dt = datetime.datetime.strptime(end_date, "%m/%d/%Y")
 
         mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
                                          end_date=end_date_dt,
@@ -1825,3 +1834,93 @@ def set_pitch(request):
     pitch.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+def edit_management_fee_structure(request):
+    account_id = request.POST.get('account_id')
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    account = get_object_or_404(Client, id=account_id)
+
+    # Make management fee structure
+    if request.user.is_staff and request.method == 'POST':
+        fee_create_or_existing = request.POST.get('fee_structure_type')
+        if fee_create_or_existing == '1':
+            # Create new management fee
+            number_of_tiers = request.POST.get('row_num_input')
+            fee_structure_name = request.POST.get('fee_structure_name')
+            init_fee = request.POST.get('setup_fee')
+            management_fee_structure = ManagementFeesStructure()
+            management_fee_structure.name = fee_structure_name
+            management_fee_structure.initialFee = init_fee
+            management_fee_structure.save()
+            for i in range(1, int(number_of_tiers) + 1):
+                fee_type = request.POST.get('fee-type' + str(i))
+                fee = request.POST.get('fee' + str(i))
+                lower_bound = request.POST.get('low-bound' + str(i))
+                high_bound = request.POST.get('high-bound' + str(i))
+                fee_interval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee,
+                                                                    lowerBound=lower_bound, upperBound=high_bound)
+                management_fee_structure.feeStructure.add(fee_interval)
+            management_fee_structure.save()
+            account.managementFee = management_fee_structure
+        elif fee_create_or_existing == '2':
+            # Use existing
+            existing_fee_id = request.POST.get('existing_structure')
+            management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
+            account.managementFee = management_fee_structure
+        else:
+            pass
+
+    account.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def get_client_details_objects(request):
+    teams = Team.objects.all()
+    industries = Industry.objects.all()
+
+    data = {
+        'teams': json.loads(serialize('json', teams)),
+        'industries': json.loads(serialize('json', industries)),
+    }
+    return JsonResponse(data)
+
+
+@login_required
+def set_client_details(request):
+    # TODO: add validation
+    account_id = request.POST.get('account_id')
+    bc_link = request.POST.get('bc_link')
+    description = request.POST.get('description')
+    notes = request.POST.get('notes')
+    url = request.POST.get('url')
+    contact_names = request.POST.getlist('contact_names')
+    contact_emails = request.POST.getlist('contact_emails')
+    contact_phones = request.POST.getlist('contact_phones')
+    industry_id = request.POST.get('industry')
+    team_ids = request.POST.getlist('teams')
+
+    account = Client.objects.get(id=account_id)
+    account.bc_link = bc_link
+    account.description = description
+    account.notes = notes
+    account.url = url
+    account.industry = Industry.objects.get(pk=industry_id)
+    teams = Team.objects.filter(pk__in=team_ids)
+    account.team.set(teams)
+
+    for i, contact in enumerate(account.contactInfo.all()):
+        contact.name = contact_names[i]
+        contact.email = contact_emails[i]
+        if contact_phones and contact_phones[i]:
+            contact.phone = contact_phones[i]
+        contact.save()
+
+    account.save()
+
+    return HttpResponse()
