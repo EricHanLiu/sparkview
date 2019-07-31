@@ -268,12 +268,12 @@
                     </div>
                     {% if account.active_mandates.count > 0 %}
                         <table class="table is-hoverable" id="services_table">
-                        <tr>
+                            <tr>
                                 <th>
                                     Type
                                 </th>
                                 <th>
-                                Cost
+                                    Cost
                                 </th>
                                 <th>
                                     End Date
@@ -406,10 +406,13 @@
                             <div class="level-item">
                                 <span class="tag is-small is-rounded am-color">Bing: ${{ account.bing_budget }}</span>
                             </div>
-                            {% for additional_fee in account.additional_fee_objects_this_month %}
                             <div class="level-item">
-                                <span class="tag is-small is-rounded seo-color">Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}</span>
+                                <span class="tag is-small is-rounded am-color">Flex: ${{ account.flex_budget }}</span>
                             </div>
+                            {% for additional_fee in account.additional_fee_objects_this_month %}
+                                <div class="level-item">
+                                    <span class="tag is-small is-rounded seo-color">Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}</span>
+                                </div>
                             {% endfor %}
                             <div class="level-item">
                                 <button class="button button-color is-rounded is-small" id="additional_fee_button">
@@ -749,17 +752,17 @@
                             <div class="columns">
                                 <div class="column is-12">
                                     <label class="label">Management Fee Structure:</label>
-                                <div class="select is-fullwidth">
-                                    <select name="existing_structure" id="existing_structure" style="width: 100%;"
-                                            required>
-                                        <option value="0">
-                                            None
-                                        </option>
-                                        {% for fee_structure in management_fee_structures %}
-                                            <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                                    <div class="select is-fullwidth">
+                                        <select name="existing_structure" id="existing_structure" style="width: 100%;"
+                                                required>
+                                            <option value="0">
+                                                None
+                                            </option>
+                                            {% for fee_structure in management_fee_structures %}
+                                                <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                     <div id="preset_mf" style="display:none;">
                                         <hr/>
                                         <h6 class="title is-6">
@@ -946,20 +949,25 @@
                 <form id="overall_budget_form">
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="columns">
-                        <div class="column is-4">
+                        <div class="column is-3">
                             <label class="label">AdWords</label>
                             <input class="input is-fullwidth" name="aw_budget" type="text"
                                    value="{{ account.aw_budget }}"/>
                         </div>
-                        <div class="column is-4">
+                        <div class="column is-3">
                             <label class="label">Facebook</label>
                             <input class="input is-fullwidth" name="fb_budget" type="text"
                                    value="{{ account.fb_budget }}"/>
                         </div>
-                        <div class="column is-4">
+                        <div class="column is-3">
                             <label class="label">Bing</label>
                             <input class="input is-fullwidth" name="bing_budget" type="text"
                                    value="{{ account.bing_budget }}"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Flex</label>
+                            <input class="input is-fullwidth" name="flex_budget" type="text"
+                                   value="{{ account.flex_budget }}"/>
                         </div>
                     </div>
                 </form>

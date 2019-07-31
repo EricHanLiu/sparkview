@@ -707,7 +707,7 @@ def account_single(request, account_id):
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
         now = datetime.datetime.now()
-        years = [i for i in range(2018, now.year + 1)]
+        years = [str(i) for i in range(2018, now.year + 2)]
 
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
