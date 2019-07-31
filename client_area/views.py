@@ -717,10 +717,13 @@ def account_single(request, account_id):
         additional_services = MandateType.objects.all()
         opp_reasons = OpportunityDescription.objects.all()
 
+        management_fee_structures = ManagementFeesStructure.objects.all()
+
         context = {
             'account': account,
             'members': members,
             'backups': backups,
+            'management_fee_structures': management_fee_structures,
             'accountHoursMember': accountsHoursThisMonthByMember,
             'value_hours_member': accountsValueHoursThisMonthByMember,
             'changes': changes,
@@ -1709,5 +1712,48 @@ def set_pitch(request):
         pitch.additional_service = service
 
     pitch.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+def edit_management_fee_structure(request):
+    account_id = request.POST.get('account_id')
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    account = get_object_or_404(Client, id=account_id)
+
+    # Make management fee structure
+    if request.user.is_staff and request.method == 'POST':
+        fee_create_or_existing = request.POST.get('fee_structure_type')
+        if fee_create_or_existing == '1':
+            # Create new management fee
+            number_of_tiers = request.POST.get('row_num_input')
+            fee_structure_name = request.POST.get('fee_structure_name')
+            init_fee = request.POST.get('setup_fee')
+            management_fee_structure = ManagementFeesStructure()
+            management_fee_structure.name = fee_structure_name
+            management_fee_structure.initialFee = init_fee
+            management_fee_structure.save()
+            for i in range(1, int(number_of_tiers) + 1):
+                fee_type = request.POST.get('fee-type' + str(i))
+                fee = request.POST.get('fee' + str(i))
+                lower_bound = request.POST.get('low-bound' + str(i))
+                high_bound = request.POST.get('high-bound' + str(i))
+                fee_interval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee,
+                                                                    lowerBound=lower_bound, upperBound=high_bound)
+                management_fee_structure.feeStructure.add(fee_interval)
+            management_fee_structure.save()
+            account.managementFee = management_fee_structure
+        elif fee_create_or_existing == '2':
+            # Use existing
+            existing_fee_id = request.POST.get('existing_structure')
+            management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
+            account.managementFee = management_fee_structure
+        else:
+            pass
+
+    account.save()
 
     return redirect('/clients/accounts/' + str(account.id))
