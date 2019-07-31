@@ -93,6 +93,13 @@
                         </strong>
                     </div>
                     <div class="level-item">
+                        <strong>
+                            <a class="button is-rounded is-small button-color" id="quick_add_button">
+                                Add Hours
+                            </a>
+                        </strong>
+                    </div>
+                    <div class="level-item">
                         <strong><a class="button is-rounded is-small button-color"
                                    id="assign_members_button">Team</a></strong>
                     </div>
@@ -306,7 +313,7 @@
                     <h5 class="title is-5">Monthly Hours Information</h5>
                     <div class="columns">
                         <div class="column is-6">
-                            <canvas width="200px" height="200px" id="monthlyHoursChart"></canvas>
+                            <canvas width="200" height="200" id="monthly_hours_chart"></canvas>
                         </div>
                         <div class="column is-6">
                             <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
@@ -567,6 +574,58 @@
     </div>
 
     <!-- MODALS -->
+    <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Quick Add Hours</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="quick_add_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <form id="quick_add_form">
+                    <div class="columns">
+                        <div class="column">
+                            <label>Hours:</label>
+                            <input type="text" name="quick_add_hours"
+                                   class="input" required>
+                        </div>
+                        <div class="column">
+                            <label>Month:</label>
+                            <div class="select is-fullwidth">
+                                <select name="quick_add_month" required>
+                                    {% for monthNum, monthName in months %}
+                                        <option value="{{ monthNum }}"
+                                                {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
+                                            {{ monthName }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <label>Year:</label>
+                            <div class="select is-fullwidth">
+                                <select name="quick_add_year" required>
+                                    {% for year in years %}
+                                        <option value="{{ year }}"
+                                                {% if year == current_year %}selected{% endif %}>
+                                            {{ year }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="fee_structure_modal">
         <div class="modal-background"></div>
         <div class="modal-content" style="width: 50vw;">
@@ -2119,6 +2178,10 @@
             $('#fee_structure_modal').addClass('is-active');
         });
 
+        $('#quick_add_button').click(() => {
+            $('#quick_add_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -2155,6 +2218,27 @@
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
+                }
+            });
+        });
+
+        $('#quick_add_confirm_button').click(() => {
+            $.ajax({
+                url: '/clients/accounts/{{ account.id }}',
+                data: $('#quick_add_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully submitted hours!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                },
+                error: () => {
+                    toastr.error('Error! Do you have permission to add hours to this account?');
                 }
             });
         });
@@ -2467,7 +2551,7 @@
             let actualHours = parseFloat('{{ account.hoursWorkedThisMonth }}');
             let remainingHours = parseFloat('{{ account.hoursRemainingMonth }}');
 
-            let ctx = document.querySelector('#monthlyHoursChart').getContext('2d');
+            let ctx = document.querySelector('#monthly_hours_chart').getContext('2d');
             let chart = new Chart(ctx, {
                 type: 'pie',
                 data: {

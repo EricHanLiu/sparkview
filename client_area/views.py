@@ -738,7 +738,7 @@ def account_single(request, account_id):
             'months': months,
             'monthnow': str(now.month),
             'years': years,
-            'current_year': str(now.year),
+            'current_year': now.year,
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView'
