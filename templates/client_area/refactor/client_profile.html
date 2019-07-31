@@ -120,7 +120,13 @@
                                                 {{ role }}
                                             </div>
                                             <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
-                                                {{ assigned_member.member.user.get_full_name }}
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                                        {{ assigned_member.member.user.get_full_name }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ assigned_member.member.user.get_full_name }}
+                                                {% endif %}
                                             </p>
                                             <p class="subtitle is-6 has-text-centered">
                                                 {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr
