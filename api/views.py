@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import AllowAny
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
@@ -11,8 +12,10 @@ from rest_framework.status import (
 from bloom import settings
 from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
-from budget.models import Client
+from budget.models import Client, Team, Industry, Service, ClientContact
 from user_management.models import Member
+from django.core import serializers
+import json
 import datetime
 
 
@@ -111,3 +114,64 @@ def get_budget_info(request):
     :return:
     """
     pass
+
+
+@api_view(['GET'])
+def get_accounts(request):
+    accounts = Client.objects.all()
+
+    data = {
+        'accounts': json.loads(serializers.serialize('json', accounts))
+    }
+
+    return Response(data, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['GET'])
+def get_client_details_objects(request):
+    teams = Team.objects.all()
+    industries = Industry.objects.all()
+
+    data = {
+        'teams': json.loads(serializers.serialize('json', teams)),
+        'industries': json.loads(serializers.serialize('json', industries)),
+    }
+    return Response(data, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@login_required
+def set_client_details(request):
+    # TODO: add validation
+    account_id = request.POST.get('account_id')
+    bc_link = request.POST.get('bc_link')
+    description = request.POST.get('description')
+    notes = request.POST.get('notes')
+    url = request.POST.get('url')
+    contact_names = request.POST.getlist('contact_names')
+    contact_emails = request.POST.getlist('contact_emails')
+    contact_phones = request.POST.getlist('contact_phones')
+    industry_id = request.POST.get('industry')
+    team_ids = request.POST.getlist('teams')
+
+    account = Client.objects.get(id=account_id)
+    account.bc_link = bc_link
+    account.description = description
+    account.notes = notes
+    account.url = url
+    account.industry = Industry.objects.get(pk=industry_id)
+    teams = Team.objects.filter(pk__in=team_ids)
+    account.team.set(teams)
+
+    for i, contact in enumerate(account.contactInfo.all()):
+        contact.name = contact_names[i]
+        contact.email = contact_emails[i]
+        if contact_phones and contact_phones[i]:
+            contact.phone = contact_phones[i]
+        contact.save()
+
+    account.save()
+
+    return Response(status=HTTP_200_OK)

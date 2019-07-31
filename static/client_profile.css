@@ -1,0 +1,130 @@
+/* COLORS */
+.button-color {
+    background-color: #35375a;
+    color: white;
+}
+
+.button-color-2 {
+    background-color: #dc4e76;
+    color: white;
+}
+
+.button-color-3 {
+    background-color: #cc4b93;
+    color: white;
+}
+
+.button-color:hover, .button-color-2:hover, .button-color-3:hover {
+    color: navajowhite;
+}
+
+.button-color:focus, .button-color-2:focus, .button-color-3:focus {
+    color: navajowhite;
+}
+
+.tag.cm-color {
+    background-color: #35375a;
+    color: white;
+}
+
+.tag.am-color {
+    background-color: #dc4e76;
+    color: white;
+}
+
+.tag.seo-color {
+    background-color: #a946be;
+    color: white;
+}
+
+.tag.strat-color {
+    background-color: #cc4b93;
+    color: white;
+}
+
+
+.icon a {
+    color: black;
+}
+
+.icon a:hover {
+    color: tomato;
+}
+
+img {
+    border-radius: 100%;
+    box-shadow: 0 0 0 3px hsl(0, 0%, 100%), 0 0 0 6px hsl(0, 0%, 90%);
+}
+
+.member-role-tag {
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    position: absolute;
+}
+
+.media {
+    margin-top: -2em;
+}
+
+table {
+    table-layout: auto;
+    width: 100%;
+    word-break: break-word;
+}
+
+#contact_details_card {
+    margin-top: 2em;
+}
+
+.page-card {
+    box-shadow: none;
+    padding: 0.3em;
+}
+
+.member-card {
+    box-shadow: none;
+}
+
+.is-static {
+    width: 30%;
+}
+
+.is-expanded {
+    width: 70%;
+}
+
+p {
+    word-break: break-word;
+}
+
+/* Progress bar percentage text styling */
+.progress-wrapper {
+    position: relative;
+}
+
+.progress-value {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: calc(1rem / 1.5);
+    line-height: 1rem;
+    font-weight: bold;
+}
+
+.progress.is-large+.progress-value {
+    font-size: calc(1.25rem / 1.5);
+    line-height: 1.5rem;
+}
+
+.budget-pacer {
+    height: 1.5rem;
+    background-color: black;
+    border-radius: 25%;
+    width: 0.2rem;
+    position: absolute;
+    top: 0;
+    left: 1%;
+}

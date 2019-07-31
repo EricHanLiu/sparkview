@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'client_area',
     'user_management',
     'reports',
+    'insights',
     'notifications',
     'social_django',
     'corsheaders',

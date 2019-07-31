@@ -200,12 +200,6 @@
                                                       data-original-title="{{ task.task.message }}"></span>
                                             {% endfor %}
                                         </div>
-                                        <label class="m-checkbox mt-1">
-                                            <input type="checkbox" class="budget-updated"
-                                                   data-account-id="{{ account.id }}"
-                                                   {% if account.budget_updated %}disabled checked{% endif %}/>
-                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
-                                        </label>
                                     </div>
                                     <div class="col-10">
                                         <div class="row summary-spend-row">
@@ -241,7 +235,7 @@
                                                  aria-valuemin="0" aria-valuemax="100"
                                                  aria-valuenow="{{ account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ account.current_spend }}/{{ account.current_budget }}">
+                                                 data-original-title="{{ account.calculated_spend }}/{{ account.current_budget }}">
                                                 {{ account.spend_percentage|floatformat:2 }}%
                                             </div>
                                             <div class="black-marker"
@@ -431,17 +425,11 @@
                                                       data-original-title="{{ task.task.message }}"></span>
                                             {% endfor %}
                                         </div>
-                                        <label class="m-checkbox mt-1">
-                                            <input type="checkbox" class="budget-updated"
-                                                   data-account-id="{{ backup.account.id }}"
-                                                   {% if backup.account.budget_updated %}disabled checked{% endif %}/>
-                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
-                                        </label>
                                     </div>
                                     <div class="col-10">
                                         <div class="row summary-spend-row">
                                             <div class="col-md-2"><b>Current</b>:
-                                                {{ backup.account.currency }}{{ backup.account.current_spend|format_money }}
+                                                {{ backup.account.currency }}{{ backup.account.calculated_spend|format_money }}
                                             </div>
                                             <div class="col-md-2"><b>Budget</b>:
                                                 {{ backup.account.currency }}{{ backup.account.current_budget|format_money }}
@@ -472,7 +460,7 @@
                                                  aria-valuemin="0" aria-valuemax="100"
                                                  aria-valuenow="{{ backup.account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ backup.account.current_spend }}/{{ backup.account.current_budget }}">
+                                                 data-original-title="{{ backup.account.calculated_spend }}/{{ backup.account.current_budget }}">
                                                 {{ backup.account.spend_percentage|floatformat:2 }}%
                                             </div>
                                             <div class="black-marker"

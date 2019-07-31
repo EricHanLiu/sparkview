@@ -1,6 +1,6 @@
 from django.contrib import admin
 from budget.models import ClientCData, Client, ClientHist, TierChangeProposal, CampaignGrouping, Budget, \
-    CampaignExclusions
+    CampaignExclusions, AdditionalFee
 
 
 # Register your models here.
@@ -12,6 +12,11 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(CampaignExclusions)
 class CampaignExclusionsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(AdditionalFee)
+class AdditionalFeeAdmin(admin.ModelAdmin):
     pass
 
 
