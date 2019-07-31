@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^accounts/team$', views.accounts_team, name='accounts_team'),
     url(r'^accounts/new$', views.account_new, name='account_new'),
     url(r'^accounts/(\d*)/edit$', views.account_edit_temp, name='account_edit'),
+    url(r'^accounts/(\d*)/old$', views.account_single_old, name='account_single_old'),
     url(r'^accounts/(\d*)$', views.account_single, name='account_single'),
     url(r'^accounts/onboard/(\d*)$', views.onboard_account, name='onboard_account'),
     url(r'^accounts/assign_members$', views.account_assign_members, name='account_assign_members'),

@@ -1536,7 +1536,7 @@ def create_additional_fee(request):
     month, year = request.POST.get('month'), request.POST.get('year')
 
     AdditionalFee.objects.create(account=account, name=name, fee=fee, month=month, year=year)
-    return HttpResponse('Successfully created additional fee')
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 @login_required

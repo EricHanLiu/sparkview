@@ -96,6 +96,10 @@
                         <strong><a class="button is-rounded is-small button-color"
                                    id="assign_members_button">Team</a></strong>
                     </div>
+                    <div class="level-item">
+                        <strong><a class="button is-rounded is-small button-color"
+                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                    </div>
                 </div>
             </div>
             <div class="columns" style="margin-top: 1em;">
@@ -383,17 +387,25 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <span class="tag is-small is-rounded am-color">AdWords: {{ account.aw_budget }}</span>
+                                <span class="tag is-small is-rounded am-color">AdWords: ${{ account.aw_budget }}</span>
                             </div>
                             <div class="level-item">
-                                <span class="tag is-small is-rounded am-color">Facebook: {{ account.fb_budget }}</span>
+                                <span class="tag is-small is-rounded am-color">Facebook: ${{ account.fb_budget }}</span>
                             </div>
                             <div class="level-item">
-                                <span class="tag is-small is-rounded am-color">Bing: {{ account.bing_budget }}</span>
+                                <span class="tag is-small is-rounded am-color">Bing: ${{ account.bing_budget }}</span>
                             </div>
+                            {% for additional_fee in account.additional_fee_objects_this_month %}
+                            <div class="level-item">
+                                <span class="tag is-small is-rounded seo-color">Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}</span>
+                            </div>
+                            {% endfor %}
                             <div class="level-item">
                                 <button class="button button-color is-rounded is-small" id="overall_budget_button">
                                     <strong>Overall Budget</strong>
+                                </button>
+                                <button class="button button-color is-rounded is-small" id="additional_fee_button">
+                                    <strong>Add additional fee</strong>
                                 </button>
                             </div>
                         </div>
@@ -883,6 +895,62 @@
                             <label class="label">Bing</label>
                             <input class="input is-fullwidth" name="bing_budget" type="text"
                                    value="{{ account.bing_budget }}"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="additional_fee_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Add Additional Fee</h5>
+                    </div>
+{#                    <div class="level-right">#}
+{#                        <button class="button button-color" id="add_additional_fee_confirm_button">#}
+{#                            Confirm#}
+{#                        </button>#}
+{#                    </div>#}
+                </div>
+                <form id="additional_fee_form" method="post" action="/budget/create_additional_fee">
+                    {% csrf_token %}
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns is-multiline">
+                        <div class="column is-6">
+                            <label class="label">Name</label>
+                            <input class="input is-fullwidth" name="name" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Fee</label>
+                            <input class="input is-fullwidth" name="fee" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Month</label>
+                            <div class="select">
+                                <select name="month">
+                                    {% for month_num, month_str in months %}
+                                        <option value="{{ month_num }}"
+                                                {% if month_num == monthnow %}selected{% endif %}>{{ month_str }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Year</label>
+                            <div class="select">
+                                <select name="year">
+                                    {% for year in years %}
+                                        <option value="{{ year }}"
+                                                {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <input type="submit" value="Confirm"/>
                         </div>
                     </div>
                 </form>
@@ -2028,6 +2096,10 @@
 
         $('#overall_budget_button').click(() => {
             $('#overall_budget_modal').addClass('is-active');
+        });
+
+        $('#additional_fee_button').click(() => {
+            $('#additional_fee_modal').addClass('is-active');
         });
 
         $('#add_promo_button').click(() => {
