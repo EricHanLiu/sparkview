@@ -707,9 +707,6 @@ def account_single(request, account_id):
         now = datetime.datetime.now()
         years = [i for i in range(2018, now.year + 1)]
 
-        monthnow = now.month
-        current_year = now.year
-
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
 
@@ -734,9 +731,9 @@ def account_single(request, account_id):
             'first_mandate_rate': first_mandate_rate,
             'mandate_hours_this_month': mandate_hours_this_month,
             'months': months,
-            'monthnow': monthnow,
+            'monthnow': str(now.month),
             'years': years,
-            'current_year': current_year,
+            'current_year': str(now.year),
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView'
@@ -827,9 +824,6 @@ def account_single_old(request, account_id):
         now = datetime.datetime.now()
         years = [i for i in range(2018, now.year + 1)]
 
-        monthnow = now.month
-        current_year = now.year
-
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
 
@@ -854,9 +848,9 @@ def account_single_old(request, account_id):
             'first_mandate_rate': first_mandate_rate,
             'mandate_hours_this_month': mandate_hours_this_month,
             'months': months,
-            'monthnow': monthnow,
+            'monthnow': now.month,
             'years': years,
-            'current_year': current_year,
+            'current_year': now.year,
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView'

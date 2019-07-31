@@ -794,6 +794,7 @@ class Client(models.Model):
             hours += self.seo_hours
         if self.has_cro:
             hours += self.cro_hours
+        hours += self.additional_fees_this_month / 125.0
         return round(hours, 2)
 
     @property
@@ -1509,6 +1510,11 @@ class Client(models.Model):
         return budget.updated
 
     @property
+    def additional_fee_objects_this_month(self):
+        now = datetime.datetime.now()
+        return self.additionalfee_set.filter(account=self, month=now.month, year=now.year)
+
+    @property
     def additional_fees_this_month(self):
         """
         Any additional fees this month
@@ -1526,10 +1532,7 @@ class Client(models.Model):
         :param year:
         :return:
         """
-        try:
-            additional_fees = AdditionalFee.objects.filter(account=self, month=month, year=year)
-        except AdditionalFee.DoesNotExist:
-            return 0.0
+        additional_fees = AdditionalFee.objects.filter(account=self, month=month, year=year)
         total_additional_fee = 0.0
         for f in additional_fees:
             total_additional_fee += f.fee
