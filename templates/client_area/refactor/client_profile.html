@@ -401,11 +401,13 @@
                             </div>
                             {% endfor %}
                             <div class="level-item">
+                                <button class="button button-color is-rounded is-small" id="additional_fee_button">
+                                    <strong>Add Additional Fee</strong>
+                                </button>
+                            </div>
+                            <div class="level-item">
                                 <button class="button button-color is-rounded is-small" id="overall_budget_button">
                                     <strong>Overall Budget</strong>
-                                </button>
-                                <button class="button button-color is-rounded is-small" id="additional_fee_button">
-                                    <strong>Add additional fee</strong>
                                 </button>
                             </div>
                         </div>
@@ -909,14 +911,13 @@
                     <div class="level-left">
                         <h5 class="title is-5">Add Additional Fee</h5>
                     </div>
-{#                    <div class="level-right">#}
-{#                        <button class="button button-color" id="add_additional_fee_confirm_button">#}
-{#                            Confirm#}
-{#                        </button>#}
-{#                    </div>#}
+                    <div class="level-right">
+                        <button class="button button-color" id="add_additional_fee_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
                 </div>
-                <form id="additional_fee_form" method="post" action="/budget/create_additional_fee">
-                    {% csrf_token %}
+                <form id="additional_fee_form">
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="columns is-multiline">
                         <div class="column is-6">
@@ -929,7 +930,7 @@
                         </div>
                         <div class="column is-6">
                             <label class="label">Month</label>
-                            <div class="select">
+                            <div class="select is-fullwidth">
                                 <select name="month">
                                     {% for month_num, month_str in months %}
                                         <option value="{{ month_num }}"
@@ -940,7 +941,7 @@
                         </div>
                         <div class="column is-6">
                             <label class="label">Year</label>
-                            <div class="select">
+                            <div class="select is-fullwidth">
                                 <select name="year">
                                     {% for year in years %}
                                         <option value="{{ year }}"
@@ -948,9 +949,6 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                        </div>
-                        <div class="column is-3">
-                            <input type="submit" value="Confirm"/>
                         </div>
                     </div>
                 </form>
@@ -2249,6 +2247,25 @@
                 success: () => {
                     $('.modal').removeClass('is-active');
                     toastr.success('Successfully updated management fee structure!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                },
+                error: () => {
+                    toastr.error('Error! Please make sure all the form fields are filled out.');
+                }
+            });
+        });
+
+        $('#add_additional_fee_confirm_button').click(() => {
+            $.ajax({
+                type: 'POST',
+                url: '/budget/create_additional_fee',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $('#additional_fee_form').serialize(),
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully added a new fee!');
                     setTimeout(() => {
                         location.reload();
                     }, 1000);
