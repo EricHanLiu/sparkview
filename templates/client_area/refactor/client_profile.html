@@ -145,9 +145,16 @@
                             </h5>
                         </div>
                         <div class="level-right">
-                            <button class="button is-rounded is-small button-color" id="contact_details_button">
-                                <strong>View More</strong>
-                            </button>
+                            <div class="level-item">
+                                <button class="button is-rounded is-small button-color" id="fee_structure_button">
+                                    <strong>Fee Structure</strong>
+                                </button>
+                            </div>
+                            <div class="level-item">
+                                <button class="button is-rounded is-small button-color" id="contact_details_button">
+                                    <strong>View More</strong>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -173,183 +180,6 @@
                             </td>
                         </tr>
                     </table>
-                </div>
-            </div>
-            <div class="modal modal-fx-fadeInScale" id="contact_details_modal">
-                <div class="modal-background"></div>
-                <div class="modal-content">
-                    <div class="box">
-                        <div class="level">
-                            <div class="level-left">
-                                <h5 class="title is-5">Client Details</h5>
-                            </div>
-                            <div class="level-right">
-                                <button class="button button-color" id="update_client_details_button">
-                                    Save Changes
-                                </button>
-                            </div>
-                        </div>
-                        <form id="client_details_form">
-                            <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Basecamp Link</button>
-                                <div class="control is-expanded">
-                                    <input class="input" type="text" name="bc_link"
-                                           value="{{ account.bc_link }}">
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Client Description</button>
-                                <div class="control is-expanded">
-                                    <input class="input" type="text" name="description"
-                                           value="{{ account.description }}">
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Client Notes</button>
-                                <div class="control is-expanded">
-                                    <input class="input" type="text" name="notes"
-                                           value="{{ account.notes }}">
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">URL</button>
-                                <div class="control is-expanded">
-                                    <input class="input" type="text" name="url"
-                                           value="{{ account.url }}">
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Tier</button>
-                                <div class="control is-expanded">
-                                    <input class="input" type="text" disabled style="pointer-events: none;"
-                                           value="{{ account.tier }}">
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">
-                                    Contact Name{% if account.contactInfo.all.count > 1 %}s{% endif %}
-                                </button>
-                                <div class="control is-expanded">
-                                    {% for clientContact in account.contactInfo.all %}
-                                        <input class="input" type="text" name="contact_names"
-                                               value="{{ clientContact.name }}">
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">
-                                    Contact Email{% if account.contactInfo.all.count > 1 %}s{% endif %}
-                                </button>
-                                <div class="control is-expanded">
-                                    {% for clientContact in account.contactInfo.all %}
-                                        <input class="input" type="text" name="contact_emails"
-                                               value="{{ clientContact.email }}">
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">
-                                    Contact Phone{% if account.contactInfo.all.count > 1 %}s{% endif %}
-                                </button>
-                                <div class="control is-expanded">
-                                    {% for clientContact in account.contactInfo.all %}
-                                        <input class="input" type="text" name="contact_phones"
-                                               value="{{ clientContact.phone }}">
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Industry</button>
-                                <div class="control is-expanded">
-                                    <div class="select is-fullwidth">
-                                        <select id="select_industries" name="industry">
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Team</button>
-                                <div class="control is-expanded">
-                                    <div class="select is-multiple is-fullwidth">
-                                        <select multiple class="selectable-details" id="select_teams" name="teams">
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Platforms</button>
-                                <div class="control is-expanded">
-                                    <div class="select is-multiple is-fullwidth">
-                                        <select multiple class="set-details" name="platforms" disabled>
-                                            <option value="Adwords"
-                                                    {% if account.aw_budget != 0.0 %}selected{% endif %}>
-                                                Adwords
-                                            </option>
-                                            <option value="Bing"
-                                                    {% if account.bing_budget != 0.0 %}selected{% endif %}>
-                                                Bing
-                                            </option>
-                                            <option value="Facebook"
-                                                    {% if account.fb_budget != 0.0 %}selected{% endif %}>
-                                                Facebook
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Services</button>
-                                <div class="control is-expanded">
-                                    <div class="select is-multiple is-fullwidth">
-                                        <select multiple class="set-details" name="services" disabled>
-                                            <option value="SEO" {% if account.has_seo %}selected{% endif %}>
-                                                SEO
-                                            </option>
-                                            <option value="CRO" {% if account.has_cro %}selected{% endif %}>
-                                                CRO
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field has-addons">
-                                <button class="button is-static" type="button">Fee Structure</button>
-                                <div class="control is-expanded">
-                                    {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
-                                        <p>Manual Override: ${{ account.management_fee_override }}</p>
-                                    {% else %}
-                                        <table class='table is-hoverable is-striped is-fullwidth is-bordered'>
-                                            <thead>
-                                            <tr>
-                                                <th>
-                                                    Monthly Media Spend
-                                                </th>
-                                                <th>
-                                                    Monthly Fee
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for interval in account.managementFee.feeStructure.all %}
-                                                <tr>
-                                                    <td>
-                                                        ${{ interval.lowerBound }} - ${{ interval.upperBound }}
-                                                    </td>
-                                                    <td>
-                                                        {% if interval.feeStyle == 1 %}$
-                                                            {{ interval.fee|format_money }}{% endif %}
-                                                        {% if interval.feeStyle == 0 %}{{ interval.fee }}%{% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </div>
         </div>
@@ -420,18 +250,23 @@
                             </div>
                         </div>
                     </div>
-                    <button class="button is-rounded is-small button-color"
-                            id="new_mandate_button">
-                        <strong>New Mandate</strong>
-                    </button>
+                    <div class="level">
+                        <div class="level-left"></div>
+                        <div class="level-right">
+                            <button class="button is-rounded is-small button-color"
+                                    id="new_mandate_button">
+                                <strong>New Mandate</strong>
+                            </button>
+                        </div>
+                    </div>
                     {% if account.active_mandates.count > 0 %}
                         <table class="table is-hoverable" id="services_table">
-                            <tr>
+                        <tr>
                                 <th>
                                     Type
                                 </th>
                                 <th>
-                                    Cost
+                                Cost
                                 </th>
                                 <th>
                                     End Date
@@ -566,11 +401,13 @@
                             </div>
                             {% endfor %}
                             <div class="level-item">
+                                <button class="button button-color is-rounded is-small" id="additional_fee_button">
+                                    <strong>Add Additional Fee</strong>
+                                </button>
+                            </div>
+                            <div class="level-item">
                                 <button class="button button-color is-rounded is-small" id="overall_budget_button">
                                     <strong>Overall Budget</strong>
-                                </button>
-                                <button class="button button-color is-rounded is-small" id="additional_fee_button">
-                                    <strong>Add additional fee</strong>
                                 </button>
                             </div>
                         </div>
@@ -726,6 +563,309 @@
     </div>
 
     <!-- MODALS -->
+    <div class="modal modal-fx-fadeInScale" id="fee_structure_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content" style="width: 50vw;">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Fee Structure</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="fee_structure_confirm_button">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+                <form id="fee_structure_form">
+                    <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
+                    <h5 class="title is-5" style="margin-top: 1em;">{{ account.managementFee.name }}</h5>
+                    <div class="field">
+                        <div class="control">
+                            {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
+                                <p>Manual Override: ${{ account.management_fee_override }}</p>
+                            {% else %}
+                                <table class='table is-hoverable is-striped is-fullwidth is-bordered'>
+                                    <thead>
+                                    <tr>
+                                        <th>
+                                            Monthly Media Spend
+                                        </th>
+                                        <th>
+                                            Monthly Fee
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for interval in account.managementFee.feeStructure.all %}
+                                        <tr>
+                                            <td>
+                                                ${{ interval.lowerBound }} - ${{ interval.upperBound }}
+                                            </td>
+                                            <td>
+                                                {% if interval.feeStyle == 1 %}$
+                                                    {{ interval.fee|format_money }}{% endif %}
+                                                {% if interval.feeStyle == 0 %}{{ interval.fee }}%{% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <input type="text" value="1" id="fee_structure_type" name="fee_structure_type"
+                           style="display:none;"/>
+                    <div id="create_new_fee_structure">
+                        <div class="level">
+                            <div class="level-left"><h5 class="title is-5" style="margin-top: 1em;">
+                                Edit Management Fee Structure
+                            </h5></div>
+                            <div class="level-right">
+                                <button type="button" class="button is-small is-rounded"
+                                        id="use_existing_fee_structure_button">
+                                    Use Existing
+                                </button>
+                            </div>
+                        </div>
+                        <div id="management_fee_form">
+                            <input style="display:none;" value="1" id="row_num_input" name="row_num_input"/>
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <label class="label">Name:</label>
+                                    <input class="input" name="fee_structure_name"/>
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Setup Fee:</label>
+                                    <input class="input" name="setup_fee"/>
+                                </div>
+                            </div>
+                            <hr/>
+                            <div class="columns">
+                                <div class="column is-3">
+                                    <label class="label">Low Budget Bound ($):</label>
+                                    <input class="input" name="low-bound1"/>
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label">High Budget Bound ($):</label>
+                                    <input class="input" name="high-bound1"/>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">Fee type:</label>
+                                    <select class="input"
+                                            name="fee-type1"
+                                            style="width: 100%;">
+                                        <option value="0">%</option>
+                                        <option value="1">$</option>
+                                    </select>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">Fee:</label>
+                                    <input class="input" name="fee1"/>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">Add Level</label>
+                                    <button type="button" name="button"
+                                            class="button is-small is-rounded add-fee-level-button">
+                                        Add Level
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="use_existing_fee_structure" style="display:none;">
+                        <div class="level">
+                            <div class="level-left"><h5 class="title is-5">Edit Management Fee Structure</h5></div>
+                            <div class="level-right">
+                                <button type="button" class="button is-small is-rounded"
+                                        id="create_new_fee_structure_button">Create New
+                                </button>
+                            </div>
+                        </div>
+                        <div id="management_fee_select">
+                            <div class="columns">
+                                <div class="column is-12">
+                                    <label class="label">Management Fee Structure:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="existing_structure" id="existing_structure" style="width: 100%;"
+                                            required>
+                                        <option value="0">
+                                            None
+                                        </option>
+                                        {% for fee_structure in management_fee_structures %}
+                                            <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                    <div id="preset_mf" style="display:none;">
+                                        <hr/>
+                                        <h6 class="title is-6">
+                                            Setup Fee: $<span id="setup_fee_preset"></span>
+                                        </h6>
+                                        <table class="table is-striped is-hoverable is-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    Monthly Media Spend
+                                                </th>
+                                                <th>
+                                                    Monthly Fee
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="preset_mf_tbody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="contact_details_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Client Details</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="update_client_details_button">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+                <form id="client_details_form">
+                    <input class="is-hidden" value="{{ account.id }}" name="account_id"/>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Basecamp Link</button>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" name="bc_link"
+                                   value="{{ account.bc_link }}">
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Client Description</button>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" name="description"
+                                   value="{{ account.description }}">
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Client Notes</button>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" name="notes"
+                                   value="{{ account.notes }}">
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">URL</button>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" name="url"
+                                   value="{{ account.url }}">
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Tier</button>
+                        <div class="control is-expanded">
+                            <input class="input" type="text" disabled style="pointer-events: none;"
+                                   value="{{ account.tier }}">
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">
+                            Contact Name{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                        </button>
+                        <div class="control is-expanded">
+                            {% for clientContact in account.contactInfo.all %}
+                                <input class="input" type="text" name="contact_names"
+                                       value="{{ clientContact.name }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">
+                            Contact Email{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                        </button>
+                        <div class="control is-expanded">
+                            {% for clientContact in account.contactInfo.all %}
+                                <input class="input" type="text" name="contact_emails"
+                                       value="{{ clientContact.email }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">
+                            Contact Phone{% if account.contactInfo.all.count > 1 %}s{% endif %}
+                        </button>
+                        <div class="control is-expanded">
+                            {% for clientContact in account.contactInfo.all %}
+                                <input class="input" type="text" name="contact_phones"
+                                       value="{{ clientContact.phone }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Industry</button>
+                        <div class="control is-expanded">
+                            <div class="select is-fullwidth">
+                                <select id="select_industries" name="industry">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Team</button>
+                        <div class="control is-expanded">
+                            <div class="select is-multiple is-fullwidth">
+                                <select multiple class="selectable-details" id="select_teams" name="teams">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Platforms</button>
+                        <div class="control is-expanded">
+                            <div class="select is-multiple is-fullwidth">
+                                <select multiple class="set-details" name="platforms" disabled>
+                                    <option value="Adwords"
+                                            {% if account.aw_budget != 0.0 %}selected{% endif %}>
+                                        Adwords
+                                    </option>
+                                    <option value="Bing"
+                                            {% if account.bing_budget != 0.0 %}selected{% endif %}>
+                                        Bing
+                                    </option>
+                                    <option value="Facebook"
+                                            {% if account.fb_budget != 0.0 %}selected{% endif %}>
+                                        Facebook
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field has-addons">
+                        <button class="button is-static" type="button">Services</button>
+                        <div class="control is-expanded">
+                            <div class="select is-multiple is-fullwidth">
+                                <select multiple class="set-details" name="services" disabled>
+                                    <option value="SEO" {% if account.has_seo %}selected{% endif %}>
+                                        SEO
+                                    </option>
+                                    <option value="CRO" {% if account.has_cro %}selected{% endif %}>
+                                        CRO
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="overall_budget_modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -771,14 +911,13 @@
                     <div class="level-left">
                         <h5 class="title is-5">Add Additional Fee</h5>
                     </div>
-{#                    <div class="level-right">#}
-{#                        <button class="button button-color" id="add_additional_fee_confirm_button">#}
-{#                            Confirm#}
-{#                        </button>#}
-{#                    </div>#}
+                    <div class="level-right">
+                        <button class="button button-color" id="add_additional_fee_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
                 </div>
-                <form id="additional_fee_form" method="post" action="/budget/create_additional_fee">
-                    {% csrf_token %}
+                <form id="additional_fee_form">
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="columns is-multiline">
                         <div class="column is-6">
@@ -791,7 +930,7 @@
                         </div>
                         <div class="column is-6">
                             <label class="label">Month</label>
-                            <div class="select">
+                            <div class="select is-fullwidth">
                                 <select name="month">
                                     {% for month_num, month_str in months %}
                                         <option value="{{ month_num }}"
@@ -802,7 +941,7 @@
                         </div>
                         <div class="column is-6">
                             <label class="label">Year</label>
-                            <div class="select">
+                            <div class="select is-fullwidth">
                                 <select name="year">
                                     {% for year in years %}
                                         <option value="{{ year }}"
@@ -810,9 +949,6 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                        </div>
-                        <div class="column is-3">
-                            <input type="submit" value="Confirm"/>
                         </div>
                     </div>
                 </form>
@@ -1968,6 +2104,10 @@
             $('#add_promo_modal').addClass('is-active');
         });
 
+        $('#fee_structure_button').click(() => {
+            $('#fee_structure_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -2095,6 +2235,44 @@
                         location.reload();
                     }, 1000);
                 },
+            });
+        });
+
+        $('#fee_structure_confirm_button').click(() => {
+            $.ajax({
+                type: 'POST',
+                url: '/clients/edit_management_fee_structure',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $('#fee_structure_form').serialize(),
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully updated management fee structure!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                },
+                error: () => {
+                    toastr.error('Error! Please make sure all the form fields are filled out.');
+                }
+            });
+        });
+
+        $('#add_additional_fee_confirm_button').click(() => {
+            $.ajax({
+                type: 'POST',
+                url: '/budget/create_additional_fee',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: $('#additional_fee_form').serialize(),
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully added a new fee!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                },
+                error: () => {
+                    toastr.error('Error! Please make sure all the form fields are filled out.');
+                }
             });
         });
 
@@ -2742,6 +2920,112 @@
                     e.preventDefault();
                     deleteBudgetModal.classList.remove('is-active');
                 });
+            });
+        });
+
+        /**
+         * Management fees (copy pasted from old edit page, pretty ugly)
+         */
+        let $createNewFeeBtn = $('#create_new_fee_structure_button');
+        let $useExistingFeeBtn = $('#use_existing_fee_structure_button');
+        let $createNewFeeDiv = $('#create_new_fee_structure');
+        let $useExistingFeeDiv = $('#use_existing_fee_structure');
+        let $feeStructureType = $('#fee_structure_type');
+
+        $createNewFeeBtn.click(function () {
+            $feeStructureType.val('1');
+            $useExistingFeeDiv.hide();
+            $createNewFeeDiv.show();
+        });
+
+        $useExistingFeeBtn.click(function () {
+            $feeStructureType.val('2');
+            $createNewFeeDiv.hide();
+            $useExistingFeeDiv.show();
+        });
+
+        let $addFeeBtn = $('.add-fee-level-button');
+        let $feeForm = $('#management_fee_form');
+        let $rowNum = $('#row_num_input');
+
+        let feeRows = 1;
+        let feeRowHtml = `
+                  <div class="columns">
+                    <div class="column is-3">
+                      <label class="label">Low Budget Bound ($):</label>
+                      <input class="input" name="low-bound1" />
+                    </div>
+                    <div class="column is-3">
+                      <label class="label">High Budget Bound ($):</label>
+                      <input class="input" name="high-bound1" />
+                    </div>
+                    <div class="column is-2">
+                      <label class="label">Fee type:</label>
+                      <select class="input"
+                              name="fee-type1"
+                              style="width: 100%;">
+                              <option value="0">%</option>
+                              <option value="1">$</option>
+                      </select>
+                    </div>
+                    <div class="column is-2">
+                      <label class="label">Fee:</label>
+                      <input class="input" name="fee1" />
+                    </div>
+                  </div>
+                  `;
+
+        $addFeeBtn.click(function () {
+            feeRows++;
+            $rowNum.val(feeRows);
+            let feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+                .replace('high-bound1', 'high-bound' + feeRows)
+                .replace('fee-type1', 'fee-type' + feeRows)
+                .replace('fee1', 'fee' + feeRows);
+            $feeForm.append(feeRowHtmlTmp);
+        });
+
+        let $mfSelect = $('#existing_structure');
+        let $presetMf = $('#preset_mf');
+        let $presetMfTbody = $('#preset_mf_tbody');
+        let $presetSetupFee = $('#setup_fee_preset');
+
+        $mfSelect.change(function () {
+            if ($mfSelect.val() === '0') {
+                $presetMfTbody.html('');
+                $presetMf.hide();
+                return;
+            }
+
+            /**
+             * Get the management fee structure
+             */
+            $.ajax({
+                url: '/clients/get_management_fee_details/' + $mfSelect.val(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: function (data) {
+                    $presetMfTbody.html('');
+                    $presetSetupFee.html(data.initial_fee);
+                    for (let key in data.fee_intervals) {
+                        let fee_interval = data.fee_intervals[key];
+                        let inner_html = '';
+                        inner_html += '<tr>';
+                        inner_html += '<td>';
+                        inner_html += '$' + fee_interval.lowerBound + ' - $' + fee_interval.upperBound;
+                        inner_html += '</td>';
+                        inner_html += '<td>';
+                        if (fee_interval.style === 0) { // %
+                            inner_html += fee_interval.fee + '%';
+                        } else { // $
+                            inner_html += '$' + fee_interval.fee;
+                        }
+                        inner_html += '</td>';
+                        inner_html += '</tr>';
+                        $presetMfTbody.append(inner_html);
+                    }
+                    $presetMf.show();
+                }
             });
         });
     </script>

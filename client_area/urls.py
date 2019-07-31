@@ -32,5 +32,6 @@ urlpatterns = [
     url(r'^accounts/(\d*)/lifecycle$', views.account_lifecycle, name='account_lifecycle'),
     url(r'^campaigns/(\d*)$', views.campaigns, name='campaigns'),
     url(r'^accounts/mandates/new$', views.create_mandate, name='create_mandate'),
-    url(r'^accounts/set_opportunity$', views.set_opportunity, name='set_opportunity')
+    url(r'^accounts/set_opportunity$', views.set_opportunity, name='set_opportunity'),
+    url(r'^edit_management_fee_structure', views.edit_management_fee_structure, name='edit_management_fee_structure')
 ]
