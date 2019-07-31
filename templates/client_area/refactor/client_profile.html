@@ -2056,9 +2056,12 @@
             let $form = $('#client_details_form');
 
             $.ajax({
-                url: '/api/set_client_details',
+                url: '/clients/set_client_details',
                 type: 'POST',
                 data: $form.serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
                 success: () => {
                     $('.modal').removeClass('is-active');
                     toastr.success('Successfully updated client details!');
@@ -2431,7 +2434,7 @@
             {% endfor %}
 
             $.ajax({
-                url: '/api/get_client_details_objects',
+                url: '/clients/get_client_details_objects',
                 type: 'GET',
                 success: function (data) {
                     let teams = data['teams'];
