@@ -238,6 +238,7 @@ class Member(models.Model):
     buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
+    created = models.DateTimeField(auto_now_add=True)
 
     @property
     def viewed_summary_today(self):

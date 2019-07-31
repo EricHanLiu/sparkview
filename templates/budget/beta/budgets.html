@@ -211,17 +211,23 @@
                             </div>
                             <div class="control">
                                 <div class="tags has-addons">
-                                    <span class="tag {% if account.adwords.all %}is-success{% endif %} is-medium">Google Ads</span>
+                                    <span class="tag is-medium" {% if account.adwords.all %}style="background-color: #13a365; color: white;"{% endif %}>
+                                        Google Ads
+                                    </span>
                                 </div>
                             </div>
                             <div class="control">
                                 <div class="tags has-addons">
-                                    <span class="tag {% if account.facebook.all %}is-success{% endif %} is-medium">Facebook Ads</span>
+                                    <span class="tag is-medium" {% if account.facebook.all %}style="background-color: #4267B2; color: white;"{% endif %}>
+                                        Facebook Ads
+                                    </span>
                                 </div>
                             </div>
                             <div class="control">
                                 <div class="tags has-addons">
-                                    <span class="tag {% if account.bing.all %}is-success{% endif %} is-medium">Bing Ads</span>
+                                    <span class="tag is-medium" {% if account.bing.all %}style="background-color: #00887E; color: white;"{% endif %}>
+                                        Bing Ads
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -257,17 +263,23 @@
                     <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag {% if budget.has_adwords %}is-success{% endif %} is-small">Google</span>
+                                <span class="tag is-small" {% if budget.has_adwords %}style="background-color: #13a365; color: white;"{% endif %}>
+                                    Google
+                                </span>
                             </div>
                         </div>
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag {% if budget.has_facebook %}is-success{% endif %} is-small">FB</span>
+                                <span class="tag is-small" {% if budget.has_facebook %}style="background-color: #4267B2; color: white;"{% endif %}>
+                                    FB
+                                </span>
                             </div>
                         </div>
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag {% if budget.has_bing %}is-success{% endif %} is-small">Bing</span>
+                                <span class="tag is-small" {% if budget.has_bing %}style="background-color: #00887E; color: white;"{% endif %}>
+                                    Bing
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -455,7 +467,7 @@
             </section>
             <footer class="modal-card-foot">
                 <input type="submit" class="button is-info" value="Add Budget"/>
-                <button class="button close">Cancel</button>
+                <button class="button close" type="button">Cancel</button>
             </footer>
         </form>
     </div>
@@ -683,7 +695,7 @@
             <button class="delete close" aria-label="close"></button>
         </header>
         <form id="exclude_campaigns" method="post" action="/budget/update_exclusions">
-            <section class="modal-card-body">
+            <section class="modal-card-body" style="height: 40vh;">
                 {% csrf_token %}
                 <input type="hidden" name="account_id" value="{{ account.id }}">
                 <div class="tabs is-centered is-boxed">

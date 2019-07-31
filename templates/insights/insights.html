@@ -1,0 +1,476 @@
+{% extends 'layout.html' %}
+
+{% block extraCss %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+{% endblock %}
+
+{% block main_body %}
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    Insights
+                </h1>
+                <div class="columns">
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">Account</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="account_select" disabled>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">Property</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="property_select" disabled>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">View</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="view_select" disabled>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <div class="field">
+                            <label class="label">&nbsp</label>
+                            <div class="control">
+                                <button class="button is-link" id="get_insights" disabled>
+                                    Get Insights
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="columns is-multiline" id="insights"></div>
+            </div>
+        </div>
+    </section>
+
+    <template id="ecom_best_demo_template">
+        <div class="column is-6">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">Best E-Com Demographics - Last 30 Days</p>
+                </header>
+                <div class="card-content">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Country
+                            </th>
+                            <th>
+                                Age
+                            </th>
+                            <th>
+                                Gender
+                            </th>
+                            <th>
+                                Revenue
+                            </th>
+                            <th>
+                                Avg Value
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="ecom_demo_tbody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="ecom_best_ad_group_template">
+        <div class="column is-6">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">Best E-Com Ad Groups - Last 30 Days</p>
+                </header>
+                <div class="card-content">
+                    <table class="table is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Ad Group
+                            </th>
+                            <th>
+                                Revenue
+                            </th>
+                            <th>
+                                Avg Value
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="ecom_adg_tbody">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        let $getInsightsButton = $('#get_insights');
+        let $insightsDiv = $('#insights');
+
+        $getInsightsButton.click(() => {
+            let accountId = $viewSelect.val();
+            let viewId = $viewSelect.val();
+            $getInsightsButton.addClass('is-loading');
+            $insightsDiv.html('');
+
+            // hackathon solution to wait till last ajax before button change
+            // todo: sam set these to true in your ajax success callback
+            let done1, done2, done3, done4;
+            done1 = done2 = done3 = done4 = false;
+
+            // pulls all insights for this account, all separate requests
+            $.ajax({
+                url: '/insights/get_organic_searches_by_region_insight/' + accountId,  // mondou for test
+                success: data => {
+                    let regionData = data['regionData'];
+                    let regions = regionData.map(x => x['region']);
+                    let searches = regionData.map(x => parseInt(x['searches']));
+                    let avgPageLoads = regionData.map(x => parseFloat(x['avgPageLoad']));
+
+                    // create box
+                    let column = document.createElement('div');
+                    column.className = 'column is-6';
+                    let box = document.createElement('box');
+                    box.className = 'box';
+                    let p = document.createElement('p');
+                    p.className = 'title is-4 has-text-info has-text-centered';
+                    p.appendChild(document.createTextNode('Organic Searches & Average Page Load Time by Region (Top 5), Over the Last Year'));
+                    let searchChart = document.createElement('canvas');
+                    searchChart.id = 'searchChart';
+                    let timeChart = document.createElement('canvas');
+                    timeChart.id = 'timeChart';
+
+                    box.appendChild(p);
+                    box.appendChild(searchChart);
+                    box.appendChild(timeChart);
+                    column.appendChild(box);
+                    $insightsDiv.append(column);
+
+                    done1 = true;
+                    if (done1 && done2 && done3 && done4) {
+                        $getInsightsButton.removeClass('is-loading');
+                    }
+
+                    new Chart(document.querySelector('#searchChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: regions,
+                            datasets: [
+                                {
+                                    data: searches,
+                                    borderColor: 'tomato',
+                                    backgroundColor: 'tomato'
+                                },
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Searches'
+                            }
+                        }
+                    });
+                    new Chart(document.querySelector('#timeChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: regions,
+                            datasets: [
+                                {
+                                    data: avgPageLoads,
+                                    borderColor: 'lightskyblue',
+                                    backgroundColor: 'lightskyblue'
+                                },
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Average Load Time (secs)'
+                            }
+                        }
+                    });
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+            /**
+             * Eric's requests
+             */
+            $.ajax({
+                url: '/insights/get_organic_searches_over_time_by_medium_insight/' + accountId,  // mondou for test
+                success: data => {
+                    let googleSearches = data['google_searches'].map(x => parseInt(x));
+                    let bingSearches = data['bing_searches'].map(x => parseInt(x));
+
+                    // create box
+                    let column = document.createElement('div');
+                    column.className = 'column is-6';
+                    let box = document.createElement('box');
+                    box.className = 'box';
+                    let p = document.createElement('p');
+                    p.className = 'title is-4 has-text-info has-text-centered';
+                    p.appendChild(document.createTextNode('Organic Searches Over Time by Medium'));
+                    let bingChart = document.createElement('canvas');
+                    bingChart.id = 'bingChart';
+                    let googleChart = document.createElement('canvas');
+                    googleChart.id = 'googleChart';
+
+                    box.appendChild(p);
+                    box.appendChild(googleChart);
+                    box.appendChild(bingChart);
+                    column.appendChild(box);
+                    $insightsDiv.append(column);
+
+                    done2 = true;
+                    if (done1 && done2 && done3 && done4) {
+                        $getInsightsButton.removeClass('is-loading');
+                    }
+
+                    let months = [];
+                    let monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec'];
+                    let thisMonth = new Date().getMonth();
+                    for (let i = 0; i < googleSearches.length; i++) {
+                        months.unshift(monthNames[thisMonth]);
+                        thisMonth--;
+                        if (thisMonth === 0) {
+                            thisMonth = 11;
+                        }
+                    }
+
+                    new Chart(document.querySelector('#googleChart'), {
+                        type: 'line',
+                        data: {
+                            labels: months,
+                            datasets: [
+                                {
+                                    data: googleSearches,
+                                    borderColor: 'tomato'
+                                },
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Google'
+                            }
+                        }
+                    });
+                    new Chart(document.querySelector('#bingChart'), {
+                        type: 'line',
+                        data: {
+                            labels: months,
+                            datasets: [
+                                {
+                                    data: bingSearches,
+                                    label: 'Bing',
+                                    borderColor: 'lightskyblue'
+                                }
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Bing'
+                            },
+                        }
+                    });
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+            /**
+             * End of Eric's requests
+             */
+
+            /**
+             * Sam's requests
+             */
+            $.ajax({
+                url: '/insights/get_ecom_best_demographics',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'view_id': viewId
+                },
+                success: data => {
+                    let template = document.getElementById('ecom_best_demo_template').content;
+                    let tbody = template.querySelector('.ecom_demo_tbody');
+                    data['report']['rows'].forEach(row => {
+                        let tmpRow = tbody.insertRow();
+                        let country = tmpRow.insertCell();
+                        country.appendChild(document.createTextNode(row['dimensions'][0]));
+
+                        let age = tmpRow.insertCell();
+                        age.appendChild(document.createTextNode(row['dimensions'][1]));
+
+                        let gender = tmpRow.insertCell();
+                        gender.appendChild(document.createTextNode(row['dimensions'][2]));
+
+                        let revenue = tmpRow.insertCell();
+                        revenue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][1]).toFixed(2)));
+
+                        let avgValue = tmpRow.insertCell();
+                        avgValue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][3]).toFixed(2)));
+                    });
+
+                    const clone = document.importNode(template, true);
+                    $insightsDiv.append(clone);
+                    $getInsightsButton.removeClass('is-loading');
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+
+            $.ajax({
+                url: '/insights/get_ecom_ppc_best_ad_groups',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'view_id': viewId
+                },
+                success: data => {
+                    console.log(data);
+                    let template = document.getElementById('ecom_best_ad_group_template').content;
+                    let tbody = template.querySelector('.ecom_adg_tbody');
+                    data['report']['rows'].forEach(row => {
+                        let tmpRow = tbody.insertRow();
+                        let adg = tmpRow.insertCell();
+                        adg.appendChild(document.createTextNode(row['dimensions'][0]));
+
+                        let revenue = tmpRow.insertCell();
+                        revenue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][1]).toFixed(2)));
+
+                        let avgValue = tmpRow.insertCell();
+                        avgValue.appendChild(document.createTextNode('$' + parseFloat(row['metrics'][0]['values'][3]).toFixed(2)));
+                    });
+
+                    const clone = document.importNode(template, true);
+                    $insightsDiv.append(clone);
+                },
+                error: error => {
+                    console.log(error);
+                }
+            });
+            /**
+             * End of Sam's requests
+             */
+
+        });
+
+        let $accountSelect = $('#account_select');
+        let $propertySelect = $('#property_select');
+        let $viewSelect = $('#view_select');
+
+        let setupAccountsSelect = function () {
+            $.ajax({
+                url: '/insights/get_accounts',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: (data) => {
+                    let gaAccs = data['items'];
+                    gaAccs.forEach(acc => {
+                        let markup = '<option value="' + acc['id'] + '">' + acc['name'] + '</option>';
+                        $accountSelect.append(markup);
+                    });
+                    $accountSelect.prop('disabled', false);
+                }
+            });
+        };
+
+        let setupPropertySelect = function (accountId) {
+            $.ajax({
+                url: '/insights/get_properties',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {'account_id': accountId},
+                success: (data) => {
+                    let gaProps = data['items'];
+                    $propertySelect.html('');
+                    let defaultOption = '<option selected hidden disabled>--</option>';
+                    $propertySelect.append(defaultOption);
+                    gaProps.forEach(prop => {
+                        let markup = '<option value="' + prop['id'] + '">' + prop['name'] + '</option>';
+                        $propertySelect.append(markup);
+                    });
+                    $propertySelect.prop('disabled', false);
+                }
+            });
+        };
+
+        let setupViewSelect = function (accountId, propId) {
+            $.ajax({
+                url: '/insights/get_views',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'account_id': accountId,
+                    'prop_id': propId
+                },
+                success: (data) => {
+                    let gaViews = data['items'];
+                    $viewSelect.html('');
+                    gaViews.forEach(view => {
+                        let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
+                        $viewSelect.append(markup);
+                    });
+                    $viewSelect.prop('disabled', false);
+                    $getInsightsButton.prop('disabled', false);
+                }
+            });
+        };
+
+        $(document).ready(function () {
+            setupAccountsSelect();
+
+            $accountSelect.change(function () {
+                setupPropertySelect($(this).val());
+            });
+
+            $propertySelect.change(function () {
+                setupViewSelect($accountSelect.val(), $(this).val());
+            });
+        });
+    </script>
+{% endblock %}

@@ -20,7 +20,8 @@ from django.utils.timezone import make_aware
 class Client(models.Model):
     """
     This should really be called 'Account' based on Bloom's business logic
-    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
+    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account'
+    in any front end view where a user sees it
     """
     STATUS_CHOICES = [(0, 'Onboarding'),
                       (1, 'Active'),
@@ -116,6 +117,9 @@ class Client(models.Model):
     clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
     tier = models.IntegerField(default=1)
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
+    bc_link = models.CharField(max_length=255, default=None, null=True, blank=True)
+    description = models.CharField(max_length=255, default=None, null=True, blank=True)
+    notes = models.CharField(max_length=255, default=None, null=True, blank=True)
     # maybe do services another way?
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
@@ -342,6 +346,7 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
+        extra_fees = self.extra_fees_month(month, year)
         return hours
 
     def value_hours_month_year(self, month, year):
@@ -423,8 +428,7 @@ class Client(models.Model):
             for aa in self.adwords.all():
                 aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
                 recent_perf = aw_perf[0].metadata if aw_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf[
-                    'vals']:  # We have CPA info
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']:
                     conversions += float(recent_perf['vals']['conversions'][1])
                     cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
                 kpid['roas'] = 0.0
@@ -469,11 +473,8 @@ class Client(models.Model):
 
             conversions = 0.0
             cost = 0.0
-            final_cpa = 0.0
 
-            total_add_spend = 0.0
             total_conversion_value = 0.0
-            roas = 0.0
 
             conversions += self.google_kpi_month['conversions']
             cost += self.google_kpi_month['cost']
@@ -481,13 +482,13 @@ class Client(models.Model):
 
             try:
                 final_cpa = cost / conversions
-            except:
+            except ZeroDivisionError:
                 final_cpa = 0.0
             kpid['cpa'] = final_cpa
 
             try:
                 kpid['roas'] = total_conversion_value / cost
-            except:
+            except ZeroDivisionError:
                 kpid['roas'] = 0.0
 
             if len(kpid) == 0:
@@ -731,7 +732,7 @@ class Client(models.Model):
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
+            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee + self.additional_fees_this_month
         return fee
 
     @property
@@ -755,6 +756,24 @@ class Client(models.Model):
             return None
         return self.ppc_ignore_override - self.allocated_ppc_override
 
+    def additional_ppc_fees_month(self, month, year):
+        additional_fees_month = self.additionalfee_set.filter(month=month, year=year)
+        additional_fee = 0.0
+        for fee in additional_fees_month:
+            additional_fee += fee.fee
+        return additional_fee
+
+    @property
+    def additional_ppc_fees_this_month(self):
+        """
+        Gets additional PPC fees
+        :return:
+        """
+        if not hasattr(self, '_additional_ppc_fees_this_month'):
+            now = datetime.datetime.now()
+            self._additional_ppc_fees_this_month = self.additional_ppc_fees_month(now.month, now.year)
+        return self._additional_ppc_fees_this_month
+
     @property
     def ppc_ignore_override(self):
         fee = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
@@ -775,6 +794,7 @@ class Client(models.Model):
             hours += self.seo_hours
         if self.has_cro:
             hours += self.cro_hours
+        hours += self.additional_fees_this_month / 125.0
         return round(hours, 2)
 
     @property
@@ -899,12 +919,12 @@ class Client(models.Model):
     @property
     def current_budget(self):
         if not hasattr(self, '_current_budget'):
-            budget = 0.0
-            budget += self.adwords_budget_this_month
-            budget += self.bing_budget_this_month
-            budget += self.facebook_budget_this_month
-
-            budget += self.flex_budget
+            budget = self.aw_budget + self.bing_budget + self.fb_budget
+            # budget += self.adwords_budget_this_month
+            # budget += self.bing_budget_this_month
+            # budget += self.facebook_budget_this_month
+            # 
+            # budget += self.flex_budget
             self._current_budget = budget
 
         return self._current_budget
@@ -1172,20 +1192,32 @@ class Client(models.Model):
     @property
     def underpacing_yesterday(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_yesterday / self.current_budget < 0.95
 
     @property
     def underpacing_average(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_average / self.current_budget < 0.95
+
+    @property
+    def overpacing_yesterday(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_yesterday / self.current_budget > 1.05
+
+    @property
+    def overpacing_average(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_average / self.current_budget > 1.05
 
     @property
     def spend_percentage(self):
         if self.current_budget == 0.0:
             return 0.0
-        return 100.0 * self.current_spend / self.current_budget
+        return 100.0 * self.calculated_spend / self.current_budget
 
     @property
     def is_late_to_onboard(self):
@@ -1455,6 +1487,57 @@ class Client(models.Model):
 
         return members
 
+    @property
+    def budget_updated_this_month(self):
+        """
+        Is the budget updated this month?
+        :return:
+        """
+        now = datetime.datetime.now()
+        return self.budget_updated_month(now.month, now.year)
+
+    def budget_updated_month(self, month, year):
+        """
+        Boolean, returns True if the budget was updated for that month
+        :param month:
+        :param year:
+        :return:
+        """
+        try:
+            budget = BudgetUpdate.objects.get(account=self, month=month, year=year)
+        except BudgetUpdate.DoesNotExist:
+            return False
+        return budget.updated
+
+    @property
+    def additional_fee_objects_this_month(self):
+        now = datetime.datetime.now()
+        return self.additionalfee_set.filter(account=self, month=now.month, year=now.year)
+
+    @property
+    def additional_fees_this_month(self):
+        """
+        Any additional fees this month
+        :return:
+        """
+        if not hasattr(self, '_additional_fees_this_month'):
+            now = datetime.datetime.now()
+            self._additional_fees_this_month = self.additional_fees_month(now.month, now.year)
+        return self._additional_fees_this_month
+
+    def additional_fees_month(self, month, year):
+        """
+        Gets extra fees from a month and year
+        :param month:
+        :param year:
+        :return:
+        """
+        additional_fees = AdditionalFee.objects.filter(account=self, month=month, year=year)
+        total_additional_fee = 0.0
+        for f in additional_fees:
+            total_additional_fee += f.fee
+        return total_additional_fee
+
     remainingBudget = property(get_remaining_budget)
 
     yesterday_spend = property(get_yesterday_spend)
@@ -1472,6 +1555,25 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
+
+
+class AdditionalFee(models.Model):
+    """
+    Add an additional fee to a client for a month
+    """
+    account = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, default=None)
+    name = models.CharField(max_length=255)
+    fee = models.FloatField(default=0.0)
+    month = models.IntegerField(default=0)
+    year = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.account is None:
+            return 'No name account had an additional fee of $' + str(self.fee) + ' in ' + str(self.month) + '/' + str(
+                self.year)
+        return self.account.client_name + ' had an additional fee of $' + str(self.fee) + ' in ' + str(
+            self.month) + '/' + str(self.year)
 
 
 class Budget(models.Model):
@@ -1502,6 +1604,9 @@ class Budget(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return str(self.account) + ' budget'
@@ -1733,6 +1838,8 @@ class Budget(models.Model):
             number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
         else:
             number_of_days = (make_aware(datetime.datetime.now()) - self.start_date).days
+        if number_of_days == 0:
+            return 0
         return self.calculated_yest_spend / number_of_days
 
     @property
@@ -1769,11 +1876,21 @@ class Budget(models.Model):
 
     @property
     def spend_percentage(self):
-        """
-        Percentage of budget spend in this period
-        :return:
-        """
-        return self.calculated_spend * 100.0 / self.budget
+        if self.budget == 0:
+            return 0
+        return 100.0 * self.calculated_spend / self.budget
+
+    @property
+    def underpacing_average(self):
+        if self.budget == 0.0:
+            return False
+        return self.projected_spend_avg / self.budget < 0.95
+
+    @property
+    def overpacing_average(self):
+        if self.budget == 0.0:
+            return False
+        return self.projected_spend_avg / self.budget > 1.00
 
 
 class CampaignExclusions(models.Model):
@@ -1825,6 +1942,7 @@ class BudgetUpdate(models.Model):
     updated = models.BooleanField(default=False)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -2112,3 +2230,6 @@ class TierChangeProposal(models.Model):
     changed_by = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.account) + ' change from ' + str(self.tier_from) + ' to ' + str(self.tier_to)
