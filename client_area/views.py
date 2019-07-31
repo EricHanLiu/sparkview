@@ -17,6 +17,8 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
 from tasks.logger import Logger
+import json
+from django.core.serializers import serialize
 
 
 @login_required
@@ -1875,3 +1877,50 @@ def edit_management_fee_structure(request):
     account.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def get_client_details_objects(request):
+    teams = Team.objects.all()
+    industries = Industry.objects.all()
+
+    data = {
+        'teams': json.loads(serialize('json', teams)),
+        'industries': json.loads(serialize('json', industries)),
+    }
+    return JsonResponse(data)
+
+
+@login_required
+def set_client_details(request):
+    # TODO: add validation
+    account_id = request.POST.get('account_id')
+    bc_link = request.POST.get('bc_link')
+    description = request.POST.get('description')
+    notes = request.POST.get('notes')
+    url = request.POST.get('url')
+    contact_names = request.POST.getlist('contact_names')
+    contact_emails = request.POST.getlist('contact_emails')
+    contact_phones = request.POST.getlist('contact_phones')
+    industry_id = request.POST.get('industry')
+    team_ids = request.POST.getlist('teams')
+
+    account = Client.objects.get(id=account_id)
+    account.bc_link = bc_link
+    account.description = description
+    account.notes = notes
+    account.url = url
+    account.industry = Industry.objects.get(pk=industry_id)
+    teams = Team.objects.filter(pk__in=team_ids)
+    account.team.set(teams)
+
+    for i, contact in enumerate(account.contactInfo.all()):
+        contact.name = contact_names[i]
+        contact.email = contact_emails[i]
+        if contact_phones and contact_phones[i]:
+            contact.phone = contact_phones[i]
+        contact.save()
+
+    account.save()
+
+    return HttpResponse()
