@@ -2181,6 +2181,9 @@
                         location.reload();
                     }, 1000);
                 },
+                error: () => {
+                    toastr.error('Error! Please make sure all the form fields are filled out.');
+                }
             });
         });
 
