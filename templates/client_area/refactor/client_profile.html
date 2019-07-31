@@ -16,9 +16,11 @@
     <script defer
             src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
     <style>
-    .middle-row .card {
-        min-height: 356px;
-    }
+        @media (min-device-width: 1200px) {
+            .middle-row .card {
+                min-height: 356px;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -84,13 +86,15 @@
                     </div>
                     <div class="level-item">
                         <strong>
-                            <a class="button is-rounded is-small button-color" href="/clients/accounts/{{ account.id }}/lifecycle">
+                            <a class="button is-rounded is-small button-color"
+                               href="/clients/accounts/{{ account.id }}/lifecycle">
                                 Lifecycle
                             </a>
                         </strong>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color" id="assign_members_button">Team</a></strong>
+                        <strong><a class="button is-rounded is-small button-color"
+                                   id="assign_members_button">Team</a></strong>
                     </div>
                 </div>
             </div>
@@ -329,7 +333,8 @@
                                                         ${{ interval.lowerBound }} - ${{ interval.upperBound }}
                                                     </td>
                                                     <td>
-                                                        {% if interval.feeStyle == 1 %}${{ interval.fee|format_money }}{% endif %}
+                                                        {% if interval.feeStyle == 1 %}$
+                                                            {{ interval.fee|format_money }}{% endif %}
                                                         {% if interval.feeStyle == 0 %}{{ interval.fee }}%{% endif %}
                                                     </td>
                                                 </tr>
@@ -648,11 +653,11 @@
                                         </div>
                                     </div>
                                 &nbsp;&nbsp;
-                                {% if budget.is_monthly %}
-                                    Monthly Budget - <span class="budget-date" style="margin-left: 0.3em;"></span>
-                                {% else %}
-                                    Flight Dates: {{ budget.pretty_dates }}
-                                {% endif %}
+                                    {% if budget.is_monthly %}
+                                        Monthly Budget - <span class="budget-date" style="margin-left: 0.3em;"></span>
+                                    {% else %}
+                                        Flight Dates: {{ budget.pretty_dates }}
+                                    {% endif %}
                                 </span>
                             </header>
                             <div class="card-content">
@@ -679,9 +684,10 @@
                                 <div class="columns">
                                     <div class="column is-12">
                                         <div class="progress-wrapper">
-                                            <progress class="progress is-large {% if budget.underpacing_average %}is-warning{% elif budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
-                                                      max="100"
-                                                      value="{{ budget.spend_percentage }}">
+                                            <progress
+                                                    class="progress is-large {% if budget.underpacing_average %}is-warning{% elif budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
+                                                    max="100"
+                                                    value="{{ budget.spend_percentage }}">
                                             </progress>
                                             <div class="progress-value">
                                                 {{ budget.spend_percentage|floatformat:2 }}%
