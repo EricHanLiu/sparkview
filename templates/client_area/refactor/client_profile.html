@@ -335,6 +335,10 @@
                                 <strong>Add Promo</strong>
                             </button>
                             <button class="button level-item is-rounded is-small button-color"
+                                    id="edit_promos_button">
+                                <strong>Edit Promos</strong>
+                            </button>
+                            <button class="button level-item is-rounded is-small button-color"
                                     id="view_calendar_button">
                                 <strong>View Calendar</strong>
                             </button>
@@ -2102,6 +2106,10 @@
 
         $('#add_promo_button').click(() => {
             $('#add_promo_modal').addClass('is-active');
+        });
+
+        $('#edit_promos_button').click(() => {
+            location.replace('/clients/promos/edit');
         });
 
         $('#fee_structure_button').click(() => {

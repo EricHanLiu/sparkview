@@ -1723,8 +1723,12 @@ def create_mandate(request):
         cost = request.POST.get('cost')
         hourly_rate = request.POST.get('hourly_rate')
 
-        start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        try:
+            start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+            end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        except ValueError:
+            start_date_dt = datetime.datetime.strptime(start_date, "%m/%d/%Y")
+            end_date_dt = datetime.datetime.strptime(end_date, "%m/%d/%Y")
 
         mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
                                          end_date=end_date_dt,
