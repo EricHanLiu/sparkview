@@ -96,6 +96,10 @@
                         <strong><a class="button is-rounded is-small button-color"
                                    id="assign_members_button">Team</a></strong>
                     </div>
+                    <div class="level-item">
+                        <strong><a class="button is-rounded is-small button-color"
+                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                    </div>
                 </div>
             </div>
             <div class="columns" style="margin-top: 1em;">
@@ -560,6 +564,9 @@
                                 <button class="button button-color is-rounded is-small" id="overall_budget_button">
                                     <strong>Overall Budget</strong>
                                 </button>
+                                <button class="button button-color is-rounded is-small" id="additional_fee_button">
+                                    <strong>Add additional fee</strong>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -745,6 +752,46 @@
                             <label class="label">Bing</label>
                             <input class="input is-fullwidth" name="bing_budget" type="text"
                                    value="{{ account.bing_budget }}"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="additional_fee_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Add Additional Fee</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="add_additional_fee_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <form id="overall_budget_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns is-multiline">
+                        <div class="column is-6">
+                            <label class="label">Name</label>
+                            <input class="input is-fullwidth" name="name" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Budget</label>
+                            <input class="input is-fullwidth" name="budget" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Start Date</label>
+                            <input class="input is-fullwidth datepicker-here" data-time-format="hh:ii"
+                                   data-language="en" name="start_date" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">End Date</label>
+                            <input class="input is-fullwidth datepicker-here" data-time-format="hh:ii"
+                                   data-language="en" name="end_date" type="text"/>
                         </div>
                     </div>
                 </form>
@@ -1890,6 +1937,10 @@
 
         $('#overall_budget_button').click(() => {
             $('#overall_budget_modal').addClass('is-active');
+        });
+
+        $('#additional_fee_button').click(() => {
+            $('#additional_fee_modal').addClass('is-active');
         });
 
         $('#add_promo_button').click(() => {
