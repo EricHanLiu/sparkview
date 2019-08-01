@@ -114,7 +114,7 @@ p {
     font-weight: bold;
 }
 
-.progress.is-large+.progress-value {
+.progress.is-large + .progress-value {
     font-size: calc(1.25rem / 1.5);
     line-height: 1.5rem;
 }
@@ -127,4 +127,12 @@ p {
     position: absolute;
     top: 0;
     left: 1%;
+}
+
+.budget-renewal-overlay {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    top: 0;
+    left: 0;
 }

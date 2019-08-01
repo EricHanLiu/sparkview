@@ -707,7 +707,7 @@ def account_single(request, account_id):
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
         now = datetime.datetime.now()
-        years = [str(i) for i in range(2018, now.year + 2)]
+        years = [i for i in range(2018, now.year + 2)]
 
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
@@ -738,7 +738,7 @@ def account_single(request, account_id):
             'months': months,
             'monthnow': str(now.month),
             'years': years,
-            'current_year': str(now.year),
+            'current_year': now.year,
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView'
@@ -897,7 +897,7 @@ def account_assign_members(request):
     # This is terrible boilerplate
     # CMS
     cm1_id = request.POST.get('cm1_assign')
-    if cm1_id == '0':
+    if cm1_id == '0' or cm1_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm1_id)
@@ -905,10 +905,11 @@ def account_assign_members(request):
     if cm1_percent is None or cm1_percent == '':
         cm1_percent = 0
     account.cm1percent = cm1_percent
-    account.cm1 = member
+    if request.user.is_staff:
+        account.cm1 = member
 
     cm2_id = request.POST.get('cm2_assign')
-    if cm2_id == '0':
+    if cm2_id == '0' or cm2_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm2_id)
@@ -916,10 +917,11 @@ def account_assign_members(request):
     if cm2_percent is None or cm2_percent == '':
         cm2_percent = 0
     account.cm2percent = cm2_percent
-    account.cm2 = member
+    if request.user.is_staff:
+        account.cm2 = member
 
     cm3_id = request.POST.get('cm3_assign')
-    if cm3_id == '0':
+    if cm3_id == '0' or cm3_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm3_id)
@@ -927,11 +929,12 @@ def account_assign_members(request):
     if cm3_percent is None or cm3_percent == '':
         cm3_percent = 0
     account.cm3percent = cm3_percent
-    account.cm3 = member
+    if request.user.is_staff:
+        account.cm3 = member
 
     # AMs
     am1_id = request.POST.get('am1_assign')
-    if am1_id == '0':
+    if am1_id == '0' or am1_id is None:
         member = None
     else:
         member = Member.objects.get(id=am1_id)
@@ -939,10 +942,11 @@ def account_assign_members(request):
     if am1_percent is None or am1_percent == '':
         am1_percent = 0
     account.am1percent = am1_percent
-    account.am1 = member
+    if request.user.is_staff:
+        account.am1 = member
 
     am2_id = request.POST.get('am2_assign')
-    if am2_id == '0':
+    if am2_id == '0' or am2_id is None:
         member = None
     else:
         member = Member.objects.get(id=am2_id)
@@ -950,10 +954,11 @@ def account_assign_members(request):
     if am2_percent is None or am2_percent == '':
         am2_percent = 0
     account.am2percent = am2_percent
-    account.am2 = member
+    if request.user.is_staff:
+        account.am2 = member
 
     am3_id = request.POST.get('am3_assign')
-    if am3_id == '0':
+    if am3_id == '0' or am3_id is None:
         member = None
     else:
         member = Member.objects.get(id=am3_id)
@@ -961,11 +966,12 @@ def account_assign_members(request):
     if am3_percent is None or am3_percent == '':
         am3_percent = 0
     account.am3percent = am3_percent
-    account.am3 = member
+    if request.user.is_staff:
+        account.am3 = member
 
     # SEO
     seo1_id = request.POST.get('seo1_assign')
-    if seo1_id == '0':
+    if seo1_id == '0' or seo1_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo1_id)
@@ -973,10 +979,11 @@ def account_assign_members(request):
     if seo1_percent is None or seo1_percent == '':
         seo1_percent = 0
     account.seo1percent = seo1_percent
-    account.seo1 = member
+    if request.user.is_staff:
+        account.seo1 = member
 
     seo2_id = request.POST.get('seo2_assign')
-    if seo2_id == '0':
+    if seo2_id == '0' or seo2_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo2_id)
@@ -984,10 +991,11 @@ def account_assign_members(request):
     if seo2_percent is None or seo2_percent == '':
         seo2_percent = 0
     account.seo2percent = seo2_percent
-    account.seo2 = member
+    if request.user.is_staff:
+        account.seo2 = member
 
     seo3_id = request.POST.get('seo3_assign')
-    if seo3_id == '0':
+    if seo3_id == '0' or seo3_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo3_id)
@@ -995,41 +1003,45 @@ def account_assign_members(request):
     if seo3_percent is None or seo3_percent == '':
         seo3_percent = 0
     account.seo3percent = seo3_percent
-    account.seo3 = member
+    if request.user.is_staff:
+        account.seo3 = member
 
     # Strat
-    srtat1_id = request.POST.get('strat1_assign')
-    if srtat1_id == '0':
+    strat1_id = request.POST.get('strat1_assign')
+    if strat1_id == '0' or strat1_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat1_id)
+        member = Member.objects.get(id=strat1_id)
     strat1_percent = request.POST.get('strat1_percent')
     if strat1_percent is None or strat1_percent == '':
         strat1_percent = 0
     account.strat1percent = strat1_percent
-    account.strat1 = member
+    if request.user.is_staff:
+        account.strat1 = member
 
-    srtat2_id = request.POST.get('strat2_assign')
-    if srtat2_id == '0':
+    strat2_id = request.POST.get('strat2_assign')
+    if strat2_id == '0' or strat2_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat2_id)
+        member = Member.objects.get(id=strat2_id)
     strat2_percent = request.POST.get('strat2_percent')
     if strat2_percent is None or strat2_percent == '':
         strat2_percent = 0
     account.strat2percent = strat2_percent
-    account.strat2 = member
+    if request.user.is_staff:
+        account.strat2 = member
 
-    srtat3_id = request.POST.get('strat3_assign')
-    if srtat3_id == '0':
+    strat3_id = request.POST.get('strat3_assign')
+    if strat3_id == '0' or strat3_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat3_id)
+        member = Member.objects.get(id=strat3_id)
     strat3_percent = request.POST.get('strat3_percent')
     if strat3_percent is None or strat3_percent == '':
         strat3_percent = 0
     account.strat3percent = strat3_percent
-    account.strat3 = member
+    if request.user.is_staff:
+        account.strat3 = member
 
     account.save()
 

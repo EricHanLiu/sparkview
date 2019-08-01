@@ -228,6 +228,8 @@ CRONJOBS = [
     ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
     ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
     ('55 7 * * *', 'budget.cron.reset_all_campaign_spends', '> ' + BASE_DIR + '/logs/reset_all_campaign_spends.log'),
+    ('00 7 1 * *', 'budget.cron.reset_all_budget_renewal_needs',
+     '> ' + BASE_DIR + '/logs/reset_all_budget_renewal_needs.log'),
 
     ('00 * * * *', 'adwords_dashboard.cron.get_all_spends_by_campaign_this_month',
      '> ' + BASE_DIR + '/logs/google_get_all_spends_by_campaign_this_month.log'),
