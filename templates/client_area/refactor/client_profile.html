@@ -2179,7 +2179,7 @@
         });
 
         $('#edit_promos_button').click(() => {
-            location.replace('/clients/promos/edit');
+            location.href = '/clients/promos/edit';
         });
 
         $('#fee_structure_button').click(() => {
@@ -2613,7 +2613,6 @@
             let now = new Date();
             let today = now.getDate();
             let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            console.log(today, daysInMonth);
             let percentage = today * 100.0 / daysInMonth;
             percentage = parseFloat(percentage).toFixed(2).toString();
             $('.budget-pacer').css('left', percentage + '%');
