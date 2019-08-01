@@ -52,7 +52,7 @@ def prepare_todos():
 
         for notification in notifications:
             description = notification.message
-            if 'Phase' in description:
+            if 'Phase' in description or 'task' in description:
                 continue
             link = notification.link
             Todo.objects.create(member=member, description=description, link=link, type=2)
