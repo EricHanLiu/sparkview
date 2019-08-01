@@ -2,7 +2,7 @@ from bloom import celery_app, settings
 from adwords_dashboard.models import Campaign
 from facebook_dashboard.models import FacebookCampaign
 from bing_dashboard.models import BingCampaign
-from .models import Budget
+from budget.models import Budget
 
 
 def reset_all_campaign_spends():

@@ -1435,7 +1435,8 @@ class Client(models.Model):
         today = datetime.date.today() - relativedelta(days=1)
         last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         remaining_days = last_day.day - today.day
-
+        if remaining_days == 0:
+            return self.budget_remaining
         return round(self.budget_remaining / remaining_days, 2)
 
     # Recommended daily spend for clients with flex budget
