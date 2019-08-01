@@ -1879,7 +1879,7 @@ def edit_management_details(request):
         if inactive_bc != '':
             account.inactive_bc_link = inactive_bc
         if inactive_return != '':
-            account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%Y-%m-%d')
+            account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%m/%d/%Y')
         staff_users = User.objects.filter(is_staff=True)
         staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
         account.save()
