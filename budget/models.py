@@ -1602,6 +1602,7 @@ class Budget(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
+    needs_renewing = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['name']
