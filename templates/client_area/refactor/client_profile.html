@@ -707,7 +707,10 @@
                                     <select name="account_inactive_reason" id="account_inactive_reason" disabled>
                                         <option value="0" selected>None</option>
                                         {% for num, name in inactive_reasons %}
-                                            <option value="{{ num }}">{{ name }}</option>
+                                            <option value="{{ num }}"
+                                                    {% if num == account.inactive_reason %}selected{% endif %}>
+                                                {{ name }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -716,7 +719,7 @@
                                 <label class="label">Returning From Inactive (If Applicable)</label>
                                 <input type="text" class="input datepicker-here" placeholder="Set return date here"
                                        name="account_inactive_return" id="account_inactive_return" disabled
-                                       data-language="en">
+                                       data-language="en" value="{{ account.inactive_return_date|date:'m/d/Y' }}">
                             </div>
                             <div class="column">
                                 <label class="label">Reason Lost</label>
@@ -724,7 +727,10 @@
                                     <select name="account_lost_reason" id="account_lost_reason" disabled>
                                         <option value="0" selected>None</option>
                                         {% for num, name in lost_reasons %}
-                                            <option value="{{ num }}">{{ name }}</option>
+                                            <option value="{{ num }}"
+                                                    {% if num == account.lost_reason %}selected{% endif %}>
+                                                {{ name }}
+                                            </option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -732,20 +738,20 @@
                         </div>
                     </div>
                     {% if request.user.is_staff %}
-                    <div class="field">
-                        <div class="columns">
-                            <div class="column">
-                                <label class="label">Management Fee Override</label>
-                                <input type="text" name="fee_override" class="input"
-                                       value="{{ account.management_fee_override }}">
-                            </div>
-                            <div class="column">
-                                <label class="label">Allocated PPC Hours Override</label>
-                                <input type="text" name="hours_override" class="input"
-                                       value="{{ account.allocated_ppc_override }}">
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column">
+                                    <label class="label">Management Fee Override</label>
+                                    <input type="text" name="fee_override" class="input"
+                                           value="{{ account.management_fee_override }}">
+                                </div>
+                                <div class="column">
+                                    <label class="label">Allocated PPC Hours Override</label>
+                                    <input type="text" name="hours_override" class="input"
+                                           value="{{ account.allocated_ppc_override }}">
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endif %}
                     <h5 class="title is-5" style="margin-top: 1em;">
                         Existing Fee Structure - {{ account.managementFee.name }}
@@ -2781,6 +2787,7 @@
                     {% endfor %}
                 ]
             });
+
             // budget pacer calculations
             let now = new Date();
             let today = now.getDate();
@@ -2789,6 +2796,20 @@
             percentage = parseFloat(percentage).toFixed(2).toString();
             $('.budget-pacer').css('left', percentage + '%');
             $('.budget-date').text(today + '/' + daysInMonth);
+
+            // account management status row
+            let status = $statusSelect.val();
+            if (status === '2') {
+                $inactiveReason.prop('disabled', false);
+                $inactiveReturn.prop('disabled', false);
+                $lostReason.prop('disabled', true);
+                $statusRow.show();
+            } else if (status === '3') {
+                $inactiveReason.prop('disabled', true);
+                $inactiveReturn.prop('disabled', true);
+                $lostReason.prop('disabled', false);
+                $statusRow.show();
+            }
         });
 
 
