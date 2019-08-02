@@ -346,7 +346,7 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
-        extra_fees = self.extra_fees_month(month, year)
+        # extra_fees = self.extra_fees_month(month, year)
         return hours
 
     def value_hours_month_year(self, month, year):
