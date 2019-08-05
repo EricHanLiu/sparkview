@@ -40,7 +40,8 @@ class Client(models.Model):
     INACTIVE_CHOICES = [(0, 'PO pending from client'),
                         (1, 'Website being worked on'),
                         (2, 'New budget pending from client'),
-                        (3, 'Other')]
+                        (3, 'Late onboarding'),
+                        (4, 'Other')]
 
     LOST_CHOICES = [(0, 'Poor Performance'),
                     (1, 'Mandate Over'),
