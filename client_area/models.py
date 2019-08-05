@@ -646,6 +646,28 @@ class Mandate(models.Model):
             return 'Ongoing'
         return self.end_date.strftime('%b %d, %Y')
 
+    @property
+    def hours_worked_this_month(self):
+        """
+        Gives total number of hours worked on this mandate this month
+        :return:
+        """
+        if not hasattr(self, '_hours_worked_this_month'):
+            now = datetime.datetime.now()
+            hour_records = MandateHourRecord.objects.filter(assignment__mandate=self, month=now.month, year=now.year)
+            hours = 0.0
+            for hour_record in hour_records:
+                hours += hour_record.hours
+            self._hours_worked_this_month = hours
+        return self._hours_worked_this_month
+
+    @property
+    def allocated_hours_this_month(self):
+        if not hasattr(self, '_allocated_hours_this_month'):
+            now = datetime.datetime.now()
+            self._allocated_hours_this_month = self.hours_in_month(now.month, now.year)
+        return self._allocated_hours_this_month
+
     def hours_in_month(self, month, year):
         if self.ongoing:
             return self.calculated_ongoing_hours

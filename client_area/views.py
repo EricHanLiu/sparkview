@@ -1703,21 +1703,17 @@ def create_mandate(request):
     except MandateType.DoesNotExist:
         return HttpResponse('Invalid mandate type')
 
-    print('HERE')
-    print(request.POST)
-    print('ongoing_check' in request.POST)
     # Check if its an ongoing mandate or not
     if 'ongoing_check' in request.POST:
         hourly_rate = request.POST.get('monthly_hourly_rate')
         if 'hourly_check' in request.POST:
             hours = request.POST.get('monthly_hours')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_hours=hours,
-                                             mandate_type=mandate_type, account=account)
+                                             mandate_type=mandate_type, account=account, billing_style=0)
         else:
-            print('good spot here')
             cost = request.POST.get('monthly_cost')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_cost=cost,
-                                             mandate_type=mandate_type, account=account)
+                                             mandate_type=mandate_type, account=account, billing_style=1)
     else:
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
@@ -1726,11 +1722,11 @@ def create_mandate(request):
         hourly_rate = request.POST.get('hourly_rate')
 
         try:
-            start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-            end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+            start_date_dt = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+            end_date_dt = datetime.datetime.strptime(end_date, '%Y-%m-%d')
         except ValueError:
-            start_date_dt = datetime.datetime.strptime(start_date, "%m/%d/%Y")
-            end_date_dt = datetime.datetime.strptime(end_date, "%m/%d/%Y")
+            start_date_dt = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+            end_date_dt = datetime.datetime.strptime(end_date, '%m/%d/%Y')
 
         mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
                                          end_date=end_date_dt,

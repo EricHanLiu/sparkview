@@ -139,39 +139,6 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-                {% for assignment in account.active_mandate_assignments %}
-                    {% with assigned_member=assignment.member %}
-                        <div class="column is-2">
-                            <div class="card has-background-light member-card">
-                                <div class="has-text-centered">
-                                    <img {% if assigned_member.image != None %}src="{% static 'img/bloomers/'|add:assigned_member.image %}"
-                                         {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}width="75%"/>
-                                </div>
-                                <div class="card-content" style="margin-top: 1em; position: relative;">
-                                    <div class="media">
-                                        <div class="media-content">
-                                            <div class="tag member-role-tag is-rounded strat-color">
-                                                Mandate
-                                            </div>
-                                            <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
-                                                {% if request.user.is_staff %}
-                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
-                                                        {{ assigned_member.user.get_full_name }}
-                                                    </a>
-                                                {% else %}
-                                                    {{ assigned_member.user.get_full_name }}
-                                                {% endif %}
-                                            </p>
-                                            <p class="subtitle is-6 has-text-centered">
-                                                {{ assignment.worked_this_month }}/{{ assignment.hours }}hr
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endwith %}
-                {% endfor %}
             </div>
         </div>
         <div class="column is-4">
@@ -224,7 +191,7 @@
         </div>
     </div>
     <div class="columns middle-row">
-        <div class="column is-4">
+        <div class="column is-5">
             <div class="card page-card" id="services_card">
                 <div class="card-content">
                     <div class="level">
@@ -313,6 +280,8 @@
                                 <th>
                                     Members
                                 </th>
+                                <th>Hours</th>
+                                <th></th>
                             </tr>
                             <tbody>
                             {% for mandate in account.active_mandates %}
@@ -331,6 +300,15 @@
                                             {{ assignment.member }}{% if not forloop.last %},{% endif %}
                                         {% endfor %}
                                     </td>
+                                    <td>
+                                        {{ mandate.hours_worked_this_month }} / {{ mandate.allocated_hours_this_month }}
+                                    </td>
+                                    <td>
+                                        <button class="button is-danger is-outlined is-small delete-mandate-btn"
+                                                data-budget-id="{{ mandate.id }}" data-budget-name="{{ mandate.name }}">
+                                            Delete
+                                        </button>
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -339,7 +317,7 @@
                 </div>
             </div>
         </div>
-        <div class="column is-4">
+        <div class="column is-3">
             <div class="card page-card">
                 <div class="card-content">
                     <h5 class="title is-5">Monthly Hours Information</h5>
@@ -1641,7 +1619,8 @@
                             <div class="field">
                                 <label class="label">Budget Name</label>
                                 <div class="control">
-                                    <input class="input" type="text" placeholder="Budget Name" name="budget_name">
+                                    <input class="input" type="text" placeholder="Budget Name" name="budget_name"
+                                           required>
                                 </div>
                             </div>
                         </div>
@@ -1650,7 +1629,7 @@
                                 <label class="label">Budget</label>
                                 <div class="control">
                                     <input class="input" type="text" placeholder="Budget (in dollars)"
-                                           name="budget_amount">
+                                           name="budget_amount" required>
                                 </div>
                             </div>
                         </div>
@@ -1733,11 +1712,13 @@
                             <hr/>
                             <div class="control">
                                 <label class="radio">
-                                    <input type="radio" name="time_period" value="monthly" id="monthly_time_period">
+                                    <input type="radio" name="time_period" value="monthly" id="monthly_time_period"
+                                           required>
                                     Monthly
                                 </label>
                                 <label class="radio">
-                                    <input type="radio" name="time_period" value="flight" id="flight_time_period">
+                                    <input type="radio" name="time_period" value="flight" id="flight_time_period"
+                                           required>
                                     Flight
                                 </label>
                             </div>

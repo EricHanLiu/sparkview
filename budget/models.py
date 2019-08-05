@@ -777,7 +777,7 @@ class Client(models.Model):
     @property
     def ppc_ignore_override(self):
         hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
-        if self.status == 0 and self.managementFee is not None:
+        if self.is_onboarding_ppc and self.managementFee is not None:
             hours += (self.managementFee.initialFee / 125.0)
         return hours
 

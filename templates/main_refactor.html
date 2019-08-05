@@ -24,6 +24,21 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}" />
+
+    {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      {% if request.user.is_authenticated %}
+      gtag('set', {'user_id': '{{ request.user.member.id }}'});
+      {% endif %}
+      gtag('config', 'UA-127221597-1');
+    </script>
+    {% endif %}
+
     <style>
         html body {
             font-family: 'Rubik', sans-serif;
