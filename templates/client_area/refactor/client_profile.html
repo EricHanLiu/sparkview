@@ -562,7 +562,8 @@
                                             <div class="progress-value">
                                                 {{ budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer"></div>
+                                            <div class="budget-pacer" data-is-monthly="{{ budget.is_monthly }}"
+                                                 data-start-date="{{ budget.start_date }}" data-end-date="{{ budget.end_date }}"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -2786,9 +2787,26 @@
             let now = new Date();
             let today = now.getDate();
             let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            let percentage = today * 100.0 / daysInMonth;
-            percentage = parseFloat(percentage).toFixed(2).toString();
-            $('.budget-pacer').css('left', percentage + '%');
+            const MSPERDAY = 1000*60*60*24;
+            $('.budget-pacer').each(function () {
+                let isMonthly = $(this).data('is-monthly') === 'True';
+                let percentage;
+                if (isMonthly) {
+                    percentage = today * 100.0 / daysInMonth;
+                } else {
+                    // flight budget
+                    let startDate = $(this).data('start-date');
+                    let endDate = $(this).data('end-date');
+                    // convert to js dates
+                    startDate = new Date(startDate.replace(', midnight', ''));
+                    endDate = new Date(endDate.replace(', 11:59 p.m.', ''));
+                    let daysInDateRange = Math.round(endDate - startDate) / MSPERDAY;  // dateRange is a ms object
+                    let daysElapsed = Math.round((now - startDate) / MSPERDAY);
+                    percentage = daysElapsed * 100 / daysInDateRange;
+                }
+                percentage = parseFloat(percentage).toFixed(2).toString();
+                $(this).css('left', percentage + '%');
+            });
             $('.budget-date').text(today + '/' + daysInMonth);
 
             // account management status row
