@@ -37,6 +37,7 @@ def reset_google_ads_campaign(self, cmp_id):
     except Campaign.DoesNotExist:
         return
 
+    print('Resetting adwords campaign: ' + str(cmp))
     cmp.campaign_yesterday_cost = 0
     cmp.spend_until_yesterday = 0
     cmp.campaign_cost = 0
@@ -50,6 +51,7 @@ def reset_facebook_campaign(self, cmp_id):
     except FacebookCampaign.DoesNotExist:
         return
 
+    print('Resetting adwords campaign: ' + str(cmp))
     cmp.campaign_yesterday_cost = 0
     cmp.spend_until_yesterday = 0
     cmp.campaign_cost = 0
@@ -63,6 +65,7 @@ def reset_bing_campaign(self, cmp_id):
     except BingCampaign.DoesNotExist:
         return
 
+    print('Resetting adwords campaign: ' + str(cmp))
     cmp.campaign_yesterday_cost = 0
     cmp.spend_until_yesterday = 0
     cmp.campaign_cost = 0

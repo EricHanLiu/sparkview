@@ -139,6 +139,39 @@
                         </div>
                     {% endif %}
                 {% endfor %}
+                {% for assignment in account.active_mandate_assignments %}
+                    {% with assigned_member=assignment.member %}
+                        <div class="column is-2">
+                            <div class="card has-background-light member-card">
+                                <div class="has-text-centered">
+                                    <img {% if assigned_member.image != None %}src="{% static 'img/bloomers/'|add:assigned_member.image %}"
+                                         {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}width="75%"/>
+                                </div>
+                                <div class="card-content" style="margin-top: 1em; position: relative;">
+                                    <div class="media">
+                                        <div class="media-content">
+                                            <div class="tag member-role-tag is-rounded strat-color">
+                                                Mandate
+                                            </div>
+                                            <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ assigned_member.member.id }}">
+                                                        {{ assigned_member.user.get_full_name }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ assigned_member.user.get_full_name }}
+                                                {% endif %}
+                                            </p>
+                                            <p class="subtitle is-6 has-text-centered">
+                                                {{ assignment.worked_this_month }}/{{ assignment.hours }}hr
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
             </div>
         </div>
         <div class="column is-4">
