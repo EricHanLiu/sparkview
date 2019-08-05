@@ -1509,12 +1509,11 @@ def set_services(request):
     except ValueError:
         cro = 6
 
-    status_range = range(0, len(sales_profile.STATUS_CHOICES))
-    if ppc is not None and ppc in status_range:
+    if ppc is not None:
         sales_profile.ppc_status = ppc
-    if seo is not None and seo in status_range:
+    if seo is not None:
         sales_profile.seo_status = seo
-    if cro is not None and cro in status_range:
+    if cro is not None:
         sales_profile.cro_status = cro
 
     sales_profile.save()
