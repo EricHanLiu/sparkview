@@ -707,7 +707,7 @@ def account_single(request, account_id):
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
         now = datetime.datetime.now()
-        years = [str(i) for i in range(2018, now.year + 2)]
+        years = [i for i in range(2018, now.year + 2)]
 
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
@@ -718,10 +718,15 @@ def account_single(request, account_id):
 
         management_fee_structures = ManagementFeesStructure.objects.all()
 
+        inactive_reasons = Client.INACTIVE_CHOICES
+        lost_reasons = Client.LOST_CHOICES
+
         context = {
             'account': account,
             'members': members,
             'backups': backups,
+            'inactive_reasons': inactive_reasons,
+            'lost_reasons': lost_reasons,
             'management_fee_structures': management_fee_structures,
             'accountHoursMember': accountsHoursThisMonthByMember,
             'value_hours_member': accountsValueHoursThisMonthByMember,
@@ -738,7 +743,7 @@ def account_single(request, account_id):
             'months': months,
             'monthnow': str(now.month),
             'years': years,
-            'current_year': str(now.year),
+            'current_year': now.year,
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView'
@@ -897,7 +902,7 @@ def account_assign_members(request):
     # This is terrible boilerplate
     # CMS
     cm1_id = request.POST.get('cm1_assign')
-    if cm1_id == '0':
+    if cm1_id == '0' or cm1_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm1_id)
@@ -905,10 +910,11 @@ def account_assign_members(request):
     if cm1_percent is None or cm1_percent == '':
         cm1_percent = 0
     account.cm1percent = cm1_percent
-    account.cm1 = member
+    if request.user.is_staff:
+        account.cm1 = member
 
     cm2_id = request.POST.get('cm2_assign')
-    if cm2_id == '0':
+    if cm2_id == '0' or cm2_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm2_id)
@@ -916,10 +922,11 @@ def account_assign_members(request):
     if cm2_percent is None or cm2_percent == '':
         cm2_percent = 0
     account.cm2percent = cm2_percent
-    account.cm2 = member
+    if request.user.is_staff:
+        account.cm2 = member
 
     cm3_id = request.POST.get('cm3_assign')
-    if cm3_id == '0':
+    if cm3_id == '0' or cm3_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm3_id)
@@ -927,11 +934,12 @@ def account_assign_members(request):
     if cm3_percent is None or cm3_percent == '':
         cm3_percent = 0
     account.cm3percent = cm3_percent
-    account.cm3 = member
+    if request.user.is_staff:
+        account.cm3 = member
 
     # AMs
     am1_id = request.POST.get('am1_assign')
-    if am1_id == '0':
+    if am1_id == '0' or am1_id is None:
         member = None
     else:
         member = Member.objects.get(id=am1_id)
@@ -939,10 +947,11 @@ def account_assign_members(request):
     if am1_percent is None or am1_percent == '':
         am1_percent = 0
     account.am1percent = am1_percent
-    account.am1 = member
+    if request.user.is_staff:
+        account.am1 = member
 
     am2_id = request.POST.get('am2_assign')
-    if am2_id == '0':
+    if am2_id == '0' or am2_id is None:
         member = None
     else:
         member = Member.objects.get(id=am2_id)
@@ -950,10 +959,11 @@ def account_assign_members(request):
     if am2_percent is None or am2_percent == '':
         am2_percent = 0
     account.am2percent = am2_percent
-    account.am2 = member
+    if request.user.is_staff:
+        account.am2 = member
 
     am3_id = request.POST.get('am3_assign')
-    if am3_id == '0':
+    if am3_id == '0' or am3_id is None:
         member = None
     else:
         member = Member.objects.get(id=am3_id)
@@ -961,11 +971,12 @@ def account_assign_members(request):
     if am3_percent is None or am3_percent == '':
         am3_percent = 0
     account.am3percent = am3_percent
-    account.am3 = member
+    if request.user.is_staff:
+        account.am3 = member
 
     # SEO
     seo1_id = request.POST.get('seo1_assign')
-    if seo1_id == '0':
+    if seo1_id == '0' or seo1_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo1_id)
@@ -973,10 +984,11 @@ def account_assign_members(request):
     if seo1_percent is None or seo1_percent == '':
         seo1_percent = 0
     account.seo1percent = seo1_percent
-    account.seo1 = member
+    if request.user.is_staff:
+        account.seo1 = member
 
     seo2_id = request.POST.get('seo2_assign')
-    if seo2_id == '0':
+    if seo2_id == '0' or seo2_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo2_id)
@@ -984,10 +996,11 @@ def account_assign_members(request):
     if seo2_percent is None or seo2_percent == '':
         seo2_percent = 0
     account.seo2percent = seo2_percent
-    account.seo2 = member
+    if request.user.is_staff:
+        account.seo2 = member
 
     seo3_id = request.POST.get('seo3_assign')
-    if seo3_id == '0':
+    if seo3_id == '0' or seo3_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo3_id)
@@ -995,41 +1008,45 @@ def account_assign_members(request):
     if seo3_percent is None or seo3_percent == '':
         seo3_percent = 0
     account.seo3percent = seo3_percent
-    account.seo3 = member
+    if request.user.is_staff:
+        account.seo3 = member
 
     # Strat
-    srtat1_id = request.POST.get('strat1_assign')
-    if srtat1_id == '0':
+    strat1_id = request.POST.get('strat1_assign')
+    if strat1_id == '0' or strat1_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat1_id)
+        member = Member.objects.get(id=strat1_id)
     strat1_percent = request.POST.get('strat1_percent')
     if strat1_percent is None or strat1_percent == '':
         strat1_percent = 0
     account.strat1percent = strat1_percent
-    account.strat1 = member
+    if request.user.is_staff:
+        account.strat1 = member
 
-    srtat2_id = request.POST.get('strat2_assign')
-    if srtat2_id == '0':
+    strat2_id = request.POST.get('strat2_assign')
+    if strat2_id == '0' or strat2_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat2_id)
+        member = Member.objects.get(id=strat2_id)
     strat2_percent = request.POST.get('strat2_percent')
     if strat2_percent is None or strat2_percent == '':
         strat2_percent = 0
     account.strat2percent = strat2_percent
-    account.strat2 = member
+    if request.user.is_staff:
+        account.strat2 = member
 
-    srtat3_id = request.POST.get('strat3_assign')
-    if srtat3_id == '0':
+    strat3_id = request.POST.get('strat3_assign')
+    if strat3_id == '0' or strat3_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat3_id)
+        member = Member.objects.get(id=strat3_id)
     strat3_percent = request.POST.get('strat3_percent')
     if strat3_percent is None or strat3_percent == '':
         strat3_percent = 0
     account.strat3percent = strat3_percent
-    account.strat3 = member
+    if request.user.is_staff:
+        account.strat3 = member
 
     account.save()
 
@@ -1492,12 +1509,11 @@ def set_services(request):
     except ValueError:
         cro = 6
 
-    status_range = range(0, len(sales_profile.STATUS_CHOICES))
-    if ppc is not None and ppc in status_range:
+    if ppc is not None:
         sales_profile.ppc_status = ppc
-    if seo is not None and seo in status_range:
+    if seo is not None:
         sales_profile.seo_status = seo
-    if cro is not None and cro in status_range:
+    if cro is not None:
         sales_profile.cro_status = cro
 
     sales_profile.save()
@@ -1832,7 +1848,7 @@ def set_pitch(request):
     return redirect('/clients/accounts/' + str(account.id))
 
 
-def edit_management_fee_structure(request):
+def edit_management_details(request):
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id):
@@ -1840,13 +1856,146 @@ def edit_management_fee_structure(request):
 
     account = get_object_or_404(Client, id=account_id)
 
+    seo_hours = request.POST.get('seo_hours')
+    cro_hours = request.POST.get('cro_hours')
+    old_status = account.status
+    account.status = int(request.POST.get('account_status'))
+
+    if old_status != 2 and account.status == 2:
+        """
+        Account is now inactive
+        """
+        inactive_reason = request.POST.get('account_inactive_reason')
+        inactive_bc = request.POST.get('inactive_bc')
+        inactive_return = request.POST.get('account_inactive_return')
+        if inactive_return != '0':
+            account.inactive_reason = inactive_reason
+
+        if inactive_bc != '':
+            account.inactive_bc_link = inactive_bc
+        if inactive_return != '':
+            account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%m/%d/%Y')
+        staff_users = User.objects.filter(is_staff=True)
+        staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+        account.save()
+        message = str(account.client_name) + ' is now inactive (paused).'
+        for staff_member in staff_members:
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+        logger = Logger()
+        short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
+        logger.send_account_lost_email(short_desc, message)
+
+        sp = account.sales_profile
+
+        if sp.ppc_status == 1:
+            sp.ppc_status = 2
+        if sp.seo_status == 1:
+            sp.seo_status = 2
+        if sp.cro_status == 1:
+            sp.cro_status = 2
+        sp.save()
+
+        event_description = account.client_name + ' was set to inactive. The reason is ' + str(
+            inactive_reason) + '.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=3, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+    if old_status != 3 and account.status == 3:
+        """
+        Account is now lost
+        """
+        lost_reason = request.POST.get('account_lost_reason')
+        if lost_reason != '0':
+            account.lost_reason = lost_reason
+        lost_bc = request.POST.get('lost_bc')
+        if lost_bc != '':
+            account.lost_bc_link = lost_bc
+        staff_users = User.objects.filter(is_staff=True)
+        staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+        message = str(account.client_name) + ' has been lost.'
+        account.save()
+        for staff_member in staff_members:
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+        logger = Logger()
+        print(account.get_lost_reason_display())
+        short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
+        logger.send_account_lost_email(short_desc, message)
+
+        sp = account.sales_profile
+
+        if sp.ppc_status == 1:
+            sp.ppc_status = 2
+        if sp.seo_status == 1:
+            sp.seo_status = 2
+        if sp.cro_status == 1:
+            sp.cro_status = 2
+        sp.save()
+
+        event_description = account.client_name + ' was set to lost. The reason is ' + str(
+            lost_reason) + '.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=5, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+    fee_override = request.POST.get('fee_override')
+    hours_override = request.POST.get('hours_override')
+
+    if request.user.is_staff:
+        if fee_override != 'None':
+            account.management_fee_override = float(fee_override)
+        if hours_override != 'None':
+            account.allocated_ppc_override = float(hours_override)
+        else:
+            account.allocated_ppc_override = None
+
+    sp, created = SalesProfile.objects.get_or_create(account=account)
+
+    if seo_hours != '' and float(seo_hours) != 0.0:
+        sp.seo_status = 1
+        account.seo_hours = seo_hours
+    else:
+        if sp.seo_status != 2:
+            sp.seo_status = 6
+            account.seo_hours = 0.0
+
+    if cro_hours != '' and float(cro_hours) != 0.0:
+        sp.cro_status = 1
+        account.cro_hours = cro_hours
+    else:
+        if sp.cro_status != 2:
+            sp.cro_status = 6
+            account.cro_hours = 0.0
+
+    sp.save()
+
     # Make management fee structure
-    if request.user.is_staff and request.method == 'POST':
+    fee_structure_name = request.POST.get('fee_structure_name')
+    if request.user.is_staff and request.method == 'POST' and fee_structure_name != '':
         fee_create_or_existing = request.POST.get('fee_structure_type')
         if fee_create_or_existing == '1':
             # Create new management fee
             number_of_tiers = request.POST.get('row_num_input')
-            fee_structure_name = request.POST.get('fee_structure_name')
             init_fee = request.POST.get('setup_fee')
             management_fee_structure = ManagementFeesStructure()
             management_fee_structure.name = fee_structure_name
@@ -1891,6 +2040,7 @@ def get_client_details_objects(request):
 def set_client_details(request):
     # TODO: add validation
     account_id = request.POST.get('account_id')
+    account_name = request.POST.get('account_name')
     bc_link = request.POST.get('bc_link')
     description = request.POST.get('description')
     notes = request.POST.get('notes')
@@ -1902,6 +2052,7 @@ def set_client_details(request):
     team_ids = request.POST.getlist('teams')
 
     account = Client.objects.get(id=account_id)
+    account.client_name = account_name
     account.bc_link = bc_link
     account.description = description
     account.notes = notes

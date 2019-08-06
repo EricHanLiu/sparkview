@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^campaigns/(\d*)$', views.campaigns, name='campaigns'),
     url(r'^accounts/mandates/new$', views.create_mandate, name='create_mandate'),
     url(r'^accounts/set_opportunity$', views.set_opportunity, name='set_opportunity'),
-    url(r'^edit_management_fee_structure', views.edit_management_fee_structure, name='edit_management_fee_structure'),
+    url(r'^edit_management_details', views.edit_management_details, name='edit_management_fee_structure'),
     url(r'^get_client_details_objects$', views.get_client_details_objects, name='get_client_details_objects'),
     url(r'^set_client_details$', views.set_client_details, name='set_client_details')
 ]

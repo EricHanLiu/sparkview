@@ -12,6 +12,7 @@ from facebook_dashboard.models import FacebookAccount, FacebookCampaign, Faceboo
 from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions, \
     AdditionalFee
 from client_area.models import Mandate
+from user_management.models import Member
 from django.core import serializers
 from tasks import adwords_tasks
 from datetime import datetime, timedelta
@@ -1339,7 +1340,7 @@ def edit_flex_budget(request):
 
 
 @login_required
-def confirm_budget(request):
+def renew_overall_budget(request):
     if request.method != 'POST':
         return HttpResponse('Invalid request type')
 
@@ -1357,6 +1358,25 @@ def confirm_budget(request):
 
     budget_update.updated = True
     budget_update.save()
+
+    return HttpResponse('Success')
+
+
+@login_required
+def renew_monthly_budget(request):
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = int(request.POST.get('account_id'))
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    budget_id = request.POST.get('budget_id')
+    budget = get_object_or_404(Budget, id=budget_id)
+
+    budget.needs_renewing = False
+    budget.save()
 
     return HttpResponse('Success')
 

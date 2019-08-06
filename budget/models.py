@@ -40,7 +40,8 @@ class Client(models.Model):
     INACTIVE_CHOICES = [(0, 'PO pending from client'),
                         (1, 'Website being worked on'),
                         (2, 'New budget pending from client'),
-                        (3, 'Other')]
+                        (3, 'Late onboarding'),
+                        (4, 'Other')]
 
     LOST_CHOICES = [(0, 'Poor Performance'),
                     (1, 'Mandate Over'),
@@ -346,7 +347,7 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
-        extra_fees = self.extra_fees_month(month, year)
+        # extra_fees = self.extra_fees_month(month, year)
         return hours
 
     def value_hours_month_year(self, month, year):
@@ -1603,6 +1604,7 @@ class Budget(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
+    needs_renewing = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['name']
