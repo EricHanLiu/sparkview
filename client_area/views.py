@@ -718,10 +718,15 @@ def account_single(request, account_id):
 
         management_fee_structures = ManagementFeesStructure.objects.all()
 
+        inactive_reasons = Client.INACTIVE_CHOICES
+        lost_reasons = Client.LOST_CHOICES
+
         context = {
             'account': account,
             'members': members,
             'backups': backups,
+            'inactive_reasons': inactive_reasons,
+            'lost_reasons': lost_reasons,
             'management_fee_structures': management_fee_structures,
             'accountHoursMember': accountsHoursThisMonthByMember,
             'value_hours_member': accountsValueHoursThisMonthByMember,
@@ -1504,12 +1509,11 @@ def set_services(request):
     except ValueError:
         cro = 6
 
-    status_range = range(0, len(sales_profile.STATUS_CHOICES))
-    if ppc is not None and ppc in status_range:
+    if ppc is not None:
         sales_profile.ppc_status = ppc
-    if seo is not None and seo in status_range:
+    if seo is not None:
         sales_profile.seo_status = seo
-    if cro is not None and cro in status_range:
+    if cro is not None:
         sales_profile.cro_status = cro
 
     sales_profile.save()
@@ -1715,21 +1719,17 @@ def create_mandate(request):
     except MandateType.DoesNotExist:
         return HttpResponse('Invalid mandate type')
 
-    print('HERE')
-    print(request.POST)
-    print('ongoing_check' in request.POST)
     # Check if its an ongoing mandate or not
     if 'ongoing_check' in request.POST:
         hourly_rate = request.POST.get('monthly_hourly_rate')
         if 'hourly_check' in request.POST:
             hours = request.POST.get('monthly_hours')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_hours=hours,
-                                             mandate_type=mandate_type, account=account)
+                                             mandate_type=mandate_type, account=account, billing_style=0)
         else:
-            print('good spot here')
             cost = request.POST.get('monthly_cost')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_cost=cost,
-                                             mandate_type=mandate_type, account=account)
+                                             mandate_type=mandate_type, account=account, billing_style=1)
     else:
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
@@ -1738,11 +1738,11 @@ def create_mandate(request):
         hourly_rate = request.POST.get('hourly_rate')
 
         try:
-            start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-            end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+            start_date_dt = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+            end_date_dt = datetime.datetime.strptime(end_date, '%Y-%m-%d')
         except ValueError:
-            start_date_dt = datetime.datetime.strptime(start_date, "%m/%d/%Y")
-            end_date_dt = datetime.datetime.strptime(end_date, "%m/%d/%Y")
+            start_date_dt = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+            end_date_dt = datetime.datetime.strptime(end_date, '%m/%d/%Y')
 
         mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
                                          end_date=end_date_dt,
@@ -1848,7 +1848,7 @@ def set_pitch(request):
     return redirect('/clients/accounts/' + str(account.id))
 
 
-def edit_management_fee_structure(request):
+def edit_management_details(request):
     account_id = request.POST.get('account_id')
     member = Member.objects.get(user=request.user)
     if not request.user.is_staff and not member.has_account(account_id):
@@ -1856,13 +1856,146 @@ def edit_management_fee_structure(request):
 
     account = get_object_or_404(Client, id=account_id)
 
+    seo_hours = request.POST.get('seo_hours')
+    cro_hours = request.POST.get('cro_hours')
+    old_status = account.status
+    account.status = int(request.POST.get('account_status'))
+
+    if old_status != 2 and account.status == 2:
+        """
+        Account is now inactive
+        """
+        inactive_reason = request.POST.get('account_inactive_reason')
+        inactive_bc = request.POST.get('inactive_bc')
+        inactive_return = request.POST.get('account_inactive_return')
+        if inactive_return != '0':
+            account.inactive_reason = inactive_reason
+
+        if inactive_bc != '':
+            account.inactive_bc_link = inactive_bc
+        if inactive_return != '':
+            account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%m/%d/%Y')
+        staff_users = User.objects.filter(is_staff=True)
+        staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+        account.save()
+        message = str(account.client_name) + ' is now inactive (paused).'
+        for staff_member in staff_members:
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+        logger = Logger()
+        short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
+        logger.send_account_lost_email(short_desc, message)
+
+        sp = account.sales_profile
+
+        if sp.ppc_status == 1:
+            sp.ppc_status = 2
+        if sp.seo_status == 1:
+            sp.seo_status = 2
+        if sp.cro_status == 1:
+            sp.cro_status = 2
+        sp.save()
+
+        event_description = account.client_name + ' was set to inactive. The reason is ' + str(
+            inactive_reason) + '.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=3, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+    if old_status != 3 and account.status == 3:
+        """
+        Account is now lost
+        """
+        lost_reason = request.POST.get('account_lost_reason')
+        if lost_reason != '0':
+            account.lost_reason = lost_reason
+        lost_bc = request.POST.get('lost_bc')
+        if lost_bc != '':
+            account.lost_bc_link = lost_bc
+        staff_users = User.objects.filter(is_staff=True)
+        staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+        message = str(account.client_name) + ' has been lost.'
+        account.save()
+        for staff_member in staff_members:
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+        logger = Logger()
+        print(account.get_lost_reason_display())
+        short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
+        logger.send_account_lost_email(short_desc, message)
+
+        sp = account.sales_profile
+
+        if sp.ppc_status == 1:
+            sp.ppc_status = 2
+        if sp.seo_status == 1:
+            sp.seo_status = 2
+        if sp.cro_status == 1:
+            sp.cro_status = 2
+        sp.save()
+
+        event_description = account.client_name + ' was set to lost. The reason is ' + str(
+            lost_reason) + '.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=5, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+    fee_override = request.POST.get('fee_override')
+    hours_override = request.POST.get('hours_override')
+
+    if request.user.is_staff:
+        if fee_override != 'None':
+            account.management_fee_override = float(fee_override)
+        if hours_override != 'None':
+            account.allocated_ppc_override = float(hours_override)
+        else:
+            account.allocated_ppc_override = None
+
+    sp, created = SalesProfile.objects.get_or_create(account=account)
+
+    if seo_hours != '' and float(seo_hours) != 0.0:
+        sp.seo_status = 1
+        account.seo_hours = seo_hours
+    else:
+        if sp.seo_status != 2:
+            sp.seo_status = 6
+            account.seo_hours = 0.0
+
+    if cro_hours != '' and float(cro_hours) != 0.0:
+        sp.cro_status = 1
+        account.cro_hours = cro_hours
+    else:
+        if sp.cro_status != 2:
+            sp.cro_status = 6
+            account.cro_hours = 0.0
+
+    sp.save()
+
     # Make management fee structure
-    if request.user.is_staff and request.method == 'POST':
+    fee_structure_name = request.POST.get('fee_structure_name')
+    if request.user.is_staff and request.method == 'POST' and fee_structure_name != '':
         fee_create_or_existing = request.POST.get('fee_structure_type')
         if fee_create_or_existing == '1':
             # Create new management fee
             number_of_tiers = request.POST.get('row_num_input')
-            fee_structure_name = request.POST.get('fee_structure_name')
             init_fee = request.POST.get('setup_fee')
             management_fee_structure = ManagementFeesStructure()
             management_fee_structure.name = fee_structure_name
@@ -1907,6 +2040,7 @@ def get_client_details_objects(request):
 def set_client_details(request):
     # TODO: add validation
     account_id = request.POST.get('account_id')
+    account_name = request.POST.get('account_name')
     bc_link = request.POST.get('bc_link')
     description = request.POST.get('description')
     notes = request.POST.get('notes')
@@ -1918,6 +2052,7 @@ def set_client_details(request):
     team_ids = request.POST.getlist('teams')
 
     account = Client.objects.get(id=account_id)
+    account.client_name = account_name
     account.bc_link = bc_link
     account.description = description
     account.notes = notes

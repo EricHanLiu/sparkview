@@ -40,7 +40,8 @@ class Client(models.Model):
     INACTIVE_CHOICES = [(0, 'PO pending from client'),
                         (1, 'Website being worked on'),
                         (2, 'New budget pending from client'),
-                        (3, 'Other')]
+                        (3, 'Late onboarding'),
+                        (4, 'Other')]
 
     LOST_CHOICES = [(0, 'Poor Performance'),
                     (1, 'Mandate Over'),
@@ -346,7 +347,7 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
-        extra_fees = self.extra_fees_month(month, year)
+        # extra_fees = self.extra_fees_month(month, year)
         return hours
 
     def value_hours_month_year(self, month, year):
@@ -776,10 +777,10 @@ class Client(models.Model):
 
     @property
     def ppc_ignore_override(self):
-        fee = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
-        if self.status == 0 and self.managementFee is not None:
-            fee += (self.managementFee.initialFee / 125.0)
-        return fee
+        hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+        if self.is_onboarding_ppc and self.managementFee is not None:
+            hours += (self.managementFee.initialFee / 125.0)
+        return hours
 
     def get_ppc_allocated_hours(self):
         if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
@@ -1067,19 +1068,6 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.cm1 is not None:
-            members['CM'] = {}
-            members['CM']['member'] = self.cm1
-            members['CM']['allocated_percentage'] = self.cm1percent
-        if self.cm2 is not None:
-            members['CM2'] = {}
-            members['CM2']['member'] = self.cm2
-            members['CM2']['allocated_percentage'] = self.cm2percent
-        if self.cm3 is not None:
-            members['CM3'] = {}
-            members['CM3']['member'] = self.cm3
-            members['CM3']['allocated_percentage'] = self.cm3percent
-
         if self.am1 is not None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
@@ -1092,6 +1080,19 @@ class Client(models.Model):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percentage'] = self.am3percent
+
+        if self.cm1 is not None:
+            members['CM'] = {}
+            members['CM']['member'] = self.cm1
+            members['CM']['allocated_percentage'] = self.cm1percent
+        if self.cm2 is not None:
+            members['CM2'] = {}
+            members['CM2']['member'] = self.cm2
+            members['CM2']['allocated_percentage'] = self.cm2percent
+        if self.cm3 is not None:
+            members['CM3'] = {}
+            members['CM3']['member'] = self.cm3
+            members['CM3']['allocated_percentage'] = self.cm3percent
 
         if self.seo1 is not None:
             members['SEO'] = {}

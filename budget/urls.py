@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^new_budget$', views.new_budget, name='new_budget'),
     url(r'^edit_budget$', views.edit_budget, name='edit_budget'),
     url(r'^delete_budget$', views.delete_budget, name='delete_budget'),
+    url(r'^delete_mandate$', views.delete_mandate, name='delete_mandate'),
     url(r'^update_exclusions$', views.update_exclusions, name='update_exclusions'),
     url(r'^get_info$', views.get_info, name='get_info'),
     url(r'^set_overall_budget', views.set_overall_budget, name='set_overall_budget'),
