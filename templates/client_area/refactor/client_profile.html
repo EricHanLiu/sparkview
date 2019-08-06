@@ -331,14 +331,16 @@
                 <div class="card-content">
                     <h5 class="title is-5">Monthly Hours Information</h5>
                     <div class="columns">
-                        <div class="column is-12">
-                            <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
+                        <div class="column is-4"><p
+                                class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
                             <p class="subtitle">Allocated Hours</p>
-                            <p class="title"
-                               style="margin-top: 0.5em;">{{ account.hoursWorkedThisMonth|floatformat }}</p>
+                        </div>
+                        <div class="column is-4"><p class="title"
+                                                    style="margin-top: 0.5em;">{{ account.hoursWorkedThisMonth|floatformat }}</p>
                             <p class="subtitle">Actual Hours</p>
-                            <p class="title"
-                               style="margin-top: 0.5em;">{{ account.hoursRemainingMonth|floatformat }}</p>
+                        </div>
+                        <div class="column is-4"><p class="title"
+                                                    style="margin-top: 0.5em;">{{ account.hoursRemainingMonth|floatformat }}</p>
                             <p class="subtitle">Remaining Hours</p>
                         </div>
                     </div>
