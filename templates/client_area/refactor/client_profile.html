@@ -334,29 +334,23 @@
                             / {{ account.allocated_hours_including_mandate|floatformat:1 }}
                         </div>
                     </div>
-                    <div class="level">
-                        <div class="level-item has-text-centered">
-                            <div>
+                    <div class="columns">
+                        <div class="column is-6 has-text-centered">
+                            <div style="margin-top: 0.5em;">
                                 <p class="heading">Allocated Hours</p>
                                 <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
                             </div>
-                        </div>
-                        <div class="level-item has-text-centered">
-                            <div>
-                                <p class="heading">Fallback Hours</p>
-                                <p class="title">{{ account.fallback_hours|floatformat:1 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="level">
-                        <div class="level-item has-text-centered">
-                            <div>
+                            <div style="margin-top: 1em;">
                                 <p class="heading">Actual Hours</p>
                                 <p class="title">{{ account.hoursWorkedThisMonth|floatformat:1 }}</p>
                             </div>
                         </div>
-                        <div class="level-item has-text-centered">
-                            <div>
+                        <div class="column is-6 has-text-centered">
+                            <div style="margin-top: 0.5em;">
+                                <p class="heading">Fallback Hours</p>
+                                <p class="title">{{ account.fallback_hours|floatformat:1 }}</p>
+                            </div>
+                            <div style="margin-top: 1em;">
                                 <p class="heading">Remaining Hours</p>
                                 <p class="title">{{ account.hoursRemainingMonth|floatformat:1 }}</p>
                             </div>
