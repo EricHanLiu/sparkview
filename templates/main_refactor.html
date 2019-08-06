@@ -23,7 +23,7 @@
     <script defer
             src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}" />
+    <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}"/>
     <style>
         html body {
             font-family: 'Rubik', sans-serif;
@@ -186,6 +186,16 @@
         </div>
         <div class="navbar-end">
             <div class="navbar-item">
+                <div class="dropdown" id="search_dropdown">
+                    <input class="input is-rounded" type="search" placeholder="Search.." id="search_bar"
+                           autocomplete="off">
+                    <div class="dropdown-menu" style="width: 100%;">
+                        <div class="dropdown-content" id="search_results"
+                             style="max-height: 50vh; overflow: auto;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-item">
                 <a class="navbar-item" href="/">
                     Hi, {{ user.first_name }}
                 </a>
@@ -200,8 +210,108 @@
         {% endblock %}
     </div>
 </div>
+<script>
+    const DEBOUNCETIME = 100;  // debounce timing
+    let $searchResults = $('#search_results');
+    let $searchBar = $('#search_bar');
+    let $searchDropdown = $('#search_dropdown');
 
+    $searchBar.on('keyup', function () {
+        clearTimeout(this.debounce);
+        this.debounce = setTimeout(() => {
+            let query = this.value;
+            if (query !== '') {
+                // send search query
+                $.ajax({
+                    url: '/api/search',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    type: 'POST',
+                    data: {
+                        'query': query
+                    },
+                    success: (data) => {
+                        // TODO: a bit repetitive, maybe abstract
+                        let clients = data['clients'];
+                        let members = data['members'];
+                        if (!$searchDropdown.hasClass('is-active')) {
+                            $searchDropdown.addClass('is-active');
+                        }
+                        $searchResults.empty();
+                        if (clients.length > 0) {
+                            let div = document.createElement('div');
+                            div.className = 'dropdown-item';
+                            let bold = document.createElement('strong');
+                            bold.append(document.createTextNode('Clients'));
+                            div.appendChild(bold);
+                            $searchResults.append(div);
+                            clients.forEach(item => {
+                                let div = document.createElement('div');
+                                let link = document.createElement('a');
+                                let text = document.createTextNode(item['name']);
+                                link.href = item['url'];
+                                div.className = 'dropdown-item';
+                                div.appendChild(link);
+                                link.appendChild(text);
+                                $searchResults.append(div);
+                            });
+                        }
+                        if (clients.length > 0 && members.length > 0) {
+                            let hr = document.createElement('hr');
+                            hr.className = 'dropdown-divider';
+                            $searchResults.append(hr);
+                        }
+                        if (members.length > 0) {
+                            let div = document.createElement('div');
+                            div.className = 'dropdown-item';
+                            let bold = document.createElement('strong');
+                            bold.append(document.createTextNode('Members'));
+                            div.appendChild(bold);
+                            $searchResults.append(div);
+                            members.forEach(item => {
+                                let div = document.createElement('div');
+                                let link = document.createElement('a');
+                                let text = document.createTextNode(item['name']);
+                                link.href = item['url'];
+                                div.className = 'dropdown-item';
+                                div.appendChild(link);
+                                link.appendChild(text);
+                                $searchResults.append(div);
+                            });
+                        }
+                        if (clients.length === 0 && members.length === 0) {
+                            let noResults = document.createElement('div');
+                            noResults.className = 'dropdown-item';
+                            noResults.appendChild(document.createTextNode('No results found.'));
+                            $searchResults.append(noResults);
+                        }
+                    },
+                    error: () => {
+                        toastr.error('Something went wrong');
+                    }
+                });
+            } else {
+                $searchResults.empty();
+                $searchDropdown.removeClass('is-active');
+            }
+        }, DEBOUNCETIME);
+    });
+
+    $(document).mouseup(function (e) {
+        // if the target of the click isn't the container nor a descendant of the container
+        if (!$searchDropdown.is(e.target) && $searchDropdown.has(e.target).length === 0) {
+            $searchDropdown.removeClass('is-active');
+        }
+    });
+
+    $searchBar.focus(() => {
+        if ($searchResults.children().length > 0) {
+            $searchDropdown.addClass('is-active');
+        }
+    });
+</script>
 {% block extraJs %}
 {% endblock %}
 </body>
-</html>
+< /html>
