@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
 from budget.models import Client, Team, Industry, Service, ClientContact
 from user_management.models import Member
+from django.db.models import Q
 from django.core import serializers
 import json
 import datetime
@@ -138,7 +139,7 @@ def search(request):
     }
 
     clients = Client.objects.filter(client_name__icontains=query)
-    users = User.objects.filter(username__icontains=query)
+    users = User.objects.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query))
 
     members = None
     if users.count() > 0:

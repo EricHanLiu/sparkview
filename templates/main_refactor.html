@@ -190,7 +190,8 @@
                     <input class="input is-rounded" type="search" placeholder="Search.." id="search_bar"
                            autocomplete="off">
                     <div class="dropdown-menu" style="width: 100%;">
-                        <div class="dropdown-content" id="search_results"></div>
+                        <div class="dropdown-content" id="search_results"
+                             style="max-height: 50vh; overflow: auto;"></div>
                     </div>
                 </div>
             </div>
@@ -215,7 +216,7 @@
     let $searchBar = $('#search_bar');
     let $searchDropdown = $('#search_dropdown');
 
-    $searchBar.on('keydown', function () {
+    $searchBar.on('keyup', function () {
         clearTimeout(this.debounce);
         this.debounce = setTimeout(() => {
             let query = this.value;
@@ -246,12 +247,14 @@
                             div.appendChild(bold);
                             $searchResults.append(div);
                             clients.forEach(item => {
+                                let div = document.createElement('div');
                                 let link = document.createElement('a');
                                 let text = document.createTextNode(item['name']);
                                 link.href = item['url'];
-                                link.className = 'dropdown-item';
+                                div.className = 'dropdown-item';
+                                div.appendChild(link);
                                 link.appendChild(text);
-                                $searchResults.append(link);
+                                $searchResults.append(div);
                             });
                         }
                         if (clients.length > 0 && members.length > 0) {
@@ -267,12 +270,14 @@
                             div.appendChild(bold);
                             $searchResults.append(div);
                             members.forEach(item => {
+                                let div = document.createElement('div');
                                 let link = document.createElement('a');
                                 let text = document.createTextNode(item['name']);
                                 link.href = item['url'];
-                                link.className = 'dropdown-item';
+                                div.className = 'dropdown-item';
+                                div.appendChild(link);
                                 link.appendChild(text);
-                                $searchResults.append(link);
+                                $searchResults.append(div);
                             });
                         }
                         if (clients.length === 0 && members.length === 0) {
@@ -287,6 +292,7 @@
                     }
                 });
             } else {
+                $searchResults.empty();
                 $searchDropdown.removeClass('is-active');
             }
         }, DEBOUNCETIME);
