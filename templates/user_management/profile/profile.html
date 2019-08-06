@@ -523,13 +523,13 @@
                                             <a href="/clients/accounts/{{ mandate.account.id }}">{{ mandate.account.client_name }}</a>
                                         </td>
                                         <td>
-                                            {{ mandate.cost|floatformat:2 }}
+                                            {{ mandate.calculated_cost|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.hourly_rate|floatformat:2 }}
                                         </td>
                                         <td>
-                                            {{ mandate.calculated_hours|floatformat:2 }}
+                                            {{ mandate.calculated_ongoing_hours|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
