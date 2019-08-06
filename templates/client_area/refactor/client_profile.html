@@ -288,7 +288,7 @@
                                     Members
                                 </th>
                                 <th>Hours</th>
-                                <th></th>
+                                <th>Delete</th>
                             </tr>
                             <tbody>
                             {% for mandate in account.active_mandates %}
@@ -308,12 +308,14 @@
                                         {% endfor %}
                                     </td>
                                     <td>
-                                        {{ mandate.hours_worked_this_month }} / {{ mandate.allocated_hours_this_month }}
+                                        {{ mandate.hours_worked_this_month|floatformat:2 }}
+                                        / {{ mandate.allocated_hours_this_month|floatformat:2 }}
                                     </td>
                                     <td>
-                                        <button class="button is-danger is-outlined is-small delete-mandate-btn"
-                                                data-mandate-id="{{ mandate.id }}" data-mandate-name="{{ mandate.name }}">
-                                            Delete
+                                        <button class="button is-small is-rounded delete-mandate-btn"
+                                                data-mandate-id="{{ mandate.id }}"
+                                                data-mandate-name="{{ mandate.name }}">
+                                            <i class="fas fa-trash has-text-danger"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -577,7 +579,8 @@
                                                 {{ budget.spend_percentage|floatformat:2 }}%
                                             </div>
                                             <div class="budget-pacer" data-is-monthly="{{ budget.is_monthly }}"
-                                                 data-start-date="{{ budget.start_date }}" data-end-date="{{ budget.end_date }}"></div>
+                                                 data-start-date="{{ budget.start_date }}"
+                                                 data-end-date="{{ budget.end_date }}"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -2167,7 +2170,7 @@
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-danger" type="submit">Delete</button>
-                    <button class="button">Cancel</button>
+                    <button class="button close-modal" type="button">Cancel</button>
                 </footer>
             </form>
         </div>
@@ -2187,7 +2190,7 @@
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button is-danger" type="submit">Delete</button>
-                    <button class="button">Cancel</button>
+                    <button class="button close-modal" type="button">Cancel</button>
                 </footer>
             </form>
         </div>
@@ -2209,7 +2212,7 @@
             $modal.addClass('is-active');
         });
 
-        $('.modal-close, .modal-background').click(() => {
+        $('.modal-close, .modal-background, .close-modal').click(() => {
             $('.modal').removeClass('is-active');
         });
 
@@ -2825,7 +2828,7 @@
             let now = new Date();
             let today = now.getDate();
             let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            const MSPERDAY = 1000*60*60*24;
+            const MSPERDAY = 1000 * 60 * 60 * 24;
             $('.budget-pacer').each(function () {
                 let isMonthly = $(this).data('is-monthly') === 'True';
                 let percentage;
