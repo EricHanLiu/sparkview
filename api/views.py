@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -9,6 +10,7 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
     HTTP_200_OK
 )
+from django.http import JsonResponse
 from bloom import settings
 from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
@@ -125,3 +127,35 @@ def get_accounts(request):
     }
 
     return Response(data, status=HTTP_200_OK)
+
+
+@login_required
+def search(request):
+    query = request.POST.get('query')
+    result = {
+        'clients': [],
+        'members': []
+    }
+
+    clients = Client.objects.filter(client_name__icontains=query)
+    users = User.objects.filter(username__icontains=query)
+
+    members = None
+    if users.count() > 0:
+        members = Member.objects.filter(user__in=users)
+
+    for c in clients:
+        item = {
+            'name': c.client_name,
+            'url': '/clients/accounts/' + str(c.id),
+        }
+        result['clients'].append(item)
+
+    if members is not None:
+        for u in members:
+            item = {
+                'name': u.user.get_full_name(),
+                'url': '/user_management/members/' + str(u.id)
+            }
+            result['members'].append(item)
+    return JsonResponse(result)
