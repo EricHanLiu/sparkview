@@ -11,9 +11,10 @@ from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendD
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions, \
     AdditionalFee
+from client_area.models import Mandate
 from django.core import serializers
 from tasks import adwords_tasks
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import calendar
@@ -1067,7 +1068,7 @@ def edit_budget(request):
         end_date_comps = flight_dates_input[1].split('/')
 
         start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
-        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 18, 59, 59)
 
         budget.start_date = start_date
         budget.end_date = end_date
@@ -1121,6 +1122,26 @@ def delete_budget(request):
 
     budget = get_object_or_404(Budget, id=request.POST.get('budget_id'))
     budget.delete()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def delete_mandate(request):
+    """
+    Deletes a mandate
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    mandate = get_object_or_404(Mandate, id=request.POST.get('mandate_id'))
+    mandate.delete()
 
     return redirect('/clients/accounts/' + str(account.id))
 
@@ -1432,7 +1453,7 @@ def new_budget(request):
         end_date_comps = flight_dates_input[1].split('/')
 
         start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
-        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 18, 59, 59)
 
         budget.start_date = start_date
         budget.end_date = end_date
