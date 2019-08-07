@@ -1,6 +1,7 @@
 import datetime
 import calendar
 from django.db import models
+from django.apps import apps
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db.models import Sum
 from django.utils import timezone
@@ -52,7 +53,7 @@ class Client(models.Model):
                     (6, 'Changing Website'),
                     (7, 'Changing Agency'),
                     (8, 'Campaigns Never Started'),
-                    (9, 'Other (see Basecamp for details)]')]
+                    (9, 'Other (see Basecamp for details)')]
 
     PHASE_CHOICES = [(1, 'One'),
                      (2, 'Two'),
@@ -190,6 +191,14 @@ class Client(models.Model):
     @property
     def budgets(self):
         return Budget.objects.filter(account=self)
+
+    @property
+    def ga_view(self):
+        ga_view_model = apps.get_model('insights', 'GoogleAnalyticsView')
+        try:
+            return ga_view_model.objects.get(account=self)
+        except ga_view_model.DoesNotExist:
+            return None
 
     @property
     def opportunities(self):
@@ -347,7 +356,6 @@ class Client(models.Model):
                 'hours__sum']
         if hours is None:
             hours = 0.0
-        # extra_fees = self.extra_fees_month(month, year)
         return hours
 
     def value_hours_month_year(self, month, year):
@@ -754,7 +762,7 @@ class Client(models.Model):
     @property
     def fallback_hours(self):
         if self.allocated_ppc_override is None:
-            return None
+            return 0.0
         return self.ppc_ignore_override - self.allocated_ppc_override
 
     def additional_ppc_fees_month(self, month, year):

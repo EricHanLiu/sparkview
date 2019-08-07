@@ -42,7 +42,6 @@
     color: white;
 }
 
-
 .icon a {
     color: black;
 }
@@ -54,6 +53,10 @@
 img {
     border-radius: 100%;
     box-shadow: 0 0 0 3px hsl(0, 0%, 100%), 0 0 0 6px hsl(0, 0%, 90%);
+}
+
+.custom-progress-color::-webkit-progress-value {
+    background: #dc4e76;
 }
 
 .member-role-tag {
@@ -106,9 +109,9 @@ p {
 
 .progress-value {
     position: absolute;
-    top: 0;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-50%);
     font-size: calc(1rem / 1.5);
     line-height: 1rem;
     font-weight: bold;
