@@ -146,6 +146,40 @@
                         </div>
                     {% endif %}
                 {% endfor %}
+                {% for backup in backups %}
+                    {% for member in backup.members.all %}
+                        <div class="column is-2">
+                            <div class="card has-background-light member-card">
+                                <div class="has-text-centered">
+                                    <img {% if member.image != None %}src="{% static 'img/bloomers/'|add:member.image %}"
+                                         {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}width="75%"/>
+                                </div>
+                                <div class="card-content" style="margin-top: 1em; position: relative;">
+                                    <div class="media">
+                                        <div class="media-content">
+                                            <div class="tag member-role-tag is-rounded backup-color">
+                                                Backup
+                                            </div>
+                                            <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ member.id }}">
+                                                        {{ member.user.get_full_name }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ member.user.get_full_name }}
+                                                {% endif %}
+                                            </p>
+                                            <p class="subtitle is-6 has-text-centered">
+                                                {{ member|get_hours_per_member_and_account:account.id }}hr
+                                                / {{ account|get_allocation_this_month_backup_member:member }}hr
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
             </div>
         </div>
         <div class="column is-4">
