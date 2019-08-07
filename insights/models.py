@@ -19,8 +19,8 @@ class GoogleAnalyticsView(models.Model):
     Stores a Google Analytics account
     """
     account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
-    ga_account_id = models.CharField(max_length=30, default='')
-    ga_account_view = models.CharField(max_length=50, default='')
+    ga_account_id = models.CharField(max_length=30, default='', null=True)
+    ga_view_id = models.CharField(max_length=50, default='', null=True)
 
     def __str__(self):
         return self.account.client_name

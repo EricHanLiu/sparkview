@@ -2201,6 +2201,60 @@
             </form>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="google_analytics_modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <h5 class="title is-5">Link Google Analytics</h5>
+            </header>
+            <form method="post" action="/budget/link_google_analytics">
+                <section class="modal-card-body">
+                    {% if account.ga_view is not None %}<p>Current view ID: {{ account.ga_view.ga_view_id }}</p><hr/>{% endif %}
+                    {% csrf_token %}
+                    <input type="hidden" name="account_id" value="{{ account.id }}">
+                    <div class="columns">
+                        <div class="column is-4">
+                            <div class="field">
+                                <label class="label">Account</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="account_select" disabled>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <div class="field">
+                                <label class="label">Property</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="property_select" disabled>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-4">
+                            <div class="field">
+                                <label class="label">View</label>
+                                <div class="control">
+                                    <div class="select is-fullwidth">
+                                        <select id="view_select" name="view_select" disabled>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-info" type="submit">Update</button>
+                    <button class="button close-modal" type="button">Cancel</button>
+                </footer>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extraJs %}
@@ -2899,6 +2953,26 @@
             $editFlightDates.addClass('is-hidden');
         });
 
+        document.querySelector('#ga_btn').addEventListener('click', function (event) {
+            event.preventDefault();
+            let ga_modal = document.querySelector('#google_analytics_modal');
+            ga_modal.classList.add('is-active');
+
+            ga_modal.querySelector('.modal-background').addEventListener('click', function (e) {
+                e.preventDefault();
+                ga_modal.classList.remove('is-active');
+            });
+
+            let budgetCloseEls = ga_modal.querySelectorAll('.close');
+
+            budgetCloseEls.forEach(function (el) {
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    ga_modal.classList.remove('is-active');
+                });
+            });
+        });
+
         document.querySelector('#add_budget_btn').addEventListener('click', function (event) {
             event.preventDefault();
             let addBudgetModal = document.querySelector('#add_budget_modal');
@@ -3401,6 +3475,79 @@
                     }
                     $presetMf.show();
                 }
+            });
+        });
+
+        let $accountSelect = $('#account_select');
+        let $propertySelect = $('#property_select');
+        let $viewSelect = $('#view_select');
+
+        let setupAccountsSelect = function () {
+            $.ajax({
+                url: '/insights/get_accounts',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: (data) => {
+                    let gaAccs = data['items'];
+                    gaAccs.forEach(acc => {
+                        let markup = '<option value="' + acc['id'] + '">' + acc['name'] + '</option>';
+                        $accountSelect.append(markup);
+                    });
+                    $accountSelect.prop('disabled', false);
+                }
+            });
+        };
+
+        let setupPropertySelect = function (accountId) {
+            $.ajax({
+                url: '/insights/get_properties',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {'account_id': accountId},
+                success: (data) => {
+                    let gaProps = data['items'];
+                    $propertySelect.html('');
+                    let defaultOption = '<option selected hidden disabled>--</option>';
+                    $propertySelect.append(defaultOption);
+                    gaProps.forEach(prop => {
+                        let markup = '<option value="' + prop['id'] + '">' + prop['name'] + '</option>';
+                        $propertySelect.append(markup);
+                    });
+                    $propertySelect.prop('disabled', false);
+                }
+            });
+        };
+
+        let setupViewSelect = function (accountId, propId) {
+            $.ajax({
+                url: '/insights/get_views',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                data: {
+                    'account_id': accountId,
+                    'prop_id': propId
+                },
+                success: (data) => {
+                    let gaViews = data['items'];
+                    $viewSelect.html('');
+                    gaViews.forEach(view => {
+                        let markup = '<option value="' + view['id'] + '">' + view['name'] + '</option>';
+                        $viewSelect.append(markup);
+                    });
+                    $viewSelect.prop('disabled', false);
+                }
+            });
+        };
+
+        $(document).ready(function () {
+            setupAccountsSelect();
+
+            $accountSelect.change(function () {
+                setupPropertySelect($(this).val());
+            });
+
+            $propertySelect.change(function () {
+                setupViewSelect($accountSelect.val(), $(this).val());
             });
         });
     </script>
