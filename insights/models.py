@@ -14,7 +14,7 @@ class GoogleAnalyticsAuth(models.Model):
         return self.account.client_name
 
 
-class GoogleAnalyticsAccount(models.Model):
+class GoogleAnalyticsView(models.Model):
     """
     Stores a Google Analytics account
     """
@@ -31,7 +31,7 @@ class GoogleAnalyticsReport(models.Model):
     Google Analytics stored report
     """
     account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
-    report = models.CharField(max_length=99999, default='')
+    dimensions = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
