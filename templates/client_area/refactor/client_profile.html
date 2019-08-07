@@ -18,7 +18,7 @@
     <style>
         @media (min-device-width: 1200px) {
             .middle-row .card {
-                min-height: 356px;
+                min-height: 36vh;
             }
         }
     </style>
@@ -214,6 +214,10 @@
                                     id="new_opportunity_button">
                                 <strong>New Opportunity</strong>
                             </button>
+                            <button class="button is-rounded is-small button-color"
+                                    id="new_mandate_button">
+                                <strong>New Mandate</strong>
+                            </button>
                         </div>
                     </div>
                     <div class="columns">
@@ -261,15 +265,6 @@
                                     {{ account.sales_profile.get_cro_status_display }}
                                 </p>
                             </div>
-                        </div>
-                    </div>
-                    <div class="level">
-                        <div class="level-left"></div>
-                        <div class="level-right">
-                            <button class="button is-rounded is-small button-color"
-                                    id="new_mandate_button">
-                                <strong>New Mandate</strong>
-                            </button>
                         </div>
                     </div>
                     {% if account.active_mandates.count > 0 %}
@@ -330,16 +325,35 @@
             <div class="card page-card">
                 <div class="card-content">
                     <h5 class="title is-5">Monthly Hours Information</h5>
+                    <div class="progress-wrapper">
+                        <progress class="progress custom-progress-color is-large"
+                                  value="{{ account.hoursWorkedThisMonth }}"
+                                  max="{{ account.allocated_hours_including_mandate }}" style="height: 4em;"></progress>
+                        <div class="progress-value" style="color: white;">
+                            {{ account.hoursWorkedThisMonth|floatformat:1 }}
+                            / {{ account.allocated_hours_including_mandate|floatformat:1 }}
+                        </div>
+                    </div>
                     <div class="columns">
-                        <div class="column is-12">
-                            <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
-                            <p class="subtitle">Allocated Hours</p>
-                            <p class="title"
-                               style="margin-top: 0.5em;">{{ account.hoursWorkedThisMonth|floatformat }}</p>
-                            <p class="subtitle">Actual Hours</p>
-                            <p class="title"
-                               style="margin-top: 0.5em;">{{ account.hoursRemainingMonth|floatformat }}</p>
-                            <p class="subtitle">Remaining Hours</p>
+                        <div class="column is-6 has-text-centered">
+                            <div style="margin-top: 0.5em;">
+                                <p class="heading">Allocated Hours</p>
+                                <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
+                            </div>
+                            <div style="margin-top: 1em;">
+                                <p class="heading">Actual Hours</p>
+                                <p class="title">{{ account.hoursWorkedThisMonth|floatformat:1 }}</p>
+                            </div>
+                        </div>
+                        <div class="column is-6 has-text-centered">
+                            <div style="margin-top: 0.5em;">
+                                <p class="heading">Fallback Hours</p>
+                                <p class="title">{{ account.fallback_hours|floatformat:1 }}</p>
+                            </div>
+                            <div style="margin-top: 1em;">
+                                <p class="heading">Remaining Hours</p>
+                                <p class="title">{{ account.hoursRemainingMonth|floatformat:1 }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -367,39 +381,41 @@
                             </button>
                         </div>
                     </div>
-                    {% for promo in promos %}
-                        <div class="columns">
-                            <div class="column is-8">
-                                <strong>{{ promo }}</strong>
-                                <p style="margin-top: 0.5em;">
-                                    {% if promo.confirmed_started %}
-                                        End Date: {{ promo.end_date }}
+                    <div style="overflow-y: auto; max-height: 24.5vh; overflow-x: hidden;">
+                        {% for promo in promos %}
+                            <div class="columns">
+                                <div class="column is-8">
+                                    <strong>{{ promo }}</strong>
+                                    <p style="margin-top: 0.5em;">
+                                        {% if promo.confirmed_started %}
+                                            End Date: {{ promo.end_date }}
+                                        {% else %}
+                                            Start Date: {{ promo.start_date }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="column is-4">
+                                    {% if promo.confirmed_started and not promo.confirmed_ended %}
+                                        <button class="button is-rounded button-color-3 is-fullwidth confirm-promo"
+                                                data-promo-id="{{ promo.id }}" data-confirmation-type="1">
+                                            Confirm Ended
+                                        </button>
+                                    {% elif promo.confirmed_ended %}
+                                        <button class="button is-fullwidth is-rounded is-fullwidth" disabled>
+                                            Promo Ended
+                                        </button>
                                     {% else %}
-                                        Start Date: {{ promo.start_date }}
+                                        <button class="button is-rounded button-color-2 is-fullwidth confirm-promo"
+                                                data-promo-id="{{ promo.id }}" data-confirmation-type="0">
+                                            Confirm Started
+                                        </button>
                                     {% endif %}
-                                </p>
+                                </div>
                             </div>
-                            <div class="column is-4">
-                                {% if promo.confirmed_started and not promo.confirmed_ended %}
-                                    <button class="button is-rounded button-color-3 is-fullwidth confirm-promo"
-                                            data-promo-id="{{ promo.id }}" data-confirmation-type="1">
-                                        Confirm Ended
-                                    </button>
-                                {% elif promo.confirmed_ended %}
-                                    <button class="button is-fullwidth is-rounded is-fullwidth" disabled>
-                                        Promo Ended
-                                    </button>
-                                {% else %}
-                                    <button class="button is-rounded button-color-2 is-fullwidth confirm-promo"
-                                            data-promo-id="{{ promo.id }}" data-confirmation-type="0">
-                                        Confirm Started
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% if not forloop.last %}
-                            <hr>{% endif %}
-                    {% endfor %}
+                            {% if not forloop.last %}
+                                <hr>{% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>

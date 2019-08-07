@@ -762,7 +762,7 @@ class Client(models.Model):
     @property
     def fallback_hours(self):
         if self.allocated_ppc_override is None:
-            return None
+            return 0.0
         return self.ppc_ignore_override - self.allocated_ppc_override
 
     def additional_ppc_fees_month(self, month, year):
