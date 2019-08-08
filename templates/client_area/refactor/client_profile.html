@@ -85,34 +85,28 @@
                         </div>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color"
-                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                        <a class="button is-rounded is-small button-color"
+                           href="/clients/accounts/{{ account.id }}/old">Old View</a>
                     </div>
                     <div class="level-item">
-                        <strong>
-                            <a class="button is-rounded is-small button-color"
-                               href="/clients/accounts/{{ account.id }}/lifecycle">
-                                Lifecycle
-                            </a>
-                        </strong>
+                        <a class="button is-rounded is-small button-color"
+                           href="/clients/accounts/{{ account.id }}/lifecycle">
+                            Lifecycle
+                        </a>
                     </div>
                     <div class="level-item">
-                        <strong>
-                            <a class="button is-rounded is-small button-color" id="quick_add_button">
-                                Add Hours
-                            </a>
-                        </strong>
+                        <a class="button is-rounded is-small button-color" id="quick_add_button">
+                            Add Hours
+                        </a>
                     </div>
                     <div class="level-item">
-                        <strong>
-                            <a class="button is-rounded is-small button-color" id="flag_account_button">
-                                Flag Account
-                            </a>
-                        </strong>
+                        <a class="button is-rounded is-small button-color" id="flag_account_button">
+                            Flag Account
+                        </a>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color"
-                                   id="assign_members_button">Team</a></strong>
+                        <a class="button is-rounded is-small button-color"
+                           id="assign_members_button">Team</a>
                     </div>
                 </div>
             </div>
@@ -201,17 +195,16 @@
                         <div class="level-right">
                             <div class="level-item">
                                 <button class="button is-rounded is-small button-color" id="management_button">
-                                    <strong>Management</strong>
+                                    Management
                                 </button>
                             </div>
                             <div class="level-item">
                                 <button class="button is-rounded is-small button-color" id="contact_details_button">
-                                    <strong>View More</strong>
+                                    View More
                                 </button>
                             </div>
                         </div>
                     </div>
-
                     <table>
                         <tr>
                             <td>
@@ -249,15 +242,15 @@
                         <div class="level-right">
                             <button class="button level-item is-rounded is-small button-color"
                                     id="update_services_button">
-                                <strong>Update Services</strong>
+                                Update Services
                             </button>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="new_opportunity_button">
-                                <strong>New Opportunity</strong>
+                                New Opportunity
                             </button>
                             <button class="button is-rounded is-small button-color"
                                     id="new_mandate_button">
-                                <strong>New Mandate</strong>
+                                New Mandate
                             </button>
                         </div>
                     </div>
@@ -410,15 +403,15 @@
                         <div class="level-right">
                             <button class="button level-item is-rounded is-small button-color"
                                     id="add_promo_button">
-                                <strong>Add Promo</strong>
+                                Add Promo
                             </button>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="edit_promos_button">
-                                <strong>Edit Promos</strong>
+                                Edit Promos
                             </button>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="view_calendar_button">
-                                <strong>View Calendar</strong>
+                                View Calendar
                             </button>
                         </div>
                     </div>
@@ -426,7 +419,7 @@
                         {% for promo in promos %}
                             <div class="columns">
                                 <div class="column is-8">
-                                    <strong>{{ promo }}</strong>
+                                    {{ promo }}
                                     <p style="margin-top: 0.5em;">
                                         {% if promo.confirmed_started %}
                                             End Date: {{ promo.end_date }}
@@ -471,18 +464,6 @@
                         </div>
                         <div class="level-right">
                             {% if account.budget_updated_this_month %}
-                                <div class="level-item">
-                                    <span class="tag is-small is-rounded am-color">AdWords: ${{ account.aw_budget }}</span>
-                                </div>
-                                <div class="level-item">
-                                    <span class="tag is-small is-rounded am-color">Facebook: ${{ account.fb_budget }}</span>
-                                </div>
-                                <div class="level-item">
-                                    <span class="tag is-small is-rounded am-color">Bing: ${{ account.bing_budget }}</span>
-                                </div>
-                                <div class="level-item">
-                                    <span class="tag is-small is-rounded am-color">Flex: ${{ account.flex_budget }}</span>
-                                </div>
                                 {% for additional_fee in account.additional_fee_objects_this_month %}
                                     <div class="level-item">
                                         <button class="button is-small is-rounded button-color-4 edit-additional-fee-button"
@@ -495,13 +476,20 @@
                                     </div>
                                 {% endfor %}
                                 <div class="level-item">
-                                    <button class="button button-color is-rounded is-small" id="additional_fee_button">
-                                        <strong>Add Additional Fee</strong>
+                                    <button class="button button-color-4 is-rounded is-small"
+                                            id="additional_fee_button">
+                                        Add Additional Fee
                                     </button>
                                 </div>
                                 <div class="level-item">
-                                    <button class="button button-color is-rounded is-small" id="overall_budget_button">
-                                        <strong>Overall Budget</strong>
+                                    <button class="button is-small is-rounded button-color-2"
+                                            id="overall_budget_button">
+                                        <strong>
+                                            <span style="margin: 0 0.5em;">AdWords: ${{ account.aw_budget }}</span>
+                                            <span style="margin: 0 0.5em;">Facebook: ${{ account.fb_budget }}</span>
+                                            <span style="margin: 0 0.5em;">Bing: ${{ account.bing_budget }}</span>
+                                            <span style="margin: 0 0.5em;">Flex: ${{ account.flex_budget }}</span>
+                                        </strong>
                                     </button>
                                 </div>
                             {% else %}
@@ -722,22 +710,22 @@
                             <div class="card-content">
                                 <div class="columns">
                                     <div class="column is-2">
-                                        Spend: <strong>{{ budget.calculated_spend|currency }}</strong>
+                                        Spend: {{ budget.calculated_spend|currency }}
                                     </div>
                                     <div class="column is-2">
-                                        Budget: <strong>{{ budget.budget|currency }}</strong>
+                                        Budget: {{ budget.budget|currency }}
                                     </div>
                                     <div class="column is-2">
-                                        Average: <strong>{{ budget.average_spend_yest|currency }}</strong>
+                                        Average: {{ budget.average_spend_yest|currency }}
                                     </div>
                                     <div class="column is-2">
-                                        Rec Daily Spend: <strong>{{ budget.rec_spend_yest|currency }}</strong>
+                                        Rec Daily Spend: {{ budget.rec_spend_yest|currency }}
                                     </div>
                                     <div class="column is-2">
-                                        Yesterday Spend: <strong>{{ budget.yesterday_spend|currency }}</strong>
+                                        Yesterday Spend: {{ budget.yesterday_spend|currency }}
                                     </div>
                                     <div class="column is-2">
-                                        Projected Spend: <strong>{{ budget.projected_spend_avg|currency }}</strong>
+                                        Projected Spend: {{ budget.projected_spend_avg|currency }}
                                     </div>
                                 </div>
                                 <div class="columns">
@@ -768,7 +756,7 @@
                                 <div class="budget-renewal-overlay" style="background-color: lightgrey; opacity: 0.95;">
                                     <div class="has-text-centered" style="margin-top: 7em;">
                                         <p>A new month has started, and this budget is
-                                            <strong>{{ budget.budget|currency }}</strong>. Would you like to renew it?
+                                            {{ budget.budget|currency }}. Would you like to renew it?
                                         </p>
                                         <button class="button is-rounded is-small" style="margin-top: 1em;"
                                                 id="renew_monthly_budget_button" data-budget-id="{{ budget.id }}">
@@ -825,6 +813,49 @@
                             <label class="label">Basecamp Link</label>
                             <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"
                                    value="{{ account.flagged_bc_link }}" {% if account.star_flag %}required{% endif %}/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="renew_overall_budget_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Renew Overall Budget</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="renew_overall_budget_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <div class="level">You will renew the following budget structure - make any necessary changes.</div>
+                <form id="renew_overall_budget_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column is-3">
+                            <label class="label">AdWords</label>
+                            <input class="input is-fullwidth" name="aw_budget" type="text"
+                                   value="{{ account.aw_budget }}"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Facebook</label>
+                            <input class="input is-fullwidth" name="fb_budget" type="text"
+                                   value="{{ account.fb_budget }}"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Bing</label>
+                            <input class="input is-fullwidth" name="bing_budget" type="text"
+                                   value="{{ account.bing_budget }}"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Flex</label>
+                            <input class="input is-fullwidth" name="flex_budget" type="text"
+                                   value="{{ account.flex_budget }}"/>
                         </div>
                     </div>
                 </form>
@@ -1401,7 +1432,7 @@
                     </div>
                     <div class="level-right">
                         <div class="level-item">
-                            <button class="button is-danger" id="delete_additional_fee_confirm_button">
+                            <button class="button" id="delete_additional_fee_confirm_button">
                                 Delete
                             </button>
                         </div>
@@ -2676,6 +2707,10 @@
             $('#quick_add_modal').addClass('is-active');
         });
 
+        $('#renew_overall_budget_button').click(() => {
+            $('#renew_overall_budget_modal').addClass('is-active');
+        });
+
         $('.modal-background').click(() => {
             $('.modal').removeClass('is-active');
         });
@@ -2909,14 +2944,12 @@
             });
         });
 
-        $('#renew_overall_budget_button').click(() => {
+        $('#renew_overall_budget_confirm_button').click(() => {
             $.ajax({
                 type: 'POST',
                 url: '/budget/renew_overall_budget',
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                data: {
-                    'account_id': {{ account.id }}
-                },
+                data: $('#renew_overall_budget_form').serialize(),
                 success: () => {
                     toastr.success('Successfully renewed overall budget!');
                     setTimeout(() => {
