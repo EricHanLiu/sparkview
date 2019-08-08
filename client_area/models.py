@@ -60,6 +60,9 @@ class ClientContact(models.Model):
     email = models.EmailField(max_length=255, default='None', null=True)
     phone = models.CharField(max_length=255, default='None', null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class AccountHourRecord(models.Model):
     MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1, 13)]

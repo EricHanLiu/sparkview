@@ -85,6 +85,10 @@
                         </div>
                     </div>
                     <div class="level-item">
+                        <strong><a class="button is-rounded is-small button-color"
+                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                    </div>
+                    <div class="level-item">
                         <strong>
                             <a class="button is-rounded is-small button-color"
                                href="/clients/accounts/{{ account.id }}/lifecycle">
@@ -100,12 +104,15 @@
                         </strong>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color"
-                                   id="assign_members_button">Team</a></strong>
+                        <strong>
+                            <a class="button is-rounded is-small button-color" id="flag_account_button">
+                                Flag Account
+                            </a>
+                        </strong>
                     </div>
                     <div class="level-item">
                         <strong><a class="button is-rounded is-small button-color"
-                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                                   id="assign_members_button">Team</a></strong>
                     </div>
                 </div>
             </div>
@@ -145,6 +152,40 @@
                             </div>
                         </div>
                     {% endif %}
+                {% endfor %}
+                {% for backup in backups %}
+                    {% for member in backup.members.all %}
+                        <div class="column is-2">
+                            <div class="card has-background-light member-card">
+                                <div class="has-text-centered">
+                                    <img {% if member.image != None %}src="{% static 'img/bloomers/'|add:member.image %}"
+                                         {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}width="75%"/>
+                                </div>
+                                <div class="card-content" style="margin-top: 1em; position: relative;">
+                                    <div class="media">
+                                        <div class="media-content">
+                                            <div class="tag member-role-tag is-rounded backup-color">
+                                                Backup
+                                            </div>
+                                            <p class="title is-6 has-text-centered" style="margin-top: 0.5em;">
+                                                {% if request.user.is_staff %}
+                                                    <a href="/user_management/members/{{ member.id }}">
+                                                        {{ member.user.get_full_name }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ member.user.get_full_name }}
+                                                {% endif %}
+                                            </p>
+                                            <p class="subtitle is-6 has-text-centered">
+                                                {{ member|get_hours_per_member_and_account:account.id }}hr
+                                                / {{ account|get_allocation_this_month_backup_member:member }}hr
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 {% endfor %}
             </div>
         </div>
@@ -288,7 +329,7 @@
                             <tbody>
                             {% for mandate in account.active_mandates %}
                                 <tr>
-                                    <td style="white-space: nowrap;">
+                                    <td>
                                         {{ mandate.mandate_type }}
                                     </td>
                                     <td style="white-space: nowrap;">
@@ -381,7 +422,7 @@
                             </button>
                         </div>
                     </div>
-                    <div style="overflow-y: auto; max-height: 24.5vh; overflow-x: hidden;">
+                    <div style="max-height: 25vh; overflow-y: auto; overflow-x: hidden;" id="promos_list">
                         {% for promo in promos %}
                             <div class="columns">
                                 <div class="column is-8">
@@ -444,7 +485,13 @@
                                 </div>
                                 {% for additional_fee in account.additional_fee_objects_this_month %}
                                     <div class="level-item">
-                                        <span class="tag is-small is-rounded seo-color">Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}</span>
+                                        <button class="button is-small is-rounded button-color-4 edit-additional-fee-button"
+                                                data-id="{{ additional_fee.id }}" data-name="{{ additional_fee.name }}"
+                                                data-fee="{{ additional_fee.fee }}"
+                                                data-month="{{ additional_fee.month }}"
+                                                data-year="{{ additional_fee.year }}">
+                                            Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}
+                                        </button>
                                     </div>
                                 {% endfor %}
                                 <div class="level-item">
@@ -637,6 +684,49 @@
     </div>
 
     <!-- MODALS -->
+    <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Flag Account</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="flag_account_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <form id="flag_account_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="flagged" type="text" value="False" style="display: none;"/>
+                    <div class="columns">
+                        <div class="column is-6">
+                            <button type="button"
+                                    class="button is-fullwidth is-success {% if account.star_flag %}is-outlined{% endif %}"
+                                    id="good_account_toggle_button">
+                                Account Is Good
+                            </button>
+                        </div>
+                        <div class="column is-6">
+                            <button type="button" id="flag_account_toggle_button"
+                                    class="button is-fullwidth is-danger {% if not account.star_flag %}is-outlined{% endif %}">
+                                Flag Account
+                            </button>
+                        </div>
+                    </div>
+                    <div class="columns" id="bc_link_row">
+                        <div class="column">
+                            <label class="label">Basecamp Link</label>
+                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"
+                                   value="{{ account.flagged_bc_link }}" {% if account.star_flag %}required{% endif %}/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
         <div class="modal-background"></div>
         <div class="modal-content">
@@ -793,10 +883,20 @@
                             </div>
                         </div>
                     {% endif %}
-                    <h5 class="title is-5" style="margin-top: 1em;">
-                        Existing Fee Structure - {{ account.managementFee.name }}
-                    </h5>
-                    <h6 class="subtitle is-6">Setup Fee: {{ account.managementFee.initialFee }}</h6>
+                    <div class="level" style="margin-top: 2em;">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h5 class="title is-5">
+                                    Existing Fee Structure - {{ account.managementFee.name }}
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <h6 class="subtitle is-6">Setup Fee: {{ account.managementFee.initialFee }}</h6>
+                            </div>
+                        </div>
+                    </div>
                     <div class="field">
                         <div class="control">
                             {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
@@ -835,8 +935,8 @@
                         <input type="text" value="1" id="fee_structure_type" name="fee_structure_type"
                                style="display:none;"/>
                         <div id="create_new_fee_structure">
-                            <div class="level">
-                                <div class="level-left"><h5 class="title is-5" style="margin-top: 1em;">
+                            <div class="level" style="margin-top: 2em;">
+                                <div class="level-left"><h5 class="title is-5">
                                     Edit Management Fee Structure
                                 </h5></div>
                                 <div class="level-right">
@@ -1137,7 +1237,7 @@
     </div>
     <div class="modal modal-fx-fadeInScale" id="additional_fee_modal">
         <div class="modal-background"></div>
-        <div class="modal-card">
+        <div class="modal-content">
             <div class="box">
                 <div class="level">
                     <div class="level-left">
@@ -1151,6 +1251,66 @@
                 </div>
                 <form id="additional_fee_form">
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns is-multiline">
+                        <div class="column is-6">
+                            <label class="label">Name</label>
+                            <input class="input is-fullwidth" name="name" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Fee</label>
+                            <input class="input is-fullwidth" name="fee" type="text"/>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Month</label>
+                            <div class="select is-fullwidth">
+                                <select name="month">
+                                    {% for month_num, month_str in months %}
+                                        <option value="{{ month_num }}"
+                                                {% if month_num == monthnow %}selected{% endif %}>{{ month_str }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Year</label>
+                            <div class="select is-fullwidth">
+                                <select name="year">
+                                    {% for year in years %}
+                                        <option value="{{ year }}"
+                                                {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="edit_additional_fee_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Edit Additional Fee</h5>
+                    </div>
+                    <div class="level-right">
+                        <div class="level-item">
+                            <button class="button is-danger" id="delete_additional_fee_confirm_button">
+                                Delete
+                            </button>
+                        </div>
+                        <div class="level-item">
+                            <button class="button button-color" id="edit_additional_fee_confirm_button">
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <form id="edit_additional_fee_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="fee_id" type="text" style="display: none;"/>
                     <div class="columns is-multiline">
                         <div class="column is-6">
                             <label class="label">Name</label>
@@ -2224,7 +2384,8 @@
             </header>
             <form method="post" action="/budget/link_google_analytics">
                 <section class="modal-card-body">
-                    {% if account.ga_view is not None %}<p>Current view ID: {{ account.ga_view.ga_view_id }}</p><hr/>{% endif %}
+                    {% if account.ga_view is not None %}<p>Current view ID: {{ account.ga_view.ga_view_id }}</p>
+                        <hr/>{% endif %}
                     {% csrf_token %}
                     <input type="hidden" name="account_id" value="{{ account.id }}">
                     <div class="columns">
@@ -2291,24 +2452,25 @@
             $('.modal').removeClass('is-active');
         });
 
-        let $flagTaskBtn = $('#flag_task_btn');
-        let $goodTaskBtn = $('#good_task_btn');
-        let $basecampLinkRow = $('#bc_link_row');
+        let $flagAccountButton = $('#flag_account_toggle_button');
+        let $goodAccountButton = $('#good_account_toggle_button');
+        let $bcLink = $('#bc_link');
+        let $flagged = $('[name="flagged"]');
 
-        $goodTaskBtn.click(function (e) {
-            $basecampLinkRow.removeClass('is-hidden');
-            $goodTaskBtn.removeClass('is-outlined');
-            $flagTaskBtn.addClass('is-outlined');
+        $goodAccountButton.click(() => {
+            $goodAccountButton.removeClass('is-outlined');
+            $flagAccountButton.addClass('is-outlined');
+            $flagged.val('False');
 
-            $('#bc_link').attr('placeholder', 'Optional');
+            $bcLink.attr('placeholder', 'Optional');
         });
 
-        $flagTaskBtn.click(function (e) {
-            $basecampLinkRow.removeClass('is-hidden');
-            $flagTaskBtn.removeClass('is-outlined');
-            $goodTaskBtn.addClass('is-outlined');
+        $flagAccountButton.click(() => {
+            $flagAccountButton.removeClass('is-outlined');
+            $goodAccountButton.addClass('is-outlined');
+            $flagged.val('True');
 
-            $('#bc_link').attr('placeholder', '');
+            $bcLink.attr('placeholder', '');
         });
 
         // proportional hours distribution
@@ -2381,6 +2543,19 @@
             $('#additional_fee_modal').addClass('is-active');
         });
 
+        $('#flag_account_button').click(() => {
+            $('#flag_account_modal').addClass('is-active');
+        });
+
+        $('.edit-additional-fee-button').click(function () {
+            $('#edit_additional_fee_modal').addClass('is-active');
+            $('#edit_additional_fee_form [name="fee_id"]').val($(this).data('id'));
+            $('#edit_additional_fee_form [name="name"]').val($(this).data('name'));
+            $('#edit_additional_fee_form [name="fee"]').val($(this).data('fee'));
+            $('#edit_additional_fee_form [name="month"]').val($(this).data('month'));
+            $('#edit_additional_fee_form [name="year"]').val($(this).data('year'));
+        });
+
         $('#add_promo_button').click(() => {
             $('#add_promo_modal').addClass('is-active');
         });
@@ -2401,7 +2576,66 @@
             $('.modal').removeClass('is-active');
         });
 
-        const PAGEREFRESHTIME = 750;  // ms
+        const PAGEREFRESHTIME = 500;  // ms
+
+        $('#edit_additional_fee_confirm_button').click(() => {
+            $.ajax({
+                url: '/budget/edit_additional_fee',
+                data: $('#edit_additional_fee_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully updated this additional fee!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, PAGEREFRESHTIME);
+                }
+            });
+        });
+
+        $('#flag_account_confirm_button').click(() => {
+            if ($bcLink.val() === '' && $flagged.val() === 'True') {
+                toastr.error('A basecamp link is required to flag an account!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/accounts/flag',
+                data: $('#flag_account_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully updated this account\'s flag status!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, PAGEREFRESHTIME);
+                }
+            });
+        });
+
+        $('#delete_additional_fee_confirm_button').click(() => {
+            $.ajax({
+                url: '/budget/delete_additional_fee',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: $('#edit_additional_fee_form').serialize(),
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully deleted this additional fee!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, PAGEREFRESHTIME);
+                }
+            });
+        });
 
         $('#update_services_confirm_button').click(() => {
             $.ajax({
