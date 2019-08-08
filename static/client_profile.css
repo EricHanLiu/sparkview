@@ -27,6 +27,10 @@
     color: navajowhite;
 }
 
+#promos_list::-webkit-scrollbar {
+    width: 0;
+}
+
 .tag.cm-color {
     background-color: #35375a;
     color: white;

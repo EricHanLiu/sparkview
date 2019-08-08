@@ -415,7 +415,7 @@
                             </button>
                         </div>
                     </div>
-                    <div style="overflow-y: auto; max-height: 24.5vh; overflow-x: hidden;">
+                    <div style="max-height: 25vh; overflow-y: auto; overflow-x: hidden;" id="promos_list">
                         {% for promo in promos %}
                             <div class="columns">
                                 <div class="column is-8">
@@ -833,10 +833,20 @@
                             </div>
                         </div>
                     {% endif %}
-                    <h5 class="title is-5" style="margin-top: 1em;">
-                        Existing Fee Structure - {{ account.managementFee.name }}
-                    </h5>
-                    <h6 class="subtitle is-6">Setup Fee: {{ account.managementFee.initialFee }}</h6>
+                    <div class="level" style="margin-top: 2em;">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h5 class="title is-5">
+                                    Existing Fee Structure - {{ account.managementFee.name }}
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <h6 class="subtitle is-6">Setup Fee: {{ account.managementFee.initialFee }}</h6>
+                            </div>
+                        </div>
+                    </div>
                     <div class="field">
                         <div class="control">
                             {% if account.management_fee_override != None and account.management_fee_override != 0.0 %}
@@ -875,8 +885,8 @@
                         <input type="text" value="1" id="fee_structure_type" name="fee_structure_type"
                                style="display:none;"/>
                         <div id="create_new_fee_structure">
-                            <div class="level">
-                                <div class="level-left"><h5 class="title is-5" style="margin-top: 1em;">
+                            <div class="level" style="margin-top: 2em;">
+                                <div class="level-left"><h5 class="title is-5">
                                     Edit Management Fee Structure
                                 </h5></div>
                                 <div class="level-right">
@@ -2324,7 +2334,8 @@
             </header>
             <form method="post" action="/budget/link_google_analytics">
                 <section class="modal-card-body">
-                    {% if account.ga_view is not None %}<p>Current view ID: {{ account.ga_view.ga_view_id }}</p><hr/>{% endif %}
+                    {% if account.ga_view is not None %}<p>Current view ID: {{ account.ga_view.ga_view_id }}</p>
+                        <hr/>{% endif %}
                     {% csrf_token %}
                     <input type="hidden" name="account_id" value="{{ account.id }}">
                     <div class="columns">
