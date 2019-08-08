@@ -269,7 +269,7 @@
                     </div>
                     {% if account.active_mandates.count > 0 %}
                         <table class="table is-hoverable" id="services_table">
-                            <tr>
+                            <tr style="white-space: nowrap;">
                                 <th>
                                     Type
                                 </th>
@@ -283,18 +283,18 @@
                                     Members
                                 </th>
                                 <th>Hours</th>
-                                <th>Delete</th>
+                                <th></th>
                             </tr>
                             <tbody>
                             {% for mandate in account.active_mandates %}
                                 <tr>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         {{ mandate.mandate_type }}
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         {{ mandate.calculated_cost }}
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         {{ mandate.end_date_pretty }}
                                     </td>
                                     <td>
@@ -302,7 +302,7 @@
                                             {{ assignment.member }}{% if not forloop.last %},{% endif %}
                                         {% endfor %}
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         {{ mandate.hours_worked_this_month|floatformat:2 }}
                                         / {{ mandate.allocated_hours_this_month|floatformat:2 }}
                                     </td>
@@ -1716,12 +1716,12 @@
                             <div class="column is-6">
                                 <label class="label">Start Date:</label>
                                 <input type="text" name="start_date"
-                                       class="input datepicker-here" data-language="en"/>
+                                       class="input datepicker-here" data-language="en" autocomplete="off"/>
                             </div>
                             <div class="column is-6">
                                 <label class="label">End Date:</label>
                                 <input type="text" name="end_date"
-                                       class="input datepicker-here" data-language="en"/>
+                                       class="input datepicker-here" data-language="en" autocomplete="off"/>
                             </div>
                         </div>
                     </div>
@@ -1757,7 +1757,6 @@
                             </div>
                         </div>
                     </div>
-
                     <br/>
                     <div class="columns">
                         <div class="column is-3">
