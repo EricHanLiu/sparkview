@@ -1,8 +1,9 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import BingReportingService
-from .models import BingAccounts, BingCampaign
+from .models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_bing_accounts
+from django.utils.timezone import make_aware
 import datetime
 
 
@@ -110,10 +111,15 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
         return
 
     helper = BingReportingService()
-    date_range = {
-        'minDate': budget.start_date.strftime('%Y%m%d'),
-        'maxDate': budget.end_date.strftime('%Y%m%d')
-    }
+
+    date_range = dict(
+        minDate=budget.start_date,
+        maxDate=budget.end_date
+    )
+
+    now = make_aware(datetime.datetime.now())
+    if budget.end_date > now:
+        date_range['maxDate'] = now
 
     fields = [
         'CampaignName',
@@ -132,10 +138,13 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
         campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
-        campaign.campaign_name = campaign_row['campaignname']
-        campaign.campaign_cost = float(campaign_row['spend'])
-        campaign.save()
-        print('Bing Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
+        csdr, created = BingCampaignSpendDateRange.objects.get_or_create(campaign=campaign,
+                                                                         start_date=budget.start_date,
+                                                                         end_date=budget.end_date)
+        csdr.spend = float(campaign_row['spend'])
+        csdr.save()
+        print('Bing Campaign: ' + str(csdr.campaign) + ' now has a spend of $' + str(csdr.spend) + ' for dates ' + str(
+            csdr.start_date) + ' to ' + str(csdr.end_date))
 
     range_until_yesterday = date_range
     range_until_yesterday['maxDate'] = datetime.date.today() - datetime.timedelta(days=1)
@@ -151,5 +160,10 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
         campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
-        campaign.spend_until_yesterday = float(campaign_row['spend'])
-        campaign.save()
+        csdr, created = BingCampaignSpendDateRange.objects.get_or_create(campaign=campaign,
+                                                                         start_date=budget.start_date,
+                                                                         end_date=budget.end_date)
+        csdr.spend_until_yesterday = float(campaign_row['spend'])
+        csdr.save()
+        print('Bing Campaign: ' + str(csdr.campaign) + ' now has a spend of $' + str(csdr.spend) + ' for dates ' + str(
+            csdr.start_date) + ' to ' + str(csdr.end_date) + ' until yesterday')
