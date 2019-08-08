@@ -85,6 +85,10 @@
                         </div>
                     </div>
                     <div class="level-item">
+                        <strong><a class="button is-rounded is-small button-color"
+                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                    </div>
+                    <div class="level-item">
                         <strong>
                             <a class="button is-rounded is-small button-color"
                                href="/clients/accounts/{{ account.id }}/lifecycle">
@@ -100,12 +104,15 @@
                         </strong>
                     </div>
                     <div class="level-item">
-                        <strong><a class="button is-rounded is-small button-color"
-                                   id="assign_members_button">Team</a></strong>
+                        <strong>
+                            <a class="button is-rounded is-small button-color" id="flag_account_button">
+                                Flag Account
+                            </a>
+                        </strong>
                     </div>
                     <div class="level-item">
                         <strong><a class="button is-rounded is-small button-color"
-                                   href="/clients/accounts/{{ account.id }}/old">Old View</a></strong>
+                                   id="assign_members_button">Team</a></strong>
                     </div>
                 </div>
             </div>
@@ -677,6 +684,49 @@
     </div>
 
     <!-- MODALS -->
+    <div class="modal modal-fx-fadeInScale" id="flag_account_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Flag Account</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="flag_account_confirm_button">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+                <form id="flag_account_form">
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <input name="flagged" type="text" value="False" style="display: none;"/>
+                    <div class="columns">
+                        <div class="column is-6">
+                            <button type="button"
+                                    class="button is-fullwidth is-success {% if account.star_flag %}is-outlined{% endif %}"
+                                    id="good_account_toggle_button">
+                                Account Is Good
+                            </button>
+                        </div>
+                        <div class="column is-6">
+                            <button type="button" id="flag_account_toggle_button"
+                                    class="button is-fullwidth is-danger {% if not account.star_flag %}is-outlined{% endif %}">
+                                Flag Account
+                            </button>
+                        </div>
+                    </div>
+                    <div class="columns" id="bc_link_row">
+                        <div class="column">
+                            <label class="label">Basecamp Link</label>
+                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"
+                                   value="{{ account.flagged_bc_link }}" {% if account.star_flag %}required{% endif %}/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="quick_add_modal">
         <div class="modal-background"></div>
         <div class="modal-content">
@@ -2402,24 +2452,25 @@
             $('.modal').removeClass('is-active');
         });
 
-        let $flagTaskBtn = $('#flag_task_btn');
-        let $goodTaskBtn = $('#good_task_btn');
-        let $basecampLinkRow = $('#bc_link_row');
+        let $flagAccountButton = $('#flag_account_toggle_button');
+        let $goodAccountButton = $('#good_account_toggle_button');
+        let $bcLink = $('#bc_link');
+        let $flagged = $('[name="flagged"]');
 
-        $goodTaskBtn.click(function (e) {
-            $basecampLinkRow.removeClass('is-hidden');
-            $goodTaskBtn.removeClass('is-outlined');
-            $flagTaskBtn.addClass('is-outlined');
+        $goodAccountButton.click(() => {
+            $goodAccountButton.removeClass('is-outlined');
+            $flagAccountButton.addClass('is-outlined');
+            $flagged.val('False');
 
-            $('#bc_link').attr('placeholder', 'Optional');
+            $bcLink.attr('placeholder', 'Optional');
         });
 
-        $flagTaskBtn.click(function (e) {
-            $basecampLinkRow.removeClass('is-hidden');
-            $flagTaskBtn.removeClass('is-outlined');
-            $goodTaskBtn.addClass('is-outlined');
+        $flagAccountButton.click(() => {
+            $flagAccountButton.removeClass('is-outlined');
+            $goodAccountButton.addClass('is-outlined');
+            $flagged.val('True');
 
-            $('#bc_link').attr('placeholder', '');
+            $bcLink.attr('placeholder', '');
         });
 
         // proportional hours distribution
@@ -2492,6 +2543,10 @@
             $('#additional_fee_modal').addClass('is-active');
         });
 
+        $('#flag_account_button').click(() => {
+            $('#flag_account_modal').addClass('is-active');
+        });
+
         $('.edit-additional-fee-button').click(function () {
             $('#edit_additional_fee_modal').addClass('is-active');
             $('#edit_additional_fee_form [name="fee_id"]').val($(this).data('id'));
@@ -2534,6 +2589,29 @@
                 success: () => {
                     $('.modal').removeClass('is-active');
                     toastr.success('Successfully updated this additional fee!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, PAGEREFRESHTIME);
+                }
+            });
+        });
+
+        $('#flag_account_confirm_button').click(() => {
+            if ($bcLink.val() === '' && $flagged.val() === 'True') {
+                toastr.error('A basecamp link is required to flag an account!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/accounts/flag',
+                data: $('#flag_account_form').serialize(),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully updated this account\'s flag status!');
                     setTimeout(() => {
                         location.reload();
                     }, PAGEREFRESHTIME);
