@@ -465,3 +465,9 @@ class UserTestCase(TestCase):
         self.assertEqual(member.total_hours_minus_buffer, 210)
         self.assertEqual(member.hours_available, 140)
         self.assertEqual(round(member.capacity_rate, 2), 33.33)
+
+        member.buffer_seniority_percentage = 20.0
+        self.assertEqual(member.buffer_percentage, 0.0)
+        self.assertEqual(member.total_hours_minus_buffer, 168)
+        self.assertEqual(member.hours_available, 98)
+        self.assertEqual(round(member.capacity_rate, 2), 41.67)
