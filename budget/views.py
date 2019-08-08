@@ -1365,6 +1365,17 @@ def renew_overall_budget(request):
     budget_update.updated = True
     budget_update.save()
 
+    aw_budget = request.POST.get('aw_budget') or 0.0
+    fb_budget = request.POST.get('fb_budget') or 0.0
+    bing_budget = request.POST.get('bing_budget') or 0.0
+    flex_budget = request.POST.get('flex_budget') or 0.0
+
+    account.aw_budget = aw_budget
+    account.fb_budget = fb_budget
+    account.bing_budget = bing_budget
+    account.flex_budget = flex_budget
+    account.save()
+
     return HttpResponse('Success')
 
 
