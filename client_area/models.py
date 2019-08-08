@@ -613,9 +613,7 @@ class Mandate(models.Model):
         """
         if not self.ongoing:
             return 0.0
-        if self.billing_style == 0:
-            if self.ongoing_hours is None:
-                return 0
+        if self.billing_style == 0 and self.ongoing_hours is not None:
             return self.ongoing_hours
         try:
             return self.ongoing_cost / self.hourly_rate

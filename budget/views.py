@@ -13,11 +13,13 @@ from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, Bud
     AdditionalFee
 from client_area.models import Mandate
 from user_management.models import Member
+from insights.models import GoogleAnalyticsView
 from django.core import serializers
 from tasks import adwords_tasks
 from datetime import datetime, timedelta
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from django.utils.timezone import make_aware
 import calendar
 from bloom import settings
 
@@ -1033,6 +1035,9 @@ def edit_budget(request):
         budget.grouping_type = 0
         budget.is_new = False
         for c in request.POST.getlist('campaigns'):
+            budget.aw_campaigns.clear()
+            budget.bing_campaigns.clear()
+            budget.fb_campaigns.clear()
             try:
                 cmp = Campaign.objects.get(campaign_id=c)
                 budget.aw_campaigns.add(cmp)
@@ -1068,8 +1073,9 @@ def edit_budget(request):
         start_date_comps = flight_dates_input[0].split('/')
         end_date_comps = flight_dates_input[1].split('/')
 
-        start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
-        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 18, 59, 59)
+        start_date = make_aware(datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1])))
+        end_date = make_aware(
+            datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59))
 
         budget.start_date = start_date
         budget.end_date = end_date
@@ -1633,6 +1639,21 @@ def delete_additional_fee(request):
 
     additional_fee = get_object_or_404(AdditionalFee, id=request.POST.get('fee_id'))
     additional_fee.delete()
+    
+    return redirect('/clients/accounts/' + str(account.id))
+  
+  
+ @login_required
+def link_google_analytics(request):
+    """
+    Links a GA view to a SparkView account
+    :param request:
+    :return:
+    ga_view, created = GoogleAnalyticsView.objects.get_or_create(account=account)
+
+    view_id = request.POST.get('view_select')
+    ga_view.ga_view_id = view_id
+    ga_view.save()
 
     return redirect('/clients/accounts/' + str(account.id))
 
