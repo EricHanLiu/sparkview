@@ -14,12 +14,21 @@
     color: white;
 }
 
-.button-color:hover, .button-color-2:hover, .button-color-3:hover {
+.button-color-4 {
+    background-color: #a946be;
+    color: white;
+}
+
+.button-color:hover, .button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
     color: navajowhite;
 }
 
-.button-color:focus, .button-color-2:focus, .button-color-3:focus {
+.button-color:focus, .button-color-2:focus, .button-color-3:focus, .button-color-4:focus {
     color: navajowhite;
+}
+
+#promos_list::-webkit-scrollbar {
+    width: 0;
 }
 
 .tag.cm-color {
@@ -39,6 +48,11 @@
 
 .tag.strat-color {
     background-color: #cc4b93;
+    color: white;
+}
+
+.tag.backup-color {
+    background-color: #5c4ae4;
     color: white;
 }
 
