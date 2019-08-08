@@ -590,6 +590,13 @@ def members_single(request, id=0):
     mandate_assignments = member.active_mandate_assignments
     mandates = [assignment.mandate for assignment in mandate_assignments]
 
+    mandate_hours = {}
+    mandate_allocation = {}
+    for mandate_assignment in mandate_assignments:
+        key = mandate_assignment.mandate.id
+        mandate_hours[key] = mandate_assignment.worked_this_month
+        mandate_allocation[key] = mandate_assignment.hours
+
     # TODOS, handle possible get by date
     today = datetime.datetime.today().date()
     date = request.GET.get('todoDate')
@@ -613,7 +620,9 @@ def members_single(request, id=0):
         'black_marker': black_marker,
         'mandates': mandates,
         'today': today,
-        'todos': todos
+        'todos': todos,
+        'mandate_hours': mandate_hours,
+        'mandate_allocation': mandate_allocation
     }
 
     # ajax mandate completed checkmarking and todolist completion

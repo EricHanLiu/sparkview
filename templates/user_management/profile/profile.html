@@ -503,7 +503,10 @@
                                         Hourly Rate
                                     </th>
                                     <th>
-                                        Hours This Month
+                                        My Hours This Month
+                                    </th>
+                                    <th>
+                                        Total Allocated Hours This Month
                                     </th>
                                     <th>
                                         Date Range
@@ -529,7 +532,10 @@
                                             {{ mandate.hourly_rate|floatformat:2 }}
                                         </td>
                                         <td>
-                                            {{ mandate.calculated_ongoing_hours|floatformat:2 }}
+                                            {{ mandate_hours|get_item_from_list:mandate.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:mandate.id|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.allocated_hours_this_month|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
