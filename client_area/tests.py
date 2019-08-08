@@ -92,3 +92,5 @@ class ClientTestCase(TestCase):
         self.assertEqual(mandate3.calculated_ongoing_hours, 20)
         self.assertEqual(mandate3.calculated_ongoing_fee, 2000)
         self.assertEqual(mandate_assignment3.hours, 20)
+        self.assertEqual(mandate3.allocated_hours_this_month, mandate_assignment3.hours)
+        self.assertEqual(mandate3.calculated_ongoing_hours, mandate3.allocated_hours_this_month)

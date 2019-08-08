@@ -41,4 +41,5 @@ urlpatterns = [
     url(r'^create_additional_fee$', views.create_additional_fee, name='create_additional_fee'),
     url(r'^edit_additional_fee$', views.edit_additional_fee, name='edit_additional_fee'),
     url(r'^delete_additional_fee$', views.delete_additional_fee, name='delete_additional_fee'),
+    url(r'^link_google_analytics$', views.link_google_analytics, name='link_google_analytics')
 ]
