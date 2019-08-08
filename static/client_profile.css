@@ -14,11 +14,16 @@
     color: white;
 }
 
-.button-color:hover, .button-color-2:hover, .button-color-3:hover {
+.button-color-4 {
+    background-color: #a946be;
+    color: white;
+}
+
+.button-color:hover, .button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
     color: navajowhite;
 }
 
-.button-color:focus, .button-color-2:focus, .button-color-3:focus {
+.button-color:focus, .button-color-2:focus, .button-color-3:focus, .button-color-4:focus {
     color: navajowhite;
 }
 
