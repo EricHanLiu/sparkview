@@ -423,7 +423,7 @@ class Member(models.Model):
         if self.deactivated:
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
-               self.buffer_planning_percentage + self.buffer_internal_percentage
+            self.buffer_planning_percentage + self.buffer_internal_percentage
 
     @property
     def hours_available(self):

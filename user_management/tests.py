@@ -449,4 +449,19 @@ class UserTestCase(TestCase):
         self.assertEqual(backup_member.has_account(account2.id), True)
         self.assertEqual(backup_member.has_account(account3.id), True)
 
+    def test_buffer_seniority_percentage(self):
+        user = User.objects.create(username='eric')
+        member = Member.objects.create(user=user, buffer_total_percentage=100)
+        account = BloomClient.objects.create(client_name='test1', cm1=member, allocated_ppc_override=70, cm1percent=100,
+                                             status=1)
 
+        self.assertEqual(member.buffer_percentage, 0.0)
+        self.assertEqual(member.hours_available, 70)
+        self.assertEqual(member.total_hours_minus_buffer, 140)
+        self.assertEqual(member.capacity_rate, 50.0)
+
+        member.buffer_seniority_percentage = 50.0
+        self.assertEqual(member.buffer_percentage, 0.0)
+        self.assertEqual(member.total_hours_minus_buffer, 210)
+        self.assertEqual(member.hours_available, 140)
+        self.assertEqual(round(member.capacity_rate, 2), 33.33)
