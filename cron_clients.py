@@ -104,12 +104,14 @@ def main():
                 client.aw_yesterday += a.yesterday_spend
                 # client.aw_budget += a.desired_spend
                 client.aw_current_ds += a.current_spend / today.day
-
                 for k, v in sorted(a.segmented_spend.items()):
-                    if v['cost'] == 0:
-                        aw_temp = aw_temp + float(v['cost'])
-                    else:
-                        aw_temp = aw_temp + float(int(v['cost']) / 1000000)
+                    try:
+                        if v['cost'] == 0:
+                            aw_temp = aw_temp + float(v['cost'])
+                        else:
+                            aw_temp = aw_temp + float(int(v['cost']) / 1000000)
+                    except:
+                        continue
                     # aw_spend[v['day']] = round(aw_temp, 2)
                 aw_s_final['A - ' + remove_accents(account_name) + ' Spend'] = aw_spend
 

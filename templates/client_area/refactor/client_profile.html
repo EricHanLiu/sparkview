@@ -564,6 +564,109 @@
                         </div>
                     </div>
                     <br/>
+                    {% if account.default_budget is not None %}
+                        <div class="card" style="position: relative;">
+                            <header class="card-header">
+                                <p class="card-header-title">
+                                    <span class="tooltip" data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
+                                    - {{ account.default_budget.description }}
+                                    {% if account.default_budget.is_new %}&nbsp;
+                                        <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
+                                    {% endif %}
+                                </p>
+                                <span class="card-header-icon">
+                                    <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
+                                        <div class="control">
+                                            <div class="tags has-addons">
+                                                <span class="tag is-small {% if account.default_budget.has_adwords %}is-success{% endif %}">
+                                                    Google
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="control">
+                                            <div class="tags has-addons">
+                                                <span class="tag is-small {% if account.default_budget.has_facebook %}is-success{% endif %}">
+                                                    FB
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="control">
+                                            <div class="tags has-addons">
+                                                <span class="tag is-small {% if account.default_budget.has_bing %}is-success{% endif %}">
+                                                    Bing
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    &nbsp;&nbsp;
+                                    {% if account.default_budget.is_monthly %}
+                                        Monthly Budget - <span class="budget-date" style="margin-left: 0.3em;"></span>
+                                    {% else %}
+                                        Flight Dates: {{ account.default_budget.pretty_dates }}
+                                    {% endif %}
+                                </span>
+                            </header>
+                            <div class="card-content">
+                                <div class="columns">
+                                    <div class="column is-2">
+                                        Spend: <strong>{{ account.default_budget.calculated_spend|currency }}</strong>
+                                    </div>
+                                    <div class="column is-2">
+                                        Budget: <strong>{{ account.default_budget.budget|currency }}</strong>
+                                    </div>
+                                    <div class="column is-2">
+                                        Average: <strong>{{ account.default_budget.average_spend_yest|currency }}</strong>
+                                    </div>
+                                    <div class="column is-2">
+                                        Rec Daily Spend: <strong>{{ account.default_budget.rec_spend_yest|currency }}</strong>
+                                    </div>
+                                    <div class="column is-2">
+                                        Yesterday Spend: <strong>{{ account.default_budget.yesterday_spend|currency }}</strong>
+                                    </div>
+                                    <div class="column is-2">
+                                        Projected Spend: <strong>{{ account.default_budget.projected_spend_avg|currency }}</strong>
+                                    </div>
+                                </div>
+                                <div class="columns">
+                                    <div class="column is-12">
+                                        <div class="progress-wrapper">
+                                            <progress
+                                                    class="progress is-large {% if account.default_budget.underpacing_average %}is-warning{% elif account.default_budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
+                                                    max="100"
+                                                    value="{{ account.default_budget.spend_percentage }}">
+                                            </progress>
+                                            <div class="progress-value">
+                                                {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                            <div class="budget-pacer" data-is-monthly="{{ account.default_budget.is_monthly }}"
+                                                 data-start-date="{{ account.default_budget.start_date }}"
+                                                 data-end-date="{{ account.default_budget.end_date }}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="level">
+                                    <a class="button is-small is-info is-outlined campaigns_in_group_link"
+                                       data-budget-id="{{ account.default_budget.id }}">
+                                        Campaigns in group
+                                    </a>
+                                </div>
+                            </div>
+                            {% if account.default_budget.is_monthly and account.default_budget.needs_renewing %}
+                                <div class="budget-renewal-overlay" style="background-color: lightgrey; opacity: 0.95;">
+                                    <div class="has-text-centered" style="margin-top: 7em;">
+                                        <p>A new month has started, and this budget is
+                                            <strong>{{ account.default_budget.budget|currency }}</strong>. Would you like to renew it?
+                                        </p>
+                                        <button class="button is-rounded is-small" style="margin-top: 1em;"
+                                                id="renew_monthly_budget_button" data-budget-id="{{ account.default_budget.id }}">
+                                            Renew
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <br/>
+                    {% endif %}
                     {% for budget in account.budgets %}
                         <div class="card" style="position: relative;">
                             <header class="card-header">

@@ -253,16 +253,18 @@ CRONJOBS = [
 # Bing Stuff
 
 if DEBUG:
-    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
+    REDIRECT_URI = 'http://localhost:8000/dashboards/bing/auth/exchange'
+    INSIGHTS_PATH = '/home/sam/Projects/bloom-master/insights/'
 else:
-    REDIRECT_URI = "https://app.mibhub.com/dashboards/bing/auth/exchange"
+    REDIRECT_URI = 'https://app.mibhub.com/dashboards/bing/auth/exchange'
+    INSIGHTS_PATH = '/home/sam/bloom-master/insights/'
 
 # Bing Auth
-CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
-CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"
-DEVELOPER_TOKEN = "1215QQ0H16176244"
-DEVELOPER_TOKEN_SANDBOX = "BBD37VB98"
-ENVIRONMENT = "production"
+CLIENT_ID = 'b154faf8-2248-4eb5-83fe-f1897ef45cb7'
+CLIENT_SECRET = 'hspjJNTY4]-udkLBM3045*~'
+DEVELOPER_TOKEN = '1215QQ0H16176244'
+DEVELOPER_TOKEN_SANDBOX = 'BBD37VB98'
+ENVIRONMENT = 'production'
 BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
 
 # Facebook Auth
