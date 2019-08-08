@@ -442,7 +442,7 @@ class Member(models.Model):
     def hours_available_old(self):
         if self.deactivated:
             return 0.0
-        return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old) / 100.0)
+        return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old()) / 100.0)
                       - self.allocated_hours_month()), 2)
 
     def hours_available_other_month(self, month, year):
@@ -476,7 +476,7 @@ class Member(models.Model):
 
     @property
     def total_hours_minus_buffer_old(self):
-        return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old) / 100.0)
+        return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old()) / 100.0)
 
     @property
     def monthly_hour_capacity(self):
