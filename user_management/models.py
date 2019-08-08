@@ -648,6 +648,15 @@ class Member(models.Model):
         return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer)
 
     @property
+    def capacity_rate_old(self):
+        """
+        Percentage of total available hours (after buffer) that are allocated
+        """
+        if self.total_hours_minus_buffer == 0.0:
+            return 0.0
+        return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer_old)
+
+    @property
     def unread_notifications(self):
         """
         Fetches the notifications for this member
