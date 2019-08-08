@@ -1591,7 +1591,7 @@ def create_additional_fee(request):
 @login_required
 def edit_additional_fee(request):
     """
-    Creates an additional fee
+    Edits an additional fee
     """
     if request.method != 'POST':
         return HttpResponseBadRequest('Bad request, must be post')
@@ -1643,12 +1643,25 @@ def delete_additional_fee(request):
     return redirect('/clients/accounts/' + str(account.id))
   
   
- @login_required
+@login_required
 def link_google_analytics(request):
     """
     Links a GA view to a SparkView account
     :param request:
     :return:
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
     ga_view, created = GoogleAnalyticsView.objects.get_or_create(account=account)
 
     view_id = request.POST.get('view_select')
