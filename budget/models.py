@@ -190,7 +190,7 @@ class Client(models.Model):
 
     @property
     def budgets(self):
-        return Budget.objects.filter(account=self)
+        return Budget.objects.filter(account=self, is_default=False)
 
     @property
     def ga_view(self):
@@ -1533,6 +1533,16 @@ class Client(models.Model):
             self._additional_fees_this_month = self.additional_fees_month(now.month, now.year)
         return self._additional_fees_this_month
 
+    @property
+    def default_budget(self):
+        if not hasattr(self, '_default_budget'):
+            default_budgets = self.budget_account.filter(is_default=True)
+            if len(default_budgets) == 0:
+                self._default_budget = None
+            else:
+                self._default_budget = default_budgets[0]
+        return self._default_budget
+
     def additional_fees_month(self, month, year):
         """
         Gets extra fees from a month and year
@@ -1612,6 +1622,7 @@ class Budget(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False)
     needs_renewing = models.BooleanField(default=False)
 
     class Meta:

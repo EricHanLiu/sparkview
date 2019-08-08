@@ -1352,6 +1352,7 @@ def star_account(request):
 
     if not flagged:
         account.star_flag = False
+        account.flagged_bc_link = bc_link
         account.save()
 
         event_description = account.client_name + ' was marked as good by ' + member.user.get_full_name() + '.'

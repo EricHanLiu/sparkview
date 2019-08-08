@@ -2,7 +2,7 @@ from bloom import celery_app, settings
 from adwords_dashboard.models import Campaign
 from facebook_dashboard.models import FacebookCampaign
 from bing_dashboard.models import BingCampaign
-from budget.models import Budget
+from budget.models import Budget, Client
 
 
 def reset_all_campaign_spends():
@@ -95,3 +95,53 @@ def reset_budget_renewal_needs(self, budget_id):
 
     budget.needs_renewing = True
     budget.save()
+
+
+@celery_app.task(bind=True)
+def create_default_budgets(self):
+    """
+    Creates default budgets for accounts that don't have them yet
+    :return:
+    """
+    default_budgets = Budget.objects.filter(is_default=True)
+    account_ids_with_default_budgets = [budget.account.id for budget in default_budgets]
+
+    accounts_without_default_budgets = Client.objects.filter(salesprofile__ppc_status=1).exclude(
+        id__in=account_ids_with_default_budgets)
+
+    for account in accounts_without_default_budgets:
+        budget = Budget.objects.create(name='Default Budget', account=account, is_monthly=True, grouping_type=2,
+                                       is_default=True)
+        if account.has_adwords:
+            budget.has_adwords = True
+        if account.has_fb:
+            budget.has_facebook = True
+        if account.has_bing:
+            budget.has_bing = True
+
+        budget.budget = account.current_budget
+        budget.save()
+
+        print('Created default budget for ' + str(account))
+
+
+@celery_app.task(bind=True)
+def update_default_budgets(self):
+    """
+    Updates default budgets to have correct ad networks
+    :return:
+    """
+    default_budgets = Budget.objects.filter(is_default=True)
+
+    for budget in default_budgets:
+        account = budget.account
+        if account.has_adwords:
+            budget.has_adwords = True
+        if account.has_fb:
+            budget.has_facebook = True
+        if account.has_bing:
+            budget.has_bing = True
+        budget.budget = account.current_budget
+        budget.save()
+
+        print('Budget ' + str(budget) + ' is now up to date')

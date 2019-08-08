@@ -1365,6 +1365,17 @@ def renew_overall_budget(request):
     budget_update.updated = True
     budget_update.save()
 
+    aw_budget = request.POST.get('aw_budget') or 0.0
+    fb_budget = request.POST.get('fb_budget') or 0.0
+    bing_budget = request.POST.get('bing_budget') or 0.0
+    flex_budget = request.POST.get('flex_budget') or 0.0
+
+    account.aw_budget = aw_budget
+    account.fb_budget = fb_budget
+    account.bing_budget = bing_budget
+    account.flex_budget = flex_budget
+    account.save()
+
     return HttpResponse('Success')
 
 
@@ -1588,6 +1599,61 @@ def create_additional_fee(request):
     return redirect('/clients/accounts/' + str(account.id))
 
 
+@login_required
+def edit_additional_fee(request):
+    """
+    Edits an additional fee
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    fee_id = request.POST.get('fee_id')
+    name = request.POST.get('name')
+    fee = request.POST.get('fee')
+    month, year = request.POST.get('month'), request.POST.get('year')
+
+    additional_fee = get_object_or_404(AdditionalFee, id=fee_id)
+    additional_fee.name = name
+    additional_fee.fee = fee
+    additional_fee.month = month
+    additional_fee.year = year
+    additional_fee.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def delete_additional_fee(request):
+    """
+    Deletes an additional fee
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    additional_fee = get_object_or_404(AdditionalFee, id=request.POST.get('fee_id'))
+    additional_fee.delete()
+    
+    return redirect('/clients/accounts/' + str(account.id))
+  
+  
 @login_required
 def link_google_analytics(request):
     """

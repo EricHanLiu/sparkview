@@ -1,5 +1,6 @@
 import argparse
 from googleapiclient.discovery import build as google_build
+from bloom import settings
 import httplib2
 from oauth2client import client
 from oauth2client import file
@@ -33,7 +34,7 @@ def initialize_analyticsreporting():
     # If the credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # credentials will get written back to a file.
-    storage = file.Storage('/home/sam/Projects/bloom-master/insights/analyticsreporting.dat')
+    storage = file.Storage(settings.INSIGHTS_PATH + 'analyticsreporting.dat')
     credentials = storage.get()
     if credentials is None or credentials.invalid:
         credentials = tools.run_flow(flow, storage, flags)
