@@ -1,7 +1,7 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
-from budget.models import Budget, CampaignExclusions
+from budget.models import Budget, CampaignExclusions, Client
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
 from bloom.utils.ppc_accounts import active_facebook_accounts
