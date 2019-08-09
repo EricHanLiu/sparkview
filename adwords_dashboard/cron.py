@@ -196,7 +196,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     }
 
     try:
-        campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
+        campaign_report = \
+        Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
     except IndexError:
         return
 
@@ -263,12 +264,6 @@ def get_spend_by_account_custom_daterange(self, account_id, start_date, end_date
     except Client.DoesNotExist:
         return
 
-    try:
-        campaign_exclusion = CampaignExclusions.objects.get(account=account)
-        excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusion.aw_campaigns.all()]
-    except CampaignExclusions.DoesNotExist:
-        excluded_campaign_ids = []
-
     spend_sum = 0
     adwords_accounts = account.adwords.all()
     for adwords_account in adwords_accounts:
@@ -285,17 +280,24 @@ def get_spend_by_account_custom_daterange(self, account_id, start_date, end_date
                     'operator': 'GREATER_THAN',
                     'values': '0'
                 },
-                {
+            ],
+            'dateRange': {
+                'min': start_date.strftime('%Y%m%d'),
+                'max': end_date.strftime('%Y%m%d')
+            }
+        }
+
+        try:
+            campaign_exclusion = CampaignExclusions.objects.get(account=account)
+            excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusion.aw_campaigns.all()]
+            if len(excluded_campaign_ids) > 0:
+                campaign_report_selector['predicates'].append({
                     'field': 'CampaignId',
                     'operator': 'NOT_IN',
                     'values': excluded_campaign_ids
-                }
-            ],
-            'date_range': {
-                'min': start_date,
-                'max': end_date
-            }
-        }
+                })
+        except CampaignExclusions.DoesNotExist:
+            pass
 
         campaign_report_query = {
             'reportName': 'CAMPAIGN_PERFORMANCE_REPORT',
@@ -305,7 +307,8 @@ def get_spend_by_account_custom_daterange(self, account_id, start_date, end_date
             'selector': campaign_report_selector
         }
 
-        campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))
+        campaign_report = Reporting.parse_report_csv_new(
+            report_downloader.DownloadReportAsString(campaign_report_query))
         for campaign_row in campaign_report:
             # This is the cost for this timerange
             cost = int(campaign_row['cost']) / 1000000
