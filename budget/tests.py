@@ -11,6 +11,7 @@ from .cron import reset_google_ads_campaign, reset_bing_campaign, reset_facebook
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
+from budget.cron import create_default_budget
 import calendar
 import datetime
 import json
@@ -533,6 +534,16 @@ class AccountTestCase(TestCase):
         self.assertEqual(b13.calculated_yest_spend, 35)
         self.assertEqual(b13.average_spend_yest, 5)
         self.assertEqual(b13.projected_spend_avg, 70)
+
+        create_default_budget(account.id)
+        account.aw_budget = 100
+        account.fb_budget = 50
+        account.bing_budget = 25
+        account.flex_budget = 10
+        account.save()
+        test_default_bugdet = Budget.objects.get(account=account, is_default=True)
+
+        self.assertEqual(test_default_bugdet.calculated_budget, 185)
 
     def test_get_campaigns_view(self):
         """
