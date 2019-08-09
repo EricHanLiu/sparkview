@@ -1638,10 +1638,12 @@ class Budget(models.Model):
         """
         now = datetime.datetime.now()
         if self.is_monthly:
-            days_in_date_range = calendar.monthrange(now.year, now.month)[1]
+            days_in_month = calendar.monthrange(now.year, now.month)[1]
+            percentage = now.day / days_in_month * 100.0
         else:
             days_in_date_range = (self.end_date - self.start_date).days
-        percentage = now.day / days_in_date_range * 100.0
+            days_elapsed = (now - self.start_date).days
+            percentage = days_elapsed / days_in_date_range * 100.0
         return percentage
 
     @property
