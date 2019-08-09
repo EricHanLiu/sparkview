@@ -1,7 +1,7 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
-from budget.models import Budget
+from budget.models import Budget, CampaignExclusions
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
 from bloom.utils.ppc_accounts import active_facebook_accounts
@@ -200,3 +200,60 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         print('Facebook Campaign: ' + str(tmp_cmp) + ' now has a spend until yesterday of $' + str(
             fcsdr.spend) + ' for dates ' + str(
             fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
+
+
+@celery_app.task(bind=True)
+def get_spend_by_facebook_account_custom_dates(self, account_id, start_date, end_date):
+    """
+    :param self:
+    :param account_id: int
+    :param start_date: datetime
+    :param end_date: datetime
+    :return:
+    """
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return
+
+    helper = FacebookReportingService(facebook_init())
+    date_range = helper.get_custom_date_range(start_date, end_date)
+
+    fields = [
+        'campaign_name',
+        'campaign_id',
+        'spend',
+    ]
+
+    filtering = [{
+        'field': 'campaign.spend',
+        'operator': 'GREATER_THAN',
+        'value': 0,
+    }]
+
+    this_month_params = helper.set_params(
+        time_range=date_range,
+        level='campaign',
+        filtering=filtering
+    )
+
+    total_spend = 0.0
+
+    for fb_acc in account.facebook.all():
+        try:
+            report = helper.get_account_insights(fb_acc.account_id, params=this_month_params, extra_fields=fields)
+        except FacebookRequestError:
+            continue
+
+        try:
+            campaign_exclusions = CampaignExclusions.objects.get(account=account)
+            excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusions.fb_campaigns.all()]
+        except CampaignExclusions.DoesNotExist:
+            excluded_campaign_ids = []
+
+        for campaign_row in report:
+            if campaign_row['campaign_id'] in excluded_campaign_ids:
+                continue
+            total_spend += float(campaign_row['spend'])
+
+    return total_spend

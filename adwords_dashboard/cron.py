@@ -254,17 +254,20 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
 
 
 @celery_app.task(bind=True)
-def get_spend_by_campaign_custom_daterange(self, client_id, start_date, end_date):
+def get_spend_by_account_custom_daterange(self, account_id, start_date, end_date):
     """
     Gets spend for all campaigns for this dependent account in this date range
     """
     try:
-        account = Client.objects.get(id=client_id)
+        account = Client.objects.get(id=account_id)
     except Client.DoesNotExist:
         return
 
-    campaign_exclusions = CampaignExclusions.objects.filter(account=account)
-    excluded_campaigns = [exclusion.aw_campaigns.all() for exclusion in campaign_exclusions]
+    try:
+        campaign_exclusion = CampaignExclusions.objects.get(account=account)
+        excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusion.aw_campaigns.all()]
+    except CampaignExclusions.DoesNotExist:
+        excluded_campaign_ids = []
 
     spend_sum = 0
     adwords_accounts = account.adwords.all()
@@ -285,7 +288,7 @@ def get_spend_by_campaign_custom_daterange(self, client_id, start_date, end_date
                 {
                     'field': 'CampaignId',
                     'operator': 'NOT_IN',
-                    'values': [campaign.campaign_id for campaign in excluded_campaigns]
+                    'values': excluded_campaign_ids
                 }
             ],
             'date_range': {
@@ -307,3 +310,5 @@ def get_spend_by_campaign_custom_daterange(self, client_id, start_date, end_date
             # This is the cost for this timerange
             cost = int(campaign_row['cost']) / 1000000
             spend_sum += cost
+
+    return spend_sum
