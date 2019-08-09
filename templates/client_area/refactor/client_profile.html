@@ -3284,9 +3284,11 @@
                     // flight budget
                     let startDate = $(this).data('start-date');
                     let endDate = $(this).data('end-date');
+                    let sdArr = startDate.split(',');
+                    let edArr = endDate.split(',');
                     // convert to js dates
-                    startDate = new Date(startDate.replace(', midnight', ''));
-                    endDate = new Date(endDate.replace(', 11:59 p.m.', ''));
+                    startDate = new Date(sdArr[0] + sdArr[1]);
+                    endDate = new Date(edArr[0] + edArr[1]);
                     let daysInDateRange = Math.round(endDate - startDate) / MSPERDAY;  // dateRange is a ms object
                     let daysElapsed = Math.round((now - startDate) / MSPERDAY);
                     percentage = daysElapsed * 100 / daysInDateRange;
