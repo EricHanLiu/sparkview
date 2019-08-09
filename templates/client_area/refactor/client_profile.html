@@ -627,9 +627,7 @@
                                             <div class="progress-value">
                                                 {{ account.default_budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer" data-is-monthly="{{ account.default_budget.is_monthly }}"
-                                                 data-start-date="{{ account.default_budget.start_date }}"
-                                                 data-end-date="{{ account.default_budget.end_date }}"></div>
+                                            <div class="budget-pacer" style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -739,9 +737,7 @@
                                             <div class="progress-value">
                                                 {{ budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer" data-is-monthly="{{ budget.is_monthly }}"
-                                                 data-start-date="{{ budget.start_date }}"
-                                                 data-end-date="{{ budget.end_date }}"></div>
+                                            <div class="budget-pacer" style="left: {{ budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -3269,34 +3265,6 @@
                     {% endfor %}
                 ]
             });
-
-            // budget pacer calculations
-            let now = new Date();
-            let today = now.getDate();
-            let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            const MSPERDAY = 1000 * 60 * 60 * 24;
-            $('.budget-pacer').each(function () {
-                let isMonthly = $(this).data('is-monthly') === 'True';
-                let percentage;
-                if (isMonthly) {
-                    percentage = today * 100.0 / daysInMonth;
-                } else {
-                    // flight budget
-                    let startDate = $(this).data('start-date');
-                    let endDate = $(this).data('end-date');
-                    let sdArr = startDate.split(',');
-                    let edArr = endDate.split(',');
-                    // convert to js dates
-                    startDate = new Date(sdArr[0] + sdArr[1]);
-                    endDate = new Date(edArr[0] + edArr[1]);
-                    let daysInDateRange = Math.round(endDate - startDate) / MSPERDAY;  // dateRange is a ms object
-                    let daysElapsed = Math.round((now - startDate) / MSPERDAY);
-                    percentage = daysElapsed * 100 / daysInDateRange;
-                }
-                percentage = parseFloat(percentage).toFixed(2).toString();
-                $(this).css('left', percentage + '%');
-            });
-            $('.budget-date').text(today + '/' + daysInMonth);
 
             // account management status row
             let status = $statusSelect.val();

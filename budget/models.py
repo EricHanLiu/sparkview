@@ -1632,6 +1632,20 @@ class Budget(models.Model):
         return str(self.account) + ' budget'
 
     @property
+    def pacer_offset(self):
+        """
+        Calculates a percentage offset for a budget pacer, ie. how far along the budget should be
+        """
+        now = datetime.datetime.now()
+        if self.is_monthly:
+            days_in_date_range = calendar.monthrange(now.year, now.month)[1]
+        else:
+            days_in_date_range = (self.end_date - self.start_date).days
+        percentage = now.day / days_in_date_range * 100.0
+        print(percentage)
+        return percentage
+
+    @property
     def is_flight(self):
         return not self.is_monthly
 
