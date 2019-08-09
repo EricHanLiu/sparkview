@@ -204,6 +204,13 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
 
 @celery_app.task(bind=True)
 def get_spend_by_facebook_account_custom_dates(self, account_id, start_date, end_date):
+    """
+    :param self:
+    :param account_id: int
+    :param start_date: datetime
+    :param end_date: datetime
+    :return:
+    """
     try:
         account = FacebookAccount.objects.get(id=account_id)
     except FacebookAccount.DoesNotExist:
