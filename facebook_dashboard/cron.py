@@ -1,7 +1,7 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
-from budget.models import Budget, CampaignExclusions
+from budget.models import Budget, CampaignExclusions, Client
 from tasks.facebook_tasks import facebook_init
 from facebook_business.exceptions import FacebookRequestError
 from bloom.utils.ppc_accounts import active_facebook_accounts
@@ -212,8 +212,8 @@ def get_spend_by_facebook_account_custom_dates(self, account_id, start_date, end
     :return:
     """
     try:
-        account = FacebookAccount.objects.get(id=account_id)
-    except FacebookAccount.DoesNotExist:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
         return
 
     helper = FacebookReportingService(facebook_init())
@@ -237,21 +237,23 @@ def get_spend_by_facebook_account_custom_dates(self, account_id, start_date, end
         filtering=filtering
     )
 
-    try:
-        report = helper.get_account_insights(account.account_id, params=this_month_params, extra_fields=fields)
-    except FacebookRequestError:
-        return
-
-    try:
-        campaign_exclusions = CampaignExclusions.objects.get(account=self)
-        excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusions.fb_campaigns.all()]
-    except CampaignExclusions.DoesNotExist:
-        excluded_campaign_ids = []
-
     total_spend = 0.0
-    for campaign_row in report:
-        if campaign_row['campaign_id'] in excluded_campaign_ids:
+
+    for fb_acc in account.facebook.all():
+        try:
+            report = helper.get_account_insights(fb_acc.account_id, params=this_month_params, extra_fields=fields)
+        except FacebookRequestError:
             continue
-        total_spend += float(campaign_row['spend'])
+
+        try:
+            campaign_exclusions = CampaignExclusions.objects.get(account=account)
+            excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusions.fb_campaigns.all()]
+        except CampaignExclusions.DoesNotExist:
+            excluded_campaign_ids = []
+
+        for campaign_row in report:
+            if campaign_row['campaign_id'] in excluded_campaign_ids:
+                continue
+            total_spend += float(campaign_row['spend'])
 
     return total_spend
