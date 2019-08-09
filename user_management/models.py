@@ -423,13 +423,13 @@ class Member(models.Model):
         if self.deactivated:
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
-            self.buffer_planning_percentage + self.buffer_internal_percentage
+               self.buffer_planning_percentage + self.buffer_internal_percentage
 
     def buffer_percentage_old(self):
         if self.deactivated:
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
-            self.buffer_planning_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
+               self.buffer_planning_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
 
     @property
     def hours_available(self):
@@ -585,6 +585,10 @@ class Member(models.Model):
         return self._accounts.distinct()
 
     @property
+    def active_accounts_including_backups_count(self):
+        return self.active_accounts_count + self.backup_accounts.count()
+
+    @property
     def accounts_not_lost(self):
         """
         My accounts that are not lost
@@ -616,7 +620,31 @@ class Member(models.Model):
                 id__in=backups.values('account_id'))
         return self._backupaccounts
 
-    def get_accounts_count(self):
+    @property
+    def backup_hours_plus_minus(self):
+        """
+        The number of allocated hours this member has gained or lost due to backups (this month)
+        """
+        hours = 0
+        now = datetime.datetime.now()
+        # a member cannot simultaneously be on vacation and be backing someone up - must be one or the other
+        potential_backups = Backup.objects.filter(period__member=self, account__in=self.active_accounts,
+                                                  period__start_date__lte=now,
+                                                  period__end_date__gte=now, approved=True)
+        if potential_backups.count() > 0:
+            # hours will be negative since this member is on vacation
+            for backup in potential_backups:
+                hours_to_deduct = backup.hours_this_month
+                num_members = backup.members.all().count()
+                hours_to_deduct *= num_members
+                hours -= hours_to_deduct
+        else:
+            # hours will be positive since member is backing up other people
+            for acc in self.backup_accounts:
+                hours += acc.get_allocation_this_month_member(self, True)
+        return hours
+
+    def all_accounts_count(self):
         return self.accounts.count()
 
     @property
@@ -705,7 +733,7 @@ class Member(models.Model):
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
     buffer_percentage = property(buffer_percentage)
-    account_count = property(get_accounts_count)
+    account_count = property(all_accounts_count)
 
     def __str__(self):
         return self.user.get_full_name()
