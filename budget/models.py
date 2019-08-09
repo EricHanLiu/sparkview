@@ -1642,7 +1642,6 @@ class Budget(models.Model):
         else:
             days_in_date_range = (self.end_date - self.start_date).days
         percentage = now.day / days_in_date_range * 100.0
-        print(percentage)
         return percentage
 
     @property

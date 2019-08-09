@@ -4,7 +4,7 @@ from bloom import celery_app, settings
 from bloom.utils.reporting import Reporting
 from tasks.logger import Logger
 from .models import DependentAccount, Campaign, CampaignSpendDateRange
-from budget.models import Budget
+from budget.models import Budget, Client, CampaignExclusions
 from bloom.utils.ppc_accounts import active_adwords_accounts
 import datetime
 
@@ -251,3 +251,59 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
 
     campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()
+
+
+@celery_app.task(bind=True)
+def get_spend_by_campaign_custom_daterange(self, client_id, start_date, end_date):
+    """
+    Gets spend for all campaigns for this dependent account in this date range
+    """
+    try:
+        account = Client.objects.get(id=client_id)
+    except Client.DoesNotExist:
+        return
+
+    campaign_exclusions = CampaignExclusions.objects.filter(account=account)
+    excluded_campaigns = [exclusion.aw_campaigns.all() for exclusion in campaign_exclusions]
+
+    spend_sum = 0
+    adwords_accounts = account.adwords.all()
+    for adwords_account in adwords_accounts:
+        client = get_client()
+        client.client_customer_id = adwords_account.dependent_account_id
+
+        report_downloader = client.GetReportDownloader(version=settings.API_VERSION)
+
+        campaign_report_selector = {
+            'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
+            'predicates': [
+                {
+                    'field': 'Cost',
+                    'operator': 'GREATER_THAN',
+                    'values': '0'
+                },
+                {
+                    'field': 'CampaignId',
+                    'operator': 'NOT_IN',
+                    'values': [campaign.campaign_id for campaign in excluded_campaigns]
+                }
+            ],
+            'date_range': {
+                'min': start_date,
+                'max': end_date
+            }
+        }
+
+        campaign_report_query = {
+            'reportName': 'CAMPAIGN_PERFORMANCE_REPORT',
+            'dateRangeType': 'CUSTOM_DATE',
+            'reportType': 'CAMPAIGN_PERFORMANCE_REPORT',
+            'downloadFormat': 'CSV',
+            'selector': campaign_report_selector
+        }
+
+        campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))
+        for campaign_row in campaign_report:
+            # This is the cost for this timerange
+            cost = int(campaign_row['cost']) / 1000000
+            spend_sum += cost
