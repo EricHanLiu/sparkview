@@ -34,5 +34,13 @@ def main():
         budget.has_bing = False
         budget.save()
 
+        # budget.pk = None
+        #
+        # # Make one for just bing
+        # budget.has_adwords = False
+        # budget.has_facebook = False
+        # budget.has_bing = True
+        # budget.save()
+
 
 main()
