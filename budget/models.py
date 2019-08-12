@@ -1636,7 +1636,7 @@ class Budget(models.Model):
         """
         Calculates a percentage offset for a budget pacer, ie. how far along the budget should be
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(datetime.timezone.utc)
         if self.is_monthly:
             days_in_month = calendar.monthrange(now.year, now.month)[1]
             percentage = now.day / days_in_month * 100.0
