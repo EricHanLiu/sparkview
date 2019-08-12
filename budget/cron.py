@@ -110,6 +110,7 @@ def create_default_budgets(self):
         id__in=account_ids_with_default_budgets)
 
     for account in accounts_without_default_budgets:
+        print('Making default budget for ' + str(account))
         create_default_budget(account.id)
 
 

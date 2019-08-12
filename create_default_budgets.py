@@ -8,7 +8,7 @@ from budget.cron import create_default_budgets
 
 
 def main():
-    create_default_budgets()
+    create_default_budgets.delay()
 
 
 main()

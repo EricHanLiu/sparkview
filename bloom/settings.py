@@ -185,7 +185,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'AFQ5EqzWXICEFMwLfEumz9C5'
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = "/var/www/bloom/static"
+STATIC_ROOT = '/var/www/bloom/static'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
@@ -194,7 +194,7 @@ API_VERSION = 'v201809'
 BING_API_VERSION = 12
 FACEBOOK_ADS_VERSION = 'v3.3'
 
-LOGIN_URL = "login"
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_ERROR_URL = 'login'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
@@ -344,10 +344,9 @@ else:
     }
 
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_BROKER_URL = "amqp://bloom:bloombrokerpass@broker:5672/celeryhost"
-CELERY_TIMEZONE = "UTC"
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 LOGGING = {
     'version': 1,
