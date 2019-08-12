@@ -1259,12 +1259,20 @@ def assign_client_accounts(request):
             client.facebook.add(acc)
             client.save()
 
+    if client.default_budget is not None:
+        budget = client.default_budget
+        if client.has_adwords:
+            budget.has_adwords = True
+        if client.has_fb:
+            budget.has_facebook = True
+        if client.has_bing:
+            budget.has_bing = True
+        budget.save()
+
     response = {
         'client': client.client_name
     }
 
-    if not settings.DEBUG:
-        adwords_tasks.cron_clients.delay()
     return JsonResponse(response)
 
 
@@ -1650,10 +1658,10 @@ def delete_additional_fee(request):
 
     additional_fee = get_object_or_404(AdditionalFee, id=request.POST.get('fee_id'))
     additional_fee.delete()
-    
+
     return redirect('/clients/accounts/' + str(account.id))
-  
-  
+
+
 @login_required
 def link_google_analytics(request):
     """
