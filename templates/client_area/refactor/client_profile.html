@@ -405,10 +405,9 @@
                                     id="add_promo_button">
                                 Add Promo
                             </button>
-                            <button class="button level-item is-rounded is-small button-color"
-                                    id="edit_promos_button">
+                            <a class="button level-item is-rounded is-small button-color" href="/clients/promos/edit">
                                 Edit Promos
-                            </button>
+                            </a>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="view_calendar_button">
                                 View Calendar
@@ -2691,10 +2690,6 @@
             $('#add_promo_modal').addClass('is-active');
         });
 
-        $('#edit_promos_button').click(() => {
-            location.href = '/clients/promos/edit';
-        });
-
         $('#management_button').click(() => {
             $('#management_modal').addClass('is-active');
         });
@@ -2981,7 +2976,7 @@
                 data: $('#management_form').serialize(),
                 success: () => {
                     $('.modal').removeClass('is-active');
-                    toastr.success('Successfully updated management fee structure!');
+                    toastr.success('Successfully updated management details!');
                     setTimeout(() => {
                         location.reload();
                     }, PAGEREFRESHTIME);
