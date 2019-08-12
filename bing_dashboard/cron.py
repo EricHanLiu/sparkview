@@ -167,3 +167,8 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
         csdr.save()
         print('Bing Campaign: ' + str(csdr.campaign) + ' now has a spend of $' + str(csdr.spend) + ' for dates ' + str(
             csdr.start_date) + ' to ' + str(csdr.end_date) + ' until yesterday')
+
+
+@celery_app.task(bind=True)
+def bing_accounts(self):
+    pass

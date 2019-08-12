@@ -20,6 +20,7 @@ def get_client():
         return
 
 
+@celery_app.task(bind=True)
 def get_all_spends_by_campaign_this_month():
     accounts = active_adwords_accounts()
     for account in accounts:
@@ -122,13 +123,8 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.save()
         print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
-    # not_in_use_camps = Campaign.objects.exclude(campaign_id__in=in_use_ids)
-    # for cmp in not_in_use_camps:
-    #     cmp.campaign_cost = 0.0
-    #     cmp.spend_until_yesterday = 0.0
-    #     cmp.save()
 
-
+@celery_app.task(bind=True)
 def get_all_spend_by_campaign_custom():
     """
     Creates celery tasks for each campaign
@@ -196,7 +192,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     }
 
     try:
-        campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
+        campaign_report = \
+        Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
     except IndexError:
         return
 
@@ -251,3 +248,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
 
     campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()
+
+
+@celery_app.task(bind=True)
+def adwords_accounts(self):
+    pass

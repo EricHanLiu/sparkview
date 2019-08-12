@@ -8,6 +8,7 @@ from bloom.utils.ppc_accounts import active_facebook_accounts
 import datetime
 
 
+@celery_app.task(bind=True)
 def get_all_spends_by_facebook_campaign_this_month():
     accounts = active_facebook_accounts()
     for account in accounts:
@@ -257,3 +258,8 @@ def get_spend_by_facebook_account_custom_dates(self, account_id, start_date, end
             total_spend += float(campaign_row['spend'])
 
     return total_spend
+
+
+@celery_app.task(bind=True)
+def facebook_accounts(self):
+    pass

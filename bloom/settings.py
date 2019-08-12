@@ -202,9 +202,9 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
 CRONJOBS = [
-    ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
-    ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
-    ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
+    # ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
+    # ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
+    # ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
