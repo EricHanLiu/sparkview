@@ -817,11 +817,12 @@ class Client(models.Model):
     @property
     def onboarding_hours(self):
         bank = self.managementFee.initialFee / 125.0
-        hour_records = AccountHourRecord.objects.filter(account=self,
-                                                        is_onboarding=True) | MandateHourRecord.objects.filter(
-            assignment__mandate__account=self, is_onboarding=True)
+        account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
+        mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self, is_onboarding=True)
 
-        for record in hour_records:
+        for record in account_hour_records:
+            bank -= record.hours
+        for record in mandate_hour_records:
             bank -= record.hours
         return bank
 

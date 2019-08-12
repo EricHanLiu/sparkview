@@ -372,7 +372,13 @@
                         <div class="column is-6 has-text-centered">
                             <div style="margin-top: 0.5em;">
                                 <p class="heading">Allocated Hours</p>
-                                <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
+                                <p class="title">
+                                    {% if account.status == 0 %}
+                                        {{ account.onboarding_hours|floatformat }}
+                                    {% else %}
+                                        {{ account.allocated_hours_including_mandate|floatformat }}
+                                    {% endif %}
+                                </p>
                             </div>
                             <div style="margin-top: 1em;">
                                 <p class="heading">Actual Hours</p>
@@ -556,7 +562,8 @@
                         <div class="card" style="position: relative;">
                             <header class="card-header">
                                 <p class="card-header-title">
-                                    <span class="tooltip" data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
+                                    <span class="tooltip"
+                                          data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
                                     - {{ account.default_budget.description }}
                                     {% if account.default_budget.is_new %}&nbsp;
                                         <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
@@ -603,16 +610,20 @@
                                         Budget: <strong>{{ account.default_budget.budget|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Average: <strong>{{ account.default_budget.average_spend_yest|currency }}</strong>
+                                        Average:
+                                        <strong>{{ account.default_budget.average_spend_yest|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Rec Daily Spend: <strong>{{ account.default_budget.rec_spend_yest|currency }}</strong>
+                                        Rec Daily Spend:
+                                        <strong>{{ account.default_budget.rec_spend_yest|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Yesterday Spend: <strong>{{ account.default_budget.yesterday_spend|currency }}</strong>
+                                        Yesterday Spend:
+                                        <strong>{{ account.default_budget.yesterday_spend|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Projected Spend: <strong>{{ account.default_budget.projected_spend_avg|currency }}</strong>
+                                        Projected Spend:
+                                        <strong>{{ account.default_budget.projected_spend_avg|currency }}</strong>
                                     </div>
                                 </div>
                                 <div class="columns">
@@ -626,7 +637,8 @@
                                             <div class="progress-value">
                                                 {{ account.default_budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer" style="left: {{ account.default_budget.pacer_offset }}%"></div>
+                                            <div class="budget-pacer"
+                                                 style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -641,10 +653,12 @@
                                 <div class="budget-renewal-overlay" style="background-color: lightgrey; opacity: 0.95;">
                                     <div class="has-text-centered" style="margin-top: 7em;">
                                         <p>A new month has started, and this budget is
-                                            <strong>{{ account.default_budget.calculated_budget|currency }}</strong>. Would you like to renew it?
+                                            <strong>{{ account.default_budget.calculated_budget|currency }}</strong>.
+                                            Would you like to renew it?
                                         </p>
                                         <button class="button is-rounded is-small" style="margin-top: 1em;"
-                                                id="renew_monthly_budget_button" data-budget-id="{{ account.default_budget.id }}">
+                                                id="renew_monthly_budget_button"
+                                                data-budget-id="{{ account.default_budget.id }}">
                                             Renew
                                         </button>
                                     </div>
