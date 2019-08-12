@@ -787,7 +787,7 @@ class Client(models.Model):
     def ppc_ignore_override(self):
         hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         if self.is_onboarding_ppc and self.managementFee is not None:
-            hours += (self.managementFee.initialFee / 125.0)
+            hours += self.onboarding_hours
         return hours
 
     def get_ppc_allocated_hours(self):
@@ -819,7 +819,6 @@ class Client(models.Model):
         bank = self.managementFee.initialFee / 125.0
         account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
         mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self, is_onboarding=True)
-
         for record in account_hour_records:
             bank -= record.hours
         for record in mandate_hour_records:

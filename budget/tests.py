@@ -637,7 +637,7 @@ class AccountTestCase(TestCase):
         Tests the pacer_offset property of a budget calculates the right amount
         Can only really do flight dates since monthly budgets depend fully on today
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.now(datetime.timezone.utc)
         week_ago = now - datetime.timedelta(7)
         week_from_now = now + datetime.timedelta(7)
         two_weeks_from_now = week_from_now + datetime.timedelta(7)
@@ -649,3 +649,16 @@ class AccountTestCase(TestCase):
 
         self.assertEqual(round(flight_budget1.pacer_offset, 2), 50.00)
         self.assertEqual(round(flight_budget2.pacer_offset, 2), 33.33)
+
+    def test_onboarding_hours_bank(self):
+        """
+        Tests that the onboarding hours on an account act like a bank of hours which don't reset MoM
+        """
+        account = BloomClient.objects.create(client_name='onboarding client', status=0)
+        account.managementFee = ManagementFeesStructure.objects.create(name='test', initialFee=1000)
+        SalesProfile.objects.create(account=account, ppc_status=0)
+        account.save()
+
+        self.assertEqual(account.onboarding_hours, 8)
+        self.assertEqual(account.allocated_hours_including_mandate, 8)
+

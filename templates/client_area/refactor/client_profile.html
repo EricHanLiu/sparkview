@@ -373,11 +373,7 @@
                             <div style="margin-top: 0.5em;">
                                 <p class="heading">Allocated Hours</p>
                                 <p class="title">
-                                    {% if account.status == 0 %}
-                                        {{ account.onboarding_hours|floatformat }}
-                                    {% else %}
-                                        {{ account.allocated_hours_including_mandate|floatformat }}
-                                    {% endif %}
+                                    {{ account.allocated_hours_including_mandate|floatformat }}
                                 </p>
                             </div>
                             <div style="margin-top: 1em;">
