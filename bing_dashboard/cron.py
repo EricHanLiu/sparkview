@@ -1,9 +1,12 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import BingReportingService
+from bing_dashboard import auth
+from bingads import ServiceClient
 from .models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_bing_accounts
 from django.utils.timezone import make_aware
+from tasks.logger import Logger
 import datetime
 
 
@@ -84,6 +87,7 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
     #     cmp.save()
 
 
+@celery_app.task(bind=True)
 def get_all_spend_by_bing_campaign_custom():
     """
     Creates celery tasks for each campaign
@@ -171,4 +175,51 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
 
 @celery_app.task(bind=True)
 def bing_accounts(self):
-    pass
+    try:
+        authentication = auth.BingAuth().get_auth()
+    except FileNotFoundError:
+        logger = Logger()
+        warning_message = 'Failed to connect to bing ads in bing_accounts.py. The bing credentials file may be missing or outdated.'
+        warning_desc = 'Failed to connect to bing ads'
+        logger.send_warning_email(warning_message, warning_desc)
+        return
+
+    customer_service = ServiceClient(
+        service='CustomerManagementService',
+        authorization_data=authentication,
+        environment='production',
+        version=12,
+    )
+
+    user = customer_service.GetUser(UserId=None).User
+
+    paging = {
+        'Index': 0,
+        'Size': 250
+    }
+
+    predicates = {
+        'Predicate': [
+            {
+                'Field': 'UserId',
+                'Operator': 'Equals',
+                'Value': user.Id,
+            },
+        ]
+    }
+
+    accounts = customer_service.SearchAccounts(
+        PageInfo=paging,
+        Predicates=predicates
+    )
+
+    accounts = accounts['AdvertiserAccount']
+
+    for account in accounts:
+        account_name = account['Name']
+        account_id = account.Id
+
+        BingAccounts.objects.get_or_create(account_id=account_id,
+                                                  account_name=account_name,
+                                                  channel='bing')
+        print('Added to DB - ' + str(account_name) + ' - ' + str(account_id))

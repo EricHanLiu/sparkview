@@ -2,10 +2,11 @@ from googleads.adwords import AdWordsClient
 from googleads.errors import GoogleAdsValueError
 from bloom import celery_app, settings
 from bloom.utils.reporting import Reporting
-from tasks.logger import Logger
 from .models import DependentAccount, Campaign, CampaignSpendDateRange
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_adwords_accounts
+from adwords_dashboard.cron_scripts import get_accounts
+from tasks.logger import Logger
 import datetime
 
 
@@ -193,7 +194,7 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
 
     try:
         campaign_report = \
-        Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
+            Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
     except IndexError:
         return
 
@@ -252,4 +253,27 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
 
 @celery_app.task(bind=True)
 def adwords_accounts(self):
-    pass
+    try:
+        adwords_client = AdWordsClient.LoadFromStorage(settings.ADWORDS_YAML)
+    except GoogleAdsValueError:
+        logger = Logger()
+        warning_message = 'Failed to create a session with Google Ads API in cron_accounts.py'
+        warning_desc = 'Failure in cron_accounts.py'
+        logger.send_warning_email(warning_message, warning_desc)
+        return 'Failed adwords_accounts'
+
+    accounts = get_accounts.get_dependent_accounts(adwords_client)
+
+    for acc_id, name in accounts.items():
+
+        try:
+            account = DependentAccount.objects.get(dependent_account_id=acc_id)
+            account.dependent_account_name = name
+            account.save()
+            print('Matched in DB(' + str(acc_id) + ')')
+        except DependentAccount.DoesNotExist:
+            DependentAccount.objects.create(dependent_account_id=acc_id, dependent_account_name=name,
+                                            channel='adwords')
+            print('Added to DB - ' + str(acc_id) + ' - ' + name)
+
+    return 'adwords_accounts'
