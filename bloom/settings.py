@@ -192,7 +192,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 API_VERSION = 'v201809'
 BING_API_VERSION = 12
-FACEBOOK_ADS_VERSION = 'v3.2'
+FACEBOOK_ADS_VERSION = 'v3.3'
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = 'index'
@@ -228,6 +228,8 @@ CRONJOBS = [
     ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
     ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
     ('55 7 * * *', 'budget.cron.reset_all_campaign_spends', '> ' + BASE_DIR + '/logs/reset_all_campaign_spends.log'),
+    ('00 11 * * *', 'budget.cron.update_budget_spend_history',
+     '> ' + BASE_DIR + '/logs/update_budget_spend_history.log'),
     ('00 7 1 * *', 'budget.cron.reset_all_budget_renewal_needs',
      '> ' + BASE_DIR + '/logs/reset_all_budget_renewal_needs.log'),
 

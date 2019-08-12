@@ -538,6 +538,7 @@
                                                 <thead class="thead-light">
                                                 <tr class="main-table-header">
                                                     <th>Account</th>
+                                                    <th>CM(s)</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -545,6 +546,23 @@
                                                     <tr>
                                                         <td>
                                                             <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {% if account.cm1 is not None %}
+                                                                <a href="/user_management/members/{{ account.cm1.id }}">
+                                                                    {{ account.cm1.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if account.cm2 is not None %}
+                                                                ,<a href="/user_management/members/{{ account.cm2.id }}">
+                                                                    {{ account.cm2.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if account.cm3 is not None %}
+                                                                ,<a href="/user_management/members/{{ account.cm3.id }}">
+                                                                    {{ account.cm3.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}

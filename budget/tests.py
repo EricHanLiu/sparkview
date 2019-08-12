@@ -10,6 +10,8 @@ from tasks.campaign_group_tasks import update_budget_campaigns
 from .cron import reset_google_ads_campaign, reset_bing_campaign, reset_facebook_campaign
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
+from django.utils.timezone import make_aware
+from budget.cron import create_default_budget
 import calendar
 import datetime
 import json
@@ -508,6 +510,41 @@ class AccountTestCase(TestCase):
         self.assertEqual(b12.calculated_bing_ads_spend, 0)
         self.assertEqual(b12.yesterday_spend, 0)
 
+        b13_start = make_aware(now) - datetime.timedelta(7)
+        b13_end = make_aware(now) + datetime.timedelta(7)
+
+        b13 = Budget.objects.create(account=account, budget=200, grouping_type=0, has_adwords=True, has_facebook=True,
+                                    has_bing=True, is_monthly=False, start_date=b13_start, end_date=b13_end)
+        CampaignSpendDateRange.objects.create(campaign=aw_cmp1, start_date=b13_start, end_date=b13_end,
+                                              spend=11, spend_until_yesterday=10)
+        FacebookCampaignSpendDateRange.objects.create(campaign=fb_cmp1, start_date=b13_start,
+                                                      end_date=b13_end,
+                                                      spend=31, spend_until_yesterday=12)
+        BingCampaignSpendDateRange.objects.create(campaign=bing_cmp1, start_date=b13_start,
+                                                  end_date=b13_end,
+                                                  spend=41, spend_until_yesterday=13)
+
+        b13.aw_campaigns.set([aw_cmp1])
+        b13.fb_campaigns.set([fb_cmp1])
+        b13.bing_campaigns.set([bing_cmp1])
+
+        self.assertEqual(b13.calculated_yest_google_ads_spend, 10)
+        self.assertEqual(b13.calculated_yest_facebook_ads_spend, 12)
+        self.assertEqual(b13.calculated_yest_bing_ads_spend, 13)
+        self.assertEqual(b13.calculated_yest_spend, 35)
+        self.assertEqual(b13.average_spend_yest, 5)
+        self.assertEqual(b13.projected_spend_avg, 70)
+
+        create_default_budget(account.id)
+        account.aw_budget = 100
+        account.fb_budget = 50
+        account.bing_budget = 25
+        account.flex_budget = 10
+        account.save()
+        test_default_bugdet = Budget.objects.get(account=account, is_default=True)
+
+        self.assertEqual(test_default_bugdet.calculated_budget, 185)
+
     def test_get_campaigns_view(self):
         """
         Test add budget manual selection and master exclusion campaigns are pulled properly
@@ -594,3 +631,21 @@ class AccountTestCase(TestCase):
         self.assertEqual(response_content['existing_aw'][0]['fields']['dependent_account_id'], '2401')
         # bing accounts are added last
         self.assertEqual(response_content['accounts'][3]['fields']['account_id'], '6969')
+
+    def test_budget_pacer_offset(self):
+        """
+        Tests the pacer_offset property of a budget calculates the right amount
+        Can only really do flight dates since monthly budgets depend fully on today
+        """
+        now = datetime.datetime.now()
+        week_ago = now - datetime.timedelta(7)
+        week_from_now = now + datetime.timedelta(7)
+        two_weeks_from_now = week_from_now + datetime.timedelta(7)
+        account = BloomClient.objects.create(client_name='budget test client')
+        flight_budget1 = Budget.objects.create(name='test', account=account, budget=1000, is_monthly=False,
+                                               start_date=week_ago, end_date=week_from_now)
+        flight_budget2 = Budget.objects.create(name='test', account=account, budget=1000, is_monthly=False,
+                                               start_date=week_ago, end_date=two_weeks_from_now)
+
+        self.assertEqual(round(flight_budget1.pacer_offset, 2), 50.00)
+        self.assertEqual(round(flight_budget2.pacer_offset, 2), 33.33)
