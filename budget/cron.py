@@ -114,19 +114,35 @@ def create_default_budgets(self):
         id__in=account_ids_with_default_budgets)
 
     for account in accounts_without_default_budgets:
-        budget = Budget.objects.create(name='Default Budget', account=account, is_monthly=True, grouping_type=2,
-                                       is_default=True)
-        if account.has_adwords:
-            budget.has_adwords = True
-        if account.has_fb:
-            budget.has_facebook = True
-        if account.has_bing:
-            budget.has_bing = True
+        create_default_budget(account.id)
 
-        budget.budget = account.current_budget
-        budget.save()
 
-        print('Created default budget for ' + str(account))
+@celery_app.task(bind=True)
+def create_default_budget(self, account_id):
+    """
+    Creates one default budget
+    :param self:
+    :param account_id:
+    :return:
+    """
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return
+
+    budget = Budget.objects.create(name='Default Budget', account=account, is_monthly=True, grouping_type=2,
+                                   is_default=True)
+    if account.has_adwords:
+        budget.has_adwords = True
+    if account.has_fb:
+        budget.has_facebook = True
+    if account.has_bing:
+        budget.has_bing = True
+
+    budget.budget = account.current_budget
+    budget.save()
+
+    print('Created default budget for ' + str(account))
 
 
 @celery_app.task(bind=True)

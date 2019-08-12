@@ -10,6 +10,8 @@ from tasks.campaign_group_tasks import update_budget_campaigns
 from .cron import reset_google_ads_campaign, reset_bing_campaign, reset_facebook_campaign
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
+from django.utils.timezone import make_aware
+from budget.cron import create_default_budget
 import calendar
 import datetime
 import json
@@ -507,6 +509,41 @@ class AccountTestCase(TestCase):
         reset_bing_campaign(bing_cmp2.id)
         self.assertEqual(b12.calculated_bing_ads_spend, 0)
         self.assertEqual(b12.yesterday_spend, 0)
+
+        b13_start = make_aware(now) - datetime.timedelta(7)
+        b13_end = make_aware(now) + datetime.timedelta(7)
+
+        b13 = Budget.objects.create(account=account, budget=200, grouping_type=0, has_adwords=True, has_facebook=True,
+                                    has_bing=True, is_monthly=False, start_date=b13_start, end_date=b13_end)
+        CampaignSpendDateRange.objects.create(campaign=aw_cmp1, start_date=b13_start, end_date=b13_end,
+                                              spend=11, spend_until_yesterday=10)
+        FacebookCampaignSpendDateRange.objects.create(campaign=fb_cmp1, start_date=b13_start,
+                                                      end_date=b13_end,
+                                                      spend=31, spend_until_yesterday=12)
+        BingCampaignSpendDateRange.objects.create(campaign=bing_cmp1, start_date=b13_start,
+                                                  end_date=b13_end,
+                                                  spend=41, spend_until_yesterday=13)
+
+        b13.aw_campaigns.set([aw_cmp1])
+        b13.fb_campaigns.set([fb_cmp1])
+        b13.bing_campaigns.set([bing_cmp1])
+
+        self.assertEqual(b13.calculated_yest_google_ads_spend, 10)
+        self.assertEqual(b13.calculated_yest_facebook_ads_spend, 12)
+        self.assertEqual(b13.calculated_yest_bing_ads_spend, 13)
+        self.assertEqual(b13.calculated_yest_spend, 35)
+        self.assertEqual(b13.average_spend_yest, 5)
+        self.assertEqual(b13.projected_spend_avg, 70)
+
+        create_default_budget(account.id)
+        account.aw_budget = 100
+        account.fb_budget = 50
+        account.bing_budget = 25
+        account.flex_budget = 10
+        account.save()
+        test_default_bugdet = Budget.objects.get(account=account, is_default=True)
+
+        self.assertEqual(test_default_bugdet.calculated_budget, 185)
 
     def test_get_campaigns_view(self):
         """

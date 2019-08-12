@@ -929,9 +929,6 @@ class Client(models.Model):
     def current_budget(self):
         if not hasattr(self, '_current_budget'):
             budget = self.aw_budget + self.bing_budget + self.fb_budget + self.flex_budget
-            # budget += self.adwords_budget_this_month
-            # budget += self.bing_budget_this_month
-            # budget += self.facebook_budget_this_month
             self._current_budget = budget
 
         return self._current_budget
@@ -1645,6 +1642,12 @@ class Budget(models.Model):
             days_elapsed = (now - self.start_date).days
             percentage = days_elapsed / days_in_date_range * 100.0
         return percentage
+
+    @property
+    def calculated_budget(self):
+        if not self.is_default:
+            return self.budget
+        return self.account.current_budget
 
     @property
     def is_flight(self):
