@@ -1283,7 +1283,7 @@ def backups(request):
     members = Member.objects.filter(deactivated=False).order_by('user__first_name')
     accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
-    active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now).order_by('-end_date')
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
                                                                                                    end_date__gte=now)
 
@@ -1350,7 +1350,8 @@ def backup_event(request, backup_period_id):
             return HttpResponse('success')
 
     role = backup_period.member.role
-    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id).order_by('user__first_name')
+    members = Member.objects.filter(role=role, deactivated=False).exclude(id=backup_period.member.id).order_by(
+        'user__first_name')
 
     context = {
         'backup_period': backup_period,

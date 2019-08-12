@@ -130,9 +130,9 @@ def prepare_todos():
             unapproved_budget_accounts = member_accounts.filter(budget_updated=False, salesprofile__ppc_status=1,
                                                                 status=1)
             for acc in unapproved_budget_accounts:
-                description = acc.client_name + ' has an unapproved budget which should be overseen from the client' \
-                                                'profile page. Note that checking off this todo WILL NOT renew' \
-                                                'the budget.'
+                description = acc.client_name + ' has an unapproved budget which should be overseen from the client ' \
+                                                'profile page (budgets section). Only checking off this todo WILL ' \
+                                                'NOT renew the budget.'
                 link = '/clients/accounts/' + str(acc.id)
                 Todo.objects.create(member=member, description=description, link=link, type=0)
 

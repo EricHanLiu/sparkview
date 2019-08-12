@@ -2,7 +2,11 @@ from bloom import celery_app, settings
 from adwords_dashboard.models import Campaign
 from facebook_dashboard.models import FacebookCampaign
 from bing_dashboard.models import BingCampaign
-from budget.models import Budget, Client
+from budget.models import Budget, Client, AccountBudgetSpendHistory
+import datetime
+from adwords_dashboard.cron import get_spend_by_account_custom_daterange
+from facebook_dashboard.cron import get_spend_by_facebook_account_custom_dates
+from bing_dashboard.cron import get_spend_by_bing_account_custom_daterange
 
 
 def reset_all_campaign_spends():
@@ -161,3 +165,28 @@ def update_default_budgets(self):
         budget.save()
 
         print('Budget ' + str(budget) + ' is now up to date')
+
+
+@celery_app.task(bind=True)
+def update_budget_spend_history():
+    """
+    Updates the final spend of the month that just passed for each account
+    """
+    accounts = Client.objects.filter(status=1)
+    now = datetime.datetime.now()
+    last_month = now.date().replace(day=1) - datetime.timedelta(days=1)
+
+    for account in accounts:
+        try:
+            spend_history = AccountBudgetSpendHistory.objects.get(account=account, month=last_month.month,
+                                                                  year=last_month.year)
+        except (AccountBudgetSpendHistory.DoesNotExist, AccountBudgetSpendHistory.MultipleObjectsReturned):
+            continue
+
+        spend_history.aw_spend = get_spend_by_account_custom_daterange(account.id, last_month.replace(day=1),
+                                                                       last_month)
+        spend_history.fb_spend = get_spend_by_facebook_account_custom_dates(account.id, last_month.replace(day=1),
+                                                                            last_month)
+        spend_history.bing_spend = get_spend_by_bing_account_custom_daterange(account.id, last_month.replace(day=1),
+                                                                              last_month)
+        spend_history.save()

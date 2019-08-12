@@ -631,3 +631,21 @@ class AccountTestCase(TestCase):
         self.assertEqual(response_content['existing_aw'][0]['fields']['dependent_account_id'], '2401')
         # bing accounts are added last
         self.assertEqual(response_content['accounts'][3]['fields']['account_id'], '6969')
+
+    def test_budget_pacer_offset(self):
+        """
+        Tests the pacer_offset property of a budget calculates the right amount
+        Can only really do flight dates since monthly budgets depend fully on today
+        """
+        now = datetime.datetime.now()
+        week_ago = now - datetime.timedelta(7)
+        week_from_now = now + datetime.timedelta(7)
+        two_weeks_from_now = week_from_now + datetime.timedelta(7)
+        account = BloomClient.objects.create(client_name='budget test client')
+        flight_budget1 = Budget.objects.create(name='test', account=account, budget=1000, is_monthly=False,
+                                               start_date=week_ago, end_date=week_from_now)
+        flight_budget2 = Budget.objects.create(name='test', account=account, budget=1000, is_monthly=False,
+                                               start_date=week_ago, end_date=two_weeks_from_now)
+
+        self.assertEqual(round(flight_budget1.pacer_offset, 2), 50.00)
+        self.assertEqual(round(flight_budget2.pacer_offset, 2), 33.33)
