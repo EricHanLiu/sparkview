@@ -111,7 +111,9 @@ def create_default_budgets(self):
 
     for account in accounts_without_default_budgets:
         print('Making default budget for ' + str(account))
-        create_default_budget(account.id)
+        create_default_budget.delay(account.id)
+
+    return 'create_default_budgets'
 
 
 @celery_app.task(bind=True)
@@ -139,7 +141,10 @@ def create_default_budget(self, account_id):
     budget.budget = account.current_budget
     budget.save()
 
-    print('Created default budget for ' + str(account))
+    message = 'Created default budget for ' + str(account)
+    print(message)
+
+    return message
 
 
 @celery_app.task(bind=True)
