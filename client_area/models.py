@@ -74,6 +74,7 @@ class AccountHourRecord(models.Model):
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     is_unpaid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_onboarding = models.BooleanField(default=False)
 
     def __str__(self):
         if self.member is None:
@@ -750,6 +751,7 @@ class MandateHourRecord(models.Model):
     month = models.IntegerField(default=0.0, choices=MONTH_CHOICES)
     year = models.IntegerField(default=1990)
     created = models.DateTimeField(auto_now_add=True)
+    is_onboarding = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.assignment) + ' ' + str(self.hours) + ' hours'

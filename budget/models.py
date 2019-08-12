@@ -815,6 +815,17 @@ class Client(models.Model):
         return self.get_allocated_hours() + hours
 
     @property
+    def onboarding_hours(self):
+        bank = self.managementFee.initialFee / 125.0
+        hour_records = AccountHourRecord.objects.filter(account=self,
+                                                        is_onboarding=True) | MandateHourRecord.objects.filter(
+            assignment__mandate__account=self, is_onboarding=True)
+
+        for record in hour_records:
+            bank -= record.hours
+        return bank
+
+    @property
     def has_backup_members(self):
         """
         Determines if this account has backup members assigned (ie. someone on the account is on vacation
