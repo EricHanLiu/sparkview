@@ -3,13 +3,17 @@ from bloom.utils.reporting import BingReportingService
 from bing_dashboard import auth
 from bingads import ServiceClient
 from .models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
+from redis.exceptions import ConnectionError as ReddisConnectionError
+from kombu.exceptions import OperationalError as KombuOperationalError
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_bing_accounts
 from django.utils.timezone import make_aware
+from tasks.bing_tasks import bing_cron_ovu
 from tasks.logger import Logger
 import datetime
 
 
+@celery_app.task(bind=True)
 def get_all_spends_by_bing_campaign_this_month():
     accounts = active_bing_accounts()
     for account in accounts:
@@ -220,6 +224,29 @@ def bing_accounts(self):
         account_id = account.Id
 
         BingAccounts.objects.get_or_create(account_id=account_id,
-                                                  account_name=account_name,
-                                                  channel='bing')
+                                           account_name=account_name,
+                                           channel='bing')
         print('Added to DB - ' + str(account_name) + ' - ' + str(account_id))
+
+
+@celery_app.task(bind=True)
+def bing_spends_this_month_account_level(self):
+    """
+    This was formerly called bing_ovu.py
+    :param self:
+    :return:
+    """
+    accounts = active_bing_accounts()
+
+    for acc in accounts:
+        try:
+            bing_cron_ovu.delay(acc.account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for bing_ovu.py for account ' + str(
+                acc.account_name)
+            warning_desc = 'Failed to create celery task for bing_ovu.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
+
+    return 'bing_spends_this_month_account_level'

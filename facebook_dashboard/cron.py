@@ -1,10 +1,17 @@
 from bloom import celery_app, settings
 from bloom.utils.reporting import FacebookReportingService
+from redis.exceptions import ConnectionError as ReddisConnectionError
+from kombu.exceptions import OperationalError as KombuOperationalError
+from tasks.facebook_tasks import facebook_cron_ovu
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Budget, CampaignExclusions, Client
 from tasks.facebook_tasks import facebook_init
-from facebook_business.exceptions import FacebookRequestError
+from facebook_business.exceptions import FacebookRequestError, FacebookBadObjectError
 from bloom.utils.ppc_accounts import active_facebook_accounts
+from facebook_business.api import FacebookAdsApi
+from facebook_business.adobjects.adaccountuser import AdAccountUser as AdUser
+from facebook_business.adobjects.adaccount import AdAccount
+from tasks.logger import Logger
 import datetime
 
 
@@ -89,12 +96,6 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month (until yesterday) of $' + str(
             campaign.campaign_cost))
-
-    # not_in_use_camps = FacebookCampaign.objects.exclude(campaign_id__in=in_use_ids)
-    # for cmp in not_in_use_camps:
-    #     cmp.campaign_cost = 0.0
-    #     cmp.spend_until_yesterday = 0.0
-    #     cmp.save()
 
 
 def get_all_spend_by_facebook_campaign_custom():
@@ -262,4 +263,57 @@ def get_spend_by_facebook_account_custom_dates(self, account_id, start_date, end
 
 @celery_app.task(bind=True)
 def facebook_accounts(self):
-    pass
+    try:
+        FacebookAdsApi.init(settings.app_id, settings.app_secret, settings.w_access_token,
+                            api_version=settings.FACEBOOK_ADS_VERSION)
+    except FacebookBadObjectError:
+        logger = Logger()
+        warning_message = 'Failed to initialize facebook api in facebook_accounts.py'
+        warning_desc = 'Failed facebook api initialize'
+        logger.send_warning_email(warning_message, warning_desc)
+
+    me = AdUser(fbid='me')
+    accounts = list(me.get_ad_accounts())
+    accounts = [a for a in accounts if a.get('id') != 'act_220247200']
+
+    for acc in accounts:
+        account_id = acc['id']
+        account = AdAccount(account_id)
+        account.remote_read(fields=[
+            AdAccount.Field.account_id,
+            AdAccount.Field.name,
+        ])
+
+        try:
+            FacebookAccount.objects.get(account_id=account[AdAccount.Field.account_id])
+            print('Matched in DB(' + account[AdAccount.Field.account_id] + ')')
+        except FacebookAccount.DoesNotExist:
+            FacebookAccount.objects.create(account_id=account[AdAccount.Field.account_id],
+                                           account_name=account[AdAccount.Field.name], channel='facebook')
+            print('Added to DB - ' + str(account[AdAccount.Field.name]) + '.')
+
+    return 'facebook_accounts'
+
+
+@celery_app.task(bind=True)
+def facebook_spends_this_month_account_level(self):
+    """
+    This was formerly facebook_ovy.py
+    Should be deprecated at some point (to be replaced by the methods above, that query on campaign level)
+    :param self:
+    :return:
+    """
+    accounts = active_facebook_accounts()
+
+    for account in accounts:
+        try:
+            facebook_cron_ovu.delay(account.account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
+                account.account_name)
+            warning_desc = 'Failed to create celery task for facebook_ovu.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
+
+    return 'facebook_spends_this_month_account_level'

@@ -3,9 +3,12 @@ from googleads.errors import GoogleAdsValueError
 from bloom import celery_app, settings
 from bloom.utils.reporting import Reporting
 from .models import DependentAccount, Campaign, CampaignSpendDateRange
+from redis.exceptions import ConnectionError as ReddisConnectionError
+from kombu.exceptions import OperationalError as KombuOperationalError
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_adwords_accounts
 from adwords_dashboard.cron_scripts import get_accounts
+from tasks.adwords_tasks import adwords_cron_ovu
 from tasks.logger import Logger
 import datetime
 
@@ -277,3 +280,27 @@ def adwords_accounts(self):
             print('Added to DB - ' + str(acc_id) + ' - ' + name)
 
     return 'adwords_accounts'
+
+
+@celery_app.task(bind=True)
+def adwords_spends_this_month_account_level(self):
+    """
+    This was formerly cron_ovu.py
+    We should deprecate this at some point
+    :param self:
+    :return:
+    """
+    accounts = active_adwords_accounts()
+
+    for account in accounts:
+        try:
+            adwords_cron_ovu.delay(account.dependent_account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for cron_ovu.py for account ' + str(
+                account.dependent_account_name)
+            warning_desc = 'Failed to create celery task for cron_ovu.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
+
+    return 'adwords_spends_this_month_account_level'

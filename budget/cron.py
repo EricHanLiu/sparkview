@@ -2,8 +2,12 @@ from bloom import celery_app, settings
 from adwords_dashboard.models import Campaign
 from facebook_dashboard.models import FacebookCampaign
 from bing_dashboard.models import BingCampaign
-from budget.models import Budget, Client
+from calendar import monthrange
 from bloom.utils.utils import perdelta, remove_accents, projected
+from budget.models import Client, AccountBudgetSpendHistory, Budget
+from client_area.models import AccountAllocatedHoursHistory
+from user_management.models import Member, MemberHourHistory
+import datetime
 
 
 @celery_app.task(bind=True)
@@ -174,18 +178,18 @@ def update_default_budgets(self):
 
 @celery_app.task(bind=True)
 def cron_clients(self):
-    today = date.today() - relativedelta(days=1)
-    first_day = date(today.year, today.month, 1)
-    last_day = date(today.year, today.month, monthrange(today.year, today.month)[1])
+    today = datetime.date.today() - datetime.relativedelta(days=1)
+    first_day = datetime.date(today.year, today.month, 1)
+    last_day = datetime.date(today.year, today.month, monthrange(today.year, today.month)[1])
 
     remaining = last_day.day - today.day
     pdays = []
     bdays = []
 
-    for result in perdelta(today, last_day, timedelta(days=1)):
+    for result in perdelta(today, last_day, datetime.timedelta(days=1)):
         pdays.append(result)
 
-    for result in perdelta(first_day, last_day, timedelta(days=1)):
+    for result in perdelta(first_day, last_day, datetime.timedelta(days=1)):
         bdays.append(result)
 
     clients = Client.objects.all()
@@ -196,9 +200,7 @@ def cron_clients(self):
         bing_b_final, bing_p_final, bing_s_final = {}, {}, {}
         fb_b_final, fb_p_final, fb_s_final = {}, {}, {}
 
-        new_client_cdata, created = ClientCData.objects.get_or_create(client=client)
         aw_temp = 0.0
-        b_temp = 0.0
         fb_temp = 0.0
 
         client.budget = 0
@@ -206,9 +208,6 @@ def cron_clients(self):
         client.aw_spend = 0
         client.bing_spend = 0
         client.fb_spend = 0
-        # client.aw_budget = 0
-        # client.bing_budget = 0
-        # client.fb_budget = 0
         client.aw_yesterday = 0
         client.bing_yesterday = 0
         client.fb_yesterday = 0
@@ -241,7 +240,6 @@ def cron_clients(self):
                 client.current_spend += a.current_spend
                 client.aw_spend += a.current_spend
                 client.aw_yesterday += a.yesterday_spend
-                # client.aw_budget += a.desired_spend
                 client.aw_current_ds += a.current_spend / today.day
                 for k, v in sorted(a.segmented_spend.items()):
                     try:
@@ -251,7 +249,6 @@ def cron_clients(self):
                             aw_temp = aw_temp + float(int(v['cost']) / 1000000)
                     except:
                         continue
-                    # aw_spend[v['day']] = round(aw_temp, 2)
                 aw_s_final['A - ' + remove_accents(account_name) + ' Spend'] = aw_spend
 
                 aw_projected_val = projected(a.current_spend, a.yesterday_spend)
@@ -289,7 +286,6 @@ def cron_clients(self):
                         client.aw_rec_ds += client.target_spend - a.current_spend
 
                 # Both options active
-                # elif client.has_gts and client.has_budget:
                 else:
                     gts_per_day = round(client.target_spend / last_day.day, 2)
                     for index, val in enumerate(bdays, start=1):
@@ -313,9 +309,6 @@ def cron_clients(self):
                             client.aw_rec_ds += a.desired_spend - a.current_spend
 
         else:
-            aw_s_final = {}
-            aw_b_final = {}
-            aw_p_final = {}
             gts_values = {}
 
             if client.has_gts and not client.has_budget:
@@ -334,12 +327,8 @@ def cron_clients(self):
                 client.current_spend += b.current_spend
                 client.bing_spend += b.current_spend
                 client.bing_yesterday += b.yesterday_spend
-                # client.bing_budget += b.desired_spend
                 client.bing_current_ds += b.current_spend / today.day
 
-                # for k, v in sorted(b.segmented_spend.items()):
-                #    b_temp = b_temp + float(v['spend'])
-                #    bing_spend[v['timeperiod']] = round(b_temp, 2)
                 bing_s_final['B - ' + remove_accents(b.account_name) + ' Spend'] = bing_spend
 
                 bing_projected_val = projected(b.current_spend, b.yesterday_spend)
@@ -391,9 +380,7 @@ def cron_clients(self):
                             client.bing_rec_ds += client.target_spend - b.current_spend
 
         else:
-            bing_s_final = {}
-            bing_p_final = {}
-            bing_b_final = {}
+            pass
 
         facebook = client.facebook.all()
         if len(facebook) > 0:
@@ -465,18 +452,62 @@ def cron_clients(self):
             fb_p_final = {}
             fb_b_final = {}
 
-        new_client_cdata.aw_budget = aw_b_final
-        new_client_cdata.aw_spend = aw_s_final
-        new_client_cdata.aw_projected = aw_p_final
-        new_client_cdata.bing_budget = bing_b_final
-        new_client_cdata.bing_spend = bing_s_final
-        new_client_cdata.bing_projected = bing_p_final
-        new_client_cdata.fb_budget = fb_b_final
-        new_client_cdata.fb_spend = fb_s_final
-        new_client_cdata.fb_projected = fb_p_final
-        new_client_cdata.global_target_spend = gts_final
-
-        new_client_cdata.save()
         client.save()
 
     return 'cron_clients'
+
+
+@celery_app.task(bind=True)
+def daily_context(self):
+    """
+    Replaces daily_context.py
+    :param self:
+    :return:
+    """
+    accounts = Client.objects.all()
+    members = Member.objects.all()
+
+    now = datetime.datetime.now()
+    month = now.month
+    year = now.year
+
+    for account in accounts:
+        # First do the allocated hours
+        members = account.assigned_members
+
+        for key in members:
+            if key == 'Sold by':
+                continue
+            tup = members[key]
+            member = tup['member']
+            percentage = tup['allocated_percentage']
+            allocated_hours_month = account.all_hours * (percentage / 100.0)
+
+            record, created = AccountAllocatedHoursHistory.objects.get_or_create(account=account, member=member,
+                                                                                 month=month, year=year)
+            record.allocated_hours = allocated_hours_month
+            record.save()
+
+        # Do spend and budget
+        account_budget_history, created = AccountBudgetSpendHistory.objects.get_or_create(account=account, month=month,
+                                                                                          year=year)
+        account_budget_history.aw_budget = account.aw_budget
+        account_budget_history.bing_budget = account.bing_budget
+        account_budget_history.fb_budget = account.fb_budget
+        account_budget_history.flex_budget = account.flex_budget
+        account_budget_history.aw_spend = account.aw_spend
+        account_budget_history.bing_spend = account.bing_spend
+        account_budget_history.fb_spend = account.fb_spend
+        account_budget_history.flex_spend = account.flex_spend
+        account_budget_history.management_fee = account.current_fee
+        account_budget_history.status = account.status
+        account_budget_history.save()
+
+    for member in members:
+        record, created = MemberHourHistory.objects.get_or_create(member=member, month=month, year=year)
+        record.allocated_hours = member.allocated_hours_month
+        record.actual_hours = member.actual_hours_month
+        record.available_hours = member.hours_available
+        record.save()
+
+    return 'daily_context'
