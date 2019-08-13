@@ -921,7 +921,7 @@ def new_incident(request):
 
     if request.method == 'GET':
         accounts = Client.objects.all().order_by('client_name')
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.exclude(deactivated=True).order_by('user__first_name')
         platforms = Incident.PLATFORMS
         services = Incident.SERVICES
         issue_types = IncidentReason.objects.all()
