@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client
 from .utils import days_in_month_in_daterange
-from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord
+from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord, Opportunity
 import datetime
 from django.utils.timezone import make_aware
+from django.test import Client as C
 
 
 class ClientTestCase(TestCase):
@@ -21,6 +22,8 @@ class ClientTestCase(TestCase):
         test_account.cm1 = test_member_super
 
         test_account.save()
+
+        self.c = C()
 
     def test_utils(self):
         """
@@ -94,3 +97,30 @@ class ClientTestCase(TestCase):
         self.assertEqual(mandate_assignment3.hours, 20)
         self.assertEqual(mandate3.allocated_hours_this_month, mandate_assignment3.hours)
         self.assertEqual(mandate3.calculated_ongoing_hours, mandate3.allocated_hours_this_month)
+
+    def test_sales_report_views(self):
+        self.c.login(username='test3', password='123456')
+        response = self.c.get('/reports/sales')
+        self.assertEqual(response.status_code, 200)
+        response = self.c.post('/clients/accounts/update_opportunity', {
+            'opp_id': '1',
+            'status': '2',
+            'lost_reason': 'Test'
+        })
+        self.assertEqual(response.status_code, 404)
+        response = self.c.post('/clients/accounts/resolve_opportunity', {
+            'opp_id': '1',
+        })
+        self.assertEqual(response.status_code, 404)
+
+        Opportunity.objects.create()
+        response = self.c.post('/clients/accounts/update_opportunity', {
+            'opp_id': '1',
+            'status': '2',
+            'lost_reason': 'Test'
+        })
+        self.assertEqual(response.status_code, 302)
+        response = self.c.post('/clients/accounts/resolve_opportunity', {
+            'opp_id': '1',
+        })
+        self.assertEqual(response.status_code, 302)

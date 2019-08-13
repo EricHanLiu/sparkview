@@ -1786,6 +1786,7 @@ def set_opportunity(request):
     opp = Opportunity()
     opp.account = account
     opp.reason = opp_desc
+    opp.flagged_by = request.user.member
 
     if service_id == 'ppc':
         opp.is_primary = True
@@ -1807,6 +1808,44 @@ def set_opportunity(request):
     opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+def resolve_opportunity(request):
+    """
+    Resolves an opportunity
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.addressed = True
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def update_opportunity(request):
+    """
+    Updates an opportunity's status
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    status = request.POST.get('status')
+
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.status = status
+    if status == '2':
+        opp.lost_reason = request.POST.get('lost_reason')
+    opp.save()
+
+    return redirect('/reports/sales')
 
 
 def set_pitch(request):

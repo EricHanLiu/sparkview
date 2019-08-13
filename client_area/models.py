@@ -787,10 +787,20 @@ class Opportunity(models.Model):
     """
     Marks an opportunity to upsell
     """
+    STATUS_CHOICES = [
+        (0, 'Flagged'),
+        (1, 'In Progress'),
+        (2, 'Lost'),
+        (3, 'Won'),
+    ]
+
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     reason = models.ForeignKey(OpportunityDescription, models.SET_NULL, null=True, default=None)
     is_primary = models.BooleanField(default=False)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    lost_reason = models.CharField(max_length=900, default='', blank=True)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
+    flagged_by = models.ForeignKey('user_management.Member', null=True, default=None, on_delete=models.SET_NULL)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
     addressed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
