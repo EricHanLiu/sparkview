@@ -1848,6 +1848,24 @@ def update_opportunity(request):
     return redirect('/reports/sales')
 
 
+def get_opportunities(request):
+    """
+    Returns all the unresolved (unaddressed) opportunities
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    opportunities = Opportunity.objects.filter(addressed=False, account=account)
+    res = []
+    for opp in opportunities:  # serializing only gives the IDs, need actual string representations
+        res.append({'service': opp.service_string, 'created': opp.created})
+
+    return JsonResponse({'opportunities': res}, safe=False)
+
+
 def set_pitch(request):
     """
     Sets Pitch

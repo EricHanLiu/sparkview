@@ -241,12 +241,16 @@
                         </div>
                         <div class="level-right">
                             <button class="button level-item is-rounded is-small button-color"
-                                    id="update_services_button">
-                                Update Services
+                                    id="view_opportunities_button">
+                                Opportunities
                             </button>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="new_opportunity_button">
                                 New Opportunity
+                            </button>
+                            <button class="button level-item is-rounded is-small button-color"
+                                    id="update_services_button">
+                                Update Services
                             </button>
                             <button class="button is-rounded is-small button-color"
                                     id="new_mandate_button">
@@ -1959,6 +1963,29 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="view_opportunities_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Opportunities</h5>
+                    </div>
+                </div>
+                <table class="table is-fullwidth">
+                    <thead>
+                    <th>
+                        Service Pitched
+                    </th>
+                    <th>
+                        Timestamp
+                    </th>
+                    </thead>
+                    <tbody id="opportunities_table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="new_mandate_modal">
         <div class="modal-background"></div>
         <div class="modal-content" style="overflow: auto;">
@@ -2661,6 +2688,38 @@
 
         $('#new_opportunity_button').click(() => {
             $('#new_opportunity_modal').addClass('is-active');
+        });
+
+        let firstClick = true;
+        $('#view_opportunities_button').click(() => {
+            // fetch all opportunities and display them
+            let table = document.querySelector('#opportunities_table');
+            if (firstClick) {
+                firstClick = false;
+                $.ajax({
+                    url: '/clients/accounts/get_opportunities',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    data: {
+                        'account_id': '{{ account.id }}'
+                    },
+                    success: (data) => {
+                        let opps = data['opportunities'];
+                        opps.forEach((opp) => {
+                            console.log(opp);
+                            let row = table.insertRow();
+
+                            let service = row.insertCell();
+                            service.innerText = opp['service'];
+                            let created = row.insertCell();
+                            created.innerText = opp['created'];
+                        });
+                        $('#view_opportunities_modal').addClass('is-active');
+                    }
+                });
+            }
         });
 
         $('#view_calendar_button').click(() => {
