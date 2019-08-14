@@ -14,7 +14,7 @@
             padding: 1em 0;
         }
 
-        .box {
+        .card-content {
             padding: 2em;
         }
     </style>
@@ -42,126 +42,136 @@
     <!-- MAIN CONTENT -->
     <div class="columns">
         <div class="column is-9">
-            <div class="box">
-                <div class="level">
-                    <div class="level-left">
-                        <h5 class="title is-5">My Accounts</h5>
-                    </div>
-                </div>
-                <hr>
-                {% if accounts.count > 0 %}
-                    {% for account in accounts %}
-                        <div class="columns is-vcentered">
-                            <div class="column is-2">
-                                <a style="font-weight: bold;"
-                                   href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                <p>
-                                    <i class="fas fa-hourglass-half"></i>
-                                    {{ account_hours|get_item_from_list:account.id }}/{{ account_allocation|get_item_from_list:account.id }}
-                                </p>
-                                <div style="margin-top: 0.5em;">
-                                    {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
-                                        <span class="tag is-rounded {% if aw %}is-info{% endif %}">A</span>
-                                        <span class="tag is-rounded {% if bing %}is-primary{% endif %}">B</span>
-                                        <span class="tag is-rounded {% if fb %}is-link{% endif %}">F</span>
-                                        {% if account.has_backup_members %}
-                                            <span class="tag is-rounded is-danger">BoA</span>
-                                        {% endif %}
-                                    {% endwith %}
+            {% if accounts.count > 0 %}
+                {% for account in accounts %}
+                    <div class="card" style="margin-bottom: 1em;">
+                        <div class="card-content">
+                            <div class="level">
+                                <div class="level-left">
+                                    <div class="level-item">
+                                        <a style="font-weight: bold;" href="/clients/accounts/{{ account.id }}">
+                                            {{ account.client_name }}
+                                        </a>
+                                    </div>
+                                    <div class="level-item">
+                                        {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
+                                            <span class="tag is-rounded {% if aw %}is-info{% endif %}">A</span>
+                                            <span class="tag is-rounded {% if bing %}is-primary{% endif %}">B</span>
+                                            <span class="tag is-rounded {% if fb %}is-link{% endif %}">F</span>
+                                            {% if account.has_backup_members %}
+                                                <span class="tag is-rounded is-danger">BoA</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                <div class="level-right">
+                                    <div class="level-item">
+                                        <div class="tag is-rounded tag-color-2">
+                                            {{ account_hours|get_item_from_list:account.id }}/{{ account_allocation|get_item_from_list:account.id }}
+                                            <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="column is-10">
-                                <div class="level" style="font-size: 0.8em; margin-bottom: 0;">
-                                    <div class="level-item">
-                                        <b>Current</b>:
-                                        {{ account.currency }}{{ account.calculated_spend|format_money }}
+                            <hr>
+                            <div class="columns">
+                                <div class="column">
+                                    <div class="level" style="font-size: 0.8em; margin-bottom: 0;">
+                                        <div class="level-item">
+                                            <b>Current</b>:
+                                            {{ account.currency }}{{ account.calculated_spend|format_money }}
+                                        </div>
+                                        <div class="level-item">
+                                            <b>Budget</b>:
+                                            {{ account.currency }}{{ account.current_budget|format_money }}
+                                        </div>
+                                        <div class="level-item">
+                                            <b>Avg Projected</b>:
+                                            {{ account.currency }}{{ account.project_average|format_money }}
+                                        </div>
+                                        <div class="level-item">
+                                            <b>Yest Projected</b>:
+                                            {{ account.currency }}{{ account.project_yesterday|format_money }}
+                                        </div>
+                                        <div class="level-item">
+                                            <b>Yest Spend</b>:
+                                            {{ account.currency }}{{ account.yesterday_spend|format_money }}
+                                        </div>
+                                        <div class="level-item">
+                                            <b>Target Daily Spend</b>:
+                                            {{ account.currency }}{{ account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                        </div>
                                     </div>
-                                    <div class="level-item">
-                                        <b>Budget</b>:
-                                        {{ account.currency }}{{ account.current_budget|format_money }}
-                                    </div>
-                                    <div class="level-item">
-                                        <b>Avg Projected</b>:
-                                        {{ account.currency }}{{ account.project_average|format_money }}
-                                    </div>
-                                    <div class="level-item">
-                                        <b>Yest Projected</b>:
-                                        {{ account.currency }}{{ account.project_yesterday|format_money }}
-                                    </div>
-                                    <div class="level-item">
-                                        <b>Yest Spend</b>:
-                                        {{ account.currency }}{{ account.yesterday_spend|format_money }}
-                                    </div>
-                                    <div class="level-item">
-                                        <b>Target Daily Spend</b>:
-                                        {{ account.currency }}{{ account.calculated_daily_recommended|floatformat:2|intcomma }}
-                                    </div>
-                                </div>
-                                <div class="columns">
-                                    <div class="column">
-                                        <div class="progress-wrapper">
-                                            <progress class="progress is-large {% if account.underpacing_average %}is-warning
+                                    <div class="columns">
+                                        <div class="column">
+                                            <div class="progress-wrapper">
+                                                <progress
+                                                        class="progress is-large {% if account.underpacing_average %}is-warning
                                                       {% elif account.project_average > account.current_budget %}is-danger
                                                       {% else %}is-success{% endif %}"
-                                                      value="{{ account.spend_percentage }}" max="100"></progress>
-                                            <div class="progress-value">
-                                                {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                        value="{{ account.spend_percentage }}"
+                                                        max="100"></progress>
+                                                <div class="progress-value">
+                                                    {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                </div>
+                                                <div class="budget-pacer"
+                                                     style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                             </div>
-                                            <div class="budget-pacer"
-                                                 style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    You are not assigned to any accounts!
-                {% endif %}
-            </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                You are not assigned to any accounts!
+            {% endif %}
         </div>
         <div class="column is-3">
-            <div class="box">
-                <div class="level">
-                    <div class="level-item">
-                        <h5 class="title is-5">{{ today|date:"l F j, Y" }}</h5>
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-item">
+                            <h5 class="title is-5">{{ today|date:"l F j, Y" }}</h5>
+                        </div>
                     </div>
-                </div>
-                <hr>
-                <div id="todo_list">
-                    {% for todo in todos %}
-                        <div class="columns todo-row is-vcentered"
-                             {% if forloop.last %}style="border: none;"{% endif %}>
-                            <div class="column is-2">
-                                <input class="is-checkradio complete-todo" data-todo-id="{{ todo.id }}"
-                                       type="checkbox"
-                                       {% if todo.completed %}disabled checked{% endif %} id="checkbox-{{ todo.id }}"/>
-                                <label for="checkbox-{{ todo.id }}"></label>
-                            </div>
-                            <div class="column is-8">
-                                <div class="columns">
-                                    <a href="{{ todo.link }}">{{ todo.description }}</a>
+                    <div id="todo_list">
+                        {% for todo in todos %}
+                            <div class="columns todo-row is-vcentered"
+                                 {% if forloop.last %}style="border: none;"{% endif %}>
+                                <div class="column is-2">
+                                    <input class="is-checkradio complete-todo" data-todo-id="{{ todo.id }}"
+                                           type="checkbox"
+                                           {% if todo.completed %}disabled checked{% endif %}
+                                           id="checkbox-{{ todo.id }}"/>
+                                    <label for="checkbox-{{ todo.id }}"></label>
                                 </div>
-                                <div class="columns">
+                                <div class="column {% if todo.type == 3 %}is-8{% else %}is-10{% endif %}">
+                                    <div class="columns">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                    </div>
+                                    <div class="columns">
                                     <span class="tag is-rounded {{ todo.colour }}">
                                         {{ todo.get_type_display }}
                                     </span>
+                                    </div>
                                 </div>
+                                <!-- if phase task, display resolve button -->
+                                {% if todo.type == 3 %}
+                                    <div class="column is-2">
+                                        <button class="button resolve_task_button is-rounded is-small"
+                                                data-task-id="{{ todo.phase_task_id }}">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                {% endif %}
                             </div>
-                            <!-- if phase task, display resolve button -->
-                            {% if todo.type == 3 %}
-                                <div class="column is-2">
-                                    <button class="button resolve_task_button is-rounded"
-                                            data-task-id="{{ todo.phase_task_id }}">
-                                        <i class="fas fa-info"></i>
-                                    </button>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    {% if todos.count == 0 %}
-                        You're all caught up for the day!
-                    {% endif %}
+                        {% endfor %}
+                        {% if todos.count == 0 %}
+                            You're all caught up for the day!
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -305,6 +315,15 @@
                                                   data-original-title="
                                                         {% if aw %}
                                                             {% for a in aw %}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -619,11 +638,13 @@
         /**
          * EVENT LISTENERS
          */
+        let $body = $('body');
+
         $('.modal-close, .modal-background, .close-modal').click(() => {
             $('.modal').removeClass('is-active');
         });
 
-        $('.resolve_task_button').click(function () {
+        $body.on('click', '.resolve_task_button', function () {
             $('#resolve_task_modal').addClass('is-active');
             $('#task_id').val($(this).data('task-id'));
         });
@@ -687,7 +708,7 @@
             });
         });
 
-        $('body').on('change', '.complete-todo', function () {
+        $body.on('change', '.complete-todo', function () {
             let todoID = $(this).data('todo-id');
 
             // send request if checking off todo
