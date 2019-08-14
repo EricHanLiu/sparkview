@@ -8,7 +8,7 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_adwords_accounts
 from adwords_dashboard.cron_scripts import get_accounts
-from tasks.adwords_tasks import adwords_cron_ovu, adwords_account_change_history
+from tasks.adwords_tasks import adwords_cron_ovu, adwords_account_change_history, adwords_cron_campaign_stats
 from tasks.logger import Logger
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -262,6 +262,32 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     campaign_spend_object.save()
 
     return 'get_spend_by_campaign_custom'
+
+
+@celery_app.task(bind=True)
+def yesterday_spend_campaign(self):
+    """
+    Yesterday spend by adwords campaign by account
+    Previously cron_campaigns.py
+    :param self:
+    :return:
+    """
+    accounts = active_adwords_accounts()
+    for account in accounts:
+        try:
+            if settings.DEBUG:
+                adwords_cron_campaign_stats(account.dependent_account_id)
+            else:
+                adwords_cron_campaign_stats.delay(account.dependent_account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for cron_campaigns.py for account ' + str(
+                account.dependent_account_name)
+            warning_desc = 'Failed to create celery task for cron_campaigns.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
+
+    return 'yesterday_spend_campaign'
 
 
 @celery_app.task(bind=True)

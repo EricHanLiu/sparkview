@@ -785,7 +785,7 @@ def adwords_campaigns(self):
 
 
 @celery_app.task(bind=True)
-def adwords_cron_campaign_stats(self, customer_id, client_id=None):
+def adwords_cron_campaign_stats(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     cmps = []

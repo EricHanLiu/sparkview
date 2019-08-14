@@ -8,7 +8,7 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_bing_accounts
 from django.utils.timezone import make_aware
-from tasks.bing_tasks import bing_cron_ovu
+from tasks.bing_tasks import bing_cron_ovu, bing_cron_campaign_stats
 from tasks.logger import Logger
 import datetime
 
@@ -250,3 +250,27 @@ def bing_spends_this_month_account_level(self):
             break
 
     return 'bing_spends_this_month_account_level'
+
+
+@celery_app.task(bind=True)
+def bing_yesterday_campaign_spend(self):
+    """
+    Bing yesterday camapign spend
+    Formerly bing_campaigns.py
+    :param self:
+    :return:
+    """
+    accounts = active_bing_accounts()
+
+    for acc in accounts:
+        try:
+            bing_cron_campaign_stats.delay(acc.account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
+                acc.account_name)
+            warning_desc = 'Failed to create celery task for facebook_ovu.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
+
+    return 'bing_yesterday_campaign_spend'
