@@ -185,7 +185,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'AFQ5EqzWXICEFMwLfEumz9C5'
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = "/var/www/bloom/static"
+STATIC_ROOT = '/var/www/bloom/static'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
@@ -194,7 +194,7 @@ API_VERSION = 'v201809'
 BING_API_VERSION = 12
 FACEBOOK_ADS_VERSION = 'v3.3'
 
-LOGIN_URL = "login"
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_ERROR_URL = 'login'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
@@ -202,9 +202,9 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
 CRONJOBS = [
-    ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
-    ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
-    ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
+    # ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
+    # ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
+    # ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
@@ -346,10 +346,9 @@ else:
     }
 
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_BROKER_URL = "amqp://bloom:bloombrokerpass@broker:5672/celeryhost"
-CELERY_TIMEZONE = "UTC"
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 LOGGING = {
     'version': 1,

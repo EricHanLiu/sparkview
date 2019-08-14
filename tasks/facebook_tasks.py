@@ -310,7 +310,7 @@ def facebook_campaigns(self):
 
 
 @celery_app.task(bind=True)
-def facebook_cron_campaign_stats(self, account_id, client_id=None):
+def facebook_cron_campaign_stats(self, account_id):
     account = FacebookAccount.objects.get(account_id=account_id)
 
     cmps = []
