@@ -405,10 +405,9 @@
                                     id="add_promo_button">
                                 Add Promo
                             </button>
-                            <button class="button level-item is-rounded is-small button-color"
-                                    id="edit_promos_button">
+                            <a class="button level-item is-rounded is-small button-color" href="/clients/promos/edit">
                                 Edit Promos
-                            </button>
+                            </a>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="view_calendar_button">
                                 View Calendar
@@ -626,9 +625,7 @@
                                             <div class="progress-value">
                                                 {{ account.default_budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer" data-is-monthly="{{ account.default_budget.is_monthly }}"
-                                                 data-start-date="{{ account.default_budget.start_date }}"
-                                                 data-end-date="{{ account.default_budget.end_date }}"></div>
+                                            <div class="budget-pacer" style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -738,9 +735,7 @@
                                             <div class="progress-value">
                                                 {{ budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer" data-is-monthly="{{ budget.is_monthly }}"
-                                                 data-start-date="{{ budget.start_date }}"
-                                                 data-end-date="{{ budget.end_date }}"></div>
+                                            <div class="budget-pacer" style="left: {{ budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -2694,10 +2689,6 @@
             $('#add_promo_modal').addClass('is-active');
         });
 
-        $('#edit_promos_button').click(() => {
-            location.href = '/clients/promos/edit';
-        });
-
         $('#management_button').click(() => {
             $('#management_modal').addClass('is-active');
         });
@@ -2984,7 +2975,7 @@
                 data: $('#management_form').serialize(),
                 success: () => {
                     $('.modal').removeClass('is-active');
-                    toastr.success('Successfully updated management fee structure!');
+                    toastr.success('Successfully updated management details!');
                     setTimeout(() => {
                         location.reload();
                     }, PAGEREFRESHTIME);
@@ -3268,32 +3259,6 @@
                     {% endfor %}
                 ]
             });
-
-            // budget pacer calculations
-            let now = new Date();
-            let today = now.getDate();
-            let daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            const MSPERDAY = 1000 * 60 * 60 * 24;
-            $('.budget-pacer').each(function () {
-                let isMonthly = $(this).data('is-monthly') === 'True';
-                let percentage;
-                if (isMonthly) {
-                    percentage = today * 100.0 / daysInMonth;
-                } else {
-                    // flight budget
-                    let startDate = $(this).data('start-date');
-                    let endDate = $(this).data('end-date');
-                    // convert to js dates
-                    startDate = new Date(startDate.replace(', midnight', ''));
-                    endDate = new Date(endDate.replace(', 11:59 p.m.', ''));
-                    let daysInDateRange = Math.round(endDate - startDate) / MSPERDAY;  // dateRange is a ms object
-                    let daysElapsed = Math.round((now - startDate) / MSPERDAY);
-                    percentage = daysElapsed * 100 / daysInDateRange;
-                }
-                percentage = parseFloat(percentage).toFixed(2).toString();
-                $(this).css('left', percentage + '%');
-            });
-            $('.budget-date').text(today + '/' + daysInMonth);
 
             // account management status row
             let status = $statusSelect.val();

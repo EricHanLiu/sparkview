@@ -1430,10 +1430,10 @@ def edit_promos(request):
     member = Member.objects.get(user=request.user)
     now = datetime.datetime.now()
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
-    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
-
-    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=member.backup_accounts))
+    if request.user.is_staff:
+        promos = Promo.objects.all()
+    else:
+        promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=member.backup_accounts))
 
     if request.method == 'POST':
         promo_id = request.POST.get('promo_id')

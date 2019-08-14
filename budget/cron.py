@@ -5,7 +5,10 @@ from bing_dashboard.models import BingCampaign
 from calendar import monthrange
 from tasks.campaign_group_tasks import update_budget_campaigns
 from bloom.utils.utils import perdelta, remove_accents, projected
-from budget.models import Client, AccountBudgetSpendHistory, Budget
+from budget.models import Budget, Client, AccountBudgetSpendHistory, Budget
+from adwords_dashboard.cron import get_spend_by_account_custom_daterange
+from facebook_dashboard.cron import get_spend_by_facebook_account_custom_dates
+from bing_dashboard.cron import get_spend_by_bing_account_custom_daterange
 from client_area.models import PhaseTask, PhaseTaskAssignment
 from notifications.models import Notification
 from client_area.models import AccountAllocatedHoursHistory
@@ -608,3 +611,28 @@ def update_campaigns_in_budgets(self):
             update_budget_campaigns.delay(budget.id)
 
     return 'update_campaigns_in_budgets'
+
+
+@celery_app.task(bind=True)
+def update_budget_spend_history():
+    """
+    Updates the final spend of the month that just passed for each account
+    """
+    accounts = Client.objects.filter(status=1)
+    now = datetime.datetime.now()
+    last_month = now.date().replace(day=1) - datetime.timedelta(days=1)
+
+    for account in accounts:
+        try:
+            spend_history = AccountBudgetSpendHistory.objects.get(account=account, month=last_month.month,
+                                                                  year=last_month.year)
+        except (AccountBudgetSpendHistory.DoesNotExist, AccountBudgetSpendHistory.MultipleObjectsReturned):
+            continue
+
+        spend_history.aw_spend = get_spend_by_account_custom_daterange(account.id, last_month.replace(day=1),
+                                                                       last_month)
+        spend_history.fb_spend = get_spend_by_facebook_account_custom_dates(account.id, last_month.replace(day=1),
+                                                                            last_month)
+        spend_history.bing_spend = get_spend_by_bing_account_custom_daterange(account.id, last_month.replace(day=1),
+                                                                              last_month)
+        spend_history.save()

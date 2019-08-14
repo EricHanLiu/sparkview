@@ -5,7 +5,7 @@ from bingads import ServiceClient
 from .models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
 from redis.exceptions import ConnectionError as ReddisConnectionError
 from kombu.exceptions import OperationalError as KombuOperationalError
-from budget.models import Budget
+from budget.models import Budget, CampaignExclusions, Client
 from bloom.utils.ppc_accounts import active_bing_accounts
 from django.utils.timezone import make_aware
 from tasks.bing_tasks import bing_cron_ovu, bing_cron_campaign_stats
@@ -270,3 +270,47 @@ def bing_yesterday_campaign_spend(self):
             break
 
     return 'bing_yesterday_campaign_spend'
+
+
+@celery_app.task(bind=True)
+def get_spend_by_bing_account_custom_daterange(self, account_id, start_date, end_date):
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return
+    helper = BingReportingService()
+
+    try:
+        campaign_exclusion = CampaignExclusions.objects.get(account=account)
+        excluded_campaign_ids = [campaign.campaign_id for campaign in campaign_exclusion.bing_campaigns.all()]
+    except CampaignExclusions.DoesNotExist:
+        excluded_campaign_ids = []
+
+    fields = [
+        'CampaignName',
+        'CampaignId',
+        'Spend'
+    ]
+
+    date_range = dict(
+        minDate=start_date,
+        maxDate=end_date
+    )
+
+    spend_sum = 0
+    bing_accounts = account.bing.all()
+    for bing_account in bing_accounts:
+        report = helper.get_campaign_performance(
+            bing_account.account_id,
+            dateRangeType='CUSTOM_DATE',
+            report_name='campaign_stats_custom',
+            extra_fields=fields,
+            **date_range
+        )
+
+        for campaign_row in report:
+            if campaign_row['campaignid'] in excluded_campaign_ids:
+                continue
+            spend_sum += float(campaign_row['spend'])
+
+    return spend_sum
