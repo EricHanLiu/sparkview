@@ -213,6 +213,10 @@
             <div class="navbar-item">
                 <a class="navbar-item" href="/">
                     Hi, {{ user.first_name }}
+                    <span style="margin-left: 1em;"><figure class="image is-24x24">
+                        <img {% if request.user.member.image != None %}src="{% static 'img/bloomers/'|add:request.user.member.image %}"
+                             {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}/>
+                    </figure></span>
                 </a>
             </div>
         </div>
