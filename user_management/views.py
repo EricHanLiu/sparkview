@@ -643,7 +643,7 @@ def members_single(request, id=0):
 
         return HttpResponse()
 
-    return render(request, 'user_management/profile/profile.html', context)
+    return render(request, 'user_management/profile/profile_refactor.html', context)
 
 
 @login_required

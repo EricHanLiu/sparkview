@@ -1,0 +1,98 @@
+html, body {
+    font-family: 'Rubik', sans-serif;
+    height: 100%;
+}
+
+/* COLORS */
+.button-color {
+    background-color: #35375a;
+    color: white;
+    font-weight: bold;
+}
+
+.button-color-2 {
+    background-color: #dc4e76;
+    color: white;
+}
+
+.button-color-3 {
+    background-color: #cc4b93;
+    color: white;
+}
+
+.button-color-4 {
+    background-color: #a946be;
+    color: white;
+}
+
+.tag.tag-color-1 {
+    background-color: #35375a;
+    color: white;
+}
+
+.tag.tag-color-2 {
+    background-color: #dc4e76;
+    color: white;
+}
+
+.tag.tag-color-3 {
+    background-color: #a946be;
+    color: white;
+}
+
+.tag.tag-color-4 {
+    background-color: #cc4b93;
+    color: white;
+}
+
+.tag.tag-color-5 {
+    background-color: #5c4ae4;
+    color: white;
+}
+
+.button-color:hover, .button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
+    color: navajowhite;
+}
+
+.button-color:focus, .button-color-2:focus, .button-color-3:focus, .button-color-4:focus {
+    color: navajowhite;
+}
+
+.menu-list a.is-active {
+    background-color: lightskyblue;
+}
+
+img {
+    border-radius: 100%;
+    box-shadow: 0 0 0 3px hsl(0, 0%, 100%), 0 0 0 6px hsl(0, 0%, 90%);
+}
+
+/* Progress bar percentage text styling */
+.progress-wrapper {
+    position: relative;
+}
+
+.progress-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    font-size: calc(1rem / 1.5);
+    line-height: 1rem;
+    font-weight: bold;
+}
+
+.progress.is-large + .progress-value {
+    font-size: calc(1.25rem / 1.5);
+    line-height: 1.5rem;
+}
+
+.budget-pacer {
+    height: 1.5rem;
+    background-color: black;
+    border-radius: 25%;
+    width: 0.2rem;
+    position: absolute;
+    top: 0;
+    left: 1%;
+}
