@@ -5,7 +5,7 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 from tasks.facebook_tasks import facebook_cron_ovu
 from .models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from budget.models import Budget, CampaignExclusions, Client
-from tasks.facebook_tasks import facebook_init
+from tasks.facebook_tasks import facebook_init, facebook_cron_campaign_stats
 from facebook_business.exceptions import FacebookRequestError, FacebookBadObjectError
 from bloom.utils.ppc_accounts import active_facebook_accounts
 from facebook_business.api import FacebookAdsApi
@@ -98,6 +98,7 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
             campaign.campaign_cost))
 
 
+@celery_app.task(bind=True)
 def get_all_spend_by_facebook_campaign_custom():
     """
     Creates celery tasks for each campaign
@@ -317,3 +318,25 @@ def facebook_spends_this_month_account_level(self):
             break
 
     return 'facebook_spends_this_month_account_level'
+
+
+@celery_app.task(bind=True)
+def facebook_yesterday_campaign_spend(self):
+    """
+    Formerly facebook_campaigns
+    :param self:
+    :return:
+    """
+    accounts = active_facebook_accounts()
+    for account in accounts:
+        try:
+            facebook_cron_campaign_stats.delay(account.account_id)
+        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+            logger = Logger()
+            warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
+                account.account_name)
+            warning_desc = 'Failed to create celery task for facebook_ovu.py'
+            logger.send_warning_email(warning_message, warning_desc)
+            break
+
+    return 'facebook_yesterday_campaign_spend'
