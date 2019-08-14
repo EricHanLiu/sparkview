@@ -84,12 +84,6 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
         campaign.spend_until_yesterday = float(campaign_row['spend'])
         campaign.save()
 
-    # not_in_use_camps = BingCampaign.objects.exclude(campaign_id__in=in_use_ids)
-    # for cmp in not_in_use_camps:
-    #     cmp.campaign_cost = 0.0
-    #     cmp.spend_until_yesterday = 0.0
-    #     cmp.save()
-
 
 @celery_app.task(bind=True)
 def get_all_spend_by_bing_campaign_custom():
@@ -99,23 +93,23 @@ def get_all_spend_by_bing_campaign_custom():
     """
     budgets = Budget.objects.filter(has_bing=True, is_monthly=False)
     for budget in budgets:
-        for bing_camp in budget.bing_campaigns_without_excluded:
-            get_spend_by_bing_campaign_custom.delay(bing_camp.id, budget.id)
+        for bing_account in budget.account.bing.all():
+            get_spend_by_bing_campaign_custom.delay(budget.id, bing_account.id)
 
 
 @celery_app.task(bind=True)
-def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
+def get_spend_by_bing_campaign_custom(self, budget_id, bing_account_id):
     """
     Gets campaign spend by custom date range
     :param self:
-    :param campaign_id:
+    :param bing_account_id:
     :param budget_id:
     :return:
     """
     try:
         budget = Budget.objects.get(id=budget_id)
-        campaign = BingCampaign.objects.get(id=campaign_id)
-    except (Budget.DoesNotExist, BingCampaign.DoesNotExist):
+        bing_account = BingAccounts.objects.get(id=bing_account_id)
+    except (Budget.DoesNotExist, BingAccounts.DoesNotExist):
         return
 
     helper = BingReportingService()
@@ -136,7 +130,7 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
     ]
 
     report = helper.get_campaign_performance(
-        campaign.account.account_id,
+        bing_account.account_id,
         dateRangeType='CUSTOM_DATE',
         report_name='campaign_stats_custom',
         extra_fields=fields,
@@ -145,7 +139,8 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
 
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
-        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
+        campaign_name = campaign_row['campaignname']
+        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id, campaign_name=campaign_name)
         csdr, created = BingCampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                          start_date=budget.start_date,
                                                                          end_date=budget.end_date)
@@ -167,7 +162,8 @@ def get_spend_by_bing_campaign_custom(self, campaign_id, budget_id):
 
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
-        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id)
+        campaign_name = campaign_row['campaignname']
+        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id, campaign_name=campaign_name)
         csdr, created = BingCampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                          start_date=budget.start_date,
                                                                          end_date=budget.end_date)

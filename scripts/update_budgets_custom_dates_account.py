@@ -24,14 +24,18 @@ def main():
     for budget in account.budgets:
         if budget.is_monthly:
             continue
-        for aw_camp in budget.aw_campaigns_without_excluded:
-            get_spend_by_campaign_custom(aw_camp.id, budget.id)
 
-        for fb_camp in budget.fb_campaigns_without_excluded:
-            get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
+        if budget.has_adwords:
+            for aw_camp in budget.aw_campaigns_without_excluded:
+                get_spend_by_campaign_custom(aw_camp.id, budget.id)
 
-        for bing_camp in budget.bing_campaigns_without_excluded:
-            get_spend_by_bing_campaign_custom(bing_camp.id, budget.id)
+        if budget.has_facebook:
+            for fb_camp in budget.fb_campaigns_without_excluded:
+                get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
+
+        if budget.has_bing:
+            for bing_account in budget.account.bing.all():
+                get_spend_by_bing_campaign_custom(budget.id, bing_account.id)
 
 
 main()
