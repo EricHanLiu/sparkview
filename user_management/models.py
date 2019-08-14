@@ -229,13 +229,13 @@ class Member(models.Model):
     last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
-    buffer_total_percentage = models.FloatField(null=True, blank=True, default=100)
-    buffer_learning_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_trainers_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_sales_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_planning_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_internal_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
+    buffer_total_percentage = models.FloatField(default=100)
+    buffer_learning_percentage = models.FloatField(default=0)
+    buffer_trainers_percentage = models.FloatField(default=0)
+    buffer_sales_percentage = models.FloatField(default=0)
+    buffer_planning_percentage = models.FloatField(default=0)
+    buffer_internal_percentage = models.FloatField(default=0)
+    buffer_seniority_percentage = models.FloatField(default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
     created = models.DateTimeField(auto_now_add=True)
@@ -419,6 +419,7 @@ class Member(models.Model):
                     self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
         return self._allocated_hours_percentage
 
+    @property
     def buffer_percentage(self):
         if self.deactivated:
             return 100.0

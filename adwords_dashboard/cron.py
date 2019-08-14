@@ -8,8 +8,10 @@ from kombu.exceptions import OperationalError as KombuOperationalError
 from budget.models import Budget
 from bloom.utils.ppc_accounts import active_adwords_accounts
 from adwords_dashboard.cron_scripts import get_accounts
-from tasks.adwords_tasks import adwords_cron_ovu
+from tasks.adwords_tasks import adwords_cron_ovu, adwords_account_change_history
 from tasks.logger import Logger
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 import datetime
 
 
@@ -32,6 +34,8 @@ def get_all_spends_by_campaign_this_month():
             get_spend_by_campaign_this_month(account.id)
         else:
             get_spend_by_campaign_this_month.delay(account.id)
+
+    return 'get_all_spends_by_campaign_this_month'
 
 
 @celery_app.task(bind=True)
@@ -127,6 +131,8 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.save()
         print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
+    return 'get_spend_by_campaign_this_month'
+
 
 @celery_app.task(bind=True)
 def get_all_spend_by_campaign_custom():
@@ -141,6 +147,8 @@ def get_all_spend_by_campaign_custom():
                 get_spend_by_campaign_custom(aw_camp.id, budget.id)
             else:
                 get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
+
+    return 'get_all_spend_by_campaign_custom'
 
 
 @celery_app.task(bind=True)
@@ -253,6 +261,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
     campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
     campaign_spend_object.save()
 
+    return 'get_spend_by_campaign_custom'
+
 
 @celery_app.task(bind=True)
 def adwords_accounts(self):
@@ -304,3 +314,43 @@ def adwords_spends_this_month_account_level(self):
             break
 
     return 'adwords_spends_this_month_account_level'
+
+
+@celery_app.task(bind=True)
+def change_history_email(self):
+    """
+    Sends out the change history email
+    :param self:
+    :return:
+    """
+    mail_list = {
+        'xurxo@makeitbloom.com',
+        'jeff@makeitbloom.com',
+        'franck@makeitbloom.com',
+        'marina@makeitbloom.com',
+        'lexi@makeitbloom.com',
+        'avi@makeitbloom.com'
+    }
+
+    accounts = [acc for acc in active_adwords_accounts() if acc.ch_flag]
+
+    mail_details = {
+        'accounts': accounts,
+    }
+
+    msg_html = render_to_string(settings.TEMPLATE_DIR + '/mails/change_history_5.html', mail_details)
+
+    send_mail('No changes for more than 5 days', msg_html, settings.EMAIL_HOST_USER, mail_list, fail_silently=False,
+              html_message=msg_html)
+    mail_list.clear()
+
+    return 'change_history_email'
+
+
+@celery_app.task(bind=True)
+def adwords_account_changes(self):
+    accounts = active_adwords_accounts()
+    for account in accounts:
+        adwords_account_change_history.delay(account.dependent_account_id)
+
+    return 'adwords_account_changes'

@@ -3,6 +3,7 @@ from adwords_dashboard.models import Campaign
 from facebook_dashboard.models import FacebookCampaign
 from bing_dashboard.models import BingCampaign
 from calendar import monthrange
+from tasks.campaign_group_tasks import update_budget_campaigns
 from bloom.utils.utils import perdelta, remove_accents, projected
 from budget.models import Client, AccountBudgetSpendHistory, Budget
 from client_area.models import PhaseTask, PhaseTaskAssignment
@@ -588,3 +589,22 @@ def ninety_days_notifications(self):
                 Notification.objects.create(message=message, link=link, member=member, severity=0, type=0)
 
     return 'ninety_days_notifications'
+
+
+@celery_app.task(bind=True)
+def update_campaigns_in_budgets(self):
+    """
+    Formerly campaign_groups.py
+    Updates the campaigns in each budget
+    :param self:
+    :return:
+    """
+    budgets = Budget.objects.all()
+
+    for budget in budgets:
+        if settings.DEBUG:
+            update_budget_campaigns(budget.id)
+        else:
+            update_budget_campaigns.delay(budget.id)
+
+    return 'update_campaigns_in_budgets'
