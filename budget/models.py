@@ -857,23 +857,27 @@ class Client(models.Model):
         Returns the number of onboarding hours remaining on this account (allocated - worked)
         :return:
         """
-        return self.onboarding_hours_allocated() - self.onboarding_hours_worked()
+        if not hasattr(self, '_onboarding_hours_remaining'):
+            self._onboarding_hours_remaining = self.onboarding_hours_allocated() - self.onboarding_hours_worked()
+        return self._onboarding_hours_remaining
 
     def onboarding_hours_worked(self, member=None):
         """
         Returns the number of onboarding hours worked on this account. If a member is provided, filters by this member
         """
-        hours = 0.0
-        account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
-        mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self, is_onboarding=True)
-        if member is not None:
-            account_hour_records = account_hour_records.filter(member=member)
-            mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
-        for record in account_hour_records:
-            hours += record.hours
-        for record in mandate_hour_records:
-            hours += record.hours
-        return hours
+        if not hasattr(self, '_onboarding_hours_worked'):
+            hours = 0.0
+            account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
+            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self, is_onboarding=True)
+            if member is not None:
+                account_hour_records = account_hour_records.filter(member=member)
+                mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
+            for record in account_hour_records:
+                hours += record.hours
+            for record in mandate_hour_records:
+                hours += record.hours
+            self._onboarding_hours_worked = hours
+        return self._onboarding_hours_worked
 
     @property
     def has_backup_members(self):
