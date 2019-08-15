@@ -55,9 +55,9 @@
                                     </div>
                                     <div class="level-item">
                                         {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
-                                            <span class="tag is-rounded {% if aw %}is-info{% endif %}">A</span>
-                                            <span class="tag is-rounded {% if bing %}is-primary{% endif %}">B</span>
-                                            <span class="tag is-rounded {% if fb %}is-link{% endif %}">F</span>
+                                            <span class="tag is-rounded {% if aw %}tag-color-2{% endif %}">A</span>
+                                            <span class="tag is-rounded {% if bing %}tag-color-4{% endif %}">B</span>
+                                            <span class="tag is-rounded {% if fb %}tag-color-3{% endif %}">F</span>
                                             {% if account.has_backup_members %}
                                                 <span class="tag is-rounded is-danger">BoA</span>
                                             {% endif %}
@@ -66,8 +66,24 @@
                                 </div>
                                 <div class="level-right">
                                     <div class="level-item">
+                                        <div class="buttons">
+                                            <div class="button is-small is-rounded quickadd"
+                                                 data-account-id="{{ account.id }}" data-amount="0.25">
+                                                +15m
+                                            </div>
+                                            <div class="button is-small is-rounded quickadd"
+                                                 data-account-id="{{ account.id }}" data-amount="0.5">
+                                                +30m
+                                            </div>
+                                            <div class="button is-small is-rounded quickadd"
+                                                 data-account-id="{{ account.id }}" data-amount="1">
+                                                +1h
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="level-item">
                                         <div class="tag is-rounded tag-color-2">
-                                            {{ account_hours|get_item_from_list:account.id }}/{{ account_allocation|get_item_from_list:account.id }}
+                                            <span id="worked_hours">{{ account_hours|get_item_from_list:account.id }}</span>/{{ account_allocation|get_item_from_list:account.id }}
                                             <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
                                         </div>
                                     </div>
@@ -76,30 +92,26 @@
                             <hr>
                             <div class="columns">
                                 <div class="column">
-                                    <div class="level" style="font-size: 0.8em; margin-bottom: 0;">
+                                    <div class="level" style="font-size: 0.9em; margin-bottom: 0;">
                                         <div class="level-item">
                                             <b>Current</b>:
-                                            {{ account.currency }}{{ account.calculated_spend|format_money }}
+                                            {{ account.currency }}{{ account.default_budget.calculated_spend|format_money }}
                                         </div>
                                         <div class="level-item">
                                             <b>Budget</b>:
-                                            {{ account.currency }}{{ account.current_budget|format_money }}
+                                            {{ account.currency }}{{ account.default_budget.calculated_budget|format_money }}
                                         </div>
                                         <div class="level-item">
-                                            <b>Avg Projected</b>:
-                                            {{ account.currency }}{{ account.project_average|format_money }}
+                                            <b>Average Projected</b>:
+                                            {{ account.currency }}{{ account.default_budget.projected_spend_avg|format_money }}
                                         </div>
                                         <div class="level-item">
-                                            <b>Yest Projected</b>:
-                                            {{ account.currency }}{{ account.project_yesterday|format_money }}
-                                        </div>
-                                        <div class="level-item">
-                                            <b>Yest Spend</b>:
-                                            {{ account.currency }}{{ account.yesterday_spend|format_money }}
+                                            <b>Yesterday Spend</b>:
+                                            {{ account.currency }}{{ account.default_budget.yesterday_spend|format_money }}
                                         </div>
                                         <div class="level-item">
                                             <b>Target Daily Spend</b>:
-                                            {{ account.currency }}{{ account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                            {{ account.currency }}{{ account.default_budget.rec_spend_yest|format_money }}
                                         </div>
                                     </div>
                                     <div class="columns">
@@ -109,7 +121,7 @@
                                                         class="progress is-large {% if account.underpacing_average %}is-warning
                                                       {% elif account.project_average > account.current_budget %}is-danger
                                                       {% else %}is-success{% endif %}"
-                                                        value="{{ account.spend_percentage }}"
+                                                        value="{{ account.default_budget.spend_percentage }}"
                                                         max="100"></progress>
                                                 <div class="progress-value">
                                                     {{ account.default_budget.spend_percentage|floatformat:2 }}%
@@ -315,6 +327,11 @@
                                                   data-original-title="
                                                         {% if aw %}
                                                             {% for a in aw %}
+
+
+
+
+
 
 
 
@@ -665,6 +682,31 @@
                     setTimeout(() => {
                         location.reload();
                     }, 500);
+                }
+            });
+        });
+
+        let $workedHours = $('#worked_hours');
+        $('.quickadd').click(function () {
+            let accountID = $(this).data('account-id');
+            let amount = $(this).data('amount');
+
+            $.ajax({
+                url: '/clients/accounts/' + accountID,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'quick_add_hours': amount,
+                    'quick_add_month': (new Date()).getMonth() + 1,
+                    'quick_add_year': (new Date()).getFullYear(),
+                },
+                success: function () {
+                    toastr.success('Successfully added ' + amount + ' hours!');
+                    let hours = parseFloat($workedHours.text());
+                    hours += amount;
+                    $workedHours.text(hours);
                 }
             });
         });

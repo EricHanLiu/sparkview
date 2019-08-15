@@ -516,27 +516,9 @@
                                                         <p class="tag {{ account_status_class }} is-small">{{ account.get_status_display }}</p>
                                                     </div>
                                                 </div>
-                                                <div class="control">
-                                                    <div class="tags has-addons">
-                                    <span class="tag is-small {% if account.adwords.all %}is-success{% endif %}">
-                                        Google Ads
-                                    </span>
-                                                    </div>
-                                                </div>
-                                                <div class="control">
-                                                    <div class="tags has-addons">
-                                    <span class="tag is-small {% if account.facebook.all %}is-success{% endif %}">
-                                        Facebook Ads
-                                    </span>
-                                                    </div>
-                                                </div>
-                                                <div class="control">
-                                                    <div class="tags has-addons">
-                                    <span class="tag is-small {% if account.bing.all %}is-success{% endif %}">
-                                        Bing Ads
-                                    </span>
-                                                    </div>
-                                                </div>
+                                                <span class="tag is-rounded {% if account.adwords.all %}tag-color-2{% endif %}">A</span>
+                                                <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
+                                                <span class="tag is-rounded {% if account.fb.all %}tag-color-3{% endif %}">F</span>
                                             </div>
                                         </div>
                                         <div class="column is-5 has-text-right">
