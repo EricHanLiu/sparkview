@@ -220,7 +220,9 @@
                                             {% with assignment=account|get_onboarding_step_assignment:step %}
                                                 <div class="column" style="margin: 0 2em;">
                                                     <button class="button is-rounded is-fullwidth {% if assignment.complete %}button-color-4{% endif %} onboarding-step-button"
-                                                            data-assignment-id="{{ assignment.id }}" data-step-name="{{ step.name }}">
+                                                            data-assignment-id="{{ assignment.id }}"
+                                                            data-step-name="{{ step.name }}"
+                                                            data-account-id="{{ account.id }}">
                                                         {{ step.name }}
                                                     </button>
                                                 </div>
@@ -339,10 +341,12 @@
                         <h5 class="title is-5">Onboarding Step</h5>
                     </div>
                     <div class="level-right">
-                        <button class="button button-color" id="onboarding_step_confirm_button">Yes</button>
+                        <button class="button button-color" id="onboarding_step_confirm_button">Complete</button>
                     </div>
                 </div>
                 <p>
+                    <input type="hidden" id="account_id">
+                    <input type="hidden" id="assignment_id">
                     Mark the step <strong id="step_name"></strong> as completed?
                 </p>
             </div>
@@ -364,6 +368,8 @@
         $('.onboarding-step-button').click(function () {
             $('#onboarding_step_modal').addClass('is-active');
             $('#step_name').text($(this).data('step-name'));
+            $('#assignment_id').val($(this).data('assignment-id'));
+            $('#account_id').val($(this).data('account-id'));
         });
 
         $body.on('click', '.resolve_task_button', function () {
@@ -374,11 +380,14 @@
         $('#onboarding_step_confirm_button').click(() => {
             $.ajax({
                 url: '/clients/accounts/complete_onboarding_step',
-                data: $('#resolve_task_form').serialize(),
+                data: {
+                    'account_id': $('#account_id').val(),
+                    'assignment_id': $('#assignment_id').val(),
+                },
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 type: 'POST',
                 success: () => {
-                    toastr.success('Successfully resolved task!');
+                    toastr.success('Successfully completed onboarding step!');
                     setTimeout(() => {
                         location.reload();
                     }, 500);
