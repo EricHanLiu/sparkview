@@ -538,91 +538,121 @@ def members_single(request, id=0):
     else:
         member = Member.objects.get(id=id)
 
-    now = datetime.datetime.now()
-
-    next_month_int = now.month + 1
-    if next_month_int == 13:
-        next_month_int = 1
-    next_month = datetime.datetime(
-        year=now.year,
-        month=next_month_int,
-        day=1
-    )
-    lastday_month = next_month + relativedelta(days=-1)
-    black_marker = (now.day / lastday_month.day) * 100
-
-    # accounts = member.active_accounts
-    accounts = Client.objects.filter(
+    """
+    We store all the account information in a master dictionary, with flags for each account's association
+    to this member (eg. backup/mandate). When assigning the hours for each account, we check against these same
+    flags for whatever custom assignment needs to be done (eg. mandates are assigned differently, backups have 
+    additional hours)
+    """
+    master_accounts_dictionary = {}
+    active_accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=1).order_by('client_name')
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member), status=1
+    )
+    for account in active_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = True
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
 
     onboarding_accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=0).order_by('client_name')
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member), status=0
+    )
+    for account in onboarding_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = True
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
+        master_accounts_dictionary[account.id]['is_onboarding'] = True
 
-    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
+    for account in member.backup_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = True
+            master_accounts_dictionary[account.id]['is_backup'] = True
+            master_accounts_dictionary[account.id]['is_flagged'] = False
 
-    backing_me = backup_periods.filter(member=member)
+    for assignment in member.active_mandate_assignments:
+        account = assignment.mandate.account
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = True
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
+            master_accounts_dictionary[account.id]['assignment'] = assignment
 
-    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
+    for account in Client.objects.filter(star_flag=True, flagged_assigned_member=member):
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = True
+        master_accounts_dictionary[account.id]['is_flagged'] = True
 
     account_hours = {}
     account_allocation = {}
-    for account in accounts:
-        hours = account.get_hours_worked_this_month_member(member)
-        account_hours[account.id] = hours
-        account_allocation[account.id] = account.get_allocation_this_month_member(member)
-
-    backup_account_hours = {}
-    backup_account_allocation = {}
-    for backup in backups:
-        hours = backup.account.get_hours_worked_this_month_member(member)
-        backup_account_hours[backup.account.id] = hours
-        backup_account_allocation[backup.account.id] = backup.account.get_allocation_this_month_member(member, True)
-
-    mandate_assignments = member.active_mandate_assignments
-    mandates = [assignment.mandate for assignment in mandate_assignments]
-
-    mandate_hours = {}
-    mandate_allocation = {}
-    for mandate_assignment in mandate_assignments:
-        key = mandate_assignment.mandate.id
-        mandate_hours[key] = mandate_assignment.worked_this_month
-        mandate_allocation[key] = mandate_assignment.hours
+    for account_id in master_accounts_dictionary:
+        account_dict = master_accounts_dictionary[account_id]
+        account_hours[account_id] = 0
+        account_allocation[account_id] = 0
+        account = account_dict['account']
+        if account_dict['is_active']:
+            hours = account.get_hours_worked_this_month_member(member)
+            allocation = account.get_allocation_this_month_member(member)
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
+        if account_dict['is_mandate']:
+            hours = account_dict['assignment'].worked_this_month
+            allocation = account_dict['assignment'].hours
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
+        if account_dict['is_backup']:
+            hours = account.get_hours_worked_this_month_member(member)
+            allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
+        if account_dict['is_onboarding']:
+            hours = account.onboarding_hours_worked(member)
+            allocation = account.onboarding_hours_allocated(member)
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
 
     # TODOS, handle possible get by date
     today = datetime.datetime.today().date()
-    date = request.GET.get('todoDate')
-    if date is not None:
-        today = datetime.datetime.strptime(date, '%m/%d/%Y').date()
-        todos = Todo.objects.filter(member=member, date_created=today)
-    else:
-        todos = Todo.objects.filter(member=member, completed=False, date_created=today)
+    todos = Todo.objects.filter(member=member, completed=False, date_created=today)
+
+    # sort by account name alphabetical
+    sorted_dict = sorted(master_accounts_dictionary.items(), key=lambda kv: kv[1]['account'].client_name)
 
     context = {
         'account_hours': account_hours,
         'account_allocation': account_allocation,
-        'backup_account_allocation': backup_account_allocation,
-        'backup_account_hours': backup_account_hours,
         'member': member,
-        'accounts': accounts,
-        'onboarding_accounts': onboarding_accounts,
-        'backups': backups,
-        'backing_me': backing_me,
-        'star_accounts': star_accounts,
-        'black_marker': black_marker,
-        'mandates': mandates,
+        'master_accounts_dictionary': sorted_dict,
         'today': today,
         'todos': todos,
-        'mandate_hours': mandate_hours,
-        'mandate_allocation': mandate_allocation
     }
 
     # ajax mandate completed checkmarking and todolist completion
@@ -643,7 +673,7 @@ def members_single(request, id=0):
 
         return HttpResponse()
 
-    return render(request, 'user_management/profile/profile.html', context)
+    return render(request, 'user_management/profile/profile_refactor.html', context)
 
 
 @login_required
@@ -1018,7 +1048,9 @@ def input_hours_profile(request, id):
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
 
-            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+            is_onboarding = account.status == 0
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                             is_onboarding=is_onboarding)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
@@ -1062,7 +1094,9 @@ def input_mandate_profile(request, id):
             mandate.completed = completed
             mandate.save()
 
-            MandateHourRecord.objects.create(assignment=assignment, hours=hours, month=month, year=year)
+            is_onboarding = mandate.account.status == 0
+            MandateHourRecord.objects.create(assignment=assignment, hours=hours, month=month, year=year,
+                                             is_onboarding=is_onboarding)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 

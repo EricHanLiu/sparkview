@@ -766,7 +766,9 @@ def account_single(request, account_id):
         except (TypeError, ValueError):
             hours = 0
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+        is_onboarding = account.status == 0
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -883,7 +885,9 @@ def account_single_old(request, account_id):
         except (TypeError, ValueError):
             hours = 0
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+        is_onboarding = account.status == 0
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -1148,8 +1152,9 @@ def value_added_hours(request):
         month = request.POST.get('month')
         year = request.POST.get('year')
 
+        is_onboarding = account.status == 0
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                         is_unpaid=True)
+                                         is_unpaid=True, is_onboarding=is_onboarding)
 
         # return redirect('/clients/accounts/report_hours')
         # keep everything on profile page
@@ -1781,6 +1786,7 @@ def set_opportunity(request):
     opp = Opportunity()
     opp.account = account
     opp.reason = opp_desc
+    opp.flagged_by = request.user.member
 
     if service_id == 'ppc':
         opp.is_primary = True
@@ -1802,6 +1808,62 @@ def set_opportunity(request):
     opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+def resolve_opportunity(request):
+    """
+    Resolves an opportunity
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.addressed = True
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def update_opportunity(request):
+    """
+    Updates an opportunity's status
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    status = request.POST.get('status')
+
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.status = status
+    if status == '2':
+        opp.lost_reason = request.POST.get('lost_reason')
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def get_opportunities(request):
+    """
+    Returns all the unresolved (unaddressed) opportunities
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    opportunities = Opportunity.objects.filter(addressed=False, account=account)
+    res = []
+    for opp in opportunities:  # serializing only gives the IDs, need actual string representations
+        res.append({'service': opp.service_string, 'created': opp.created})
+
+    return JsonResponse({'opportunities': res}, safe=False)
 
 
 def set_pitch(request):

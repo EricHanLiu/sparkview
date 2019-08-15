@@ -77,7 +77,7 @@ class Todo(models.Model):
         (4, 'Change History'),
     ]
 
-    TODO_COLOUR_CLASSES = ['danger', 'info', 'success', 'primary', 'warning']
+    TODO_COLOUR_CLASSES = ['tag-color-1', 'tag-color-2', 'tag-color-3', 'tag-color-4', 'tag-color-5']
 
     member = models.ForeignKey(Member, on_delete=models.CASCADE, default=None, blank=True)
     description = models.CharField(max_length=255, default='')

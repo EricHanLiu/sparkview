@@ -24,6 +24,7 @@ def prepare_todos():
             Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
             Q(strat1=member) | Q(strat2=member) | Q(strat3=member), Q(status=0) | Q(status=1)
         ) | member.active_mandate_accounts | member.backup_accounts
+        member_accounts = member_accounts.distinct()
 
         # PROMOS
         today = datetime.datetime.now().date()
@@ -95,7 +96,9 @@ def prepare_todos():
             if task_assignment.account.status == 0 or task_assignment.account.status == 1:
                 # only create todos for active/onboarding accounts
                 description = task_assignment.account.client_name + ' - ' + task_assignment.task.message
-                Todo.objects.create(member=member, description=description, type=3, phase_task_id=task_assignment.id)
+                link = task_assignment.account
+                Todo.objects.create(member=member, description=description, type=3, phase_task_id=task_assignment.id,
+                                    link=link)
 
         # PROMO REMINDERS, ENDED YESTERDAY AND START TOMORROW
         yesterday = today - datetime.timedelta(1)
@@ -130,9 +133,10 @@ def prepare_todos():
             Todo.objects.create(member=member, description=description, link=link, type=4)
 
         if today.day >= 5:
-            unapproved_budget_accounts = member_accounts.filter(budget_updated=False, salesprofile__ppc_status=1,
-                                                                status=1)
+            unapproved_budget_accounts = member_accounts.filter(salesprofile__ppc_status=1, status=1)
             for acc in unapproved_budget_accounts:
+                if acc.budget_updated_this_month:
+                    continue
                 description = acc.client_name + ' has an unapproved budget which should be overseen from the client ' \
                                                 'profile page (budgets section). Only checking off this todo WILL ' \
                                                 'NOT renew the budget.'
