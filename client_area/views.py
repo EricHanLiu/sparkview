@@ -1528,6 +1528,29 @@ def set_services(request):
 
 
 @login_required
+def complete_onboarding_step(request):
+    """
+    Mark an onboarding step as completed for an account
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    assignment_id = request.POST.get('assignment_id')
+    assignment = get_object_or_404(OnboardingStepAssignment, id=assignment_id)
+    assignment.completed = True
+    assignment.save()
+
+    return HttpResponse()
+
+
+@login_required
 def onboard_account(request, account_id):
     """
     Client onboarding page
