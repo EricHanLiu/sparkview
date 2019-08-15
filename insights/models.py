@@ -47,3 +47,16 @@ class Opportunity(models.Model):
 
     def __str__(self):
         return str(self.report) + ' ' + self.description
+
+
+class Insight(models.Model):
+    """
+    Actual insight record
+    """
+    account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
+    ga_view = models.ForeignKey(GoogleAnalyticsView, on_delete=models.SET_NULL, null=True, default=None)
+    message = models.TextField(default='')
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.account) + ' ' + str(self.created)
