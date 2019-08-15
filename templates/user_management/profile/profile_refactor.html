@@ -42,8 +42,10 @@
     <!-- MAIN CONTENT -->
     <div class="columns">
         <div class="column is-9">
+            <!-- MAIN ACCOUNTS -->
             {% if accounts.count > 0 %}
-                {% for account in accounts %}
+                {% for account in master_accounts_dictionary.items %}
+                    {{ account }}
                     <div class="card" style="margin-bottom: 1em;">
                         <div class="card-content">
                             <div class="level">
@@ -83,7 +85,7 @@
                                     </div>
                                     <div class="level-item">
                                         <div class="tag is-rounded tag-color-2">
-                                            <span id="worked_hours">{{ account_hours|get_item_from_list:account.id }}</span>/{{ account_allocation|get_item_from_list:account.id }}
+                                            <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id }}</span>/{{ account_allocation|get_item_from_list:account.id }}
                                             <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
                                         </div>
                                     </div>
@@ -686,10 +688,10 @@
             });
         });
 
-        let $workedHours = $('#worked_hours');
         $('.quickadd').click(function () {
             let accountID = $(this).data('account-id');
             let amount = $(this).data('amount');
+            let $workedHours = $('#worked_hours_' + accountID);
 
             $.ajax({
                 url: '/clients/accounts/' + accountID,
