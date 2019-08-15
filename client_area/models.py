@@ -234,17 +234,11 @@ class OnboardingStep(models.Model):
     """
     Step in the onboarding process for a service. Only complete when all subtasks are complete
     """
-    SERVICES_CHOICES = [(0, 'PPC'),
-                        (1, 'SEO'),
-                        (2, 'CRO'),
-                        (3, 'Strategy')]
-
-    service = models.IntegerField(default=0, choices=SERVICES_CHOICES)
     name = models.CharField(max_length=255, default='', blank=True)
     order = models.IntegerField(default=0)  # This is for the order of the steps for onboarding
 
     def __str__(self):
-        return self.get_service_display() + ' ' + self.name
+        return self.name
 
 
 class OnboardingTask(models.Model):
@@ -264,13 +258,8 @@ class OnboardingStepAssignment(models.Model):
     """
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, default=None, null=True)
     step = models.ForeignKey(OnboardingStep, on_delete=models.SET_NULL, default=None, null=True)
-
-    @property
-    def complete(self):
-        for task in self.onboardingtaskassignment_set.all():
-            if not task.complete:
-                return False
-        return True
+    complete = models.BooleanField(default=False)
+    completed = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         if self.account is None or self.step is None:

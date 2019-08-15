@@ -1636,6 +1636,9 @@ class Client(models.Model):
     def __str__(self):
         return self.client_name
 
+    class Meta:
+        ordering = ['client_name']
+
 
 class AdditionalFee(models.Model):
     """

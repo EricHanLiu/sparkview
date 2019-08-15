@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^accounts/(\d*)/old$', views.account_single_old, name='account_single_old'),
     url(r'^accounts/(\d*)$', views.account_single, name='account_single'),
     url(r'^accounts/onboard/(\d*)$', views.onboard_account, name='onboard_account'),
+    url(r'^accounts/complete_onboarding_step$', views.complete_onboarding_step, name='complete_onboarding_step'),
     url(r'^accounts/assign_members$', views.account_assign_members, name='account_assign_members'),
     url(r'^accounts/report_hours$', views.add_hours_to_account, name='add_hours_to_account'),
     url(r'^accounts/report_value_added_hours$', views.value_added_hours, name='value_added_hours'),

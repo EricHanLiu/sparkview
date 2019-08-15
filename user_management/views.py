@@ -12,7 +12,7 @@ from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPerio
     HighFive, TrainingGroup, SkillHistory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment, Mandate
+    MandateAssignment, Mandate, OnboardingStep
 from notifications.models import Notification, Todo
 
 
@@ -573,7 +573,6 @@ def members_single(request, id=0):
             master_accounts_dictionary[account.id]['account'] = account
             master_accounts_dictionary[account.id]['is_active'] = False
             master_accounts_dictionary[account.id]['is_mandate'] = False
-            master_accounts_dictionary[account.id]['is_onboarding'] = True
             master_accounts_dictionary[account.id]['is_backup'] = False
             master_accounts_dictionary[account.id]['is_flagged'] = False
         master_accounts_dictionary[account.id]['is_onboarding'] = True
@@ -584,9 +583,9 @@ def members_single(request, id=0):
             master_accounts_dictionary[account.id]['account'] = account
             master_accounts_dictionary[account.id]['is_active'] = False
             master_accounts_dictionary[account.id]['is_mandate'] = False
-            master_accounts_dictionary[account.id]['is_onboarding'] = True
-            master_accounts_dictionary[account.id]['is_backup'] = True
             master_accounts_dictionary[account.id]['is_flagged'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+        master_accounts_dictionary[account.id]['is_backup'] = True
 
     for assignment in member.active_mandate_assignments:
         account = assignment.mandate.account
@@ -594,13 +593,16 @@ def members_single(request, id=0):
             master_accounts_dictionary[account.id] = {}
             master_accounts_dictionary[account.id]['account'] = account
             master_accounts_dictionary[account.id]['is_active'] = False
-            master_accounts_dictionary[account.id]['is_mandate'] = True
             master_accounts_dictionary[account.id]['is_onboarding'] = False
             master_accounts_dictionary[account.id]['is_backup'] = False
             master_accounts_dictionary[account.id]['is_flagged'] = False
-            master_accounts_dictionary[account.id]['assignment'] = assignment
+        if 'assignments' not in master_accounts_dictionary[account.id]:
+            master_accounts_dictionary[account.id]['assignments'] = []
+        master_accounts_dictionary[account.id]['is_mandate'] = True
+        master_accounts_dictionary[account.id]['assignments'].append(assignment)
 
-    for account in Client.objects.filter(star_flag=True, flagged_assigned_member=member):
+    flagged_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
+    for account in flagged_accounts:
         if account.id not in master_accounts_dictionary:
             master_accounts_dictionary[account.id] = {}
             master_accounts_dictionary[account.id]['account'] = account
@@ -608,7 +610,6 @@ def members_single(request, id=0):
             master_accounts_dictionary[account.id]['is_mandate'] = False
             master_accounts_dictionary[account.id]['is_onboarding'] = False
             master_accounts_dictionary[account.id]['is_backup'] = False
-            master_accounts_dictionary[account.id]['is_flagged'] = True
         master_accounts_dictionary[account.id]['is_flagged'] = True
 
     account_hours = {}
@@ -624,10 +625,11 @@ def members_single(request, id=0):
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
         if account_dict['is_mandate']:
-            hours = account_dict['assignment'].worked_this_month
-            allocation = account_dict['assignment'].hours
-            account_hours[account_id] += hours
-            account_allocation[account_id] += allocation
+            for assignment in master_accounts_dictionary[account.id]['assignments']:
+                hours = assignment.worked_this_month
+                allocation = assignment.hours
+                account_hours[account_id] += hours
+                account_allocation[account_id] += allocation
         if account_dict['is_backup']:
             hours = account.get_hours_worked_this_month_member(member)
             allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
@@ -643,6 +645,8 @@ def members_single(request, id=0):
     today = datetime.datetime.today().date()
     todos = Todo.objects.filter(member=member, completed=False, date_created=today)
 
+    onboarding_steps = OnboardingStep.objects.all()
+
     # sort by account name alphabetical
     sorted_dict = sorted(master_accounts_dictionary.items(), key=lambda kv: kv[1]['account'].client_name)
 
@@ -653,6 +657,8 @@ def members_single(request, id=0):
         'master_accounts_dictionary': sorted_dict,
         'today': today,
         'todos': todos,
+        'flagged_accounts_count': flagged_accounts.count(),
+        'onboarding_steps': onboarding_steps
     }
 
     # ajax mandate completed checkmarking and todolist completion
@@ -674,6 +680,17 @@ def members_single(request, id=0):
         return HttpResponse()
 
     return render(request, 'user_management/profile/profile_refactor.html', context)
+
+
+@login_required
+def complete_onboarding_step(request):
+    """
+    Mark an onboarding step as completed for an account
+    :param request:
+    :return:
+    """
+    
+    return HttpResponse()
 
 
 @login_required
