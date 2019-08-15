@@ -12,7 +12,7 @@ from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPerio
     HighFive, TrainingGroup, SkillHistory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment, Mandate, OnboardingStep
+    MandateAssignment, Mandate, OnboardingStep, OnboardingStepAssignment
 from notifications.models import Notification, Todo
 
 
@@ -680,17 +680,6 @@ def members_single(request, id=0):
         return HttpResponse()
 
     return render(request, 'user_management/profile/profile_refactor.html', context)
-
-
-@login_required
-def complete_onboarding_step(request):
-    """
-    Mark an onboarding step as completed for an account
-    :param request:
-    :return:
-    """
-    
-    return HttpResponse()
 
 
 @login_required
