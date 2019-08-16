@@ -56,11 +56,9 @@
                                             </a>
                                         </div>
                                         <div class="level-item">
-                                            {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
-                                                <span class="tag is-rounded {% if aw %}tag-color-4{% endif %}">A</span>
-                                                <span class="tag is-rounded {% if bing %}tag-color-4{% endif %}">B</span>
-                                                <span class="tag is-rounded {% if fb %}tag-color-4{% endif %}">F</span>
-                                            {% endwith %}
+                                            <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
+                                            <span class="tag is-rounded {% if account.fb.all %}tag-color-4{% endif %}">F</span>
+                                            <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
                                         </div>
                                         {% if account_dict.is_backup %}
                                             <div class="level-item">
