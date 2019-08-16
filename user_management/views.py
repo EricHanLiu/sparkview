@@ -890,7 +890,7 @@ def members_single_timesheet(request, id):
         'value_added_hours': value_added_hours
     }
 
-    return render(request, 'user_management/profile/timesheet.html', context)
+    return render(request, 'user_management/profile/timesheet_refactor.html', context)
 
 
 @login_required

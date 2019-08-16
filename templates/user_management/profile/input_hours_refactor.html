@@ -1,24 +1,6 @@
 {% extends 'user_management/profile/layout_refactor.html' %}
 
 {% block main_content %}
-    {% if backups.count > 0 %}
-        <article class="message is-info">
-            <div class="message-body">
-                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget
-                to check on them!
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
-    {% if flagged_accounts_count > 0 %}
-        <article class="message is-danger">
-            <div class="message-body">
-                <strong>Flagged account alert!</strong> You are assigned to {{ flagged_accounts_count }} flagged
-                accounts. They are marked by a <strong>Flagged</strong> tag.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
     <div class="card">
         <div class="card-content">
             <h4 class="title is-4">

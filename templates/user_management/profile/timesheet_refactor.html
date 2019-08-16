@@ -1,0 +1,274 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+
+{% block main_content %}
+    <div class="card">
+        <div class="card-content">
+            <div class="level">
+                <div class="level-item">
+                    <div class="tabs is-boxed is-toggle">
+                        <ul>
+                            <li class="is-active">
+                                <a data-target="account_hours" class="hours-tab">
+                                    Account Hours
+                                </a>
+                            </li>
+                            {% if mandate_hours_this_month.count > 0 %}
+                                <li>
+                                    <a data-target="mandate_hours" class="hours-tab">
+                                        Mandate Hours
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if trainer_hours_this_month.count > 0 %}
+                                <li>
+                                    <a data-target="trainer_hours" class="hours-tab">
+                                        Trainer Hours
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if trainee_hours_this_month.count > 0 %}
+                                <li>
+                                    <a data-target="trainee_hours" class="hours-tab">
+                                        Trainee Hours
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if value_added_hours.count > 0 %}
+                                <li>
+                                    <a data-target="value_added_hours" class="hours-tab">
+                                        Value Added Hours
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="account_hours" class="hours-table">
+                <h4 class="title is-4">Account Hours</h4>
+                <hr/>
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Account
+                        </th>
+                        <th>
+                            Date Added
+                        </th>
+                        <th>
+                            Hours
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hour_row in reg_hours_this_month %}
+                        <tr class="table-row">
+                            <td>
+                                <a href="/clients/accounts/{{ hour_row.account.id }}" style="font-weight: bold;">
+                                    {{ hour_row.account.client_name }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ hour_row.created_at }}
+                            </td>
+                            <td>
+                                {{ hour_row.hours }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="mandate_hours" class="is-hidden hours-table">
+                <h4 class="title is-4">
+                    Mandate Hours
+                </h4>
+                <hr>
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Mandate
+                        </th>
+                        <th>
+                            Hours
+                        </th>
+                        <th>
+                            Month
+                        </th>
+                        <th>
+                            Date Added
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hour_row in mandate_hours_this_month %}
+                        <tr class="table-row">
+                            <td>
+                                {{ hour_row.assignment.mandate }}
+                            </td>
+                            <td>
+                                {{ hour_row.hours }}
+                            </td>
+                            <td>
+                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                            </td>
+                            <td>
+                                {{ hour_row.created }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="trainer_hours" class="is-hidden hours-table">
+                <h4 class="title is-4">
+                    Trainer Hours This Month
+                </h4>
+                <hr>
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Trainee
+                        </th>
+                        <th>
+                            Hours
+                        </th>
+                        <th>
+                            Month
+                        </th>
+                        <th>
+                            Date Added
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hour_row in trainer_hours_this_month %}
+                        <tr class="table-row">
+                            <td>
+                                {{ hour_row.trainee.user.get_full_name }}
+                            </td>
+                            <td>
+                                {{ hour_row.hours }}
+                            </td>
+                            <td>
+                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                            </td>
+                            <td>
+                                {{ hour_row.added }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="trainee_hours" class="is-hidden hours-table">
+                <h4 class="title is-4">
+                    Trainee Hours This Month
+                </h4>
+                <hr>
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Trainer
+                        </th>
+                        <th>
+                            Hours
+                        </th>
+                        <th>
+                            Month
+                        </th>
+                        <th>
+                            Date Added
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hour_row in trainee_hours_this_month %}
+                        <tr class="table-row">
+                            <td>
+                                {{ hour_row.trainee.user.get_full_name }}
+                            </td>
+                            <td>
+                                {{ hour_row.hours }}
+                            </td>
+                            <td>
+                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                            </td>
+                            <td>
+                                {{ hour_row.added }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="value_added_hours" class="is-hidden hours-table">
+                <!-- value added hours -->
+                <h4 class="title is-4">
+                    My Value Added Hours This Month
+                </h4>
+                <hr>
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Account
+                        </th>
+                        <th>
+                            Hours
+                        </th>
+                        <th>
+                            Month
+                        </th>
+                        <th>
+                            Date Added
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hour_row in value_added_hours %}
+                        <tr class="table-row">
+                            <td>
+                                {{ hour_row.account.client_name }}
+                            </td>
+                            <td>
+                                {{ hour_row.hours }}
+                            </td>
+                            <td>
+                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                            </td>
+                            <td>
+                                {{ hour_row.created_at }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <!-- end value added hours -->
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#timesheet_tab').addClass('is-active');
+
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
+
+        $('.hours-tab').click(function () {
+            $('.hours-table').addClass('is-hidden');
+            $('.hours-tab').parent().removeClass('is-active');
+            $(this).parent().addClass('is-active');
+            let selector = '#' + $(this).data('target');
+            $(selector).removeClass('is-hidden');
+        });
+    </script>
+{% endblock %}
