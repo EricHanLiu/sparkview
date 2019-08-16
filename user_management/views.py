@@ -740,16 +740,12 @@ def members_single_reports(request, id):
     reporting_period = now.day <= 31
     reports = []
 
-    accounts = list(Client.objects.filter(
+    accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
         Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=1).order_by('client_name'))
-    non_backups_length = len(accounts)  # for determining where backup accounts are in the list
-
-    accounts.extend(list(member.backup_accounts))
-    with_backups_length = len(accounts)
+    ).filter(status=1) | member.backup_accounts
 
     first_weekday, days_in_month = calendar.monthrange(now.year, now.month)
 
@@ -780,17 +776,17 @@ def members_single_reports(request, id):
             if not report.no_report:
                 reports.append(report)
 
+    reports.sort(key=lambda r: r.due_date)
+
     context = {
         'member': member,
         'reports': reports,
-        'non_backups_length': non_backups_length,
-        'with_backups_length': with_backups_length,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
         'reporting_year': year
     }
 
-    return render(request, 'user_management/profile/reports.html', context)
+    return render(request, 'user_management/profile/reports_refactor.html', context)
 
 
 @login_required

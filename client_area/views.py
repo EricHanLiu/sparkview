@@ -1253,7 +1253,7 @@ def set_due_date(request):
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
-    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%Y-%m-%d")
+    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%m/%d/%Y")
     report.save()
 
     resp = {
