@@ -1542,9 +1542,11 @@ def complete_onboarding_step(request):
     if not request.user.is_staff and not member.has_account(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
     assignment_id = request.POST.get('assignment_id')
     assignment = get_object_or_404(OnboardingStepAssignment, id=assignment_id)
-    assignment.completed = True
+    assignment.complete = True
+    assignment.completed = now
     assignment.save()
 
     return HttpResponse()

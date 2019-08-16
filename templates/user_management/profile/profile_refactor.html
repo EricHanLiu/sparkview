@@ -39,10 +39,8 @@
             </div>
         </article>
     {% endif %}
-    <!-- MAIN CONTENT -->
     <div class="columns">
         <div class="column is-9">
-            <!-- MAIN ACCOUNTS -->
             {% if master_accounts_dictionary|length > 0 %}
                 {% for id, account_dict in master_accounts_dictionary %}
                     {% with account=account_dict.account %}
@@ -56,15 +54,13 @@
                                             </a>
                                         </div>
                                         <div class="level-item">
-                                            {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
-                                                <span class="tag is-rounded {% if aw %}tag-color-2{% endif %}">A</span>
-                                                <span class="tag is-rounded {% if bing %}tag-color-4{% endif %}">B</span>
-                                                <span class="tag is-rounded {% if fb %}tag-color-3{% endif %}">F</span>
-                                            {% endwith %}
+                                            <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
+                                            <span class="tag is-rounded {% if account.fb.all %}tag-color-4{% endif %}">F</span>
+                                            <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
                                         </div>
                                         {% if account_dict.is_backup %}
                                             <div class="level-item">
-                                                <span class="tag is-rounded tag-color-4">Backup</span>
+                                                <span class="tag is-rounded tag-color-2">Backup</span>
                                             </div>
                                         {% endif %}
                                         {% if account_dict.is_flagged %}
@@ -74,7 +70,14 @@
                                         {% endif %}
                                         {% if account_dict.is_onboarding %}
                                             <div class="level-item">
-                                                <span class="tag is-rounded tag-color-3">Onboarding</span>
+                                                <div class="tags has-addons" data-account-id="{{ account.id }}"
+                                                     style="cursor: pointer;"
+                                                     {% if account.is_late_to_onboard %}id="late_onboarding_button"{% endif %}>
+                                                    <span class="tag is-rounded tag-color-3">Onboarding</span>
+                                                    <span class="tag is-rounded {% if account.is_late_to_onboard %}is-danger{% else %}tag-color-3{% endif %}">
+                                                        {{ account.onboarding_duration_elapsed }}
+                                                    </span>
+                                                </div>
                                             </div>
                                         {% endif %}
                                     </div>
@@ -200,14 +203,11 @@
                                                     - {{ assignment.mandate.end_date_pretty }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    <label class="m-checkbox">
-                                                        <input type="checkbox" class="mandate-completed is-checkradio"
-                                                               id="{{ assignment.mandate.id }}"
-                                                                {% if assignment.mandate.completed %}
-                                                               checked {% endif %}>
-                                                        <label for="{{ assignment.mandate.id }}"></label>
-                                                        <span></span>
-                                                    </label>
+                                                    <input type="checkbox" class="mandate-completed is-checkradio"
+                                                           id="{{ assignment.mandate.id }}"
+                                                            {% if assignment.mandate.completed %}
+                                                           checked disabled{% endif %}>
+                                                    <label for="{{ assignment.mandate.id }}"></label>
                                                 </td>
                                             </tr>
                                         {% endfor %}
@@ -220,7 +220,10 @@
                                             {% with assignment=account|get_onboarding_step_assignment:step %}
                                                 <div class="column" style="margin: 0 2em;">
                                                     <button class="button is-rounded is-fullwidth {% if assignment.complete %}button-color-4{% endif %} onboarding-step-button"
-                                                            data-assignment-id="{{ assignment.id }}" data-step-name="{{ step.name }}">
+                                                            data-assignment-id="{{ assignment.id }}"
+                                                            data-step-name="{{ step.name }}"
+                                                            data-account-id="{{ account.id }}"
+                                                            id="{{ assignment.id }}">
                                                         {{ step.name }}
                                                     </button>
                                                 </div>
@@ -288,6 +291,26 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="late_onboarding_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Late Onboarding Reason</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="late_onboarding_confirm_button">Confirm</button>
+                    </div>
+                </div>
+                <form id="late_onboarding_form">
+                    <input name="account_id" id="reason_account_id" type="hidden"/>
+                    <label class="reason">Reason:</label>
+                    <input type="text" name="late_reason" class="input" required/>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="resolve_task_modal">
         <div class="modal-background"></div>
         <div class="modal-content">
@@ -339,10 +362,13 @@
                         <h5 class="title is-5">Onboarding Step</h5>
                     </div>
                     <div class="level-right">
-                        <button class="button button-color" id="onboarding_step_confirm_button">Yes</button>
+                        <button class="button button-color" id="onboarding_step_confirm_button">Complete</button>
                     </div>
                 </div>
                 <p>
+                    <input type="hidden" id="step_account_id">
+                    <input type="hidden" id="assignment_id">
+                    <input type="hidden" id="step_element_id">
                     Mark the step <strong id="step_name"></strong> as completed?
                 </p>
             </div>
@@ -364,6 +390,15 @@
         $('.onboarding-step-button').click(function () {
             $('#onboarding_step_modal').addClass('is-active');
             $('#step_name').text($(this).data('step-name'));
+            $('#assignment_id').val($(this).data('assignment-id'));
+            $('#step_account_id').val($(this).data('account-id'));
+            $('#step_element_id').val(this.id);
+        });
+
+        $('#late_onboarding_button').click(function () {
+            $('#late_onboarding_modal').addClass('is-active');
+            let account_id = $(this).data('account-id');
+            $('#reason_account_id').val(account_id);
         });
 
         $body.on('click', '.resolve_task_button', function () {
@@ -371,17 +406,35 @@
             $('#task_id').val($(this).data('task-id'));
         });
 
-        $('#onboarding_step_confirm_button').click(() => {
+        $('#late_onboarding_confirm_button').click(() => {
             $.ajax({
-                url: '/clients/accounts/complete_onboarding_step',
-                data: $('#resolve_task_form').serialize(),
+                url: '/user_management/late_onboard',
+                data: $('#late_onboarding_form').serialize(),
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 type: 'POST',
                 success: () => {
-                    toastr.success('Successfully resolved task!');
+                    toastr.success('Successfully updated late onboarding reason!');
                     setTimeout(() => {
                         location.reload();
                     }, 500);
+                }
+            });
+        });
+
+        $('#onboarding_step_confirm_button').click(() => {
+            let stepElementID = $('#step_element_id').val();
+            $.ajax({
+                url: '/clients/accounts/complete_onboarding_step',
+                data: {
+                    'account_id': $('#step_account_id').val(),
+                    'assignment_id': $('#assignment_id').val(),
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully completed onboarding step!');
+                    $('#' + stepElementID).addClass('button-color-4');
+                    $('.modal').removeClass('is-active');
                 }
             });
         });
@@ -491,59 +544,6 @@
             }
         });
 
-        $(document).ready(function () {
-            $('#late_onboard_modal').on('show.bs.modal', function (e) {
-                let account_id = $(e.relatedTarget).data('account-id');
-                $('#m_account_id').attr('value', account_id);
-            });
-
-            // mandate completed checkbox
-            let $mandateCompleteBoxes = $('.mandate-completed');
-            let $modal = $('#mandateConfirmation');
-            let handlerAttached = false;
-            $mandateCompleteBoxes.change(function () {
-                let checked = this.checked;
-                let mandateId = this.id;
-
-                // display confirmation modal if already checked
-                if (!checked) {
-                    $modal.modal('toggle');
-                    this.checked = true;
-
-                    // only attach click handler once
-                    if (handlerAttached) {
-                        return;
-                    } else {
-                        // arrow function to avoid 'this' redefinition
-                        $('#reopenMandate').click(() => {
-                            sendRequest(checked, mandateId);
-                            this.checked = false;
-                            $modal.modal('toggle');
-                        });
-                        handlerAttached = true;
-                    }
-                } else {
-                    sendRequest(checked, mandateId);
-                }
-            });
-
-            function sendRequest(checked, mandateId) {
-                $.ajax({
-                    url: '',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    type: 'POST',
-                    data: {
-                        'checked': checked,
-                        'mandate-id': mandateId
-                    },
-                    success: function () {
-                        let inPrefix = checked ? '' : 'in';
-                        toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
-                    }
-                });
-            }
-        });
+        $('#accounts_tab').addClass('is-active');
     </script>
 {% endblock %}

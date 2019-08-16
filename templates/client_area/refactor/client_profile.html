@@ -487,7 +487,7 @@
                                             </button>
                                         </div>
                                         <div class="level-item">
-                                            <button class="button is-small is-rounded button-color-2"
+                                            <button class="button is-small is-rounded button-color"
                                                     id="overall_budget_button">
                                                 <strong>
                                                     <span style="margin: 0 0.5em;">AdWords: ${{ account.aw_budget }}</span>
@@ -516,9 +516,9 @@
                                                         <p class="tag {{ account_status_class }} is-small">{{ account.get_status_display }}</p>
                                                     </div>
                                                 </div>
-                                                <span class="tag is-rounded {% if account.adwords.all %}tag-color-2{% endif %}">A</span>
+                                                <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
+                                                <span class="tag is-rounded {% if account.fb.all %}tag-color-4{% endif %}">F</span>
                                                 <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
-                                                <span class="tag is-rounded {% if account.fb.all %}tag-color-3{% endif %}">F</span>
                                             </div>
                                         </div>
                                         <div class="column is-5 has-text-right">
@@ -541,49 +541,34 @@
                             </div>
                             <br/>
                             {% if account.default_budget is not None %}
-
                                 <div class="card" style="position: relative;">
                                     <header class="card-header">
-                                        <p class="card-header-title">
-                                    <span class="tooltip"
-                                          data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
+                                        <div class="card-header-title">
+                                            <span class="tooltip"
+                                                  data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
                                             - {{ account.default_budget.description }}
                                             {% if account.default_budget.is_new %}&nbsp;
                                                 <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
                                             {% endif %}
-                                        </p>
-                                        <span class="card-header-icon">
-                                    <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag is-small {% if account.default_budget.has_adwords %}is-success{% endif %}">
-                                                    Google
-                                                </span>
+                                        </div>
+                                        <div class="card-header-icon">
+                                            <span class="tag is-rounded {% if account.default_budget.has_adwords %}tag-color-4{% endif %}">
+                                                G
+                                            </span>
+                                            <span class="tag is-rounded {% if account.default_budget.has_facebook %}tag-color-4{% endif %}">
+                                                F
+                                            </span>
+                                            <span class="tag is-rounded {% if account.default_budget.has_bing %}tag-color-4{% endif %}">
+                                                B
+                                            </span>
+                                            <div style="margin-left: 0.5em;">
+                                                {% if account.default_budget.is_monthly %}
+                                                    Monthly Budget
+                                                {% else %}
+                                                    Flight Dates: {{ account.default_budget.pretty_dates }}
+                                                {% endif %}
                                             </div>
                                         </div>
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag is-small {% if account.default_budget.has_facebook %}is-success{% endif %}">
-                                                    FB
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag is-small {% if account.default_budget.has_bing %}is-success{% endif %}">
-                                                    Bing
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    &nbsp;&nbsp;
-                                            {% if account.default_budget.is_monthly %}
-                                                Monthly Budget -
-                                                <span class="budget-date" style="margin-left: 0.3em;"></span>
-                                            {% else %}
-                                                Flight Dates: {{ account.default_budget.pretty_dates }}
-                                            {% endif %}
-                                </span>
                                     </header>
                                     <div class="card-content">
                                         <div class="columns">
@@ -674,38 +659,24 @@
                                                     data-budget-name="{{ budget.name }}">Delete
                                             </button>
                                         </p>
-                                        <span class="card-header-icon">
-                                    <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag is-small {% if budget.has_adwords %}is-success{% endif %}">
-                                                    Google
-                                                </span>
+                                        <div class="card-header-icon">
+                                            <span class="tag is-rounded {% if budget.has_adwords %}tag-color-4{% endif %}">
+                                                G
+                                            </span>
+                                            <span class="tag is-rounded {% if budget.has_facebook %}tag-color-4{% endif %}">
+                                                F
+                                            </span>
+                                            <span class="tag is-rounded {% if budget.has_bing %}tag-color-4{% endif %}">
+                                                B
+                                            </span>
+                                            <div style="margin-left: 0.5em;">
+                                                {% if budget.is_monthly %}
+                                                    Monthly Budget
+                                                {% else %}
+                                                    Flight Dates: {{ budget.pretty_dates }}
+                                                {% endif %}
                                             </div>
                                         </div>
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag is-small {% if budget.has_facebook %}is-success{% endif %}">
-                                                    FB
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="control">
-                                            <div class="tags has-addons">
-                                                <span class="tag is-small {% if budget.has_bing %}is-success{% endif %}">
-                                                    Bing
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    &nbsp;&nbsp;
-                                            {% if budget.is_monthly %}
-                                                Monthly Budget -
-                                                <span class="budget-date" style="margin-left: 0.3em;"></span>
-                                            {% else %}
-                                                Flight Dates: {{ budget.pretty_dates }}
-                                            {% endif %}
-                                </span>
                                     </header>
                                     <div class="card-content">
                                         <div class="columns">

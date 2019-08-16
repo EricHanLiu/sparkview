@@ -890,7 +890,7 @@ def members_single_timesheet(request, id):
         'value_added_hours': value_added_hours
     }
 
-    return render(request, 'user_management/profile/timesheet.html', context)
+    return render(request, 'user_management/profile/timesheet_refactor.html', context)
 
 
 @login_required
@@ -1026,7 +1026,7 @@ def input_hours_profile(request, id):
             'mandate_assignments': mandate_assignments
         }
 
-        return render(request, 'user_management/profile/input_hours.html', context)
+        return render(request, 'user_management/profile/input_hours_refactor.html', context)
 
     elif request.method == 'POST':
         accounts = Client.objects.filter(
