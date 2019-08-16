@@ -60,3 +60,18 @@ class Insight(models.Model):
 
     def __str__(self):
         return str(self.account) + ' ' + str(self.created)
+
+
+class TenInsightsReport(models.Model):
+    """
+    From the meeting on August 16th, 2019
+    Purpose of these objects is to store basic information about a client's performance each month (mostly ecomm)
+    """
+    account = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, default=None)
+    ga_view = models.ForeignKey(GoogleAnalyticsView, on_delete=models.SET_NULL, null=True, default=None)
+    month = models.IntegerField(default=0)
+    year = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.account) + ' ' + str(self.created)
