@@ -1,5 +1,13 @@
 {% extends 'user_management/profile/layout_refactor.html' %}
 
+{% block extraCss %}
+    <style>
+        table {
+            table-layout: fixed;
+        }
+    </style>
+{% endblock %}
+
 {% block main_content %}
     <div class="card">
         <div class="card-content">
@@ -45,18 +53,18 @@
                 </div>
             </div>
             <div id="account_hours" class="hours-table">
-                <h4 class="title is-4">Account Hours</h4>
+                <h4 class="title is-4 has-text-centered">Account Hours</h4>
                 <hr/>
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>
-                        <th>
+                        <th class="has-text-centered">
                             Account
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Date Added
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Hours
                         </th>
                     </tr>
@@ -64,15 +72,15 @@
                     <tbody>
                     {% for hour_row in reg_hours_this_month %}
                         <tr class="table-row">
-                            <td>
+                            <td class="has-text-centered">
                                 <a href="/clients/accounts/{{ hour_row.account.id }}" style="font-weight: bold;">
                                     {{ hour_row.account.client_name }}
                                 </a>
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.created_at }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.hours }}
                             </td>
                         </tr>
@@ -81,23 +89,23 @@
                 </table>
             </div>
             <div id="mandate_hours" class="is-hidden hours-table">
-                <h4 class="title is-4">
+                <h4 class="title is-4 has-text-centered">
                     Mandate Hours
                 </h4>
                 <hr>
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>
-                        <th>
+                        <th class="has-text-centered">
                             Mandate
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Hours
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Month
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Date Added
                         </th>
                     </tr>
@@ -105,16 +113,16 @@
                     <tbody>
                     {% for hour_row in mandate_hours_this_month %}
                         <tr class="table-row">
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.assignment.mandate }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.hours }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.get_month_display }}, {{ hour_row.year }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.created }}
                             </td>
                         </tr>
@@ -123,23 +131,23 @@
                 </table>
             </div>
             <div id="trainer_hours" class="is-hidden hours-table">
-                <h4 class="title is-4">
+                <h4 class="title is-4 has-text-centered">
                     Trainer Hours This Month
                 </h4>
                 <hr>
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>
-                        <th>
+                        <th class="has-text-centered">
                             Trainee
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Hours
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Month
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Date Added
                         </th>
                     </tr>
@@ -147,16 +155,16 @@
                     <tbody>
                     {% for hour_row in trainer_hours_this_month %}
                         <tr class="table-row">
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.trainee.user.get_full_name }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.hours }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.get_month_display }}, {{ hour_row.year }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.added }}
                             </td>
                         </tr>
@@ -165,23 +173,23 @@
                 </table>
             </div>
             <div id="trainee_hours" class="is-hidden hours-table">
-                <h4 class="title is-4">
+                <h4 class="title is-4 has-text-centered">
                     Trainee Hours This Month
                 </h4>
                 <hr>
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>
-                        <th>
+                        <th class="has-text-centered">
                             Trainer
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Hours
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Month
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Date Added
                         </th>
                     </tr>
@@ -189,16 +197,16 @@
                     <tbody>
                     {% for hour_row in trainee_hours_this_month %}
                         <tr class="table-row">
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.trainee.user.get_full_name }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.hours }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.get_month_display }}, {{ hour_row.year }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.added }}
                             </td>
                         </tr>
@@ -208,23 +216,23 @@
             </div>
             <div id="value_added_hours" class="is-hidden hours-table">
                 <!-- value added hours -->
-                <h4 class="title is-4">
+                <h4 class="title is-4 has-text-centered">
                     My Value Added Hours This Month
                 </h4>
                 <hr>
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>
-                        <th>
+                        <th class="has-text-centered">
                             Account
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Hours
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Month
                         </th>
-                        <th>
+                        <th class="has-text-centered">
                             Date Added
                         </th>
                     </tr>
@@ -232,16 +240,16 @@
                     <tbody>
                     {% for hour_row in value_added_hours %}
                         <tr class="table-row">
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.account.client_name }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.hours }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.get_month_display }}, {{ hour_row.year }}
                             </td>
-                            <td>
+                            <td class="has-text-centered">
                                 {{ hour_row.created_at }}
                             </td>
                         </tr>
