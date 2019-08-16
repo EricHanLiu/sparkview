@@ -12,7 +12,7 @@
                     <div class="columns">
                         <div class="column is-3">
                             <label class="label">
-                                Account:
+                                Account
                                 {% if forloop.counter > non_backups_length %}
                                     <div class="tag is-rounded tag-color-3">Backup</div>
                                 {% endif %}
@@ -25,12 +25,12 @@
                                    class="input" disabled>
                         </div>
                         <div class="column is-2">
-                            <label class="label">Hours:</label>
+                            <label class="label">Hours</label>
                             <input type="text" name="hours-{{ forloop.counter0 }}"
                                    class="input">
                         </div>
                         <div class="column is-2">
-                            <label class="label">Month:</label>
+                            <label class="label">Month</label>
                             <div class="select is-fullwidth">
                                 <select name="month-{{ forloop.counter0 }}">
                                     {% for monthNum, monthName in months %}
@@ -41,7 +41,7 @@
                             </div>
                         </div>
                         <div class="column is-2">
-                            <label class="label">Year:</label>
+                            <label class="label">Year</label>
                             <div class="select is-fullwidth">
                                 <select name="year-{{ forloop.counter0 }}">
                                     {% for year in years %}
@@ -52,7 +52,7 @@
                             </div>
                         </div>
                         <div class="column is-3">
-                            <label class="has-text-info label">Quick Add:</label>
+                            <label class="has-text-info label">Quick Add</label>
                             <div class="columns">
                                 <div class="column is-4">
                                     <button type="button"
@@ -94,7 +94,7 @@
                     {% for mandate_assignment in mandate_assignments %}
                         <div class="columns">
                             <div class="column is-3">
-                                <label class="label">Mandate:</label>
+                                <label class="label">Mandate</label>
                                 <input name="mandate-id-{{ forloop.counter0 }}"
                                        value="{{ mandate_assignment.id }}"
                                        type="hidden"/>
@@ -104,12 +104,12 @@
                                        class="input" disabled>
                             </div>
                             <div class="column is-3">
-                                <label class="label">Hours:</label>
+                                <label class="label">Hours</label>
                                 <input type="text" name="hours-{{ forloop.counter0 }}"
                                        class="input">
                             </div>
                             <div class="column is-2">
-                                <label class="label">Month:</label>
+                                <label class="label">Month</label>
                                 <div class="select is-fullwidth">
                                     <select name="month-{{ forloop.counter0 }}">
                                         {% for monthNum, monthName in months %}
@@ -122,7 +122,7 @@
                                 </div>
                             </div>
                             <div class="column is-2">
-                                <label class="label">Year:</label>
+                                <label class="label">Year</label>
                                 <div class="select is-fullwidth">
                                     <select name="year-{{ forloop.counter0 }}">
                                         {% for year in years %}
@@ -135,7 +135,7 @@
                                 </div>
                             </div>
                             <div class="column is-2">
-                                <label class="label">Mandate Completed:</label>
+                                <label class="label">Mandate Completed</label>
                                 <input class="is-checkradio" type="checkbox" name="completed-{{ forloop.counter0 }}"
                                        {% if mandate_assignment.mandate.completed %}checked{% endif %}
                                        id="{{ mandate_assignment.id }}">
@@ -163,7 +163,7 @@
                 {% csrf_token %}
                 <div class="columns">
                     <div class="column is-3">
-                        <label class="label">Account:</label>
+                        <label class="label">Account</label>
                         <div class="select is-fullwidth">
                             <select name="account_id" required>
                                 {% for account in all_accounts %}
@@ -173,11 +173,11 @@
                         </div>
                     </div>
                     <div class="column is-3">
-                        <label class="label">Hours:</label>
+                        <label class="label">Hours</label>
                         <input type="text" name="hours" required class="input">
                     </div>
                     <div class="column is-3">
-                        <label class="label">Month:</label>
+                        <label class="label">Month</label>
                         <div class="select is-fullwidth">
                             <select name="month" required>
                                 {% for monthNum, monthName in months %}
@@ -188,7 +188,7 @@
                         </div>
                     </div>
                     <div class="column is-3">
-                        <label class="label">Year:</label>
+                        <label class="label">Year</label>
                         <div class="select is-fullwidth">
                             <select name="year" required>
                                 {% for year in years %}
@@ -215,7 +215,7 @@
                 {% csrf_token %}
                 <div class="columns">
                     <div class="column is-4">
-                        <label class="label">Trainee:</label>
+                        <label class="label">Trainee</label>
                         <select name="trainee_id" id="trainees" multiple required>
                             {% for member in members %}
                                 <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
@@ -223,11 +223,11 @@
                         </select>
                     </div>
                     <div class="column is-2">
-                        <label class="label">Hours:</label>
+                        <label class="label">Hours</label>
                         <input type="text" name="hours" required class="input">
                     </div>
                     <div class="column is-3">
-                        <label class="label">Month:</label>
+                        <label class="label">Month</label>
                         <div class="select is-fullwidth">
                             <select name="month" required>
                                 {% for monthNum, monthName in months %}
@@ -240,7 +240,7 @@
                         </div>
                     </div>
                     <div class="column is-3">
-                        <label class="label">Year:</label>
+                        <label class="label">Year</label>
                         <div class="select is-fullwidth">
                             <select name="year" required>
                                 {% for year in years %}
