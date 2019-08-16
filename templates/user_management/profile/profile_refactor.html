@@ -39,10 +39,8 @@
             </div>
         </article>
     {% endif %}
-    <!-- MAIN CONTENT -->
     <div class="columns">
         <div class="column is-9">
-            <!-- MAIN ACCOUNTS -->
             {% if master_accounts_dictionary|length > 0 %}
                 {% for id, account_dict in master_accounts_dictionary %}
                     {% with account=account_dict.account %}
@@ -205,14 +203,11 @@
                                                     - {{ assignment.mandate.end_date_pretty }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    <label class="m-checkbox">
-                                                        <input type="checkbox" class="mandate-completed is-checkradio"
-                                                               id="{{ assignment.mandate.id }}"
-                                                                {% if assignment.mandate.completed %}
-                                                               checked disabled{% endif %}>
-                                                        <label for="{{ assignment.mandate.id }}"></label>
-                                                        <span></span>
-                                                    </label>
+                                                    <input type="checkbox" class="mandate-completed is-checkradio"
+                                                           id="{{ assignment.mandate.id }}"
+                                                            {% if assignment.mandate.completed %}
+                                                           checked disabled{% endif %}>
+                                                    <label for="{{ assignment.mandate.id }}"></label>
                                                 </td>
                                             </tr>
                                         {% endfor %}
