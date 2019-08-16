@@ -57,14 +57,14 @@
                                         </div>
                                         <div class="level-item">
                                             {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
-                                                <span class="tag is-rounded {% if aw %}tag-color-2{% endif %}">A</span>
+                                                <span class="tag is-rounded {% if aw %}tag-color-4{% endif %}">A</span>
                                                 <span class="tag is-rounded {% if bing %}tag-color-4{% endif %}">B</span>
-                                                <span class="tag is-rounded {% if fb %}tag-color-3{% endif %}">F</span>
+                                                <span class="tag is-rounded {% if fb %}tag-color-4{% endif %}">F</span>
                                             {% endwith %}
                                         </div>
                                         {% if account_dict.is_backup %}
                                             <div class="level-item">
-                                                <span class="tag is-rounded tag-color-4">Backup</span>
+                                                <span class="tag is-rounded tag-color-2">Backup</span>
                                             </div>
                                         {% endif %}
                                         {% if account_dict.is_flagged %}
@@ -211,7 +211,7 @@
                                                         <input type="checkbox" class="mandate-completed is-checkradio"
                                                                id="{{ assignment.mandate.id }}"
                                                                 {% if assignment.mandate.completed %}
-                                                               checked {% endif %}>
+                                                               checked disabled{% endif %}>
                                                         <label for="{{ assignment.mandate.id }}"></label>
                                                         <span></span>
                                                     </label>
@@ -546,56 +546,6 @@
                         $(this).prop('disabled', 'disabled');
                         // refresh list
                         $('#todo_list').load(location.href + ' #todo_list>*', '');
-                    }
-                });
-            }
-        });
-
-        $(document).ready(function () {
-            // mandate completed checkbox
-            let $mandateCompleteBoxes = $('.mandate-completed');
-            let $modal = $('#mandateConfirmation');
-            let handlerAttached = false;
-            $mandateCompleteBoxes.change(function () {
-                let checked = this.checked;
-                let mandateId = this.id;
-
-                // display confirmation modal if already checked
-                if (!checked) {
-                    $modal.modal('toggle');
-                    this.checked = true;
-
-                    // only attach click handler once
-                    if (handlerAttached) {
-                        return;
-                    } else {
-                        // arrow function to avoid 'this' redefinition
-                        $('#reopenMandate').click(() => {
-                            sendRequest(checked, mandateId);
-                            this.checked = false;
-                            $modal.modal('toggle');
-                        });
-                        handlerAttached = true;
-                    }
-                } else {
-                    sendRequest(checked, mandateId);
-                }
-            });
-
-            function sendRequest(checked, mandateId) {
-                $.ajax({
-                    url: '',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    type: 'POST',
-                    data: {
-                        'checked': checked,
-                        'mandate-id': mandateId
-                    },
-                    success: function () {
-                        let inPrefix = checked ? '' : 'in';
-                        toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
                     }
                 });
             }
