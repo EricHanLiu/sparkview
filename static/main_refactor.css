@@ -24,6 +24,11 @@ html, body {
     color: white;
 }
 
+.button-color-5 {
+    background-color: #c9e3db;
+    color: black;
+}
+
 .tag.tag-color-1 {
     background-color: #fa1e44;
     color: white;

@@ -470,7 +470,7 @@
                                     {% if account.budget_updated_this_month %}
                                         {% for additional_fee in account.additional_fee_objects_this_month %}
                                             <div class="level-item">
-                                                <button class="button is-small is-rounded button-color-4 edit-additional-fee-button"
+                                                <button class="button is-small is-rounded button-color-5 edit-additional-fee-button"
                                                         data-id="{{ additional_fee.id }}"
                                                         data-name="{{ additional_fee.name }}"
                                                         data-fee="{{ additional_fee.fee }}"
@@ -481,7 +481,7 @@
                                             </div>
                                         {% endfor %}
                                         <div class="level-item">
-                                            <button class="button button-color-4 is-rounded is-small"
+                                            <button class="button button-color-5 is-rounded is-small"
                                                     id="additional_fee_button">
                                                 Add Additional Fee
                                             </button>
