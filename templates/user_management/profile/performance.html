@@ -1,26 +1,29 @@
 {% extends 'user_management/profile/layout_refactor.html' %}
 
-{% block extraCss %}
-    <style>
-        table {
-            table-layout: fixed;
-        }
-
-        td, th {
-            text-align: center;
-        }
-    </style>
-{% endblock %}
-
 {% block main_content %}
     <div class="card">
         <div class="card-content">
             <div class="level">
-                <div class="level-item">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h4 class="title is-4 performance-title high-fives">
+                            High Fives
+                        </h4>
+                        {% if oops.count > 0 or oops_reported.count > 0 %}
+                            <h4 class="title is-4 performance-title is-hidden oops">
+                                Oops
+                            </h4>
+                        {% endif %}
+                        <h4 class="title is-4 performance-title is-hidden skills">
+                            Skills
+                        </h4>
+                    </div>
+                </div>
+                <div class="level-right">
                     <div class="tabs is-boxed is-toggle">
                         <ul>
                             <li class="is-active">
-                                <a data-target="high_fives" class="performance-tab">
+                                <a data-target="high-fives" class="performance-tab">
                                     High Fives
                                 </a>
                             </li>
@@ -34,20 +37,12 @@
                                     Skills
                                 </a>
                             </li>
-                            <li>
-                                <a data-target="badges" class="performance-tab">
-                                    Badges
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
-            <div id="high_fives" class="performance-section">
-                <h4 class="title is-4 has-text-centered">
-                    High Fives
-                </h4>
-                <hr>
+            <hr>
+            <div class="performance-section high-fives">
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>
@@ -61,7 +56,7 @@
                     </thead>
                     <tbody>
                     {% for hf in high_fives %}
-                        <tr>
+                        <tr class="table-row">
                             <td>
                                 {{ hf.date }}
                             </td>
@@ -75,12 +70,9 @@
                     </tbody>
                 </table>
             </div>
-            <div id="oops" class="performance-section is-hidden">
+            <div class="performance-section is-hidden oops">
                 {% if oops.count > 0 %}
-                    <h4 class="title is-4">
-                        Oops Reports
-                    </h4>
-                    <hr>
+                    <h5 class="title is-5">My Oops Received</h5>
                     <table class="table is-hoverable is-fullwidth">
                         <thead>
                         <tr>
@@ -123,52 +115,52 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for incident in incidents %}
-                            <tr>
+                        {% for oops in oops %}
+                            <tr class="table-row">
                                 <td>
-                                    {{ incident.timestamp }}
+                                    {{ oops.timestamp }}
                                 </td>
                                 <td>
-                                    {{ incident.date }}
+                                    {{ oops.date }}
                                 </td>
                                 <td>
-                                    <a href="/user_management/members/{{ incident.reporter.id }}">{{ incident.reporter.user.get_full_name }}</a>
+                                    <a href="/user_management/members/{{ oops.reporter.id }}">{{ oops.reporter.user.get_full_name }}</a>
                                 </td>
                                 <td>
                                     <div style="max-height: 70px; overflow: auto;">
-                                        {{ incident.description }}
+                                        {{ oops.description }}
                                     </div>
                                 </td>
                                 <td>
-                                    {{ incident.issue_name }}
+                                    {{ oops.issue_name }}
                                 </td>
                                 <td>
-                                    {% if incident.budget_error_amount == 0 %}
+                                    {% if oops.budget_error_amount == 0 %}
                                         None
                                     {% else %}
-                                        {{ incident.budget_error_amount|floatformat:2 }}
+                                        {{ oops.budget_error_amount|floatformat:2 }}
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if incident.account is not None %}
-                                        <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                    {% if oops.account is not None %}
+                                        <a href="/clients/accounts/{{ oops.account.id }}">{{ oops.account }}</a>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if incident.client_aware %} Yes {% else %} No {% endif %}
+                                    {% if oops.client_aware %} Yes {% else %} No {% endif %}
                                 </td>
                                 <td>
-                                    {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                    {% if oops.client_at_risk %} Yes {% else %} No {% endif %}
                                 </td>
                                 <td>
-                                    {% if incident.addressed_with_member %} Yes {% else %} No {% endif %}
+                                    {% if oops.addressed_with_member %} Yes {% else %} No {% endif %}
                                 </td>
                                 <td>
-                                    {{ incident.platform_name }}
+                                    {{ oops.platform_name }}
                                 </td>
                                 <td>
                                     <div style="max-height: 70px; overflow: auto;">
-                                        {{ incident.justification }}
+                                        {{ oops.justification }}
                                     </div>
                                 </td>
                             </tr>
@@ -177,10 +169,7 @@
                     </table>
                 {% endif %}
                 {% if oops_reported.count > 0 %}
-                    <h4 class="title is-4">
-                        Oops Reported
-                    </h4>
-                    <hr>
+                    <h5 class="title is-5">My Oops Reported</h5>
                     <table class="table is-hoverable is-fullwidth">
                         <thead>
                         <tr>
@@ -227,7 +216,7 @@
                         </thead>
                         <tbody>
                         {% for oops in oops_reported %}
-                            <tr>
+                            <tr class="table-row">
                                 <td>
                                     {{ oops.timestamp }}
                                 </td>
@@ -293,13 +282,18 @@
 {% block extraJs %}
     <script>
         $('.performance-tab').click(function () {
-            $('.performance-section').addClass('is-hidden');
+            $('.performance-section, .performance-title').addClass('is-hidden');
             $('.performance-tab').parent().removeClass('is-active');
             $(this).parent().addClass('is-active');
-            let selector = '#' + $(this).data('target');
+            let selector = '.' + $(this).data('target');
             $(selector).removeClass('is-hidden');
         });
 
         $('#performance_tab').addClass('is-active');
+
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
     </script>
 {% endblock %}
