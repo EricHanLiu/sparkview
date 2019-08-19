@@ -815,10 +815,11 @@ def members_single_promos(request, id):
 
     context = {
         'member': member,
-        'promos': promos
+        'promos': promos,
+        'title': 'Promos - SparkView'
     }
 
-    return render(request, 'user_management/profile/promos.html', context)
+    return render(request, 'user_management/profile/promos_refactor.html', context)
 
 
 @login_required
