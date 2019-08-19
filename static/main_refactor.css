@@ -4,7 +4,7 @@ html, body {
 
 /* COLORS */
 .button-color {
-    background-color: #5ab190;
+    background-color: #00b4eb;
     color: white;
     font-weight: bold;
 }
@@ -20,8 +20,13 @@ html, body {
 }
 
 .button-color-4 {
-    background-color: #00b4eb;
+    background-color: #5ab190;
     color: white;
+}
+
+.button-color-5 {
+    background-color: #c9e3db;
+    color: black;
 }
 
 .tag.tag-color-1 {
@@ -94,4 +99,9 @@ img {
     position: absolute;
     top: 0;
     left: 1%;
+}
+
+.tabs.is-toggle li.is-active a {
+    background-color: lightskyblue;
+    border-color: lightskyblue;
 }

@@ -2,7 +2,6 @@ from django import template
 from user_management.models import SkillEntry, Backup
 from client_area.models import OnboardingStepAssignment
 import calendar
-import datetime
 
 register = template.Library()
 

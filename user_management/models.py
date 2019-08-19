@@ -135,6 +135,16 @@ class TrainingGroup(models.Model):
         return 'Training Group: ' + self.name
 
 
+class SkillCategory(models.Model):
+    """
+    Group of skills which share similarities (eg. communication skills, ppc skills)
+    """
+    name = models.CharField(max_length=255, default='')
+
+    def __str__(self):
+        return self.name
+
+
 class Skill(models.Model):
     """
     Skillset for each Member
@@ -142,6 +152,7 @@ class Skill(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default='', blank=True)
     skill_index = models.IntegerField(blank=True, null=True, default=None)
+    skill_category = models.ForeignKey(SkillCategory, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def get_score_0(self):
@@ -738,6 +749,16 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.get_full_name()
+
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            skills = Skill.objects.all()
+            for skill in skills:
+                SkillEntry.objects.create(skill=skill, member=self, score=0)
 
 
 class BackupPeriod(models.Model):

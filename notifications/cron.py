@@ -133,9 +133,9 @@ def prepare_todos():
             Todo.objects.create(member=member, description=description, link=link, type=4)
 
         if today.day >= 5:
-            unapproved_budget_accounts = member_accounts.filter(salesprofile__ppc_status=1, status=1)
-            for acc in unapproved_budget_accounts:
-                if acc.budget_updated_this_month:
+            active_accounts = member_accounts.filter(salesprofile__ppc_status=1, status=1)
+            for acc in active_accounts:
+                if acc.budget_updated_this_month:  # only look at unapproved budget accounts
                     continue
                 description = acc.client_name + ' has an unapproved budget which should be overseen from the client ' \
                                                 'profile page (budgets section). Only checking off this todo WILL ' \

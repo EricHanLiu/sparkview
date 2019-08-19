@@ -3,7 +3,6 @@
 {% block main_content %}
     <div class="card">
         <div class="card-content">
-            <!-- reporting portlet -->
             <h4 class="title is-4">
                 {{ last_month_str }} Reports
             </h4>
@@ -61,7 +60,7 @@
                                     </div>
                                 </div>
                             {% else %}
-                                {{ report.due_date }}
+                                <strong>{{ report.due_date }}</strong>
                             {% endif %}
                         </td>
                         <td>
@@ -69,15 +68,15 @@
                         </td>
                         <td class="has-text-centered">
                             {% if report.received_by_am and report.sent_by_am %}
-                                <button class="button" disabled>
+                                <button class="button is-fullwidth" disabled>
                                     Sent to Client <i class="fas fa-check" style="margin-left: 0.5em;"></i>
                                 </button>
                             {% elif report.received_by_am %}
-                                <button class="button sent-to-client" data-account-id="{{ report.account.id }}">
+                                <button class="button is-fullwidth sent-to-client" data-account-id="{{ report.account.id }}">
                                     Sent to Client
                                 </button>
                             {% else %}
-                                <button class="button sent-to-am" data-account-id="{{ report.account_id }}">
+                                <button class="button is-fullwidth sent-to-am" data-account-id="{{ report.account_id }}">
                                     Sent to AM
                                 </button>
                             {% endif %}
@@ -209,5 +208,7 @@
                 }
             });
         };
+
+        $('#reports_tab').addClass('is-active');
     </script>
 {% endblock %}
