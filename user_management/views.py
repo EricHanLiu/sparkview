@@ -970,7 +970,8 @@ def performance(request, member_id):
             'average': skill_entries.aggregate(Sum('score'))['score__sum'] / skill_entries.count()
         })
 
-    print(member_skills_categories)
+    badges = SkillEntry.objects.filter(member=member, score=4)
+
     context = {
         'member': member,
         'oops': oops,
@@ -979,7 +980,8 @@ def performance(request, member_id):
         'title': 'Performance',
         'tag_colors': tag_colors,
         'skills': skills,
-        'member_skills_categories': member_skills_categories
+        'member_skills_categories': member_skills_categories,
+        'badges': badges
     }
 
     return render(request, 'user_management/profile/performance.html', context)
