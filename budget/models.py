@@ -882,6 +882,7 @@ class Client(models.Model):
             for record in mandate_hour_records:
                 hours += record.hours
             self._onboarding_hours_worked = hours
+        return self._onboarding_hours_worked
 
     @property
     def has_backup_members(self):
