@@ -6,9 +6,6 @@
 
 {% block extraCss %}
     <link href="{% static 'client_profile.css' %}" type="text/css" rel="stylesheet"/>
-    <link href="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.css' %}" rel="stylesheet"
-          type="text/css"/>
-    <script defer src="{% static 'assets/vendors/custom/fullcalendar/fullcalendar.bundle.js' %}"></script>
     <script src="{% static 'assets/app/js/moment.js' %}"></script>
     <style>
         @media (min-device-width: 1200px) {
@@ -414,10 +411,6 @@
                                        href="/clients/promos/edit">
                                         Edit Promos
                                     </a>
-                                    <button class="button level-item is-rounded is-small button-color"
-                                            id="view_calendar_button">
-                                        View Calendar
-                                    </button>
                                 </div>
                             </div>
                             {% for promo in promos %}
@@ -2705,10 +2698,6 @@
             $('#view_opportunities_modal').addClass('is-active');
         });
 
-        $('#view_calendar_button').click(() => {
-            $('#view_calendar_modal').addClass('is-active');
-        });
-
         $('#assign_members_button').click(() => {
             $('#assign_members_modal').addClass('is-active');
         });
@@ -3290,28 +3279,6 @@
             setPercentageSum();
             getClientDetailsObjects();
             // generateHoursChart();
-            $('#calendar').fullCalendar({
-                header: {
-                    left: 'prev, next, today',
-                    center: 'title',
-                    right: 'month, listWeek'
-                },
-                aspectRatio: 2,
-                defaultDate: moment(),
-                defaultView: 'month',
-                events: [
-                    {% for promo in promos %}
-                        {
-                            title: '{{ promo.name }}',
-                            description: '{{ promo.desc }}',
-                            start: moment('{{ promo.formatted_start }}'),
-                            end: moment('{{ promo.formatted_end }}'),
-                            className: {% if promo.is_active %}'m-fc-event--success'
-                                {% else %}'m-fc - event--warning'{% endif %}
-                        }{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                ]
-            });
 
             // account management status row
             let status = $statusSelect.val();

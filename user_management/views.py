@@ -5,15 +5,14 @@ from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, Http4
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 import datetime
-from dateutil.relativedelta import relativedelta
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
     HighFive, TrainingGroup, SkillHistory, SkillCategory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment, Mandate, OnboardingStep, OnboardingStepAssignment
-from notifications.models import Notification, Todo
+    Mandate, OnboardingStep
+from notifications.models import Todo
 
 
 @login_required
