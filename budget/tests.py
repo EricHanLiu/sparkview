@@ -20,7 +20,7 @@ import json
 class AccountTestCase(TestCase):
     def setUp(self):
         test_industry = Industry.objects.create(name='test industry')
-        test_user = User.objects.create(username='test', password='12345')
+        test_user = User.objects.create_user(username='test', password='12345')
         test_super = User.objects.create_user(username='test4', password='123456', is_staff=True, is_superuser=True)
         test_member = Member.objects.create(user=test_user)
         Member.objects.create(user=test_super)
@@ -662,3 +662,20 @@ class AccountTestCase(TestCase):
         self.assertEqual(account.onboarding_hours, 8)
         self.assertEqual(account.allocated_hours_including_mandate, 8)
 
+    def test_get_requests(self):
+        self.client.login(username='test', password='12345')
+        test_user = User.objects.get(username='test')
+        member = Member.objects.get(user=test_user)
+        account = BloomClient.objects.create(client_name='test client123')
+        SalesProfile.objects.create(account=account, ppc_status=0, seo_status=0, cro_status=0)
+
+        account.am1 = member
+        account.save()
+
+        self.assertIn(account, member.accounts)
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)
