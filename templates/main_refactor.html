@@ -95,7 +95,8 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="navbar-item has-dropdown is-hoverable">
+            {% if request.user.is_staff %}
+                <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
                     <i class="fas fa-user-friends" style="margin-right: 0.5em;"></i>
                     Members
@@ -126,7 +127,6 @@
                     {% endif %}
                 </div>
             </div>
-            {% if request.user.is_staff %}
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
                         <i class="fas fa-book" style="margin-right: 0.5em;"></i>
