@@ -20,11 +20,8 @@ from . import profile_views as profile
 from . import other_views as other_views
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView
-)
+from rest_framework_simplejwt.views import TokenRefreshView
+
 from bloom.jwt_views import CustomTokenObtainPairView, CustomTokenVerifyView
 
 urlpatterns = [
