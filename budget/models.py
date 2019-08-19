@@ -189,6 +189,10 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     @property
+    def is_active(self):
+        return self.status == 1
+
+    @property
     def budgets(self):
         return Budget.objects.filter(account=self, is_default=False)
 
@@ -786,7 +790,7 @@ class Client(models.Model):
     @property
     def ppc_ignore_override(self):
         if self.is_onboarding_ppc and self.managementFee is not None:
-            return self.onboarding_hours
+            return self.onboarding_hours_remaining
         hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         return hours
 
@@ -814,18 +818,70 @@ class Client(models.Model):
             hours += mandate.hours_in_month(now.month, now.year)
         return self.get_allocated_hours() + hours
 
+    def onboarding_hours_allocated(self, member=None):
+        """
+        Returns the number of allocated hours for this onboarding account. If a member is provided, filter by this
+        member
+        """
+        if self.managementFee is None:
+            return 0.0
+        allocated = self.managementFee.initialFee / 125.0
+        if member is None:
+            return allocated
+        percentage = 0.0
+        if self.cm1 == member:
+            percentage += self.cm1percent
+        if self.cm2 == member:
+            percentage += self.cm2percent
+        if self.cm3 == member:
+            percentage += self.cm3percent
+        if self.am1 == member:
+            percentage += self.am1percent
+        if self.am2 == member:
+            percentage += self.am2percent
+        if self.am3 == member:
+            percentage += self.am3percent
+        if self.seo1 == member:
+            percentage += self.seo1percent
+        if self.seo2 == member:
+            percentage += self.seo2percent
+        if self.seo3 == member:
+            percentage += self.seo3percent
+        if self.strat1 == member:
+            percentage += self.strat1percent
+        if self.strat2 == member:
+            percentage += self.strat2percent
+        if self.strat3 == member:
+            percentage += self.strat3percent
+        return allocated * percentage / 100.0
+
     @property
-    def onboarding_hours(self):
-        if not hasattr(self, '_onboarding_hours'):
-            bank = self.managementFee.initialFee / 125.0
+    def onboarding_hours_remaining(self):
+        """
+        Returns the number of onboarding hours remaining on this account (allocated - worked)
+        :return:
+        """
+        if not hasattr(self, '_onboarding_hours_remaining'):
+            self._onboarding_hours_remaining = self.onboarding_hours_allocated() - self.onboarding_hours_worked()
+        return self._onboarding_hours_remaining
+
+    def onboarding_hours_worked(self, member=None):
+        """
+        Returns the number of onboarding hours worked on this account. If a member is provided, filters by this member
+        """
+        if not hasattr(self, '_onboarding_hours_worked'):
+            hours = 0.0
             account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
-            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self, is_onboarding=True)
+            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
+                                                                    is_onboarding=True)
+            if member is not None:
+                account_hour_records = account_hour_records.filter(member=member)
+                mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
             for record in account_hour_records:
-                bank -= record.hours
+                hours += record.hours
             for record in mandate_hour_records:
-                bank -= record.hours
-            self._onboarding_hours = bank
-        return self._onboarding_hours
+                hours += record.hours
+            self._onboarding_hours_worked = hours
 
     @property
     def has_backup_members(self):
@@ -1583,6 +1639,9 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
+
+    class Meta:
+        ordering = ['client_name']
 
 
 class AdditionalFee(models.Model):

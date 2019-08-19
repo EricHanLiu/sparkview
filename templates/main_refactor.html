@@ -23,42 +23,39 @@
     <script defer
             src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Rubik&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}" />
+    <link rel="shortcut icon" href="{% static 'assets/app/media/img/logos/favicon.png' %}"/>
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/css/datepicker.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/datepicker.min.js"></script>
+    <script defer
+            src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
 
     {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      {% if request.user.is_authenticated %}
-      gtag('set', {'user_id': '{{ request.user.member.id }}'});
-      {% endif %}
-      gtag('config', 'UA-127221597-1');
-    </script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127221597-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+            {% if request.user.is_authenticated %}
+                gtag('set', {'user_id': '{{ request.user.member.id }}'});
+            {% endif %}
+            gtag('config', 'UA-127221597-1');
+        </script>
     {% endif %}
-
-    <style>
-        html body {
-            font-family: 'Rubik', sans-serif;
-        }
-
-        .menu-list a.is-active {
-            background-color: lightskyblue;
-        }
-
-        .card-header {
-            height: 5em;
-            padding: 1em;
-        }
-    </style>
+    <link href="/static/main_refactor.css" rel="stylesheet">
     {% block extraCss %}
     {% endblock %}
 </head>
-<body class="has-navbar-spaced has-background-light">
+<body class="has-navbar-spaced">
 <!-- NAVBAR START -->
-<nav class="navbar has-shadow is-spaced">
+<nav class="navbar is-spaced" style="box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.25);">
     <div class="container is-fluid">
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
@@ -69,6 +66,10 @@
             </a>
         </div>
         <div class="navbar-start">
+            <a class="navbar-item" href="/">
+                <i class="fas fa-tachometer-alt" style="margin-right: 0.5em"></i>
+                Dashboard
+            </a>
             <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
                     <i class="fas fa-briefcase" style="margin-right: 0.5em;"></i>
@@ -223,13 +224,14 @@
     </div>
 </nav>
 <!-- NAVBAR END -->
-<div class="section">
-    <div class="container is-fluid">
-        {% block main_body %}
-        {% endblock %}
-    </div>
-</div>
+{% block main_body %}
+{% endblock %}
 <script>
+    $('.delete').click(function () {
+        $(this).closest('.message').addClass('is-hidden');
+        $('.modal').removeClass('is-active');
+    });
+
     const DEBOUNCETIME = 100;  // debounce timing
     let $searchResults = $('#search_results');
     let $searchBar = $('#search_bar');

@@ -1,0 +1,318 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+
+{% block main_content %}
+    <div class="card">
+        <div class="card-content">
+            <h4 class="title is-4">
+                Insert Hours
+            </h4>
+            <hr/>
+            <form method="post"> {% csrf_token %}
+                {% for account in accounts %}
+                    <div class="columns">
+                        <div class="column is-3">
+                            <label class="label">
+                                Account
+                                {% if forloop.counter > non_backups_length %}
+                                    <div class="tag is-rounded tag-color-3">Backup</div>
+                                {% endif %}
+                            </label>
+                            <input name="account-id-{{ forloop.counter0 }}"
+                                   value="{{ account.id }}"
+                                   type="hidden"/>
+                            <input type="text" name="account-name-{{ forloop.counter0 }}"
+                                   value="{{ account.client_name }}"
+                                   class="input" disabled>
+                        </div>
+                        <div class="column is-2">
+                            <label class="label">Hours</label>
+                            <input type="text" name="hours-{{ forloop.counter0 }}"
+                                   class="input">
+                        </div>
+                        <div class="column is-2">
+                            <label class="label">Month</label>
+                            <div class="select is-fullwidth">
+                                <select name="month-{{ forloop.counter0 }}">
+                                    {% for monthNum, monthName in months %}
+                                        <option value="{{ monthNum }}"
+                                                {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-2">
+                            <label class="label">Year</label>
+                            <div class="select is-fullwidth">
+                                <select name="year-{{ forloop.counter0 }}">
+                                    {% for year in years %}
+                                        <option value="{{ year }}"
+                                                {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <label class="has-text-info label">Quick Add</label>
+                            <div class="columns">
+                                <div class="column is-4">
+                                    <button type="button"
+                                            class="button is-info is-fullwidth quickadd-{{ forloop.counter0 }} {{ account.id }}">
+                                        +15m
+                                    </button>
+                                </div>
+                                <div class="column is-4">
+                                    <button type="button"
+                                            class="button is-info is-fullwidth quickadd-{{ forloop.counter0 }} {{ account.id }}">
+                                        +30m
+                                    </button>
+                                </div>
+                                <div class="column is-4">
+                                    <button type="button"
+                                            class="button is-info is-fullwidth quickadd-{{ forloop.counter0 }} {{ account.id }}">
+                                        +1h
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <button class="button is-info is-fullwidth" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            {% if mandate_assignments.count > 0 %}
+                <!-- Mandate Hours -->
+                <h4 class="title is-4">
+                    Mandate Hours
+                </h4>
+                <hr/>
+                <form method="post" action="/user_management/members/{{ member.id }}/input_mandate">
+                    {% csrf_token %}
+
+                    {% for mandate_assignment in mandate_assignments %}
+                        <div class="columns">
+                            <div class="column is-3">
+                                <label class="label">Mandate</label>
+                                <input name="mandate-id-{{ forloop.counter0 }}"
+                                       value="{{ mandate_assignment.id }}"
+                                       type="hidden"/>
+                                <input type="text"
+                                       name="mandate-name-{{ forloop.counter0 }}"
+                                       value="{{ mandate_assignment }}"
+                                       class="input" disabled>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label">Hours</label>
+                                <input type="text" name="hours-{{ forloop.counter0 }}"
+                                       class="input">
+                            </div>
+                            <div class="column is-2">
+                                <label class="label">Month</label>
+                                <div class="select is-fullwidth">
+                                    <select name="month-{{ forloop.counter0 }}">
+                                        {% for monthNum, monthName in months %}
+                                            <option value="{{ monthNum }}"
+                                                    {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
+                                                {{ monthName }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <label class="label">Year</label>
+                                <div class="select is-fullwidth">
+                                    <select name="year-{{ forloop.counter0 }}">
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if year == current_year %}selected{% endif %}>
+                                                {{ year }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <label class="label">Mandate Completed</label>
+                                <input class="is-checkradio" type="checkbox" name="completed-{{ forloop.counter0 }}"
+                                       {% if mandate_assignment.mandate.completed %}checked{% endif %}
+                                       id="{{ mandate_assignment.id }}">
+                                <label for="{{ mandate_assignment.id }}"></label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <button class="button is-info is-fullwidth" type="submit">Submit</button>
+                </form>
+                <!-- end mandate hours -->
+            {% endif %}
+        </div>
+    </div>
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            <!-- Value Added Hours -->
+            <h4 class="title is-4">
+                Value Added Hours
+                <span class="tag is-medium is-warning is-rounded" style="margin-left: 0.5em;">
+                    Warning! Only report these hours if they were worked as value added hours (the client did not pay for them)
+                </span>
+            </h4>
+            <hr/>
+            <form class="m-form" method="post" action="/clients/accounts/report_value_added_hours">
+                {% csrf_token %}
+                <div class="columns">
+                    <div class="column is-3">
+                        <label class="label">Account</label>
+                        <div class="select is-fullwidth">
+                            <select name="account_id" required>
+                                {% for account in all_accounts %}
+                                    <option value="{{ account.id }}">{{ account.client_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <label class="label">Hours</label>
+                        <input type="text" name="hours" required class="input">
+                    </div>
+                    <div class="column is-3">
+                        <label class="label">Month</label>
+                        <div class="select is-fullwidth">
+                            <select name="month" required>
+                                {% for monthNum, monthName in months %}
+                                    <option value="{{ monthNum }}"
+                                            {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>{{ monthName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <label class="label">Year</label>
+                        <div class="select is-fullwidth">
+                            <select name="year" required>
+                                {% for year in years %}
+                                    <option value="{{ year }}"
+                                            {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="button is-info is-fullwidth" type="submit">Submit</button>
+            </form>
+            <!-- end value added hours -->
+        </div>
+    </div>
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            <!-- training hours -->
+            <h4 class="title is-4">
+                Trainer Hours
+            </h4>
+            <hr/>
+            <form method="post" action="/user_management/add_training_hours">
+                {% csrf_token %}
+                <div class="columns">
+                    <div class="column is-4">
+                        <label class="label">Trainee</label>
+                        <select name="trainee_id" id="trainees" multiple required>
+                            {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="column is-2">
+                        <label class="label">Hours</label>
+                        <input type="text" name="hours" required class="input">
+                    </div>
+                    <div class="column is-3">
+                        <label class="label">Month</label>
+                        <div class="select is-fullwidth">
+                            <select name="month" required>
+                                {% for monthNum, monthName in months %}
+                                    <option value="{{ monthNum }}"
+                                            {% if monthnow|add:"0" == monthNum|add:"0" %}selected{% endif %}>
+                                        {{ monthName }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column is-3">
+                        <label class="label">Year</label>
+                        <div class="select is-fullwidth">
+                            <select name="year" required>
+                                {% for year in years %}
+                                    <option value="{{ year }}"
+                                            {% if year == current_year %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="button is-info is-fullwidth" type="submit">Submit</button>
+            </form>
+            <!-- end training hours -->
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        // get list of account names for quickadd success message
+        let accountNames = [];
+        {% for account in accounts %}
+            accountNames.push('{{ account.client_name }}');
+        {% endfor %}
+
+        let len = accountNames.length;
+
+        $(document).ready(() => {
+            for (let i = 0; i < len; i++) {
+                $('.quickadd-' + i).click(function () {
+                    let classes = $(this).attr('class').split(' ');
+                    let id = parseInt(classes[classes.length - 1]); // get last class which is account id
+                    let acc_name = accountNames[i];
+
+                    let amt = parseInt($(this).text());
+                    if (amt === 15) {
+                        amt = 0.25;
+                    } else if (amt === 30) {
+                        amt = 0.5;
+                    }
+                    let month = $('[name=month-' + i).val();
+                    let year = $('[name=year-' + i).val();
+
+                    let data = {
+                        ['account-id-' + i]: id,
+                        ['hours-' + i]: amt,
+                        ['month-' + i]: month,
+                        ['year-' + i]: year,
+                    };
+
+                    $.ajax({
+                        url: '',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        type: 'POST',
+                        data: data,
+                        success: function () {
+                            let plural = amt === 1 ? '' : 's'; // pluralize hour
+                            toastr.success('Successfully added ' + amt + ' hour' + plural + ' to account ' + acc_name + '!');
+                        }
+                    });
+                });
+            }
+
+            $('#trainees').selectize({
+                plugins: ['remove_button']
+            });
+        });
+
+        $('#input_hours_tab').addClass('is-active');
+    </script>
+{% endblock %}

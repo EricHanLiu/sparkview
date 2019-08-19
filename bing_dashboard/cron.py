@@ -86,7 +86,7 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
 
 
 @celery_app.task(bind=True)
-def get_all_spend_by_bing_campaign_custom():
+def get_all_spend_by_bing_campaign_custom(self):
     """
     Creates celery tasks for each campaign
     :return:

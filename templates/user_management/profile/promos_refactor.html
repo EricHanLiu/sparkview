@@ -1,0 +1,115 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+
+{% block main_content %}
+    <div class="card">
+        <div class="card-content">
+            <div class="level">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h4 class="title is-4">
+                            Promos
+                        </h4>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="level-item">
+                        <a href="/clients/promos/edit" class="button is-small is-link">Edit Promos</a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <table class="table is-hoverable is-fullwidth">
+                <thead>
+                <tr>
+                    <th>
+                        Account
+                    </th>
+                    <th>
+                        Promo Name
+                    </th>
+                    <th>
+                        Description
+                    </th>
+                    <th>
+                        Start Date
+                    </th>
+                    <th>
+                        End Date
+                    </th>
+                    <th>
+                        Update Status
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for promo in promos %}
+                        <tr>
+                            <td>
+                                <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account }}</a>
+                            </td>
+                            <td>
+                                {{ promo }}
+                            </td>
+                            <td>
+                                {{ promo.desc }}
+                            </td>
+                            <td>
+                                {{ promo.start_date }}
+                            </td>
+                            <td>
+                                {{ promo.end_date }}
+                            </td>
+                            <td>
+                                {% if promo.confirmed_started is None %}
+                                <button class="button is-rounded j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="0">Confirm Started</button>
+                                {% elif promo.confirmed_ended is None %}
+                                <button class="button is-rounded j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="1">Confirm Ended</button>
+                                {% else %}
+                                Promo ended on {{ promo.confirmed_ended }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.modal-close, .modal-background').click(() => {
+            $('.modal').removeClass('is-active');
+        });
+
+        let csrftoken = '{{ csrf_token }}';
+        let $promoCheck = $('.j-confirm-promo');
+
+        $promoCheck.click(function () {
+            $(this).addClass('is-loading');
+            let confirmation_type = $(this).data('confirmation-type');
+            let promo_type = $(this).data('promo-id');
+            let account_id = $(this).data('account-id');
+
+            let $clickedBtn = $(this);
+
+            $.ajax({
+                url: '/clients/promos/confirm',
+                data: {
+                    'account_id': account_id,
+                    'promo_id': promo_type,
+                    'confirmation_type': confirmation_type
+                },
+                headers: {'X-CSRFToken': csrftoken},
+                type: 'POST',
+                success: function () {
+                    toastr.success('Successfully updated promo!!!');
+                    $clickedBtn.removeClass('is-loading');
+                    $clickedBtn.attr('disabled', true);
+                }
+            });
+        });
+
+
+    </script>
+{% endblock %}

@@ -1253,7 +1253,7 @@ def set_due_date(request):
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
-    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%Y-%m-%d")
+    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%m/%d/%Y")
     report.save()
 
     resp = {
@@ -1525,6 +1525,31 @@ def set_services(request):
     sales_profile.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def complete_onboarding_step(request):
+    """
+    Mark an onboarding step as completed for an account
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    assignment_id = request.POST.get('assignment_id')
+    assignment = get_object_or_404(OnboardingStepAssignment, id=assignment_id)
+    assignment.complete = True
+    assignment.completed = now
+    assignment.save()
+
+    return HttpResponse()
 
 
 @login_required

@@ -1,7 +1,7 @@
 from django import template
 from user_management.models import SkillEntry, Backup
+from client_area.models import OnboardingStepAssignment
 import calendar
-import datetime
 
 register = template.Library()
 
@@ -106,3 +106,8 @@ def mcv(value):
 @register.filter
 def just_date(dt):
     return dt.strftime('%d %B, %Y')
+
+
+@register.filter
+def get_onboarding_step_assignment(account, step):
+    return OnboardingStepAssignment.objects.get(step=step, account=account)

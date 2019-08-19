@@ -74,6 +74,59 @@ def print_response(response):
             print('====================================')
 
 
+# 1
+def aov_per_age_bracket(analytics, view_id):
+    """
+    Part of the ten insights report
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '365daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:organicSearches'},
+                    {'expression': 'ga:avgPageLoadTime'}
+                ],
+                'dimensions': [
+                    {'name': 'ga:region'},
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:organicSearches', 'sortOrder': 'DESCENDING'}
+                ]
+            }
+        ]
+    }
+
+    report_response = get_report(analytics, report_definition)
+
+    for report in report_response.get('reports', []):
+        column_header = report.get('columnHeader', {})
+        dimension_headers = column_header.get('dimensions', [])
+        metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
+        rows = report.get('data', {}).get('rows', [])
+
+        for row in rows:
+            dimensions = row.get('dimensions', [])
+            date_range_values = row.get('metrics', [])
+
+            for header, dimension in zip(dimension_headers, dimensions):
+                print(header + ': ' + dimension)
+
+            for i, values in enumerate(date_range_values):
+                for metricHeader, value in zip(metric_headers, values.get('values')):
+                    print(metricHeader.get('name') + ': ' + value)
+
+            print('====================================')
+
+
 def seo_three_months_yoy_report(analytics, view_id):
     """
     Runs SEO three months YOY report
