@@ -23,7 +23,7 @@ class ClientTestCase(TestCase):
 
         test_account.save()
 
-        self.c = C()
+        self.client = C()
 
     def test_utils(self):
         """
@@ -99,28 +99,28 @@ class ClientTestCase(TestCase):
         self.assertEqual(mandate3.calculated_ongoing_hours, mandate3.allocated_hours_this_month)
 
     def test_sales_report_views(self):
-        self.c.login(username='test3', password='123456')
-        response = self.c.get('/reports/sales')
+        self.client.login(username='test3', password='123456')
+        response = self.client.get('/reports/sales')
         self.assertEqual(response.status_code, 200)
-        response = self.c.post('/clients/accounts/update_opportunity', {
+        response = self.client.post('/clients/accounts/update_opportunity', {
             'opp_id': '1',
             'status': '2',
             'lost_reason': 'Test'
         })
         self.assertEqual(response.status_code, 404)
-        response = self.c.post('/clients/accounts/resolve_opportunity', {
+        response = self.client.post('/clients/accounts/resolve_opportunity', {
             'opp_id': '1',
         })
         self.assertEqual(response.status_code, 404)
 
         Opportunity.objects.create()
-        response = self.c.post('/clients/accounts/update_opportunity', {
+        response = self.client.post('/clients/accounts/update_opportunity', {
             'opp_id': '1',
             'status': '2',
             'lost_reason': 'Test'
         })
         self.assertEqual(response.status_code, 302)
-        response = self.c.post('/clients/accounts/resolve_opportunity', {
+        response = self.client.post('/clients/accounts/resolve_opportunity', {
             'opp_id': '1',
         })
         self.assertEqual(response.status_code, 302)
