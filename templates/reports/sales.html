@@ -22,7 +22,15 @@
                         <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'>
                             <thead class="thead-inverse">
                             <tr class="main-table-header">
-                                <th>Account</th>
+                                <th>
+                                    Account
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th>
+                                    Lost Reason
+                                </th>
                                 <th>
                                     Service
                                 </th>
@@ -30,17 +38,44 @@
                                     Opportunity Description
                                 </th>
                                 <th>
+                                    Flagged By
+                                </th>
+                                <th>
                                     Date Created
+                                </th>
+                                <th>
+                                    Actions
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for opp in opportunities %}
                                 <tr>
-                                    <td>{{ opp.account }}</td>
+                                    <td><a href="/clients/accounts/{{ opp.account.id }}">{{ opp.account }}</a></td>
+                                    <td>
+                                        {{ opp.get_status_display }}
+                                    </td>
+                                    <td>
+                                        {% if opp.status == 2 %}
+                                            {{ opp.lost_reason }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
                                     <td>{{ opp.service_string }}</td>
                                     <td>{{ opp.reason }}</td>
+                                    <td>{{ opp.flagged_by }}</td>
                                     <td>{{ opp.created }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info update_opp_button" data-toggle="modal"
+                                                data-target="#update_opp_modal" data-opp-id="{{ opp.id }}"
+                                                data-opp-status="{{ opp.get_status_display }}">Update
+                                        </button>
+                                        <button class="btn btn-sm btn-success resolve_opp_button"
+                                                type="submit" data-opp-id="{{ opp.id }}">
+                                            Resolve
+                                        </button>
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -50,4 +85,105 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="update_opp_modal">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Opportunity Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Current status: <span id="current_opp_status"></span></p>
+                    <label>New status:</label>
+                    <div class="row">
+                        <div class="col">
+                            <input id="current_opp_id" type="hidden">
+                            <div class="form-group">
+                                <select class="w-100 form-control" id="status_select">
+                                    {% for int, str in opportunities.0.STATUS_CHOICES %}
+                                        <option value="{{ int }}">{{ str }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group d-none" id="lost_reason_row">
+                                <label>Lost Reason</label>
+                                <input class="form-control w-100" id="lost_reason_input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="update_opp_confirm_button">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.update_opp_button').click(function () {
+            let id = $(this).data('opp-id');
+            let status = $(this).data('opp-status');
+            $('#current_opp_id').val(id);
+            $('#current_opp_status').text(status);
+        });
+
+        $('#update_opp_confirm_button').click(() => {
+            let lostReason = $('#lost_reason_input').val();
+            if (lostReason === '') {
+                toastr.error('Please input a lost reason!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/accounts/update_opportunity',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'opp_id': $('#current_opp_id').val(),
+                    'status': $('#status_select').val(),
+                    'lost_reason': lostReason
+                },
+                success: function () {
+                    toastr.success('Successfully updated this opportunity!');
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500);
+                }
+            });
+        });
+
+        $('.resolve_opp_button').click(function () {
+            $.ajax({
+                url: '/clients/accounts/resolve_opportunity',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'opp_id': $(this).data('opp-id')
+                },
+                success: function () {
+                    toastr.success('Successfully resolved this opportunity!');
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500);
+                }
+            });
+        });
+
+        $('#status_select').change(function () {
+            if (this.value === '2') {  // lost
+                $('#lost_reason_row').removeClass('d-none');
+            } else {
+                $('#lost_reason_row').addClass('d-none');
+            }
+        });
+    </script>
 {% endblock %}

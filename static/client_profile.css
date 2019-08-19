@@ -28,7 +28,13 @@
     color: navajowhite;
 }
 
-#promos_list::-webkit-scrollbar {
+.hidden-scroll {
+    max-height: 40vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.hidden-scroll::-webkit-scrollbar {
     width: 0;
 }
 
@@ -97,7 +103,6 @@ table {
 }
 
 .page-card {
-    box-shadow: none;
     padding: 0.3em;
 }
 

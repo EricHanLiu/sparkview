@@ -18,7 +18,7 @@
     <style>
         @media (min-device-width: 1200px) {
             .middle-row .card {
-                min-height: 36vh;
+                min-height: 40vh;
             }
         }
     </style>
@@ -205,7 +205,7 @@
                             </div>
                         </div>
                     </div>
-                    <table>
+                    <table style="min-height: 17vh;">
                         <tr>
                             <td>
                                 <p class="title is-6" style="padding-right: 1.5em;">Name:</p>
@@ -233,7 +233,7 @@
     </div>
     <div class="columns middle-row">
         <div class="column is-5">
-            <div class="card page-card" id="services_card">
+            <div class="card page-card hidden-scroll" id="services_card">
                 <div class="card-content">
                     <div class="level">
                         <div class="level-left">
@@ -241,12 +241,16 @@
                         </div>
                         <div class="level-right">
                             <button class="button level-item is-rounded is-small button-color"
-                                    id="update_services_button">
-                                Update Services
+                                    id="view_opportunities_button">
+                                Opportunities
                             </button>
                             <button class="button level-item is-rounded is-small button-color"
                                     id="new_opportunity_button">
                                 New Opportunity
+                            </button>
+                            <button class="button level-item is-rounded is-small button-color"
+                                    id="update_services_button">
+                                Update Services
                             </button>
                             <button class="button is-rounded is-small button-color"
                                     id="new_mandate_button">
@@ -368,25 +372,27 @@
                             / {{ account.allocated_hours_including_mandate|floatformat:1 }}
                         </div>
                     </div>
-                    <div class="columns">
+                    <div class="columns" style="margin-top: 1em;">
                         <div class="column is-6 has-text-centered">
                             <div style="margin-top: 0.5em;">
                                 <p class="heading">Allocated Hours</p>
-                                <p class="title">{{ account.allocated_hours_including_mandate|floatformat }}</p>
+                                <p class="title is-2">
+                                    {{ account.allocated_hours_including_mandate|floatformat }}
+                                </p>
                             </div>
                             <div style="margin-top: 1em;">
                                 <p class="heading">Actual Hours</p>
-                                <p class="title">{{ account.hoursWorkedThisMonth|floatformat:1 }}</p>
+                                <p class="title is-2">{{ account.hoursWorkedThisMonth|floatformat:1 }}</p>
                             </div>
                         </div>
                         <div class="column is-6 has-text-centered">
                             <div style="margin-top: 0.5em;">
                                 <p class="heading">Fallback Hours</p>
-                                <p class="title">{{ account.fallback_hours|floatformat:1 }}</p>
+                                <p class="title is-2">{{ account.fallback_hours|floatformat:1 }}</p>
                             </div>
                             <div style="margin-top: 1em;">
                                 <p class="heading">Remaining Hours</p>
-                                <p class="title">{{ account.hoursRemainingMonth|floatformat:1 }}</p>
+                                <p class="title is-2">{{ account.hoursRemainingMonth|floatformat:1 }}</p>
                             </div>
                         </div>
                     </div>
@@ -394,7 +400,7 @@
             </div>
         </div>
         <div class="column is-4">
-            <div class="card page-card">
+            <div class="card page-card hidden-scroll">
                 <div class="card-content">
                     <div class="level">
                         <div class="level-left">
@@ -414,7 +420,6 @@
                             </button>
                         </div>
                     </div>
-                    <div style="max-height: 25vh; overflow-y: auto; overflow-x: hidden;" id="promos_list">
                         {% for promo in promos %}
                             <div class="columns">
                                 <div class="column is-8">
@@ -429,7 +434,7 @@
                                 </div>
                                 <div class="column is-4">
                                     {% if promo.confirmed_started and not promo.confirmed_ended %}
-                                        <button class="button is-rounded button-color-3 is-fullwidth confirm-promo"
+                                        <button class="button is-rounded is-fullwidth confirm-promo"
                                                 data-promo-id="{{ promo.id }}" data-confirmation-type="1">
                                             Confirm Ended
                                         </button>
@@ -438,7 +443,7 @@
                                             Promo Ended
                                         </button>
                                     {% else %}
-                                        <button class="button is-rounded button-color-2 is-fullwidth confirm-promo"
+                                        <button class="button is-rounded is-fullwidth confirm-promo"
                                                 data-promo-id="{{ promo.id }}" data-confirmation-type="0">
                                             Confirm Started
                                         </button>
@@ -449,7 +454,6 @@
                                 <hr>{% endif %}
                         {% endfor %}
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -555,7 +559,8 @@
                         <div class="card" style="position: relative;">
                             <header class="card-header">
                                 <p class="card-header-title">
-                                    <span class="tooltip" data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
+                                    <span class="tooltip"
+                                          data-tooltip="{{ account.default_budget.id }}">{{ account.default_budget.name }}&nbsp;</span>
                                     - {{ account.default_budget.description }}
                                     {% if account.default_budget.is_new %}&nbsp;
                                         <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
@@ -602,16 +607,20 @@
                                         Budget: <strong>{{ account.default_budget.budget|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Average: <strong>{{ account.default_budget.average_spend_yest|currency }}</strong>
+                                        Average:
+                                        <strong>{{ account.default_budget.average_spend_yest|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Rec Daily Spend: <strong>{{ account.default_budget.rec_spend_yest|currency }}</strong>
+                                        Rec Daily Spend:
+                                        <strong>{{ account.default_budget.rec_spend_yest|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Yesterday Spend: <strong>{{ account.default_budget.yesterday_spend|currency }}</strong>
+                                        Yesterday Spend:
+                                        <strong>{{ account.default_budget.yesterday_spend|currency }}</strong>
                                     </div>
                                     <div class="column is-2">
-                                        Projected Spend: <strong>{{ account.default_budget.projected_spend_avg|currency }}</strong>
+                                        Projected Spend:
+                                        <strong>{{ account.default_budget.projected_spend_avg|currency }}</strong>
                                     </div>
                                 </div>
                                 <div class="columns">
@@ -625,7 +634,8 @@
                                             <div class="progress-value">
                                                 {{ account.default_budget.spend_percentage|floatformat:2 }}%
                                             </div>
-                                            <div class="budget-pacer" style="left: {{ account.default_budget.pacer_offset }}%"></div>
+                                            <div class="budget-pacer"
+                                                 style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -640,10 +650,12 @@
                                 <div class="budget-renewal-overlay" style="background-color: lightgrey; opacity: 0.95;">
                                     <div class="has-text-centered" style="margin-top: 7em;">
                                         <p>A new month has started, and this budget is
-                                            <strong>{{ account.default_budget.calculated_budget|currency }}</strong>. Would you like to renew it?
+                                            <strong>{{ account.default_budget.calculated_budget|currency }}</strong>.
+                                            Would you like to renew it?
                                         </p>
                                         <button class="button is-rounded is-small" style="margin-top: 1em;"
-                                                id="renew_monthly_budget_button" data-budget-id="{{ account.default_budget.id }}">
+                                                id="renew_monthly_budget_button"
+                                                data-budget-id="{{ account.default_budget.id }}">
                                             Renew
                                         </button>
                                     </div>
@@ -1907,7 +1919,7 @@
                         </button>
                     </div>
                 </div>
-                <form id="new_opportunity_form" method="POST" action="/clients/accounts/set_opportunity">
+                <form id="new_opportunity_form">
                     <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                     <div class="columns">
                         <div class="column is-6">
@@ -1945,6 +1957,29 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="view_opportunities_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Opportunities</h5>
+                    </div>
+                </div>
+                <table class="table is-fullwidth">
+                    <thead>
+                    <th>
+                        Service Pitched
+                    </th>
+                    <th>
+                        Timestamp
+                    </th>
+                    </thead>
+                    <tbody id="opportunities_table"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -2650,6 +2685,37 @@
 
         $('#new_opportunity_button').click(() => {
             $('#new_opportunity_modal').addClass('is-active');
+        });
+
+        let firstClick = true;
+        $('#view_opportunities_button').click(() => {
+            // fetch all opportunities and display them
+            let table = document.querySelector('#opportunities_table');
+            if (firstClick) {
+                firstClick = false;
+                $.ajax({
+                    url: '/clients/accounts/get_opportunities',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    data: {
+                        'account_id': '{{ account.id }}'
+                    },
+                    success: (data) => {
+                        let opps = data['opportunities'];
+                        opps.forEach((opp) => {
+                            let row = table.insertRow();
+
+                            let service = row.insertCell();
+                            service.innerText = opp['service'];
+                            let created = row.insertCell();
+                            created.innerText = opp['created'];
+                        });
+                    }
+                });
+            }
+            $('#view_opportunities_modal').addClass('is-active');
         });
 
         $('#view_calendar_button').click(() => {
