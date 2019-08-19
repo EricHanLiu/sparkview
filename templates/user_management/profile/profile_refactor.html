@@ -71,8 +71,8 @@
                                         {% if account_dict.is_onboarding %}
                                             <div class="level-item">
                                                 <div class="tags has-addons" data-account-id="{{ account.id }}"
-                                                     style="cursor: pointer;"
-                                                     {% if account.is_late_to_onboard %}id="late_onboarding_button"{% endif %}>
+                                                     {% if account.is_late_to_onboard %}style="cursor: pointer;"
+                                                     id="late_onboarding_button"{% endif %}>
                                                     <span class="tag is-rounded tag-color-3">Onboarding</span>
                                                     <span class="tag is-rounded {% if account.is_late_to_onboard %}is-danger{% else %}tag-color-3{% endif %}">
                                                         {{ account.onboarding_duration_elapsed }}
@@ -100,7 +100,7 @@
                                         </div>
                                         <div class="level-item">
                                             <div class="tag is-rounded tag-color-3">
-                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id }}</span>/{{ account_allocation|get_item_from_list:account.id }}
+                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|floatformat:2 }}</span>/{{ account_allocation|get_item_from_list:account.id|floatformat:2 }}
                                                 <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
                                             </div>
                                         </div>
