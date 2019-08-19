@@ -60,27 +60,25 @@
         <div class="columns">
             <div class="column is-8">
                 <div class="columns is-multiline">
-                    {% for category in skill_categories %}
+                    {% for category in member_skills_categories %}
                         <div class="column is-6">
                             <div class="card">
                                 <div class="card-content">
                                     <h5 class="title is-5 has-text-centered">{{ category.name }}</h5>
                                     <div class="columns is-multiline">
-                                        {% for skill in category.skill_set.all %}
-                                            {% with member|get_skill_entry_for_member:skill as skill_entry %}
-                                                <div class="column is-6">
-                                                    <div class="columns">
-                                                        <div class="column is-2">
-                                                            <div class="tag is-rounded {{ score_badges|get_item_from_list:skill_entry.score }}">
-                                                                {{ skill_entry.score }}
-                                                            </div>
-                                                        </div>
-                                                        <div class="column is-10">
-                                                            {{ skill.name }}
+                                        {% for skill_entry in category.skill_entries %}
+                                            <div class="column is-6">
+                                                <div class="columns">
+                                                    <div class="column is-2">
+                                                        <div class="tag is-rounded {{ tag_colors|get_item_from_list:skill_entry.score }}">
+                                                            {{ skill_entry.score }}
                                                         </div>
                                                     </div>
+                                                    <div class="column is-10">
+                                                        {{ skill_entry.skill.name }}
+                                                    </div>
                                                 </div>
-                                            {% endwith %}
+                                            </div>
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -92,8 +90,39 @@
             <div class="column is-4">
                 <div class="card">
                     <div class="card-content">
-                        <h5 class="title is-5 has-text-centered">Total Skill Progression</h5>
-                        <canvas id="skill_progression_chart" height="100px"></canvas>
+                        <h5 class="title is-5 has-text-centered">Skill Concentration</h5>
+                        <canvas id="skill_concentration_chart"></canvas>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1em;">
+                    <div class="card-content">
+                        <h5 class="title is-5 has-text-centered">Legend</h5>
+                        <div class="columns is-multiline">
+                            {% for color in tag_colors %}
+                                <div class="column is-4">
+                                    <div class="columns">
+                                        <div class="column is-2">
+                                            <div class="tag is-rounded {{ color }}">
+                                                {{ forloop.counter0 }}
+                                            </div>
+                                        </div>
+                                        <div class="column is-10">
+                                            {% if forloop.counter0 == 0 %}
+                                                Unscored
+                                            {% elif forloop.counter0 == 1 %}
+                                                Beginner
+                                            {% elif forloop.counter0 == 2 %}
+                                                Intermediate
+                                            {% elif forloop.counter0 == 3 %}
+                                                Advanced
+                                            {% elif forloop.counter0 == 4 %}
+                                                Expert
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -359,17 +388,37 @@
             $(this).addClass('is-selected');
         });
 
-        let ctx = document.getElementById('skill_progression_chart').getContext('2d');
+        // skill concentration chart stuff
+        let categoryNames = [];
+        let categoryAverages = [];
+        let categoryColors = [];
+        let average, color;
+        {% for category in member_skills_categories %}
+            categoryNames.push('{{ category.name }}');
+            average = parseFloat('{{ category.average }}');
+            categoryAverages.push(average);
+            color = 'rgba(255, 99, 132, 0.2)';
+            if (average > 3) {
+                color = 'rgba(35, 209, 96, 0.9)';
+            } else if (average > 2) {
+                color = 'rgba(255, 221, 87, 0.9)';
+            } else if (average > 1) {
+                color = 'rgba(255, 56, 96, 0.9)';
+            }
+            categoryColors.push(color);
+        {% endfor %}
+        let ctx = document.getElementById('skill_concentration_chart').getContext('2d');
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                labels: categoryNames,
                 datasets: [
                     {
-                        data: [5, 10, 13, 15],
-                        label: 'Total Skill',
-                        borderColor: 'lightskyblue',
-                        backgroundColor: 'rgb(76, 238, 251, 0.1)'
+                        data: categoryAverages,
+                        backgroundColor: categoryColors,
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)'
+                        ]
                     }
                 ]
             },
@@ -386,6 +435,11 @@
                     yAxes: [{
                         gridLines: {
                             display: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            maxTicksLimit: 8,
+                            max: 4
                         }
                     }]
                 }

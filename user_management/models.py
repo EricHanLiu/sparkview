@@ -215,6 +215,14 @@ class SkillEntry(models.Model):
     def __str__(self):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            SkillHistory.objects.create(skill=self.skill)
+
 
 class SkillHistory(models.Model):
     """
