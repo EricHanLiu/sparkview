@@ -18,7 +18,7 @@ def release_notes(request):
 def flower_view(request):
     """
     Passes the request back up to nginx for internal routing
-    This will only work in production. Requires the following additional nginx configuration:
+    This is only necessary in production. Requires the following additional nginx configuration:
     =========================================
     location /flower-internal/static/ {
           internal;
