@@ -189,6 +189,10 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     @property
+    def is_active(self):
+        return self.status == 1
+
+    @property
     def budgets(self):
         return Budget.objects.filter(account=self, is_default=False)
 

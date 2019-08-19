@@ -127,7 +127,7 @@ class Reporting:
             score = 0
             message = 'Your ' + parameter + ' has decreased significantly over the last 3 months.\n' \
                                             'Please look into the status of this account\'s campaigns in order to identify the reasons behind the ' + parameter + ' surge.'
-        return (score, message)
+        return score, message
 
     @staticmethod
     def get_change_no(account_changes):
@@ -195,9 +195,10 @@ class Reporting:
         return campaigns
 
     def compare_dict(self, dict1, dict2):
-        '''Compares two dictionaries and returns one unified dict
+        """
+        Compares two dictionaries and returns one unified dict
         @return: {k: (diff, dict1, dict2)}
-        '''
+        """
         format_key = lambda key: key.replace('/', 'per').replace('.', '')
 
         d1_keys = set(dict1.keys())
@@ -229,10 +230,7 @@ class Reporting:
         difference = {}
 
         for k, v in zipped.items():
-
             if len(v) == 2 and k in valid_keys:
-                v1_b = v[0]
-                v2_b = v[1]
                 if isinstance(v[0], str) and isinstance(v[1], str):
                     pattern = '\%|\<|\-|\ '
                     v1 = re.sub(pattern, '', v[0])
@@ -259,7 +257,8 @@ class Reporting:
 
         return summary
 
-    def subtract_days(self, date, days=1):
+    @staticmethod
+    def subtract_days(date, days=1):
         if not isinstance(date, datetime):
             raise Exception('Invalid datetime')
 
@@ -317,7 +316,8 @@ class Reporting:
 
         return dict_list
 
-    def parse_report_csv(self, report, header=True, footer=True):
+    @staticmethod
+    def parse_report_csv(report, header=True, footer=True):
         report = report.splitlines()
         if header:
             report_title = report.pop(0)
@@ -336,7 +336,8 @@ class Reporting:
 
         return dict_list
 
-    def sort_by_date(self, lst, date_format='%Y-%m-%d', key='day'):
+    @staticmethod
+    def sort_by_date(lst, date_format='%Y-%m-%d', key='day'):
         for i in range(len(lst)):
             lst[i] = {
                 k: datetime.strptime(v, date_format) if k == key else v
@@ -345,9 +346,9 @@ class Reporting:
 
         return sorted(lst, key=itemgetter(key))
 
-    def get_estimated_spend(self, current_spend, day_spend):
+    @staticmethod
+    def get_estimated_spend(current_spend, day_spend):
         today = datetime.today() - relativedelta(days=1)
-        # end_date = datetime(today.year, (today.month + 1) % 12, 1) + relativedelta(days=-1)
         end_date = datetime(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         days_remaining = (end_date - today).days
         estimated_spend = float(current_spend) + (float(day_spend) * days_remaining)
@@ -431,7 +432,8 @@ class BingReporting(Reporting):
 
         return report
 
-    def sum_report(self, report, only=[]):
+    @staticmethod
+    def sum_report(report, only=[]):
         valid_metrics = [
             'impressions',
             'clicks',
@@ -444,7 +446,7 @@ class BingReporting(Reporting):
         ]
         if only:
             valid_metrics = only
-        summed = {}
+
         # this is so we can preserve the campaign name and id
         if isinstance(report, list):
             sample = copy.deepcopy(report[0])
@@ -484,20 +486,20 @@ class BingReporting(Reporting):
 
         return sample
 
-    def get_report_time(self, minDate=None, maxDate=None):
+    def get_report_time(self, min_date=None, max_date=None):
 
-        if not minDate or not maxDate:
+        if not min_date or not max_date:
             raise Exception('Invalid daterange')
 
         min = self.reporting_service.factory.create('Date')
-        min.Year = minDate.year
-        min.Day = minDate.day
-        min.Month = minDate.month
+        min.Year = min_date.year
+        min.Day = min_date.day
+        min.Month = min_date.month
 
         max = self.reporting_service.factory.create('Date')
-        max.Year = maxDate.year
-        max.Day = maxDate.day
-        max.Month = maxDate.month
+        max.Year = max_date.year
+        max.Day = max_date.day
+        max.Month = max_date.month
 
         time = self.reporting_service.factory.create('ReportTime')
         time.CustomDateRangeStart = min
