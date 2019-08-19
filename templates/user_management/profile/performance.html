@@ -9,11 +9,9 @@
                         <h4 class="title is-4 performance-title high-fives">
                             High Fives
                         </h4>
-                        {% if oops.count > 0 or oops_reported.count > 0 %}
-                            <h4 class="title is-4 performance-title is-hidden oops">
-                                Oops
-                            </h4>
-                        {% endif %}
+                        <h4 class="title is-4 performance-title is-hidden oops">
+                            Oops
+                        </h4>
                         <h4 class="title is-4 performance-title is-hidden skills">
                             Skills
                         </h4>
@@ -23,26 +21,33 @@
                     <div class="tabs is-boxed is-toggle">
                         <ul>
                             <li class="is-active">
-                                <a data-target="high-fives" class="performance-tab">
-                                    High Fives
-                                </a>
-                            </li>
-                            <li>
-                                <a data-target="oops" class="performance-tab">
-                                    Oops
-                                </a>
-                            </li>
-                            <li>
                                 <a data-target="skills" class="performance-tab">
                                     Skills
                                 </a>
                             </li>
+                            {% if high_fives.count > 0 %}
+                                <li>
+                                    <a data-target="high-fives" class="performance-tab">
+                                        High Fives
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if oops.count > 0 or oops_reported.count > 0 %}
+                                <li>
+                                    <a data-target="oops" class="performance-tab">
+                                        Oops
+                                    </a>
+                                </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
             </div>
             <hr>
-            <div class="performance-section high-fives">
+            <div class="performance-section skills">
+                Test
+            </div>
+            <div class="performance-section high-fives is-hidden">
                 <table class="table is-hoverable is-fullwidth">
                     <thead>
                     <tr>

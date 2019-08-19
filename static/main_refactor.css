@@ -95,3 +95,8 @@ img {
     top: 0;
     left: 1%;
 }
+
+.tabs.is-toggle li.is-active a {
+    background-color: lightskyblue;
+    border-color: lightskyblue;
+}
