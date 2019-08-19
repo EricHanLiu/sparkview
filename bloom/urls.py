@@ -58,7 +58,6 @@ urlpatterns = [
     url(r'^admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     url(r'^super/', admin.site.urls),
     url(r'^release_notes$', other_views.release_notes),
-    url(r'^insights/', include('insights.urls', namespace='insights')),
     url(r'^flower/', other_views.flower_view)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
