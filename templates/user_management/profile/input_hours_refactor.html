@@ -80,9 +80,9 @@
             </form>
         </div>
     </div>
-    <div class="card" style="margin-top: 2em;">
-        <div class="card-content">
-            {% if mandate_assignments.count > 0 %}
+    {% if mandate_assignments.count > 0 %}
+        <div class="card" style="margin-top: 2em;">
+            <div class="card-content">
                 <!-- Mandate Hours -->
                 <h4 class="title is-4">
                     Mandate Hours
@@ -146,9 +146,9 @@
                     <button class="button is-info is-fullwidth" type="submit">Submit</button>
                 </form>
                 <!-- end mandate hours -->
-            {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
     <div class="card" style="margin-top: 2em;">
         <div class="card-content">
             <!-- Value Added Hours -->
