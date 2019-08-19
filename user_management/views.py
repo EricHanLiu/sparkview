@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
-    HighFive, TrainingGroup, SkillHistory
+    HighFive, TrainingGroup, SkillHistory, SkillCategory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     MandateAssignment, Mandate, OnboardingStep, OnboardingStepAssignment
@@ -658,7 +658,8 @@ def members_single(request, id=0):
         'today': today,
         'todos': todos,
         'flagged_accounts_count': flagged_accounts.count(),
-        'onboarding_steps': onboarding_steps
+        'onboarding_steps': onboarding_steps,
+        'title': 'Accounts'
     }
 
     # ajax mandate completed checkmarking and todolist completion
@@ -783,7 +784,8 @@ def members_single_reports(request, id):
         'reports': reports,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
-        'reporting_year': year
+        'reporting_year': year,
+        'title': 'Reports'
     }
 
     return render(request, 'user_management/profile/reports_refactor.html', context)
@@ -883,7 +885,8 @@ def members_single_timesheet(request, id):
         'trainee_hours_this_month': trainee_hours_this_month,
         'mandate_hours_this_month': mandate_hours_this_month,
         'trainee_hour_total': trainee_hour_total,
-        'value_added_hours': value_added_hours
+        'value_added_hours': value_added_hours,
+        'title': 'Timesheet'
     }
 
     return render(request, 'user_management/profile/timesheet_refactor.html', context)
@@ -955,13 +958,20 @@ def performance(request, member_id):
     oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
     skill_groups = [group for group in TrainingGroup.objects.all() if member in group.all_members]
+    skills = Skill.objects.all()
+    skill_categories = SkillCategory.objects.all()
+    score_badges = ['', 'is-dark', 'is-danger', 'is-warning', 'is-success']
 
     context = {
         'member': member,
         'oops': oops,
         'oops_reported': oops_reported,
         'high_fives': high_fives,
-        'skill_groups': skill_groups
+        'skill_groups': skill_groups,
+        'title': 'Performance',
+        'score_badges': score_badges,
+        'skills': skills,
+        'skill_categories': skill_categories
     }
 
     return render(request, 'user_management/profile/performance.html', context)
@@ -1046,7 +1056,8 @@ def input_hours_profile(request, id):
             'years': years,
             'members': members,
             'current_year': current_year,
-            'mandate_assignments': mandate_assignments
+            'mandate_assignments': mandate_assignments,
+            'title': 'Input Hours'
         }
 
         return render(request, 'user_management/profile/input_hours_refactor.html', context)
