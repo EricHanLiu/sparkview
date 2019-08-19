@@ -100,7 +100,7 @@
                                         </div>
                                         <div class="level-item">
                                             <div class="tag is-rounded tag-color-3">
-                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id }}</span>/{{ account_allocation|get_item_from_list:account.id }}
+                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|floatformat:2 }}</span>/{{ account_allocation|get_item_from_list:account.id|floatformat:2 }}
                                                 <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
                                             </div>
                                         </div>
