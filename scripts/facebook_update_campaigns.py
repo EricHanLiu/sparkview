@@ -1,10 +1,11 @@
 import os
-
+import sys
+sys.path.append('..')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django
 
 django.setup()
-from adwords_dashboard.cron import get_spend_by_campaign_this_month
+from facebook_dashboard.cron import get_spend_by_facebook_campaign_this_month
 from budget.models import Client
 
 
@@ -15,8 +16,9 @@ def main():
     except Client.DoesNotExist:
         print('Error, cannot find this client')
         return
-    for aw_acc in account.adwords.all():
-        get_spend_by_campaign_this_month(aw_acc.id)
+    print('Updating facebook accounts for ' + str(account))
+    for fb_acc in account.facebook.all():
+        get_spend_by_facebook_campaign_this_month(fb_acc.id)
 
 
 main()

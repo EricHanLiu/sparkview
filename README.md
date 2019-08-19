@@ -92,3 +92,10 @@
    * Set the docker version with `sudo docker tag {{ id }} makeitbloom/sparkview:{{ v }}` where `{{ id }}` is the id from the previous step, and `{{ v }}` is the next number (just increment previous build number). Note this is different from the SparkView version.
    * Push the latest version to docker repo with `sudo docker push makeitbloom/sparkview:{{ v }}`
  - Update the software to the newest container with `sudo docker service update --image makeitbloom/sparkview:{{ v }} bloom_web`
+ 
+ 
+ ## Scheduled Task Setup (as of August 2019)
+ 
+  - Now using celery beat (using django admin panel to schedule the tasks)
+  - Celery running as a daemon, same as before
+  - Now using flower as a monitoring service (https://github.com/mher/flower/issues/762)

@@ -785,9 +785,9 @@ class Client(models.Model):
 
     @property
     def ppc_ignore_override(self):
-        hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         if self.is_onboarding_ppc and self.managementFee is not None:
-            hours += self.onboarding_hours_remaining
+            return self.onboarding_hours_remaining
+        hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         return hours
 
     def get_ppc_allocated_hours(self):
@@ -868,7 +868,8 @@ class Client(models.Model):
         if not hasattr(self, '_onboarding_hours_worked'):
             hours = 0.0
             account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
-            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self, is_onboarding=True)
+            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
+                                                                    is_onboarding=True)
             if member is not None:
                 account_hour_records = account_hour_records.filter(member=member)
                 mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
@@ -877,7 +878,6 @@ class Client(models.Model):
             for record in mandate_hour_records:
                 hours += record.hours
             self._onboarding_hours_worked = hours
-        return self._onboarding_hours_worked
 
     @property
     def has_backup_members(self):
