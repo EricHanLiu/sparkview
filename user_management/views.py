@@ -957,21 +957,28 @@ def performance(request, member_id):
     oops = member.incident_members.filter(approved=True)
     oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
-    skill_groups = [group for group in TrainingGroup.objects.all() if member in group.all_members]
-    skills = Skill.objects.all()
-    skill_categories = SkillCategory.objects.all()
-    score_badges = ['', 'is-dark', 'is-danger', 'is-warning', 'is-success']
 
+    tag_colors = ['', 'is-dark', 'is-danger', 'is-warning', 'is-success']
+    skill_categories = SkillCategory.objects.all()
+    member_skills_categories = []  # list of objects where each object encodes info about a skill category
+    for cat in skill_categories:
+        skill_entries = SkillEntry.objects.filter(skill__skill_category=cat, member=member)
+        member_skills_categories.append({
+            'name': cat.name,
+            'skill_entries': skill_entries,
+            'average': skill_entries.aggregate(Sum('score'))['score__sum'] / skill_entries.count()
+        })
+
+    print(member_skills_categories)
     context = {
         'member': member,
         'oops': oops,
         'oops_reported': oops_reported,
         'high_fives': high_fives,
-        'skill_groups': skill_groups,
         'title': 'Performance',
-        'score_badges': score_badges,
+        'tag_colors': tag_colors,
         'skills': skills,
-        'skill_categories': skill_categories
+        'member_skills_categories': member_skills_categories
     }
 
     return render(request, 'user_management/profile/performance.html', context)
