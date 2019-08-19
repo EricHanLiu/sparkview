@@ -1,5 +1,7 @@
 import os
 import csv
+import sys
+sys.path.append('..')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','bloom.settings')
 import django
 django.setup()
