@@ -107,9 +107,6 @@ def get_accounts(request):
     :param request:
     :return:
     """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('Bye')
-
     analytics = initialize_analyticsmanagement()
     return JsonResponse(get_ga_accounts(analytics))
 
@@ -121,9 +118,6 @@ def get_properties(request):
     :param request:
     :return:
     """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('Bye')
-
     account_id = request.POST.get('account_id')
 
     analytics = initialize_analyticsmanagement()
@@ -137,9 +131,6 @@ def get_views(request):
     :param request:
     :return:
     """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('Bye')
-
     prop_id = request.POST.get('prop_id')
     account_id = request.POST.get('account_id')
 
