@@ -4,7 +4,7 @@ html, body {
 
 /* COLORS */
 .button-color {
-    background-color: #5ab190;
+    background-color: #00b4eb;
     color: white;
     font-weight: bold;
 }
@@ -20,7 +20,7 @@ html, body {
 }
 
 .button-color-4 {
-    background-color: #00b4eb;
+    background-color: #5ab190;
     color: white;
 }
 

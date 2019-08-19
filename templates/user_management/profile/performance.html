@@ -1,0 +1,305 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+
+{% block extraCss %}
+    <style>
+        table {
+            table-layout: fixed;
+        }
+
+        td, th {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    <div class="card">
+        <div class="card-content">
+            <div class="level">
+                <div class="level-item">
+                    <div class="tabs is-boxed is-toggle">
+                        <ul>
+                            <li class="is-active">
+                                <a data-target="high_fives" class="performance-tab">
+                                    High Fives
+                                </a>
+                            </li>
+                            <li>
+                                <a data-target="oops" class="performance-tab">
+                                    Oops
+                                </a>
+                            </li>
+                            <li>
+                                <a data-target="skills" class="performance-tab">
+                                    Skills
+                                </a>
+                            </li>
+                            <li>
+                                <a data-target="badges" class="performance-tab">
+                                    Badges
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="high_fives" class="performance-section">
+                <h4 class="title is-4 has-text-centered">
+                    High Fives
+                </h4>
+                <hr>
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Date
+                        </th>
+                        <th class="w-75">
+                            Description
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hf in high_fives %}
+                        <tr>
+                            <td>
+                                {{ hf.date }}
+                            </td>
+                            <td>
+                                <div style="max-height: 70px; overflow: auto;">
+                                    {{ hf.description }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="oops" class="performance-section is-hidden">
+                {% if oops.count > 0 %}
+                    <h4 class="title is-4">
+                        Oops Reports
+                    </h4>
+                    <hr>
+                    <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Timestamp
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Reported By
+                            </th>
+                            <th>
+                                Issue Description
+                            </th>
+                            <th>
+                                Type of Issue
+                            </th>
+                            <th>
+                                Budget Error Amount
+                            </th>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Client Aware?
+                            </th>
+                            <th>
+                                Client At Risk?
+                            </th>
+                            <th>
+                                Addressed With You?
+                            </th>
+                            <th>
+                                Platform
+                            </th>
+                            <th>
+                                Justification
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for incident in incidents %}
+                            <tr>
+                                <td>
+                                    {{ incident.timestamp }}
+                                </td>
+                                <td>
+                                    {{ incident.date }}
+                                </td>
+                                <td>
+                                    <a href="/user_management/members/{{ incident.reporter.id }}">{{ incident.reporter.user.get_full_name }}</a>
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ incident.description }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ incident.issue_name }}
+                                </td>
+                                <td>
+                                    {% if incident.budget_error_amount == 0 %}
+                                        None
+                                    {% else %}
+                                        {{ incident.budget_error_amount|floatformat:2 }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if incident.account is not None %}
+                                        <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if incident.client_aware %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if incident.addressed_with_member %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {{ incident.platform_name }}
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ incident.justification }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                {% if oops_reported.count > 0 %}
+                    <h4 class="title is-4">
+                        Oops Reported
+                    </h4>
+                    <hr>
+                    <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Timestamp
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Issue Description
+                            </th>
+                            <th>
+                                Type of Issue
+                            </th>
+                            <th>
+                                Budget Error Amount
+                            </th>
+                            <th>
+                                Member(s) Responsible
+                            </th>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Client Aware?
+                            </th>
+                            <th>
+                                Client At Risk?
+                            </th>
+                            <th>
+                                Addressed With Member(s)?
+                            </th>
+                            <th>
+                                Platform
+                            </th>
+                            <th>
+                                Justification
+                            </th>
+                            <th>
+                                Approved
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for oops in oops_reported %}
+                            <tr>
+                                <td>
+                                    {{ oops.timestamp }}
+                                </td>
+                                <td>
+                                    {{ oops.date }}
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ oops.description }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ oops.issue_name }}
+                                </td>
+                                <td>
+                                    {% if oops.budget_error_amount == 0 %}
+                                        None
+                                    {% else %}
+                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% for member in oops.members.all %}
+                                        <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if oops.account is not None %}
+                                        <a href="/clients/accounts/{{ oops.account.id }}">{{ oops.account }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.client_aware %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.client_at_risk %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.addressed_with_member %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {{ oops.platform_name }}
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ oops.justification }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ oops.approved }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.performance-tab').click(function () {
+            $('.performance-section').addClass('is-hidden');
+            $('.performance-tab').parent().removeClass('is-active');
+            $(this).parent().addClass('is-active');
+            let selector = '#' + $(this).data('target');
+            $(selector).removeClass('is-hidden');
+        });
+
+        $('#performance_tab').addClass('is-active');
+    </script>
+{% endblock %}

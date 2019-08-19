@@ -941,6 +941,33 @@ def member_oops(request, id):
 
 
 @login_required
+def performance(request, member_id):
+    """
+    Oops reports, high fives, and skills page
+    """
+
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(member_id) != request_member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    member = get_object_or_404(Member, id=member_id)
+    oops = member.incident_members.filter(approved=True)
+    oops_reported = Incident.objects.filter(reporter=member)
+    high_fives = HighFive.objects.filter(member=member_id)
+    skill_groups = [group for group in TrainingGroup.objects.all() if member in group.all_members]
+
+    context = {
+        'member': member,
+        'oops': oops,
+        'oops_reported': oops_reported,
+        'high_fives': high_fives,
+        'skill_groups': skill_groups
+    }
+
+    return render(request, 'user_management/profile/performance.html', context)
+
+
+@login_required
 def member_high_fives(request, id):
     """
     High five reports that belong to the member

@@ -3,7 +3,6 @@
 {% block main_content %}
     <div class="card">
         <div class="card-content">
-            <!-- reporting portlet -->
             <h4 class="title is-4">
                 {{ last_month_str }} Reports
             </h4>
@@ -209,5 +208,7 @@
                 }
             });
         };
+
+        $('#reports_tab').addClass('is-active');
     </script>
 {% endblock %}
