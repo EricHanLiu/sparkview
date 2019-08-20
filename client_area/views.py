@@ -1545,12 +1545,51 @@ def complete_onboarding_step(request):
     if not request.user.is_staff and not member.has_account(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    account = get_object_or_404(Client, id=account_id)
+
     now = datetime.datetime.now()
     assignment_id = request.POST.get('assignment_id')
     assignment = get_object_or_404(OnboardingStepAssignment, id=assignment_id)
     assignment.complete = True
     assignment.completed = now
     assignment.save()
+
+    account_active = True
+    for step in account.onboardingstepassignment_set.all():
+        if not step.complete:
+            account_active = False
+            break
+
+    if account_active:
+        sp, created = SalesProfile.objects.get_or_create(account=account)
+        sp.ppc_status = 1
+        sp.save()
+
+        event_description = account.client_name + ' completed onboarding.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=2, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+        event_description = account.client_name + ' became active.'
+        lc_event2 = LifecycleEvent.objects.create(account=account, type=4, description=event_description,
+                                                  phase=account.phase,
+                                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                  bing_active=account.has_bing,
+                                                  facebook_active=account.has_fb,
+                                                  adwords_active=account.has_adwords,
+                                                  monthly_budget=account.current_budget,
+                                                  spend=account.current_spend)
+
+        lc_event2.members.set(account.assigned_members_array)
+        lc_event2.save()
 
     return HttpResponse()
 

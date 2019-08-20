@@ -108,49 +108,51 @@
                                 </div>
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
-                                    <div class="columns">
-                                        <div class="column">
-                                            <div class="level" style="font-size: 0.9em; margin-bottom: 0.3em;">
-                                                <div class="level-item">
-                                                    <b>Current</b>:
-                                                    {{ account.currency }}{{ account.default_budget.calculated_spend|format_money }}
+                                    {% if account.default_budget is not None %}
+                                        <div class="columns">
+                                            <div class="column">
+                                                <div class="level" style="font-size: 0.9em; margin-bottom: 0.3em;">
+                                                    <div class="level-item">
+                                                        <b>Current</b>:
+                                                        {{ account.currency }}{{ account.default_budget.calculated_spend|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Budget</b>:
+                                                        {{ account.currency }}{{ account.default_budget.calculated_budget|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Average Projected</b>:
+                                                        {{ account.currency }}{{ account.default_budget.projected_spend_avg|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Yesterday Spend</b>:
+                                                        {{ account.currency }}{{ account.default_budget.yesterday_spend|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Target Daily Spend</b>:
+                                                        {{ account.currency }}{{ account.default_budget.rec_spend_yest|format_money }}
+                                                    </div>
                                                 </div>
-                                                <div class="level-item">
-                                                    <b>Budget</b>:
-                                                    {{ account.currency }}{{ account.default_budget.calculated_budget|format_money }}
-                                                </div>
-                                                <div class="level-item">
-                                                    <b>Average Projected</b>:
-                                                    {{ account.currency }}{{ account.default_budget.projected_spend_avg|format_money }}
-                                                </div>
-                                                <div class="level-item">
-                                                    <b>Yesterday Spend</b>:
-                                                    {{ account.currency }}{{ account.default_budget.yesterday_spend|format_money }}
-                                                </div>
-                                                <div class="level-item">
-                                                    <b>Target Daily Spend</b>:
-                                                    {{ account.currency }}{{ account.default_budget.rec_spend_yest|format_money }}
-                                                </div>
-                                            </div>
-                                            <div class="columns">
-                                                <div class="column">
-                                                    <div class="progress-wrapper">
-                                                        <progress
-                                                                class="progress is-large {% if account.underpacing_average %}is-warning
+                                                <div class="columns">
+                                                    <div class="column">
+                                                        <div class="progress-wrapper">
+                                                            <progress
+                                                                    class="progress is-large {% if account.underpacing_average %}is-warning
                                                       {% elif account.project_average > account.current_budget %}is-danger
                                                       {% else %}is-success{% endif %}"
-                                                                value="{{ account.default_budget.spend_percentage }}"
-                                                                max="100"></progress>
-                                                        <div class="progress-value">
-                                                            {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                                    value="{{ account.default_budget.spend_percentage }}"
+                                                                    max="100"></progress>
+                                                            <div class="progress-value">
+                                                                {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                            </div>
+                                                            <div class="budget-pacer"
+                                                                 style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                                         </div>
-                                                        <div class="budget-pacer"
-                                                             style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    {% endif %}
                                 {% endif %}
                                 {% if account_dict.is_mandate %}
                                     <h6 class="title is-6">Mandates</h6>

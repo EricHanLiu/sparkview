@@ -658,7 +658,7 @@ def members_single(request, id=0):
         'todos': todos,
         'flagged_accounts_count': flagged_accounts.count(),
         'onboarding_steps': onboarding_steps,
-        'title': 'Accounts'
+        'title': 'Dashboard - SparkView'
     }
 
     # ajax mandate completed checkmarking and todolist completion
@@ -673,7 +673,6 @@ def members_single(request, id=0):
         todo_id = request.POST.get('todo_id')
         if todo_id is not None:
             todo = Todo.objects.get(id=todo_id)
-
             todo.completed = True
             todo.save()
 
@@ -1186,6 +1185,12 @@ def training_members(request):
 
         skill_entry.score = new_score
         skill_entry.save()
+
+        # create todo for member
+        description = 'Your skill ranking for ' + skill_entry.skill.name + \
+                      ' has been updated! Head over to the performance tab to view it.'
+        link = '/user_management/members/' + member_id + '/performance'
+        Todo.objects.create(member=member, description=description, link=link, type=2)
 
         # store skill history for this entry
         SkillHistory.objects.create(skill_entry=skill_entry)
