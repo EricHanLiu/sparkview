@@ -111,7 +111,7 @@
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
                                     {% if account.default_budget is not None %}
-                                        <div class="level" style="font-size: 0.95rem; margin-bottom: 0.1rem;">
+                                        <div class="level" style="margin-bottom: 0.1rem;">
                                             <div class="level-item">
                                                 Spend: {{ account.default_budget.calculated_spend|currency }}
                                             </div>
