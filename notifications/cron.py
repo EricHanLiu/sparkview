@@ -4,7 +4,7 @@ from client_area.models import Promo
 from budget.models import Client
 from adwords_dashboard.models import DependentAccount
 from user_management.models import Member
-from client_area.models import LifecycleEvent
+from client_area.models import LifecycleEvent, MonthlyReport
 from django.db.models import Q
 import datetime
 import calendar
@@ -142,6 +142,14 @@ def prepare_todos():
                                                 'NOT renew the budget.'
                 link = '/clients/accounts/' + str(acc.id)
                 Todo.objects.create(member=member, description=description, link=link, type=0)
+
+        # REPORT DUE DATES
+        unsent_reports = MonthlyReport.objects.filter(account__in=member_accounts, due_date__lte=today_end,
+                                                      date_sent_to_am=None)
+        for report in unsent_reports:
+            description = 'Reminder: the report for ' + report.account + ' is due today!'
+            link = '/user_management/members/' + str(member.id) + '/reports'
+            Todo.objects.create(member=member, description=description, link=link, type=0)
 
         print('Successfully created todos for member %s' % str(member))
 

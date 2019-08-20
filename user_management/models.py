@@ -161,7 +161,6 @@ class Skill(models.Model):
     """
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default='', blank=True)
-    skill_index = models.IntegerField(blank=True, null=True, default=None)
     skill_category = models.ForeignKey(SkillCategory, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
@@ -185,7 +184,7 @@ class Skill(models.Model):
         return SkillEntry.objects.filter(skill=self, score=4)
 
     class Meta:
-        ordering = ['skill_index']
+        ordering = ['skill_category__name']
 
     def __str__(self):
         return self.name
