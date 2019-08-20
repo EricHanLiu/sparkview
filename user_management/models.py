@@ -225,6 +225,16 @@ class SkillEntry(models.Model):
     def __str__(self):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
+    @property
+    def updated_recently(self):
+        """
+        Returns true if this skillentry has been updated in the last three days
+        """
+        now = datetime.datetime.now()
+        three_days_ago = now - datetime.timedelta(3)
+        history = SkillHistory.objects.filter(skill_entry=self, date__gte=three_days_ago)
+        return history.count() > 0
+
     def save(self, *args, **kwargs):
         created = False
         if self.pk is None:

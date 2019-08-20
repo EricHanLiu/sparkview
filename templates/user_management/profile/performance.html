@@ -76,6 +76,12 @@
                                                     </div>
                                                     <div class="column is-10">
                                                         {{ skill_entry.skill.name }}
+                                                        {% if skill_entry.updated_recently %}
+                                                            <span class="tag is-rounded is-success"
+                                                                  style="margin-left: 0.5em;">
+                                                                <i class="fas fa-exclamation"></i>
+                                                            </span>
+                                                        {% endif %}
                                                     </div>
                                                 </div>
                                             </div>
