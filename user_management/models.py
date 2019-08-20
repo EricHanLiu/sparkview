@@ -122,7 +122,7 @@ class Incident(models.Model):
             for member in self.members.all():
                 description = 'You have received a new oops, created on ' + str(self.timestamp) + \
                               '. Head over to the performance tab to view it.'
-                link = '/user_management/members/' + member.id + '/performance'
+                link = '/user_management/members/' + str(member.id) + '/performance'
                 Todo = apps.get_model('notifications', 'Todo')
                 Todo.objects.get_or_create(member=member, description=description, link=link, type=2)
 
