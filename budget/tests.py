@@ -659,7 +659,7 @@ class AccountTestCase(TestCase):
         SalesProfile.objects.create(account=account, ppc_status=0)
         account.save()
 
-        self.assertEqual(account.onboarding_hours, 8)
+        self.assertEqual(account.onboarding_hours_remaining, 8)
         self.assertEqual(account.allocated_hours_including_mandate, 8)
 
     def test_get_requests(self):

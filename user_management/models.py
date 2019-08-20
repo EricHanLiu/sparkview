@@ -221,7 +221,7 @@ class SkillEntry(models.Model):
             created = True
         super().save(*args, **kwargs)
         if created:
-            SkillHistory.objects.create(skill=self.skill)
+            SkillHistory.objects.create(skill_entry=self)
 
 
 class SkillHistory(models.Model):
