@@ -1,0 +1,551 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+{% load notification_tags %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block extraCss %}
+    <link href="/static/bulma-checkradio.min.css" type="text/css" rel="stylesheet">
+    <style>
+        .todo-row {
+            border-bottom: 2px solid #f4f5f8;
+            padding: 1em 0;
+        }
+
+        .card-content {
+            padding: 2em;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    {% if backups.count > 0 %}
+        <article class="message is-info">
+            <div class="message-body">
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget
+                to check on them!
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+    {% endif %}
+    {% if flagged_accounts_count > 0 %}
+        <article class="message is-danger">
+            <div class="message-body">
+                <strong>Flagged account alert!</strong> You are assigned to {{ flagged_accounts_count }} flagged
+                accounts. They are marked by a <strong>Flagged</strong> tag.
+                <button class="delete" style="float:right;"></button>
+            </div>
+        </article>
+    {% endif %}
+    <div class="columns">
+        <div class="column is-9">
+            {% if master_accounts_dictionary|length > 0 %}
+                {% for id, account_dict in master_accounts_dictionary %}
+                    {% with account=account_dict.account %}
+                        <div class="card" style="margin-bottom: 1em;">
+                            <div class="card-content">
+                                <div class="level">
+                                    <div class="level-left">
+                                        <div class="level-item">
+                                            <a style="font-weight: bold;" href="/clients/accounts/{{ account.id }}">
+                                                {{ account.client_name }}
+                                            </a>
+                                        </div>
+                                        <div class="level-item">
+                                            <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
+                                            <span class="tag is-rounded {% if account.fb.all %}tag-color-4{% endif %}">F</span>
+                                            <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
+                                        </div>
+                                        {% if account_dict.is_backup %}
+                                            <div class="level-item">
+                                                <span class="tag is-rounded tag-color-2">Backup</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if account_dict.is_flagged %}
+                                            <div class="level-item">
+                                                <span class="tag is-rounded is-danger">Flagged</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if account_dict.is_onboarding %}
+                                            <div class="level-item">
+                                                <div class="tags has-addons" data-account-id="{{ account.id }}"
+                                                     {% if account.is_late_to_onboard %}style="cursor: pointer;"
+                                                     id="late_onboarding_button"{% endif %}>
+                                                    <span class="tag is-rounded tag-color-3">Onboarding</span>
+                                                    <span class="tag is-rounded {% if account.is_late_to_onboard %}is-danger{% else %}tag-color-3{% endif %}">
+                                                        {{ account.onboarding_duration_elapsed }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="level-right">
+                                        <div class="level-item">
+                                            <div class="buttons">
+                                                <div class="button is-small is-rounded quickadd"
+                                                     data-account-id="{{ account.id }}" data-amount="0.25">
+                                                    +15m
+                                                </div>
+                                                <div class="button is-small is-rounded quickadd"
+                                                     data-account-id="{{ account.id }}" data-amount="0.5">
+                                                    +30m
+                                                </div>
+                                                <div class="button is-small is-rounded quickadd"
+                                                     data-account-id="{{ account.id }}" data-amount="1">
+                                                    +1h
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="level-item">
+                                            <div class="tag is-rounded tag-color-3">
+                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|floatformat:2 }}</span>/{{ account_allocation|get_item_from_list:account.id|floatformat:2 }}
+                                                <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                {% if account_dict.is_active or account_dict.is_backup %}
+                                    {% if account.default_budget is not None %}
+                                        <div class="columns">
+                                            <div class="column">
+                                                <div class="level" style="font-size: 0.9em; margin-bottom: 0.3em;">
+                                                    <div class="level-item">
+                                                        <b>Current</b>:
+                                                        {{ account.currency }}{{ account.default_budget.calculated_spend|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Budget</b>:
+                                                        {{ account.currency }}{{ account.default_budget.calculated_budget|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Average Projected</b>:
+                                                        {{ account.currency }}{{ account.default_budget.projected_spend_avg|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Yesterday Spend</b>:
+                                                        {{ account.currency }}{{ account.default_budget.yesterday_spend|format_money }}
+                                                    </div>
+                                                    <div class="level-item">
+                                                        <b>Target Daily Spend</b>:
+                                                        {{ account.currency }}{{ account.default_budget.rec_spend_yest|format_money }}
+                                                    </div>
+                                                </div>
+                                                <div class="columns">
+                                                    <div class="column">
+                                                        <div class="progress-wrapper">
+                                                            <progress
+                                                                    class="progress is-large {% if account.underpacing_average %}is-warning
+                                                      {% elif account.project_average > account.current_budget %}is-danger
+                                                      {% else %}is-success{% endif %}"
+                                                                    value="{{ account.default_budget.spend_percentage }}"
+                                                                    max="100"></progress>
+                                                            <div class="progress-value">
+                                                                {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                            </div>
+                                                            <div class="budget-pacer"
+                                                                 style="left: {{ account.default_budget.pacer_offset }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                {% if account_dict.is_mandate %}
+                                    <h6 class="title is-6">Mandates</h6>
+                                    <table class="table is-fullwidth">
+                                        <thead>
+                                        <tr>
+                                            <th class="has-text-centered">
+                                                Type
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Cost
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Hourly Rate
+                                            </th>
+                                            <th class="has-text-centered">
+                                                My Hours This Month
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Total Allocated Hours This Month
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Date Range
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Mandate Completed
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for assignment in account_dict.assignments %}
+                                            <tr>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.mandate_type.name }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.calculated_cost|floatformat:2 }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.hourly_rate|floatformat:2 }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{ mandate_hours|get_item_from_list:assignment.mandate.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:assignment.mandate.id|floatformat:2 }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.allocated_hours_this_month|floatformat:2 }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.start_date_pretty }}
+                                                    - {{ assignment.mandate.end_date_pretty }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    <input type="checkbox" class="mandate-completed is-checkradio"
+                                                           id="{{ assignment.mandate.id }}"
+                                                            {% if assignment.mandate.completed %}
+                                                           checked disabled{% endif %}>
+                                                    <label for="{{ assignment.mandate.id }}"></label>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                                {% if account_dict.is_onboarding %}
+                                    <div class="columns">
+                                        {% for step in onboarding_steps %}
+                                            {% with assignment=account|get_onboarding_step_assignment:step %}
+                                                <div class="column" style="margin: 0 2em;">
+                                                    <button class="button is-rounded is-fullwidth {% if assignment.complete %}button-color-4{% endif %} onboarding-step-button"
+                                                            data-assignment-id="{{ assignment.id }}"
+                                                            data-step-name="{{ step.name }}"
+                                                            data-account-id="{{ account.id }}"
+                                                            id="{{ assignment.id }}">
+                                                        {{ step.name }}
+                                                    </button>
+                                                </div>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="card-content">
+                        You are not assigned to any accounts!
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="column is-3">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-item">
+                            <h5 class="title is-5">{{ today|date:"l F j, Y" }}</h5>
+                        </div>
+                    </div>
+                    <div id="todo_list">
+                        {% for todo in todos %}
+                            <div class="columns todo-row is-vcentered"
+                                 {% if forloop.last %}style="border: none;"{% endif %}>
+                                <div class="column is-2">
+                                    <input class="is-checkradio complete-todo" data-todo-id="{{ todo.id }}"
+                                           type="checkbox"
+                                           {% if todo.completed %}disabled checked{% endif %}
+                                           id="checkbox-{{ todo.id }}"/>
+                                    <label for="checkbox-{{ todo.id }}"></label>
+                                </div>
+                                <div class="column {% if todo.type == 3 %}is-8{% else %}is-10{% endif %}">
+                                    <div class="columns">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                    </div>
+                                    <div class="columns">
+                                    <span class="tag is-rounded {{ todo.colour }}">
+                                        {{ todo.get_type_display }}
+                                    </span>
+                                    </div>
+                                </div>
+                                <!-- if phase task, display resolve button -->
+                                {% if todo.type == 3 %}
+                                    <div class="column is-2">
+                                        <button class="button resolve_task_button is-rounded is-small"
+                                                data-task-id="{{ todo.phase_task_id }}">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {% if todos.count == 0 %}
+                            You're all caught up for the day!
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="late_onboarding_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Late Onboarding Reason</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="late_onboarding_confirm_button">Confirm</button>
+                    </div>
+                </div>
+                <form id="late_onboarding_form">
+                    <input name="account_id" id="reason_account_id" type="hidden"/>
+                    <label class="reason">Reason:</label>
+                    <input type="text" name="late_reason" class="input" required/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="resolve_task_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">How are we doing?</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="resolve_task_confirm_button">Submit</button>
+                    </div>
+                </div>
+                <form id="resolve_task_form">
+                    <input name="task_id" id="task_id" type="text" style="display: none;"/>
+                    <input name="flagged" id="flagged" type="text" value="False" style="display: none;"/>
+                    <div class="columns">
+                        <div class="column is-6">
+                            <button type="button"
+                                    class="button is-fullwidth is-success {% if account.star_flag %}is-outlined{% endif %}"
+                                    id="good_account_toggle_button">
+                                Account Is Good
+                            </button>
+                        </div>
+                        <div class="column is-6">
+                            <button type="button" id="flag_account_toggle_button"
+                                    class="button is-fullwidth is-danger {% if not account.star_flag %}is-outlined{% endif %}">
+                                Flag Account
+                            </button>
+                        </div>
+                    </div>
+                    <div class="columns" id="bc_link_row">
+                        <div class="column">
+                            <label class="label">Basecamp Link</label>
+                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"
+                                   value="{{ account.flagged_bc_link }}"
+                                   {% if account.star_flag %}required{% endif %}/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="onboarding_step_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Onboarding Step</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="onboarding_step_confirm_button">Complete</button>
+                    </div>
+                </div>
+                <p>
+                    <input type="hidden" id="step_account_id">
+                    <input type="hidden" id="assignment_id">
+                    <input type="hidden" id="step_element_id">
+                    Mark the step <strong id="step_name"></strong> as completed?
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        /**
+         * EVENT LISTENERS
+         */
+        let $body = $('body');
+
+        $('.modal-close, .modal-background, .close-modal').click(() => {
+            $('.modal').removeClass('is-active');
+        });
+
+        $('.onboarding-step-button').click(function () {
+            $('#onboarding_step_modal').addClass('is-active');
+            $('#step_name').text($(this).data('step-name'));
+            $('#assignment_id').val($(this).data('assignment-id'));
+            $('#step_account_id').val($(this).data('account-id'));
+            $('#step_element_id').val(this.id);
+        });
+
+        $('#late_onboarding_button').click(function () {
+            $('#late_onboarding_modal').addClass('is-active');
+            let account_id = $(this).data('account-id');
+            $('#reason_account_id').val(account_id);
+        });
+
+        $body.on('click', '.resolve_task_button', function () {
+            $('#resolve_task_modal').addClass('is-active');
+            $('#task_id').val($(this).data('task-id'));
+        });
+
+        $('#late_onboarding_confirm_button').click(() => {
+            $.ajax({
+                url: '/user_management/late_onboard',
+                data: $('#late_onboarding_form').serialize(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully updated late onboarding reason!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            });
+        });
+
+        $('#onboarding_step_confirm_button').click(() => {
+            let stepElementID = $('#step_element_id').val();
+            $.ajax({
+                url: '/clients/accounts/complete_onboarding_step',
+                data: {
+                    'account_id': $('#step_account_id').val(),
+                    'assignment_id': $('#assignment_id').val(),
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully completed onboarding step!');
+                    $('#' + stepElementID).addClass('button-color-4');
+                    $('.modal').removeClass('is-active');
+                }
+            });
+        });
+
+        $('#resolve_task_confirm_button').click(() => {
+            if ($bcLink.val() === '' && $flagged.val() === 'True') {
+                toastr.error('A basecamp link is required to flag an account!');
+                return;
+            }
+
+            $.ajax({
+                url: '/notifications/cycle/confirm',
+                data: $('#resolve_task_form').serialize(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully resolved task!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            });
+        });
+
+        $('.quickadd').click(function () {
+            let accountID = $(this).data('account-id');
+            let amount = $(this).data('amount');
+            let $workedHours = $('#worked_hours_' + accountID);
+
+            $.ajax({
+                url: '/clients/accounts/' + accountID,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'quick_add_hours': amount,
+                    'quick_add_month': (new Date()).getMonth() + 1,
+                    'quick_add_year': (new Date()).getFullYear(),
+                },
+                success: function () {
+                    toastr.success('Successfully added ' + amount + ' hours!');
+                    let hours = parseFloat($workedHours.text());
+                    hours += amount;
+                    $workedHours.text(hours);
+                }
+            });
+        });
+
+        let $flagAccountButton = $('#flag_account_toggle_button');
+        let $goodAccountButton = $('#good_account_toggle_button');
+        let $bcLink = $('#bc_link');
+        let $flagged = $('[name="flagged"]');
+
+        $goodAccountButton.click(() => {
+            $goodAccountButton.removeClass('is-outlined');
+            $flagAccountButton.addClass('is-outlined');
+            $flagged.val('False');
+
+            $bcLink.attr('placeholder', 'Optional');
+        });
+
+        $flagAccountButton.click(() => {
+            $flagAccountButton.removeClass('is-outlined');
+            $goodAccountButton.addClass('is-outlined');
+            $flagged.val('True');
+
+            $bcLink.attr('placeholder', '');
+        });
+
+        // account budget update checking
+        $('.budget-updated').change(function () {
+            let accountID = $(this).data('account-id');
+
+            $.ajax({
+                url: '/budget/confirm_budget',
+                data: {
+                    'account_id': accountID
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Confirmed Budget Updated!');
+                    $(this).attr('disabled', '');
+                }
+            });
+        });
+
+        $body.on('change', '.complete-todo', function () {
+            let todoID = $(this).data('todo-id');
+
+            // send request if checking off todo
+            if (this.checked) {
+                $.ajax({
+                    url: '',
+                    data: {
+                        'todo_id': todoID,
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    success: () => {
+                        $(this).prop('disabled', 'disabled');
+                        // refresh list
+                        $('#todo_list').load(location.href + ' #todo_list>*', '');
+                    }
+                });
+            }
+        });
+
+        $('#accounts_tab').addClass('is-active');
+    </script>
+{% endblock %}

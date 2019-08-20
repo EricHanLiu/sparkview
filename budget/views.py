@@ -1,25 +1,28 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse, Http404, HttpResponse, HttpResponseForbidden, HttpResponseNotFound, \
+    HttpResponseBadRequest
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.db.models import Q, ObjectDoesNotExist
-from adwords_dashboard.models import DependentAccount, Campaign
-from bing_dashboard.models import BingAccounts, BingCampaign
-from facebook_dashboard.models import FacebookAccount, FacebookCampaign
-from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions
+from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
+from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
+from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
+from budget.models import Client, ClientHist, CampaignGrouping, ClientCData, BudgetUpdate, Budget, CampaignExclusions, \
+    AdditionalFee
+from client_area.models import Mandate
 from user_management.models import Member
+from insights.models import GoogleAnalyticsView
 from django.core import serializers
 from tasks import adwords_tasks
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from django.utils.timezone import make_aware
 import calendar
+from bloom import settings
 
-
-# Create your views here.
 
 @login_required
 @xframe_options_exempt
@@ -951,12 +954,203 @@ def get_campaigns_in_budget(request):
         budget.bing_campaigns_without_excluded)
 
     campaigns = sorted(campaigns, key=lambda c: c.campaign_cost, reverse=True)
+    corresponding_daterange_spends = {}
+    corresponding_updated = {}
 
+    if not budget.is_monthly:
+        for campaign in campaigns:
+            if isinstance(campaign, Campaign):
+                try:
+                    csdr = CampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                              end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except CampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
+            if isinstance(campaign, FacebookCampaign):
+                try:
+                    csdr = FacebookCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                                      end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except FacebookCampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
+            if isinstance(campaign, BingCampaign):
+                try:
+                    csdr = BingCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
+                                                                  end_date=budget.end_date)
+                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
+                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                except BingCampaignSpendDateRange.DoesNotExist:
+                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
+                    corresponding_updated[campaign.campaign_id] = 'N/A'
     response = {
-        'campaigns': json.loads(serializers.serialize('json', campaigns))
+        'is_monthly': budget.is_monthly,
+        'campaigns': json.loads(serializers.serialize('json', campaigns)),
+        'cdrs': corresponding_daterange_spends,
+        'cupdate': corresponding_updated
     }
 
     return JsonResponse(response)
+
+
+@login_required
+def edit_budget(request):
+    """
+    Edits a budget
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    try:
+        budget = Budget.objects.get(id=request.POST.get('budget_id'))
+    except Budget.DoesNotExist:
+        return HttpResponseNotFound('Not found')
+    budget.name = request.POST.get('budget_name')
+    budget.account = account
+    budget.budget = request.POST.get('budget_amount')
+    budget.save()
+
+    if 'google_ads' in request.POST:
+        budget.has_adwords = True
+    if 'facebook_ads' in request.POST:
+        budget.has_facebook = True
+    if 'bing_ads' in request.POST:
+        budget.has_bing = True
+
+    grouping_type = request.POST.get('grouping_type').split('_')[1]  # grouping type has edit in it
+
+    if grouping_type == 'manual':
+        # Lousy, but it works for now
+        budget.grouping_type = 0
+        budget.is_new = False
+        for c in request.POST.getlist('campaigns'):
+            budget.aw_campaigns.clear()
+            budget.bing_campaigns.clear()
+            budget.fb_campaigns.clear()
+            try:
+                cmp = Campaign.objects.get(campaign_id=c)
+                budget.aw_campaigns.add(cmp)
+                budget.save()
+            except Campaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = BingCampaign.objects.get(campaign_id=c)
+                budget.bing_campaigns.add(cmp)
+                budget.save()
+            except BingCampaign.DoesNotExist:
+                pass
+
+            try:
+                cmp = FacebookCampaign.objects.get(campaign_id=c)
+                budget.fb_campaigns.add(cmp)
+                budget.save()
+            except FacebookCampaign.DoesNotExist:
+                pass
+    elif grouping_type == 'text':
+        budget.grouping_type = 1
+        budget.text_includes = request.POST.get('include_strings')
+        budget.text_excludes = request.POST.get('exclude_strings')
+    else:
+        budget.grouping_type = 2
+
+    if request.POST.get('time_period') == 'monthly':
+        budget.is_monthly = True
+    else:
+        budget.is_monthly = False
+        flight_dates_input = request.POST.get('flight_dates').split(' - ')
+        start_date_comps = flight_dates_input[0].split('/')
+        end_date_comps = flight_dates_input[1].split('/')
+
+        start_date = make_aware(datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1])))
+        end_date = make_aware(
+            datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59))
+
+        budget.start_date = start_date
+        budget.end_date = end_date
+
+    budget.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def set_overall_budget(request):
+    """
+    Sets the overall budget for an account
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    aw_budget = request.POST.get('aw_budget') or 0.0
+    fb_budget = request.POST.get('fb_budget') or 0.0
+    bing_budget = request.POST.get('bing_budget') or 0.0
+    flex_budget = request.POST.get('flex_budget') or 0.0
+
+    account.aw_budget = aw_budget
+    account.fb_budget = fb_budget
+    account.bing_budget = bing_budget
+    account.flex_budget = flex_budget
+    account.save()
+
+    return HttpResponse()
+
+
+@login_required
+def delete_budget(request):
+    """
+    Deletes a budget
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    budget = get_object_or_404(Budget, id=request.POST.get('budget_id'))
+    budget.delete()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def delete_mandate(request):
+    """
+    Deletes a mandate
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    member = request.user.member
+
+    if account not in member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You are not allowed to do this')
+
+    mandate = get_object_or_404(Mandate, id=request.POST.get('mandate_id'))
+    mandate.delete()
+
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 # Update client budgets
@@ -1045,28 +1239,40 @@ def assign_client_accounts(request):
     client = Client.objects.get(id=client_id)
 
     if adwords:
+        client.adwords.clear()
         for a in adwords:
             acc = DependentAccount.objects.get(dependent_account_id=a)
             client.adwords.add(acc)
             client.save()
 
     if bing:
+        client.bing.clear()
         for b in bing:
             acc = BingAccounts.objects.get(account_id=b)
             client.bing.add(acc)
             client.save()
 
     if facebook:
+        client.facebook.clear()
         for f in facebook:
             acc = FacebookAccount.objects.get(account_id=f)
             client.facebook.add(acc)
             client.save()
 
+    if client.default_budget is not None:
+        budget = client.default_budget
+        if client.has_adwords:
+            budget.has_adwords = True
+        if client.has_fb:
+            budget.has_facebook = True
+        if client.has_bing:
+            budget.has_bing = True
+        budget.save()
+
     response = {
         'client': client.client_name
     }
 
-    adwords_tasks.cron_clients.delay()
     return JsonResponse(response)
 
 
@@ -1148,7 +1354,7 @@ def edit_flex_budget(request):
 
 
 @login_required
-def confirm_budget(request):
+def renew_overall_budget(request):
     if request.method != 'POST':
         return HttpResponse('Invalid request type')
 
@@ -1166,6 +1372,36 @@ def confirm_budget(request):
 
     budget_update.updated = True
     budget_update.save()
+
+    aw_budget = request.POST.get('aw_budget') or 0.0
+    fb_budget = request.POST.get('fb_budget') or 0.0
+    bing_budget = request.POST.get('bing_budget') or 0.0
+    flex_budget = request.POST.get('flex_budget') or 0.0
+
+    account.aw_budget = aw_budget
+    account.fb_budget = fb_budget
+    account.bing_budget = bing_budget
+    account.flex_budget = flex_budget
+    account.save()
+
+    return HttpResponse('Success')
+
+
+@login_required
+def renew_monthly_budget(request):
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = int(request.POST.get('account_id'))
+    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    budget_id = request.POST.get('budget_id')
+    budget = get_object_or_404(Budget, id=budget_id)
+
+    budget.needs_renewing = False
+    budget.save()
 
     return HttpResponse('Success')
 
@@ -1262,14 +1498,14 @@ def new_budget(request):
         end_date_comps = flight_dates_input[1].split('/')
 
         start_date = datetime(int(start_date_comps[2]), int(start_date_comps[0]), int(start_date_comps[1]))
-        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 23, 59, 59)
+        end_date = datetime(int(end_date_comps[2]), int(end_date_comps[0]), int(end_date_comps[1]), 18, 59, 59)
 
         budget.start_date = start_date
         budget.end_date = end_date
 
     budget.save()
 
-    return redirect('/budget/client/' + str(account.id) + '/beta')
+    return redirect('/clients/accounts/' + str(account.id))
 
 
 @login_required
@@ -1320,4 +1556,160 @@ def update_exclusions(request):
     exclusions.fb_campaigns.set(fb_cmps)
     exclusions.bing_campaigns.set(bing_cmps)
 
-    return redirect('/budget/client/' + str(account.id) + '/beta')
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def get_info(request):
+    """
+    Just returns information about a budget
+    :param request:
+    :return:
+    """
+    budget_id = request.POST.get('budget_id')
+    budget = Budget.objects.filter(id=budget_id)
+
+    campaigns = list(budget[0].aw_campaigns.all()) + list(budget[0].fb_campaigns.all()) + list(
+        budget[0].bing_campaigns.all())
+
+    response = {
+        'budget': json.loads(serializers.serialize('json', budget)),
+        'campaigns': json.loads(serializers.serialize('json', campaigns))
+    }
+
+    return JsonResponse(response)
+
+
+@login_required
+def create_additional_fee(request):
+    """
+    Creates an additional fee
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    name = request.POST.get('name')
+    fee = request.POST.get('fee')
+    month, year = request.POST.get('month'), request.POST.get('year')
+
+    AdditionalFee.objects.create(account=account, name=name, fee=fee, month=month, year=year)
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def edit_additional_fee(request):
+    """
+    Edits an additional fee
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    fee_id = request.POST.get('fee_id')
+    name = request.POST.get('name')
+    fee = request.POST.get('fee')
+    month, year = request.POST.get('month'), request.POST.get('year')
+
+    additional_fee = get_object_or_404(AdditionalFee, id=fee_id)
+    additional_fee.name = name
+    additional_fee.fee = fee
+    additional_fee.month = month
+    additional_fee.year = year
+    additional_fee.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def delete_additional_fee(request):
+    """
+    Deletes an additional fee
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    additional_fee = get_object_or_404(AdditionalFee, id=request.POST.get('fee_id'))
+    additional_fee.delete()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def link_google_analytics(request):
+    """
+    Links a GA view to a SparkView account
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    ga_view, created = GoogleAnalyticsView.objects.get_or_create(account=account)
+
+    view_id = request.POST.get('view_select')
+    ga_view.ga_view_id = view_id
+    ga_view.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def renew_last_month_budget(request):
+    """
+    Renews the last months budgets (excluding additional fees)
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Bad request, must be post')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Cannot find that account')
+
+    if account not in request.user.member.accounts and not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    now = datetime.now()
+    BudgetUpdate.objects.create(account=account, month=now.month, year=now.year, updated=True)
+
+    return HttpResponse('Budget updated')

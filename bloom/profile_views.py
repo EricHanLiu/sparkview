@@ -454,7 +454,7 @@ def search(request):
     for r in clients:
         item = {
             'name': r.client_name,
-            'url': reverse('budget:client_details', args=(r.id,)),
+            'url': '/clients/accounts/' + str(r.id)
         }
         res.append(item)
 

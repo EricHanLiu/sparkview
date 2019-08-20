@@ -1,0 +1,71 @@
+.hidden-scroll {
+    max-height: 40vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.hidden-scroll::-webkit-scrollbar {
+    width: 0;
+}
+
+.icon a {
+    color: black;
+}
+
+.icon a:hover {
+    color: tomato;
+}
+
+.custom-progress-color::-webkit-progress-value {
+    background: #fa1e44;
+}
+
+.member-role-tag {
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    position: absolute;
+}
+
+.media {
+    margin-top: -2em;
+}
+
+table {
+    table-layout: auto;
+    width: 100%;
+    word-break: break-word;
+}
+
+#contact_details_card {
+    margin-top: 2em;
+}
+
+.page-card {
+    padding: 0.3em;
+}
+
+.member-card {
+    box-shadow: none;
+}
+
+.is-static {
+    width: 30%;
+}
+
+.is-expanded {
+    width: 70%;
+}
+
+p {
+    word-break: break-word;
+}
+
+.budget-renewal-overlay {
+    width: 100%;
+    position: absolute;
+    height: 100%;
+    top: 0;
+    left: 0;
+}

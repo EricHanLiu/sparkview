@@ -1,14 +1,17 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from budget.models import Client as BloomClient, CampaignGrouping, Budget, CampaignExclusions
+from budget.models import Client as BloomClient, CampaignGrouping, Budget, CampaignExclusions, AdditionalFee
 from adwords_dashboard.models import DependentAccount, Campaign, CampaignSpendDateRange
 from facebook_dashboard.models import FacebookAccount, FacebookCampaign, FacebookCampaignSpendDateRange
 from bing_dashboard.models import BingAccounts, BingCampaign, BingCampaignSpendDateRange
 from client_area.models import Industry, ClientContact, ParentClient, Language, \
     ManagementFeesStructure, ManagementFeeInterval, ClientType, SalesProfile, AccountHourRecord
 from tasks.campaign_group_tasks import update_budget_campaigns
+from .cron import reset_google_ads_campaign, reset_bing_campaign, reset_facebook_campaign
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
+from django.utils.timezone import make_aware
+from budget.cron import create_default_budget
 import calendar
 import datetime
 import json
@@ -17,7 +20,7 @@ import json
 class AccountTestCase(TestCase):
     def setUp(self):
         test_industry = Industry.objects.create(name='test industry')
-        test_user = User.objects.create(username='test', password='12345')
+        test_user = User.objects.create_user(username='test', password='12345')
         test_super = User.objects.create_user(username='test4', password='123456', is_staff=True, is_superuser=True)
         test_member = Member.objects.create(user=test_user)
         Member.objects.create(user=test_super)
@@ -38,7 +41,8 @@ class AccountTestCase(TestCase):
         test_fee_structure.feeStructure.set(intervals)
         test_fee_structure.save()
 
-        account = BloomClient.objects.create(client_name='test client', industry=test_industry, soldBy=test_member)
+        account = BloomClient.objects.create(client_name='test client', industry=test_industry, soldBy=test_member,
+                                             aw_budget=1000.0)
         SalesProfile.objects.create(account=account, ppc_status=0, seo_status=0, cro_status=0)
 
         account.managementFee = test_fee_structure
@@ -86,7 +90,9 @@ class AccountTestCase(TestCase):
         self.assertEqual(account.calculated_daily_recommended, round(500.0 / remaining_days, 2))
 
     def test_management_fee(self):
-        """Tests all things related to management fee"""
+        """
+        Tests all things related to management fee
+        """
         account = BloomClient.objects.get(client_name='test client')
 
         account.sales_profile.ppc_status = 0
@@ -123,12 +129,25 @@ class AccountTestCase(TestCase):
             client_name='test client')  # Same object but need to reload because of caching
 
         self.assertEqual(account2.total_fee, account2.ppc_fee + account2.seo_fee + account2.cro_fee)
+        self.assertEqual(account2.ppc_fee, 50.0)
         self.assertEqual(account2.total_fee, 1050.0)
 
         account2.status = 2
         account2.save()  # Don't have to worry about caching because having status as 2 (inactive)
 
         self.assertEqual(account2.total_fee, 0.0)
+
+        account3 = BloomClient.objects.get(client_name='test client')
+        account3.status = 1
+        account3.save()
+        now = datetime.datetime.now()
+        AdditionalFee.objects.create(account=account3, fee=100, month=now.month, year=now.year)
+        AdditionalFee.objects.create(account=account3, fee=50, month=now.month, year=now.year - 1)
+
+        self.assertEqual(account3.additional_fees_this_month, 100)
+        self.assertEqual(account3.total_fee, 1150.0)
+        self.assertEqual(account3.additional_fees_month(now.month, now.year), 100)
+        self.assertEqual(account3.additional_fees_month(now.month, now.year - 1), 50)
 
     def test_allocated_hours(self):
         """Tests hour allocation"""
@@ -277,11 +296,11 @@ class AccountTestCase(TestCase):
                                                           desired_spend=1000.0)
 
         aw_cmp1 = Campaign.objects.create(campaign_id='1234', campaign_name='foo hello', account=test_aw_account,
-                                          campaign_cost=1)
+                                          campaign_cost=1, campaign_yesterday_cost=3)
         aw_cmp2 = Campaign.objects.create(campaign_id='1011123', campaign_name='sam123', account=test_aw_account,
                                           campaign_cost=2)
         fb_cmp1 = FacebookCampaign.objects.create(campaign_id='4567', campaign_name='foo test sup', account=fb_account,
-                                                  campaign_cost=3)
+                                                  campaign_cost=3, campaign_yesterday_cost=2)
         bing_cmp1 = BingCampaign.objects.create(campaign_id='7891', campaign_name='hello sup', account=bing_account,
                                                 campaign_cost=4)
 
@@ -307,6 +326,7 @@ class AccountTestCase(TestCase):
         self.assertEqual(b1.calculated_google_ads_spend, 1)
         self.assertEqual(b1.calculated_bing_ads_spend, 4)
         self.assertEqual(b1.spend_percentage, 50)
+        self.assertEqual(b1.yesterday_spend, 3)
 
         b1.budget = 2.5
         b1.save()
@@ -322,6 +342,7 @@ class AccountTestCase(TestCase):
         self.assertIn(fb_cmp1, b2.fb_campaigns.all())
         self.assertNotIn(bing_cmp1, b2.bing_campaigns.all())
         self.assertNotIn(aw_cmp2, b2.aw_campaigns.all())
+        self.assertEqual(b2.yesterday_spend, 2)
 
         b3 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test', has_adwords=True,
                                    has_bing=True, has_facebook=True, is_monthly=True)
@@ -340,6 +361,7 @@ class AccountTestCase(TestCase):
         self.assertNotIn(fb_cmp1, b4.fb_campaigns.all())
         self.assertNotIn(bing_cmp1, b4.bing_campaigns.all())
         self.assertNotIn(aw_cmp2, b4.aw_campaigns.all())
+        self.assertEqual(b4.yesterday_spend, 0.0)
 
         b5 = Budget.objects.create(account=account, grouping_type=2, has_adwords=True, is_monthly=True)
         update_budget_campaigns(b5.id)
@@ -460,9 +482,68 @@ class AccountTestCase(TestCase):
         number_of_days_in_month = calendar.monthrange(now.year, now.month)[1]
 
         self.assertEqual(b11.average_spend_yest, 28 / number_of_days_elapsed_in_month)
-        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day))
+        self.assertEqual(b11.rec_spend_yest, (100 - 28) / (number_of_days_in_month - now.day + 1))
         self.assertEqual(b11.projected_spend_avg,
                          b11.calculated_yest_spend + (b11.average_spend_yest * b11.days_remaining))
+
+        aw_cmp3 = Campaign.objects.create(campaign_id='1234555', campaign_name='foo hello', account=test_aw_account,
+                                          campaign_cost=1, campaign_yesterday_cost=3)
+        fb_cmp2 = FacebookCampaign.objects.create(campaign_id='4567555', campaign_name='foo test sup',
+                                                  account=fb_account,
+                                                  campaign_cost=2, campaign_yesterday_cost=2)
+        bing_cmp2 = BingCampaign.objects.create(campaign_id='7891555', campaign_name='hello sup', account=bing_account,
+                                                campaign_cost=3)
+
+        b12 = Budget.objects.create(account=account, grouping_type=0, has_adwords=True, has_facebook=True,
+                                    has_bing=True, is_monthly=True)
+        b12.aw_campaigns.set([aw_cmp3])
+        b12.fb_campaigns.set([fb_cmp2])
+        b12.bing_campaigns.set([bing_cmp2])
+
+        reset_google_ads_campaign(aw_cmp3.id)
+        self.assertEqual(b12.calculated_google_ads_spend, 0)
+
+        reset_facebook_campaign(fb_cmp2.id)
+        self.assertEqual(b12.calculated_facebook_ads_spend, 0)
+
+        reset_bing_campaign(bing_cmp2.id)
+        self.assertEqual(b12.calculated_bing_ads_spend, 0)
+        self.assertEqual(b12.yesterday_spend, 0)
+
+        b13_start = make_aware(now) - datetime.timedelta(7)
+        b13_end = make_aware(now) + datetime.timedelta(7)
+
+        b13 = Budget.objects.create(account=account, budget=200, grouping_type=0, has_adwords=True, has_facebook=True,
+                                    has_bing=True, is_monthly=False, start_date=b13_start, end_date=b13_end)
+        CampaignSpendDateRange.objects.create(campaign=aw_cmp1, start_date=b13_start, end_date=b13_end,
+                                              spend=11, spend_until_yesterday=10)
+        FacebookCampaignSpendDateRange.objects.create(campaign=fb_cmp1, start_date=b13_start,
+                                                      end_date=b13_end,
+                                                      spend=31, spend_until_yesterday=12)
+        BingCampaignSpendDateRange.objects.create(campaign=bing_cmp1, start_date=b13_start,
+                                                  end_date=b13_end,
+                                                  spend=41, spend_until_yesterday=13)
+
+        b13.aw_campaigns.set([aw_cmp1])
+        b13.fb_campaigns.set([fb_cmp1])
+        b13.bing_campaigns.set([bing_cmp1])
+
+        self.assertEqual(b13.calculated_yest_google_ads_spend, 10)
+        self.assertEqual(b13.calculated_yest_facebook_ads_spend, 12)
+        self.assertEqual(b13.calculated_yest_bing_ads_spend, 13)
+        self.assertEqual(b13.calculated_yest_spend, 35)
+        self.assertEqual(b13.average_spend_yest, 5)
+        self.assertEqual(b13.projected_spend_avg, 70)
+
+        create_default_budget(account.id)
+        account.aw_budget = 100
+        account.fb_budget = 50
+        account.bing_budget = 25
+        account.flex_budget = 10
+        account.save()
+        test_default_bugdet = Budget.objects.get(account=account, is_default=True)
+
+        self.assertEqual(test_default_bugdet.calculated_budget, 185)
 
     def test_get_campaigns_view(self):
         """
@@ -550,3 +631,100 @@ class AccountTestCase(TestCase):
         self.assertEqual(response_content['existing_aw'][0]['fields']['dependent_account_id'], '2401')
         # bing accounts are added last
         self.assertEqual(response_content['accounts'][3]['fields']['account_id'], '6969')
+
+    def test_budget_pacer_offset(self):
+        """
+        Tests the pacer_offset property of a budget calculates the right amount
+        Can only really do flight dates since monthly budgets depend fully on today
+        """
+        now = datetime.datetime.now(datetime.timezone.utc)
+        week_ago = now - datetime.timedelta(7)
+        week_from_now = now + datetime.timedelta(7)
+        two_weeks_from_now = week_from_now + datetime.timedelta(7)
+        account = BloomClient.objects.create(client_name='budget test client')
+        flight_budget1 = Budget.objects.create(name='test', account=account, budget=1000, is_monthly=False,
+                                               start_date=week_ago, end_date=week_from_now)
+        flight_budget2 = Budget.objects.create(name='test', account=account, budget=1000, is_monthly=False,
+                                               start_date=week_ago, end_date=two_weeks_from_now)
+
+        self.assertEqual(round(flight_budget1.pacer_offset, 2), 50.00)
+        self.assertEqual(round(flight_budget2.pacer_offset, 2), 33.33)
+
+    def test_onboarding_hours_bank(self):
+        """
+        Tests that the onboarding hours on an account act like a bank of hours which don't reset MoM
+        """
+        account = BloomClient.objects.create(client_name='onboarding client', status=0)
+        account.managementFee = ManagementFeesStructure.objects.create(name='test', initialFee=1000)
+        SalesProfile.objects.create(account=account, ppc_status=0)
+        account.save()
+
+        self.assertEqual(account.onboarding_hours_remaining, 8)
+        self.assertEqual(account.allocated_hours_including_mandate, 8)
+
+    def test_get_requests(self):
+        self.client.login(username='test', password='12345')
+        test_user = User.objects.get(username='test')
+        member = Member.objects.get(user=test_user)
+        account = BloomClient.objects.create(client_name='test client123')
+        asp = SalesProfile.objects.create(account=account, ppc_status=0, seo_status=0, cro_status=0)
+
+        account.am1 = member
+        account.am1percent = 100.0
+        account.save()
+
+        self.assertIn(account, member.accounts)
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)
+
+        asp.seo_status = 1
+        asp.save()
+
+        self.assertEqual(account.status, 1)
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)
+
+        asp.ppc_status = 1
+        asp.cro_status = 1
+        asp.save()
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)
+
+        account.status = 2
+        account.save()
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)
+
+        account.status = 3
+        account.save()
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)
+
+        account.status = 0
+        account.save()
+
+        response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/clients/accounts/' + str(account.id))
+        self.assertEqual(response.status_code, 200)

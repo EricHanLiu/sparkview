@@ -99,13 +99,13 @@
                     Spend
                 </h5>
                 <h1 class="text-center
-                                {% if client_data.current_spend > client_data.current_budget %}
+                                {% if client_data.calculated_spend > client_data.current_budget %}
                                     m--font-danger
                                 {% else %}
                                     m--font-success
                                 {% endif %}
                                 inner-text">
-                    {{ client_data.currency }}{{ client_data.current_spend|floatformat:2|intcomma }}
+                    {{ client_data.currency }}{{ client_data.calculated_spend|floatformat:2|intcomma }}
                 </h1>
             </div>
         </div>

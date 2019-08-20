@@ -60,6 +60,9 @@ class ClientContact(models.Model):
     email = models.EmailField(max_length=255, default='None', null=True)
     phone = models.CharField(max_length=255, default='None', null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class AccountHourRecord(models.Model):
     MONTH_CHOICES = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
@@ -71,6 +74,7 @@ class AccountHourRecord(models.Model):
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     is_unpaid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_onboarding = models.BooleanField(default=False)
 
     def __str__(self):
         if self.member is None:
@@ -131,7 +135,10 @@ class MonthlyReport(models.Model):
 
     @property
     def report_name(self):
-        return self.account.client_name + ' ' + calendar.month_name[self.month] + ' Report'
+        try:
+            return self.account.client_name + ' ' + calendar.month_name[self.month] + ' Report'
+        except AttributeError:
+            return 'No name report'
 
     @property
     def received_by_am(self):
@@ -227,17 +234,11 @@ class OnboardingStep(models.Model):
     """
     Step in the onboarding process for a service. Only complete when all subtasks are complete
     """
-    SERVICES_CHOICES = [(0, 'PPC'),
-                        (1, 'SEO'),
-                        (2, 'CRO'),
-                        (3, 'Strategy')]
-
-    service = models.IntegerField(default=0, choices=SERVICES_CHOICES)
     name = models.CharField(max_length=255, default='', blank=True)
     order = models.IntegerField(default=0)  # This is for the order of the steps for onboarding
 
     def __str__(self):
-        return self.get_service_display() + ' ' + self.name
+        return self.name
 
 
 class OnboardingTask(models.Model):
@@ -257,13 +258,8 @@ class OnboardingStepAssignment(models.Model):
     """
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, default=None, null=True)
     step = models.ForeignKey(OnboardingStep, on_delete=models.SET_NULL, default=None, null=True)
-
-    @property
-    def complete(self):
-        for task in self.onboardingtaskassignment_set.all():
-            if not task.complete:
-                return False
-        return True
+    complete = models.BooleanField(default=False)
+    completed = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         if self.account is None or self.step is None:
@@ -607,9 +603,7 @@ class Mandate(models.Model):
         """
         if not self.ongoing:
             return 0.0
-        if self.billing_style == 0:
-            if self.ongoing_hours is None:
-                return 0
+        if self.billing_style == 0 and self.ongoing_hours is not None:
             return self.ongoing_hours
         try:
             return self.ongoing_cost / self.hourly_rate
@@ -624,7 +618,7 @@ class Mandate(models.Model):
         """
         if not self.ongoing:
             return 0.0
-        if self.billing_style == 1:
+        if self.billing_style == 1 and self.ongoing_cost is not None:
             return self.ongoing_cost
         try:
             return self.ongoing_hours * self.hourly_rate
@@ -642,6 +636,28 @@ class Mandate(models.Model):
         if self.end_date is None:
             return 'Ongoing'
         return self.end_date.strftime('%b %d, %Y')
+
+    @property
+    def hours_worked_this_month(self):
+        """
+        Gives total number of hours worked on this mandate this month
+        :return:
+        """
+        if not hasattr(self, '_hours_worked_this_month'):
+            now = datetime.datetime.now()
+            hour_records = MandateHourRecord.objects.filter(assignment__mandate=self, month=now.month, year=now.year)
+            hours = 0.0
+            for hour_record in hour_records:
+                hours += hour_record.hours
+            self._hours_worked_this_month = hours
+        return self._hours_worked_this_month
+
+    @property
+    def allocated_hours_this_month(self):
+        if not hasattr(self, '_allocated_hours_this_month'):
+            now = datetime.datetime.now()
+            self._allocated_hours_this_month = self.hours_in_month(now.month, now.year)
+        return self._allocated_hours_this_month
 
     def hours_in_month(self, month, year):
         if self.ongoing:
@@ -724,6 +740,7 @@ class MandateHourRecord(models.Model):
     month = models.IntegerField(default=0.0, choices=MONTH_CHOICES)
     year = models.IntegerField(default=1990)
     created = models.DateTimeField(auto_now_add=True)
+    is_onboarding = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.assignment) + ' ' + str(self.hours) + ' hours'
@@ -759,10 +776,20 @@ class Opportunity(models.Model):
     """
     Marks an opportunity to upsell
     """
+    STATUS_CHOICES = [
+        (0, 'Flagged'),
+        (1, 'In Progress'),
+        (2, 'Lost'),
+        (3, 'Won'),
+    ]
+
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     reason = models.ForeignKey(OpportunityDescription, models.SET_NULL, null=True, default=None)
     is_primary = models.BooleanField(default=False)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    lost_reason = models.CharField(max_length=900, default='', blank=True)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
+    flagged_by = models.ForeignKey('user_management.Member', null=True, default=None, on_delete=models.SET_NULL)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
     addressed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)

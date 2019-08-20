@@ -31,11 +31,12 @@
                                                     name="reporting-member" id="reporting-member-incident"
                                                     style="width: 100%;" required>
                                                 {% for member in members %}
-                                                    <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                                    <option value="{{ member.id }}"
+                                                            {% if request.user.member == member %}selected{% endif %}>
+                                                        {{ member.user.get_full_name }}
+                                                    </option>
                                                 {% endfor %}
                                             </select>
-{#                                            <input type="email" name="email-address"#}
-{#                                                   class="form-control m-input" required>#}
                                         </div>
                                         <div class="col-md-6">
                                             <label for="services">Service:</label>

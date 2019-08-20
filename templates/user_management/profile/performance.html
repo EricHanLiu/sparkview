@@ -1,0 +1,477 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+
+{% load template_filters %}
+
+{% block extraCss %}
+    <style>
+        .performance-section {
+            margin-top: 1em;
+        }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+    <div class="card">
+        <div class="card-content">
+            <div class="level" style="margin-bottom: 0;">
+                <div class="level-left">
+                    <div class="level-item">
+                        <h4 class="title is-4 performance-title skills">
+                            Skills
+                        </h4>
+                        <h4 class="title is-4 performance-title is-hidden high-fives">
+                            High Fives
+                        </h4>
+                        <h4 class="title is-4 performance-title is-hidden oops">
+                            Oops
+                        </h4>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <div class="tabs is-boxed is-toggle">
+                        <ul>
+                            <li class="is-active">
+                                <a data-target="skills" class="performance-tab">
+                                    Skills
+                                </a>
+                            </li>
+                            {% if high_fives.count > 0 %}
+                                <li>
+                                    <a data-target="high-fives" class="performance-tab">
+                                        High Fives
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if oops.count > 0 or oops_reported.count > 0 %}
+                                <li>
+                                    <a data-target="oops" class="performance-tab">
+                                        Oops
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Skill Cards -->
+    <div class="performance-section skills">
+        <div class="columns">
+            <div class="column is-8">
+                <div class="columns is-multiline">
+                    {% for category in member_skills_categories %}
+                        <div class="column is-6">
+                            <div class="card">
+                                <div class="card-content">
+                                    <h5 class="title is-5 has-text-centered">{{ category.name }}</h5>
+                                    <div class="columns is-multiline">
+                                        {% for skill_entry in category.skill_entries %}
+                                            <div class="column is-6">
+                                                <div class="columns">
+                                                    <div class="column is-2">
+                                                        <div class="tag is-rounded {{ tag_colors|get_item_from_list:skill_entry.score }}">
+                                                            {{ skill_entry.score }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="column is-10">
+                                                        {{ skill_entry.skill.name }}
+                                                        {% if skill_entry.updated_recently %}
+                                                            <span class="tag is-rounded is-success"
+                                                                  style="margin-left: 0.5em;">
+                                                                <i class="fas fa-exclamation"></i>
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="column is-4">
+                <div class="card">
+                    <div class="card-content">
+                        <h5 class="title is-5 has-text-centered">Skill Concentration</h5>
+                        <canvas id="skill_concentration_chart"></canvas>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1em;">
+                    <div class="card-content">
+                        <h5 class="title is-5 has-text-centered">Badges</h5>
+                        {% for badge in badges %}
+                            <div class="box">
+                                <div class="columns is-multiline">
+                                    <div class="column is-2">
+                                        <div class="tag is-rounded is-success"><i class="fas fa-trophy"></i></div>
+                                    </div>
+                                    <div class="column is-10">
+                                        <span class="title is-6">{{ badge.skill.name }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if badges.count == 0 %}
+                            You don't have any badges yet. Keep working hard on improving your skills!
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1em;">
+                    <div class="card-content">
+                        <h5 class="title is-5 has-text-centered">Legend</h5>
+                        <div class="columns is-multiline">
+                            {% for color in tag_colors %}
+                                <div class="column is-4">
+                                    <div class="columns">
+                                        <div class="column is-2">
+                                            <div class="tag is-rounded {{ color }}">
+                                                {{ forloop.counter0 }}
+                                            </div>
+                                        </div>
+                                        <div class="column is-10">
+                                            {% if forloop.counter0 == 0 %}
+                                                Unscored
+                                            {% elif forloop.counter0 == 1 %}
+                                                Beginner
+                                            {% elif forloop.counter0 == 2 %}
+                                                Intermediate
+                                            {% elif forloop.counter0 == 3 %}
+                                                Advanced
+                                            {% elif forloop.counter0 == 4 %}
+                                                Expert
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="performance-section high-fives is-hidden">
+        <div class="card">
+            <div class="card-content">
+                <table class="table is-hoverable is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Date
+                        </th>
+                        <th style="width: 75%;">
+                            Description
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for hf in high_fives %}
+                        <tr class="table-row">
+                            <td>
+                                {{ hf.date }}
+                            </td>
+                            <td>
+                                <div style="max-height: 70px; overflow: auto;">
+                                    {{ hf.description }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="performance-section is-hidden oops">
+        <div class="card">
+            <div class="card-content">
+                {% if oops.count > 0 %}
+                    <h5 class="title is-5">My Oops Received</h5>
+                    <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Timestamp
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Reported By
+                            </th>
+                            <th>
+                                Issue Description
+                            </th>
+                            <th>
+                                Type of Issue
+                            </th>
+                            <th>
+                                Budget Error Amount
+                            </th>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Client Aware?
+                            </th>
+                            <th>
+                                Client At Risk?
+                            </th>
+                            <th>
+                                Addressed With You?
+                            </th>
+                            <th>
+                                Platform
+                            </th>
+                            <th>
+                                Justification
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for oops in oops %}
+                            <tr class="table-row">
+                                <td>
+                                    {{ oops.timestamp }}
+                                </td>
+                                <td>
+                                    {{ oops.date }}
+                                </td>
+                                <td>
+                                    <a href="/user_management/members/{{ oops.reporter.id }}">{{ oops.reporter.user.get_full_name }}</a>
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ oops.description }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ oops.issue_name }}
+                                </td>
+                                <td>
+                                    {% if oops.budget_error_amount == 0 %}
+                                        None
+                                    {% else %}
+                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.account is not None %}
+                                        <a href="/clients/accounts/{{ oops.account.id }}">{{ oops.account }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.client_aware %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.client_at_risk %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.addressed_with_member %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {{ oops.platform_name }}
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ oops.justification }}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+                {% if oops_reported.count > 0 %}
+                    <h5 class="title is-5">My Oops Reported</h5>
+                    <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Timestamp
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Issue Description
+                            </th>
+                            <th>
+                                Type of Issue
+                            </th>
+                            <th>
+                                Budget Error Amount
+                            </th>
+                            <th>
+                                Member(s) Responsible
+                            </th>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Client Aware?
+                            </th>
+                            <th>
+                                Client At Risk?
+                            </th>
+                            <th>
+                                Addressed With Member(s)?
+                            </th>
+                            <th>
+                                Platform
+                            </th>
+                            <th>
+                                Justification
+                            </th>
+                            <th>
+                                Approved
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for oops in oops_reported %}
+                            <tr class="table-row">
+                                <td>
+                                    {{ oops.timestamp }}
+                                </td>
+                                <td>
+                                    {{ oops.date }}
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ oops.description }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ oops.issue_name }}
+                                </td>
+                                <td>
+                                    {% if oops.budget_error_amount == 0 %}
+                                        None
+                                    {% else %}
+                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% for member in oops.members.all %}
+                                        <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if oops.account is not None %}
+                                        <a href="/clients/accounts/{{ oops.account.id }}">{{ oops.account }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.client_aware %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.client_at_risk %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {% if oops.addressed_with_member %} Yes {% else %} No {% endif %}
+                                </td>
+                                <td>
+                                    {{ oops.platform_name }}
+                                </td>
+                                <td>
+                                    <div style="max-height: 70px; overflow: auto;">
+                                        {{ oops.justification }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ oops.approved }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.performance-tab').click(function () {
+            $('.performance-section, .performance-title').addClass('is-hidden');
+            $('.performance-tab').parent().removeClass('is-active');
+            $(this).parent().addClass('is-active');
+            let selector = '.' + $(this).data('target');
+            $(selector).removeClass('is-hidden');
+        });
+
+        $('#performance_tab').addClass('is-active');
+
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
+
+        // skill concentration chart stuff
+        let categoryNames = [];
+        let categoryAverages = [];
+        let categoryColors = [];
+        {% for category in member_skills_categories %}
+            fillArraysWithValues(categoryNames, categoryAverages, categoryColors, '{{ category.name }}', parseFloat('{{ category.average }}'));
+        {% endfor %}
+        function fillArraysWithValues(categoryNames, categoryAverages, categoryColors, name, average) {
+            categoryNames.push(name);
+            categoryAverages.push(average);
+            let color = 'rgba(255, 99, 132, 0.2)';
+            if (average > 3) {
+                color = 'rgba(35, 209, 96, 0.9)';
+            } else if (average > 2) {
+                color = 'rgba(255, 221, 87, 0.9)';
+            } else if (average > 1) {
+                color = 'rgba(255, 56, 96, 0.9)';
+            }
+            categoryColors.push(color);
+        }
+
+        let ctx = document.getElementById('skill_concentration_chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: categoryNames,
+                datasets: [
+                    {
+                        data: categoryAverages,
+                        backgroundColor: categoryColors,
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)'
+                        ]
+                    }
+                ]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        gridLines: {
+                            display: false,
+                        },
+                    }],
+                    yAxes: [{
+                        gridLines: {
+                            display: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            maxTicksLimit: 8,
+                            max: 4
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+{% endblock %}

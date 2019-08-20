@@ -145,6 +145,7 @@
                         </div>
                         <div class="m-portlet__body">
                             {% for account in accounts %}
+                                {% if account.default_budget is not None %}
                                 <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
                                     <div class="col-2">
                                         <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
@@ -184,6 +185,12 @@
                                                         {% else %}
                                                             No Facebook Account
                                                         {% endif %}">F</span>
+                                                {% if account.has_backup_members %}
+                                                    <span class="m-badge m-badge--danger" data-toggle="m-tooltip"
+                                                          data-original-title="Backup on Account">
+                                                    BoA
+                                                    </span>
+                                                {% endif %}
                                             {% endwith %}
                                         </div>
                                         <div class="m--space-30">
@@ -194,17 +201,11 @@
                                                       data-original-title="{{ task.task.message }}"></span>
                                             {% endfor %}
                                         </div>
-                                        <label class="m-checkbox mt-1">
-                                            <input type="checkbox" class="budget-updated"
-                                                   data-account-id="{{ account.id }}"
-                                                   {% if account.budget_updated %}disabled checked{% endif %}/>
-                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
-                                        </label>
                                     </div>
                                     <div class="col-10">
                                         <div class="row summary-spend-row">
                                             <div class="col-md-2"><b>Current</b>:
-                                                {{ account.currency }}{{ account.current_spend|format_money }}
+                                                {{ account.currency }}{{ account.calculated_spend|format_money }}
                                             </div>
                                             <div class="col-md-2"><b>Budget</b>:
                                                 {{ account.currency }}{{ account.current_budget|format_money }}
@@ -235,7 +236,7 @@
                                                  aria-valuemin="0" aria-valuemax="100"
                                                  aria-valuenow="{{ account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ account.current_spend }}/{{ account.current_budget }}">
+                                                 data-original-title="{{ account.calculated_spend }}/{{ account.current_budget }}">
                                                 {{ account.spend_percentage|floatformat:2 }}%
                                             </div>
                                             <div class="black-marker"
@@ -246,6 +247,109 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% else %}
+                                <div class="row" style="border: 1px solid #f4f5f8; padding: 1rem 1rem 1rem 1rem;">
+                                    <div class="col-2">
+                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                        <p>My hours this month:
+                                            {{ account_hours|get_item_from_list:account.id }}/{{ account_allocation|get_item_from_list:account.id }}</p>
+                                        <div class="m--space-30">
+                                            {% with aw=account.adwords.all bing=account.bing.all fb=account.facebook.all %}
+                                                <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if aw %}
+                                                            {% for a in aw %}
+                                                          {{ a.dependent_account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No AdWords Account
+                                                        {% endif %}">A</span>
+                                                <span class="m-badge {% if bing %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if bing %}
+                                                            {% for b in bing %}
+
+                                                          {{ b.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Bing Account
+                                                        {% endif %}">B</span>
+                                                <span class="m-badge {% if fb %}m-badge--info{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="
+                                                        {% if fb %}
+                                                            {% for f in fb %}
+
+                                                          {{ f.account_name }}{% if not forloop.last %},{% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            No Facebook Account
+                                                        {% endif %}">F</span>
+                                                {% if account.has_backup_members %}
+                                                    <span class="m-badge m-badge--danger" data-toggle="m-tooltip"
+                                                          data-original-title="Backup on Account">
+                                                    BoA
+                                                    </span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="m--space-30">
+                                            Phase {{ account.phase }}, Day {{ account.phase_day }}:
+                                            {% for task in account.current_phase_tasks %}
+                                                <span class="m-badge {% if task.complete %}m-badge--success{% endif %}"
+                                                      data-toggle="m-tooltip"
+                                                      data-original-title="{{ task.task.message }}"></span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="col-10">
+                                        <div class="row summary-spend-row">
+                                            <div class="col-md-2"><b>Current</b>:
+                                                {{ account.currency }}{{ account.calculated_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2"><b>Budget</b>:
+                                                {{ account.currency }}{{ account.current_budget|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Avg Projected</b>:
+                                                {{ account.currency }}{{ account.project_average|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Projected</b>:
+                                                {{ account.currency }}{{ account.project_yesterday|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Yest Spend</b>:
+                                                {{ account.currency }}{{ account.yesterday_spend|format_money }}
+                                            </div>
+                                            <div class="col-md-2">
+                                                <b>Target Daily Spend</b>:
+                                                {{ account.currency }}{{ account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                        <div class="progress m-progress--lg"
+                                             style="position: relative!important; height:30px !important;">
+                                            <div id="{{ account.id }}_progressbar"
+                                                 class="progress-bar {% if account.underpacing_average %}bg-warning{% elif account.project_average > account.current_budget %}bg-danger{% else %}bg-success{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ account.spend_percentage }}%;"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 aria-valuenow="{{ account.spend_percentage }}"
+                                                 data-toggle="m-tooltip" data-placement="top" title=""
+                                                 data-original-title="{{ account.calculated_spend }}/{{ account.current_budget }}">
+                                                {{ account.spend_percentage|floatformat:2 }}%
+                                            </div>
+                                            <div class="black-marker"
+                                                 style="width: {{ black_marker }}%"
+                                                 aria-valuenow="{{ black_marker }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     </div>
@@ -380,7 +484,7 @@
                                     <div class="col-2">
                                         <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
                                         <p>My hours this month:
-                                            {{ backup_account_hours|get_item_from_list:backup.account.id }}/{{ backup_account_allocation|get_item_from_list:backup.account.id }}</p>
+                                            {{ backup_account_hours|get_item_from_list:backup.account.id|floatformat:2 }}/{{ backup_account_allocation|get_item_from_list:backup.account.id|floatformat:2 }}</p>
                                         <div class="m--space-30">
                                             {% with aw=backup.account.adwords.all bing=backup.account.bing.all fb=backup.account.facebook.all %}
                                                 <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
@@ -425,17 +529,11 @@
                                                       data-original-title="{{ task.task.message }}"></span>
                                             {% endfor %}
                                         </div>
-                                        <label class="m-checkbox mt-1">
-                                            <input type="checkbox" class="budget-updated"
-                                                   data-account-id="{{ backup.account.id }}"
-                                                   {% if backup.account.budget_updated %}disabled checked{% endif %}/>
-                                            <span data-toggle="m-tooltip" data-original-title="Confirm Budget Updated"></span>
-                                        </label>
                                     </div>
                                     <div class="col-10">
                                         <div class="row summary-spend-row">
                                             <div class="col-md-2"><b>Current</b>:
-                                                {{ backup.account.currency }}{{ backup.account.current_spend|format_money }}
+                                                {{ backup.account.currency }}{{ backup.account.calculated_spend|format_money }}
                                             </div>
                                             <div class="col-md-2"><b>Budget</b>:
                                                 {{ backup.account.currency }}{{ backup.account.current_budget|format_money }}
@@ -466,7 +564,7 @@
                                                  aria-valuemin="0" aria-valuemax="100"
                                                  aria-valuenow="{{ backup.account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
-                                                 data-original-title="{{ backup.account.current_spend }}/{{ backup.account.current_budget }}">
+                                                 data-original-title="{{ backup.account.calculated_spend }}/{{ backup.account.current_budget }}">
                                                 {{ backup.account.spend_percentage|floatformat:2 }}%
                                             </div>
                                             <div class="black-marker"
@@ -509,7 +607,10 @@
                                         Hourly Rate
                                     </th>
                                     <th>
-                                        Hours
+                                        My Hours This Month
+                                    </th>
+                                    <th>
+                                        Total Allocated Hours This Month
                                     </th>
                                     <th>
                                         Date Range
@@ -529,13 +630,16 @@
                                             <a href="/clients/accounts/{{ mandate.account.id }}">{{ mandate.account.client_name }}</a>
                                         </td>
                                         <td>
-                                            {{ mandate.cost|floatformat:2 }}
+                                            {{ mandate.calculated_cost|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.hourly_rate|floatformat:2 }}
                                         </td>
                                         <td>
-                                            {{ mandate.calculated_hours|floatformat:2 }}
+                                            {{ mandate_hours|get_item_from_list:mandate.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:mandate.id|floatformat:2 }}
+                                        </td>
+                                        <td>
+                                            {{ mandate.allocated_hours_this_month|floatformat:2 }}
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}

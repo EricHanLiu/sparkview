@@ -1,11 +1,11 @@
 from bing_dashboard.models import BingAccounts, BingAnomalies, BingAlerts
-from django.shortcuts import render, HttpResponseRedirect, HttpResponse, redirect
+from django.shortcuts import render
 from django.views import View
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib.auth.decorators import login_required
 from .auth import BingAuth
-from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform
+from bloom.utils.ppc_accounts import active_bing_accounts
 
 
 # Create your views here.
@@ -18,7 +18,7 @@ def index(request):
 @xframe_options_exempt
 def bing_dashboard(request):
     items = []
-    accounts = ppc_active_accounts_for_platform('bing')
+    accounts = active_bing_accounts()
 
     for account in accounts:
         item = {}

@@ -17,9 +17,9 @@ class BingAccounts(models.Model):
     desired_spend_start_date = models.DateTimeField(default=None, null=True,
                                                     blank=True)  # These are the start dates and end dates for the desired spend. Default should be this month.
     desired_spend_end_date = models.DateTimeField(default=None, null=True, blank=True)
-    segmented_spend = JSONField(default=dict)
-    trends = JSONField(default=dict)
-    qscore_data = JSONField(default=dict)
+    segmented_spend = JSONField(default=dict, blank=True)
+    trends = JSONField(default=dict, blank=True)
+    qscore_data = JSONField(default=dict, blank=True)
     channel = models.CharField(max_length=255, default='None')
     estimated_spend = models.FloatField(default=0)
     hist_spend = models.FloatField(default=0)
@@ -124,7 +124,7 @@ class BingAnomalies(models.Model):
     search_impr_share = models.CharField(max_length=255, default=0)
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    metadata = JSONField(default=dict)
+    metadata = JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ['created_time', 'updated_time']
@@ -138,7 +138,7 @@ class BingAlerts(models.Model):
     alert_type = models.CharField(max_length=255, default='None')
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
-    metadata = JSONField(default=dict)
+    metadata = JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ['created_time', 'updated_time']
@@ -158,6 +158,9 @@ class BingCampaign(models.Model):
     groupped = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.campaign_name
+
 
 class BingCampaignSpendDateRange(models.Model):
     """
@@ -168,3 +171,4 @@ class BingCampaignSpendDateRange(models.Model):
     spend_until_yesterday = models.FloatField(default=0.0)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    updated = models.DateTimeField(auto_now=True)

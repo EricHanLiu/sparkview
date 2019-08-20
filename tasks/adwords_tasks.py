@@ -10,7 +10,7 @@ from bloom import celery_app
 from bloom.utils import AdwordsReportingService
 from adwords_dashboard.models import DependentAccount, Performance, Alert, Campaign, Label, Adgroup
 from adwords_dashboard.cron_scripts import get_accounts
-from budget.models import CampaignGrouping, Client, ClientCData
+from budget.models import Client, ClientCData
 from googleads.adwords import AdWordsClient
 from googleads.errors import AdWordsReportBadRequestError, GoogleAdsServerFault, GoogleAdsValueError, \
     GoogleAdsSoapTransportError
@@ -785,50 +785,50 @@ def adwords_campaigns(self):
 
 
 @celery_app.task(bind=True)
-def adwords_cron_campaign_stats(self, customer_id, client_id=None):
+def adwords_cron_campaign_stats(self, customer_id):
     account = DependentAccount.objects.get(dependent_account_id=customer_id)
 
     cmps = []
 
-    yesterday_spend = 0
-
     client = get_client()
     helper = AdwordsReportingService(client)
 
-    # daterange = helper.get_this_month_daterange()
+    daterange = helper.get_this_month_daterange()
 
     campaign_this_month = helper.get_campaign_performance(
         customer_id=account.dependent_account_id,
-        dateRangeType="THIS_MONTH"
-        # dateRangeType="CUSTOM_DATE",
+        dateRangeType='THIS_MONTH'
+        # dateRangeType='CUSTOM_DATE',
         # **daterange
     )
 
     campaigns_yesterday = helper.get_campaign_performance(
         customer_id=account.dependent_account_id,
-        dateRangeType="YESTERDAY"
+        dateRangeType='YESTERDAY'
     )
 
     for c in campaigns_yesterday:
         cmp, created = Campaign.objects.get_or_create(
             account=account,
-            campaign_id=c['campaign_id']
+            campaign_id=c['campaign_id'],
+            campaign_name=c['campaign']
         )
         cmp.campaign_yesterday_cost = helper.mcv(c['cost'])
+        cmps.append(cmp)
         cmp.save()
 
     for campaign in campaign_this_month:
         cmp, created = Campaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign['campaign_id']
+            campaign_id=campaign['campaign_id'],
+            campaign_name=campaign['campaign']
         )
-        cmp.campaign_cost = helper.mcv(campaign['cost'])
+        # cmp.campaign_cost = helper.mcv(campaign['cost'])
         cmp.campaign_name = campaign['campaign']
         cmp.campaign_status = campaign['campaign_state']
         cmp.campaign_serving_status = campaign['campaign_serving_status']
         cmp.save()
 
-        cmps.append(cmp)
         if created:
             print('Added to DB - [' + cmp.campaign_name + '].')
         else:
@@ -839,7 +839,7 @@ def adwords_cron_campaign_stats(self, customer_id, client_id=None):
     for acc_cmp in all_cmps_this_account:
         if acc_cmp not in cmps:
             print('Cant find ' + acc_cmp.campaign_name + ', setting cost to $0.0')
-            acc_cmp.campaign_cost = 0
+            acc_cmp.campaign_yesterday_cost = 0.0
             acc_cmp.save()
 
 
@@ -1695,66 +1695,6 @@ def cron_clients(self):
 
         new_client_cdata.save()
         client.save()
-
-
-@celery_app.task(bind=True)
-def adwords_not_running(self):
-    accounts = DependentAccount.objects.filter(blacklisted=False)
-
-    for account in accounts:
-        adwords_account_not_running.delay(account.dependent_account_id)
-
-
-@celery_app.task(bind=True)
-def adwords_account_not_running(self, customer_id):
-    account = DependentAccount.objects.get(dependent_account_id=customer_id)
-    client = get_client()
-    helper = AdwordsReportingService(client)
-
-    nr_data = []
-
-    campaign_yesterday = helper.get_campaign_performance(
-        customer_id=account.dependent_account_id,
-        dateRangeType="YESTERDAY",
-    )
-
-    for item in campaign_yesterday:
-        if item['impressions'] == '0':
-            nr_data.append({
-                'campaign': remove_accents(item['campaign']),
-                'impressions': item['impressions'],
-                'cost': helper.mcv(item['cost'])
-            })
-
-    nr_no = len(nr_data)
-    nr_score = 0
-
-    if nr_no == 0:
-        nr_score = 100
-    elif nr_no == 1:
-        nr_score = 90
-    elif nr_no == 2:
-        nr_score = 80
-    elif nr_no == 3:
-        nr_score = 70
-    elif nr_no == 4:
-        nr_score = 60
-    elif nr_no == 5:
-        nr_score = 50
-    elif nr_no == 6:
-        nr_score = 40
-    elif nr_no == 7:
-        nr_score = 30
-    elif nr_no == 8:
-        nr_score = 20
-    elif nr_no == 9:
-        nr_score = 10
-    elif nr_no >= 10:
-        nr_score = 0
-
-    account.nr_data = nr_data
-    account.nr_score = nr_score
-    account.save()
 
 
 @celery_app.task(bind=True)

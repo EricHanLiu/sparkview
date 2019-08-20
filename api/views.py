@@ -1,18 +1,24 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import AllowAny
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_200_OK
 )
+from django.http import JsonResponse
 from bloom import settings
 from rest_framework.response import Response
 from client_area.models import Mandate, MandateType, MandateAssignment
-from budget.models import Client
+from budget.models import Client, Team, Industry, Service, ClientContact
 from user_management.models import Member
+from django.db.models import Q
+from django.core import serializers
+import json
 import datetime
 
 
@@ -111,3 +117,46 @@ def get_budget_info(request):
     :return:
     """
     pass
+
+
+@api_view(['GET'])
+def get_accounts(request):
+    accounts = Client.objects.all()
+
+    data = {
+        'accounts': json.loads(serializers.serialize('json', accounts))
+    }
+
+    return Response(data, status=HTTP_200_OK)
+
+
+@login_required
+def search(request):
+    query = request.POST.get('query')
+    result = {
+        'clients': [],
+        'members': []
+    }
+
+    clients = Client.objects.filter(client_name__icontains=query)
+    users = User.objects.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query))
+
+    members = None
+    if users.count() > 0:
+        members = Member.objects.filter(user__in=users)
+
+    for c in clients:
+        item = {
+            'name': c.client_name,
+            'url': '/clients/accounts/' + str(c.id),
+        }
+        result['clients'].append(item)
+
+    if members is not None:
+        for u in members:
+            item = {
+                'name': u.user.get_full_name(),
+                'url': '/user_management/members/' + str(u.id)
+            }
+            result['members'].append(item)
+    return JsonResponse(result)

@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'client_area',
     'user_management',
     'reports',
+    'insights',
     'notifications',
     'social_django',
     'corsheaders',
@@ -184,16 +185,16 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'AFQ5EqzWXICEFMwLfEumz9C5'
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = "/var/www/bloom/static"
+STATIC_ROOT = '/var/www/bloom/static'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
 
 ADWORDS_YAML = os.path.join(BASE_DIR, 'adwords_dashboard/google_auth/googleads.yaml')
 API_VERSION = 'v201809'
 BING_API_VERSION = 12
-FACEBOOK_ADS_VERSION = 'v3.2'
+FACEBOOK_ADS_VERSION = 'v3.3'
 
-LOGIN_URL = "login"
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_ERROR_URL = 'login'
 SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
@@ -201,24 +202,20 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
 CRONJOBS = [
-    ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
-    ('55 4 1 * *', 'cron_last_month.main', '> ' + BASE_DIR + '/logs/last_month.log'),
-    ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
-    ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
+    # ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
+    # ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
+    # ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
     ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
-    # ('00 * * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
-    # ('00 * * * *', 'bing_campaigns.main', '> ' + BASE_DIR + '/logs/bing_campaigns.log'),
-    # ('00 * * * *', 'facebook_campaigns.main', '> ' + BASE_DIR + '/logs/facebook_campaigns.log'),
-    ('30 9 * * *', 'cron_alerts.main', '> ' + BASE_DIR + '/logs/alerts.log'),
-    ('30 9 * * *', 'bing_alerts.main', '> ' + BASE_DIR + '/logs/bing_alerts.log'),
+    ('00 * * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
+    ('00 * * * *', 'bing_campaigns.main', '> ' + BASE_DIR + '/logs/bing_campaigns.log'),
+    ('00 * * * *', 'facebook_campaigns.main', '> ' + BASE_DIR + '/logs/facebook_campaigns.log'),
     ('30 9 * * *', 'facebook_alerts.main', '> ' + BASE_DIR + '/logs/facebook_alerts.log'),
     ('00 12 * * *', 'cron_budgets.main', '> ' + BASE_DIR + '/logs/budgets.log'),
     ('00 * * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
     ('00 * * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
     ('00 * * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
-    ('20 12 * * *', 'cron_anomalies.main', '> ' + BASE_DIR + '/logs/anomalies.log'),
     ('00 15 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
     ('10 11 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
     ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
@@ -230,6 +227,11 @@ CRONJOBS = [
     ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
     ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
     ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
+    ('55 7 * * *', 'budget.cron.reset_all_campaign_spends', '> ' + BASE_DIR + '/logs/reset_all_campaign_spends.log'),
+    ('00 11 * * *', 'budget.cron.update_budget_spend_history',
+     '> ' + BASE_DIR + '/logs/update_budget_spend_history.log'),
+    ('00 7 1 * *', 'budget.cron.reset_all_budget_renewal_needs',
+     '> ' + BASE_DIR + '/logs/reset_all_budget_renewal_needs.log'),
 
     ('00 * * * *', 'adwords_dashboard.cron.get_all_spends_by_campaign_this_month',
      '> ' + BASE_DIR + '/logs/google_get_all_spends_by_campaign_this_month.log'),
@@ -253,16 +255,18 @@ CRONJOBS = [
 # Bing Stuff
 
 if DEBUG:
-    REDIRECT_URI = "http://localhost:8000/dashboards/bing/auth/exchange"
+    REDIRECT_URI = 'http://localhost:8000/dashboards/bing/auth/exchange'
+    INSIGHTS_PATH = '/home/sam/Projects/bloom-master/insights/'
 else:
-    REDIRECT_URI = "https://app.mibhub.com/dashboards/bing/auth/exchange"
+    REDIRECT_URI = 'https://app.mibhub.com/dashboards/bing/auth/exchange'
+    INSIGHTS_PATH = '/home/sam/bloom-master/insights/'
 
 # Bing Auth
-CLIENT_ID = "b154faf8-2248-4eb5-83fe-f1897ef45cb7"
-CLIENT_SECRET = "hspjJNTY4]-udkLBM3045*~"
-DEVELOPER_TOKEN = "1215QQ0H16176244"
-DEVELOPER_TOKEN_SANDBOX = "BBD37VB98"
-ENVIRONMENT = "production"
+CLIENT_ID = 'b154faf8-2248-4eb5-83fe-f1897ef45cb7'
+CLIENT_SECRET = 'hspjJNTY4]-udkLBM3045*~'
+DEVELOPER_TOKEN = '1215QQ0H16176244'
+DEVELOPER_TOKEN_SANDBOX = 'BBD37VB98'
+ENVIRONMENT = 'production'
 BINGADS_REPORTS = os.path.join(BASE_DIR, 'bing_reports/')
 
 # Facebook Auth
@@ -302,6 +306,19 @@ else:
                              'eric@makeitbloom.com']
 
 if DEBUG:
+    LOST_ACCOUNT_EMAILS = ['sam@makeitbloom.com', 'lexi@makeitbloom.com']
+else:
+    LOST_ACCOUNT_EMAILS = ['lexi@makeitbloom.com',
+                           'xurxo@makeitbloom.com',
+                           'phil@makeitbloom.com',
+                           'mike@makeitbloom.com',
+                           'nick@makeitbloom.com',
+                           'martin@makeitbloom.com',
+                           'jeff@makeitbloom.com',
+                           'jamie@makeitbloom.com',
+                           'pascal@makeitbloom.com']
+
+if DEBUG:
     OOPS_HF_MAILING_LIST = {
         'lexi@makeitbloom.com',
         'eric@makeitbloom.com',
@@ -329,10 +346,9 @@ else:
     }
 
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_BROKER_URL = "amqp://bloom:bloombrokerpass@broker:5672/celeryhost"
-CELERY_TIMEZONE = "UTC"
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 LOGGING = {
     'version': 1,

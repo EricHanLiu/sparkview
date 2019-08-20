@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.utils import timezone
 import calendar
 import datetime
-
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
@@ -16,6 +15,10 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
+from budget.cron import create_default_budget
+from tasks.logger import Logger
+import json
+from django.core.serializers import serialize
 
 
 @login_required
@@ -372,7 +375,8 @@ def account_edit_temp(request, id):
             inactive_reason = request.POST.get('account_inactive_reason')
             inactive_bc = request.POST.get('inactive_bc')
             inactive_return = request.POST.get('account_inactive_return')
-            account.inactive_reason = inactive_reason
+            if inactive_return != '0':
+                account.inactive_reason = inactive_reason
 
             if inactive_bc != '':
                 account.inactive_bc_link = inactive_bc
@@ -380,10 +384,15 @@ def account_edit_temp(request, id):
                 account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%Y-%m-%d')
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+            account.save()
+            message = str(account.client_name) + ' is now inactive (paused).'
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                message = str(account.client_name) + ' is now inactive (paused).'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            logger = Logger()
+            short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
+            logger.send_account_lost_email(short_desc, message)
 
             sp = account.sales_profile
 
@@ -414,16 +423,23 @@ def account_edit_temp(request, id):
             Account is now lost
             """
             lost_reason = request.POST.get('account_lost_reason')
-            account.lost_reason = lost_reason
+            if lost_reason != '0':
+                account.lost_reason = lost_reason
             lost_bc = request.POST.get('lost_bc')
             if lost_bc != '':
                 account.lost_bc_link = lost_bc
             staff_users = User.objects.filter(is_staff=True)
             staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+            message = str(account.client_name) + ' has been lost.'
+            account.save()
             for staff_member in staff_members:
                 link = '/clients/accounts/' + str(account.id)
-                message = str(account.client_name) + ' has been lost.'
                 Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+            logger = Logger()
+            print(account.get_lost_reason_display())
+            short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
+            logger.send_account_lost_email(short_desc, message)
 
             sp = account.sales_profile
 
@@ -691,10 +707,134 @@ def account_single(request, account_id):
 
         months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
         now = datetime.datetime.now()
-        years = [i for i in range(2018, now.year + 1)]
+        years = [i for i in range(2018, now.year + 2)]
 
-        monthnow = now.month
-        current_year = now.year
+        mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
+                                                                    year=year)
+
+        # Pretty bad for speed of the page... we'll see how badly it affects it
+        additional_services = MandateType.objects.all()
+        opp_reasons = OpportunityDescription.objects.all()
+
+        management_fee_structures = ManagementFeesStructure.objects.all()
+
+        inactive_reasons = Client.INACTIVE_CHOICES
+        lost_reasons = Client.LOST_CHOICES
+
+        context = {
+            'account': account,
+            'members': members,
+            'backups': backups,
+            'inactive_reasons': inactive_reasons,
+            'lost_reasons': lost_reasons,
+            'management_fee_structures': management_fee_structures,
+            'accountHoursMember': accountsHoursThisMonthByMember,
+            'value_hours_member': accountsValueHoursThisMonthByMember,
+            'changes': changes,
+            'accountHoursThisMonth': accountHoursThisMonth,
+            'status_badges': status_badges,
+            'kpid': account.kpi_info,
+            'promos': promos,
+            'opps': opps,
+            'pitches': pitches,
+            'mandate_types': mandate_types,
+            'first_mandate_rate': first_mandate_rate,
+            'mandate_hours_this_month': mandate_hours_this_month,
+            'months': months,
+            'monthnow': str(now.month),
+            'years': years,
+            'current_year': now.year,
+            'additional_services': additional_services,
+            'opp_reasons': opp_reasons,
+            'title': str(account) + ' - SparkView'
+        }
+
+        return render(request, 'client_area/refactor/client_profile.html', context)
+    elif request.method == 'POST':
+        account = Client.objects.get(id=account_id)
+        member = Member.objects.get(user=request.user)
+
+        hours = request.POST.get('quick_add_hours')
+        month = request.POST.get('quick_add_month')
+        year = request.POST.get('quick_add_year')
+
+        if not member.has_account(account_id):
+            return HttpResponseForbidden()
+
+        try:
+            hours = float(hours)
+        except (TypeError, ValueError):
+            hours = 0
+
+        is_onboarding = account.status == 0
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_onboarding=is_onboarding)
+
+        return HttpResponse()
+
+
+@login_required
+def account_single_old(request, account_id):
+    # member = Member.objects.get(user=request.user)
+    """
+    The following flag needs to be turned off for now
+    """
+    # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
+    #     return HttpResponseForbidden('You do not have permission to view this page')
+    if request.method == 'GET':
+        account = Client.objects.get(id=account_id)
+        members = Member.objects.filter(deactivated=False).order_by('user__first_name')
+        changes = AccountChanges.objects.filter(account=account)
+
+        # Get hours this month for this account
+        now = datetime.datetime.now()
+        month = now.month
+        year = now.year
+        accountHoursThisMonth = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                 is_unpaid=False)
+
+        accountsHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                          is_unpaid=False).values('member', 'month',
+                                                                                                  'year').annotate(
+            Sum('hours'))
+        accountsValueHoursThisMonthByMember = AccountHourRecord.objects.filter(account=account, month=month, year=year,
+                                                                               is_unpaid=True).values('member', 'month',
+                                                                                                      'year').annotate(
+            Sum('hours'))
+
+        backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+        backups = Backup.objects.filter(account=account, period__in=backup_periods, approved=True)
+
+        for row in accountsHoursThisMonthByMember:
+            try:
+                row['member'] = members.get(id=row['member'])
+            except Member.DoesNotExist:
+                pass
+
+        for row in accountsValueHoursThisMonthByMember:
+            try:
+                row['member'] = members.get(id=row['member'])
+            except Member.DoesNotExist:
+                pass
+
+        seven_days_ago = now - datetime.timedelta(7)
+
+        promos = Promo.objects.filter(account=account, end_date__gte=seven_days_ago)
+
+        status_badges = ['info', 'success', 'warning', 'danger']
+
+        opps = OpportunityDescription.objects.all()
+        pitches = PitchedDescription.objects.all()
+
+        mandate_types = MandateType.objects.all()
+        try:
+            first_mandate_rate = mandate_types[0].hourly_rate
+        except IndexError:
+            first_mandate_rate = ''
+
+        months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+        now = datetime.datetime.now()
+        years = [i for i in range(2018, now.year + 1)]
 
         mandate_hours_this_month = MandateHourRecord.objects.filter(assignment__mandate__account=account, month=month,
                                                                     year=year)
@@ -720,11 +860,12 @@ def account_single(request, account_id):
             'first_mandate_rate': first_mandate_rate,
             'mandate_hours_this_month': mandate_hours_this_month,
             'months': months,
-            'monthnow': monthnow,
+            'monthnow': now.month,
             'years': years,
-            'current_year': current_year,
+            'current_year': now.year,
             'additional_services': additional_services,
-            'opp_reasons': opp_reasons
+            'opp_reasons': opp_reasons,
+            'title': str(account) + ' - SparkView'
         }
 
         return render(request, 'client_area/account_single.html', context)
@@ -732,9 +873,9 @@ def account_single(request, account_id):
         account = Client.objects.get(id=account_id)
         member = Member.objects.get(user=request.user)
 
-        hours = request.POST.get('quickadd-hours')
-        month = request.POST.get('quickadd-month')
-        year = request.POST.get('quickadd-year')
+        hours = request.POST.get('quick_add_hours')
+        month = request.POST.get('quick_add_month')
+        year = request.POST.get('quick_add_year')
 
         if not member.has_account(account_id):
             return HttpResponseForbidden()
@@ -744,7 +885,9 @@ def account_single(request, account_id):
         except (TypeError, ValueError):
             hours = 0
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+        is_onboarding = account.status == 0
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -752,101 +895,162 @@ def account_single(request, account_id):
 @login_required
 def account_assign_members(request):
     account_id = request.POST.get('account_id')
-    if not request.user.is_staff:
-        return HttpResponseForbidden(
-            'You do not have permission to view this page. Only admins can assign members now.')
+    request_member = request.user.member
+    if not request.user.is_staff and not request_member.has_account(
+            account_id) and not request_member.teams_have_accounts(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page.')
 
     account = Client.objects.get(id=account_id)
 
     # There may be a better way to handle this form
     # This is terrible boilerplate
     # CMS
-    cm1_id = request.POST.get('cm1-assign')
-    if cm1_id == '0':
+    cm1_id = request.POST.get('cm1_assign')
+    if cm1_id == '0' or cm1_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm1_id)
-    account.cm1 = member
+    cm1_percent = request.POST.get('cm1_percent')
+    if cm1_percent is None or cm1_percent == '':
+        cm1_percent = 0
+    account.cm1percent = cm1_percent
+    if request.user.is_staff:
+        account.cm1 = member
 
-    cm2_id = request.POST.get('cm2-assign')
-    if cm2_id == '0':
+    cm2_id = request.POST.get('cm2_assign')
+    if cm2_id == '0' or cm2_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm2_id)
-    account.cm2 = member
+    cm2_percent = request.POST.get('cm2_percent')
+    if cm2_percent is None or cm2_percent == '':
+        cm2_percent = 0
+    account.cm2percent = cm2_percent
+    if request.user.is_staff:
+        account.cm2 = member
 
-    cm3_id = request.POST.get('cm3-assign')
-    if cm3_id == '0':
+    cm3_id = request.POST.get('cm3_assign')
+    if cm3_id == '0' or cm3_id is None:
         member = None
     else:
         member = Member.objects.get(id=cm3_id)
-    account.cm3 = member
+    cm3_percent = request.POST.get('cm3_percent')
+    if cm3_percent is None or cm3_percent == '':
+        cm3_percent = 0
+    account.cm3percent = cm3_percent
+    if request.user.is_staff:
+        account.cm3 = member
 
     # AMs
-    am1_id = request.POST.get('am1-assign')
-    if am1_id == '0':
+    am1_id = request.POST.get('am1_assign')
+    if am1_id == '0' or am1_id is None:
         member = None
     else:
         member = Member.objects.get(id=am1_id)
-    account.am1 = member
+    am1_percent = request.POST.get('am1_percent')
+    if am1_percent is None or am1_percent == '':
+        am1_percent = 0
+    account.am1percent = am1_percent
+    if request.user.is_staff:
+        account.am1 = member
 
-    am2_id = request.POST.get('am2-assign')
-    if am2_id == '0':
+    am2_id = request.POST.get('am2_assign')
+    if am2_id == '0' or am2_id is None:
         member = None
     else:
         member = Member.objects.get(id=am2_id)
-    account.am2 = member
+    am2_percent = request.POST.get('am2_percent')
+    if am2_percent is None or am2_percent == '':
+        am2_percent = 0
+    account.am2percent = am2_percent
+    if request.user.is_staff:
+        account.am2 = member
 
-    am3_id = request.POST.get('am3-assign')
-    if am3_id == '0':
+    am3_id = request.POST.get('am3_assign')
+    if am3_id == '0' or am3_id is None:
         member = None
     else:
         member = Member.objects.get(id=am3_id)
-    account.am3 = member
+    am3_percent = request.POST.get('am3_percent')
+    if am3_percent is None or am3_percent == '':
+        am3_percent = 0
+    account.am3percent = am3_percent
+    if request.user.is_staff:
+        account.am3 = member
 
     # SEO
-    seo1_id = request.POST.get('seo1-assign')
-    if seo1_id == '0':
+    seo1_id = request.POST.get('seo1_assign')
+    if seo1_id == '0' or seo1_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo1_id)
-    account.seo1 = member
+    seo1_percent = request.POST.get('seo1_percent')
+    if seo1_percent is None or seo1_percent == '':
+        seo1_percent = 0
+    account.seo1percent = seo1_percent
+    if request.user.is_staff:
+        account.seo1 = member
 
-    seo2_id = request.POST.get('seo2-assign')
-    if seo2_id == '0':
+    seo2_id = request.POST.get('seo2_assign')
+    if seo2_id == '0' or seo2_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo2_id)
-    account.seo2 = member
+    seo2_percent = request.POST.get('seo2_percent')
+    if seo2_percent is None or seo2_percent == '':
+        seo2_percent = 0
+    account.seo2percent = seo2_percent
+    if request.user.is_staff:
+        account.seo2 = member
 
-    seo3_id = request.POST.get('seo3-assign')
-    if seo3_id == '0':
+    seo3_id = request.POST.get('seo3_assign')
+    if seo3_id == '0' or seo3_id is None:
         member = None
     else:
         member = Member.objects.get(id=seo3_id)
-    account.seo3 = member
+    seo3_percent = request.POST.get('seo3_percent')
+    if seo3_percent is None or seo3_percent == '':
+        seo3_percent = 0
+    account.seo3percent = seo3_percent
+    if request.user.is_staff:
+        account.seo3 = member
 
     # Strat
-    srtat1_id = request.POST.get('strat1-assign')
-    if srtat1_id == '0':
+    strat1_id = request.POST.get('strat1_assign')
+    if strat1_id == '0' or strat1_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat1_id)
-    account.strat1 = member
+        member = Member.objects.get(id=strat1_id)
+    strat1_percent = request.POST.get('strat1_percent')
+    if strat1_percent is None or strat1_percent == '':
+        strat1_percent = 0
+    account.strat1percent = strat1_percent
+    if request.user.is_staff:
+        account.strat1 = member
 
-    srtat2_id = request.POST.get('strat2-assign')
-    if srtat2_id == '0':
+    strat2_id = request.POST.get('strat2_assign')
+    if strat2_id == '0' or strat2_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat2_id)
-    account.strat2 = member
+        member = Member.objects.get(id=strat2_id)
+    strat2_percent = request.POST.get('strat2_percent')
+    if strat2_percent is None or strat2_percent == '':
+        strat2_percent = 0
+    account.strat2percent = strat2_percent
+    if request.user.is_staff:
+        account.strat2 = member
 
-    srtat3_id = request.POST.get('strat3-assign')
-    if srtat3_id == '0':
+    strat3_id = request.POST.get('strat3_assign')
+    if strat3_id == '0' or strat3_id is None:
         member = None
     else:
-        member = Member.objects.get(id=srtat3_id)
-    account.strat3 = member
+        member = Member.objects.get(id=strat3_id)
+    strat3_percent = request.POST.get('strat3_percent')
+    if strat3_percent is None or strat3_percent == '':
+        strat3_percent = 0
+    account.strat3percent = strat3_percent
+    if request.user.is_staff:
+        account.strat3 = member
 
     account.save()
 
@@ -948,88 +1152,13 @@ def value_added_hours(request):
         month = request.POST.get('month')
         year = request.POST.get('year')
 
+        is_onboarding = account.status == 0
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                         is_unpaid=True)
+                                         is_unpaid=True, is_onboarding=is_onboarding)
 
         # return redirect('/clients/accounts/report_hours')
         # keep everything on profile page
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
-
-
-@login_required
-def account_allocate_percentages(request):
-    member = Member.objects.get(user=request.user)
-    account_id = request.POST.get('account_id')
-    account = Client.objects.get(id=account_id)
-    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    # There may be a better way to handle this form
-    # This is boilerplate
-    # CMs
-    cm1percent = request.POST.get('cm1-percent')
-    if cm1percent is None or cm1percent == '':
-        cm1percent = 0
-    account.cm1percent = cm1percent
-
-    cm2percent = request.POST.get('cm2-percent')
-    if cm2percent is None or cm2percent == '':
-        cm2percent = 0
-    account.cm2percent = cm2percent
-
-    cm3percent = request.POST.get('cm3-percent')
-    if cm3percent is None or cm3percent == '':
-        cm3percent = 0
-    account.cm3percent = cm3percent
-
-    am1percent = request.POST.get('am1-percent')
-    if am1percent is None or am1percent == '':
-        am1percent = 0
-    account.am1percent = am1percent
-
-    am2percent = request.POST.get('am2-percent')
-    if am2percent is None or am2percent == '':
-        am2percent = 0
-    account.am2percent = am2percent
-
-    am3percent = request.POST.get('am3-percent')
-    if am3percent is None or am3percent == '':
-        am3percent = 0
-    account.am3percent = am3percent
-
-    seo1percent = request.POST.get('seo1-percent')
-    if seo1percent is None or seo1percent == '':
-        seo1percent = 0
-    account.seo1percent = seo1percent
-
-    seo2percent = request.POST.get('seo2-percent')
-    if seo2percent is None or seo2percent == '':
-        seo2percent = 0
-    account.seo2percent = seo2percent
-
-    seo3percent = request.POST.get('seo3-percent')
-    if seo3percent is None or seo3percent == '':
-        seo3percent = 0
-    account.seo3percent = seo3percent
-
-    strat1percent = request.POST.get('strat1-percent')
-    if strat1percent is None or strat1percent == '':
-        strat1percent = 0
-    account.strat1percent = strat1percent
-
-    strat2percent = request.POST.get('strat2-percent')
-    if strat2percent is None or strat2percent == '':
-        strat2percent = 0
-    account.strat2percent = strat2percent
-
-    strat3percent = request.POST.get('strat3-percent')
-    if strat3percent is None or strat3percent == '':
-        strat3percent = 0
-    account.strat3percent = strat3percent
-
-    account.save()
-
-    return redirect('/clients/accounts/' + str(account.id))
 
 
 @login_required
@@ -1124,7 +1253,7 @@ def set_due_date(request):
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
-    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%Y-%m-%d")
+    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%m/%d/%Y")
     report.save()
 
     resp = {
@@ -1160,8 +1289,12 @@ def new_promo(request):
     promo = Promo()
     promo.name = promo_name
     promo.account = account
-    promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
-    promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+    try:
+        promo.start_date = datetime.datetime.strptime(promo_start_date, "%Y-%m-%d %H:%M")
+        promo.end_date = datetime.datetime.strptime(promo_end_date, "%Y-%m-%d %H:%M")
+    except ValueError:  # to handle new (refactored) client profile datepicker and old one simultaneously
+        promo.start_date = datetime.datetime.strptime(promo_start_date, "%m/%d/%Y %H:%M")
+        promo.end_date = datetime.datetime.strptime(promo_end_date, "%m/%d/%Y %H:%M")
     promo.desc = promo_desc
     if promo_has_aw:
         promo.has_aw = True
@@ -1224,6 +1357,7 @@ def star_account(request):
 
     if not flagged:
         account.star_flag = False
+        account.flagged_bc_link = bc_link
         account.save()
 
         event_description = account.client_name + ' was marked as good by ' + member.user.get_full_name() + '.'
@@ -1301,10 +1435,10 @@ def edit_promos(request):
     member = Member.objects.get(user=request.user)
     now = datetime.datetime.now()
     accounts = member.accounts.filter(Q(status=0) | Q(status=1))
-    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
-
-    promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=member.backup_accounts))
+    if request.user.is_staff:
+        promos = Promo.objects.all()
+    else:
+        promos = Promo.objects.filter(Q(account__in=accounts) | Q(account__in=member.backup_accounts))
 
     if request.method == 'POST':
         promo_id = request.POST.get('promo_id')
@@ -1381,17 +1515,83 @@ def set_services(request):
     except ValueError:
         cro = 6
 
-    status_range = range(0, len(sales_profile.STATUS_CHOICES))
-    if ppc is not None and ppc in status_range:
+    if ppc is not None:
         sales_profile.ppc_status = ppc
-    if seo is not None and seo in status_range:
+    if seo is not None:
         sales_profile.seo_status = seo
-    if cro is not None and cro in status_range:
+    if cro is not None:
         sales_profile.cro_status = cro
 
     sales_profile.save()
 
+    if sales_profile.ppc_status == 1 and account.default_budget is None:
+        create_default_budget(account)
+
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def complete_onboarding_step(request):
+    """
+    Mark an onboarding step as completed for an account
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    account = get_object_or_404(Client, id=account_id)
+
+    now = datetime.datetime.now()
+    assignment_id = request.POST.get('assignment_id')
+    assignment = get_object_or_404(OnboardingStepAssignment, id=assignment_id)
+    assignment.complete = True
+    assignment.completed = now
+    assignment.save()
+
+    account_active = True
+    for step in account.onboardingstepassignment_set.all():
+        if not step.complete:
+            account_active = False
+            break
+
+    if account_active:
+        sp, created = SalesProfile.objects.get_or_create(account=account)
+        sp.ppc_status = 1
+        sp.save()
+
+        event_description = account.client_name + ' completed onboarding.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=2, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+        event_description = account.client_name + ' became active.'
+        lc_event2 = LifecycleEvent.objects.create(account=account, type=4, description=event_description,
+                                                  phase=account.phase,
+                                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                  bing_active=account.has_bing,
+                                                  facebook_active=account.has_fb,
+                                                  adwords_active=account.has_adwords,
+                                                  monthly_budget=account.current_budget,
+                                                  spend=account.current_spend)
+
+        lc_event2.members.set(account.assigned_members_array)
+        lc_event2.save()
+
+    return HttpResponse()
 
 
 @login_required
@@ -1592,21 +1792,17 @@ def create_mandate(request):
     except MandateType.DoesNotExist:
         return HttpResponse('Invalid mandate type')
 
-    print('HERE')
-    print(request.POST)
-    print('ongoing_check' in request.POST)
     # Check if its an ongoing mandate or not
     if 'ongoing_check' in request.POST:
         hourly_rate = request.POST.get('monthly_hourly_rate')
         if 'hourly_check' in request.POST:
             hours = request.POST.get('monthly_hours')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_hours=hours,
-                                             mandate_type=mandate_type, account=account)
+                                             mandate_type=mandate_type, account=account, billing_style=0)
         else:
-            print('good spot here')
             cost = request.POST.get('monthly_cost')
             mandate = Mandate.objects.create(hourly_rate=hourly_rate, ongoing=True, ongoing_cost=cost,
-                                             mandate_type=mandate_type, account=account)
+                                             mandate_type=mandate_type, account=account, billing_style=1)
     else:
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
@@ -1614,8 +1810,12 @@ def create_mandate(request):
         cost = request.POST.get('cost')
         hourly_rate = request.POST.get('hourly_rate')
 
-        start_date_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-        end_date_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        try:
+            start_date_dt = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+            end_date_dt = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+        except ValueError:
+            start_date_dt = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+            end_date_dt = datetime.datetime.strptime(end_date, '%m/%d/%Y')
 
         mandate = Mandate.objects.create(cost=cost, hourly_rate=hourly_rate, start_date=start_date_dt,
                                          end_date=end_date_dt,
@@ -1653,6 +1853,7 @@ def set_opportunity(request):
     opp = Opportunity()
     opp.account = account
     opp.reason = opp_desc
+    opp.flagged_by = request.user.member
 
     if service_id == 'ppc':
         opp.is_primary = True
@@ -1674,6 +1875,62 @@ def set_opportunity(request):
     opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+def resolve_opportunity(request):
+    """
+    Resolves an opportunity
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.addressed = True
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def update_opportunity(request):
+    """
+    Updates an opportunity's status
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    status = request.POST.get('status')
+
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.status = status
+    if status == '2':
+        opp.lost_reason = request.POST.get('lost_reason')
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def get_opportunities(request):
+    """
+    Returns all the unresolved (unaddressed) opportunities
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    opportunities = Opportunity.objects.filter(addressed=False, account=account)
+    res = []
+    for opp in opportunities:  # serializing only gives the IDs, need actual string representations
+        res.append({'service': opp.service_string, 'created': opp.created})
+
+    return JsonResponse({'opportunities': res}, safe=False)
 
 
 def set_pitch(request):
@@ -1719,3 +1976,230 @@ def set_pitch(request):
     pitch.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+def edit_management_details(request):
+    account_id = request.POST.get('account_id')
+    member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
+    account = get_object_or_404(Client, id=account_id)
+
+    seo_hours = request.POST.get('seo_hours')
+    cro_hours = request.POST.get('cro_hours')
+    old_status = account.status
+    account.status = int(request.POST.get('account_status'))
+
+    if old_status != 2 and account.status == 2:
+        """
+        Account is now inactive
+        """
+        inactive_reason = request.POST.get('account_inactive_reason')
+        inactive_bc = request.POST.get('inactive_bc')
+        inactive_return = request.POST.get('account_inactive_return')
+        if inactive_return != '0':
+            account.inactive_reason = inactive_reason
+
+        if inactive_bc != '':
+            account.inactive_bc_link = inactive_bc
+        if inactive_return != '':
+            account.inactive_return_date = datetime.datetime.strptime(inactive_return, '%m/%d/%Y')
+        staff_users = User.objects.filter(is_staff=True)
+        staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+        account.save()
+        message = str(account.client_name) + ' is now inactive (paused).'
+        for staff_member in staff_members:
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+        logger = Logger()
+        short_desc = account.client_name + ' is now inactive for the following reason: ' + Client.INACTIVE_CHOICES[
+            account.inactive_reason]
+        logger.send_account_lost_email(short_desc, message)
+
+        sp = account.sales_profile
+
+        if sp.ppc_status == 1:
+            sp.ppc_status = 2
+        if sp.seo_status == 1:
+            sp.seo_status = 2
+        if sp.cro_status == 1:
+            sp.cro_status = 2
+        sp.save()
+
+        event_description = account.client_name + ' was set to inactive. The reason is ' + str(
+            inactive_reason) + '.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=3, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+    if old_status != 3 and account.status == 3:
+        """
+        Account is now lost
+        """
+        lost_reason = request.POST.get('account_lost_reason')
+        if lost_reason != '0':
+            account.lost_reason = lost_reason
+        lost_bc = request.POST.get('lost_bc')
+        if lost_bc != '':
+            account.lost_bc_link = lost_bc
+        staff_users = User.objects.filter(is_staff=True)
+        staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
+        message = str(account.client_name) + ' has been lost.'
+        account.save()
+        for staff_member in staff_members:
+            link = '/clients/accounts/' + str(account.id)
+            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+
+        logger = Logger()
+        print(account.get_lost_reason_display())
+        short_desc = account.client_name + ' is now lost for the following reason: ' + Client.LOST_CHOICES[
+            account.lost_reason]
+        logger.send_account_lost_email(short_desc, message)
+
+        sp = account.sales_profile
+
+        if sp.ppc_status == 1:
+            sp.ppc_status = 2
+        if sp.seo_status == 1:
+            sp.seo_status = 2
+        if sp.cro_status == 1:
+            sp.cro_status = 2
+        sp.save()
+
+        event_description = account.client_name + ' was set to lost. The reason is ' + str(
+            lost_reason) + '.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=5, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+    fee_override = request.POST.get('fee_override')
+    hours_override = request.POST.get('hours_override')
+
+    if request.user.is_staff:
+        if fee_override != 'None':
+            account.management_fee_override = float(fee_override)
+        if hours_override != 'None':
+            account.allocated_ppc_override = float(hours_override)
+        else:
+            account.allocated_ppc_override = None
+
+    sp, created = SalesProfile.objects.get_or_create(account=account)
+
+    if seo_hours != '' and float(seo_hours) != 0.0:
+        sp.seo_status = 1
+        account.seo_hours = seo_hours
+    else:
+        if sp.seo_status != 2:
+            sp.seo_status = 6
+            account.seo_hours = 0.0
+
+    if cro_hours != '' and float(cro_hours) != 0.0:
+        sp.cro_status = 1
+        account.cro_hours = cro_hours
+    else:
+        if sp.cro_status != 2:
+            sp.cro_status = 6
+            account.cro_hours = 0.0
+
+    sp.save()
+
+    # Make management fee structure
+    fee_structure_name = request.POST.get('fee_structure_name')
+    if request.user.is_staff and request.method == 'POST' and fee_structure_name != '':
+        fee_create_or_existing = request.POST.get('fee_structure_type')
+        if fee_create_or_existing == '1':
+            # Create new management fee
+            number_of_tiers = request.POST.get('row_num_input')
+            init_fee = request.POST.get('setup_fee')
+            management_fee_structure = ManagementFeesStructure()
+            management_fee_structure.name = fee_structure_name
+            management_fee_structure.initialFee = init_fee
+            management_fee_structure.save()
+            for i in range(1, int(number_of_tiers) + 1):
+                fee_type = request.POST.get('fee-type' + str(i))
+                fee = request.POST.get('fee' + str(i))
+                lower_bound = request.POST.get('low-bound' + str(i))
+                high_bound = request.POST.get('high-bound' + str(i))
+                fee_interval = ManagementFeeInterval.objects.create(feeStyle=fee_type, fee=fee,
+                                                                    lowerBound=lower_bound, upperBound=high_bound)
+                management_fee_structure.feeStructure.add(fee_interval)
+            management_fee_structure.save()
+            account.managementFee = management_fee_structure
+        elif fee_create_or_existing == '2':
+            # Use existing
+            existing_fee_id = request.POST.get('existing_structure')
+            management_fee_structure = get_object_or_404(ManagementFeesStructure, id=existing_fee_id)
+            account.managementFee = management_fee_structure
+        else:
+            pass
+
+    account.save()
+
+    return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def get_client_details_objects(request):
+    teams = Team.objects.all()
+    industries = Industry.objects.all()
+
+    data = {
+        'teams': json.loads(serialize('json', teams)),
+        'industries': json.loads(serialize('json', industries)),
+    }
+    return JsonResponse(data)
+
+
+@login_required
+def set_client_details(request):
+    # TODO: add validation
+    account_id = request.POST.get('account_id')
+    account_name = request.POST.get('account_name')
+    bc_link = request.POST.get('bc_link')
+    description = request.POST.get('description')
+    notes = request.POST.get('notes')
+    url = request.POST.get('url')
+    contact_names = request.POST.getlist('contact_names')
+    contact_emails = request.POST.getlist('contact_emails')
+    contact_phones = request.POST.getlist('contact_phones')
+    industry_id = request.POST.get('industry')
+    team_ids = request.POST.getlist('teams')
+
+    account = Client.objects.get(id=account_id)
+    account.client_name = account_name
+    account.bc_link = bc_link
+    account.description = description
+    account.notes = notes
+    account.url = url
+    account.industry = Industry.objects.get(pk=industry_id)
+    teams = Team.objects.filter(pk__in=team_ids)
+    account.team.set(teams)
+
+    for i, contact in enumerate(account.contactInfo.all()):
+        contact.name = contact_names[i]
+        contact.email = contact_emails[i]
+        if contact_phones and contact_phones[i]:
+            contact.phone = contact_phones[i]
+        contact.save()
+
+    account.save()
+
+    return HttpResponse()

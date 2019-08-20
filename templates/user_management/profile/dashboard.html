@@ -531,13 +531,14 @@
                                     <div class="col-md-9">
                                         <div class="bbox shadow p-4 bg-white rounded table-wrapper">
                                             <h3 class="text-center text-info">
-                                                Unconfirmed Accounts
+                                                Budgets Not Renewed
                                             </h3>
                                             <table class="table order-column table-hover dataTable my_clients_datatable"
                                                    style="table-layout: fixed;">
                                                 <thead class="thead-light">
                                                 <tr class="main-table-header">
                                                     <th>Account</th>
+                                                    <th>AM(s)</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -545,6 +546,23 @@
                                                     <tr>
                                                         <td>
                                                             <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {% if account.am1 is not None %}
+                                                                <a href="/user_management/members/{{ account.am1.id }}">
+                                                                    {{ account.am1.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if account.am2 is not None %}
+                                                                ,<a href="/user_management/members/{{ account.am2.id }}">
+                                                                    {{ account.am2.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if account.am3 is not None %}
+                                                                ,<a href="/user_management/members/{{ account.am3.id }}">
+                                                                    {{ account.am3.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}

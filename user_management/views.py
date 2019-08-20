@@ -5,15 +5,14 @@ from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, Http4
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 import datetime
-from dateutil.relativedelta import relativedelta
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
-    HighFive, TrainingGroup, SkillHistory
+    HighFive, TrainingGroup, SkillHistory, SkillCategory
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    MandateAssignment, Mandate
-from notifications.models import Notification, Todo
+    Mandate, OnboardingStep
+from notifications.models import Todo
 
 
 @login_required
@@ -234,8 +233,9 @@ def member_dashboard(request, id):
             total_projected_loss += account.projected_loss
 
     # 90 DAYS NOTIFICATIONS INFO
+    onboard_active_accounts = accounts.filter(Q(status=0) | Q(status=1))
     num_outstanding_90_days = PhaseTaskAssignment.objects.filter(complete=False,
-                                                                 account__in=accounts).count() if load_everything else None
+                                                                 account__in=onboard_active_accounts).count() if load_everything else None
 
     # FLAGGED ACCOUNTS INFO
     flagged_accounts = accounts.filter(star_flag=True) if load_everything else None
@@ -537,82 +537,128 @@ def members_single(request, id=0):
     else:
         member = Member.objects.get(id=id)
 
-    now = datetime.datetime.now()
-
-    next_month_int = now.month + 1
-    if next_month_int == 13:
-        next_month_int = 1
-    next_month = datetime.datetime(
-        year=now.year,
-        month=next_month_int,
-        day=1
-    )
-    lastday_month = next_month + relativedelta(days=-1)
-    black_marker = (now.day / lastday_month.day) * 100
-
-    # accounts = member.active_accounts
-    accounts = Client.objects.filter(
+    """
+    We store all the account information in a master dictionary, with flags for each account's association
+    to this member (eg. backup/mandate). When assigning the hours for each account, we check against these same
+    flags for whatever custom assignment needs to be done (eg. mandates are assigned differently, backups have 
+    additional hours)
+    """
+    master_accounts_dictionary = {}
+    active_accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=1).order_by('client_name')
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member), status=1
+    )
+    for account in active_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = True
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
 
     onboarding_accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
-        Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=0).order_by('client_name')
+        Q(strat1=member) | Q(strat2=member) | Q(strat3=member), status=0
+    )
+    for account in onboarding_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
+        master_accounts_dictionary[account.id]['is_onboarding'] = True
 
-    backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
-    backups = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
+    for account in member.backup_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+        master_accounts_dictionary[account.id]['is_backup'] = True
 
-    backing_me = backup_periods.filter(member=member)
+    for assignment in member.active_mandate_assignments:
+        account = assignment.mandate.account
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+            master_accounts_dictionary[account.id]['is_flagged'] = False
+        if 'assignments' not in master_accounts_dictionary[account.id]:
+            master_accounts_dictionary[account.id]['assignments'] = []
+        master_accounts_dictionary[account.id]['is_mandate'] = True
+        master_accounts_dictionary[account.id]['assignments'].append(assignment)
 
-    star_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member).order_by('client_name')
+    flagged_accounts = Client.objects.filter(star_flag=True, flagged_assigned_member=member)
+    for account in flagged_accounts:
+        if account.id not in master_accounts_dictionary:
+            master_accounts_dictionary[account.id] = {}
+            master_accounts_dictionary[account.id]['account'] = account
+            master_accounts_dictionary[account.id]['is_active'] = False
+            master_accounts_dictionary[account.id]['is_mandate'] = False
+            master_accounts_dictionary[account.id]['is_onboarding'] = False
+            master_accounts_dictionary[account.id]['is_backup'] = False
+        master_accounts_dictionary[account.id]['is_flagged'] = True
 
     account_hours = {}
     account_allocation = {}
-    for account in accounts:
-        hours = account.get_hours_worked_this_month_member(member)
-        account_hours[account.id] = hours
-        account_allocation[account.id] = account.get_allocation_this_month_member(member)
-
-    backup_account_hours = {}
-    backup_account_allocation = {}
-    for backup in backups:
-        hours = backup.account.get_hours_worked_this_month_member(member)
-        backup_account_hours[backup.account.id] = hours
-        backup_account_allocation[backup.account.id] = backup.account.get_allocation_this_month_member(member, True)
-
-    mandate_assignments = member.active_mandate_assignments
-    mandates = [assignment.mandate for assignment in mandate_assignments]
+    for account_id in master_accounts_dictionary:
+        account_dict = master_accounts_dictionary[account_id]
+        account_hours[account_id] = 0
+        account_allocation[account_id] = 0
+        account = account_dict['account']
+        if account_dict['is_active']:
+            hours = account.get_hours_worked_this_month_member(member)
+            allocation = account.get_allocation_this_month_member(member)
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
+        if account_dict['is_mandate']:
+            for assignment in master_accounts_dictionary[account.id]['assignments']:
+                hours = assignment.worked_this_month
+                allocation = assignment.hours
+                account_hours[account_id] += hours
+                account_allocation[account_id] += allocation
+        if account_dict['is_backup']:
+            hours = account.get_hours_worked_this_month_member(member)
+            allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
+        if account_dict['is_onboarding']:
+            hours = account.onboarding_hours_worked(member)
+            allocation = account.onboarding_hours_allocated(member)
+            account_hours[account_id] += hours
+            account_allocation[account_id] += allocation
 
     # TODOS, handle possible get by date
     today = datetime.datetime.today().date()
-    date = request.GET.get('todoDate')
-    if date is not None:
-        today = datetime.datetime.strptime(date, '%m/%d/%Y').date()
-        todos = Todo.objects.filter(member=member, date_created=today)
-    else:
-        todos = Todo.objects.filter(member=member, completed=False, date_created=today)
+    todos = Todo.objects.filter(member=member, completed=False, date_created=today)
+
+    onboarding_steps = OnboardingStep.objects.all()
+
+    # sort by account name alphabetical
+    sorted_dict = sorted(master_accounts_dictionary.items(), key=lambda kv: kv[1]['account'].client_name)
 
     context = {
         'account_hours': account_hours,
         'account_allocation': account_allocation,
-        'backup_account_allocation': backup_account_allocation,
-        'backup_account_hours': backup_account_hours,
         'member': member,
-        'accounts': accounts,
-        'onboarding_accounts': onboarding_accounts,
-        'backups': backups,
-        'backing_me': backing_me,
-        'star_accounts': star_accounts,
-        'black_marker': black_marker,
-        'mandates': mandates,
+        'master_accounts_dictionary': sorted_dict,
         'today': today,
-        'todos': todos
+        'todos': todos,
+        'flagged_accounts_count': flagged_accounts.count(),
+        'onboarding_steps': onboarding_steps,
+        'title': 'Dashboard - SparkView'
     }
 
     # ajax mandate completed checkmarking and todolist completion
@@ -627,13 +673,12 @@ def members_single(request, id=0):
         todo_id = request.POST.get('todo_id')
         if todo_id is not None:
             todo = Todo.objects.get(id=todo_id)
-
             todo.completed = True
             todo.save()
 
         return HttpResponse()
 
-    return render(request, 'user_management/profile/profile.html', context)
+    return render(request, 'user_management/profile/profile_refactor.html', context)
 
 
 @login_required
@@ -694,16 +739,12 @@ def members_single_reports(request, id):
     reporting_period = now.day <= 31
     reports = []
 
-    accounts = list(Client.objects.filter(
+    accounts = Client.objects.filter(
         Q(cm1=member) | Q(cm2=member) | Q(cm3=member) |
         Q(am1=member) | Q(am2=member) | Q(am3=member) |
         Q(seo1=member) | Q(seo2=member) | Q(seo3=member) |
         Q(strat1=member) | Q(strat2=member) | Q(strat3=member)
-    ).filter(status=1).order_by('client_name'))
-    non_backups_length = len(accounts)  # for determining where backup accounts are in the list
-
-    accounts.extend(list(member.backup_accounts))
-    with_backups_length = len(accounts)
+    ).filter(status=1) | member.backup_accounts
 
     first_weekday, days_in_month = calendar.monthrange(now.year, now.month)
 
@@ -734,17 +775,18 @@ def members_single_reports(request, id):
             if not report.no_report:
                 reports.append(report)
 
+    reports.sort(key=lambda r: r.due_date)
+
     context = {
         'member': member,
         'reports': reports,
-        'non_backups_length': non_backups_length,
-        'with_backups_length': with_backups_length,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
-        'reporting_year': year
+        'reporting_year': year,
+        'title': 'Reports'
     }
 
-    return render(request, 'user_management/profile/reports.html', context)
+    return render(request, 'user_management/profile/reports_refactor.html', context)
 
 
 @login_required
@@ -773,10 +815,11 @@ def members_single_promos(request, id):
 
     context = {
         'member': member,
-        'promos': promos
+        'promos': promos,
+        'title': 'Promos - SparkView'
     }
 
-    return render(request, 'user_management/profile/promos.html', context)
+    return render(request, 'user_management/profile/promos_refactor.html', context)
 
 
 @login_required
@@ -841,10 +884,11 @@ def members_single_timesheet(request, id):
         'trainee_hours_this_month': trainee_hours_this_month,
         'mandate_hours_this_month': mandate_hours_this_month,
         'trainee_hour_total': trainee_hour_total,
-        'value_added_hours': value_added_hours
+        'value_added_hours': value_added_hours,
+        'title': 'Timesheet'
     }
 
-    return render(request, 'user_management/profile/timesheet.html', context)
+    return render(request, 'user_management/profile/timesheet_refactor.html', context)
 
 
 @login_required
@@ -896,6 +940,49 @@ def member_oops(request, id):
     }
 
     return render(request, 'user_management/profile/oops.html', context)
+
+
+@login_required
+def performance(request, member_id):
+    """
+    Oops reports, high fives, and skills page
+    """
+
+    request_member = Member.objects.get(user=request.user)
+    if not request.user.is_staff and int(member_id) != request_member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    member = get_object_or_404(Member, id=member_id)
+    oops = member.incident_members.filter(approved=True)
+    oops_reported = Incident.objects.filter(reporter=member)
+    high_fives = HighFive.objects.filter(member=member_id)
+
+    tag_colors = ['', 'is-dark', 'is-danger', 'is-warning', 'is-success']
+    skill_categories = SkillCategory.objects.all()
+    member_skills_categories = []  # list of objects where each object encodes info about a skill category
+    for cat in skill_categories:
+        skill_entries = SkillEntry.objects.filter(skill__skill_category=cat, member=member)
+        member_skills_categories.append({
+            'name': cat.name,
+            'skill_entries': skill_entries,
+            'average': skill_entries.aggregate(Sum('score'))['score__sum'] / skill_entries.count()
+        })
+
+    badges = SkillEntry.objects.filter(member=member, score=4)
+
+    context = {
+        'member': member,
+        'oops': oops,
+        'oops_reported': oops_reported,
+        'high_fives': high_fives,
+        'title': 'Performance',
+        'tag_colors': tag_colors,
+        'skills': skills,
+        'member_skills_categories': member_skills_categories,
+        'badges': badges
+    }
+
+    return render(request, 'user_management/profile/performance.html', context)
 
 
 @login_required
@@ -977,10 +1064,11 @@ def input_hours_profile(request, id):
             'years': years,
             'members': members,
             'current_year': current_year,
-            'mandate_assignments': mandate_assignments
+            'mandate_assignments': mandate_assignments,
+            'title': 'Input Hours'
         }
 
-        return render(request, 'user_management/profile/input_hours.html', context)
+        return render(request, 'user_management/profile/input_hours_refactor.html', context)
 
     elif request.method == 'POST':
         accounts = Client.objects.filter(
@@ -1008,7 +1096,9 @@ def input_hours_profile(request, id):
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
 
-            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+            is_onboarding = account.status == 0
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                             is_onboarding=is_onboarding)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
@@ -1052,7 +1142,9 @@ def input_mandate_profile(request, id):
             mandate.completed = completed
             mandate.save()
 
-            MandateHourRecord.objects.create(assignment=assignment, hours=hours, month=month, year=year)
+            is_onboarding = mandate.account.status == 0
+            MandateHourRecord.objects.create(assignment=assignment, hours=hours, month=month, year=year,
+                                             is_onboarding=is_onboarding)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 
@@ -1093,6 +1185,12 @@ def training_members(request):
 
         skill_entry.score = new_score
         skill_entry.save()
+
+        # create todo for member
+        description = 'Your skill ranking for ' + skill_entry.skill.name + \
+                      ' has been updated! Head over to the performance tab to view it.'
+        link = '/user_management/members/' + member_id + '/performance'
+        Todo.objects.create(member=member, description=description, link=link, type=2)
 
         # store skill history for this entry
         SkillHistory.objects.create(skill_entry=skill_entry)
@@ -1273,7 +1371,7 @@ def backups(request):
     members = Member.objects.filter(deactivated=False).order_by('user__first_name')
     accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
-    active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
+    active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now).order_by('-end_date')
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
                                                                                                    end_date__gte=now)
 
@@ -1340,7 +1438,8 @@ def backup_event(request, backup_period_id):
             return HttpResponse('success')
 
     role = backup_period.member.role
-    members = Member.objects.filter(role=role).exclude(id=backup_period.member.id).order_by('user__first_name')
+    members = Member.objects.filter(role=role, deactivated=False).exclude(id=backup_period.member.id).order_by(
+        'user__first_name')
 
     context = {
         'backup_period': backup_period,

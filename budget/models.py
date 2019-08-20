@@ -1,6 +1,7 @@
 import datetime
 import calendar
 from django.db import models
+from django.apps import apps
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db.models import Sum
 from django.utils import timezone
@@ -20,7 +21,8 @@ from django.utils.timezone import make_aware
 class Client(models.Model):
     """
     This should really be called 'Account' based on Bloom's business logic
-    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account' in any view where a user sees it
+    It is not worth it to refactor the database tables right now. But this class should be represented as 'Account'
+    in any front end view where a user sees it
     """
     STATUS_CHOICES = [(0, 'Onboarding'),
                       (1, 'Active'),
@@ -39,7 +41,8 @@ class Client(models.Model):
     INACTIVE_CHOICES = [(0, 'PO pending from client'),
                         (1, 'Website being worked on'),
                         (2, 'New budget pending from client'),
-                        (3, 'Other')]
+                        (3, 'Late onboarding'),
+                        (4, 'Other')]
 
     LOST_CHOICES = [(0, 'Poor Performance'),
                     (1, 'Mandate Over'),
@@ -50,7 +53,7 @@ class Client(models.Model):
                     (6, 'Changing Website'),
                     (7, 'Changing Agency'),
                     (8, 'Campaigns Never Started'),
-                    (9, 'Other (see Basecamp for details)]')]
+                    (9, 'Other (see Basecamp for details)')]
 
     PHASE_CHOICES = [(1, 'One'),
                      (2, 'Two'),
@@ -116,6 +119,9 @@ class Client(models.Model):
     clientType = models.ForeignKey(ClientType, models.SET_NULL, null=True, related_name='client_type', blank=True)
     tier = models.IntegerField(default=1)
     soldBy = models.ForeignKey(Member, models.SET_NULL, null=True, related_name='sold_by')
+    bc_link = models.CharField(max_length=255, default=None, null=True, blank=True)
+    description = models.CharField(max_length=255, default=None, null=True, blank=True)
+    notes = models.CharField(max_length=255, default=None, null=True, blank=True)
     # maybe do services another way?
     sold_budget = models.FloatField(default=0.0)
     objective = models.IntegerField(default=0, choices=OBJECTIVE_CHOICES)
@@ -183,8 +189,20 @@ class Client(models.Model):
     strat3percent = models.FloatField(default=0)
 
     @property
+    def is_active(self):
+        return self.status == 1
+
+    @property
     def budgets(self):
-        return Budget.objects.filter(account=self)
+        return Budget.objects.filter(account=self, is_default=False)
+
+    @property
+    def ga_view(self):
+        ga_view_model = apps.get_model('insights', 'GoogleAnalyticsView')
+        try:
+            return ga_view_model.objects.get(account=self)
+        except ga_view_model.DoesNotExist:
+            return None
 
     @property
     def opportunities(self):
@@ -423,8 +441,7 @@ class Client(models.Model):
             for aa in self.adwords.all():
                 aw_perf = adwords_a.Performance.objects.filter(account=aa, performance_type='ACCOUNT')
                 recent_perf = aw_perf[0].metadata if aw_perf else {}
-                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf[
-                    'vals']:  # We have CPA info
+                if 'vals' in recent_perf and 'conversions' in recent_perf['vals'] and 'cost' in recent_perf['vals']:
                     conversions += float(recent_perf['vals']['conversions'][1])
                     cost += float(recent_perf['vals']['cost'][1]) / 1000000.0
                 kpid['roas'] = 0.0
@@ -469,11 +486,8 @@ class Client(models.Model):
 
             conversions = 0.0
             cost = 0.0
-            final_cpa = 0.0
 
-            total_add_spend = 0.0
             total_conversion_value = 0.0
-            roas = 0.0
 
             conversions += self.google_kpi_month['conversions']
             cost += self.google_kpi_month['cost']
@@ -481,13 +495,13 @@ class Client(models.Model):
 
             try:
                 final_cpa = cost / conversions
-            except:
+            except ZeroDivisionError:
                 final_cpa = 0.0
             kpid['cpa'] = final_cpa
 
             try:
                 kpid['roas'] = total_conversion_value / cost
-            except:
+            except ZeroDivisionError:
                 kpid['roas'] = 0.0
 
             if len(kpid) == 0:
@@ -731,7 +745,7 @@ class Client(models.Model):
         if self.management_fee_override is not None and self.management_fee_override != 0.0:
             fee = self.management_fee_override
         else:
-            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee
+            fee = self.ppc_fee + self.cro_fee + self.seo_fee + initial_fee + self.current_month_mandate_fee + self.additional_fees_this_month
         return fee
 
     @property
@@ -752,15 +766,33 @@ class Client(models.Model):
     @property
     def fallback_hours(self):
         if self.allocated_ppc_override is None:
-            return None
+            return 0.0
         return self.ppc_ignore_override - self.allocated_ppc_override
+
+    def additional_ppc_fees_month(self, month, year):
+        additional_fees_month = self.additionalfee_set.filter(month=month, year=year)
+        additional_fee = 0.0
+        for fee in additional_fees_month:
+            additional_fee += fee.fee
+        return additional_fee
+
+    @property
+    def additional_ppc_fees_this_month(self):
+        """
+        Gets additional PPC fees
+        :return:
+        """
+        if not hasattr(self, '_additional_ppc_fees_this_month'):
+            now = datetime.datetime.now()
+            self._additional_ppc_fees_this_month = self.additional_ppc_fees_month(now.month, now.year)
+        return self._additional_ppc_fees_this_month
 
     @property
     def ppc_ignore_override(self):
-        fee = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
-        if self.status == 0 and self.managementFee is not None:
-            fee += (self.managementFee.initialFee / 125.0)
-        return fee
+        if self.is_onboarding_ppc and self.managementFee is not None:
+            return self.onboarding_hours_remaining
+        hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
+        return hours
 
     def get_ppc_allocated_hours(self):
         if self.allocated_ppc_override is not None and self.allocated_ppc_override != 0.0:
@@ -775,6 +807,7 @@ class Client(models.Model):
             hours += self.seo_hours
         if self.has_cro:
             hours += self.cro_hours
+        hours += self.additional_fees_this_month / 125.0
         return round(hours, 2)
 
     @property
@@ -785,22 +818,82 @@ class Client(models.Model):
             hours += mandate.hours_in_month(now.month, now.year)
         return self.get_allocated_hours() + hours
 
-    def days_in_month_in_daterange(self, start, end, month):
+    def onboarding_hours_allocated(self, member=None):
         """
-        Calculates how many days are in a certain month within a daterange.
-        Example: Oct 28th to Nov 5th has 4 days in October,  this would return 4 for (2018-10-28, 2018-11-05, 10)
+        Returns the number of allocated hours for this onboarding account. If a member is provided, filter by this
+        member
         """
-        one_day = datetime.timedelta(1)
-        date_counter = 0
-        cur_date = start
-        while cur_date <= end:
-            if cur_date.month == month:
-                date_counter += 1
-            elif cur_date.month > month:
-                break
-            cur_date = cur_date + one_day
+        if self.managementFee is None:
+            return 0.0
+        allocated = self.managementFee.initialFee / 125.0
+        if member is None:
+            return allocated
+        percentage = 0.0
+        if self.cm1 == member:
+            percentage += self.cm1percent
+        if self.cm2 == member:
+            percentage += self.cm2percent
+        if self.cm3 == member:
+            percentage += self.cm3percent
+        if self.am1 == member:
+            percentage += self.am1percent
+        if self.am2 == member:
+            percentage += self.am2percent
+        if self.am3 == member:
+            percentage += self.am3percent
+        if self.seo1 == member:
+            percentage += self.seo1percent
+        if self.seo2 == member:
+            percentage += self.seo2percent
+        if self.seo3 == member:
+            percentage += self.seo3percent
+        if self.strat1 == member:
+            percentage += self.strat1percent
+        if self.strat2 == member:
+            percentage += self.strat2percent
+        if self.strat3 == member:
+            percentage += self.strat3percent
+        return allocated * percentage / 100.0
 
-        return date_counter
+    @property
+    def onboarding_hours_remaining(self):
+        """
+        Returns the number of onboarding hours remaining on this account (allocated - worked)
+        :return:
+        """
+        if not hasattr(self, '_onboarding_hours_remaining'):
+            self._onboarding_hours_remaining = self.onboarding_hours_allocated() - self.onboarding_hours_worked()
+        return self._onboarding_hours_remaining
+
+    def onboarding_hours_worked(self, member=None):
+        """
+        Returns the number of onboarding hours worked on this account. If a member is provided, filters by this member
+        """
+        if not hasattr(self, '_onboarding_hours_worked'):
+            hours = 0.0
+            account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
+            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
+                                                                    is_onboarding=True)
+            if member is not None:
+                account_hour_records = account_hour_records.filter(member=member)
+                mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
+            for record in account_hour_records:
+                hours += record.hours
+            for record in mandate_hour_records:
+                hours += record.hours
+            self._onboarding_hours_worked = hours
+        return self._onboarding_hours_worked
+
+    @property
+    def has_backup_members(self):
+        """
+        Determines if this account has backup members assigned (ie. someone on the account is on vacation
+        and a backup has been established)
+        """
+        now = datetime.datetime.now()
+        backups = Backup.objects.filter(account=self, period__start_date__lte=now, period__end_date__gte=now).exclude(
+            members=None)
+        return backups.count() > 0
 
     @property
     def adwords_budget_this_month(self):
@@ -813,8 +906,8 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(aa.desired_spend_start_date,
-                                                                       aa.desired_spend_end_date, yesterday.month) / (
+                    portion_of_spend = days_in_month_in_daterange(aa.desired_spend_start_date,
+                                                                  aa.desired_spend_end_date, yesterday.month) / (
                                                aa.desired_spend_end_date - aa.desired_spend_start_date).days
                     budget += round(portion_of_spend * aa.desired_spend, 2)
                 else:
@@ -873,8 +966,8 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(ba.desired_spend_start_date,
-                                                                       ba.desired_spend_end_date, yesterday.month) / (
+                    portion_of_spend = days_in_month_in_daterange(ba.desired_spend_start_date,
+                                                                  ba.desired_spend_end_date, yesterday.month) / (
                                                ba.desired_spend_end_date - ba.desired_spend_start_date).days
                     budget += round(portion_of_spend * ba.desired_spend, 2)
                 else:
@@ -893,8 +986,8 @@ class Client(models.Model):
                     """
                     If there are custom dates, we need to get the portion of the budget that is in this month
                     """
-                    portion_of_spend = self.days_in_month_in_daterange(fa.desired_spend_start_date,
-                                                                       fa.desired_spend_end_date, yesterday.month) / (
+                    portion_of_spend = days_in_month_in_daterange(fa.desired_spend_start_date,
+                                                                  fa.desired_spend_end_date, yesterday.month) / (
                                                fa.desired_spend_end_date - fa.desired_spend_start_date).days
                     budget += round(portion_of_spend * fa.desired_spend, 2)
                 else:
@@ -905,12 +998,7 @@ class Client(models.Model):
     @property
     def current_budget(self):
         if not hasattr(self, '_current_budget'):
-            budget = 0.0
-            budget += self.adwords_budget_this_month
-            budget += self.bing_budget_this_month
-            budget += self.facebook_budget_this_month
-
-            budget += self.flex_budget
+            budget = self.aw_budget + self.bing_budget + self.fb_budget + self.flex_budget
             self._current_budget = budget
 
         return self._current_budget
@@ -1055,19 +1143,6 @@ class Client(models.Model):
         """
         members = {}
 
-        if self.cm1 is not None:
-            members['CM'] = {}
-            members['CM']['member'] = self.cm1
-            members['CM']['allocated_percentage'] = self.cm1percent
-        if self.cm2 is not None:
-            members['CM2'] = {}
-            members['CM2']['member'] = self.cm2
-            members['CM2']['allocated_percentage'] = self.cm2percent
-        if self.cm3 is not None:
-            members['CM3'] = {}
-            members['CM3']['member'] = self.cm3
-            members['CM3']['allocated_percentage'] = self.cm3percent
-
         if self.am1 is not None:
             members['AM'] = {}
             members['AM']['member'] = self.am1
@@ -1080,6 +1155,19 @@ class Client(models.Model):
             members['AM3'] = {}
             members['AM3']['member'] = self.am3
             members['AM3']['allocated_percentage'] = self.am3percent
+
+        if self.cm1 is not None:
+            members['CM'] = {}
+            members['CM']['member'] = self.cm1
+            members['CM']['allocated_percentage'] = self.cm1percent
+        if self.cm2 is not None:
+            members['CM2'] = {}
+            members['CM2']['member'] = self.cm2
+            members['CM2']['allocated_percentage'] = self.cm2percent
+        if self.cm3 is not None:
+            members['CM3'] = {}
+            members['CM3']['member'] = self.cm3
+            members['CM3']['allocated_percentage'] = self.cm3percent
 
         if self.seo1 is not None:
             members['SEO'] = {}
@@ -1178,20 +1266,32 @@ class Client(models.Model):
     @property
     def underpacing_yesterday(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_yesterday / self.current_budget < 0.95
 
     @property
     def underpacing_average(self):
         if self.current_budget == 0.0:
-            return 0.0
+            return False
         return self.project_average / self.current_budget < 0.95
+
+    @property
+    def overpacing_yesterday(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_yesterday / self.current_budget > 1.05
+
+    @property
+    def overpacing_average(self):
+        if self.current_budget == 0.0:
+            return False
+        return self.project_average / self.current_budget > 1.05
 
     @property
     def spend_percentage(self):
         if self.current_budget == 0.0:
             return 0.0
-        return 100.0 * self.current_spend / self.current_budget
+        return 100.0 * self.calculated_spend / self.current_budget
 
     @property
     def is_late_to_onboard(self):
@@ -1411,7 +1511,8 @@ class Client(models.Model):
         today = datetime.date.today() - relativedelta(days=1)
         last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         remaining_days = last_day.day - today.day
-
+        if remaining_days == 0:
+            return self.budget_remaining
         return round(self.budget_remaining / remaining_days, 2)
 
     # Recommended daily spend for clients with flex budget
@@ -1461,6 +1562,67 @@ class Client(models.Model):
 
         return members
 
+    @property
+    def budget_updated_this_month(self):
+        """
+        Is the budget updated this month?
+        :return:
+        """
+        now = datetime.datetime.now()
+        return self.budget_updated_month(now.month, now.year)
+
+    def budget_updated_month(self, month, year):
+        """
+        Boolean, returns True if the budget was updated for that month
+        :param month:
+        :param year:
+        :return:
+        """
+        try:
+            budget = BudgetUpdate.objects.get(account=self, month=month, year=year)
+        except BudgetUpdate.DoesNotExist:
+            return False
+        return budget.updated
+
+    @property
+    def additional_fee_objects_this_month(self):
+        now = datetime.datetime.now()
+        return self.additionalfee_set.filter(account=self, month=now.month, year=now.year)
+
+    @property
+    def additional_fees_this_month(self):
+        """
+        Any additional fees this month
+        :return:
+        """
+        if not hasattr(self, '_additional_fees_this_month'):
+            now = datetime.datetime.now()
+            self._additional_fees_this_month = self.additional_fees_month(now.month, now.year)
+        return self._additional_fees_this_month
+
+    @property
+    def default_budget(self):
+        if not hasattr(self, '_default_budget'):
+            default_budgets = self.budget_account.filter(is_default=True)
+            if len(default_budgets) == 0:
+                self._default_budget = None
+            else:
+                self._default_budget = default_budgets[0]
+        return self._default_budget
+
+    def additional_fees_month(self, month, year):
+        """
+        Gets extra fees from a month and year
+        :param month:
+        :param year:
+        :return:
+        """
+        additional_fees = AdditionalFee.objects.filter(account=self, month=month, year=year)
+        total_additional_fee = 0.0
+        for f in additional_fees:
+            total_additional_fee += f.fee
+        return total_additional_fee
+
     remainingBudget = property(get_remaining_budget)
 
     yesterday_spend = property(get_yesterday_spend)
@@ -1478,6 +1640,28 @@ class Client(models.Model):
 
     def __str__(self):
         return self.client_name
+
+    class Meta:
+        ordering = ['client_name']
+
+
+class AdditionalFee(models.Model):
+    """
+    Add an additional fee to a client for a month
+    """
+    account = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, default=None)
+    name = models.CharField(max_length=255)
+    fee = models.FloatField(default=0.0)
+    month = models.IntegerField(default=0)
+    year = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if self.account is None:
+            return 'No name account had an additional fee of $' + str(self.fee) + ' in ' + str(self.month) + '/' + str(
+                self.year)
+        return self.account.client_name + ' had an additional fee of $' + str(self.fee) + ' in ' + str(
+            self.month) + '/' + str(self.year)
 
 
 class Budget(models.Model):
@@ -1508,9 +1692,35 @@ class Budget(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False)
+    needs_renewing = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return str(self.account) + ' budget'
+
+    @property
+    def pacer_offset(self):
+        """
+        Calculates a percentage offset for a budget pacer, ie. how far along the budget should be
+        """
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if self.is_monthly:
+            days_in_month = calendar.monthrange(now.year, now.month)[1]
+            percentage = now.day / days_in_month * 100.0
+        else:
+            days_in_date_range = (self.end_date - self.start_date).days
+            days_elapsed = (now - self.start_date).days
+            percentage = days_elapsed / days_in_date_range * 100.0
+        return percentage
+
+    @property
+    def calculated_budget(self):
+        if not self.is_default:
+            return self.budget
+        return self.account.current_budget
 
     @property
     def is_flight(self):
@@ -1522,7 +1732,13 @@ class Budget(models.Model):
 
     @property
     def description(self):
-        return self.get_grouping_type_display().title()
+        type_display = self.get_grouping_type_display().title()
+        if self.grouping_type == 1:
+            if self.text_includes is not None and self.text_includes != '':
+                type_display += ' - Including strings: ' + self.text_includes
+            if self.text_excludes is not None and self.text_excludes != '':
+                type_display += ' - Excluding strings: ' + self.text_excludes
+        return type_display
 
     @property
     def campaign_exclusions(self):
@@ -1711,12 +1927,16 @@ class Budget(models.Model):
 
     @property
     def days_remaining(self):
+        """
+        Should include today
+        :return:
+        """
         now = make_aware(datetime.datetime.now())
         if self.is_monthly:
             days_in_month = calendar.monthrange(now.year, now.month)[1]
-            number_of_days_remaining = days_in_month - now.day
+            number_of_days_remaining = days_in_month - now.day + 1
         else:
-            number_of_days_remaining = (self.end_date - now).days
+            number_of_days_remaining = (self.end_date - now).days + 1
         return number_of_days_remaining
 
     @property
@@ -1728,7 +1948,9 @@ class Budget(models.Model):
         if self.is_monthly:
             number_of_days = (datetime.datetime.now() - datetime.timedelta(1)).day
         else:
-            number_of_days = (self.end_date - self.start_date).days
+            number_of_days = (make_aware(datetime.datetime.now()) - self.start_date).days
+        if number_of_days == 0:
+            return 0
         return self.calculated_yest_spend / number_of_days
 
     @property
@@ -1737,6 +1959,8 @@ class Budget(models.Model):
         Calculates the recommended daily spend based on value until yesterday
         :return:
         """
+        if self.days_remaining <= 0:
+            return 0
         rec_spend = self.calculated_budget_remaining_yest / self.days_remaining
         return rec_spend if rec_spend > 0 else 0
 
@@ -1749,12 +1973,35 @@ class Budget(models.Model):
         return self.calculated_yest_spend + (self.average_spend_yest * self.days_remaining)
 
     @property
+    def yesterday_spend(self):
+        if not hasattr(self, '_yesterday_spend'):
+            spend = 0.0
+            for a in self.aw_campaigns_without_excluded:
+                spend += a.campaign_yesterday_cost
+            for f in self.fb_campaigns_without_excluded:
+                spend += f.campaign_yesterday_cost
+            for b in self.bing_campaigns_without_excluded:
+                spend += b.campaign_yesterday_cost
+            self._yesterday_spend = spend
+        return self._yesterday_spend
+
+    @property
     def spend_percentage(self):
-        """
-        Percentage of budget spend in this period
-        :return:
-        """
-        return self.calculated_spend * 100.0 / self.budget
+        if self.budget == 0:
+            return 0
+        return 100.0 * self.calculated_spend / self.budget
+
+    @property
+    def underpacing_average(self):
+        if self.budget == 0.0:
+            return False
+        return self.projected_spend_avg / self.budget < 0.95
+
+    @property
+    def overpacing_average(self):
+        if self.budget == 0.0:
+            return False
+        return self.projected_spend_avg / self.budget > 1.00
 
 
 class CampaignExclusions(models.Model):
@@ -1806,6 +2053,7 @@ class BudgetUpdate(models.Model):
     updated = models.BooleanField(default=False)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -1819,16 +2067,16 @@ class BudgetUpdate(models.Model):
 
 class ClientCData(models.Model):
     client = models.ForeignKey(Client, models.SET_NULL, blank=True, null=True)
-    aw_budget = JSONField(default=dict)
-    aw_projected = JSONField(default=dict)
-    aw_spend = JSONField(default=dict)
-    bing_budget = JSONField(default=dict)
-    bing_projected = JSONField(default=dict)
-    bing_spend = JSONField(default=dict)
-    fb_budget = JSONField(default=dict)
-    fb_projected = JSONField(default=dict)
-    fb_spend = JSONField(default=dict)
-    global_target_spend = JSONField(default=dict)
+    aw_budget = JSONField(default=dict, blank=True)
+    aw_projected = JSONField(default=dict, blank=True)
+    aw_spend = JSONField(default=dict, blank=True)
+    bing_budget = JSONField(default=dict, blank=True)
+    bing_projected = JSONField(default=dict, blank=True)
+    bing_spend = JSONField(default=dict, blank=True)
+    fb_budget = JSONField(default=dict, blank=True)
+    fb_projected = JSONField(default=dict, blank=True)
+    fb_spend = JSONField(default=dict, blank=True)
+    global_target_spend = JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.client.client_name
@@ -2093,3 +2341,6 @@ class TierChangeProposal(models.Model):
     changed_by = models.ForeignKey('user_management.Member', models.SET_NULL, blank=True, null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.account) + ' change from ' + str(self.tier_from) + ' to ' + str(self.tier_to)

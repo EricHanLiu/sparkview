@@ -1,0 +1,214 @@
+{% extends 'user_management/profile/layout_refactor.html' %}
+
+{% block main_content %}
+    <div class="card">
+        <div class="card-content">
+            <h4 class="title is-4">
+                {{ last_month_str }} Reports
+            </h4>
+            <hr>
+            <table class="table is-hoverable is-fullwidth">
+                <thead>
+                <tr>
+                    <th>
+                        Account
+                    </th>
+                    <th>
+                        Report Type
+                    </th>
+                    <th>
+                        Due Date
+                    </th>
+                    <th>
+                        AM
+                    </th>
+                    <th class="has-text-centered">
+                        Update Status
+                    </th>
+                    <th class="has-text-centered">
+                        No Report
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for report in reports %}
+                    <tr class="table-row">
+                        <td>
+                            <a href="/clients/accounts/{{ report.account.id }}">
+                                {{ report.report_name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if report.report_type is not None %}
+                                {{ report.get_report_type_display }}
+                            {% else %}
+                                None
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if report.due_date is None %}
+                                <div class="columns">
+                                    <div class="column is-9">
+                                        <input class="input datepicker-here" type="text" id="{{ report.id }}"
+                                               data-account-id="{{ report.account.id }}"
+                                               data-language="en" placeholder="Set Due Date Here">
+                                    </div>
+                                    <div class="column is-3">
+                                        <button class="button is-fullwidth due-date-confirm" data-id="{{ report.id }}">
+                                            Confirm
+                                        </button>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <strong>{{ report.due_date }}</strong>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ report.account.am1 }}
+                        </td>
+                        <td class="has-text-centered">
+                            {% if report.received_by_am and report.sent_by_am %}
+                                <button class="button is-fullwidth" disabled>
+                                    Sent to Client <i class="fas fa-check" style="margin-left: 0.5em;"></i>
+                                </button>
+                            {% elif report.received_by_am %}
+                                <button class="button is-fullwidth sent-to-client" data-account-id="{{ report.account.id }}">
+                                    Sent to Client
+                                </button>
+                            {% else %}
+                                <button class="button is-fullwidth sent-to-am" data-account-id="{{ report.account_id }}">
+                                    Sent to AM
+                                </button>
+                            {% endif %}
+                        </td>
+                        <td class="has-text-centered">
+                            <button class="button is-danger no-report-button"
+                                    data-account-id="{{ report.account.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- end reporting portlet -->
+
+    <div class="modal modal-fx-fadeInScale" id="no_report_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">No Report</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="no_report_confirm_button">Confirm</button>
+                    </div>
+                </div>
+                This account will have no report for this month. Are you sure?
+                <form method="POST" id="no_report_form">
+                    {% csrf_token %}
+                    <input name="account_id" id="no_report_acc_id" type="text" value="" style="display:none;"/>
+                    <input name="month" id="no_report_month" type="hidden" value="{{ reporting_month }}"/>
+                    <input name="year" id="no_report_month" type="hidden" value="{{ reporting_year }}"/>
+                    <input name="action" type="hidden" value="no_report"/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End set KPIs -->
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
+
+        $('.no-report-button').click(function () {
+            $('#no_report_modal').addClass('is-active');
+            $('#no_report_acc_id').val($(this).data('account-id'));
+        });
+
+        $('.modal-close, .modal-background').click(() => {
+            $('.modal').removeClass('is-active');
+        });
+
+        $('#no_report_confirm_button').click(() => {
+            $.ajax({
+                url: '',
+                data: $('#no_report_form').serialize(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully removed report!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            });
+        });
+
+        let $sentToAmButton = $('.sent-to-am');
+        let $sentToClientButton = $('.sent-to-client');
+
+        $('.due-date-confirm').click(function () {
+            let selector = '#' + $(this).data('id');
+            let dueDate = $(selector).val();
+            let accountID = $(selector).data('account-id');
+
+            if (dueDate === '') {
+                toastr.error('Please enter a due date!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/reports/set_due_date',
+                data: {
+                    'account_id': accountID,
+                    'month': {{ reports.0.month }},
+                    'due_date': dueDate
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully set report due date!');
+                    $(this).prop('disabled', true);
+                }
+            });
+        });
+
+        $sentToAmButton.click(function () {
+            sendRequest($(this).data('account-id'), 'confirm_sent_am');
+            $(this).prop('disabled', true);
+        });
+
+        $sentToClientButton.click(function () {
+            sendRequest($(this).data('account-id'), 'confirm_sent_client');
+            $(this).prop('disabled', true);
+        });
+
+        let sendRequest = (account_id, url) => {
+            $.ajax({
+                url: '/clients/reports/' + url,
+                data: {
+                    'account_id': account_id,
+                    'month': {{ reports.0.month }}
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully updated report status!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            });
+        };
+
+        $('#reports_tab').addClass('is-active');
+    </script>
+{% endblock %}

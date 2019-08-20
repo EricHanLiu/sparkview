@@ -9,14 +9,12 @@ from user_management.models import Member, Team, Incident, Role, HighFive, Incid
 from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
-from notifications.models import Notification
+from notifications.models import Notification, Todo
 from django.conf import settings
 import datetime
 import calendar
-from urllib.parse import parse_qs
 
 
-# Create your views here.
 @login_required
 def agency_overview(request):
     if not request.user.is_staff:
@@ -142,7 +140,7 @@ def cm_capacity(request):
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
             name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25)).order_by('user__first_name')
+    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
 
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
@@ -880,8 +878,12 @@ def new_high_five(request):
         high_five.nominator = Member.objects.get(id=r.get('nominator'))
         high_five.member = Member.objects.get(id=r.get('member'))
         high_five.description = r.get('description')
-
         high_five.save()
+
+        # create todo for member
+        description = 'You\'ve received a new high five! Head over to the performance tab to view it.'
+        link = '/user_management/members/' + str(high_five.member.id) + '/performance'
+        Todo.objects.create(member=high_five.member, description=description, link=link, type=2)
 
         mail_details = {
             'hf': high_five
@@ -923,7 +925,7 @@ def new_incident(request):
 
     if request.method == 'GET':
         accounts = Client.objects.all().order_by('client_name')
-        members = Member.objects.all().order_by('user__first_name')
+        members = Member.objects.exclude(deactivated=True).order_by('user__first_name')
         platforms = Incident.PLATFORMS
         services = Incident.SERVICES
         issue_types = IncidentReason.objects.all()
@@ -1190,3 +1192,85 @@ def over_under(request):
     }
 
     return render(request, 'reports/over_under.html', context)
+
+
+@login_required
+def month_over_month(request):
+    """
+    Month over month report
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    first = now.replace(day=1)
+    # Default to last month
+    last_month = first - datetime.timedelta(days=1)
+
+    month = int(request.GET.get('month')) if 'month' in request.GET else last_month.month
+    year = int(request.GET.get('year')) if 'year' in request.GET else last_month.year
+    account_id = int(request.GET.get('account_id')) if 'account_id' in request.GET else None
+    accounts = Client.objects.all()
+
+    try:
+        account = accounts.get(id=account_id) if account_id is not None else None
+    except Client.DoesNotExist:
+        account = None
+
+    selected = {
+        'month': str(month),
+        'year': str(year)
+    }
+
+    month_strs = []
+    cur_month = month
+    cur_year = year
+
+    # Prepare the report
+    report = []
+
+    for i in range(10):
+        month_strs.insert(0, str(calendar.month_name[cur_month]) + ', ' + str(cur_year))
+        if account is not None:
+            tmpd = {}
+            try:
+                bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
+                tmpd['fee'] = round(bh.management_fee, 2)
+                tmpd['spend'] = round(bh.spend, 2)
+            except AccountBudgetSpendHistory.DoesNotExist:
+                tmpd['fee'] = 0.0
+                tmpd['spend'] = 0.0
+
+            tmpd['actual'] = account.all_hours_month_year(cur_month, cur_year)
+            allocated_history = AccountAllocatedHoursHistory.objects.filter(month=cur_month, year=cur_year,
+                                                                            account=account).values('account', 'year',
+                                                                                                    'month').annotate(
+                sum_hours=Sum('allocated_hours'))
+            allocated_hours = 0.0
+            if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+                allocated_hours = allocated_history[0]['sum_hours']
+
+            tmpd['allocated'] = allocated_hours
+            try:
+                tmpd['ratio'] = tmpd['actual'] / tmpd['allocated']
+            except ZeroDivisionError:
+                tmpd['ratio'] = 0.0
+
+            report.insert(0, tmpd)
+
+        cur_month -= 1
+        if cur_month == 0:
+            cur_month = 12
+            cur_year -= 1
+
+    context = {
+        'accounts': accounts,
+        'account': account,
+        'selected': selected,
+        'month_strs': month_strs,
+        'report': report
+    }
+
+    return render(request, 'reports/month_over_month.html', context)

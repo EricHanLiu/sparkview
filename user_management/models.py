@@ -116,6 +116,16 @@ class Incident(models.Model):
         return self.members_string + ' incident on ' + str(
             self.date) + '. Reported by ' + self.reporter.user.get_full_name()
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.approved:  # create todo when incident gets approved
+            for member in self.members.all():
+                description = 'You have received a new oops, created on ' + str(self.timestamp) + \
+                              '. Head over to the performance tab to view it.'
+                link = '/user_management/members/' + str(member.id) + '/performance'
+                Todo = apps.get_model('notifications', 'Todo')
+                Todo.objects.get_or_create(member=member, description=description, link=link, type=2)
+
 
 class TrainingGroup(models.Model):
     """
@@ -135,13 +145,23 @@ class TrainingGroup(models.Model):
         return 'Training Group: ' + self.name
 
 
+class SkillCategory(models.Model):
+    """
+    Group of skills which share similarities (eg. communication skills, ppc skills)
+    """
+    name = models.CharField(max_length=255, default='')
+
+    def __str__(self):
+        return self.name
+
+
 class Skill(models.Model):
     """
     Skillset for each Member
     """
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default='', blank=True)
-    skill_index = models.IntegerField(blank=True, null=True, default=None)
+    skill_category = models.ForeignKey(SkillCategory, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def get_score_0(self):
@@ -164,7 +184,7 @@ class Skill(models.Model):
         return SkillEntry.objects.filter(skill=self, score=4)
 
     class Meta:
-        ordering = ['skill_index']
+        ordering = ['skill_category__name']
 
     def __str__(self):
         return self.name
@@ -204,6 +224,24 @@ class SkillEntry(models.Model):
     def __str__(self):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
+    @property
+    def updated_recently(self):
+        """
+        Returns true if this skillentry has been updated in the last three days
+        """
+        now = datetime.datetime.now()
+        three_days_ago = now - datetime.timedelta(3)
+        history = SkillHistory.objects.filter(skill_entry=self, date__gte=three_days_ago)
+        return history.count() > 0
+
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            SkillHistory.objects.create(skill_entry=self)
+
 
 class SkillHistory(models.Model):
     """
@@ -214,7 +252,7 @@ class SkillHistory(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(date) + ': ' + str(self.skill_entry)
+        return str(self.date) + ': ' + str(self.skill_entry)
 
 
 class Member(models.Model):
@@ -229,15 +267,16 @@ class Member(models.Model):
     last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
-    buffer_total_percentage = models.FloatField(null=True, blank=True, default=100)
-    buffer_learning_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_trainers_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_sales_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_planning_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_internal_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
+    buffer_total_percentage = models.FloatField(default=100)
+    buffer_learning_percentage = models.FloatField(default=0)
+    buffer_trainers_percentage = models.FloatField(default=0)
+    buffer_sales_percentage = models.FloatField(default=0)
+    buffer_planning_percentage = models.FloatField(default=0)
+    buffer_internal_percentage = models.FloatField(default=0)
+    buffer_seniority_percentage = models.FloatField(default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
+    created = models.DateTimeField(auto_now_add=True)
 
     @property
     def viewed_summary_today(self):
@@ -418,17 +457,32 @@ class Member(models.Model):
                     self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
         return self._allocated_hours_percentage
 
+    @property
     def buffer_percentage(self):
         if self.deactivated:
             return 100.0
-        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + self.buffer_planning_percentage + self.buffer_internal_percentage - self.buffer_seniority_percentage
+        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
+               self.buffer_planning_percentage + self.buffer_internal_percentage
+
+    def buffer_percentage_old(self):
+        if self.deactivated:
+            return 100.0
+        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
+               self.buffer_planning_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
 
     @property
     def hours_available(self):
         if self.deactivated:
             return 0.0
-        return round((140.0 * (self.buffer_total_percentage / 100.0) * (
-                (100.0 - self.buffer_percentage) / 100.0) - self.allocated_hours_month()), 2)
+        return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) * (
+                (100.0 + self.buffer_seniority_percentage) / 100.0) - self.allocated_hours_month()), 2)
+
+    @property
+    def hours_available_old(self):
+        if self.deactivated:
+            return 0.0
+        return round((140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old()) / 100.0)
+                      - self.allocated_hours_month()), 2)
 
     def hours_available_other_month(self, month, year):
         """
@@ -456,7 +510,12 @@ class Member(models.Model):
 
     @property
     def total_hours_minus_buffer(self):
-        return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0)
+        return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) * (
+                (100.0 + self.buffer_seniority_percentage) / 100.0)
+
+    @property
+    def total_hours_minus_buffer_old(self):
+        return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old()) / 100.0)
 
     @property
     def monthly_hour_capacity(self):
@@ -562,7 +621,11 @@ class Member(models.Model):
                 Q(seo1=self) | Q(seo2=self) | Q(seo3=self) |
                 Q(strat1=self) | Q(strat2=self) | Q(strat3=self)
             ) | self.active_mandate_accounts
-        return self._accounts
+        return self._accounts.distinct()
+
+    @property
+    def active_accounts_including_backups_count(self):
+        return self.active_accounts_count + self.backup_accounts.count()
 
     @property
     def accounts_not_lost(self):
@@ -596,7 +659,31 @@ class Member(models.Model):
                 id__in=backups.values('account_id'))
         return self._backupaccounts
 
-    def get_accounts_count(self):
+    @property
+    def backup_hours_plus_minus(self):
+        """
+        The number of allocated hours this member has gained or lost due to backups (this month)
+        """
+        hours = 0
+        now = datetime.datetime.now()
+        # a member cannot simultaneously be on vacation and be backing someone up - must be one or the other
+        potential_backups = Backup.objects.filter(period__member=self, account__in=self.active_accounts,
+                                                  period__start_date__lte=now,
+                                                  period__end_date__gte=now, approved=True)
+        if potential_backups.count() > 0:
+            # hours will be negative since this member is on vacation
+            for backup in potential_backups:
+                hours_to_deduct = backup.hours_this_month
+                num_members = backup.members.all().count()
+                hours_to_deduct *= num_members
+                hours -= hours_to_deduct
+        else:
+            # hours will be positive since member is backing up other people
+            for acc in self.backup_accounts:
+                hours += acc.get_allocation_this_month_member(self, True)
+        return hours
+
+    def all_accounts_count(self):
         return self.accounts.count()
 
     @property
@@ -628,6 +715,15 @@ class Member(models.Model):
         return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer)
 
     @property
+    def capacity_rate_old(self):
+        """
+        Percentage of total available hours (after buffer) that are allocated
+        """
+        if self.total_hours_minus_buffer == 0.0:
+            return 0.0
+        return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer_old)
+
+    @property
     def unread_notifications(self):
         """
         Fetches the notifications for this member
@@ -644,8 +740,8 @@ class Member(models.Model):
         """
         if not hasattr(self, '_phase_tasks'):
             tasks = PhaseTask.objects.filter(roles__in=[self.role])
-            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, account__in=self.accounts,
-                                                                  complete=False)
+            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, complete=False,
+                                                                  account__in=self.onboard_active_accounts)
             self._phase_tasks = task_assignments
         return self._phase_tasks
 
@@ -675,11 +771,20 @@ class Member(models.Model):
     on_all_teams = property(on_all_teams)
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
-    buffer_percentage = property(buffer_percentage)
-    account_count = property(get_accounts_count)
+    account_count = property(all_accounts_count)
 
     def __str__(self):
         return self.user.get_full_name()
+
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            skills = Skill.objects.all()
+            for skill in skills:
+                SkillEntry.objects.create(skill=skill, member=self, score=0)
 
 
 class BackupPeriod(models.Model):
