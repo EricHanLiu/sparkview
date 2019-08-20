@@ -658,7 +658,7 @@ def members_single(request, id=0):
         'todos': todos,
         'flagged_accounts_count': flagged_accounts.count(),
         'onboarding_steps': onboarding_steps,
-        'title': 'Accounts'
+        'title': 'Dashboard - SparkView'
     }
 
     # ajax mandate completed checkmarking and todolist completion
@@ -673,7 +673,6 @@ def members_single(request, id=0):
         todo_id = request.POST.get('todo_id')
         if todo_id is not None:
             todo = Todo.objects.get(id=todo_id)
-
             todo.completed = True
             todo.save()
 

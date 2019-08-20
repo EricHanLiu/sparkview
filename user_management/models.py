@@ -771,7 +771,6 @@ class Member(models.Model):
     on_all_teams = property(on_all_teams)
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
-    buffer_percentage = property(buffer_percentage)
     account_count = property(all_accounts_count)
 
     def __str__(self):
