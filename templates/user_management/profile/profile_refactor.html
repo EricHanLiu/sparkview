@@ -111,23 +111,23 @@
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
                                     {% if account.default_budget is not None %}
-                                        <div class="columns" style="font-size: 0.9rem;">
-                                            <div class="column is-2">
+                                        <div class="level" style="font-size: 0.95rem; margin-bottom: 0.1rem;">
+                                            <div class="level-item">
                                                 Spend: {{ account.default_budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Budget: {{ account.default_budget.calculated_budget|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Average: {{ account.default_budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Rec Daily Spend: {{ account.default_budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Yesterday Spend: {{ account.default_budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Projected
                                                 Spend: {{ account.default_budget.projected_spend_avg|currency }}
                                             </div>

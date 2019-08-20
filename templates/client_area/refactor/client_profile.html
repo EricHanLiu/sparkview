@@ -563,29 +563,27 @@
                                         </div>
                                     </header>
                                     <div class="card-content">
-                                        <div class="columns">
-                                            <div class="column is-2">
+                                        <div class="level" style="font-size: 0.95rem; margin-bottom: 0.1rem;">
+                                            <div class="level-item">
                                                 Spend:
-                                                <strong>{{ account.default_budget.calculated_spend|currency }}</strong>
+                                                {{ account.default_budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="column is-2">
-                                                Budget: <strong>{{ account.default_budget.budget|currency }}</strong>
+                                            <div class="level-item">
+                                                Budget: {{ account.default_budget.budget|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Average:
-                                                <strong>{{ account.default_budget.average_spend_yest|currency }}</strong>
+                                                {{ account.default_budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Rec Daily Spend:
-                                                <strong>{{ account.default_budget.rec_spend_yest|currency }}</strong>
+                                                {{ account.default_budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="column is-2">
-                                                Yesterday Spend:
-                                                <strong>{{ account.default_budget.yesterday_spend|currency }}</strong>
+                                            <div class="level-item">
+                                                Yesterday Spend:{{ account.default_budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="column is-2">
-                                                Projected Spend:
-                                                <strong>{{ account.default_budget.projected_spend_avg|currency }}</strong>
+                                            <div class="level-item">
+                                                Projected Spend:{{ account.default_budget.projected_spend_avg|currency }}
                                             </div>
                                         </div>
                                         <div class="columns">
@@ -671,23 +669,23 @@
                                         </div>
                                     </header>
                                     <div class="card-content">
-                                        <div class="columns">
-                                            <div class="column is-2">
+                                        <div class="level" style="font-size: 0.95rem; margin-bottom: 0.1rem;">
+                                            <div class="level-item">
                                                 Spend: {{ budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Budget: {{ budget.calculated_budget|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Average: {{ budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Rec Daily Spend: {{ budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Yesterday Spend: {{ budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="column is-2">
+                                            <div class="level-item">
                                                 Projected Spend: {{ budget.projected_spend_avg|currency }}
                                             </div>
                                         </div>
