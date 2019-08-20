@@ -1525,7 +1525,7 @@ def set_services(request):
     sales_profile.save()
 
     if sales_profile.ppc_status == 1 and account.default_budget is None:
-        create_default_budget(account)
+        create_default_budget(account_id)
 
     return redirect('/clients/accounts/' + str(account.id))
 
