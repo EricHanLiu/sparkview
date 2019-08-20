@@ -227,11 +227,11 @@ class SkillEntry(models.Model):
     @property
     def updated_recently(self):
         """
-        Returns true if this skillentry has been updated in the last three days
+        Returns true if this skillentry has been updated in the last day
         """
         now = datetime.datetime.now()
-        three_days_ago = now - datetime.timedelta(3)
-        history = SkillHistory.objects.filter(skill_entry=self, date__gte=three_days_ago)
+        yesterday = now - datetime.timedelta(1)
+        history = SkillHistory.objects.filter(skill_entry=self, date__gte=yesterday)
         return history.count() > 0
 
     def save(self, *args, **kwargs):
