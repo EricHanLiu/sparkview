@@ -4,9 +4,9 @@ html, body {
 
 /* COLORS */
 .button-color {
-    background-color: #00b4eb;
-    color: white;
-    font-weight: bold;
+    /*background-color: rgba(97, 117, 222, 1.0);*/
+    /*color: white;*/
+    /*font-weight: bold;*/
 }
 
 .button-color-2 {
@@ -54,11 +54,11 @@ html, body {
     color: white;
 }
 
-.button-color:hover, .button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
+.button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
     color: navajowhite;
 }
 
-.button-color:focus, .button-color-2:focus, .button-color-3:focus, .button-color-4:focus {
+.button-color-2:focus, .button-color-3:focus, .button-color-4:focus {
     color: navajowhite;
 }
 

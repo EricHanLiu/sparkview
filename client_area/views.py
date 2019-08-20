@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.utils import timezone
 import calendar
 import datetime
-
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
@@ -16,6 +15,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
+from budget.cron import create_default_budget
 from tasks.logger import Logger
 import json
 from django.core.serializers import serialize
@@ -1523,6 +1523,9 @@ def set_services(request):
         sales_profile.cro_status = cro
 
     sales_profile.save()
+
+    if sales_profile.ppc_status == 1 and account.default_budget is None:
+        create_default_budget(account)
 
     return redirect('/clients/accounts/' + str(account.id))
 
