@@ -116,6 +116,16 @@ class Incident(models.Model):
         return self.members_string + ' incident on ' + str(
             self.date) + '. Reported by ' + self.reporter.user.get_full_name()
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.approved:  # create todo when incident gets approved
+            for member in self.members.all():
+                description = 'You have received a new oops, created on ' + str(self.timestamp) + \
+                              '. Head over to the performance tab to view it.'
+                link = '/user_management/members/' + str(member.id) + '/performance'
+                Todo = apps.get_model('notifications', 'Todo')
+                Todo.objects.get_or_create(member=member, description=description, link=link, type=2)
+
 
 class TrainingGroup(models.Model):
     """
@@ -214,6 +224,16 @@ class SkillEntry(models.Model):
 
     def __str__(self):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
+
+    @property
+    def updated_recently(self):
+        """
+        Returns true if this skillentry has been updated in the last three days
+        """
+        now = datetime.datetime.now()
+        three_days_ago = now - datetime.timedelta(3)
+        history = SkillHistory.objects.filter(skill_entry=self, date__gte=three_days_ago)
+        return history.count() > 0
 
     def save(self, *args, **kwargs):
         created = False

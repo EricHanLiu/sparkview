@@ -107,7 +107,7 @@
                                     </div>
                                 </div>
                                 <hr>
-                                {% if account_dict.is_active or account_dict.is_backup %}
+                                {% if account_dict.is_active or account_dict.is_backup and account.default_budget is not None %}
                                     <div class="columns">
                                         <div class="column">
                                             <div class="level" style="font-size: 0.9em; margin-bottom: 0.3em;">

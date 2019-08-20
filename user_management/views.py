@@ -1186,6 +1186,12 @@ def training_members(request):
         skill_entry.score = new_score
         skill_entry.save()
 
+        # create todo for member
+        description = 'Your skill ranking for ' + skill_entry.skill.name + \
+                      ' has been updated! Head over to the performance tab to view it.'
+        link = '/user_management/members/' + member_id + '/performance'
+        Todo.objects.create(member=member, description=description, link=link, type=2)
+
         # store skill history for this entry
         SkillHistory.objects.create(skill_entry=skill_entry)
 
