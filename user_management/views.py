@@ -775,7 +775,7 @@ def members_single_reports(request, id):
             if not report.no_report:
                 reports.append(report)
 
-    reports.sort(key=lambda r: r.due_date)
+    reports.sort(key=lambda r: (r.due_date is None, r.due_date))  # forces reports w/o due dates to the end
 
     context = {
         'member': member,
