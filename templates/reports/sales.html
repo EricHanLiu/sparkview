@@ -133,8 +133,9 @@
         });
 
         $('#update_opp_confirm_button').click(() => {
+            let statusSelect = $('#status_select').val();
             let lostReason = $('#lost_reason_input').val();
-            if (lostReason === '') {
+            if (lostReason === '' && statusSelect === '2') {
                 toastr.error('Please input a lost reason!');
                 return;
             }
@@ -147,7 +148,7 @@
                 type: 'POST',
                 data: {
                     'opp_id': $('#current_opp_id').val(),
-                    'status': $('#status_select').val(),
+                    'status': statusSelect,
                     'lost_reason': lostReason
                 },
                 success: function () {
