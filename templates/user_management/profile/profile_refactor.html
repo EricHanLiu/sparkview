@@ -5,6 +5,8 @@
 {% load notification_tags %}
 {% load humanize %}
 {% load custom_filters %}
+{% load budget_tags %}
+
 
 {% block extraCss %}
     <link href="/static/bulma-checkradio.min.css" type="text/css" rel="stylesheet">
@@ -109,46 +111,41 @@
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
                                     {% if account.default_budget is not None %}
+                                        <div class="columns" style="font-size: 0.9rem;">
+                                            <div class="column is-2">
+                                                Spend: {{ account.default_budget.calculated_spend|currency }}
+                                            </div>
+                                            <div class="column is-2">
+                                                Budget: {{ account.default_budget.calculated_budget|currency }}
+                                            </div>
+                                            <div class="column is-2">
+                                                Average: {{ account.default_budget.average_spend_yest|currency }}
+                                            </div>
+                                            <div class="column is-2">
+                                                Rec Daily Spend: {{ account.default_budget.rec_spend_yest|currency }}
+                                            </div>
+                                            <div class="column is-2">
+                                                Yesterday Spend: {{ account.default_budget.yesterday_spend|currency }}
+                                            </div>
+                                            <div class="column is-2">
+                                                Projected
+                                                Spend: {{ account.default_budget.projected_spend_avg|currency }}
+                                            </div>
+                                        </div>
                                         <div class="columns">
                                             <div class="column">
-                                                <div class="level" style="font-size: 0.9em; margin-bottom: 0.3em;">
-                                                    <div class="level-item">
-                                                        <b>Current</b>:
-                                                        {{ account.currency }}{{ account.default_budget.calculated_spend|format_money }}
-                                                    </div>
-                                                    <div class="level-item">
-                                                        <b>Budget</b>:
-                                                        {{ account.currency }}{{ account.default_budget.calculated_budget|format_money }}
-                                                    </div>
-                                                    <div class="level-item">
-                                                        <b>Average Projected</b>:
-                                                        {{ account.currency }}{{ account.default_budget.projected_spend_avg|format_money }}
-                                                    </div>
-                                                    <div class="level-item">
-                                                        <b>Yesterday Spend</b>:
-                                                        {{ account.currency }}{{ account.default_budget.yesterday_spend|format_money }}
-                                                    </div>
-                                                    <div class="level-item">
-                                                        <b>Target Daily Spend</b>:
-                                                        {{ account.currency }}{{ account.default_budget.rec_spend_yest|format_money }}
-                                                    </div>
-                                                </div>
-                                                <div class="columns">
-                                                    <div class="column">
-                                                        <div class="progress-wrapper">
-                                                            <progress
-                                                                    class="progress is-large {% if account.underpacing_average %}is-warning
+                                                <div class="progress-wrapper">
+                                                    <progress
+                                                            class="progress is-large {% if account.underpacing_average %}is-warning
                                                       {% elif account.project_average > account.current_budget %}is-danger
                                                       {% else %}is-success{% endif %}"
-                                                                    value="{{ account.default_budget.spend_percentage }}"
-                                                                    max="100"></progress>
-                                                            <div class="progress-value">
-                                                                {{ account.default_budget.spend_percentage|floatformat:2 }}%
-                                                            </div>
-                                                            <div class="budget-pacer"
-                                                                 style="left: {{ account.default_budget.pacer_offset }}%"></div>
-                                                        </div>
+                                                            value="{{ account.default_budget.spend_percentage }}"
+                                                            max="100"></progress>
+                                                    <div class="progress-value">
+                                                        {{ account.default_budget.spend_percentage|floatformat:2 }}%
                                                     </div>
+                                                    <div class="budget-pacer"
+                                                         style="left: {{ account.default_budget.pacer_offset }}%"></div>
                                                 </div>
                                             </div>
                                         </div>
