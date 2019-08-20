@@ -13,7 +13,7 @@
                 </div>
                 <div class="level-right">
                     <div class="level-item">
-                        <a href="/clients/promos/edit" class="button is-small is-link">Edit Promos</a>
+                        <a href="/clients/promos/edit" class="button is-info">Edit Promos</a>
                     </div>
                 </div>
             </div>
@@ -61,9 +61,9 @@
                             </td>
                             <td>
                                 {% if promo.confirmed_started is None %}
-                                <button class="button is-rounded j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="0">Confirm Started</button>
+                                <button class="button j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="0">Confirm Started</button>
                                 {% elif promo.confirmed_ended is None %}
-                                <button class="button is-rounded j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="1">Confirm Ended</button>
+                                <button class="button j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="1">Confirm Ended</button>
                                 {% else %}
                                 Promo ended on {{ promo.confirmed_ended }}
                                 {% endif %}
@@ -110,6 +110,6 @@
             });
         });
 
-
+        $('#promos_tab').addClass('is-active');
     </script>
 {% endblock %}
