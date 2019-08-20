@@ -6,6 +6,7 @@ from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
     MandateHourRecord
 from client_area.utils import days_in_month_in_daterange
+from notifications.models import Todo
 import datetime
 import calendar
 
@@ -115,6 +116,15 @@ class Incident(models.Model):
     def __str__(self):
         return self.members_string + ' incident on ' + str(
             self.date) + '. Reported by ' + self.reporter.user.get_full_name()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.approved:  # create todo when incident gets approved
+            for member in self.members.all():
+                description = 'You have received a new oops, created on ' + str(self.timestamp) + \
+                              '. Head over to the performance tab to view it.'
+                link = '/user_management/profile/performance'
+                Todo.objects.get_or_create(member=member, description=description, link=link, type=2)
 
 
 class TrainingGroup(models.Model):

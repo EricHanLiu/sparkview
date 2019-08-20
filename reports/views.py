@@ -9,7 +9,7 @@ from user_management.models import Member, Team, Incident, Role, HighFive, Incid
 from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
-from notifications.models import Notification
+from notifications.models import Notification, Todo
 from django.conf import settings
 import datetime
 import calendar
@@ -878,8 +878,12 @@ def new_high_five(request):
         high_five.nominator = Member.objects.get(id=r.get('nominator'))
         high_five.member = Member.objects.get(id=r.get('member'))
         high_five.description = r.get('description')
-
         high_five.save()
+
+        # create todo for member
+        description = 'You\'ve received a new high five! Head over to the performance tab to view it.'
+        link = '/user_management/profile/performance'
+        Todo.objects.create(member=high_five.member, description=description, link=link, type=2)
 
         mail_details = {
             'hf': high_five
