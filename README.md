@@ -99,3 +99,8 @@
   - Now using celery beat (using django admin panel to schedule the tasks)
   - Celery running as a daemon, same as before
   - Now using flower as a monitoring service (https://github.com/mher/flower/issues/762)
+  
+ ### Suds Jurko fix
+ 
+  - We use a library called suds-jurko
+  - Sometimes, this causes massive files to be created in `/tmp/suds`. If this happens, see https://bitbucket.org/jurko/suds/issues/126/millions-of-temp-files-eating-my-hard
