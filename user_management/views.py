@@ -615,6 +615,8 @@ def members_single(request, id=0):
 
     account_hours = {}
     account_allocation = {}
+    mandate_hours = {}
+    mandate_allocation = {}
     for account_id in master_accounts_dictionary:
         account_dict = master_accounts_dictionary[account_id]
         account_hours[account_id] = 0
@@ -631,6 +633,8 @@ def members_single(request, id=0):
                 allocation = assignment.hours
                 account_hours[account_id] += hours
                 account_allocation[account_id] += allocation
+                mandate_hours[assignment.id] = hours
+                mandate_allocation[assignment.id] = allocation
         if account_dict['is_backup']:
             hours = account.get_hours_worked_this_month_member(member)
             allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
@@ -654,6 +658,8 @@ def members_single(request, id=0):
     context = {
         'account_hours': account_hours,
         'account_allocation': account_allocation,
+        'mandate_hours': mandate_hours,
+        'mandate_allocation': mandate_allocation,
         'member': member,
         'master_accounts_dictionary': sorted_dict,
         'today': today,

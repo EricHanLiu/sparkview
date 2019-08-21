@@ -82,22 +82,24 @@
                                         {% endif %}
                                     </div>
                                     <div class="level-right">
-                                        <div class="level-item">
-                                            <div class="buttons">
-                                                <div class="button is-small is-rounded quickadd"
-                                                     data-account-id="{{ account.id }}" data-amount="0.25">
-                                                    +15m
-                                                </div>
-                                                <div class="button is-small is-rounded quickadd"
-                                                     data-account-id="{{ account.id }}" data-amount="0.5">
-                                                    +30m
-                                                </div>
-                                                <div class="button is-small is-rounded quickadd"
-                                                     data-account-id="{{ account.id }}" data-amount="1">
-                                                    +1h
+                                        {% if account_dict.is_active or account_dict.is_backup %}
+                                            <div class="level-item">
+                                                <div class="buttons">
+                                                    <div class="button is-small is-rounded quickadd"
+                                                         data-account-id="{{ account.id }}" data-amount="0.25">
+                                                        +15m
+                                                    </div>
+                                                    <div class="button is-small is-rounded quickadd"
+                                                         data-account-id="{{ account.id }}" data-amount="0.5">
+                                                        +30m
+                                                    </div>
+                                                    <div class="button is-small is-rounded quickadd"
+                                                         data-account-id="{{ account.id }}" data-amount="1">
+                                                        +1h
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                         <div class="level-item">
                                             <div class="tag is-rounded tag-color-3">
                                                 <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|floatformat:2 }}</span>/{{ account_allocation|get_item_from_list:account.id|floatformat:2 }}
@@ -195,7 +197,7 @@
                                                     {{ assignment.mandate.hourly_rate|floatformat:2 }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    {{ mandate_hours|get_item_from_list:assignment.mandate.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:assignment.mandate.id|floatformat:2 }}
+                                                    {{ mandate_hours|get_item_from_list:assignment.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:assignment.id|floatformat:2 }}
                                                 </td>
                                                 <td class="has-text-centered">
                                                     {{ assignment.mandate.allocated_hours_this_month|floatformat:2 }}
