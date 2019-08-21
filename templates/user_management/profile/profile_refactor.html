@@ -453,7 +453,7 @@
                     toastr.success('Successfully completed onboarding step!');
                     $('#' + stepElementID).addClass('button-color-4');
                     $('.modal').removeClass('is-active');
-                    if ($('#step_name').val() === 'Execute') {
+                    if ($('#step_name').text() === 'Execute') {
                         toastr.success('Account is now active!');
                         setTimeout(() => {
                             location.reload();
