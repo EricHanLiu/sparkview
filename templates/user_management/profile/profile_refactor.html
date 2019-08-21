@@ -208,7 +208,7 @@
                                                     <input type="checkbox" class="mandate-completed is-checkradio"
                                                            id="{{ assignment.mandate.id }}"
                                                             {% if assignment.mandate.completed %}
-                                                           checked disabled{% endif %}>
+                                                           checked{% endif %}>
                                                     <label for="{{ assignment.mandate.id }}"></label>
                                                 </td>
                                             </tr>
@@ -376,6 +376,22 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="reopen_mandate_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Reopen Mandate</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="reopen_mandate_confirm_button">Reopen</button>
+                    </div>
+                </div>
+                <p>This mandate is currently marked as completed. Would you like to reopen it?</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extraJs %}
@@ -446,6 +462,54 @@
                 }
             });
         });
+
+        // mandate completed checkbox
+        let $mandateCompleteBoxes = $('.mandate-completed');
+        let $reopenMandateModal = $('#reopen_mandate_modal');
+        let handlerAttached = false;
+        $mandateCompleteBoxes.change(function () {
+            let checked = this.checked;
+            let mandateId = this.id;
+
+            // display confirmation modal if already checked
+            if (!checked) {
+                $reopenMandateModal.addClass('is-active');
+                this.checked = true;
+
+                // only attach click handler once
+                if (handlerAttached) {
+                    return;
+                } else {
+                    // arrow function to avoid 'this' redefinition
+                    $('#reopen_mandate_confirm_button').click(() => {
+                        sendRequest(checked, mandateId);
+                        this.checked = false;
+                    });
+                    handlerAttached = true;
+                }
+            } else {
+                sendRequest(checked, mandateId);
+            }
+        });
+
+        function sendRequest(checked, mandateId) {
+            $.ajax({
+                url: '',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'checked': checked,
+                    'mandate_id': mandateId
+                },
+                success: function () {
+                    let inPrefix = checked ? '' : 'in';
+                    toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
+                    $reopenMandateModal.removeClass('is-active');
+                }
+            });
+        }
 
         $('#resolve_task_confirm_button').click(() => {
             if ($bcLink.val() === '' && $flagged.val() === 'True') {

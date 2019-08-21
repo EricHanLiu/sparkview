@@ -664,7 +664,7 @@ def members_single(request, id=0):
     # ajax mandate completed checkmarking and todolist completion
     if request.method == 'POST':
         checked = request.POST.get('checked') == 'true'
-        mandate_id = request.POST.get('mandate-id')
+        mandate_id = request.POST.get('mandate_id')
         if mandate_id is not None:
             mandate = Mandate.objects.get(id=mandate_id)
             mandate.completed = checked
