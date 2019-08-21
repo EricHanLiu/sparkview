@@ -14,7 +14,7 @@ import datetime
 
 
 @celery_app.task(bind=True)
-def get_all_spends_by_bing_campaign_this_month():
+def get_all_spends_by_bing_campaign_this_month(self):
     accounts = active_bing_accounts()
     for account in accounts:
         if settings.DEBUG:
@@ -153,7 +153,7 @@ def get_spend_by_bing_campaign_custom(self, budget_id, bing_account_id):
     range_until_yesterday['maxDate'] = datetime.date.today() - datetime.timedelta(days=1)
 
     report = helper.get_campaign_performance(
-        campaign.account.account_id,
+        bing_account.account_id,
         dateRangeType='CUSTOM_DATE',
         report_name='campaign_stats_tm',
         extra_fields=fields,

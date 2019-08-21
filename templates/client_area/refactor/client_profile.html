@@ -509,7 +509,7 @@
                                                     </div>
                                                 </div>
                                                 <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
-                                                <span class="tag is-rounded {% if account.fb.all %}tag-color-4{% endif %}">F</span>
+                                                <span class="tag is-rounded {% if account.facebook.all %}tag-color-4{% endif %}">F</span>
                                                 <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
                                             </div>
                                         </div>
@@ -563,13 +563,13 @@
                                         </div>
                                     </header>
                                     <div class="card-content">
-                                        <div class="level" style="font-size: 0.95rem; margin-bottom: 0.1rem;">
+                                        <div class="level" style="margin-bottom: 0.1rem;">
                                             <div class="level-item">
                                                 Spend:
                                                 {{ account.default_budget.calculated_spend|currency }}
                                             </div>
                                             <div class="level-item">
-                                                Budget: {{ account.default_budget.budget|currency }}
+                                                Budget: {{ account.default_budget.calculated_budget|currency }}
                                             </div>
                                             <div class="level-item">
                                                 Average:
@@ -669,7 +669,7 @@
                                         </div>
                                     </header>
                                     <div class="card-content">
-                                        <div class="level" style="font-size: 0.95rem; margin-bottom: 0.1rem;">
+                                        <div class="level" style="margin-bottom: 0.1rem;">
                                             <div class="level-item">
                                                 Spend: {{ budget.calculated_spend|currency }}
                                             </div>
