@@ -70,7 +70,7 @@
                                             <div class="column is-6">
                                                 <div class="columns">
                                                     <div class="column is-2">
-                                                        <div class="tag is-rounded {{ tag_colors|get_item_from_list:skill_entry.score }}">
+                                                        <div class="tag is-rounded {{ skill_entry.tag_color }}">
                                                             {{ skill_entry.score }}
                                                         </div>
                                                     </div>
@@ -100,34 +100,36 @@
                         <canvas id="skill_concentration_chart"></canvas>
                     </div>
                 </div>
-                <div class="card" style="margin-top: 1em;">
-                    <div class="card-content">
-                        <h5 class="title is-5 has-text-centered">Badges</h5>
-                        <div class="columns is-multiline">
-                            {% for badge in badges %}
-                                <div class="column is-4">
-                                    <div class="has-text-centered">
-                                        <p class="heading">
-                                            <img src="/static/img/badge.svg" style="height: 6em;">
-                                        </p>
-                                        <p style="margin-top: 0.5em;">
-                                            {{ badge.skill_category.name }}
-                                        </p>
-                                    </div>
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="card" style="margin-top: 1em;">
+                            <div class="card-content">
+                                <h5 class="title is-5 has-text-centered">Badges</h5>
+                                <div class="columns is-multiline is-centered">
+                                    {% for badge in badges %}
+                                        <div class="column is-6">
+                                            <div class="has-text-centered">
+                                                <p class="heading">
+                                                    <img src="/static/img/badge.svg" style="height: 6em;">
+                                                </p>
+                                                <p style="margin-top: 0.5em;">
+                                                    {{ badge.skill_category.name }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
                                 </div>
-                            {% endfor %}
+                                {% if badges.count == 0 %}
+                                    <p>You don't have any badges yet. Keep working hard on improving your skills!</p>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% if badges.count == 0 %}
-                            <p>You don't have any badges yet. Keep working hard on improving your skills!</p>
-                        {% endif %}
                     </div>
-                </div>
-                <div class="card" style="margin-top: 1em;">
-                    <div class="card-content">
-                        <h5 class="title is-5 has-text-centered">Legend</h5>
-                        <div class="columns is-multiline">
-                            {% for color in tag_colors %}
-                                <div class="column is-4">
+                    <div class="column is-6">
+                        <div class="card" style="margin-top: 1em;">
+                            <div class="card-content">
+                                <h5 class="title is-5 has-text-centered">Legend</h5>
+                                {% for color in tag_colors %}
                                     <div class="columns">
                                         <div class="column is-2">
                                             <div class="tag is-rounded {{ color }}">
@@ -148,9 +150,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                </div>
-                            {% endfor %}
-                            <div class="column is-4">
+                                {% endfor %}
                                 <button class="button is-small">
                                     <a href="https://docs.google.com/spreadsheets/d/1VfolHkDGy4ESOFuPpTQWvUGhU_j9EFQ2AzmL7Z5LzLE/edit#gid=1040345408"
                                        target="_blank">
@@ -434,15 +434,15 @@
         function fillArraysWithValues(categoryNames, categoryAverages, categoryColors, name, average) {
             categoryNames.push(name);
             categoryAverages.push(average);
-            let color = 'rgba(245, 245, 245, 0.9)';
+            let color = 'rgba(245, 245, 245, 1)';
             if (average === 4) {
-                color = 'rgba(16, 240, 248, 0.9)';
-            } else if (average > 3) {
-                color = 'rgba(214, 192, 116, 0.9)';
-            } else if (average > 2) {
-                color = 'rgba(190, 194, 195, 0.9)';
-            } else if (average > 1) {
-                color = 'rgba(138, 70, 39, 0.9)';
+                color = 'rgba(214, 192, 116, 1)';
+            } else if (average >= 3) {
+                color = 'rgba(190, 194, 195, 1)';
+            } else if (average >= 2) {
+                color = 'rgba(138, 70, 39, 1)';
+            } else if (average >= 1) {
+                color = 'rgba(104, 105, 105, 1)';
             }
             categoryColors.push(color);
         }

@@ -965,7 +965,7 @@ def performance(request, member_id):
     oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
 
-    tag_colors = ['', 'bronze-tag', 'silver-tag', 'gold-tag', 'diamond-tag']
+    tag_colors = SkillEntry.TAG_COLORS
     skill_categories = SkillCategory.objects.all()
     member_skills_categories = []  # list of objects where each object encodes info about a skill category
     for cat in skill_categories:

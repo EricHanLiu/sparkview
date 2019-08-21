@@ -59,23 +59,23 @@ html, body {
     color: white;
 }
 
+.tag.iron-tag {
+    background-color: #686969;
+    color: white;
+}
+
 .tag.bronze-tag {
-    background-color: #8a4627;
+    background-color: #cd7f32;
     color: white;
 }
 
 .tag.silver-tag {
-    background-color: #bec2c3;
+    background-color: #C0C0C0;
     color: white;
 }
 
 .tag.gold-tag {
-    background-color: #d6c074;
-    color: white;
-}
-
-.tag.diamond-tag {
-    background-color: #10f0f8;
+    background-color: #D4AF37;
     color: white;
 }
 

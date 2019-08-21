@@ -224,6 +224,8 @@ class SkillEntry(models.Model):
         (4, 'Expert'),
     ]
 
+    TAG_COLORS = ['', 'iron-tag', 'bronze-tag', 'silver-tag', 'gold-tag']
+
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
     score = models.IntegerField(default=0, choices=SCORE_OPTIONS)
@@ -235,6 +237,10 @@ class SkillEntry(models.Model):
 
     def __str__(self):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
+
+    @property
+    def tag_color(self):
+        return self.TAG_COLORS[self.score]
 
     @property
     def updated_recently(self):
