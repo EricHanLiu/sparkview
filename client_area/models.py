@@ -56,12 +56,12 @@ class ClientType(models.Model):
 
 
 class ClientContact(models.Model):
-    name = models.CharField(max_length=255, default='None', null=True)
-    email = models.EmailField(max_length=255, default='None', null=True)
-    phone = models.CharField(max_length=255, default='None', null=True)
+    name = models.CharField(max_length=255, default='None')
+    email = models.EmailField(max_length=255, default='None')
+    phone = models.CharField(max_length=255, default='None')
 
     def __str__(self):
-        return self.name
+        return self.name if self.name is not None else 'No name'
 
 
 class AccountHourRecord(models.Model):
