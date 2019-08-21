@@ -639,9 +639,7 @@ class BingReporting(Reporting):
         extra_fields = kwargs.get('extra_fields', None)
 
         if dateRangeType == 'CUSTOM_DATE':
-            time = self.get_report_time(
-                minDate=kwargs.get('minDate'), maxDate=kwargs.get('maxDate')
-            )
+            time = self.get_report_time(kwargs.get('minDate'), kwargs.get('maxDate'))
 
         if extra_fields is not None:
             fields.extend(extra_fields)
