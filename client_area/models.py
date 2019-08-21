@@ -56,9 +56,9 @@ class ClientType(models.Model):
 
 
 class ClientContact(models.Model):
-    name = models.CharField(max_length=255, default='None')
-    email = models.EmailField(max_length=255, default='None')
-    phone = models.CharField(max_length=255, default='None')
+    name = models.CharField(max_length=255, default='')
+    email = models.EmailField(max_length=255, default='')
+    phone = models.CharField(max_length=255, default='')
 
     def __str__(self):
         return self.name if self.name is not None else 'No name'
