@@ -8,6 +8,7 @@ from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, M
 from client_area.utils import days_in_month_in_daterange
 import datetime
 import calendar
+import pytz
 
 
 class RoleGroup(models.Model):
@@ -240,10 +241,9 @@ class SkillEntry(models.Model):
         """
         Returns true if this skillentry has been updated in the last day
         """
-        now = datetime.datetime.now()
-        yesterday = now - datetime.timedelta(1)
-        history = SkillHistory.objects.filter(skill_entry=self, date__gte=yesterday)
-        return history.count() > 0
+        now = datetime.datetime.now(pytz.utc)
+        one_day_ago = now - datetime.timedelta(1)
+        return self.updated_at > one_day_ago
 
     def save(self, *args, **kwargs):
         created = False
