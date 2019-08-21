@@ -8,7 +8,7 @@ import datetime
 import calendar
 
 from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
-    HighFive, TrainingGroup, SkillHistory, SkillCategory
+    HighFive, TrainingGroup, SkillHistory, SkillCategory, Badge
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     Mandate, OnboardingStep
@@ -968,7 +968,7 @@ def performance(request, member_id):
             'average': skill_entries.aggregate(Sum('score'))['score__sum'] / skill_entries.count()
         })
 
-    badges = SkillEntry.objects.filter(member=member, score=4)
+    badges = Badge.objects.filter(member=member)
 
     context = {
         'member': member,
@@ -1190,10 +1190,22 @@ def training_members(request):
         description = 'Your skill ranking for ' + skill_entry.skill.name + \
                       ' has been updated! Head over to the performance tab to view it.'
         link = '/user_management/members/' + member_id + '/performance'
-        Todo.objects.create(member=member, description=description, link=link, type=2)
+        Todo.objects.create(member=member, description=description, link=link, type=5)
 
         # store skill history for this entry
         SkillHistory.objects.create(skill_entry=skill_entry)
+
+        # check if a badge should be assigned
+        skill_category = skill_entry.skill.skill_category
+        badge_awarded = True
+        for skill in skill_category.skill_set.all():
+            if SkillEntry.objects.get(skill=skill, member=member).score != 4:
+                badge_awarded = False
+        if badge_awarded:
+            Badge.objects.get_or_create(member=member, skill_category=skill_category)
+            description = 'Congratulations! You\'ve received a new badge for ' + skill_category.name + '!'
+            link = '/user_management/members/' + member_id + '/performance'
+            Todo.objects.create(member=member, description=description, link=link, type=5)
 
         return redirect('/user_management/members/training')
 

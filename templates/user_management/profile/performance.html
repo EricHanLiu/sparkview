@@ -108,17 +108,17 @@
                                 <div class="column is-4">
                                     <div class="has-text-centered">
                                         <p class="heading">
-                                            <img src="/static/img/badge.svg" style="height: 8em;">
+                                            <img src="/static/img/badge.svg" style="height: 6em;">
                                         </p>
-                                        <p class="title is-6" style="margin-top: 0.5em;">
-                                            {{ badge.skill.name }}
+                                        <p style="margin-top: 0.5em;">
+                                            {{ badge.skill_category.name }}
                                         </p>
                                     </div>
                                 </div>
                             {% endfor %}
                         </div>
                         {% if badges.count == 0 %}
-                            You don't have any badges yet. Keep working hard on improving your skills!
+                            <p>You don't have any badges yet. Keep working hard on improving your skills!</p>
                         {% endif %}
                     </div>
                 </div>
