@@ -584,6 +584,8 @@ def members_single(request, id=0):
             master_accounts_dictionary[account.id]['is_mandate'] = False
             master_accounts_dictionary[account.id]['is_flagged'] = False
             master_accounts_dictionary[account.id]['is_onboarding'] = False
+        if account.status == 0:
+            master_accounts_dictionary[account.id]['is_onboarding'] = True
         master_accounts_dictionary[account.id]['is_backup'] = True
 
     for assignment in member.active_mandate_assignments:
