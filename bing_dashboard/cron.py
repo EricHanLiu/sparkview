@@ -14,7 +14,7 @@ import datetime
 
 
 @celery_app.task(bind=True)
-def get_all_spends_by_bing_campaign_this_month():
+def get_all_spends_by_bing_campaign_this_month(self):
     accounts = active_bing_accounts()
     for account in accounts:
         if settings.DEBUG:

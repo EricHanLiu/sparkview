@@ -124,7 +124,7 @@ def create_default_budgets(self):
 
     for account in accounts_without_default_budgets:
         print('Making default budget for ' + str(account))
-        create_default_budget.delay(account.id)
+        create_default_budget(account.id)
 
     return 'create_default_budgets'
 

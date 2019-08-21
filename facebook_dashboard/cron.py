@@ -16,7 +16,7 @@ import datetime
 
 
 @celery_app.task(bind=True)
-def get_all_spends_by_facebook_campaign_this_month():
+def get_all_spends_by_facebook_campaign_this_month(self):
     accounts = active_facebook_accounts()
     for account in accounts:
         if settings.DEBUG:
@@ -99,7 +99,7 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
 
 
 @celery_app.task(bind=True)
-def get_all_spend_by_facebook_campaign_custom():
+def get_all_spend_by_facebook_campaign_custom(self):
     """
     Creates celery tasks for each campaign
     :return:
