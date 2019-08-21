@@ -2123,9 +2123,9 @@ def edit_management_details(request):
 
     # Make management fee structure
     fee_structure_name = request.POST.get('fee_structure_name')
-    if request.user.is_staff and request.method == 'POST' and fee_structure_name != '':
+    if request.user.is_staff and request.method == 'POST':
         fee_create_or_existing = request.POST.get('fee_structure_type')
-        if fee_create_or_existing == '1':
+        if fee_create_or_existing == '1' and fee_structure_name != '':
             # Create new management fee
             number_of_tiers = request.POST.get('row_num_input')
             init_fee = request.POST.get('setup_fee')

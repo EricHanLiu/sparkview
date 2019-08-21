@@ -124,7 +124,7 @@ class Incident(models.Model):
                               '. Head over to the performance tab to view it.'
                 link = '/user_management/members/' + str(member.id) + '/performance'
                 Todo = apps.get_model('notifications', 'Todo')
-                Todo.objects.get_or_create(member=member, description=description, link=link, type=2)
+                Todo.objects.get_or_create(member=member, description=description, link=link, type=5)
 
 
 class TrainingGroup(models.Model):
@@ -153,6 +153,17 @@ class SkillCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Badge(models.Model):
+    """
+    An achievement for a member that can be related to mastery of a skill category, and future things
+    """
+    skill_category = models.ForeignKey('SkillCategory', on_delete=models.CASCADE, null=True)
+    member = models.ForeignKey('Member', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.skill_category.name
 
 
 class Skill(models.Model):
@@ -227,11 +238,11 @@ class SkillEntry(models.Model):
     @property
     def updated_recently(self):
         """
-        Returns true if this skillentry has been updated in the last three days
+        Returns true if this skillentry has been updated in the last day
         """
         now = datetime.datetime.now()
-        three_days_ago = now - datetime.timedelta(3)
-        history = SkillHistory.objects.filter(skill_entry=self, date__gte=three_days_ago)
+        yesterday = now - datetime.timedelta(1)
+        history = SkillHistory.objects.filter(skill_entry=self, date__gte=yesterday)
         return history.count() > 0
 
     def save(self, *args, **kwargs):

@@ -75,9 +75,10 @@ class Todo(models.Model):
         (2, 'Notification'),
         (3, 'Client Review'),
         (4, 'Change History'),
+        (5, 'Performance')
     ]
 
-    TODO_COLOUR_CLASSES = ['tag-color-1', 'tag-color-2', 'tag-color-3', 'tag-color-4', 'tag-color-5']
+    TODO_COLOUR_CLASSES = ['tag-color-1', 'tag-color-2', 'tag-color-3', 'tag-color-4', 'tag-color-5', 'tag-color-6']
 
     member = models.ForeignKey(Member, on_delete=models.CASCADE, default=None, blank=True)
     description = models.CharField(max_length=255, default='')

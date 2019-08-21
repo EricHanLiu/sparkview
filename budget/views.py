@@ -1372,6 +1372,8 @@ def renew_overall_budget(request):
 
     budget_update.updated = True
     budget_update.save()
+    # temp fix for bug with overridden save not affecting the account
+    account.budget_updated = True
 
     aw_budget = request.POST.get('aw_budget') or 0.0
     fb_budget = request.POST.get('fb_budget') or 0.0
