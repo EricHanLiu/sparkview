@@ -418,7 +418,7 @@ def bing_campaigns(self):
 
 
 @celery_app.task(bind=True)
-def bing_cron_campaign_stats(self, account_id, client_id=None):
+def bing_cron_campaign_stats(self, account_id):
     account = BingAccounts.objects.get(account_id=account_id)
     helper = BingReportingService()
 

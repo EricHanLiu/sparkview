@@ -1,0 +1,112 @@
+html, body {
+    font-family: 'Rubik', sans-serif;
+}
+
+/* COLORS */
+.button-color {
+    /*background-color: rgba(97, 117, 222, 1.0);*/
+    /*color: white;*/
+    /*font-weight: bold;*/
+}
+
+.button-color-2 {
+    background-color: #fa1e44;
+    color: white;
+}
+
+.button-color-3 {
+    background-color: #fec925;
+    color: white;
+}
+
+.button-color-4 {
+    background-color: #5ab190;
+    color: white;
+}
+
+.button-color-5 {
+    background-color: #c9e3db;
+    color: black;
+}
+
+.tag.tag-color-1 {
+    background-color: #fa1e44;
+    color: white;
+}
+
+.tag.tag-color-2 {
+    background-color: #fec925;
+    color: white;
+}
+
+.tag.tag-color-3 {
+    background-color: #00b4eb;
+    color: white;
+}
+
+.tag.tag-color-4 {
+    background-color: #5ab190;
+    color: white;
+}
+
+.tag.tag-color-5 {
+    background-color: #c9e3db;
+    color: white;
+}
+
+.tag.tag-color-6 {
+    background-color: #c4cdff;
+    color: white;
+}
+
+.button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
+    color: navajowhite;
+}
+
+.button-color-2:focus, .button-color-3:focus, .button-color-4:focus {
+    color: navajowhite;
+}
+
+.menu-list a.is-active {
+    background-color: lightskyblue;
+}
+
+img {
+    border-radius: 100%;
+    box-shadow: 0 0 0 3px hsl(0, 0%, 100%), 0 0 0 6px hsl(0, 0%, 90%);
+}
+
+/* Progress bar percentage text styling */
+.progress-wrapper {
+    position: relative;
+}
+
+.progress-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    font-size: calc(1rem / 1.5);
+    line-height: 1rem;
+    font-weight: bold;
+}
+
+.progress.is-large + .progress-value {
+    font-size: calc(1.25rem / 1.5);
+    line-height: 1.5rem;
+}
+
+.budget-pacer {
+    height: 1.5rem;
+    background-color: black;
+    border-radius: 25%;
+    width: 0.2rem;
+    position: absolute;
+    top: 0;
+    left: 1%;
+}
+
+.tabs.is-toggle li.is-active a {
+    background-color: lightskyblue;
+    border-color: lightskyblue;
+}

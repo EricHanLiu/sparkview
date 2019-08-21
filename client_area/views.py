@@ -7,7 +7,6 @@ from django.db.models import Q
 from django.utils import timezone
 import calendar
 import datetime
-
 from budget.models import Client
 from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
@@ -16,6 +15,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
 from .forms import NewClientForm
+from budget.cron import create_default_budget
 from tasks.logger import Logger
 import json
 from django.core.serializers import serialize
@@ -766,7 +766,9 @@ def account_single(request, account_id):
         except (TypeError, ValueError):
             hours = 0
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+        is_onboarding = account.status == 0
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -883,7 +885,9 @@ def account_single_old(request, account_id):
         except (TypeError, ValueError):
             hours = 0
 
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+        is_onboarding = account.status == 0
+        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                         is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -1148,8 +1152,9 @@ def value_added_hours(request):
         month = request.POST.get('month')
         year = request.POST.get('year')
 
+        is_onboarding = account.status == 0
         AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                         is_unpaid=True)
+                                         is_unpaid=True, is_onboarding=is_onboarding)
 
         # return redirect('/clients/accounts/report_hours')
         # keep everything on profile page
@@ -1248,7 +1253,7 @@ def set_due_date(request):
 
     report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
 
-    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%Y-%m-%d")
+    report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%m/%d/%Y")
     report.save()
 
     resp = {
@@ -1519,7 +1524,74 @@ def set_services(request):
 
     sales_profile.save()
 
+    if sales_profile.ppc_status == 1 and account.default_budget is None:
+        create_default_budget(account_id)
+
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def complete_onboarding_step(request):
+    """
+    Mark an onboarding step as completed for an account
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    account = get_object_or_404(Client, id=account_id)
+
+    now = datetime.datetime.now()
+    assignment_id = request.POST.get('assignment_id')
+    assignment = get_object_or_404(OnboardingStepAssignment, id=assignment_id)
+    assignment.complete = True
+    assignment.completed = now
+    assignment.save()
+
+    account_active = True
+    for step in account.onboardingstepassignment_set.all():
+        if not step.complete:
+            account_active = False
+            break
+
+    if account_active:
+        sp, created = SalesProfile.objects.get_or_create(account=account)
+        sp.ppc_status = 1
+        sp.save()
+
+        event_description = account.client_name + ' completed onboarding.'
+        lc_event = LifecycleEvent.objects.create(account=account, type=2, description=event_description,
+                                                 phase=account.phase,
+                                                 phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                 bing_active=account.has_bing,
+                                                 facebook_active=account.has_fb,
+                                                 adwords_active=account.has_adwords,
+                                                 monthly_budget=account.current_budget,
+                                                 spend=account.current_spend)
+
+        lc_event.members.set(account.assigned_members_array)
+        lc_event.save()
+
+        event_description = account.client_name + ' became active.'
+        lc_event2 = LifecycleEvent.objects.create(account=account, type=4, description=event_description,
+                                                  phase=account.phase,
+                                                  phase_day=account.phase_day, cycle=account.ninety_day_cycle,
+                                                  bing_active=account.has_bing,
+                                                  facebook_active=account.has_fb,
+                                                  adwords_active=account.has_adwords,
+                                                  monthly_budget=account.current_budget,
+                                                  spend=account.current_spend)
+
+        lc_event2.members.set(account.assigned_members_array)
+        lc_event2.save()
+
+    return HttpResponse()
 
 
 @login_required
@@ -1781,6 +1853,7 @@ def set_opportunity(request):
     opp = Opportunity()
     opp.account = account
     opp.reason = opp_desc
+    opp.flagged_by = request.user.member
 
     if service_id == 'ppc':
         opp.is_primary = True
@@ -1802,6 +1875,62 @@ def set_opportunity(request):
     opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+def resolve_opportunity(request):
+    """
+    Resolves an opportunity
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.addressed = True
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def update_opportunity(request):
+    """
+    Updates an opportunity's status
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    opp_id = request.POST.get('opp_id')
+    status = request.POST.get('status')
+
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    opp.status = status
+    if status == '2':
+        opp.lost_reason = request.POST.get('lost_reason')
+    opp.save()
+
+    return redirect('/reports/sales')
+
+
+def get_opportunities(request):
+    """
+    Returns all the unresolved (unaddressed) opportunities
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    account = get_object_or_404(Client, id=request.POST.get('account_id'))
+    opportunities = Opportunity.objects.filter(addressed=False, account=account)
+    res = []
+    for opp in opportunities:  # serializing only gives the IDs, need actual string representations
+        res.append({'service': opp.service_string, 'created': opp.created})
+
+    return JsonResponse({'opportunities': res}, safe=False)
 
 
 def set_pitch(request):
@@ -1994,9 +2123,9 @@ def edit_management_details(request):
 
     # Make management fee structure
     fee_structure_name = request.POST.get('fee_structure_name')
-    if request.user.is_staff and request.method == 'POST' and fee_structure_name != '':
+    if request.user.is_staff and request.method == 'POST':
         fee_create_or_existing = request.POST.get('fee_structure_type')
-        if fee_create_or_existing == '1':
+        if fee_create_or_existing == '1' and fee_structure_name != '':
             # Create new management fee
             number_of_tiers = request.POST.get('row_num_input')
             init_fee = request.POST.get('setup_fee')

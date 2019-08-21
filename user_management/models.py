@@ -116,6 +116,16 @@ class Incident(models.Model):
         return self.members_string + ' incident on ' + str(
             self.date) + '. Reported by ' + self.reporter.user.get_full_name()
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.approved:  # create todo when incident gets approved
+            for member in self.members.all():
+                description = 'You have received a new oops, created on ' + str(self.timestamp) + \
+                              '. Head over to the performance tab to view it.'
+                link = '/user_management/members/' + str(member.id) + '/performance'
+                Todo = apps.get_model('notifications', 'Todo')
+                Todo.objects.get_or_create(member=member, description=description, link=link, type=5)
+
 
 class TrainingGroup(models.Model):
     """
@@ -135,13 +145,34 @@ class TrainingGroup(models.Model):
         return 'Training Group: ' + self.name
 
 
+class SkillCategory(models.Model):
+    """
+    Group of skills which share similarities (eg. communication skills, ppc skills)
+    """
+    name = models.CharField(max_length=255, default='')
+
+    def __str__(self):
+        return self.name
+
+
+class Badge(models.Model):
+    """
+    An achievement for a member that can be related to mastery of a skill category, and future things
+    """
+    skill_category = models.ForeignKey('SkillCategory', on_delete=models.CASCADE, null=True)
+    member = models.ForeignKey('Member', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.skill_category.name
+
+
 class Skill(models.Model):
     """
     Skillset for each Member
     """
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default='', blank=True)
-    skill_index = models.IntegerField(blank=True, null=True, default=None)
+    skill_category = models.ForeignKey(SkillCategory, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def get_score_0(self):
@@ -164,7 +195,7 @@ class Skill(models.Model):
         return SkillEntry.objects.filter(skill=self, score=4)
 
     class Meta:
-        ordering = ['skill_index']
+        ordering = ['skill_category__name']
 
     def __str__(self):
         return self.name
@@ -204,6 +235,24 @@ class SkillEntry(models.Model):
     def __str__(self):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
+    @property
+    def updated_recently(self):
+        """
+        Returns true if this skillentry has been updated in the last day
+        """
+        now = datetime.datetime.now()
+        yesterday = now - datetime.timedelta(1)
+        history = SkillHistory.objects.filter(skill_entry=self, date__gte=yesterday)
+        return history.count() > 0
+
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            SkillHistory.objects.create(skill_entry=self)
+
 
 class SkillHistory(models.Model):
     """
@@ -229,13 +278,13 @@ class Member(models.Model):
     last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
-    buffer_total_percentage = models.FloatField(null=True, blank=True, default=100)
-    buffer_learning_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_trainers_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_sales_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_planning_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_internal_percentage = models.FloatField(null=True, blank=True, default=0)
-    buffer_seniority_percentage = models.FloatField(null=True, blank=True, default=0)
+    buffer_total_percentage = models.FloatField(default=100)
+    buffer_learning_percentage = models.FloatField(default=0)
+    buffer_trainers_percentage = models.FloatField(default=0)
+    buffer_sales_percentage = models.FloatField(default=0)
+    buffer_planning_percentage = models.FloatField(default=0)
+    buffer_internal_percentage = models.FloatField(default=0)
+    buffer_seniority_percentage = models.FloatField(default=0)
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
     created = models.DateTimeField(auto_now_add=True)
@@ -419,6 +468,7 @@ class Member(models.Model):
                     self.allocated_hours_month() / (140.0 * (self.buffer_total_percentage / 100)))
         return self._allocated_hours_percentage
 
+    @property
     def buffer_percentage(self):
         if self.deactivated:
             return 100.0
@@ -732,11 +782,20 @@ class Member(models.Model):
     on_all_teams = property(on_all_teams)
     allocated_hours_this_month = property(allocated_hours_month)
     actual_hours_this_month = property(actual_hours_month)
-    buffer_percentage = property(buffer_percentage)
     account_count = property(all_accounts_count)
 
     def __str__(self):
         return self.user.get_full_name()
+
+    def save(self, *args, **kwargs):
+        created = False
+        if self.pk is None:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            skills = Skill.objects.all()
+            for skill in skills:
+                SkillEntry.objects.create(skill=skill, member=self, score=0)
 
 
 class BackupPeriod(models.Model):

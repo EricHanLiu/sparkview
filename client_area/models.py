@@ -74,6 +74,7 @@ class AccountHourRecord(models.Model):
     year = models.PositiveSmallIntegerField(blank=True, null=True)
     is_unpaid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_onboarding = models.BooleanField(default=False)
 
     def __str__(self):
         if self.member is None:
@@ -233,17 +234,11 @@ class OnboardingStep(models.Model):
     """
     Step in the onboarding process for a service. Only complete when all subtasks are complete
     """
-    SERVICES_CHOICES = [(0, 'PPC'),
-                        (1, 'SEO'),
-                        (2, 'CRO'),
-                        (3, 'Strategy')]
-
-    service = models.IntegerField(default=0, choices=SERVICES_CHOICES)
     name = models.CharField(max_length=255, default='', blank=True)
     order = models.IntegerField(default=0)  # This is for the order of the steps for onboarding
 
     def __str__(self):
-        return self.get_service_display() + ' ' + self.name
+        return self.name
 
 
 class OnboardingTask(models.Model):
@@ -263,13 +258,8 @@ class OnboardingStepAssignment(models.Model):
     """
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, default=None, null=True)
     step = models.ForeignKey(OnboardingStep, on_delete=models.SET_NULL, default=None, null=True)
-
-    @property
-    def complete(self):
-        for task in self.onboardingtaskassignment_set.all():
-            if not task.complete:
-                return False
-        return True
+    complete = models.BooleanField(default=False)
+    completed = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         if self.account is None or self.step is None:
@@ -750,6 +740,7 @@ class MandateHourRecord(models.Model):
     month = models.IntegerField(default=0.0, choices=MONTH_CHOICES)
     year = models.IntegerField(default=1990)
     created = models.DateTimeField(auto_now_add=True)
+    is_onboarding = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.assignment) + ' ' + str(self.hours) + ' hours'
@@ -785,10 +776,20 @@ class Opportunity(models.Model):
     """
     Marks an opportunity to upsell
     """
+    STATUS_CHOICES = [
+        (0, 'Flagged'),
+        (1, 'In Progress'),
+        (2, 'Lost'),
+        (3, 'Won'),
+    ]
+
     account = models.ForeignKey('budget.Client', models.CASCADE, null=True, default=None)
     reason = models.ForeignKey(OpportunityDescription, models.SET_NULL, null=True, default=None)
     is_primary = models.BooleanField(default=False)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    lost_reason = models.CharField(max_length=900, default='', blank=True)
     primary_service = models.IntegerField(default=0, choices=PRIMARY_SERVICE_CHOICES)
+    flagged_by = models.ForeignKey('user_management.Member', null=True, default=None, on_delete=models.SET_NULL)
     additional_service = models.ForeignKey(MandateType, models.CASCADE, null=True, default=None)
     addressed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
