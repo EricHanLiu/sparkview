@@ -54,6 +54,11 @@ html, body {
     color: white;
 }
 
+.tag.tag-color-6 {
+    background-color: #c4cdff;
+    color: white;
+}
+
 .button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
     color: navajowhite;
 }

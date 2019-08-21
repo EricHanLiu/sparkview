@@ -883,7 +883,7 @@ def new_high_five(request):
         # create todo for member
         description = 'You\'ve received a new high five! Head over to the performance tab to view it.'
         link = '/user_management/members/' + str(high_five.member.id) + '/performance'
-        Todo.objects.create(member=high_five.member, description=description, link=link, type=2)
+        Todo.objects.create(member=high_five.member, description=description, link=link, type=5)
 
         mail_details = {
             'hf': high_five
