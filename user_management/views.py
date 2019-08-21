@@ -1093,6 +1093,8 @@ def input_hours_profile(request, id):
                 hours = float(hours)
             except (TypeError, ValueError):
                 continue
+            if hours < 0:
+                continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
 
