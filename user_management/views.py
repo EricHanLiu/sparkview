@@ -24,6 +24,17 @@ def index(request):
 def profile(request):
     member = request.user.member
 
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_new_password = request.POST.get('confirm_new_password')
+        if new_password != confirm_new_password:
+            return HttpResponse('Passwords do not match.')
+
+        request.user.password = new_password
+        request.user.save()
+
+        return HttpResponse()
+
     context = {
         'member': member
     }
