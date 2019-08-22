@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block main_body %}
-    <div class="section has-background-light">
+    <div class="section has-background-light" {% if request.user.id == 56 %}style="background:#ffb6c1 !important;"{% endif %}>
         <div class="container is-fluid">
             {% if account.has_blacklisted_accounts %}
                 <article class="message is-danger">
