@@ -103,17 +103,17 @@ def reset_all_flight_date_spend_objects(self):
 
     for fb_csdr in fb_csdrs:
         if settings.DEBUG:
-            reset_google_ads_campaign_spend_date_range(fb_csdr.id)
+            reset_facebook_campaign_spend_date_range(fb_csdr.id)
         else:
-            reset_google_ads_campaign_spend_date_range.delay(fb_csdr.id)
+            reset_facebook_campaign_spend_date_range.delay(fb_csdr.id)
 
     bing_csdrs = BingCampaignSpendDateRange.objects.filter(Q(spend__gt=0) | Q(spend_until_yesterday__gt=0))
 
     for bing_csdr in bing_csdrs:
         if settings.DEBUG:
-            reset_google_ads_campaign_spend_date_range(bing_csdr.id)
+            reset_bing_campaign_spend_date_range(bing_csdr.id)
         else:
-            reset_google_ads_campaign_spend_date_range.delay(bing_csdr.id)
+            reset_bing_campaign_spend_date_range.delay(bing_csdr.id)
 
 
 @celery_app.task(bind=True)
