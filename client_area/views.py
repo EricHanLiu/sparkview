@@ -1850,28 +1850,31 @@ def set_opportunity(request):
     except OpportunityDescription.DoesNotExist:
         return HttpResponseNotFound('That opportunity description does not exist')
 
-    opp = Opportunity()
-    opp.account = account
-    opp.reason = opp_desc
-    opp.flagged_by = request.user.member
-
     if service_id == 'ppc':
-        opp.is_primary = True
-        opp.primary_service = 1
+        is_primary = True
+        primary_service = 1
     elif service_id == 'seo':
-        opp.is_primary = True
-        opp.primary_service = 2
+        is_primary = True
+        primary_service = 2
     elif service_id == 'cro':
-        opp.is_primary = True
-        opp.primary_service = 3
+        is_primary = True
+        primary_service = 3
     else:
-        opp.is_primary = False
+        is_primary = False
         try:
-            service = MandateType.objects.get(id=service_id)
+            additional_service = MandateType.objects.get(id=service_id)
         except MandateType.DoesNotExist:
             return HttpResponseNotFound('This service does not exist')
-        opp.additional_service = service
 
+    if is_primary:
+        # primary_service / additional_service will be defined, ignore warning
+        opp = Opportunity.objects.get_or_create(account=account, service=primary_service, is_primary=True)
+    else:
+        opp = Opportunity.objects.get_or_create(account=account, additional_service=additional_service,
+                                                is_primary=False)
+
+    opp.reason = opp_desc
+    opp.flagged_by = request.user.member
     opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))
