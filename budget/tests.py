@@ -11,7 +11,7 @@ from .cron import reset_google_ads_campaign, reset_bing_campaign, reset_facebook
 from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
-from budget.cron import create_default_budget
+from budget.cron import create_default_budget, reset_all_flight_date_spend_objects
 import calendar
 import datetime
 import json
@@ -438,6 +438,27 @@ class AccountTestCase(TestCase):
         self.assertEqual(b9.calculated_spend, 104)
 
         self.assertEqual(b9.spend_percentage, 52)
+
+        reset_all_flight_date_spend_objects()
+
+        aw_cmp1_sdr_2 = CampaignSpendDateRange.objects.get(campaign=aw_cmp1, start_date=b9_start, end_date=b9_end)
+        aw_cmp2_sdr_2 = CampaignSpendDateRange.objects.get(campaign=aw_cmp2, start_date=b9_start, end_date=b9_end)
+        fb_cmp1_sdr_2 = FacebookCampaignSpendDateRange.objects.get(campaign=fb_cmp1, start_date=b9_start,
+                                                                   end_date=b9_end)
+        bing_cmp1_sdr_2 = BingCampaignSpendDateRange.objects.create(campaign=bing_cmp1, start_date=b9_start,
+                                                                    end_date=b9_end)
+
+        self.assertEqual(aw_cmp1_sdr_2.spend, 0)
+        self.assertEqual(aw_cmp1_sdr_2.spend_until_yesterday, 0)
+        self.assertEqual(aw_cmp2_sdr_2.spend, 0)
+        self.assertEqual(aw_cmp2_sdr_2.spend_until_yesterday, 0)
+        self.assertEqual(fb_cmp1_sdr_2.spend, 0)
+        self.assertEqual(fb_cmp1_sdr_2.spend_until_yesterday, 0)
+        self.assertEqual(bing_cmp1_sdr_2.spend, 0)
+        self.assertEqual(bing_cmp1_sdr_2.spend_until_yesterday, 0)
+
+        b9_2 = Budget.objects.get(id=b9.id)
+        self.assertEqual(b9_2.calculated_spend, 0)
 
         campaign_exclusion = CampaignExclusions.objects.create(account=account)
         campaign_exclusion.aw_campaigns.set([aw_cmp2])

@@ -65,7 +65,7 @@
             </div>
             <hr>
             <div class="hours-table account-hours">
-                <table class="table is-hoverable is-fullwidth">
+                <table class="table is-hoverable is-fullwidth" style="table-layout: fixed;">
                     <thead>
                     <tr>
                         <th>
@@ -83,15 +83,15 @@
                     {% for hour_row in reg_hours_this_month %}
                         <tr class="table-row">
                             <td>
-                                <a href="/clients/accounts/{{ hour_row.account.id }}" style="font-weight: bold;">
+                                <a href="/clients/accounts/{{ hour_row.account.id }}">
                                     {{ hour_row.account.client_name }}
                                 </a>
                             </td>
                             <td>
                                 {{ hour_row.created_at }}
                             </td>
-                            <td>
-                                {{ hour_row.hours }}
+                            <td style="width: 25%;">
+                                <strong>{{ hour_row.hours }}</strong>
                             </td>
                         </tr>
                     {% endfor %}
@@ -100,20 +100,17 @@
             </div>
             <div class="is-hidden hours-table mandate-hours">
                 <hr>
-                <table class="table is-hoverable is-fullwidth">
+                <table class="table is-hoverable is-fullwidth" style="table-layout: fixed;">
                     <thead>
                     <tr>
                         <th>
                             Mandate
                         </th>
                         <th>
-                            Hours
-                        </th>
-                        <th>
-                            Month
-                        </th>
-                        <th>
                             Date Added
+                        </th>
+                        <th>
+                            Hours
                         </th>
                     </tr>
                     </thead>
@@ -121,16 +118,15 @@
                     {% for hour_row in mandate_hours_this_month %}
                         <tr class="table-row">
                             <td>
-                                {{ hour_row.assignment.mandate }}
-                            </td>
-                            <td>
-                                {{ hour_row.hours }}
-                            </td>
-                            <td>
-                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                                <a href="/clients/accounts/{{ hour_row.assignment.mandate.account.id }}">
+                                    {{ hour_row.assignment.mandate }}
+                                </a>
                             </td>
                             <td>
                                 {{ hour_row.created }}
+                            </td>
+                            <td style="width: 25%;">
+                                <strong>{{ hour_row.hours }}</strong>
                             </td>
                         </tr>
                     {% endfor %}
@@ -139,20 +135,17 @@
             </div>
             <div class="is-hidden hours-table trainer-hours">
                 <hr>
-                <table class="table is-hoverable is-fullwidth">
+                <table class="table is-hoverable is-fullwidth" style="table-layout: fixed;">
                     <thead>
                     <tr>
                         <th>
                             Trainee
                         </th>
                         <th>
-                            Hours
-                        </th>
-                        <th>
-                            Month
-                        </th>
-                        <th>
                             Date Added
+                        </th>
+                        <th>
+                            Hours
                         </th>
                     </tr>
                     </thead>
@@ -160,16 +153,15 @@
                     {% for hour_row in trainer_hours_this_month %}
                         <tr class="table-row">
                             <td>
-                                {{ hour_row.trainee.user.get_full_name }}
-                            </td>
-                            <td>
-                                {{ hour_row.hours }}
-                            </td>
-                            <td>
-                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                                <a href="/user_management/members/{{ hour_row.trainee.id }}">
+                                    {{ hour_row.trainee.user.get_full_name }}
+                                </a>
                             </td>
                             <td>
                                 {{ hour_row.added }}
+                            </td>
+                            <td style="width: 25%;">
+                                <strong>{{ hour_row.hours }}</strong>
                             </td>
                         </tr>
                     {% endfor %}
@@ -178,20 +170,17 @@
             </div>
             <div class="is-hidden hours-table trainee-hours">
                 <hr>
-                <table class="table is-hoverable is-fullwidth">
+                <table class="table is-hoverable is-fullwidth" style="table-layout: fixed;">
                     <thead>
                     <tr>
                         <th>
                             Trainer
                         </th>
                         <th>
-                            Hours
-                        </th>
-                        <th>
-                            Month
-                        </th>
-                        <th>
                             Date Added
+                        </th>
+                        <th>
+                            Hours
                         </th>
                     </tr>
                     </thead>
@@ -199,16 +188,15 @@
                     {% for hour_row in trainee_hours_this_month %}
                         <tr class="table-row">
                             <td>
-                                {{ hour_row.trainee.user.get_full_name }}
-                            </td>
-                            <td>
-                                {{ hour_row.hours }}
-                            </td>
-                            <td>
-                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                                <a href="/user_management/members/{{ hour_row.trainer.id }}">
+                                    {{ hour_row.trainer.user.get_full_name }}
+                                </a>
                             </td>
                             <td>
                                 {{ hour_row.added }}
+                            </td>
+                            <td style="width: 25%;">
+                                <strong>{{ hour_row.hours }}</strong>
                             </td>
                         </tr>
                     {% endfor %}
@@ -217,20 +205,17 @@
             </div>
             <div class="is-hidden hours-table value-added-hours">
                 <hr>
-                <table class="table is-hoverable is-fullwidth">
+                <table class="table is-hoverable is-fullwidth" style="table-layout: fixed;">
                     <thead>
                     <tr>
                         <th>
                             Account
                         </th>
                         <th>
-                            Hours
-                        </th>
-                        <th>
-                            Month
-                        </th>
-                        <th>
                             Date Added
+                        </th>
+                        <th>
+                            Hours
                         </th>
                     </tr>
                     </thead>
@@ -238,16 +223,15 @@
                     {% for hour_row in value_added_hours %}
                         <tr class="table-row">
                             <td>
-                                {{ hour_row.account.client_name }}
-                            </td>
-                            <td>
-                                {{ hour_row.hours }}
-                            </td>
-                            <td>
-                                {{ hour_row.get_month_display }}, {{ hour_row.year }}
+                                <a href="/clients/accounts/{{ hour_row.account.id }}">
+                                    {{ hour_row.account.client_name }}
+                                </a>
                             </td>
                             <td>
                                 {{ hour_row.created_at }}
+                            </td>
+                            <td style="width: 25%;">
+                                <strong>{{ hour_row.hours }}</strong>
                             </td>
                         </tr>
                     {% endfor %}

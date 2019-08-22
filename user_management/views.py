@@ -584,6 +584,8 @@ def members_single(request, id=0):
             master_accounts_dictionary[account.id]['is_mandate'] = False
             master_accounts_dictionary[account.id]['is_flagged'] = False
             master_accounts_dictionary[account.id]['is_onboarding'] = False
+        if account.status == 0:
+            master_accounts_dictionary[account.id]['is_onboarding'] = True
         master_accounts_dictionary[account.id]['is_backup'] = True
 
     for assignment in member.active_mandate_assignments:
@@ -613,6 +615,8 @@ def members_single(request, id=0):
 
     account_hours = {}
     account_allocation = {}
+    mandate_hours = {}
+    mandate_allocation = {}
     for account_id in master_accounts_dictionary:
         account_dict = master_accounts_dictionary[account_id]
         account_hours[account_id] = 0
@@ -629,6 +633,8 @@ def members_single(request, id=0):
                 allocation = assignment.hours
                 account_hours[account_id] += hours
                 account_allocation[account_id] += allocation
+                mandate_hours[assignment.id] = hours
+                mandate_allocation[assignment.id] = allocation
         if account_dict['is_backup']:
             hours = account.get_hours_worked_this_month_member(member)
             allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
@@ -652,6 +658,8 @@ def members_single(request, id=0):
     context = {
         'account_hours': account_hours,
         'account_allocation': account_allocation,
+        'mandate_hours': mandate_hours,
+        'mandate_allocation': mandate_allocation,
         'member': member,
         'master_accounts_dictionary': sorted_dict,
         'today': today,
@@ -957,7 +965,7 @@ def performance(request, member_id):
     oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
 
-    tag_colors = ['', 'is-dark', 'is-danger', 'is-warning', 'is-success']
+    tag_colors = SkillEntry.TAG_COLORS
     skill_categories = SkillCategory.objects.all()
     member_skills_categories = []  # list of objects where each object encodes info about a skill category
     for cat in skill_categories:
@@ -1092,6 +1100,8 @@ def input_hours_profile(request, id):
             try:
                 hours = float(hours)
             except (TypeError, ValueError):
+                continue
+            if hours < 0:
                 continue
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)

@@ -59,6 +59,26 @@ html, body {
     color: white;
 }
 
+.tag.iron-tag {
+    background-color: #686969;
+    color: white;
+}
+
+.tag.bronze-tag {
+    background-color: #cd7f32;
+    color: white;
+}
+
+.tag.silver-tag {
+    background-color: #C0C0C0;
+    color: white;
+}
+
+.tag.gold-tag {
+    background-color: #D4AF37;
+    color: white;
+}
+
 .button-color-2:hover, .button-color-3:hover, .button-color-4:hover {
     color: navajowhite;
 }

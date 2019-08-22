@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from user_management.models import Member
 from budget.models import Client
 from .utils import days_in_month_in_daterange
-from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord, Opportunity
+from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord, Opportunity, \
+    AccountHourRecord
 import datetime
 from django.utils.timezone import make_aware
 from django.test import Client as C
@@ -124,3 +125,25 @@ class ClientTestCase(TestCase):
             'opp_id': '1',
         })
         self.assertEqual(response.status_code, 302)
+
+    def test_quick_add_hours(self):
+        self.client.login(username='test2', password='123456')
+
+        test_account = Client.objects.get(client_name='ctest')
+        test_account_2 = Client.objects.create(client_name='no one has me')
+
+        # this should return forbidden since user doesnt have this account
+        response = self.client.post('/clients/accounts/' + str(test_account_2.id), {
+            'quick_add_hours': '1',
+            'quick_add_month': '8',
+            'quick_add_year': '2019',
+        })
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post('/clients/accounts/' + str(test_account.id), {
+            'quick_add_hours': '1000',
+            'quick_add_month': '1',
+            'quick_add_year': '1000',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AccountHourRecord.objects.filter(month=1, year=1000, hours=1000).count(), 1)
