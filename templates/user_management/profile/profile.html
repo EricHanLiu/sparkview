@@ -5,6 +5,28 @@
         <div class="container">
             <h1 class="title">My Profile</h1>
             <div class="columns">
+                <div class="column is-6">
+                    <h4 class="title is-4">{{ member.user.get_full_name }}</h4>
+                    <h6 class="subtitle is-6">{{ member.role }}</h6>
+                    <form id="change_password_form">
+                        <div class="field">
+                            <label class="label">New Password</label>
+                            <div class="control">
+                                <input class="input" type="password" name="new_password" id="new_password">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Confirm New Password</label>
+                            <div class="control">
+                                <input class="input" type="password" name="confirm_new_password"
+                                       id="confirm_new_password">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <button id="change_password_confirm_button" class="button" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
                 <div class="column is-narrow">
                     <div class="level">
                         <img src="/static/img/{{ member.image }}" id="member_image" style="border-radius: unset;">
@@ -25,28 +47,6 @@
                                     </div>
                                 </div>
                             </label>
-                        </div>
-                    </form>
-                </div>
-                <div class="column is-6">
-                    <h4 class="title is-4">{{ member.user.get_full_name }}</h4>
-                    <h6 class="subtitle is-6">{{ member.role }}</h6>
-                    <form id="change_password_form">
-                        <div class="field">
-                            <label class="label">New Password</label>
-                            <div class="control">
-                                <input class="input" type="password" name="new_password" id="new_password">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Confirm New Password</label>
-                            <div class="control">
-                                <input class="input" type="password" name="confirm_new_password"
-                                       id="confirm_new_password">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <button id="change_password_confirm_button" class="button" type="submit">Submit</button>
                         </div>
                     </form>
                 </div>

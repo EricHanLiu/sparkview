@@ -91,7 +91,7 @@ html, body {
     background-color: lightskyblue;
 }
 
-img {
+img:not(#member_image) {
     border-radius: 100%;
     box-shadow: 0 0 0 3px hsl(0, 0%, 100%), 0 0 0 6px hsl(0, 0%, 90%);
 }
