@@ -21,6 +21,17 @@ def index(request):
 
 
 @login_required
+def profile(request):
+    member = request.user.member
+
+    context = {
+        'member': member
+    }
+
+    return render(request, 'user_management/profile/profile.html', context)
+
+
+@login_required
 def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
@@ -278,7 +289,7 @@ def member_dashboard(request, id):
         'load_everything': load_everything
     }
 
-    return render(request, 'user_management/profile/dashboard.html', context)
+    return render(request, 'user_management/profile/team_lead_dashboard.html', context)
 
 
 @login_required
@@ -686,7 +697,7 @@ def members_single(request, id=0):
 
         return HttpResponse()
 
-    return render(request, 'user_management/profile/profile_refactor.html', context)
+    return render(request, 'user_management/profile/dashboard.html', context)
 
 
 @login_required

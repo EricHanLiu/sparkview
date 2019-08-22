@@ -408,3 +408,6 @@ REST_FRAMEWORK = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# change this to the absolute path of where images should be stored in staging/production
+MEDIA_ROOT = '/home/eric/repositories/bloom-master/static/img/'
