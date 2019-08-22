@@ -665,8 +665,9 @@ def members_single(request, id=0):
             for assignment in master_accounts_dictionary[account.id]['assignments']:
                 hours = assignment.worked_this_month
                 allocation = assignment.hours
-                account_hours[account_id] += hours
-                account_allocation[account_id] += allocation
+                # these are already added to the account hours
+                # account_hours[account_id] += hours
+                # account_allocation[account_id] += allocation
                 mandate_hours[assignment.id] = hours
                 mandate_allocation[assignment.id] = allocation
         if account_dict['is_backup']:
