@@ -272,6 +272,12 @@ class SkillHistory(models.Model):
         return str(self.date) + ': ' + str(self.skill_entry)
 
 
+def member_image_path(instance, filename):
+    print(instance)
+    print(filename)
+    return 'bloomers/{0}'.format(filename)
+
+
 class Member(models.Model):
     """
     Extension of user class via OneToOneField
@@ -280,7 +286,7 @@ class Member(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
-    image = models.ImageField(upload_to='bloomers/', null=True)
+    image = models.ImageField(upload_to=member_image_path, null=True)
     last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)

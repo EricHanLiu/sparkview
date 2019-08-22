@@ -409,5 +409,6 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# change this to the absolute path of where images should be stored in staging/production
-MEDIA_ROOT = '/home/eric/repositories/bloom-master/static/img/'
+# might need to be changed in staging/prod
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/img/')
+MEDIA_URL = '/static/img/'

@@ -43,6 +43,18 @@ def profile(request):
 
 
 @login_required
+def upload_image(request):
+    member = request.user.member
+
+    if request.method == 'POST' and request.FILES['upload_image']:
+        image = request.FILES['upload_image']
+        member.image = image
+        member.save()
+
+    return redirect('/user_management/profile')
+
+
+@login_required
 def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
