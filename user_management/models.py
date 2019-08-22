@@ -8,6 +8,7 @@ from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, M
 from client_area.utils import days_in_month_in_daterange
 import datetime
 import calendar
+import pytz
 
 
 class RoleGroup(models.Model):
@@ -223,6 +224,8 @@ class SkillEntry(models.Model):
         (4, 'Expert'),
     ]
 
+    TAG_COLORS = ['', 'iron-tag', 'bronze-tag', 'silver-tag', 'gold-tag']
+
     skill = models.ForeignKey('Skill', models.CASCADE, default=None)
     member = models.ForeignKey('Member', models.CASCADE, default=None)
     score = models.IntegerField(default=0, choices=SCORE_OPTIONS)
@@ -236,14 +239,17 @@ class SkillEntry(models.Model):
         return self.member.user.first_name + ' ' + self.member.user.last_name + ' ' + self.skill.name
 
     @property
+    def tag_color(self):
+        return self.TAG_COLORS[self.score]
+
+    @property
     def updated_recently(self):
         """
         Returns true if this skillentry has been updated in the last day
         """
-        now = datetime.datetime.now()
-        yesterday = now - datetime.timedelta(1)
-        history = SkillHistory.objects.filter(skill_entry=self, date__gte=yesterday)
-        return history.count() > 0
+        now = datetime.datetime.now(pytz.utc)
+        one_day_ago = now - datetime.timedelta(1)
+        return self.updated_at > one_day_ago
 
     def save(self, *args, **kwargs):
         created = False
