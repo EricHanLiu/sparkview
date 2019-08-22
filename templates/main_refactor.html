@@ -215,7 +215,7 @@
                 <a class="navbar-item" href="/user_management/profile">
                     Hi, {{ user.first_name }}
                     <span style="margin-left: 1em;"><figure class="image is-24x24">
-                        <img {% if request.user.member.image != None %}src="/static/img/{{ request.user.member.image }}"
+                        <img {% if request.user.member.image != None %}src="{{ request.user.member.image.url }}"
                              {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}/>
                     </figure></span>
                 </a>

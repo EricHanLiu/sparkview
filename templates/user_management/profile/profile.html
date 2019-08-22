@@ -1,4 +1,5 @@
 {% extends 'main_refactor.html' %}
+{% load staticfiles %}
 
 {% block main_body %}
     <div class="section has-background-light" style="min-height: 91vh; margin-bottom: 0; padding-bottom: 0;">
@@ -29,7 +30,7 @@
                 </div>
                 <div class="column is-narrow">
                     <div class="level">
-                        <img src="/static/img/{{ member.image }}" id="member_image" style="border-radius: unset;">
+                        <img src="{{ member.image.url }}" id="member_image">
                     </div>
                     <form id="update_image_form" method="POST" action="/user_management/profile/upload_image"
                           enctype="multipart/form-data">
