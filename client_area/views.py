@@ -1614,29 +1614,11 @@ def onboard_account(request, account_id):
     account = Client.objects.get(id=account_id)
 
     if request.method == 'GET':
-        s_ac_ppc_steps = None
-        s_ac_seo_steps = None
-        s_ac_cro_steps = None
-        s_ac_strat_steps = None
-
-        if account.is_onboarding_ppc:
-            ppc_step = OnboardingStep.objects.filter(service=0)
-            ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
-            s_ac_ppc_steps = sorted(ac_ppc_steps, key=lambda t: t.step.order)
-        if account.is_onboarding_seo:
-            seo_step = OnboardingStep.objects.filter(service=1)
-            ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
-            s_ac_seo_steps = sorted(ac_seo_steps, key=lambda t: t.step.order)
-        if account.is_onboarding_cro:
-            cro_step = OnboardingStep.objects.filter(service=2)
-            ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
-            s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
+        steps = OnboardingStepAssignment.objects.filter(account=account)
 
         context = {
             'account': account,
-            'ac_ppc_steps': s_ac_ppc_steps,
-            'ac_seo_steps': s_ac_seo_steps,
-            'ac_cro_steps': s_ac_cro_steps,
+            'steps': steps
         }
 
         return render(request, 'client_area/onboard_account.html', context)
