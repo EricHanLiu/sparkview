@@ -79,6 +79,7 @@ def get_spend_by_campaign_this_month(self, account_id):
 
     campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))
     for campaign_row in campaign_report:
+        print(campaign_row)
         campaign_id = campaign_row['campaign_id']
         in_use_ids.append(campaign_row['campaign_id'])
         campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
@@ -142,32 +143,34 @@ def get_all_spend_by_campaign_custom(self):
     """
     budgets = Budget.objects.filter(has_adwords=True, is_monthly=False)
     for budget in budgets:
-        for aw_camp in budget.aw_campaigns_without_excluded:
-            if settings.DEBUG:
-                get_spend_by_campaign_custom(aw_camp.id, budget.id)
-            else:
-                get_spend_by_campaign_custom.delay(aw_camp.id, budget.id)
+        if settings.DEBUG:
+            get_spend_by_campaign_custom(budget.id)
+        else:
+            get_spend_by_campaign_custom.delay(budget.id)
 
     return 'get_all_spend_by_campaign_custom'
 
 
 @celery_app.task(bind=True)
-def get_spend_by_campaign_custom(self, campaign_id, budget_id):
+def get_spend_by_campaign_custom(self, budget_id):
     """
     Gets campaign spend by custom date range
     :param self:
-    :param campaign_id:
     :param budget_id:
     :return:
     """
     try:
-        campaign = Campaign.objects.get(id=campaign_id)
         budget = Budget.objects.get(id=budget_id)
-    except (Campaign.DoesNotExist, Budget.DoesNotExist):
+    except Budget.DoesNotExist:
         return
 
     client = get_client()
-    client.client_customer_id = campaign.account.dependent_account_id
+    client.client_customer_id = budget.account.dependent_account_id
+
+    aw_campaigns = budget.aw_campaigns.all()
+    aw_campaign_ids = set([aw_campaign.campaign_id for aw_campaign in aw_campaigns])
+
+    account = budget.account
 
     report_downloader = client.GetReportDownloader(version=settings.API_VERSION)
 
@@ -181,8 +184,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
             },
             {
                 'field': 'CampaignId',
-                'operator': 'EQUALS',
-                'values': campaign.campaign_id
+                'operator': 'IN',
+                'values': aw_campaign_ids
             }
         ]
     }
@@ -203,18 +206,18 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'max': end_date.strftime('%Y%m%d')
     }
 
-    try:
-        campaign_report = \
-            Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))[0]
-    except IndexError:
-        return
+    campaign_report = Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(campaign_report_query))
+    for campaign_row in campaign_report:
+        print(campaign_row)
+        campaign_id = campaign_row['campaign_id']
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
+                                                           campaign_name=campaign_row['campaign'])
+        campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
+                                                                                      start_date=start_date,
+                                                                                      end_date=end_date)
 
-    campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
-                                                                                  start_date=start_date,
-                                                                                  end_date=end_date)
-
-    campaign_spend_object.spend = int(campaign_report['cost']) / 1000000
-    campaign_spend_object.save()
+        campaign_spend_object.spend = int(campaign_report['cost']) / 1000000
+        campaign_spend_object.save()
 
     yest_campaign_report_selector = {
         'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
@@ -226,8 +229,8 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
             },
             {
                 'field': 'CampaignId',
-                'operator': 'EQUALS',
-                'values': campaign.campaign_id
+                'operator': 'IN',
+                'values': aw_campaign_ids
             }
         ]
     }
@@ -248,18 +251,32 @@ def get_spend_by_campaign_custom(self, campaign_id, budget_id):
         'max': yest_end_date.strftime('%Y%m%d')
     }
 
-    try:
-        campaign_report = \
-            Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(yest_campaign_report_query))[0]
-    except IndexError:
-        return
+    campaign_report = Reporting.parse_report_csv_new(
+        report_downloader.DownloadReportAsString(yest_campaign_report_query))
+    for campaign_row in campaign_report:
+        print(campaign_row)
+        campaign_id = campaign_row['campaign_id']
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
+                                                           campaign_name=campaign_row['campaign'])
+        campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
+                                                                                      start_date=start_date,
+                                                                                      end_date=end_date)
 
-    campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
-                                                                                  start_date=budget.start_date,
-                                                                                  end_date=budget.end_date)
+        campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
+        campaign_spend_object.save()
 
-    campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
-    campaign_spend_object.save()
+    # try:
+    #     campaign_report = \
+    #         Reporting.parse_report_csv_new(report_downloader.DownloadReportAsString(yest_campaign_report_query))[0]
+    # except IndexError:
+    #     return
+    #
+    # campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
+    #                                                                               start_date=budget.start_date,
+    #                                                                               end_date=budget.end_date)
+    #
+    # campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
+    # campaign_spend_object.save()
 
     return 'get_spend_by_campaign_custom'
 

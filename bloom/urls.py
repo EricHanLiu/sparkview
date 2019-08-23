@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^user_management/', include('user_management.urls', namespace='user_management')),
     url(r'^notifications/', include('notifications.urls', namespace='notifications')),
     url(r'^reports/', include('reports.urls', namespace='reports')),
+    url(r'^insights/', include('insights.urls', namespace='insights')),
     url(r'^admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     url(r'^super/', admin.site.urls),
     url(r'^release_notes$', other_views.release_notes),
