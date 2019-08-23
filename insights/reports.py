@@ -1,6 +1,7 @@
 import argparse
 from googleapiclient.discovery import build as google_build
 from bloom import settings
+from bloom.utils.utils import get_last_month
 import httplib2
 from oauth2client import client
 from oauth2client import file
@@ -82,6 +83,8 @@ def aov_per_age_bracket(analytics, view_id):
     :param view_id:
     :return:
     """
+    last_month, last_month_year = get_last_month(datetime.datetime.now())
+
     report_definition = {
         'reportRequests': [
             {
@@ -125,6 +128,147 @@ def aov_per_age_bracket(analytics, view_id):
                     print(metricHeader.get('name') + ': ' + value)
 
             print('====================================')
+
+
+# 2
+def transaction_total_per_region(analytics, view_id):
+    """
+    Part of the ten insights report
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '365daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:organicSearches'},
+                    {'expression': 'ga:avgPageLoadTime'}
+                ],
+                'dimensions': [
+                    {'name': 'ga:region'},
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:organicSearches', 'sortOrder': 'DESCENDING'}
+                ]
+            }
+        ]
+    }
+
+    report_response = get_report(analytics, report_definition)
+
+    for report in report_response.get('reports', []):
+        column_header = report.get('columnHeader', {})
+        dimension_headers = column_header.get('dimensions', [])
+        metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
+        rows = report.get('data', {}).get('rows', [])
+
+        for row in rows:
+            dimensions = row.get('dimensions', [])
+            date_range_values = row.get('metrics', [])
+
+            for header, dimension in zip(dimension_headers, dimensions):
+                print(header + ': ' + dimension)
+
+            for i, values in enumerate(date_range_values):
+                for metricHeader, value in zip(metric_headers, values.get('values')):
+                    print(metricHeader.get('name') + ': ' + value)
+
+            print('====================================')
+
+
+# 3
+def transaction_total_per_product(analytics, view_id):
+    """
+    For Google Ads
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 4
+def average_session_duration_per_region(analytics, view_id):
+    """
+    Average session duration per
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 5
+def total_goal_completions_per_age_bracket(analytics, view_id):
+    """
+    Total goal completions per age bracket
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 6
+def bounce_rate_per_age_bracket(analytics, view_id):
+    """
+    Bounce rate per age bracket
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 7
+def aov_per_medium(analytics, view_id):
+    """
+    Average order value per medium
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 8
+def total_goal_completions_per_week_day(analytics, view_id):
+    """
+    Goal completions per week day
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 9
+def total_goal_completions_per_region(analytics, view_id):
+    """
+    Total goal completions per region
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
+
+
+# 10
+def average_session_duration_per_age_bracket(analytics, view_id):
+    """
+    average_session_duration_per_age_bracket
+    :param analytics:
+    :param view_id:
+    :return:
+    """
+    pass
 
 
 def seo_three_months_yoy_report(analytics, view_id):

@@ -6,6 +6,8 @@ from facebook_dashboard.models import FacebookAccount
 from bing_dashboard.models import BingAccounts
 from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform, active_adwords_accounts, active_bing_accounts, \
     active_facebook_accounts
+from bloom.utils.utils import get_last_month
+import datetime
 
 
 class UtilTestCase(TestCase):
@@ -79,3 +81,14 @@ class UtilTestCase(TestCase):
         self.assertTrue(fb2 in fb_accounts)
         self.assertTrue(fb3 in fb_accounts)
         self.assertTrue(fb4 in fb_accounts)
+
+    def test_get_last_month(self):
+        date1 = datetime.datetime(2010, 5, 13)
+        t_last_month, t_last_month_year = get_last_month(date1)
+        self.assertEqual(t_last_month, 4)
+        self.assertEqual(t_last_month_year, 2010)
+
+        date2 = datetime.datetime(2010, 1, 1)
+        t_last_month, t_last_month_year = get_last_month(date2)
+        self.assertEqual(t_last_month, 12)
+        self.assertEqual(t_last_month_year, 2009)
