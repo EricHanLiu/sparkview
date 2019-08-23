@@ -26,8 +26,8 @@ def main():
             continue
 
         if budget.has_adwords:
-            for aw_camp in budget.aw_campaigns_without_excluded:
-                get_spend_by_campaign_custom(aw_camp.id, budget.id)
+            for aw_account in budget.account.adwords.all():
+                get_spend_by_campaign_custom(budget.id, aw_account.id)
 
         if budget.has_facebook:
             for fb_camp in budget.fb_campaigns_without_excluded:

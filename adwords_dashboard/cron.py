@@ -152,25 +152,25 @@ def get_all_spend_by_campaign_custom(self):
 
 
 @celery_app.task(bind=True)
-def get_spend_by_campaign_custom(self, budget_id):
+def get_spend_by_campaign_custom(self, budget_id, aw_account_id):
     """
     Gets campaign spend by custom date range
     :param self:
     :param budget_id:
+    :param aw_account_id:
     :return:
     """
     try:
         budget = Budget.objects.get(id=budget_id)
-    except Budget.DoesNotExist:
+        google_ads_account = DependentAccount.objects.get(id=aw_account_id)
+    except (Budget.DoesNotExist, DependentAccount.DoesNotExist):
         return
 
     client = get_client()
-    client.client_customer_id = budget.account.dependent_account_id
+    client.client_customer_id = google_ads_account.dependent_account_id
 
-    aw_campaigns = budget.aw_campaigns.all()
-    aw_campaign_ids = set([aw_campaign.campaign_id for aw_campaign in aw_campaigns])
-
-    account = budget.account
+    aw_campaigns = budget.aw_campaigns.filter(account=google_ads_account)
+    aw_campaign_ids = list(set([aw_campaign.campaign_id for aw_campaign in aw_campaigns]))
 
     report_downloader = client.GetReportDownloader(version=settings.API_VERSION)
 
@@ -210,13 +210,13 @@ def get_spend_by_campaign_custom(self, budget_id):
     for campaign_row in campaign_report:
         print(campaign_row)
         campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=google_ads_account,
                                                            campaign_name=campaign_row['campaign'])
         campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                                       start_date=start_date,
                                                                                       end_date=end_date)
 
-        campaign_spend_object.spend = int(campaign_report['cost']) / 1000000
+        campaign_spend_object.spend = int(campaign_row['cost']) / 1000000
         campaign_spend_object.save()
 
     yest_campaign_report_selector = {
@@ -256,13 +256,13 @@ def get_spend_by_campaign_custom(self, budget_id):
     for campaign_row in campaign_report:
         print(campaign_row)
         campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=google_ads_account,
                                                            campaign_name=campaign_row['campaign'])
         campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                                       start_date=start_date,
                                                                                       end_date=end_date)
 
-        campaign_spend_object.spend_until_yesterday = int(campaign_report['cost']) / 1000000
+        campaign_spend_object.spend_until_yesterday = int(campaign_row['cost']) / 1000000
         campaign_spend_object.save()
 
     # try:
