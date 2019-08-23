@@ -435,7 +435,7 @@ class Member(models.Model):
 
     def allocated_hours_month(self):
         if not hasattr(self, '_allocated_hours_month'):
-            accounts = self.active_accounts
+            accounts = self.onboard_active_accounts
             hours = 0.0
             for account in accounts:
                 hours += account.get_allocation_this_month_member(self)

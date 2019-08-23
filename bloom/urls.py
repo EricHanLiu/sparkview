@@ -18,6 +18,7 @@ from django.contrib import admin
 from . import registration_views as lviews
 from . import profile_views as profile
 from . import other_views as other_views
+from user_management import views as user_views
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -55,7 +56,8 @@ urlpatterns = [
     url(r'^admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     url(r'^super/', admin.site.urls),
     url(r'^release_notes$', other_views.release_notes),
-    url(r'^flower/', other_views.flower_view)
+    url(r'^flower/', other_views.flower_view),
+    url(r'^dashboard$', user_views.members_single)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 admin.site.site_header = 'Bloom Admin'

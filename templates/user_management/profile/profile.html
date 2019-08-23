@@ -7,8 +7,15 @@
             <h1 class="title">My Profile</h1>
             <div class="columns">
                 <div class="column is-6">
-                    <h4 class="title is-4">{{ member.user.get_full_name }}</h4>
-                    <h6 class="subtitle is-6">{{ member.role }}</h6>
+                    <div class="columns">
+                        <div class="column">
+                            <h4 class="title is-4">{{ member.user.get_full_name }}</h4>
+                            <h6 class="subtitle is-6">{{ member.role }}</h6>
+                        </div>
+                        <div class="column">
+                            <h4 class="title is-4 has-text-right">{{ member.user.email }}</h4>
+                        </div>
+                    </div>
                     <form id="change_password_form">
                         <div class="field">
                             <label class="label">New Password</label>

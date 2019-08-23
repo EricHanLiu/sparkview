@@ -193,6 +193,10 @@ class Client(models.Model):
         return self.status == 1
 
     @property
+    def is_onboarding(self):
+        return self.status == 0
+
+    @property
     def budgets(self):
         return Budget.objects.filter(account=self, is_default=False)
 
@@ -790,7 +794,7 @@ class Client(models.Model):
     @property
     def ppc_ignore_override(self):
         if self.is_onboarding_ppc and self.managementFee is not None:
-            return self.onboarding_hours_remaining
+            return self.onboarding_hours_allocated()
         hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         return hours
 
@@ -855,14 +859,18 @@ class Client(models.Model):
             percentage += self.strat3percent
         return allocated * percentage / 100.0
 
-    @property
-    def onboarding_hours_remaining(self):
+    def onboarding_hours_remaining(self, member=None):
         """
-        Returns the number of onboarding hours remaining on this account (allocated - worked)
+        Returns the number of onboarding hours remaining on this account (allocated - worked).
+        If a member is provided, filters by this member (this should eventually be what allocated hours are
+        set at at the start of the month for onboarding accounts)
         :return:
         """
         if not hasattr(self, '_onboarding_hours_remaining'):
-            self._onboarding_hours_remaining = self.onboarding_hours_allocated() - self.onboarding_hours_worked()
+            if self.status != 0:
+                return 0
+            self._onboarding_hours_remaining = self.onboarding_hours_allocated(member) - self.onboarding_hours_worked(
+                member)
         return self._onboarding_hours_remaining
 
     def onboarding_hours_worked(self, member=None):
