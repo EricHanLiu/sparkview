@@ -290,27 +290,32 @@ def account_new(request):
                                             severity=2)
 
             # Create onboarding steps for this client
-            if account.is_onboarding_ppc:
-                ppc_steps = OnboardingStep.objects.filter(service=0)
-                for ppc_step in ppc_steps:
-                    ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
-                    ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
-                    for ppc_task in ppc_tasks:
-                        OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
-            if account.is_onboarding_seo:
-                seo_steps = OnboardingStep.objects.filter(service=1)
-                for seo_step in seo_steps:
-                    seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
-                    seo_tasks = OnboardingTask.objects.filter(step=seo_step)
-                    for seo_task in seo_tasks:
-                        OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
-            if account.is_onboarding_cro:
-                cro_steps = OnboardingStep.objects.filter(service=2)
-                for cro_step in cro_steps:
-                    cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
-                    cro_tasks = OnboardingTask.objects.filter(step=cro_step)
-                    for cro_task in cro_tasks:
-                        OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
+            # if account.is_onboarding_ppc:
+            #     ppc_steps = OnboardingStep.objects.filter(service=0)
+            #     for ppc_step in ppc_steps:
+            #         ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
+            #         ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
+            #         for ppc_task in ppc_tasks:
+            #             OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
+            # if account.is_onboarding_seo:
+            #     seo_steps = OnboardingStep.objects.filter(service=1)
+            #     for seo_step in seo_steps:
+            #         seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
+            #         seo_tasks = OnboardingTask.objects.filter(step=seo_step)
+            #         for seo_task in seo_tasks:
+            #             OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
+            # if account.is_onboarding_cro:
+            #     cro_steps = OnboardingStep.objects.filter(service=2)
+            #     for cro_step in cro_steps:
+            #         cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
+            #         cro_tasks = OnboardingTask.objects.filter(step=cro_step)
+            #         for cro_task in cro_tasks:
+            #             OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
+
+            # Create new onboarding steps
+            steps = OnboardingStep.objects.all()
+            for step in steps:
+                OnboardingStepAssignment.objects.create(account=account, step=step)
 
             event_description = account.client_name + ' was added to SparkView.'
             lc_event = LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=0,
@@ -2092,6 +2097,16 @@ def edit_management_details(request):
 
         lc_event.members.set(account.assigned_members_array)
         lc_event.save()
+
+    if old_status != 0 and account.status == 0:
+        """
+        Account is now onboarding, create/reset steps
+        """
+        steps = OnboardingStep.objects.all()
+        for step in steps:
+            assignment = OnboardingStepAssignment.objects.get_or_create(account=account, step=step)
+            assignment.complete = False
+            assignment.save()
 
     fee_override = request.POST.get('fee_override')
     hours_override = request.POST.get('hours_override')
