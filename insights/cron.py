@@ -63,4 +63,23 @@ def create_or_update_ten_insights_report(self, view_id, month, year):
         return
 
     ten_insights_report, created = TenInsightsReport.objects.get_or_create(month=month, year=year, ga_view=ga_view)
-    pass
+
+    analytics = initialize_analyticsreporting()
+    ten_insights_report.aov_per_age_bracket_report = aov_per_age_bracket(analytics, view_id)
+    ten_insights_report.transaction_total_per_region_report = transaction_total_per_region(analytics, view_id)
+    ten_insights_report.transaction_total_per_product_report = transaction_total_per_product(analytics, view_id)
+    ten_insights_report.average_session_duration_per_region_report = average_session_duration_per_region(analytics,
+                                                                                                         view_id)
+    ten_insights_report.total_goal_completions_per_age_bracket_report = total_goal_completions_per_age_bracket(
+        analytics, view_id)
+    ten_insights_report.bounce_rate_per_age_bracket_report = bounce_rate_per_age_bracket(analytics, view_id)
+    ten_insights_report.aov_per_medium_report = aov_per_medium(analytics, view_id)
+    ten_insights_report.total_goal_completions_per_week_day_report = total_goal_completions_per_week_day(analytics,
+                                                                                                         view_id)
+    ten_insights_report.total_goal_completions_per_region_report = total_goal_completions_per_region(analytics, view_id)
+    ten_insights_report.average_session_duration_per_age_bracket_report = average_session_duration_per_age_bracket(
+        analytics, view_id)
+
+    ten_insights_report.save()
+
+    return 'create_or_update_ten_insights_report'
