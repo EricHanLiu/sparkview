@@ -2086,7 +2086,7 @@ def edit_management_details(request):
         """
         steps = OnboardingStep.objects.all()
         for step in steps:
-            assignment = OnboardingStepAssignment.objects.get_or_create(account=account, step=step)
+            assignment, created = OnboardingStepAssignment.objects.get_or_create(account=account, step=step)
             assignment.complete = False
             assignment.save()
 
