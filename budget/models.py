@@ -188,6 +188,10 @@ class Client(models.Model):
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
 
+    # these properties get set on the first of each month based on the remaining onboarding bank of hours
+    onboarding_hours_allocated_this_month_field = models.FloatField(default=0.0)
+    onboarding_hours_allocated_updated_timestamp = models.DateTimeField(null=True, default=None)
+
     @property
     def is_active(self):
         return self.status == 1
@@ -794,7 +798,7 @@ class Client(models.Model):
     @property
     def ppc_ignore_override(self):
         if self.is_onboarding_ppc and self.managementFee is not None:
-            return self.onboarding_hours_allocated()
+            return self.onboarding_hours_allocated_total()
         hours = (self.ppc_fee / 125.0) * ((100.0 - self.allocated_ppc_buffer) / 100.0)
         return hours
 
@@ -822,7 +826,17 @@ class Client(models.Model):
             hours += mandate.hours_in_month(now.month, now.year)
         return self.get_allocated_hours() + hours
 
-    def onboarding_hours_allocated(self, member=None):
+    def onboarding_hours_allocated_this_month(self, member=None):
+        """
+        Returns the number of allocated onboarding hours for this month, based on the number of hours available in the
+        bank. If a member is provided, filter by this member
+        """
+        if member is None:
+            return self.onboarding_hours_allocated_this_month_field
+        else:
+            return self.assigned_member_percentage(member) * self.onboarding_hours_allocated_this_month_field / 100.0
+
+    def onboarding_hours_allocated_total(self, member=None):
         """
         Returns the number of allocated hours for this onboarding account. If a member is provided, filter by this
         member
@@ -832,6 +846,12 @@ class Client(models.Model):
         allocated = self.managementFee.initialFee / 125.0
         if member is None:
             return allocated
+        return allocated * self.assigned_member_percentage(member) / 100.0
+
+    def assigned_member_percentage(self, member):
+        """
+        Returns the total percentage this member is assigned to on this account
+        """
         percentage = 0.0
         if self.cm1 == member:
             percentage += self.cm1percent
@@ -857,7 +877,7 @@ class Client(models.Model):
             percentage += self.strat2percent
         if self.strat3 == member:
             percentage += self.strat3percent
-        return allocated * percentage / 100.0
+        return percentage
 
     def onboarding_hours_remaining(self, member=None):
         """
@@ -869,8 +889,8 @@ class Client(models.Model):
         if not hasattr(self, '_onboarding_hours_remaining'):
             if self.status != 0:
                 return 0
-            self._onboarding_hours_remaining = self.onboarding_hours_allocated(member) - self.onboarding_hours_worked(
-                member)
+            self._onboarding_hours_remaining = self.onboarding_hours_allocated_total(
+                member) - self.onboarding_hours_worked(member)
         return self._onboarding_hours_remaining
 
     def onboarding_hours_worked(self, member=None):

@@ -636,3 +636,18 @@ def update_budget_spend_history():
         spend_history.bing_spend = get_spend_by_bing_account_custom_daterange(account.id, last_month.replace(day=1),
                                                                               last_month)
         spend_history.save()
+
+
+@celery_app.task(bind=True)
+def set_onboarding_allocated_hours_this_month(self):
+    """
+    Run on the first of the month - sets the onboarding hours field to the proper amount based on the remaining bank
+    """
+    accounts = Client.objects.filter(status=0)
+    for account in accounts:
+        now = datetime.datetime.now()
+        account.onboarding_hours_allocated_this_month = account.onboarding_hours_remaining()
+        account.onboarding_hours_allocated_updated_timestamp = now
+        account.save()
+
+    return 'set_onboarding_allocated_hours_this_month'
