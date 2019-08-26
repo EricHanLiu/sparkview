@@ -2013,6 +2013,9 @@ class CampaignExclusions(models.Model):
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign)
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign)
 
+    def __str__(self):
+        return str(self.account)
+
 
 class AccountBudgetSpendHistory(models.Model):
     """
