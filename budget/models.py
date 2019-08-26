@@ -1923,7 +1923,7 @@ class Budget(models.Model):
 
     @property
     def calculated_budget_remaining_yest(self):
-        return self.budget - self.calculated_yest_spend
+        return self.calculated_budget - self.calculated_yest_spend
 
     @property
     def days_remaining(self):
@@ -1993,15 +1993,15 @@ class Budget(models.Model):
 
     @property
     def underpacing_average(self):
-        if self.budget == 0.0:
+        if self.calculated_budget == 0.0:
             return False
-        return self.projected_spend_avg / self.budget < 0.95
+        return self.projected_spend_avg / self.calculated_budget < 0.95
 
     @property
     def overpacing_average(self):
-        if self.budget == 0.0:
+        if self.calculated_budget == 0.0:
             return False
-        return self.projected_spend_avg / self.budget > 1.00
+        return self.projected_spend_avg / self.calculated_budget > 1.00
 
 
 class CampaignExclusions(models.Model):
