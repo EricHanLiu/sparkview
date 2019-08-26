@@ -302,6 +302,13 @@ class Member(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        else:
+            return None
+
+    @property
     def viewed_summary_today(self):
         return self.last_viewed_summary == datetime.date.today()
 
