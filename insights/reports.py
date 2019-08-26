@@ -296,7 +296,31 @@ def aov_per_medium(analytics, view_id):
     :param view_id:
     :return:
     """
-    pass
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '30daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:revenuePerTransaction'}
+                ],
+                'dimensions': [
+                    {'name': 'ga:medium'},
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:revenuePerTransaction', 'sortOrder': 'DESCENDING'}
+                ]
+            }
+        ]
+    }
+
+    report_response = get_report(analytics, report_definition)
+
+    return json.dumps(report_response)
 
 
 # 8
@@ -307,7 +331,31 @@ def total_goal_completions_per_week_day(analytics, view_id):
     :param view_id:
     :return:
     """
-    pass
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '30daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:goalCompletionsAll'}
+                ],
+                'dimensions': [
+                    {'name': 'ga:dayOfWeekName'},
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:goalCompletionsAll', 'sortOrder': 'DESCENDING'}
+                ]
+            }
+        ]
+    }
+
+    report_response = get_report(analytics, report_definition)
+
+    return json.dumps(report_response)
 
 
 # 9
@@ -318,7 +366,31 @@ def total_goal_completions_per_region(analytics, view_id):
     :param view_id:
     :return:
     """
-    pass
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '30daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:goalCompletionsAll'}
+                ],
+                'dimensions': [
+                    {'name': 'ga:region'},
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:goalCompletionsAll', 'sortOrder': 'DESCENDING'}
+                ]
+            }
+        ]
+    }
+
+    report_response = get_report(analytics, report_definition)
+
+    return json.dumps(report_response)
 
 
 # 10
@@ -329,7 +401,31 @@ def average_session_duration_per_age_bracket(analytics, view_id):
     :param view_id:
     :return:
     """
-    pass
+    report_definition = {
+        'reportRequests': [
+            {
+                'viewId': view_id,
+                'dateRanges': [
+                    {
+                        'startDate': '30daysAgo', 'endDate': 'today'
+                    }
+                ],
+                'metrics': [
+                    {'expression': 'ga:avgSessionDuration'}
+                ],
+                'dimensions': [
+                    {'name': 'ga:userAgeBracket'},
+                ],
+                'orderBys': [
+                    {'fieldName': 'ga:avgSessionDuration', 'sortOrder': 'DESCENDING'}
+                ]
+            }
+        ]
+    }
+
+    report_response = get_report(analytics, report_definition)
+
+    return json.dumps(report_response)
 
 
 def seo_three_months_yoy_report(analytics, view_id):
