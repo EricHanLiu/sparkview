@@ -45,7 +45,7 @@ def get_allocation_this_month_member(account, member):
 
 @register.filter
 def get_onboarding_hours_worked_member(account, member):
-    return account.onboarding_hours_worked(member)
+    return account.onboarding_hours_worked_this_month(member)
 
 
 @register.filter

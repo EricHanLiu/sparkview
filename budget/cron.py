@@ -646,7 +646,7 @@ def set_onboarding_allocated_hours_this_month(self):
     accounts = Client.objects.filter(status=0)
     for account in accounts:
         now = datetime.datetime.now()
-        account.onboarding_hours_allocated_this_month = account.onboarding_hours_remaining()
+        account.onboarding_hours_allocated_this_month = account.onboarding_hours_remaining_total()
         account.onboarding_hours_allocated_updated_timestamp = now
         account.save()
 

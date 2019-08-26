@@ -676,7 +676,7 @@ def members_single(request, id=0):
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
         if account_dict['is_onboarding']:
-            hours = account.onboarding_hours_worked(member)
+            hours = account.onboarding_hours_worked_this_month(member)
             allocation = account.onboarding_hours_allocated_this_month(member)
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation

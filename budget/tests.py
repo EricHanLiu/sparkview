@@ -663,36 +663,36 @@ class AccountTestCase(TestCase):
 
         self.assertIn(account, member.accounts)
 
-        self.assertEqual(account.onboarding_hours_remaining(), 8)
+        self.assertEqual(account.onboarding_hours_remaining_total(), 8)
         self.assertEqual(account.allocated_hours_including_mandate, 8)
         self.assertEqual(account.onboarding_hours_allocated_total(), 8)
-        self.assertEqual(account.onboarding_hours_worked(), 0)
+        self.assertEqual(account.onboarding_hours_worked_total(), 0)
         account = BloomClient.objects.get(client_name='onboarding client')
-        self.assertEqual(account.onboarding_hours_remaining(member), 4)
+        self.assertEqual(account.onboarding_hours_remaining_total(member), 4)
         self.assertEqual(account.onboarding_hours_allocated_total(member), 4)
-        self.assertEqual(account.onboarding_hours_worked(member), 0)
+        self.assertEqual(account.onboarding_hours_worked_total(member), 0)
 
         AccountHourRecord.objects.create(account=account, member=member, hours=2, is_onboarding=True)
         account = BloomClient.objects.get(client_name='onboarding client')
         member = Member.objects.get(user=user)
 
-        self.assertEqual(account.onboarding_hours_remaining(), 6)
+        self.assertEqual(account.onboarding_hours_remaining_total(), 6)
         self.assertEqual(account.allocated_hours_including_mandate, 8)
         self.assertEqual(account.onboarding_hours_allocated_total(), 8)
-        self.assertEqual(account.onboarding_hours_worked(), 2)
+        self.assertEqual(account.onboarding_hours_worked_total(), 2)
         account = BloomClient.objects.get(client_name='onboarding client')
-        self.assertEqual(account.onboarding_hours_remaining(member), 2)
+        self.assertEqual(account.onboarding_hours_remaining_total(member), 2)
         self.assertEqual(account.onboarding_hours_allocated_total(member), 4)
-        self.assertEqual(account.onboarding_hours_worked(member), 2)
+        self.assertEqual(account.onboarding_hours_worked_total(member), 2)
 
-        account = BloomClient.objects.get(client_name='onboarding client')
         # simulate the start of month cron run
+        account = BloomClient.objects.get(client_name='onboarding client')
         now = datetime.datetime.now()
-        account.onboarding_hours_allocated_this_month_field = account.onboarding_hours_remaining()  # 6
+        account.onboarding_hours_allocated_this_month_field = account.onboarding_hours_remaining_total()  # 6
         account.onboarding_hours_allocated_updated_timestamp = now
         self.assertEqual(account.onboarding_hours_allocated_this_month(), 6)
         self.assertEqual(account.onboarding_hours_allocated_this_month(member), 3)
-        self.assertEqual(account.onboarding_hours_remaining(member), 1)
+        self.assertEqual(account.onboarding_hours_remaining_this_month(member), 1)
 
     def test_get_requests(self):
         self.client.login(username='test', password='12345')

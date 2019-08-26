@@ -879,25 +879,33 @@ class Client(models.Model):
             percentage += self.strat3percent
         return percentage
 
-    def onboarding_hours_remaining(self, member=None):
+    def onboarding_hours_remaining_total(self, member=None):
         """
         Returns the number of onboarding hours remaining on this account (allocated - worked).
         If a member is provided, filters by this member (this should eventually be what allocated hours are
         set at at the start of the month for onboarding accounts)
         :return:
         """
-        if not hasattr(self, '_onboarding_hours_remaining'):
+        if not hasattr(self, '_onboarding_hours_remaining_total'):
             if self.status != 0:
                 return 0
-            self._onboarding_hours_remaining = self.onboarding_hours_allocated_total(
-                member) - self.onboarding_hours_worked(member)
-        return self._onboarding_hours_remaining
+            self._onboarding_hours_remaining_total = self.onboarding_hours_allocated_total(
+                member) - self.onboarding_hours_worked_total(member)
+        return self._onboarding_hours_remaining_total
 
-    def onboarding_hours_worked(self, member=None):
+    def onboarding_hours_remaining_this_month(self, member=None):
+        if not hasattr(self, '_onboarding_hours_remaining_this_month'):
+            if self.status != 0:
+                return 0
+            self._onboarding_hours_remaining_this_month = self.onboarding_hours_allocated_this_month(
+                member) - self.onboarding_hours_worked_this_month(member)
+        return self._onboarding_hours_remaining_this_month
+
+    def onboarding_hours_worked_total(self, member=None):
         """
         Returns the number of onboarding hours worked on this account. If a member is provided, filters by this member
         """
-        if not hasattr(self, '_onboarding_hours_worked'):
+        if not hasattr(self, '_onboarding_hours_worked_total'):
             hours = 0.0
             account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
             mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
@@ -909,8 +917,27 @@ class Client(models.Model):
                 hours += record.hours
             for record in mandate_hour_records:
                 hours += record.hours
-            self._onboarding_hours_worked = hours
-        return self._onboarding_hours_worked
+            self._onboarding_hours_worked_total = hours
+        return self._onboarding_hours_worked_total
+
+    def onboarding_hours_worked_this_month(self, member=None):
+        if not hasattr(self, '_onboarding_hours_worked_this_month'):
+            now = datetime.datetime.now()
+            this_month = datetime.datetime(now.year, now.month, 1)
+            hours = 0.0
+            account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True,
+                                                                    created_at__gte=this_month)
+            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
+                                                                    is_onboarding=True, created__gte=this_month)
+            if member is not None:
+                account_hour_records = account_hour_records.filter(member=member)
+                mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
+            for record in account_hour_records:
+                hours += record.hours
+            for record in mandate_hour_records:
+                hours += record.hours
+            self._onboarding_hours_worked_this_month = hours
+        return self._onboarding_hours_worked_this_month
 
     @property
     def has_backup_members(self):
