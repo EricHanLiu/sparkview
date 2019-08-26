@@ -11,7 +11,7 @@ import calendar
 
 
 @celery_app.task(bind=True)
-def prepare_todos():
+def prepare_todos(self):
     """
     Prepare the todolist of each member for the day
     """
@@ -145,9 +145,9 @@ def prepare_todos():
 
         # REPORT DUE DATES
         unsent_reports = MonthlyReport.objects.filter(account__in=member_accounts, due_date__lte=today_end,
-                                                      date_sent_to_am=None)
+                                                      date_sent_to_am=None, due_date__gte=today_start)
         for report in unsent_reports:
-            description = 'Reminder: the report for ' + report.account + ' is due today!'
+            description = 'Reminder: the report for ' + str(report.account) + ' is due today!'
             link = '/user_management/members/' + str(member.id) + '/reports'
             Todo.objects.create(member=member, description=description, link=link, type=0)
 
