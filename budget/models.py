@@ -1987,9 +1987,9 @@ class Budget(models.Model):
 
     @property
     def spend_percentage(self):
-        if self.budget == 0:
+        if self.calculated_budget == 0:
             return 0
-        return 100.0 * self.calculated_spend / self.budget
+        return 100.0 * self.calculated_spend / self.calculated_budget
 
     @property
     def underpacing_average(self):
