@@ -521,7 +521,7 @@ def edit_team(request):
 
 
 @login_required
-def redirect_to_members_single(request, id=0):
+def redirect_to_members_single(request):
     return redirect('/dashboard')
 
 
