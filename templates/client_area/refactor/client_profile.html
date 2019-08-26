@@ -149,7 +149,7 @@
                                 <div class="column is-2">
                                     <div class="card has-background-light member-card">
                                         <div class="has-text-centered">
-                                            <img {% if member.image != None %}src="{% static 'img/bloomers/'|add:member.image %}"
+                                            <img {% if member.image != None %}src="{{ member.image.url }}"
                                                  {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}width="75%"/>
                                         </div>
                                         <div class="card-content" style="margin-top: 1em; position: relative;">
