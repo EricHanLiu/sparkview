@@ -521,21 +521,26 @@ def edit_team(request):
 
 
 @login_required
-def members_single(request, id=0):
+def redirect_to_members_single(request, id=0):
+    return redirect('/dashboard')
+
+
+@login_required
+def members_single(request, member_id=0):
     """
     Main profile page (accounts)
     :param request:
     :param id:
     :return:
     """
-    request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id and id != 0:
+    request_member = request.user.member
+    if not request.user.is_staff and int(member_id) != request_member.id and member_id != 0:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    if id == 0:  # This is a profile page
+    if member_id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
     else:
-        member = Member.objects.get(id=id)
+        member = Member.objects.get(id=member_id)
 
     """
     We store all the account information in a master dictionary, with flags for each account's association
