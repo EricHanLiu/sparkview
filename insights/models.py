@@ -71,6 +71,16 @@ class TenInsightsReport(models.Model):
     ga_view = models.ForeignKey(GoogleAnalyticsView, on_delete=models.SET_NULL, null=True, default=None)
     month = models.IntegerField(default=0)
     year = models.IntegerField(default=0)
+    aov_per_age_bracket_report = models.TextField(default='')
+    transaction_total_per_region_report = models.TextField(default='')
+    transaction_total_per_product_report = models.TextField(default='')
+    average_session_duration_per_region_report = models.TextField(default='')
+    total_goal_completions_per_age_bracket_report = models.TextField(default='')
+    bounce_rate_per_age_bracket_report = models.TextField(default='')
+    aov_per_medium_report = models.TextField(default='')
+    total_goal_completions_per_week_day_report = models.TextField(default='')
+    total_goal_completions_per_region_report = models.TextField(default='')
+    average_session_duration_per_age_bracket_report = models.TextField(default='')
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -7,6 +7,7 @@ app_name = "user_management"
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^dashboard$', views.members_single, name='dashboard'),
+    url(r'^profile$', views.redirect_to_members_single, name='redirect_to_members_single'),
     url(r'^members$', views.members, name='members'),
     url(r'^members/new$', views.new_member, name='new_member'),
     url(r'^members/(\d*)/dashboard$', views.member_dashboard, name='member_dashboard'),

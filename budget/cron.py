@@ -1,11 +1,12 @@
 from bloom import celery_app, settings
-from adwords_dashboard.models import Campaign
-from facebook_dashboard.models import FacebookCampaign
-from bing_dashboard.models import BingCampaign
+from django.db.models import Q
+from adwords_dashboard.models import Campaign, CampaignSpendDateRange
+from facebook_dashboard.models import FacebookCampaign, FacebookCampaignSpendDateRange
+from bing_dashboard.models import BingCampaign, BingCampaignSpendDateRange
 from calendar import monthrange
 from tasks.campaign_group_tasks import update_budget_campaigns
 from bloom.utils.utils import perdelta, remove_accents, projected
-from budget.models import Budget, Client, AccountBudgetSpendHistory, Budget
+from budget.models import Client, AccountBudgetSpendHistory, Budget
 from adwords_dashboard.cron import get_spend_by_account_custom_daterange
 from facebook_dashboard.cron import get_spend_by_facebook_account_custom_dates
 from bing_dashboard.cron import get_spend_by_bing_account_custom_daterange
@@ -17,8 +18,9 @@ import datetime
 
 
 @celery_app.task(bind=True)
-def reset_all_campaign_spends():
-    adwords_cmps = Campaign.objects.all()
+def reset_all_campaign_spends(self):
+    adwords_cmps = Campaign.objects.filter(
+        Q(campaign_cost__gt=0) | Q(spend_until_yesterday__gt=0) | Q(campaign_yesterday_cost__gt=0))
 
     for cmp in adwords_cmps:
         if settings.DEBUG:
@@ -26,7 +28,8 @@ def reset_all_campaign_spends():
         else:
             reset_google_ads_campaign.delay(cmp.id)
 
-    fb_cmps = FacebookCampaign.objects.all()
+    fb_cmps = FacebookCampaign.objects.filter(
+        Q(campaign_cost__gt=0) | Q(spend_until_yesterday__gt=0) | Q(campaign_yesterday_cost__gt=0))
 
     for cmp in fb_cmps:
         if settings.DEBUG:
@@ -34,7 +37,8 @@ def reset_all_campaign_spends():
         else:
             reset_facebook_campaign.delay(cmp.id)
 
-    bing_cmps = BingCampaign.objects.all()
+    bing_cmps = BingCampaign.objects.filter(
+        Q(campaign_cost__gt=0) | Q(spend_until_yesterday__gt=0) | Q(campaign_yesterday_cost__gt=0))
 
     for cmp in bing_cmps:
         if settings.DEBUG:
@@ -64,7 +68,7 @@ def reset_facebook_campaign(self, cmp_id):
     except FacebookCampaign.DoesNotExist:
         return
 
-    print('Resetting adwords campaign: ' + str(cmp))
+    print('Resetting facebook campaign: ' + str(cmp))
     cmp.campaign_yesterday_cost = 0
     cmp.spend_until_yesterday = 0
     cmp.campaign_cost = 0
@@ -78,11 +82,95 @@ def reset_bing_campaign(self, cmp_id):
     except BingCampaign.DoesNotExist:
         return
 
-    print('Resetting adwords campaign: ' + str(cmp))
+    print('Resetting bing campaign: ' + str(cmp))
     cmp.campaign_yesterday_cost = 0
     cmp.spend_until_yesterday = 0
     cmp.campaign_cost = 0
     cmp.save()
+
+
+@celery_app.task(bind=True)
+def reset_all_flight_date_spend_objects(self):
+    adwords_csdrs = CampaignSpendDateRange.objects.filter(Q(spend__gt=0) | Q(spend_until_yesterday__gt=0))
+
+    for adwords_csdr in adwords_csdrs:
+        if settings.DEBUG:
+            reset_google_ads_campaign_spend_date_range(adwords_csdr.id)
+        else:
+            reset_google_ads_campaign_spend_date_range.delay(adwords_csdr.id)
+
+    fb_csdrs = FacebookCampaignSpendDateRange.objects.filter(Q(spend__gt=0) | Q(spend_until_yesterday__gt=0))
+
+    for fb_csdr in fb_csdrs:
+        if settings.DEBUG:
+            reset_facebook_campaign_spend_date_range(fb_csdr.id)
+        else:
+            reset_facebook_campaign_spend_date_range.delay(fb_csdr.id)
+
+    bing_csdrs = BingCampaignSpendDateRange.objects.filter(Q(spend__gt=0) | Q(spend_until_yesterday__gt=0))
+
+    for bing_csdr in bing_csdrs:
+        if settings.DEBUG:
+            reset_bing_campaign_spend_date_range(bing_csdr.id)
+        else:
+            reset_bing_campaign_spend_date_range.delay(bing_csdr.id)
+
+
+@celery_app.task(bind=True)
+def reset_google_ads_campaign_spend_date_range(self, csdr_id):
+    """
+    Resets a CampaignSpendDateRange object
+    :param self:
+    :param csdr_id:
+    :return:
+    """
+    try:
+        csdr = CampaignSpendDateRange.objects.get(id=csdr_id)
+    except CampaignSpendDateRange.DoesNotExist:
+        return
+
+    print('Resetting adwords campaign daterange: ' + str(csdr))
+    csdr.spend = 0
+    csdr.spend_until_yesterday = 0
+    csdr.save()
+
+
+@celery_app.task(bind=True)
+def reset_facebook_campaign_spend_date_range(self, csdr_id):
+    """
+    Resets a FacebookCampaignSpendDateRange object
+    :param self:
+    :param csdr_id:
+    :return:
+    """
+    try:
+        csdr = FacebookCampaignSpendDateRange.objects.get(id=csdr_id)
+    except FacebookCampaignSpendDateRange.DoesNotExist:
+        return
+
+    print('Resetting fb campaign daterange: ' + str(csdr))
+    csdr.spend = 0
+    csdr.spend_until_yesterday = 0
+    csdr.save()
+
+
+@celery_app.task(bind=True)
+def reset_bing_campaign_spend_date_range(self, csdr_id):
+    """
+    Resets a BingCampaignSpendDateRange object
+    :param self:
+    :param csdr_id:
+    :return:
+    """
+    try:
+        csdr = BingCampaignSpendDateRange.objects.get(id=csdr_id)
+    except BingCampaignSpendDateRange.DoesNotExist:
+        return
+
+    print('Resetting bing campaign daterange: ' + str(csdr))
+    csdr.spend = 0
+    csdr.spend_until_yesterday = 0
+    csdr.save()
 
 
 @celery_app.task(bind=True)

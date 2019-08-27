@@ -201,56 +201,56 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = 'login'
 
 ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntfg79IsbFLFeCCS8tAcMEa3YqhVHf5rWgBKo12LCRQCKxCa563tFnL1Ve_WwXGic239'
 
-CRONJOBS = [
-    # ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
-    # ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
-    # ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
-    ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
-    ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
-    ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
-    ('00 * * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
-    ('00 * * * *', 'bing_campaigns.main', '> ' + BASE_DIR + '/logs/bing_campaigns.log'),
-    ('00 * * * *', 'facebook_campaigns.main', '> ' + BASE_DIR + '/logs/facebook_campaigns.log'),
-    ('30 9 * * *', 'facebook_alerts.main', '> ' + BASE_DIR + '/logs/facebook_alerts.log'),
-    ('00 12 * * *', 'cron_budgets.main', '> ' + BASE_DIR + '/logs/budgets.log'),
-    ('00 * * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
-    ('00 * * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
-    ('00 * * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
-    ('00 15 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
-    ('10 11 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
-    ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
-    ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),
-    ('0 0 1 * *', 'set_inactive_lost_budgets.main', '> ' + BASE_DIR + '/logs/set_inactive_lost_budgets.log'),
-    ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log'),
-    ('0 0 1 * *', 'set_budget_update_false.main', '> ' + BASE_DIR + '/logs/set_budget_update_false.log'),
-    ('45 10 * * *', 'ninety_days_update.main', '> ' + BASE_DIR + '/logs/ninety_days_update.log'),
-    ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
-    ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
-    ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
-    ('55 7 * * *', 'budget.cron.reset_all_campaign_spends', '> ' + BASE_DIR + '/logs/reset_all_campaign_spends.log'),
-    ('00 11 * * *', 'budget.cron.update_budget_spend_history',
-     '> ' + BASE_DIR + '/logs/update_budget_spend_history.log'),
-    ('00 7 1 * *', 'budget.cron.reset_all_budget_renewal_needs',
-     '> ' + BASE_DIR + '/logs/reset_all_budget_renewal_needs.log'),
-
-    ('00 * * * *', 'adwords_dashboard.cron.get_all_spends_by_campaign_this_month',
-     '> ' + BASE_DIR + '/logs/google_get_all_spends_by_campaign_this_month.log'),
-
-    ('00 * * * *', 'facebook_dashboard.cron.get_all_spends_by_facebook_campaign_this_month',
-     '> ' + BASE_DIR + '/logs/get_all_spends_by_facebook_campaign_this_month.log'),
-
-    ('00 * * * *', 'bing_dashboard.cron.get_all_spends_by_bing_campaign_this_month',
-     '> ' + BASE_DIR + '/logs/get_all_spends_by_bing_campaign_this_month.log'),
-
-    ('00 * * * *', 'adwords_dashboard.cron.get_all_spend_by_campaign_custom',
-     '> ' + BASE_DIR + '/logs/google_get_all_spend_by_campaign_custom.log'),
-
-    ('00 * * * *', 'facebook_dashboard.cron.get_all_spend_by_facebook_campaign_custom',
-     '> ' + BASE_DIR + '/logs/get_all_spend_by_facebook_campaign_custom.log'),
-
-    ('00 * * * *', 'bing_dashboard.cron.get_all_spend_by_bing_campaign_custom',
-     '> ' + BASE_DIR + '/logs/get_all_spend_by_bing_campaign_custom.log'),
-]
+# CRONJOBS = [
+#     # ('0 * * * *', 'cron_clients.main', '> ' + BASE_DIR + '/logs/clients_budgets.log'),
+#     # ('00 13 15 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_15.log'),
+#     # ('00 13 30 * *', 'cron_no_changes.main', '> ' + BASE_DIR + '/logs/cron_no_changes_30.log'),
+#     ('0 8 * * *', 'cron_accounts.main', '> ' + BASE_DIR + '/logs/accounts.log'),
+#     ('0 8 * * *', 'bing_accounts.main', '> ' + BASE_DIR + '/logs/bing_accounts.log'),
+#     ('0 8 * * *', 'facebook_accounts.main', '> ' + BASE_DIR + '/logs/facebook_accounts.log'),
+#     ('00 * * * *', 'cron_campaigns.main', '> ' + BASE_DIR + '/logs/aw_campaigns.log'),
+#     ('00 * * * *', 'bing_campaigns.main', '> ' + BASE_DIR + '/logs/bing_campaigns.log'),
+#     ('00 * * * *', 'facebook_campaigns.main', '> ' + BASE_DIR + '/logs/facebook_campaigns.log'),
+#     ('30 9 * * *', 'facebook_alerts.main', '> ' + BASE_DIR + '/logs/facebook_alerts.log'),
+#     ('00 12 * * *', 'cron_budgets.main', '> ' + BASE_DIR + '/logs/budgets.log'),
+#     ('00 * * * *', 'cron_ovu.main', '> ' + BASE_DIR + '/logs/ovu.log'),
+#     ('00 * * * *', 'bing_ovu.main', '> ' + BASE_DIR + '/logs/bing_ovu.log'),
+#     ('00 * * * *', 'facebook_ovu.main', '> ' + BASE_DIR + '/logs/facebook_ovu.log'),
+#     ('00 15 * * *', 'cron_account_changes.main', '> ' + BASE_DIR + '/logs/cron_account_changes.log'),
+#     ('10 11 * * *', 'cron_ch_mail.main', '> ' + BASE_DIR + '/logs/cron_changes_mail.log'),
+#     ('00 12 * * *', 'create_notifications.main', '> ' + BASE_DIR + '/logs/notifications.log'),
+#     ('0 0 1 * *', 'create_tier_proposals.main', '> ' + BASE_DIR + '/logs/tier_proposals.log'),
+#     ('0 0 1 * *', 'set_inactive_lost_budgets.main', '> ' + BASE_DIR + '/logs/set_inactive_lost_budgets.log'),
+#     ('0 22 * * *', 'daily_context.main', '> ' + BASE_DIR + '/logs/daily_context.log'),
+#     ('0 0 1 * *', 'set_budget_update_false.main', '> ' + BASE_DIR + '/logs/set_budget_update_false.log'),
+#     ('45 10 * * *', 'ninety_days_update.main', '> ' + BASE_DIR + '/logs/ninety_days_update.log'),
+#     ('00 * * * *', 'campaign_groups.main', '> ' + BASE_DIR + '/logs/campaign_groups.log'),
+#     ('00 * * * *', 'client_area.cron.bad_ads', '> ' + BASE_DIR + '/logs/promo_ads.log'),
+#     ('15 11 * * *', 'notifications.cron.prepare_todos', '> ' + BASE_DIR + '/logs/todos.log'),
+#     ('55 7 * * *', 'budget.cron.reset_all_campaign_spends', '> ' + BASE_DIR + '/logs/reset_all_campaign_spends.log'),
+#     ('00 11 * * *', 'budget.cron.update_budget_spend_history',
+#      '> ' + BASE_DIR + '/logs/update_budget_spend_history.log'),
+#     ('00 7 1 * *', 'budget.cron.reset_all_budget_renewal_needs',
+#      '> ' + BASE_DIR + '/logs/reset_all_budget_renewal_needs.log'),
+#
+#     ('00 * * * *', 'adwords_dashboard.cron.get_all_spends_by_campaign_this_month',
+#      '> ' + BASE_DIR + '/logs/google_get_all_spends_by_campaign_this_month.log'),
+#
+#     ('00 * * * *', 'facebook_dashboard.cron.get_all_spends_by_facebook_campaign_this_month',
+#      '> ' + BASE_DIR + '/logs/get_all_spends_by_facebook_campaign_this_month.log'),
+#
+#     ('00 * * * *', 'bing_dashboard.cron.get_all_spends_by_bing_campaign_this_month',
+#      '> ' + BASE_DIR + '/logs/get_all_spends_by_bing_campaign_this_month.log'),
+#
+#     ('00 * * * *', 'adwords_dashboard.cron.get_all_spend_by_campaign_custom',
+#      '> ' + BASE_DIR + '/logs/google_get_all_spend_by_campaign_custom.log'),
+#
+#     ('00 * * * *', 'facebook_dashboard.cron.get_all_spend_by_facebook_campaign_custom',
+#      '> ' + BASE_DIR + '/logs/get_all_spend_by_facebook_campaign_custom.log'),
+#
+#     ('00 * * * *', 'bing_dashboard.cron.get_all_spend_by_bing_campaign_custom',
+#      '> ' + BASE_DIR + '/logs/get_all_spend_by_bing_campaign_custom.log'),
+# ]
 
 # Bing Stuff
 

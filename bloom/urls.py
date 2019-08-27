@@ -22,6 +22,7 @@ from user_management import views as user_views
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
+from user_management.views import members_single
 
 from bloom.jwt_views import CustomTokenObtainPairView, CustomTokenVerifyView
 
@@ -42,9 +43,7 @@ urlpatterns = [
     url(r'^users/accounts/delete$', profile.remove_user_accounts, name='remove_user_accounts'),
     url(r'^password/$', profile.change_password, name='change_password'),
     url(r'^profile/delete$', profile.remove_acc_profile, name='delete_profile'),
-    url(r'^dashboards/adwords/', include('adwords_dashboard.urls', namespace='adwords')),
-    url(r'^dashboards/bing/', include('bing_dashboard.urls', namespace='bing')),
-    url(r'^dashboards/facebook/', include('facebook_dashboard.urls', namespace='facebook')),
+    url(r'^dashboard$', members_single, name='dashboard'),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^budget/', include('budget.urls', namespace='budget')),
     url(r'^tools/', include('tools.urls', namespace='tools')),
@@ -53,6 +52,7 @@ urlpatterns = [
     url(r'^user_management/', include('user_management.urls', namespace='user_management')),
     url(r'^notifications/', include('notifications.urls', namespace='notifications')),
     url(r'^reports/', include('reports.urls', namespace='reports')),
+    url(r'^insights/', include('insights.urls', namespace='insights')),
     url(r'^admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     url(r'^super/', admin.site.urls),
     url(r'^release_notes$', other_views.release_notes),

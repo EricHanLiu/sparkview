@@ -1978,7 +1978,7 @@ class Budget(models.Model):
 
     @property
     def calculated_budget_remaining_yest(self):
-        return self.budget - self.calculated_yest_spend
+        return self.calculated_budget - self.calculated_yest_spend
 
     @property
     def days_remaining(self):
@@ -2042,21 +2042,21 @@ class Budget(models.Model):
 
     @property
     def spend_percentage(self):
-        if self.budget == 0:
+        if self.calculated_budget == 0:
             return 0
-        return 100.0 * self.calculated_spend / self.budget
+        return 100.0 * self.calculated_spend / self.calculated_budget
 
     @property
     def underpacing_average(self):
-        if self.budget == 0.0:
+        if self.calculated_budget == 0.0:
             return False
-        return self.projected_spend_avg / self.budget < 0.95
+        return self.projected_spend_avg / self.calculated_budget < 0.95
 
     @property
     def overpacing_average(self):
-        if self.budget == 0.0:
+        if self.calculated_budget == 0.0:
             return False
-        return self.projected_spend_avg / self.budget > 1.00
+        return self.projected_spend_avg / self.calculated_budget > 1.00
 
 
 class CampaignExclusions(models.Model):
@@ -2067,6 +2067,9 @@ class CampaignExclusions(models.Model):
     aw_campaigns = models.ManyToManyField(adwords_a.Campaign)
     fb_campaigns = models.ManyToManyField(fb.FacebookCampaign)
     bing_campaigns = models.ManyToManyField(bing_a.BingCampaign)
+
+    def __str__(self):
+        return str(self.account)
 
 
 class AccountBudgetSpendHistory(models.Model):

@@ -1,6 +1,11 @@
 from bloom import celery_app
-from insights.models import GoogleAnalyticsView, Insight
-from insights.reports import initialize_analyticsreporting, seo_three_months_yoy_report
+from insights.models import GoogleAnalyticsView, Insight, TenInsightsReport
+from insights.reports import initialize_analyticsreporting, seo_three_months_yoy_report, aov_per_age_bracket, \
+    transaction_total_per_region, transaction_total_per_product, average_session_duration_per_region, \
+    total_goal_completions_per_age_bracket, bounce_rate_per_age_bracket, aov_per_medium, \
+    total_goal_completions_per_week_day, total_goal_completions_per_region, average_session_duration_per_age_bracket
+from bloom.utils.utils import get_last_month
+import datetime
 
 
 @celery_app.task(bind=True)
@@ -33,17 +38,48 @@ def all_ten_insights_report(self):
     :param self:
     :return:
     """
+    now = datetime.datetime.now()
+    last_month, last_month_year = get_last_month(now)
+
     google_analytics_views = GoogleAnalyticsView.objects.all()
     for google_analytics_view in google_analytics_views:
         if google_analytics_view.account.is_active:
-            ten_insights_report(google_analytics_view.ga_view_id)
+            create_or_update_ten_insights_report(google_analytics_view.ga_view_id, last_month, last_month_year)
 
 
 @celery_app.task(bind=True)
-def ten_insights_report(self, view_id):
+def create_or_update_ten_insights_report(self, view_id, month, year):
     """
     Runs the ten insights report for one view
     :param self:
+    :param view_id:
+    :param month:
+    :param year:
     :return:
     """
-    pass
+    try:
+        ga_view = GoogleAnalyticsView.objects.get(ga_view_id=view_id)
+    except GoogleAnalyticsView.DoesNotExist:
+        return
+
+    ten_insights_report, created = TenInsightsReport.objects.get_or_create(month=month, year=year, ga_view=ga_view)
+
+    analytics = initialize_analyticsreporting()
+    ten_insights_report.aov_per_age_bracket_report = aov_per_age_bracket(analytics, view_id)
+    ten_insights_report.transaction_total_per_region_report = transaction_total_per_region(analytics, view_id)
+    ten_insights_report.transaction_total_per_product_report = transaction_total_per_product(analytics, view_id)
+    ten_insights_report.average_session_duration_per_region_report = average_session_duration_per_region(analytics,
+                                                                                                         view_id)
+    ten_insights_report.total_goal_completions_per_age_bracket_report = total_goal_completions_per_age_bracket(
+        analytics, view_id)
+    ten_insights_report.bounce_rate_per_age_bracket_report = bounce_rate_per_age_bracket(analytics, view_id)
+    ten_insights_report.aov_per_medium_report = aov_per_medium(analytics, view_id)
+    ten_insights_report.total_goal_completions_per_week_day_report = total_goal_completions_per_week_day(analytics,
+                                                                                                         view_id)
+    ten_insights_report.total_goal_completions_per_region_report = total_goal_completions_per_region(analytics, view_id)
+    ten_insights_report.average_session_duration_per_age_bracket_report = average_session_duration_per_age_bracket(
+        analytics, view_id)
+
+    ten_insights_report.save()
+
+    return 'create_or_update_ten_insights_report'
