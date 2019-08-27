@@ -273,8 +273,6 @@ class SkillHistory(models.Model):
 
 
 def member_image_path(instance, filename):
-    print(instance)
-    print(filename)
     return 'bloomers/{0}'.format(filename)
 
 
