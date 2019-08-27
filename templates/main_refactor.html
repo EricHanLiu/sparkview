@@ -66,7 +66,7 @@
             </a>
         </div>
         <div class="navbar-start">
-            <a class="navbar-item" href="/user_management/dashboard">
+            <a class="navbar-item" href="/dashboard">
                 <i class="fas fa-tachometer-alt" style="margin-right: 0.5em"></i>
                 Dashboard
             </a>
@@ -217,7 +217,7 @@
                 </div>
             </div>
             <div class="navbar-item">
-                <a class="navbar-item" href="/user_management/profile">
+                <a class="navbar-item" href="/profile">
                     Hi, {{ user.first_name }}
                     <span style="margin-left: 1em;"><figure class="image is-24x24">
                         <img {% if request.user.member.image != None %}src="{{ request.user.member.image_url }}"

@@ -57,7 +57,9 @@ urlpatterns = [
     url(r'^super/', admin.site.urls),
     url(r'^release_notes$', other_views.release_notes),
     url(r'^flower/', other_views.flower_view),
-    url(r'^dashboard$', user_views.members_single)
+    url(r'^dashboard$', user_views.members_single),
+    url(r'^profile$', user_views.profile, name='profile'),
+    url(r'^profile/upload_image$', user_views.upload_image, name='upload_image'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 admin.site.site_header = 'Bloom Admin'

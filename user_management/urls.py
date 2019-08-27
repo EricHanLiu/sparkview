@@ -6,8 +6,6 @@ app_name = "user_management"
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^profile$', views.profile, name='profile'),
-    url(r'^profile/upload_image$', views.upload_image, name='upload_image'),
     url(r'^dashboard$', views.members_single, name='dashboard'),
     url(r'^members$', views.members, name='members'),
     url(r'^members/new$', views.new_member, name='new_member'),
