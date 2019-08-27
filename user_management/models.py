@@ -831,6 +831,9 @@ class BackupPeriod(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
 
+    class Meta:
+        ordering = ['-start_date']
+
     def __str__(self):
         try:
             return self.member.user.get_full_name() + ' out of office ' + str(self.start_date) + ' to ' + str(
