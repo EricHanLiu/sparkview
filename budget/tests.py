@@ -729,6 +729,8 @@ class AccountTestCase(TestCase):
         self.assertIn(account, member.accounts)
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/' + str(account.id))
@@ -740,6 +742,8 @@ class AccountTestCase(TestCase):
         self.assertEqual(account.status, 1)
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/' + str(account.id))
@@ -750,6 +754,8 @@ class AccountTestCase(TestCase):
         asp.save()
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/' + str(account.id))
@@ -759,6 +765,8 @@ class AccountTestCase(TestCase):
         account.save()
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/' + str(account.id))
@@ -768,6 +776,8 @@ class AccountTestCase(TestCase):
         account.save()
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/' + str(account.id))
@@ -777,6 +787,8 @@ class AccountTestCase(TestCase):
         account.save()
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/accounts/' + str(account.id))

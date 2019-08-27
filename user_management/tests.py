@@ -35,6 +35,8 @@ class UserTestCase(TestCase):
         member = Member.objects.get(user=user)
 
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/clients/')
@@ -67,6 +69,8 @@ class UserTestCase(TestCase):
 
         # Regular pages
         response = self.client.get('/user_management/profile')
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get('/profile')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/user_management/members/' + str(member.id))
