@@ -16,12 +16,11 @@ from user_management.models import Member
 from insights.models import GoogleAnalyticsView
 from django.core import serializers
 from tasks import adwords_tasks
-from datetime import datetime, timedelta
+from datetime import datetime
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
 import calendar
-from bloom import settings
 
 
 @login_required
