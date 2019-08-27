@@ -119,6 +119,12 @@
                                 <th>
                                     Outstanding 90 Days
                                 </th>
+                                <th>
+                                    Training Hours Assigned
+                                </th>
+                                <th>
+                                    Training Buffer
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -159,6 +165,12 @@
                                     </td>
                                     <td>
                                         {{ member.phase_tasks.count }}
+                                    </td>
+                                    <td>
+                                        {{ member.training_hours }}
+                                    </td>
+                                    <td>
+                                        {{ member.buffer_trainers_percentage }}%
                                     </td>
                                 </tr>
                             {% endfor %}
