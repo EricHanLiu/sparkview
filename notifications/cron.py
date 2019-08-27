@@ -6,6 +6,7 @@ from adwords_dashboard.models import DependentAccount
 from user_management.models import Member
 from client_area.models import LifecycleEvent, MonthlyReport
 from django.db.models import Q
+from django.utils.timezone import make_aware
 import datetime
 import calendar
 
@@ -150,6 +151,13 @@ def prepare_todos(self):
             description = 'Reminder: the report for ' + str(report.account) + ' is due today!'
             link = '/user_management/members/' + str(member.id) + '/reports'
             Todo.objects.create(member=member, description=description, link=link, type=0)
+
+        # 2 DAYS WITHOUT ENTERING HOURS
+        two_days_ago = make_aware(yesterday_start - datetime.timedelta(1))
+        if member.last_updated_hours is not None and member.last_updated_hours < two_days_ago:
+            description = 'Warning: you have not entered hours in two days!'
+            link = '/user_management/members/' + str(member.id) + '/input_hours'
+            Todo.objects.create(member=member, description=description, link=link, type=5)
 
         print('Successfully created todos for member %s' % str(member))
 
