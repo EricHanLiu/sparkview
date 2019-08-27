@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseBadRequest
 from django.db.models import Sum
 from django.db.models import Q
 from django.utils import timezone
@@ -13,7 +13,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
+    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch, Tag
 from .forms import NewClientForm
 from budget.cron import create_default_budget
 from tasks.logger import Logger
@@ -2206,3 +2206,37 @@ def set_client_details(request):
     account.save()
 
     return HttpResponse()
+
+
+@login_required
+def set_tags(request):
+    """
+    Sets tags for a client
+    :param request: 
+    :return: 
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Invalid request type')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('That account does not exist')
+
+    if not request.user.is_staff and not request.user.member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to set tags on this account')
+
+    tag_ids = request.POST.getlist('tag_ids')
+    new_tag_list = []
+    for tag_id in tag_ids:
+        try:
+            tmp_tag = Tag.objects.get(id=tag_id)
+        except Tag.DoesNotExist:
+            return HttpResponseBadRequest
+        new_tag_list.append(tmp_tag)
+
+    account.tags.clear()
+    account.tags.set(new_tag_list)
+
+    return HttpResponse('Successfully set tags')
