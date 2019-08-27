@@ -149,8 +149,32 @@ class ClientTestCase(TestCase):
         self.assertEqual(AccountHourRecord.objects.filter(month=1, year=1000, hours=1000).count(), 1)
 
     def test_tags(self):
+        self.client.login(username='test2', password='123456')
+
         test_tag1 = Tag.objects.create(name='test_tag1')
         test_tag2 = Tag.objects.create(name='test_tag2')
         test_account = Client.objects.create(client_name='ctest2')
         test_account2 = Client.objects.create(client_name='ctest3')
-        pass
+        test_member = Member.objects.get(user__username='test2')
+
+        response = self.client.post('/clients/set_tags', {
+            'account_id': test_account.id,
+            'tag_ids': [test_tag1.id]
+        })
+
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn(test_tag1, test_account.tags.all())
+        self.assertNotIn(test_tag2, test_account.tags.all())
+
+        test_account.am1 = test_member
+        test_account.save()
+
+        response = self.client.post('/clients/set_tags', {
+            'account_id': test_account.id,
+            'tag_ids': [test_tag1.id]
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(test_tag1, test_account.tags.all())
+        self.assertNotIn(test_tag2, test_account.tags.all())
+
