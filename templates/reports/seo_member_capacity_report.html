@@ -107,6 +107,12 @@
                                 <th>
                                     Backup Hours
                                 </th>
+                                <th>
+                                    Last Updated Hours
+                                </th>
+                                <th>
+                                    Outstanding 90 Days
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -135,6 +141,12 @@
                                     </td>
                                     <td class="{% if member.backup_hours_plus_minus > 0 %}text-success{% elif member.backup_hours_plus_minus < 0 %}text-danger{% endif %}">
                                         {{ member.backup_hours_plus_minus }}
+                                    </td>
+                                    <td>
+                                        {{ member.last_updated_hours }}
+                                    </td>
+                                    <td>
+                                        {{ member.phase_tasks.count }}
                                     </td>
                                 </tr>
                             {% endfor %}
