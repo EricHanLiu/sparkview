@@ -4,7 +4,7 @@ from user_management.models import Member
 from budget.models import Client
 from .utils import days_in_month_in_daterange
 from client_area.models import Mandate, MandateType, MandateAssignment, MandateHourRecord, Opportunity, \
-    AccountHourRecord
+    AccountHourRecord, Tag
 import datetime
 from django.utils.timezone import make_aware
 from django.test import Client as C
@@ -147,3 +147,10 @@ class ClientTestCase(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AccountHourRecord.objects.filter(month=1, year=1000, hours=1000).count(), 1)
+
+    def test_tags(self):
+        test_tag1 = Tag.objects.create(name='test_tag1')
+        test_tag2 = Tag.objects.create(name='test_tag2')
+        test_account = Client.objects.create(client_name='ctest2')
+        test_account2 = Client.objects.create(client_name='ctest3')
+        pass

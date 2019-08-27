@@ -2,7 +2,7 @@ import datetime
 import calendar
 from django.db import models
 from django.apps import apps
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import JSONField
 from django.db.models import Sum
 from django.utils import timezone
 from adwords_dashboard import models as adwords_a
@@ -11,7 +11,7 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team, Backup, BackupPeriod
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord, Tag
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
 from django.db.models import Q
@@ -187,6 +187,8 @@ class Client(models.Model):
     strat1percent = models.FloatField(default=0)
     strat2percent = models.FloatField(default=0)
     strat3percent = models.FloatField(default=0)
+
+    tags = models.ManyToManyField(Tag, blank=True)
 
     @property
     def is_active(self):

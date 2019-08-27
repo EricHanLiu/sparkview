@@ -3,7 +3,7 @@ from .models import Promo, MonthlyReport, Service, Language, ClientType, Industr
     ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord, OnboardingTask, OnboardingTaskAssignment, \
     OnboardingStep, OnboardingStepAssignment, PhaseTaskAssignment, PhaseTask, LifecycleEvent, SalesProfile, \
     SalesProfileChange, OpportunityDescription, PitchedDescription, MandateType, Mandate, MandateHourRecord, \
-    MandateAssignment
+    MandateAssignment, Tag
 
 
 @admin.register(OpportunityDescription)
@@ -133,4 +133,9 @@ class MandateHourRecordAdmin(admin.ModelAdmin):
 
 @admin.register(MandateAssignment)
 class MandateAssignmentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
     pass
