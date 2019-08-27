@@ -671,7 +671,14 @@ def members_single(request, id=0):
                 mandate_hours[assignment.id] = hours
                 mandate_allocation[assignment.id] = allocation
         if account_dict['is_backup']:
-            hours = account.get_hours_worked_this_month_member(member)
+            """
+            if member is backup on their own account, need to avoid doublecounting hours worked (no concept of backup 
+            hours worked yet) - this will remain wrong on the client page, but that is okay
+            """
+            if not account_dict['is_active']:
+                hours = account.get_hours_worked_this_month_member(member)
+            else:
+                hours = 0
             allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
