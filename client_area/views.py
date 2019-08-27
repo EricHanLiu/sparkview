@@ -2170,8 +2170,11 @@ def get_client_details_objects(request):
 
 @login_required
 def set_client_details(request):
-    # TODO: add validation
     account_id = request.POST.get('account_id')
+    member = request.user.member
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
     account_name = request.POST.get('account_name')
     bc_link = request.POST.get('bc_link')
     description = request.POST.get('description')
