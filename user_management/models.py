@@ -343,6 +343,14 @@ class Member(models.Model):
         return self.team.all().count() == Team.objects.all().count()
 
     @property
+    def last_updated_hours(self):
+        if not hasattr(self, '_last_updated_hours'):
+            AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
+            last_entry = AccountHourRecord.objects.filter(member=self).latest('created_at')
+            self._last_updated_hours = last_entry.created_at
+        return self._last_updated_hours
+
+    @property
     def training_hours_month(self):
         now = datetime.datetime.now()
         month = now.month
