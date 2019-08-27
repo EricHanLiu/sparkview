@@ -154,7 +154,6 @@ class ClientTestCase(TestCase):
         test_tag1 = Tag.objects.create(name='test_tag1')
         test_tag2 = Tag.objects.create(name='test_tag2')
         test_account = Client.objects.create(client_name='ctest2')
-        test_account2 = Client.objects.create(client_name='ctest3')
         test_member = Member.objects.get(user__username='test2')
 
         response = self.client.post('/clients/set_tags', {
