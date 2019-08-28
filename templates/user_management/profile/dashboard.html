@@ -113,23 +113,23 @@
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
                                     {% if account.default_budget is not None %}
-                                        <div class="level" style="margin-bottom: 0.1rem;">
-                                            <div class="level-item">
+                                        <div class="columns" style="margin-bottom: 0.1rem;">
+                                            <div class="column">
                                                 Spend: {{ account.default_budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="level-item">
+                                            <div class="column">
                                                 Budget: {{ account.default_budget.calculated_budget|currency }}
                                             </div>
-                                            <div class="level-item">
+                                            <div class="column">
                                                 Average: {{ account.default_budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="level-item">
+                                            <div class="column">
                                                 Rec Daily Spend: {{ account.default_budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="level-item">
+                                            <div class="column">
                                                 Yesterday Spend: {{ account.default_budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="level-item">
+                                            <div class="column">
                                                 Projected
                                                 Spend: {{ account.default_budget.projected_spend_avg|currency }}
                                             </div>
@@ -247,11 +247,7 @@
         <div class="column is-3">
             <div class="card">
                 <div class="card-content">
-                    <div class="level">
-                        <div class="level-item">
-                            <h5 class="title is-5">{{ today|date:"l F j, Y" }}</h5>
-                        </div>
-                    </div>
+                    <h5 class="title is-5">{{ today|date:"l F j, Y" }}</h5>
                     <div id="todo_list">
                         {% for todo in todos %}
                             <div class="columns todo-row is-vcentered"
