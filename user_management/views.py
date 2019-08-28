@@ -1348,8 +1348,8 @@ def backups(request):
             except Member.DoesNotExist:
                 return HttpResponse('Member does not exist')
 
-            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
-            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
+            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%m/%d/%Y')
+            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%m/%d/%Y')
 
             bp = BackupPeriod()
             bp.member = member
@@ -1451,7 +1451,7 @@ def backups(request):
         'non_active_backup_periods': non_active_backup_periods
     }
 
-    return render(request, 'user_management/backup.html', context)
+    return render(request, 'user_management/backup_refactor.html', context)
 
 
 @login_required
