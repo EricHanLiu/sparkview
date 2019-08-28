@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h5 class="title is-5">
+                        {{ backup_period }}
+                    </h5>
+                    <table class="table is-hoverable is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Account Status</th>
+                            <th>Similar</th>
+                            <th>Backup</th>
+                            <th>Basecamp link</th>
+                            <th>Assign</th>
+                            <th>Approved</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for backup in backup_period.backup_set.all %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account }}</a>
+                                </td>
+                                <td>
+                                    {{ backup.account.get_status_display }}
+                                </td>
+                                <td>
+                                    {{ backup.similar_members_str }}
+                                </td>
+                                <td>
+                                    {% for member in backup.members.all %}
+                                        {{ member.user.get_full_name }}{% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if backup.bc_link != None and backup.bc_link != '' %}
+                                        <a href="{{ backup.bc_link }}">Basecamp link</a>
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="button is-small assign-backup-button"
+                                            data-account="{{ backup.account.id }}" data-bu-id="{{ backup.id }}">
+                                        Assign
+                                    </button>
+                                </td>
+                                <td>
+                                    {% if backup.approved %}
+                                        <button class="button is-small is-primary" disabled>Approved</button>
+                                    {% else %}
+                                        <button class="button is-small approve-backup-button"
+                                                data-bu-id="{{ backup.id }}"
+                                                {% if backup.members.count == 0 %}disabled{% endif %}>
+                                            Approve
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+
+    <!-- Add backup modal -->
+    <div class="modal modal-fx-fadeInScale" id="assign_backup_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h5 class="title is-5">Add Backup</h5>
+                <form method="POST">{% csrf_token %}
+                    <input name="type" type="hidden" value="backup"/>
+                    <input name="period" id="period_input" type="hidden" value="{{ backup_period.id }}"/>
+                    <input name="account" id="account_input" type="hidden" value=""/>
+                    <input name="bu_id_add" id="bu_id_add" type="hidden" value=""/>
+                    <div class="columns">
+                        <div class="column is-6">
+                            <label class="label">Member:</label>
+                            <div class="select is-fullwidth is-multiple">
+                                <select multiple name="members" id="backup_members" required>
+                                    <option value="{{ request.user.member.id }}">
+                                        {{ request.user.member }}
+                                    </option>
+                                    {% for member in members %}
+                                        <option value="{{ member.id }}">{{ member.user.get_full_name }}
+                                            - {{ member.hours_available }} hours
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="column is-6">
+                            <label class="label">Basecamp Link:</label>
+                            <input type="text" name="bc_link" class="input"
+                                   placeholder="Basecamp link">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <button type="submit" class="button is-info is-outlined">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End Add backup -->
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(function () {
+            $('.assign-backup-button').click(function () {
+                let account_id = $(this).data('account');
+                let bu_id = $(this).data('bu-id');
+                $('#account_input').attr('value', account_id);
+                $('#bu_id_add').attr('value', bu_id);
+                $('#assign_backup_modal').addClass('is-active');
+            });
+
+            $('body').on('click', '.approve-backup-button', function () {
+                let buId = $(this).data('bu-id');
+                $.ajax({
+                    url: '/user_management/backups',
+                    data: {
+                        'bu_id': buId,
+                        'type': 'approval'
+                    },
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    type: 'POST',
+                    success: () => {
+                        $(this).addClass('is-primary');
+                        $(this).html('Approved');
+                        $(this).prop('disabled', 'disabled');
+                    }
+                });
+            });
+
+            $('.modal-background, .modal-close').click(() => {
+                $('.modal').removeClass('is-active');
+            });
+        });
+
+        $(function () {
+            $('#backup_members').selectize();
+        });
+    </script>
+{% endblock %}

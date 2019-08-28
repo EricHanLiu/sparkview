@@ -1338,6 +1338,7 @@ def backups(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    # TODO: I'm quite sure most of this is no longer used, can look into removing it
     if request.method == 'POST':
         # Creates a backup period
         form_type = request.POST.get('type')
@@ -1515,7 +1516,7 @@ def backup_event(request, backup_period_id):
         'members': members
     }
 
-    return render(request, 'user_management/backup_event.html', context)
+    return render(request, 'user_management/backup_event_refactor.html', context)
 
 
 @login_required
