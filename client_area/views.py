@@ -97,7 +97,7 @@ def accounts_inactive(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -115,7 +115,7 @@ def accounts_lost(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required

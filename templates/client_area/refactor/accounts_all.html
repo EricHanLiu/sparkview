@@ -56,6 +56,16 @@
                             <th>
                                 Language
                             </th>
+                            {% ifequal page_type 'Inactive' %}
+                                <th>
+                                    Reason For Inactivity
+                                </th>
+                            {% endifequal %}
+                            {% ifequal page_type 'Lost' %}
+                                <th>
+                                    Reason For Loss
+                                </th>
+                            {% endifequal %}
                         </tr>
                         </thead>
                         <tbody>
@@ -103,6 +113,16 @@
                                         {{ lang }}{% if not forloop.last %},{% endif %}
                                     {% endfor %}
                                 </td>
+                                {% ifequal page_type 'Inactive' %}
+                                    <td>
+                                        {{ account.get_inactive_reason_display }}
+                                    </td>
+                                {% endifequal %}
+                                {% ifequal page_type 'Lost' %}
+                                    <td>
+                                        {{ account.get_lost_reason_display }}
+                                    </td>
+                                {% endifequal %}
                             </tr>
                         {% endfor %}
                         </tbody>
