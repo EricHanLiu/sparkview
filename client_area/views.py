@@ -146,7 +146,7 @@ def account_new(request):
             'fee_structures': fee_structures
         }
 
-        return render(request, 'client_area/account_new.html', context)
+        return render(request, 'client_area/refactor/account_new.html', context)
     elif request.method == 'POST':
         form_data = {
             'account_name': request.POST.get('account_name'),
