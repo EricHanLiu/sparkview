@@ -113,25 +113,30 @@
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
                                     {% if account.default_budget is not None %}
-                                        <div class="columns" style="margin-bottom: 0.1rem;">
-                                            <div class="column">
-                                                Spend: {{ account.default_budget.calculated_spend|currency }}
+                                        <div class="columns" style="margin-bottom: 0;">
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Spend</div>
+                                                {{ account.default_budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="column">
-                                                Budget: {{ account.default_budget.calculated_budget|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Budget</div>
+                                                {{ account.default_budget.calculated_budget|currency }}
                                             </div>
-                                            <div class="column">
-                                                Average: {{ account.default_budget.average_spend_yest|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Average</div>
+                                                {{ account.default_budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="column">
-                                                Rec Daily Spend: {{ account.default_budget.rec_spend_yest|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Rec Daily Spend</div>
+                                                {{ account.default_budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="column">
-                                                Yesterday Spend: {{ account.default_budget.yesterday_spend|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Yesterday Spend</div>
+                                                {{ account.default_budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="column">
-                                                Projected
-                                                Spend: {{ account.default_budget.projected_spend_avg|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Projected Spend</div>
+                                                {{ account.default_budget.projected_spend_avg|currency }}
                                             </div>
                                         </div>
                                         <div class="columns">
