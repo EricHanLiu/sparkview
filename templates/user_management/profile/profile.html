@@ -37,7 +37,8 @@
                 </div>
                 <div class="column is-narrow">
                     <div class="level">
-                        <img src="{{ member.image_url }}" id="member_image">
+                        <img {% if member.image != None %}src="{{ member.image_url }}"
+                             {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}/>
                     </div>
                     <form id="update_image_form" method="POST" action="/user_management/profile/upload_image"
                           enctype="multipart/form-data">

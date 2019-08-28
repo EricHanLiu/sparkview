@@ -31,7 +31,7 @@ def accounts(request):
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
 
     context = {
         'member': member,
@@ -40,7 +40,7 @@ def accounts(request):
         'accounts': accounts
     }
 
-    return render(request, 'client_area/accounts.html', context)
+    return render(request, 'client_area/refactor/accounts.html', context)
 
 
 @login_required
