@@ -71,7 +71,7 @@ def accounts_all(request):
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
 
     context = {
         'page_type': 'Active',
@@ -79,7 +79,7 @@ def accounts_all(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
