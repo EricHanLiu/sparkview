@@ -106,7 +106,7 @@ def members(request):
         'total_onboarding_accounts': round(total_onboarding_accounts, 2)
     }
 
-    return render(request, 'user_management/members.html', context)
+    return render(request, 'user_management/members_refactor.html', context)
 
 
 @login_required
