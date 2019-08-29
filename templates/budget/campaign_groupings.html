@@ -63,7 +63,7 @@
                                         </td>
                                         <td>
                                             {% for c in gr.aw_campaigns.all %}
-                                                {{ c.campaign_name }} - {{ c.campaign_budget|floatformat:2 }}<br/>
+                                                {{ c.campaign_name }} - {{ c.campaign_budget|round_to_two }}<br/>
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
@@ -138,7 +138,7 @@
                                         </td>
                                         <td>
                                             {% for c in gr.bing_campaigns.all %}
-                                                {{ c.campaign_name }} - {{ c.campaign_budget|floatformat:2 }}<br/>
+                                                {{ c.campaign_name }} - {{ c.campaign_budget|round_to_two }}<br/>
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
@@ -213,7 +213,7 @@
                                         </td>
                                         <td>
                                             {% for c in gr.fb_campaigns.all %}
-                                                {{ c.campaign_name }} - {{ c.campaign_budget|floatformat:2 }}<br/>
+                                                {{ c.campaign_name }} - {{ c.campaign_budget|round_to_two }}<br/>
                                             {% endfor %}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">

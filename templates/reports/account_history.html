@@ -115,25 +115,25 @@
                                         <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
                                     </td>
                                     <td>
-                                        {{ account.7|floatformat:2 }}
+                                        {{ account.7|round_to_two }}
                                     </td>
                                     <td>
                                         <!-- Value added hours -->
-                                        {{ account.5|floatformat:2 }}
+                                        {{ account.5|round_to_two }}
                                     </td>
                                     <td>
                                         <!-- Mandate hours -->
-                                        {{ account.6|floatformat:2 }}
+                                        {{ account.6|round_to_two }}
                                     </td>
                                     <td>
                                         <!-- All hours -->
-                                        {{ account.3|floatformat:2 }}
+                                        {{ account.3|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ account.2|floatformat:2 }}
+                                        {{ account.2|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ account.4|floatformat:2 }}
+                                        {{ account.4|round_to_two }}
                                     </td>
                                     <td>
                                         ${{ account.1.spend|format_money }}

@@ -135,15 +135,15 @@
                                             Team Capacity
                                         </h3>
                                         <h1 class="text-center text-info" id="capacity-display">
-                                            {{ capacity_rate|floatformat:2 }}%
+                                            {{ capacity_rate|round_to_two }}%
                                         </h1>
                                         <canvas id="capacity-chart" height="50px"></canvas>
                                         <div class="row mt-4">
                                             <h5 class="col-md-6 text-center text-info">
-                                                {{ allocated_aggregate|floatformat:2 }}
+                                                {{ allocated_aggregate|round_to_two }}
                                             </h5>
                                             <h5 class="col-md-6 text-center text-muted">
-                                                {{ allocated_aggregate|add:available_aggregate|floatformat:2 }}
+                                                {{ allocated_aggregate|add:available_aggregate|round_to_two }}
                                             </h5>
                                         </div>
                                         <div class="row">
@@ -164,15 +164,15 @@
                                             Team Utilization
                                         </h3>
                                         <h1 class="text-center text-danger" id="utilization-display">
-                                            {{ utilization_rate|floatformat:2 }}%
+                                            {{ utilization_rate|round_to_two }}%
                                         </h1>
                                         <canvas id="utilization-chart" height="50px"></canvas>
                                         <div class="row mt-4">
                                             <h5 class="col-md-6 text-center text-danger">
-                                                {{ actual_aggregate|floatformat:2 }}
+                                                {{ actual_aggregate|round_to_two }}
                                             </h5>
                                             <h5 class="col-md-6 text-center text-muted">
-                                                {{ allocated_aggregate|floatformat:2 }}
+                                                {{ allocated_aggregate|round_to_two }}
                                             </h5>
                                         </div>
                                         <div class="row">
@@ -235,28 +235,28 @@
                                                     {{ member.role.name }}
                                                 </td>
                                                 <td>
-                                                    {{ member.actual_hours_tmp|floatformat:2 }}
+                                                    {{ member.actual_hours_tmp|round_to_two }}
                                                 </td>
                                                 <td>
-                                                    {{ member.allocated_hours_tmp|floatformat:2 }}
+                                                    {{ member.allocated_hours_tmp|round_to_two }}
                                                 </td>
                                                 {% if load_everything %}
                                                     <td>
-                                                        {{ member.available_hours_tmp|floatformat:2 }}
+                                                        {{ member.available_hours_tmp|round_to_two }}
                                                     </td>
                                                 {% endif %}
                                                 {% if load_everything %}
                                                     <td>
-                                                        {{ member.utilization_rate|floatformat:2 }}%
+                                                        {{ member.utilization_rate|round_to_two }}%
                                                     </td>
                                                     <td>
-                                                        {{ member.capacity_rate|floatformat:2 }}%
+                                                        {{ member.capacity_rate|round_to_two }}%
                                                     </td>
                                                     <td>
-                                                        {{ member.training_hours_month|floatformat:2 }}
+                                                        {{ member.training_hours_month|round_to_two }}
                                                     </td>
                                                     <td>
-                                                        {{ member.value_added_hours_this_month|floatformat:2 }}
+                                                        {{ member.value_added_hours_this_month|round_to_two }}
                                                     </td>
                                                     <td>
                                                         {{ member.most_recent_hour_log }}
@@ -304,7 +304,7 @@
                                                 Average Onboarding Days
                                             </h3>
                                             <h1 class="text-center text-info">
-                                                {{ average_onboarding_days|floatformat:2 }}
+                                                {{ average_onboarding_days|round_to_two }}
                                             </h1>
                                         </div>
                                     </div>
@@ -316,7 +316,7 @@
                                                 Late Percentage
                                             </h3>
                                             <h1 class="text-center text-danger" id="onboarding-late-display">
-                                                {{ onboarding_late_percentage|floatformat:2 }}%
+                                                {{ onboarding_late_percentage|round_to_two }}%
                                             </h1>
                                             <canvas id="onboarding-late-chart" height="200px"></canvas>
                                         </div>
@@ -523,7 +523,7 @@
                                                 Updated Budgets Percentage
                                             </h3>
                                             <h1 class="text-center text-info" id="budget-updated-display">
-                                                {{ budget_updated_percentage|floatformat:2 }}%
+                                                {{ budget_updated_percentage|round_to_two }}%
                                             </h1>
                                             <canvas id="budget-updated-chart" height="200px"></canvas>
                                         </div>
@@ -588,7 +588,7 @@
                                                 Total Refund Amount
                                             </h3>
                                             <h1 class="text-center text-danger">
-                                                ${{ total_overspend_risk|floatformat:2 }}
+                                                ${{ total_overspend_risk|round_to_two }}
                                             </h1>
                                         </div>
                                     </div>
@@ -608,7 +608,7 @@
                                                 Total Projected Opportunity Lost
                                             </h3>
                                             <h1 class="text-center text-warning">
-                                                ${{ total_projected_loss|floatformat:2 }}
+                                                ${{ total_projected_loss|round_to_two }}
                                             </h1>
                                         </div>
                                     </div>
@@ -637,16 +637,16 @@
                                                             <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                                         </td>
                                                         <td>
-                                                            ${{ account.current_budget|floatformat:2 }}
+                                                            ${{ account.current_budget|round_to_two }}
                                                         </td>
                                                         <td>
-                                                            ${{ account.current_spend|floatformat:2 }}
+                                                            ${{ account.current_spend|round_to_two }}
                                                         </td>
                                                         <td>
-                                                            ${{ account.project_yesterday|floatformat:2 }}
+                                                            ${{ account.project_yesterday|round_to_two }}
                                                         </td>
                                                         <td style="color: #f4516c;">
-                                                            ${{ account.projected_refund|floatformat:2 }}
+                                                            ${{ account.projected_refund|round_to_two }}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -677,16 +677,16 @@
                                                             <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                                         </td>
                                                         <td>
-                                                            ${{ account.current_budget|floatformat:2 }}
+                                                            ${{ account.current_budget|round_to_two }}
                                                         </td>
                                                         <td>
-                                                            ${{ account.current_spend|floatformat:2 }}
+                                                            ${{ account.current_spend|round_to_two }}
                                                         </td>
                                                         <td>
-                                                            ${{ account.project_yesterday|floatformat:2 }}
+                                                            ${{ account.project_yesterday|round_to_two }}
                                                         </td>
                                                         <td style="color: #ffb822;">
-                                                            ${{ account.projected_loss|floatformat:2 }}
+                                                            ${{ account.projected_loss|round_to_two }}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}

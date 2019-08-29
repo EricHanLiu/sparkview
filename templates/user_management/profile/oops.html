@@ -104,7 +104,7 @@
                                                 {% if incident.budget_error_amount == 0 %}
                                                     None
                                                 {% else %}
-                                                    {{ incident.budget_error_amount|floatformat:2 }}
+                                                    {{ incident.budget_error_amount|round_to_two }}
                                                 {% endif %}
                                             </td>
                                             <td>
@@ -219,7 +219,7 @@
                                                 {% if incident.budget_error_amount == 0 %}
                                                     None
                                                 {% else %}
-                                                    {{ incident.budget_error_amount|floatformat:2 }}
+                                                    {{ incident.budget_error_amount|round_to_two }}
                                                 {% endif %}
                                             </td>
                                             <td>

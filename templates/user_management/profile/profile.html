@@ -224,7 +224,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <b>Target Daily Spend</b>:
-                                                {{ account.currency }}{{ account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                                {{ account.currency }}{{ account.calculated_daily_recommended|round_to_two|intcomma }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
@@ -237,7 +237,7 @@
                                                  aria-valuenow="{{ account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
                                                  data-original-title="{{ account.calculated_spend }}/{{ account.current_budget }}">
-                                                {{ account.spend_percentage|floatformat:2 }}%
+                                                {{ account.spend_percentage|round_to_two }}%
                                             </div>
                                             <div class="black-marker"
                                                  style="width: {{ black_marker }}%"
@@ -326,7 +326,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <b>Target Daily Spend</b>:
-                                                {{ account.currency }}{{ account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                                {{ account.currency }}{{ account.calculated_daily_recommended|round_to_two|intcomma }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
@@ -339,7 +339,7 @@
                                                  aria-valuenow="{{ account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
                                                  data-original-title="{{ account.calculated_spend }}/{{ account.current_budget }}">
-                                                {{ account.spend_percentage|floatformat:2 }}%
+                                                {{ account.spend_percentage|round_to_two }}%
                                             </div>
                                             <div class="black-marker"
                                                  style="width: {{ black_marker }}%"
@@ -484,7 +484,7 @@
                                     <div class="col-2">
                                         <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
                                         <p>My hours this month:
-                                            {{ backup_account_hours|get_item_from_list:backup.account.id|floatformat:2 }}/{{ backup_account_allocation|get_item_from_list:backup.account.id|floatformat:2 }}</p>
+                                            {{ backup_account_hours|get_item_from_list:backup.account.id|round_to_two }}/{{ backup_account_allocation|get_item_from_list:backup.account.id|round_to_two }}</p>
                                         <div class="m--space-30">
                                             {% with aw=backup.account.adwords.all bing=backup.account.bing.all fb=backup.account.facebook.all %}
                                                 <span class="m-badge {% if aw %}m-badge--primary{% endif %}"
@@ -552,7 +552,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <b>Target Daily Spend</b>:
-                                                {{ backup.account.currency }}{{ backup.account.calculated_daily_recommended|floatformat:2|intcomma }}
+                                                {{ backup.account.currency }}{{ backup.account.calculated_daily_recommended|round_to_two|intcomma }}
                                             </div>
                                         </div>
                                         <div class="progress m-progress--lg"
@@ -565,7 +565,7 @@
                                                  aria-valuenow="{{ backup.account.spend_percentage }}"
                                                  data-toggle="m-tooltip" data-placement="top" title=""
                                                  data-original-title="{{ backup.account.calculated_spend }}/{{ backup.account.current_budget }}">
-                                                {{ backup.account.spend_percentage|floatformat:2 }}%
+                                                {{ backup.account.spend_percentage|round_to_two }}%
                                             </div>
                                             <div class="black-marker"
                                                  style="width: {{ black_marker }}%"
@@ -630,16 +630,16 @@
                                             <a href="/clients/accounts/{{ mandate.account.id }}">{{ mandate.account.client_name }}</a>
                                         </td>
                                         <td>
-                                            {{ mandate.calculated_cost|floatformat:2 }}
+                                            {{ mandate.calculated_cost|round_to_two }}
                                         </td>
                                         <td>
-                                            {{ mandate.hourly_rate|floatformat:2 }}
+                                            {{ mandate.hourly_rate|round_to_two }}
                                         </td>
                                         <td>
-                                            {{ mandate_hours|get_item_from_list:mandate.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:mandate.id|floatformat:2 }}
+                                            {{ mandate_hours|get_item_from_list:mandate.id|round_to_two }}/{{ mandate_allocation|get_item_from_list:mandate.id|round_to_two }}
                                         </td>
                                         <td>
-                                            {{ mandate.allocated_hours_this_month|floatformat:2 }}
+                                            {{ mandate.allocated_hours_this_month|round_to_two }}
                                         </td>
                                         <td>
                                             {{ mandate.start_date_pretty }} - {{ mandate.end_date_pretty }}
@@ -698,10 +698,10 @@
                                             <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                         </td>
                                         <td>
-                                            {{ account.hoursWorkedThisMonth|floatformat:2 }}
+                                            {{ account.hoursWorkedThisMonth|round_to_two }}
                                         </td>
                                         <td>
-                                            {{ account.all_hours|floatformat:2 }}
+                                            {{ account.all_hours|round_to_two }}
                                         </td>
                                     </tr>
                                 {% endfor %}

@@ -40,27 +40,27 @@
                                     </td>
                                     <td>
                                         <span>
-                                            {{ item.impressions|uni2float|floatformat:2 }}%
+                                            {{ item.impressions|uni2float|round_to_two }}%
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ item.clicks|uni2float|floatformat:2 }}%
+                                            {{ item.clicks|uni2float|round_to_two }}%
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ item.ctr|uni2float|floatformat:2 }}%
+                                            {{ item.ctr|uni2float|round_to_two }}%
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ item.cpc|uni2float|floatformat:2 }}%
+                                            {{ item.cpc|uni2float|round_to_two }}%
                                         </span>
                                     </td>
                                     <td>
                                         <span>
-                                            {{ item.cost|uni2float|floatformat:2 }}%
+                                            {{ item.cost|uni2float|round_to_two }}%
                                         </span>
                                     </td>
                                 </tr>

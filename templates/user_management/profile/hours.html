@@ -48,7 +48,7 @@
                                                             <span class="m-widget1__desc">This month</span>
                                                         </div>
                                                         <div class="col m--align-right">
-                                                            <span class="m-widget1__number m--font-brand">{{ member.allocated_hours_this_month|floatformat:2 }}</span>
+                                                            <span class="m-widget1__number m--font-brand">{{ member.allocated_hours_this_month|round_to_two }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -59,7 +59,7 @@
                                                             <span class="m-widget1__desc">This month</span>
                                                         </div>
                                                         <div class="col m--align-right">
-                                                            <span class="m-widget1__number m--font-accent">{{ member.value_added_hours_this_month|floatformat:2 }}</span>
+                                                            <span class="m-widget1__number m--font-accent">{{ member.value_added_hours_this_month|round_to_two }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -74,7 +74,7 @@
                                                             <span class="m-widget1__desc">This month</span>
                                                         </div>
                                                         <div class="col m--align-right">
-                                                            <span class="m-widget1__number m--font-accent">{{ member.hours_available|floatformat:2 }}</span>
+                                                            <span class="m-widget1__number m--font-accent">{{ member.hours_available|round_to_two }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -100,7 +100,7 @@
                                                             <span class="m-widget1__desc">This month</span>
                                                         </div>
                                                         <div class="col m--align-right">
-                                                            <span class="m-widget1__number m--font-success">{{ member.actual_hours_this_month|floatformat:2 }}</span>
+                                                            <span class="m-widget1__number m--font-success">{{ member.actual_hours_this_month|round_to_two }}</span>
                                                         </div>
                                                     </div>
                                                 </div>

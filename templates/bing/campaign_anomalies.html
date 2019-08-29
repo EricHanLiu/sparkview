@@ -34,16 +34,16 @@
                 <td>{{ item.name }}</td>
                 <td>
                     <span data-toggle="m-tooltip" data-original-title="{{ item.metadata }}">
-                        {{ item.search_impr_share|uni2float|floatformat:2 }}%
+                        {{ item.search_impr_share|uni2float|round_to_two }}%
                     </span>
                 </td>
-                <td>{{ item.impressions|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.clicks|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.ctr|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.cpc|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.cost|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.conversions|uni2float|floatformat:2 }}%</td>
-                <td>{{ item.cost_per_conversions|uni2float|floatformat:2 }}%</td>
+                <td>{{ item.impressions|uni2float|round_to_two }}%</td>
+                <td>{{ item.clicks|uni2float|round_to_two }}%</td>
+                <td>{{ item.ctr|uni2float|round_to_two }}%</td>
+                <td>{{ item.cpc|uni2float|round_to_two }}%</td>
+                <td>{{ item.cost|uni2float|round_to_two }}%</td>
+                <td>{{ item.conversions|uni2float|round_to_two }}%</td>
+                <td>{{ item.cost_per_conversions|uni2float|round_to_two }}%</td>
               </tr>
               {% endfor %}
             </tbody>

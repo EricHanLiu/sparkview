@@ -104,7 +104,7 @@
                                         {% endif %}
                                         <div class="level-item">
                                             <div class="tag is-rounded tag-color-3">
-                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|floatformat:2 }}</span>/{{ account_allocation|get_item_from_list:account.id|floatformat:2 }}
+                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|round_to_two }}</span>/{{ account_allocation|get_item_from_list:account.id|round_to_two }}
                                                 <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
                                             </div>
                                         </div>
@@ -144,7 +144,7 @@
                                                             value="{{ account.default_budget.spend_percentage }}"
                                                             max="100"></progress>
                                                     <div class="progress-value">
-                                                        {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                        {{ account.default_budget.spend_percentage|round_to_two }}%
                                                     </div>
                                                     <div class="budget-pacer"
                                                          style="left: {{ account.default_budget.pacer_offset }}%"></div>
@@ -188,16 +188,16 @@
                                                     {{ assignment.mandate.mandate_type.name }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    {{ assignment.mandate.calculated_cost|floatformat:2 }}
+                                                    {{ assignment.mandate.calculated_cost|round_to_two }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    {{ assignment.mandate.hourly_rate|floatformat:2 }}
+                                                    {{ assignment.mandate.hourly_rate|round_to_two }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    {{ mandate_hours|get_item_from_list:assignment.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:assignment.id|floatformat:2 }}
+                                                    {{ mandate_hours|get_item_from_list:assignment.id|round_to_two }}/{{ mandate_allocation|get_item_from_list:assignment.id|round_to_two }}
                                                 </td>
                                                 <td class="has-text-centered">
-                                                    {{ assignment.mandate.allocated_hours_this_month|floatformat:2 }}
+                                                    {{ assignment.mandate.allocated_hours_this_month|round_to_two }}
                                                 </td>
                                                 <td class="has-text-centered">
                                                     {{ assignment.mandate.start_date_pretty }}
