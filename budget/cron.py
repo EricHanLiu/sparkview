@@ -1,5 +1,6 @@
 from bloom import celery_app, settings
 from django.db.models import Q
+from django.core.mail import send_mail
 from adwords_dashboard.models import Campaign, CampaignSpendDateRange
 from facebook_dashboard.models import FacebookCampaign, FacebookCampaignSpendDateRange
 from bing_dashboard.models import BingCampaign, BingCampaignSpendDateRange
@@ -756,9 +757,15 @@ def ninety_five_percent_spend_email(self):
 
     accounts_at_issue = [account for account in accounts if
                          account.default_budget is not None and account.default_budget.calculated_spend > (
-                                     0.95 * account.default_budget.calculated_budget)]
+                                 0.95 * account.default_budget.calculated_budget)]
 
     for account in accounts_at_issue:
         if account in already_sent_email_accounts:
             continue
-        pass
+
+        team_lead_emails = [team_lead.user.email for team_lead in account.team_leads]
+        msg_body = str(account) + ' has reached 95% of its montly spend.'
+        send_mail(msg_body, msg_body, settings.EMAIL_HOST_USER, team_lead_emails, fail_silently=False,
+                  html_message=msg_body)
+
+    return 'ninety_five_percent_spend_email'
