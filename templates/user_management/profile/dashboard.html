@@ -1,1078 +1,620 @@
-{% extends 'user_management/profile/layout.html' %}
+{% extends 'user_management/profile/layout_refactor.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+{% load notification_tags %}
+{% load humanize %}
+{% load custom_filters %}
+{% load budget_tags %}
+
 
 {% block extraCss %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <link href="/static/bulma-checkradio.min.css" type="text/css" rel="stylesheet">
     <style>
-        .table-wrapper {
-            max-height: 400px;
-            overflow: auto;
+        .todo-row {
+            border-bottom: 2px solid #f4f5f8;
+            padding: 1em 0;
         }
 
-        .collapse-trigger {
-            cursor: pointer;
-        }
-
-        .collapse-trigger:hover {
-            background-color: #F8F6F6;
+        .card-content {
+            padding: 2em;
         }
     </style>
 {% endblock %}
 
-{% load notification_tags %}
-
-
-{% block content %}
-    <div class="m-content">
-        {# Notification stuff #}
-
-        {% if backups.count > 0 %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                </button>
-                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
-                check on them!
+{% block main_content %}
+    {% if backups.count > 0 %}
+        <article class="message is-info">
+            <div class="message-body">
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget
+                to check on them!
+                <button class="delete" style="float:right;"></button>
             </div>
-        {% endif %}
-        {% if star_accounts.count > 0 %}
-            <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                </button>
-                <strong>Flagged account alert!</strong> You are assigned to {{ star_accounts.count }} flagged accounts.
-                You can find them in the <strong>Flagged Accounts</strong> section below.
+        </article>
+    {% endif %}
+    {% if flagged_accounts_count > 0 %}
+        <article class="message is-danger">
+            <div class="message-body">
+                <strong>Flagged account alert!</strong> You are assigned to {{ flagged_accounts_count }} flagged
+                accounts. They are marked by a <strong>Flagged</strong> tag.
+                <button class="delete" style="float:right;"></button>
             </div>
-        {% endif %}
-        {#  Main content #}
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="m-portlet m-portlet--responsive-mobile">
-                    <div class="m-portlet__head">
-                        <div class="m-portlet__head-caption">
-                            <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text">
-                                    Filter
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="m-portlet__body">
-                        <form class="m-form" method="GET" action="/user_management/members/{{ member.id }}/dashboard">
-                            <div class="row">
-                                <div class="col-4">
-                                    <label for="filter-role">Roles:</label>
-                                    <select class="form-control" name="filter-role" multiple id="filter-role">
-                                        {% for role in roles %}
-                                            <option value="{{ role.id }}"
-                                                    {% if role in filtered_roles %} selected {% endif %}>
-                                                {{ role }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <label for="filter-team">Teams:</label>
-                                    <select class="form-control" name="filter-team" multiple id="filter-team">
-                                        {% for team in teams %}
-                                            <option value="{{ team.id }}"
-                                                    {% if team in filtered_teams %} selected {% endif %}>
-                                                {{ team }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="month">Month:</label>
-                                    <select class="form-control m-input"
-                                            name="month"
-                                            style="width: 100%;">
-                                        {% for month_num, month_name in months %}
-                                            <option value="{{ month_num }}"
-                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-1">
-                                    <label for="year">Year:</label>
-                                    <select class="form-control m-input"
-                                            name="year"
-                                            style="width: 100%;">
-                                        {% for year in years %}
-                                            <option value="{{ year }}"
-                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
-                                        {% endfor %}
-                                        <!-- should add to this -->
-                                    </select>
-                                </div>
-                                <div class="col-2">
-                                    <input type="submit" class="btn btn-info m-btn"
-                                           style="bottom: 0; position: absolute;" value="Filter">
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="m-portlet m-portlet--responsive-mobile-">
-                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#hours-body">
-                        <div class="m-portlet__head-caption">
-                            <div class="m-portlet__head-title">
-                                <h3 class="m-portlet__head-text">
-                                    Hours Report
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="collapse show" id="hours-body">
-                        <div class="m-portlet__body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded"
-                                         data-toggle="m-tooltip"
-                                         data-original-title="The hours assigned compared to total number of hours available for the month">
-                                        <h3 class="text-center text-info p-2">
-                                            Team Capacity
-                                        </h3>
-                                        <h1 class="text-center text-info" id="capacity-display">
-                                            {{ capacity_rate|round_to_two }}%
-                                        </h1>
-                                        <canvas id="capacity-chart" height="50px"></canvas>
-                                        <div class="row mt-4">
-                                            <h5 class="col-md-6 text-center text-info">
-                                                {{ allocated_aggregate|round_to_two }}
-                                            </h5>
-                                            <h5 class="col-md-6 text-center text-muted">
-                                                {{ allocated_aggregate|add:available_aggregate|round_to_two }}
-                                            </h5>
+        </article>
+    {% endif %}
+    <div class="columns">
+        <div class="column is-9">
+            {% if master_accounts_dictionary|length > 0 %}
+                {% for id, account_dict in master_accounts_dictionary %}
+                    {% with account=account_dict.account %}
+                        <div class="card" style="margin-bottom: 1em;">
+                            <div class="card-content">
+                                <div class="level">
+                                    <div class="level-left">
+                                        <div class="level-item">
+                                            <a style="font-weight: bold;" href="/clients/accounts/{{ account.id }}">
+                                                {{ account.client_name }}
+                                            </a>
                                         </div>
-                                        <div class="row">
-                                            <h5 class="col-md-6 text-center text-info">
-                                                Allocated Hours
-                                            </h5>
-                                            <h5 class="col-md-6 text-center text-muted">
-                                                Total Hours Available
-                                            </h5>
+                                        <div class="level-item">
+                                            <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
+                                            <span class="tag is-rounded {% if account.facebook.all %}tag-color-4{% endif %}">F</span>
+                                            <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
+                                        </div>
+                                        {% if account_dict.is_backup %}
+                                            <div class="level-item">
+                                                <span class="tag is-rounded tag-color-2">Backup</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if account_dict.is_flagged %}
+                                            <div class="level-item">
+                                                <span class="tag is-rounded is-danger">Flagged</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if account_dict.is_onboarding %}
+                                            <div class="level-item">
+                                                <div class="tags has-addons" data-account-id="{{ account.id }}"
+                                                     {% if account.is_late_to_onboard %}style="cursor: pointer;"
+                                                     id="late_onboarding_button"{% endif %}>
+                                                    <span class="tag is-rounded tag-color-3">Onboarding</span>
+                                                    <span class="tag is-rounded {% if account.is_late_to_onboard %}is-danger{% else %}tag-color-3{% endif %}">
+                                                        {{ account.onboarding_duration_elapsed }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="level-right">
+                                        {% if account_dict.is_active or account_dict.is_backup or account_dict.is_onboarding %}
+                                            <div class="level-item">
+                                                <div class="buttons">
+                                                    <div class="button is-small is-rounded quickadd"
+                                                         data-account-id="{{ account.id }}" data-amount="0.25">
+                                                        +15m
+                                                    </div>
+                                                    <div class="button is-small is-rounded quickadd"
+                                                         data-account-id="{{ account.id }}" data-amount="0.5">
+                                                        +30m
+                                                    </div>
+                                                    <div class="button is-small is-rounded quickadd"
+                                                         data-account-id="{{ account.id }}" data-amount="1">
+                                                        +1h
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <div class="level-item">
+                                            <div class="tag is-rounded tag-color-3">
+                                                <span id="worked_hours_{{ account.id }}">{{ account_hours|get_item_from_list:account.id|floatformat:2 }}</span>/{{ account_allocation|get_item_from_list:account.id|floatformat:2 }}
+                                                <i class="fas fa-hourglass-half" style="margin-left: 0.5em;"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="bbox shadow p-4 bg-white rounded"
-                                         data-toggle="m-tooltip"
-                                         data-original-title="How many hours the team has invested into the time they were assigned">
-                                        <h3 class="text-center text-danger p-2">
-                                            Team Utilization
-                                        </h3>
-                                        <h1 class="text-center text-danger" id="utilization-display">
-                                            {{ utilization_rate|round_to_two }}%
-                                        </h1>
-                                        <canvas id="utilization-chart" height="50px"></canvas>
-                                        <div class="row mt-4">
-                                            <h5 class="col-md-6 text-center text-danger">
-                                                {{ actual_aggregate|round_to_two }}
-                                            </h5>
-                                            <h5 class="col-md-6 text-center text-muted">
-                                                {{ allocated_aggregate|round_to_two }}
-                                            </h5>
+                                <hr>
+                                {% if account_dict.is_active or account_dict.is_backup %}
+                                    {% if account.default_budget is not None %}
+                                        <div class="level" style="margin-bottom: 0.1rem;">
+                                            <div class="level-item">
+                                                Spend: {{ account.default_budget.calculated_spend|currency }}
+                                            </div>
+                                            <div class="level-item">
+                                                Budget: {{ account.default_budget.calculated_budget|currency }}
+                                            </div>
+                                            <div class="level-item">
+                                                Average: {{ account.default_budget.average_spend_yest|currency }}
+                                            </div>
+                                            <div class="level-item">
+                                                Rec Daily Spend: {{ account.default_budget.rec_spend_yest|currency }}
+                                            </div>
+                                            <div class="level-item">
+                                                Yesterday Spend: {{ account.default_budget.yesterday_spend|currency }}
+                                            </div>
+                                            <div class="level-item">
+                                                Projected
+                                                Spend: {{ account.default_budget.projected_spend_avg|currency }}
+                                            </div>
                                         </div>
-                                        <div class="row">
-                                            <h5 class="col-md-6 text-center text-danger">
-                                                Actual Hours
-                                            </h5>
-                                            <h5 class="col-md-6 text-center text-muted">
-                                                Allocated Hours
-                                            </h5>
+                                        <div class="columns">
+                                            <div class="column">
+                                                <div class="progress-wrapper">
+                                                    <progress
+                                                            class="progress is-large {% if account.underpacing_average %}is-warning
+                                                      {% elif account.project_average > account.current_budget %}is-danger
+                                                      {% else %}is-success{% endif %}"
+                                                            value="{{ account.default_budget.spend_percentage }}"
+                                                            max="100"></progress>
+                                                    <div class="progress-value">
+                                                        {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                    </div>
+                                                    <div class="budget-pacer"
+                                                         style="left: {{ account.default_budget.pacer_offset }}%"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row pt-5">
-                                <div class="col-md-12 table-wrapper">
-                                    <table class="table order-column table-hover dataTable my_clients_datatable"
-                                           style="table-layout: fixed;">
-                                        <thead class="thead-light">
-                                        <tr class="main-table-header">
-                                            <th>Member</th>
-                                            <th>Role</th>
-                                            <th>
-                                                Actual Hours
+                                    {% endif %}
+                                {% endif %}
+                                {% if account_dict.is_mandate %}
+                                    <h6 class="title is-6">Mandates</h6>
+                                    <table class="table is-fullwidth">
+                                        <thead>
+                                        <tr>
+                                            <th class="has-text-centered">
+                                                Type
                                             </th>
-                                            <th>
-                                                Allocated Hours
+                                            <th class="has-text-centered">
+                                                Cost
                                             </th>
-                                            {# TODO: Eventually uncomment this once we have some data #}
-                                            {% if load_everything %}
-                                                <th>
-                                                    Available Hours
-                                                </th>
-                                            {% endif %}
-                                            {% if load_everything %}
-                                                <th>
-                                                    Utilization Rate
-                                                </th>
-                                                <th>
-                                                    Capacity Rate
-                                                </th>
-                                                <th>
-                                                    Training Hours
-                                                </th>
-                                                <th>
-                                                    Value Added
-                                                </th>
-                                                <th>
-                                                    Date of Last Log
-                                                </th>
-                                            {% endif %}
+                                            <th class="has-text-centered">
+                                                Hourly Rate
+                                            </th>
+                                            <th class="has-text-centered">
+                                                My Hours This Month
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Total Allocated Hours This Month
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Date Range
+                                            </th>
+                                            <th class="has-text-centered">
+                                                Mandate Completed
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for member in members %}
+                                        {% for assignment in account_dict.assignments %}
                                             <tr>
-                                                <td>
-                                                    <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.mandate_type.name }}
                                                 </td>
-                                                <td>
-                                                    {{ member.role.name }}
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.calculated_cost|floatformat:2 }}
                                                 </td>
-                                                <td>
-                                                    {{ member.actual_hours_tmp|round_to_two }}
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.hourly_rate|floatformat:2 }}
                                                 </td>
-                                                <td>
-                                                    {{ member.allocated_hours_tmp|round_to_two }}
+                                                <td class="has-text-centered">
+                                                    {{ mandate_hours|get_item_from_list:assignment.id|floatformat:2 }}/{{ mandate_allocation|get_item_from_list:assignment.id|floatformat:2 }}
                                                 </td>
-                                                {% if load_everything %}
-                                                    <td>
-                                                        {{ member.available_hours_tmp|round_to_two }}
-                                                    </td>
-                                                {% endif %}
-                                                {% if load_everything %}
-                                                    <td>
-                                                        {{ member.utilization_rate|round_to_two }}%
-                                                    </td>
-                                                    <td>
-                                                        {{ member.capacity_rate|round_to_two }}%
-                                                    </td>
-                                                    <td>
-                                                        {{ member.training_hours_month|round_to_two }}
-                                                    </td>
-                                                    <td>
-                                                        {{ member.value_added_hours_this_month|round_to_two }}
-                                                    </td>
-                                                    <td>
-                                                        {{ member.most_recent_hour_log }}
-                                                    </td>
-                                                {% endif %}
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.allocated_hours_this_month|floatformat:2 }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    {{ assignment.mandate.start_date_pretty }}
+                                                    - {{ assignment.mandate.end_date_pretty }}
+                                                </td>
+                                                <td class="has-text-centered">
+                                                    <input type="checkbox" class="mandate-completed is-checkradio"
+                                                           id="{{ assignment.mandate.id }}"
+                                                            {% if assignment.mandate.completed %}
+                                                           checked{% endif %}>
+                                                    <label for="{{ assignment.mandate.id }}"></label>
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                         </tbody>
                                     </table>
-                                </div>
+                                {% endif %}
+                                {% if account_dict.is_onboarding %}
+                                    <div class="columns">
+                                        {% for step in onboarding_steps %}
+                                            {% with assignment=account|get_onboarding_step_assignment:step %}
+                                                <div class="column" style="margin: 0 2em;">
+                                                    <button class="button is-rounded is-fullwidth {% if assignment.complete %}button-color-4{% endif %} onboarding-step-button"
+                                                            data-assignment-id="{{ assignment.id }}"
+                                                            data-step-name="{{ step.name }}"
+                                                            data-account-id="{{ account.id }}"
+                                                            id="{{ assignment.id }}">
+                                                        {{ step.name }}
+                                                    </button>
+                                                </div>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
+                    {% endwith %}
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="card-content">
+                        You are not assigned to any accounts!
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="column is-3">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-item">
+                            <h5 class="title is-5">{{ today|date:"l F j, Y" }}</h5>
+                        </div>
+                    </div>
+                    <div id="todo_list">
+                        {% for todo in todos %}
+                            <div class="columns todo-row is-vcentered"
+                                 {% if forloop.last %}style="border: none;"{% endif %}>
+                                <div class="column is-2">
+                                    <input class="is-checkradio complete-todo" data-todo-id="{{ todo.id }}"
+                                           type="checkbox"
+                                           {% if todo.completed %}disabled checked{% endif %}
+                                           id="checkbox-{{ todo.id }}"/>
+                                    <label for="checkbox-{{ todo.id }}"></label>
+                                </div>
+                                <div class="column {% if todo.type == 3 %}is-8{% else %}is-10{% endif %}">
+                                    <div class="columns">
+                                        <a href="{{ todo.link }}">{{ todo.description }}</a>
+                                    </div>
+                                    <div class="columns">
+                                    <span class="tag is-rounded {{ todo.colour }}">
+                                        {{ todo.get_type_display }}
+                                    </span>
+                                    </div>
+                                </div>
+                                <!-- if phase task, display resolve button -->
+                                {% if todo.type == 3 %}
+                                    <div class="column is-2">
+                                        <button class="button resolve_task_button is-rounded is-small"
+                                                data-task-id="{{ todo.phase_task_id }}">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        {% if todos.count == 0 %}
+                            You're all caught up for the day!
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            {% if load_everything %}
-                <div class="col-xl-6">
-                    <div class="m-portlet m-portlet--responsive-mobile-">
-                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse"
-                             data-target="#onboarding-body">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text">
-                                        Onboarding Reports
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse show" id="onboarding-body">
-                            <div class="m-portlet__body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-info p-2">
-                                                Onboarding Accounts
-                                            </h3>
-                                            <h1 class="text-center text-info">
-                                                {{ num_onboarding }}
-                                            </h1>
-                                        </div>
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-info p-2">
-                                                Average Onboarding Days
-                                            </h3>
-                                            <h1 class="text-center text-info">
-                                                {{ average_onboarding_days|round_to_two }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="bbox shadow p-4 bg-white rounded"
-                                             data-toggle="m-tooltip"
-                                             data-original-title="Percentage of onboarding accounts that have passed 12 business days">
-                                            <h3 class="text-center text-danger p-2">
-                                                Late Percentage
-                                            </h3>
-                                            <h1 class="text-center text-danger" id="onboarding-late-display">
-                                                {{ onboarding_late_percentage|round_to_two }}%
-                                            </h1>
-                                            <canvas id="onboarding-late-chart" height="200px"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row pt-5">
-                                    <div class="col-md-12 table-wrapper">
-                                        <h3 class="text-center">
-                                            Onboarding Accounts
-                                        </h3>
-                                        <table class="table order-column table-hover dataTable my_clients_datatable"
-                                               style="table-layout: fixed;">
-                                            <thead class="thead-light">
-                                            <tr class="main-table-header">
-                                                <th>Account</th>
-                                                <th>
-                                                    Onboarding Since
-                                                </th>
-                                                <th>
-                                                    Days of Onboarding
-                                                </th>
-                                                <th>
-                                                    Late
-                                                </th>
-                                                <th>
-                                                    Reason for lateness
-                                                </th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for account in onboarding_accounts %}
-                                                <tr>
-                                                    <td>
-                                                        <a href="/clients/accounts/{{ account.id }}">{{ account }}</a>
-                                                    </td>
-                                                    <td>
-                                                        {{ account.created_at }}
-                                                    </td>
-                                                    <td>
-                                                        {{ account.onboarding_duration_elapsed }}
-                                                    </td>
-                                                    <td>
-                                                        {{ account.is_late_to_onboard }}
-                                                    </td>
-                                                    <td>
-                                                        {{ account.late_onboard_reason }}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="late_onboarding_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Late Onboarding Reason</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="late_onboarding_confirm_button">Confirm</button>
                     </div>
                 </div>
-            {% endif %}
-            {% if load_everything %}
-                <div class="col-xl-6">
-                    <div class="m-portlet m-portlet--responsive-mobile-">
-                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#promos-body">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text">
-                                        Promos
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse show" id="promos-body">
-                            <div class="m-portlet__body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="bbox shadow p-4 bg-white rounded">
-                                            <h3 class="text-info p-2">
-                                                Promos Launching Today
-                                            </h3>
-                                            {% if promos_start_today.count > 0 %}
-                                                <div class="table-wrapper">
-                                                    <table class="table table-hover order-column dataTable my_clients_datatable">
-                                                        <thead class="thead-light">
-                                                        <tr class="main-table-header">
-                                                            <th>Account</th>
-                                                            <th>
-                                                                Promo
-                                                            </th>
-                                                            <th>
-                                                                Launch Date
-                                                            </th>
-                                                            <th>
-                                                                Status
-                                                            </th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {% for promo in promos_start_today %}
-                                                            <tr>
-                                                                <td>
-                                                                    <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
-                                                                </td>
-                                                                <td>
-                                                                    {{ promo.name }}
-                                                                </td>
-                                                                <td>
-                                                                    {{ promo.start_date }}
-                                                                </td>
-                                                                <td>
-                                                                    {% if promo.confirmed_started %}
-                                                                        Launched
-                                                                    {% else %}
-                                                                        Pending
-                                                                    {% endif %}
-                                                                </td>
-                                                            </tr>
-                                                        {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            {% else %}
-                                                <h4 class="p-2">No promos starting today</h4>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="bbox shadow p-4 bg-white rounded">
-                                            <h3 class="text-danger p-2">
-                                                Promos Ending Today
-                                            </h3>
-                                            {% if promos_end_today.count > 0 %}
-                                                <div class="table-wrapper">
-                                                    <table class="table order-column table-hover dataTable my_clients_datatable">
-                                                        <thead class="thead-light">
-                                                        <tr class="main-table-header">
-                                                            <th>Account</th>
-                                                            <th>
-                                                                Promo
-                                                            </th>
-                                                            <th>
-                                                                End Date
-                                                            </th>
-                                                            <th>
-                                                                Status
-                                                            </th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {% for promo in promos_end_today %}
-                                                            <tr>
-                                                                <td>
-                                                                    <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
-                                                                </td>
-                                                                <td>
-                                                                    {{ promo.name }}
-                                                                </td>
-                                                                <td>
-                                                                    {{ promo.end_date }}
-                                                                </td>
-                                                                <td>
-                                                                    {% if promo.confirmed_ended %}
-                                                                        Ended
-                                                                    {% else %}
-                                                                        Pending
-                                                                    {% endif %}
-                                                                </td>
-                                                            </tr>
-                                                        {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            {% else %}
-                                                <h4 class="p-2">No promos ending today</h4>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            {% endif %}
-        {% if load_everything %}
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="m-portlet m-portlet--responsive-mobile-">
-                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#budget-body">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text">
-                                        Budget Reports
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse show" id="budget-body">
-                            <div class="m-portlet__body">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100"
-                                             data-toggle="m-tooltip"
-                                             data-original-title="Percentage of budgets that have been updated for all active accounts">
-                                            <h3 class="text-center text-info p-2">
-                                                Updated Budgets Percentage
-                                            </h3>
-                                            <h1 class="text-center text-info" id="budget-updated-display">
-                                                {{ budget_updated_percentage|round_to_two }}%
-                                            </h1>
-                                            <canvas id="budget-updated-chart" height="200px"></canvas>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <div class="bbox shadow p-4 bg-white rounded table-wrapper">
-                                            <h3 class="text-center text-info">
-                                                Budgets Not Renewed
-                                            </h3>
-                                            <table class="table order-column table-hover dataTable my_clients_datatable"
-                                                   style="table-layout: fixed;">
-                                                <thead class="thead-light">
-                                                <tr class="main-table-header">
-                                                    <th>Account</th>
-                                                    <th>AM(s)</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for account in budget_not_updated_accounts %}
-                                                    <tr>
-                                                        <td>
-                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                                        </td>
-                                                        <td>
-                                                            {% if account.am1 is not None %}
-                                                                <a href="/user_management/members/{{ account.am1.id }}">
-                                                                    {{ account.am1.user.get_full_name }}
-                                                                </a>
-                                                            {% endif %}
-                                                            {% if account.am2 is not None %}
-                                                                ,<a href="/user_management/members/{{ account.am2.id }}">
-                                                                    {{ account.am2.user.get_full_name }}
-                                                                </a>
-                                                            {% endif %}
-                                                            {% if account.am3 is not None %}
-                                                                ,<a href="/user_management/members/{{ account.am3.id }}">
-                                                                    {{ account.am3.user.get_full_name }}
-                                                                </a>
-                                                            {% endif %}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-danger p-2">
-                                                Number of Overspend Accounts
-                                            </h3>
-                                            <h1 class="text-center text-danger">
-                                                {{ num_overspend }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-danger p-2">
-                                                Total Refund Amount
-                                            </h3>
-                                            <h1 class="text-center text-danger">
-                                                ${{ total_overspend_risk|round_to_two }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-warning p-2">
-                                                Number of Underspend Accounts
-                                            </h3>
-                                            <h1 class="text-center text-warning">
-                                                {{ num_underspend }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-warning p-2">
-                                                Total Projected Opportunity Lost
-                                            </h3>
-                                            <h1 class="text-center text-warning">
-                                                ${{ total_projected_loss|round_to_two }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="bbox shadow p-4 bg-white rounded table-wrapper">
-                                            <h3 class="text-center text-danger">
-                                                Top 5 Projected Overspend Accounts
-                                            </h3>
-                                            <table class="table order-column table-hover dataTable my_clients_datatable"
-                                                   style="table-layout: fixed;">
-                                                <thead class="thead-light">
-                                                <tr class="main-table-header">
-                                                    <th>Account</th>
-                                                    <th>Budget</th>
-                                                    <th>Spend</th>
-                                                    <th>Projected Spend</th>
-                                                    <th>Overspend</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for account in top_five_overspend %}
-                                                    <tr>
-                                                        <td>
-                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                                        </td>
-                                                        <td>
-                                                            ${{ account.current_budget|round_to_two }}
-                                                        </td>
-                                                        <td>
-                                                            ${{ account.current_spend|round_to_two }}
-                                                        </td>
-                                                        <td>
-                                                            ${{ account.project_yesterday|round_to_two }}
-                                                        </td>
-                                                        <td style="color: #f4516c;">
-                                                            ${{ account.projected_refund|round_to_two }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="bbox shadow p-4 bg-white rounded table-wrapper">
-                                            <h3 class="text-center text-warning">
-                                                Top 5 Projected Underspend Accounts
-                                            </h3>
-                                            <table class="table order-column table-hover dataTable my_clients_datatable"
-                                                   style="table-layout: fixed;">
-                                                <thead class="thead-light">
-                                                <tr class="main-table-header">
-                                                    <th>Account</th>
-                                                    <th>Budget</th>
-                                                    <th>Spend</th>
-                                                    <th>Projected Spend</th>
-                                                    <th>Projected Loss</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for account in top_five_underspend %}
-                                                    <tr>
-                                                        <td>
-                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                                        </td>
-                                                        <td>
-                                                            ${{ account.current_budget|round_to_two }}
-                                                        </td>
-                                                        <td>
-                                                            ${{ account.current_spend|round_to_two }}
-                                                        </td>
-                                                        <td>
-                                                            ${{ account.project_yesterday|round_to_two }}
-                                                        </td>
-                                                        <td style="color: #ffb822;">
-                                                            ${{ account.projected_loss|round_to_two }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <form id="late_onboarding_form">
+                    <input name="account_id" id="reason_account_id" type="hidden"/>
+                    <label class="reason">Reason:</label>
+                    <input type="text" name="late_reason" class="input" required/>
+                </form>
             </div>
-            <div class="row">
-                <div class="col-xl-6">
-                    <div class="m-portlet m-portlet--responsive-mobile-">
-                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#notifs-body">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text">
-                                        Outstanding 90 Days Notifications
-                                    </h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="collapse show" id="notifs-body">
-                            <div class="m-portlet__body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-danger p-2">
-                                                Outstanding 90 Days
-                                            </h3>
-                                            <h1 class="text-center text-danger">
-                                                {{ num_outstanding_90_days }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 table-wrapper">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <table class="table order-column table-hover dataTable my_clients_datatable"
-                                                   style="table-layout: fixed;">
-                                                <thead class="thead-light">
-                                                <tr class="main-table-header">
-                                                    <th>Member</th>
-                                                    <th>Outstanding 90 Days</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for member in members %}
-                                                    <tr>
-                                                        <td>
-                                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
-                                                        </td>
-                                                        <td>
-                                                            {{ member.phase_tasks|length }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="resolve_task_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">How are we doing?</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="resolve_task_confirm_button">Submit</button>
                     </div>
                 </div>
-                <div class="col-xl-6">
-                    <div class="m-portlet m-portlet--responsive-mobile-">
-                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse"
-                             data-target="#flagged-body">
-                            <div class="m-portlet__head-caption">
-                                <div class="m-portlet__head-title">
-                                    <h3 class="m-portlet__head-text">
-                                        Flags
-                                    </h3>
-                                </div>
-                            </div>
+                <form id="resolve_task_form">
+                    <input name="task_id" id="task_id" type="text" style="display: none;"/>
+                    <input name="flagged" id="flagged" type="text" value="False" style="display: none;"/>
+                    <div class="columns">
+                        <div class="column is-6">
+                            <button type="button"
+                                    class="button is-fullwidth is-success {% if account.star_flag %}is-outlined{% endif %}"
+                                    id="good_account_toggle_button">
+                                Account Is Good
+                            </button>
                         </div>
-                        <div class="collapse show" id="flagged-body">
-                            <div class="m-portlet__body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <h3 class="text-center text-info p-2">
-                                                Flagged Accounts
-                                            </h3>
-                                            <h1 class="text-center text-info">
-                                                {{ flagged_accounts|length }}
-                                            </h1>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-8 table-wrapper">
-                                        <div class="bbox shadow p-4 bg-white rounded w-100">
-                                            <table class="table order-column table-hover dataTable my_clients_datatable"
-                                                   style="table-layout: fixed;">
-                                                <thead class="thead-light">
-                                                <tr class="main-table-header">
-                                                    <th>
-                                                        Client
-                                                    </th>
-                                                    <th>
-                                                        Account
-                                                    </th>
-                                                    <th>
-                                                        Assigned Member
-                                                    </th>
-                                                    <th>
-                                                        Basecamp link
-                                                    </th>
-                                                    <th>
-                                                        Date Flagged
-                                                    </th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {% for account in flagged_accounts %}
-                                                    <tr>
-                                                        <td>
-                                                            {{ account.parentClient.name }}
-                                                        </td>
-                                                        <td>
-                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                                        </td>
-                                                        <td>
-                                                            {# not necessary to check if assigned exists #}
-                                                            {{ account.flagged_assigned_member.user.get_full_name }}
-                                                        </td>
-                                                        <td>
-                                                            {% if account.flagged_bc_link != None %}
-                                                                <a href="{{ account.flagged_bc_link }}">Basecamp</a>
-                                                            {% else %}
-                                                                None
-                                                            {% endif %}
-                                                        </td>
-                                                        <td>
-                                                            {{ account.flagged_datetime }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="column is-6">
+                            <button type="button" id="flag_account_toggle_button"
+                                    class="button is-fullwidth is-danger {% if not account.star_flag %}is-outlined{% endif %}">
+                                Flag Account
+                            </button>
                         </div>
                     </div>
-                </div>
+                    <div class="columns" id="bc_link_row">
+                        <div class="column">
+                            <label class="label">Basecamp Link</label>
+                            <input type="text" name="bc_link" id="bc_link" class="input" maxlength="140"
+                                   value="{{ account.flagged_bc_link }}"
+                                   {% if account.star_flag %}required{% endif %}/>
+                        </div>
+                    </div>
+                </form>
             </div>
-        {% endif %}
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="onboarding_step_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Onboarding Step</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="onboarding_step_confirm_button">Complete</button>
+                    </div>
+                </div>
+                <p>
+                    <input type="hidden" id="step_account_id">
+                    <input type="hidden" id="assignment_id">
+                    <input type="hidden" id="step_element_id">
+                    Mark the step <strong id="step_name"></strong> as completed?
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="reopen_mandate_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">Reopen Mandate</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="reopen_mandate_confirm_button">Reopen</button>
+                    </div>
+                </div>
+                <p>This mandate is currently marked as completed. Would you like to reopen it?</p>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block extraJs %}
     <script>
-        $('#filter-team').select2({
-            closeOnSelect: false,
-            placeholder: "Filter Teams"
+        /**
+         * EVENT LISTENERS
+         */
+        let $body = $('body');
+
+        $('.modal-close, .modal-background, .close-modal').click(() => {
+            $('.modal').removeClass('is-active');
         });
 
-        $('#filter-role').select2({
-            closeOnSelect: false,
-            placeholder: "Filter Roles"
+        $('.onboarding-step-button').click(function () {
+            $('#onboarding_step_modal').addClass('is-active');
+            $('#step_name').text($(this).data('step-name'));
+            $('#assignment_id').val($(this).data('assignment-id'));
+            $('#step_account_id').val($(this).data('account-id'));
+            $('#step_element_id').val(this.id);
         });
 
-        // capacity percentage bar chart
-        let capacityPercentage = parseInt($('#capacity-display').text());
-        // display 100 if greater than
-        capacityPercentage = capacityPercentage > 100 ? 100 : capacityPercentage;
-        let ctx1 = $('#capacity-chart')[0].getContext('2d');
+        $('#late_onboarding_button').click(function () {
+            $('#late_onboarding_modal').addClass('is-active');
+            let account_id = $(this).data('account-id');
+            $('#reason_account_id').val(account_id);
+        });
 
-        function buildChartCapacity() {
-            new Chart(ctx1, {
-                type: 'horizontalBar',
+        $body.on('click', '.resolve_task_button', function () {
+            $('#resolve_task_modal').addClass('is-active');
+            $('#task_id').val($(this).data('task-id'));
+        });
+
+        $('#late_onboarding_confirm_button').click(() => {
+            $.ajax({
+                url: '/user_management/late_onboard',
+                data: $('#late_onboarding_form').serialize(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully updated late onboarding reason!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            });
+        });
+
+        $('#onboarding_step_confirm_button').click(() => {
+            let stepElementID = $('#step_element_id').val();
+            $.ajax({
+                url: '/clients/accounts/complete_onboarding_step',
                 data: {
-                    datasets: [{
-                        data: [capacityPercentage],
-                        backgroundColor: [
-                            'rgb(54, 163, 247, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(54, 163, 247, 0.7)'
-                        ],
-                        borderWidth: 1
-                    }]
+                    'account_id': $('#step_account_id').val(),
+                    'assignment_id': $('#assignment_id').val(),
                 },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            barPercentage: 0.5
-                        }],
-                        xAxes: [{
-                            ticks: {
-                                min: 0,
-                                max: 100
-                            }
-                        }]
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        enabled: false
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully completed onboarding step!');
+                    $('#' + stepElementID).addClass('button-color-4');
+                    $('.modal').removeClass('is-active');
+                    if ($('#step_name').text() === 'Execute') {
+                        toastr.success('Account is now active!');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
                     }
+                }
+            });
+        });
+
+        // mandate completed checkbox
+        let $mandateCompleteBoxes = $('.mandate-completed');
+        let $reopenMandateModal = $('#reopen_mandate_modal');
+        let handlerAttached = false;
+        $mandateCompleteBoxes.change(function () {
+            let checked = this.checked;
+            let mandateId = this.id;
+
+            // display confirmation modal if already checked
+            if (!checked) {
+                $reopenMandateModal.addClass('is-active');
+                this.checked = true;
+
+                // only attach click handler once
+                if (handlerAttached) {
+                    return;
+                } else {
+                    // arrow function to avoid 'this' redefinition
+                    $('#reopen_mandate_confirm_button').click(() => {
+                        sendRequest(checked, mandateId);
+                        this.checked = false;
+                    });
+                    handlerAttached = true;
+                }
+            } else {
+                sendRequest(checked, mandateId);
+            }
+        });
+
+        function sendRequest(checked, mandateId) {
+            $.ajax({
+                url: '',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'checked': checked,
+                    'mandate_id': mandateId
+                },
+                success: function () {
+                    let inPrefix = checked ? '' : 'in';
+                    toastr.success('Mandate successfully marked as ' + inPrefix + 'complete.');
+                    $reopenMandateModal.removeClass('is-active');
                 }
             });
         }
 
-        // utilization percentage bar chart
-        let utilizationPercentage = parseInt($('#utilization-display').text());
-        // display 100 if greater than
-        utilizationPercentage = utilizationPercentage > 100 ? 100 : utilizationPercentage;
-        let ctx2 = $('#utilization-chart')[0].getContext('2d');
+        $('#resolve_task_confirm_button').click(() => {
+            if ($bcLink.val() === '' && $flagged.val() === 'True') {
+                toastr.error('A basecamp link is required to flag an account!');
+                return;
+            }
 
-        function buildChartUtilization() {
-            new Chart(ctx2, {
-                type: 'horizontalBar',
-                data: {
-                    datasets: [{
-                        data: [utilizationPercentage],
-                        backgroundColor: [
-                            'rgb(244, 81, 108, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(244, 81, 108, 0.7)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            barPercentage: 0.5
-                        }],
-                        xAxes: [{
-                            ticks: {
-                                min: 0,
-                                max: 100
-                            }
-                        }]
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        enabled: false
-                    }
+            $.ajax({
+                url: '/notifications/cycle/confirm',
+                data: $('#resolve_task_form').serialize(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully resolved task!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
                 }
             });
-        }
+        });
 
-        {% if load_everything %}
-            // onboarding percentage bar chart
-            let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
-            // display 100 if greater than
-            onboardingLatePercentage = onboardingLatePercentage > 100 ? 100 : onboardingLatePercentage;
-            let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
+        $('.quickadd').click(function () {
+            let accountID = $(this).data('account-id');
+            let amount = $(this).data('amount');
+            let $workedHours = $('#worked_hours_' + accountID);
 
-            function buildChartOnboarding() {
-                new Chart(ctx5, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [onboardingLatePercentage, 1, 100 - onboardingLatePercentage],
-                            backgroundColor: [
-                                'rgba(220, 41, 41, 0.5)',
-                                'rgba(0, 0, 0, 0.5)',
-                                'rgba(241, 233, 231, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(220, 41, 41, 0.5)',
-                                'rgba(0, 0, 0, 0)',
-                                'rgba(241, 233, 231, 0.5)'
-                            ],
-                            borderWidth: 1
-                        },
-                            {
-                                data: [onboardingLatePercentage, 1, 100 - onboardingLatePercentage],
-                                backgroundColor: [
-                                    'rgba(0, 0, 0, 0)',
-                                    'rgba(0, 0, 0, 0.5)',
-                                    'rgba(0, 0, 0, 0)'
-                                ],
-                                borderWidth: 0,
-                            }]
-                    },
-                    options: {
-                        cutoutPercentage: 0,
-                        tooltips: {
-                            enabled: false
-                        },
-                        rotation: -1 * Math.PI,
-                        circumference: Math.PI
-                    }
-                });
-            }
-
-            // ontime percentage bar chart
-            let budgetUpdatedPercentage = parseInt($('#budget-updated-display').text());
-            // display 100 if greater than
-            budgetUpdatedPercentage = budgetUpdatedPercentage > 100 ? 100 : budgetUpdatedPercentage;
-            let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
-
-            function buildChartBudget() {
-                new Chart(ctx6, {
-                    type: 'doughnut',
-                    data: {
-                        datasets: [{
-                            data: [budgetUpdatedPercentage, 1, 100 - budgetUpdatedPercentage],
-                            backgroundColor: [
-                                'rgb(54, 163, 247, 0.7)',
-                                'rgba(0, 0, 0, 0.5)',
-                                'rgba(241, 233, 231, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgb(54, 163, 247, 0.7)',
-                                'rgba(0, 0, 0, 0)',
-                                'rgba(241, 233, 231, 0.5)'
-                            ],
-                            borderWidth: 1
-                        },
-                            {
-                                data: [budgetUpdatedPercentage, 1, 100 - budgetUpdatedPercentage],
-                                backgroundColor: [
-                                    'rgba(0, 0, 0, 0)',
-                                    'rgba(0, 0, 0, 0.5)',
-                                    'rgba(0, 0, 0, 0)'
-                                ],
-                                borderWidth: 0,
-                            }]
-                    },
-                    options: {
-                        cutoutPercentage: 0,
-                        tooltips: {
-                            enabled: false
-                        },
-                        rotation: -1 * Math.PI,
-                        circumference: Math.PI
-                    }
-                });
-            }
-        {% endif %}
-        // HANDLE DYNAMIC CHART LOADING
-
-        // list of charts that aren't immediately visible upon loading
-        // ORDER of chart ids and functionNames must match
-        let charts = [
-            {id: '#capacity-chart', viewed: false},
-            {id: '#utilization-chart', viewed: false},
-            {id: '#onboarding-late-chart', viewed: false},
-            {id: '#budget-updated-chart', viewed: false}];
-        let functionNames = ['Capacity', 'Utilization', 'Onboarding', 'Budget'];
-
-        function dynamicLoadChart() {
-            for (let i = 0; i < charts.length; i++) {
-                let chart = charts[i];
-                if (isScrolledIntoView(chart.id)) {
-                    if (chart.viewed) {
-                        return;
-                    }
-                    // call this chart's build function
-                    window['buildChart' + functionNames[i]]();
-                    chart.viewed = true;
+            $.ajax({
+                url: '/clients/accounts/' + accountID,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'quick_add_hours': amount,
+                    'quick_add_month': (new Date()).getMonth() + 1,
+                    'quick_add_year': (new Date()).getFullYear(),
+                },
+                success: function () {
+                    toastr.success('Successfully added ' + amount + ' hours!');
+                    let hours = parseFloat($workedHours.text());
+                    hours += amount;
+                    $workedHours.text(hours.toFixed(2));
                 }
+            });
+        });
+
+        let $flagAccountButton = $('#flag_account_toggle_button');
+        let $goodAccountButton = $('#good_account_toggle_button');
+        let $bcLink = $('#bc_link');
+        let $flagged = $('[name="flagged"]');
+
+        $goodAccountButton.click(() => {
+            $goodAccountButton.removeClass('is-outlined');
+            $flagAccountButton.addClass('is-outlined');
+            $flagged.val('False');
+
+            $bcLink.attr('placeholder', 'Optional');
+        });
+
+        $flagAccountButton.click(() => {
+            $flagAccountButton.removeClass('is-outlined');
+            $goodAccountButton.addClass('is-outlined');
+            $flagged.val('True');
+
+            $bcLink.attr('placeholder', '');
+        });
+
+        // account budget update checking
+        $('.budget-updated').change(function () {
+            let accountID = $(this).data('account-id');
+
+            $.ajax({
+                url: '/budget/confirm_budget',
+                data: {
+                    'account_id': accountID
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Confirmed Budget Updated!');
+                    $(this).attr('disabled', '');
+                }
+            });
+        });
+
+        $body.on('change', '.complete-todo', function () {
+            let todoID = $(this).data('todo-id');
+
+            // send request if checking off todo
+            if (this.checked) {
+                $.ajax({
+                    url: '',
+                    data: {
+                        'todo_id': todoID,
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    type: 'POST',
+                    success: () => {
+                        $(this).prop('disabled', 'disabled');
+                        // refresh list
+                        $('#todo_list').load(location.href + ' #todo_list>*', '');
+                    }
+                });
             }
-        }
+        });
 
-        function isScrolledIntoView(elem) {
-            let leeway = 200; // amount in pixels to 'extend' the viewport for dynamic loading
-
-            let docViewTop = $(window).scrollTop();
-            let docViewBottom = docViewTop + $(window).height();
-            let $elem = $(elem);
-            if (!$elem.length) return false;
-            let elemTop = $elem.offset().top;
-
-            let elemBottom = elemTop + $(elem).height();
-
-            return ((elemTop <= docViewBottom + leeway) && (elemBottom >= docViewTop + leeway));
-        }
-
-        // attach listeners for changes in content displayed
-        $(window).scroll(dynamicLoadChart);
-        $(document).ready(dynamicLoadChart);
-        $('.collapse').on('hidden.bs.collapse', dynamicLoadChart);
+        $('#accounts_tab').addClass('is-active');
     </script>
 {% endblock %}

@@ -21,6 +21,40 @@ def index(request):
 
 
 @login_required
+def profile(request):
+    member = request.user.member
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_new_password = request.POST.get('confirm_new_password')
+        if new_password != confirm_new_password:
+            return HttpResponse('Passwords do not match.')
+
+        request.user.password = new_password
+        request.user.save()
+
+        return HttpResponse()
+
+    context = {
+        'member': member
+    }
+
+    return render(request, 'user_management/profile/profile.html', context)
+
+
+@login_required
+def upload_image(request):
+    member = request.user.member
+
+    if request.method == 'POST' and request.FILES['upload_image']:
+        image = request.FILES['upload_image']
+        member.image = image
+        member.save()
+
+    return redirect('/user_management/profile')
+
+
+@login_required
 def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
@@ -278,7 +312,7 @@ def member_dashboard(request, id):
         'load_everything': load_everything
     }
 
-    return render(request, 'user_management/profile/dashboard.html', context)
+    return render(request, 'user_management/profile/team_lead_dashboard.html', context)
 
 
 @login_required
@@ -636,18 +670,26 @@ def members_single(request, member_id=0):
             for assignment in master_accounts_dictionary[account.id]['assignments']:
                 hours = assignment.worked_this_month
                 allocation = assignment.hours
-                account_hours[account_id] += hours
-                account_allocation[account_id] += allocation
+                if not account_dict['is_active']:  # only add these hours if its not active, otherwise it doublecounts
+                    account_hours[account_id] += hours
+                    account_allocation[account_id] += allocation
                 mandate_hours[assignment.id] = hours
                 mandate_allocation[assignment.id] = allocation
         if account_dict['is_backup']:
-            hours = account.get_hours_worked_this_month_member(member)
+            """
+            if member is backup on their own account, need to avoid doublecounting hours worked (no concept of backup 
+            hours worked yet) - this will remain wrong on the client page, but that is okay
+            """
+            if not account_dict['is_active']:
+                hours = account.get_hours_worked_this_month_member(member)
+            else:
+                hours = 0
             allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
         if account_dict['is_onboarding']:
-            hours = account.onboarding_hours_worked(member)
-            allocation = account.onboarding_hours_allocated(member)
+            hours = account.onboarding_hours_worked_this_month(member)
+            allocation = account.onboarding_hours_allocated_this_month(member)
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
 
@@ -691,7 +733,7 @@ def members_single(request, member_id=0):
 
         return HttpResponse()
 
-    return render(request, 'user_management/profile/profile_refactor.html', context)
+    return render(request, 'user_management/profile/dashboard.html', context)
 
 
 @login_required
