@@ -767,5 +767,6 @@ def ninety_five_percent_spend_email(self):
         msg_body = str(account) + ' has reached 95% of its montly spend.'
         send_mail(msg_body, msg_body, settings.EMAIL_HOST_USER, team_lead_emails, fail_silently=False,
                   html_message=msg_body)
+        SentEmailRecord.objects.create(account=account, email_type=0, month=now.month, year=now.year)
 
     return 'ninety_five_percent_spend_email'
