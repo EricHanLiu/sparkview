@@ -560,7 +560,7 @@ def monthly_reporting(request):
         'selected': selected
     }
 
-    return render(request, 'reports/monthly_reports.html', context)
+    return render(request, 'reports/monthly_reports_refactor.html', context)
 
 
 @login_required
