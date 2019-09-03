@@ -399,7 +399,7 @@ def promos(request):
         'promos_end_today': promos_end_today
     }
 
-    return render(request, 'reports/promos.html', context)
+    return render(request, 'reports/promos_refactor.html', context)
 
 
 @login_required
