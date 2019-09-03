@@ -44,6 +44,21 @@ def get_allocation_this_month_member(account, member):
 
 
 @register.filter
+def get_onboarding_hours_worked_member(account, member):
+    return account.onboarding_hours_worked_this_month(member)
+
+
+@register.filter
+def get_onboarding_hours_allocated_member(account, member):
+    return account.onboarding_hours_allocated_this_month(member)
+
+
+@register.filter
+def get_onboarding_hours_allocated(account):
+    return account.onboarding_hours_allocated_this_month()
+
+
+@register.filter
 def get_allocation_this_month_backup_member(account, member):
     """
     Called from template by an account, it fetches allocated hours for a backup member on an account
@@ -82,6 +97,14 @@ def format_money(num):
     Formats 1234.5 like $1,234.50
     """
     return '{:,.2f}'.format(num)
+
+
+@register.filter
+def round_to_two(num):
+    try:
+        return round(num, 2)
+    except TypeError:
+        return None
 
 
 @register.filter

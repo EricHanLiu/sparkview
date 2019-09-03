@@ -31,6 +31,9 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <!-- datatables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <script src="https:////cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
     {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -58,7 +61,7 @@
 <nav class="navbar is-spaced" style="box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.25);">
     <div class="container is-fluid">
         <div class="navbar-brand">
-            <a class="navbar-item" href="/">
+            <a class="navbar-item" href="/dashboard">
                 <img src="{% static 'img/bloom_logo_new.png' %}" alt="SparkView">
                 <strong class="navbar-item is-tagline">
                     SparkView
@@ -66,7 +69,7 @@
             </a>
         </div>
         <div class="navbar-start">
-            <a class="navbar-item" href="/">
+            <a class="navbar-item" href="/dashboard">
                 <i class="fas fa-tachometer-alt" style="margin-right: 0.5em"></i>
                 Dashboard
             </a>
@@ -97,36 +100,36 @@
             </div>
             {% if request.user.is_staff %}
                 <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link">
-                    <i class="fas fa-user-friends" style="margin-right: 0.5em;"></i>
-                    Members
-                </a>
-                <div class="navbar-dropdown">
-                    <a class="navbar-item" href="/user_management/profile">
-                        Profile
+                    <a class="navbar-link">
+                        <i class="fas fa-user-friends" style="margin-right: 0.5em;"></i>
+                        Members
                     </a>
-                    {% if request.user.is_staff %}
-                        <a class="navbar-item" href="/user_management/backups">
-                            Backups
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/dashboard">
+                            Dashboard
                         </a>
-                        <a class="navbar-item" href="/user_management/members">
-                            Members
-                        </a>
-                        <a class="navbar-item" href="/user_management/members/training">
-                            Member Training
-                        </a>
-                        <a class="navbar-item" href="/user_management/members/new">
-                            Add New Member
-                        </a>
-                        <a class="navbar-item" href="/user_management/skills">
-                            Skills
-                        </a>
-                        <a class="navbar-item" href="/user_management/teams">
-                            Teams
-                        </a>
-                    {% endif %}
+                        {% if request.user.is_staff %}
+                            <a class="navbar-item" href="/user_management/backups">
+                                Backups
+                            </a>
+                            <a class="navbar-item" href="/user_management/members">
+                                Members
+                            </a>
+                            <a class="navbar-item" href="/user_management/members/training">
+                                Member Training
+                            </a>
+                            <a class="navbar-item" href="/user_management/members/new">
+                                Add New Member
+                            </a>
+                            <a class="navbar-item" href="/user_management/skills">
+                                Skills
+                            </a>
+                            <a class="navbar-item" href="/user_management/teams">
+                                Teams
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">
                         <i class="fas fa-book" style="margin-right: 0.5em;"></i>
@@ -196,11 +199,39 @@
                         <a class="navbar-item" href="/reports/over_under">
                             Overspend/Underspend Report
                         </a>
+                        <a class="navbar-item" href="/reports/tags">
+                            Tags
+                        </a>
                     </div>
                 </div>
             {% endif %}
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    <i class="fas fa-wrench" style="margin-right: 0.5em;"></i>
+                    Tools
+                </a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="https://mibhub.com">
+                        The Hub
+                    </a>
+                    <a class="navbar-item" href="https://health.mibhub.com">
+                        Ad Health Checker
+                    </a>
+                    <a class="navbar-item" href="https://builder.mibhub.com">
+                        Campaign Builder
+                    </a>
+                    <a class="navbar-item" href="https://basecamp.com">
+                        Basecamp
+                    </a>
+                </div>
+            </div>
         </div>
         <div class="navbar-end">
+            {% if member != request.user.member and member is not None %}
+                <div class="navbar-item">
+                    <p>Viewing: {{ member.user.get_full_name }} ({{ member.role }})</p>
+                </div>
+            {% endif %}
             <div class="navbar-item">
                 <div class="dropdown" id="search_dropdown">
                     <input class="input is-rounded" type="search" placeholder="Search.." id="search_bar"
@@ -212,10 +243,10 @@
                 </div>
             </div>
             <div class="navbar-item">
-                <a class="navbar-item" href="/">
+                <a class="navbar-item" href="/profile">
                     Hi, {{ user.first_name }}
                     <span style="margin-left: 1em;"><figure class="image is-24x24">
-                        <img {% if request.user.member.image != None %}src="{% static 'img/bloomers/'|add:request.user.member.image %}"
+                        <img {% if request.user.member.image != None %}src="{{ request.user.member.image_url }}"
                              {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}/>
                     </figure></span>
                 </a>
@@ -229,6 +260,10 @@
 <script>
     $('.delete').click(function () {
         $(this).closest('.message').addClass('is-hidden');
+        $('.modal').removeClass('is-active');
+    });
+
+    $('.modal-close, .modal-background').click(() => {
         $('.modal').removeClass('is-active');
     });
 
@@ -329,6 +364,15 @@
     $searchBar.focus(() => {
         if ($searchResults.children().length > 0) {
             $searchDropdown.addClass('is-active');
+        }
+    });
+
+    $('.dataTable').DataTable({
+        paginate: false,
+        filter: true,
+        info: false,
+        language: {
+            search: '<i class="fas fa-search"></i>',
         }
     });
 </script>

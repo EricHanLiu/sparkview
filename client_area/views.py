@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseBadRequest
 from django.db.models import Sum
 from django.db.models import Q
 from django.utils import timezone
@@ -13,7 +13,7 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch
+    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch, Tag
 from .forms import NewClientForm
 from budget.cron import create_default_budget
 from tasks.logger import Logger
@@ -31,7 +31,7 @@ def accounts(request):
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
 
     context = {
         'member': member,
@@ -40,7 +40,7 @@ def accounts(request):
         'accounts': accounts
     }
 
-    return render(request, 'client_area/accounts.html', context)
+    return render(request, 'client_area/refactor/accounts.html', context)
 
 
 @login_required
@@ -71,7 +71,7 @@ def accounts_all(request):
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
 
     context = {
         'page_type': 'Active',
@@ -79,7 +79,7 @@ def accounts_all(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -97,7 +97,7 @@ def accounts_inactive(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -115,7 +115,7 @@ def accounts_lost(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -146,7 +146,7 @@ def account_new(request):
             'fee_structures': fee_structures
         }
 
-        return render(request, 'client_area/account_new.html', context)
+        return render(request, 'client_area/refactor/account_new.html', context)
     elif request.method == 'POST':
         form_data = {
             'account_name': request.POST.get('account_name'),
@@ -290,27 +290,32 @@ def account_new(request):
                                             severity=2)
 
             # Create onboarding steps for this client
-            if account.is_onboarding_ppc:
-                ppc_steps = OnboardingStep.objects.filter(service=0)
-                for ppc_step in ppc_steps:
-                    ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
-                    ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
-                    for ppc_task in ppc_tasks:
-                        OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
-            if account.is_onboarding_seo:
-                seo_steps = OnboardingStep.objects.filter(service=1)
-                for seo_step in seo_steps:
-                    seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
-                    seo_tasks = OnboardingTask.objects.filter(step=seo_step)
-                    for seo_task in seo_tasks:
-                        OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
-            if account.is_onboarding_cro:
-                cro_steps = OnboardingStep.objects.filter(service=2)
-                for cro_step in cro_steps:
-                    cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
-                    cro_tasks = OnboardingTask.objects.filter(step=cro_step)
-                    for cro_task in cro_tasks:
-                        OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
+            # if account.is_onboarding_ppc:
+            #     ppc_steps = OnboardingStep.objects.filter(service=0)
+            #     for ppc_step in ppc_steps:
+            #         ppc_step_assignment = OnboardingStepAssignment.objects.create(step=ppc_step, account=account)
+            #         ppc_tasks = OnboardingTask.objects.filter(step=ppc_step)
+            #         for ppc_task in ppc_tasks:
+            #             OnboardingTaskAssignment.objects.create(step=ppc_step_assignment, task=ppc_task)
+            # if account.is_onboarding_seo:
+            #     seo_steps = OnboardingStep.objects.filter(service=1)
+            #     for seo_step in seo_steps:
+            #         seo_step_assignment = OnboardingStepAssignment.objects.create(step=seo_step, account=account)
+            #         seo_tasks = OnboardingTask.objects.filter(step=seo_step)
+            #         for seo_task in seo_tasks:
+            #             OnboardingTaskAssignment.objects.create(step=seo_step_assignment, task=seo_task)
+            # if account.is_onboarding_cro:
+            #     cro_steps = OnboardingStep.objects.filter(service=2)
+            #     for cro_step in cro_steps:
+            #         cro_step_assignment = OnboardingStepAssignment.objects.create(step=cro_step, account=account)
+            #         cro_tasks = OnboardingTask.objects.filter(step=cro_step)
+            #         for cro_task in cro_tasks:
+            #             OnboardingTaskAssignment.objects.create(step=cro_step_assignment, task=cro_task)
+
+            # Create new onboarding steps
+            steps = OnboardingStep.objects.all()
+            for step in steps:
+                OnboardingStepAssignment.objects.create(account=account, step=step)
 
             event_description = account.client_name + ' was added to SparkView.'
             lc_event = LifecycleEvent.objects.create(account=account, type=1, description=event_description, phase=0,
@@ -1609,29 +1614,11 @@ def onboard_account(request, account_id):
     account = Client.objects.get(id=account_id)
 
     if request.method == 'GET':
-        s_ac_ppc_steps = None
-        s_ac_seo_steps = None
-        s_ac_cro_steps = None
-        s_ac_strat_steps = None
-
-        if account.is_onboarding_ppc:
-            ppc_step = OnboardingStep.objects.filter(service=0)
-            ac_ppc_steps = OnboardingStepAssignment.objects.filter(step__in=ppc_step, account=account)
-            s_ac_ppc_steps = sorted(ac_ppc_steps, key=lambda t: t.step.order)
-        if account.is_onboarding_seo:
-            seo_step = OnboardingStep.objects.filter(service=1)
-            ac_seo_steps = OnboardingStepAssignment.objects.filter(step__in=seo_step, account=account)
-            s_ac_seo_steps = sorted(ac_seo_steps, key=lambda t: t.step.order)
-        if account.is_onboarding_cro:
-            cro_step = OnboardingStep.objects.filter(service=2)
-            ac_cro_steps = OnboardingStepAssignment.objects.filter(step__in=cro_step, account=account)
-            s_ac_cro_steps = sorted(ac_cro_steps, key=lambda t: t.step.order)
+        steps = OnboardingStepAssignment.objects.filter(account=account)
 
         context = {
             'account': account,
-            'ac_ppc_steps': s_ac_ppc_steps,
-            'ac_seo_steps': s_ac_seo_steps,
-            'ac_cro_steps': s_ac_cro_steps,
+            'steps': steps
         }
 
         return render(request, 'client_area/onboard_account.html', context)
@@ -1850,28 +1837,31 @@ def set_opportunity(request):
     except OpportunityDescription.DoesNotExist:
         return HttpResponseNotFound('That opportunity description does not exist')
 
-    opp = Opportunity()
-    opp.account = account
-    opp.reason = opp_desc
-    opp.flagged_by = request.user.member
-
     if service_id == 'ppc':
-        opp.is_primary = True
-        opp.primary_service = 1
+        is_primary = True
+        primary_service = 1
     elif service_id == 'seo':
-        opp.is_primary = True
-        opp.primary_service = 2
+        is_primary = True
+        primary_service = 2
     elif service_id == 'cro':
-        opp.is_primary = True
-        opp.primary_service = 3
+        is_primary = True
+        primary_service = 3
     else:
-        opp.is_primary = False
+        is_primary = False
         try:
-            service = MandateType.objects.get(id=service_id)
+            additional_service = MandateType.objects.get(id=service_id)
         except MandateType.DoesNotExist:
             return HttpResponseNotFound('This service does not exist')
-        opp.additional_service = service
 
+    if is_primary:
+        # primary_service / additional_service will be defined, ignore warning
+        opp = Opportunity.objects.get_or_create(account=account, service=primary_service, is_primary=True)
+    else:
+        opp = Opportunity.objects.get_or_create(account=account, additional_service=additional_service,
+                                                is_primary=False)
+
+    opp.reason = opp_desc
+    opp.flagged_by = request.user.member
     opp.save()
 
     return redirect('/clients/accounts/' + str(account.id))
@@ -2090,6 +2080,16 @@ def edit_management_details(request):
         lc_event.members.set(account.assigned_members_array)
         lc_event.save()
 
+    if old_status != 0 and account.status == 0:
+        """
+        Account is now onboarding, create/reset steps
+        """
+        steps = OnboardingStep.objects.all()
+        for step in steps:
+            assignment, created = OnboardingStepAssignment.objects.get_or_create(account=account, step=step)
+            assignment.complete = False
+            assignment.save()
+
     fee_override = request.POST.get('fee_override')
     hours_override = request.POST.get('hours_override')
 
@@ -2170,8 +2170,11 @@ def get_client_details_objects(request):
 
 @login_required
 def set_client_details(request):
-    # TODO: add validation
     account_id = request.POST.get('account_id')
+    member = request.user.member
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to do this')
+
     account_name = request.POST.get('account_name')
     bc_link = request.POST.get('bc_link')
     description = request.POST.get('description')
@@ -2203,3 +2206,61 @@ def set_client_details(request):
     account.save()
 
     return HttpResponse()
+
+
+@login_required
+def set_tags(request):
+    """
+    Sets tags for a client
+    :param request: 
+    :return: 
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Invalid request type')
+
+    account_id = request.POST.get('account_id')
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('That account does not exist')
+
+    if not request.user.is_staff and not request.user.member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to set tags on this account')
+
+    tag_ids = request.POST.getlist('tag_ids')
+    new_tag_list = []
+    for tag_id in tag_ids:
+        try:
+            tmp_tag = Tag.objects.get(id=tag_id)
+        except Tag.DoesNotExist:
+            return HttpResponseBadRequest
+        new_tag_list.append(tmp_tag)
+
+    account.tags.clear()
+    account.tags.set(new_tag_list)
+
+    return HttpResponse('Successfully set tags')
+
+
+@login_required
+def ten_insights_report(request, account_id):
+    """
+    Gets account ten insights report
+    :param request:
+    :param account_id:
+    :return:
+    """
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('That client does not exist')
+
+    if 'month' in request.GET and 'year' in request.GET:
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+
+    context = {
+        'account': account
+    }
+
+    return render(request, 'client_area/refactor/ten_insights_tmp.html', context)

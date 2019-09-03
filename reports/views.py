@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound
 from django.core.mail import send_mail
 from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
 from django.template.loader import render_to_string
@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
 from adwords_dashboard.models import BadAdAlert
-from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity
+from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification, Todo
 from django.conf import settings
@@ -1274,3 +1274,34 @@ def month_over_month(request):
     }
 
     return render(request, 'reports/month_over_month.html', context)
+
+
+@login_required
+def tag_report(request):
+    """
+    Let's tags be queried and filtered
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    tags = Tag.objects.all()
+
+    if 'tag' in request.GET:
+        try:
+            tag = tags.get(id=request.GET.get('tag'))
+        except Tag.DoesNotExist:
+            return HttpResponseNotFound('No tag with that ID')
+        accounts = tag.client_set.all()
+    else:
+        tag = None
+        accounts = []
+
+    context = {
+        'tags': tags,
+        'tag': tag,
+        'accounts': accounts
+    }
+
+    return render(request, 'reports/tags.html', context)

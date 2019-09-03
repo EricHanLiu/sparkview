@@ -21,6 +21,40 @@ def index(request):
 
 
 @login_required
+def profile(request):
+    member = request.user.member
+
+    if request.method == 'POST':
+        new_password = request.POST.get('new_password')
+        confirm_new_password = request.POST.get('confirm_new_password')
+        if new_password != confirm_new_password:
+            return HttpResponse('Passwords do not match.')
+
+        request.user.password = new_password
+        request.user.save()
+
+        return HttpResponse()
+
+    context = {
+        'member': member
+    }
+
+    return render(request, 'user_management/profile/profile.html', context)
+
+
+@login_required
+def upload_image(request):
+    member = request.user.member
+
+    if request.method == 'POST' and request.FILES['upload_image']:
+        image = request.FILES['upload_image']
+        member.image = image
+        member.save()
+
+    return redirect('/user_management/profile')
+
+
+@login_required
 def members(request):
     # Authenticate if staff or not
     if not request.user.is_staff:
@@ -44,7 +78,7 @@ def members(request):
                                   'buffer_learning_percentage',
                                   'buffer_trainers_percentage',
                                   'buffer_sales_percentage',
-                                  'buffer_planning_percentage',
+                                  'buffer_other_percentage',
                                   'buffer_internal_percentage',
                                   'buffer_seniority_percentage'
                                   ).filter(deactivated=False).order_by('user__first_name')
@@ -72,7 +106,7 @@ def members(request):
         'total_onboarding_accounts': round(total_onboarding_accounts, 2)
     }
 
-    return render(request, 'user_management/members.html', context)
+    return render(request, 'user_management/members_refactor.html', context)
 
 
 @login_required
@@ -278,7 +312,7 @@ def member_dashboard(request, id):
         'load_everything': load_everything
     }
 
-    return render(request, 'user_management/profile/dashboard.html', context)
+    return render(request, 'user_management/profile/team_lead_dashboard.html', context)
 
 
 @login_required
@@ -291,7 +325,7 @@ def new_member(request):
         roles = Role.objects.all()
         skills = Skill.objects.all()
         existing_users = User.objects.filter(member__isnull=True)
-        skill_options = [0, 1, 2, 3]
+        skill_options = [score_name for score, score_name in SkillEntry.SCORE_OPTIONS]
 
         context = {
             'teams': teams,
@@ -301,7 +335,7 @@ def new_member(request):
             'skillOptions': skill_options
         }
 
-        return render(request, 'user_management/new_member.html', context)
+        return render(request, 'user_management/new_member_refactor.html', context)
     elif request.method == 'POST':
 
         # Check if we are creating a new user or using an existing one
@@ -361,7 +395,7 @@ def new_member(request):
         buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
-        buffer_planning_percentage = request.POST.get('buffer_planning_percentage')
+        buffer_other_percentage = request.POST.get('buffer_other_percentage')
         buffer_internal_percentage = request.POST.get('buffer_internal_percentage')
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
 
@@ -373,7 +407,7 @@ def new_member(request):
             buffer_learning_percentage=buffer_learning_percentage,
             buffer_trainers_percentage=buffer_trainers_percentage,
             buffer_sales_percentage=buffer_sales_percentage,
-            buffer_planning_percentage=buffer_planning_percentage,
+            buffer_other_percentage=buffer_other_percentage,
             buffer_internal_percentage=buffer_internal_percentage,
             buffer_seniority_percentage=buffer_seniority_percentage
         )
@@ -432,7 +466,7 @@ def edit_member(request, id):
         buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
-        buffer_planning_percentage = request.POST.get('buffer_planning_percentage')
+        buffer_other_percentage = request.POST.get('buffer_other_percentage')
         buffer_internal_percentage = request.POST.get('buffer_internal_percentage')
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
 
@@ -464,7 +498,7 @@ def edit_member(request, id):
         member.buffer_learning_percentage = buffer_learning_percentage
         member.buffer_trainers_percentage = buffer_trainers_percentage
         member.buffer_sales_percentage = buffer_sales_percentage
-        member.buffer_planning_percentage = buffer_planning_percentage
+        member.buffer_other_percentage = buffer_other_percentage
         member.buffer_internal_percentage = buffer_internal_percentage
         member.buffer_seniority_percentage = buffer_seniority_percentage
 
@@ -493,12 +527,14 @@ def edit_member(request, id):
 @login_required
 def teams(request):
     teams = Team.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'teams': teams,
+        'members': members,
     }
 
-    return render(request, 'user_management/teams.html', context)
+    return render(request, 'user_management/teams_refactor.html', context)
 
 
 @login_required
@@ -506,10 +542,12 @@ def new_team(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'POST':
-        context = {}
-        return JsonResponse(context)
+        team_name = request.POST.get('teamname')
+        if team_name is not None and team_name != '':
+            Team.objects.get_or_create(name=team_name)
+        return redirect('/user_management/teams')
     else:
-        return HttpResponse('You are at the wrong place')
+        return HttpResponse('Invalid request type')
 
 
 @login_required
@@ -521,21 +559,26 @@ def edit_team(request):
 
 
 @login_required
-def members_single(request, id=0):
+def redirect_to_members_single(request):
+    return redirect('/dashboard')
+
+
+@login_required
+def members_single(request, member_id=0):
     """
     Main profile page (accounts)
     :param request:
     :param id:
     :return:
     """
-    request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id and id != 0:
+    request_member = request.user.member
+    if not request.user.is_staff and int(member_id) != request_member.id and member_id != 0:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    if id == 0:  # This is a profile page
+    if member_id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
     else:
-        member = Member.objects.get(id=id)
+        member = Member.objects.get(id=member_id)
 
     """
     We store all the account information in a master dictionary, with flags for each account's association
@@ -631,18 +674,26 @@ def members_single(request, id=0):
             for assignment in master_accounts_dictionary[account.id]['assignments']:
                 hours = assignment.worked_this_month
                 allocation = assignment.hours
-                account_hours[account_id] += hours
-                account_allocation[account_id] += allocation
+                if not account_dict['is_active']:  # only add these hours if its not active, otherwise it doublecounts
+                    account_hours[account_id] += hours
+                    account_allocation[account_id] += allocation
                 mandate_hours[assignment.id] = hours
                 mandate_allocation[assignment.id] = allocation
         if account_dict['is_backup']:
-            hours = account.get_hours_worked_this_month_member(member)
+            """
+            if member is backup on their own account, need to avoid doublecounting hours worked (no concept of backup 
+            hours worked yet) - this will remain wrong on the client page, but that is okay
+            """
+            if not account_dict['is_active']:
+                hours = account.get_hours_worked_this_month_member(member)
+            else:
+                hours = 0
             allocation = account.get_allocation_this_month_member(member, is_backup_account=True)
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
         if account_dict['is_onboarding']:
-            hours = account.onboarding_hours_worked(member)
-            allocation = account.onboarding_hours_allocated(member)
+            hours = account.onboarding_hours_worked_this_month(member)
+            allocation = account.onboarding_hours_allocated_this_month(member)
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
 
@@ -686,7 +737,7 @@ def members_single(request, id=0):
 
         return HttpResponse()
 
-    return render(request, 'user_management/profile/profile_refactor.html', context)
+    return render(request, 'user_management/profile/dashboard.html', context)
 
 
 @login_required
@@ -1170,7 +1221,7 @@ def training_members(request):
     if request.method == 'GET':
         training_groups = TrainingGroup.objects.all()
 
-        score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
+        score_badges = SkillEntry.TAG_COLORS
         scores = SkillEntry.SCORE_OPTIONS
 
         context = {
@@ -1179,7 +1230,7 @@ def training_members(request):
             'scores': scores
         }
 
-        return render(request, 'user_management/training.html', context)
+        return render(request, 'user_management/training_refactor.html', context)
     elif request.method == 'POST':
         member_id = request.POST.get('member-id')
         skill_id = request.POST.get('skill-id')
@@ -1240,7 +1291,7 @@ def skills(request):
         'skills': all_skills
     }
 
-    return render(request, 'user_management/skills.html', context)
+    return render(request, 'user_management/skills_refactor.html', context)
 
 
 @login_required
@@ -1291,6 +1342,7 @@ def backups(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    # TODO: I'm quite sure most of this is no longer used, can look into removing it
     if request.method == 'POST':
         # Creates a backup period
         form_type = request.POST.get('type')
@@ -1301,8 +1353,8 @@ def backups(request):
             except Member.DoesNotExist:
                 return HttpResponse('Member does not exist')
 
-            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
-            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
+            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%m/%d/%Y')
+            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%m/%d/%Y')
 
             bp = BackupPeriod()
             bp.member = member
@@ -1391,7 +1443,6 @@ def backups(request):
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
     members = Member.objects.filter(deactivated=False).order_by('user__first_name')
-    accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now).order_by('-end_date')
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
@@ -1399,12 +1450,11 @@ def backups(request):
 
     context = {
         'members': members,
-        'accounts': accounts,
         'active_backups': active_backups,
         'non_active_backup_periods': non_active_backup_periods
     }
 
-    return render(request, 'user_management/backup.html', context)
+    return render(request, 'user_management/backup_refactor.html', context)
 
 
 @login_required
@@ -1468,7 +1518,7 @@ def backup_event(request, backup_period_id):
         'members': members
     }
 
-    return render(request, 'user_management/backup_event.html', context)
+    return render(request, 'user_management/backup_event_refactor.html', context)
 
 
 @login_required

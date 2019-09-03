@@ -44,32 +44,32 @@
                                         {{ item.account.estimated_spend | get_ovu:item.account.desired_spend }}%
                                     </td>
                                     <td>
-                                        {{ item.impr_share|uni2float|floatformat:2 }}%
+                                        {{ item.impr_share|uni2float|round_to_two }}%
 {#                                        {% with imprshare=item.metadata.vals|get_dict_value:"impressionsharepercent" %}#}
 {#                                            {{ imprshare.1 }}#}
 {#                                            {{ imprshare.2 }}#}
 {#                                        {% endwith %}#}
                                     </td>
                                     <td>
-                                        {{ item.impressions|uni2float|floatformat:2 }}%
+                                        {{ item.impressions|uni2float|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ item.clicks|uni2float|floatformat:2 }}%
+                                        {{ item.clicks|uni2float|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ item.ctr|uni2float|floatformat:2 }}%
+                                        {{ item.ctr|uni2float|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ item.cpc|uni2float|floatformat:2 }}%
+                                        {{ item.cpc|uni2float|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ item.cost|uni2float|floatformat:2 }}%
+                                        {{ item.cost|uni2float|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ item.conversions|uni2float|floatformat:2 }}%
+                                        {{ item.conversions|uni2float|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ item.cost_conv|uni2float|floatformat:2 }}%
+                                        {{ item.cost_conv|uni2float|round_to_two }}%
                                     </td>
                                 </tr>
                             {% endfor %}

@@ -73,7 +73,7 @@
                                              style="width: {{ client_data.aw_spend|div:client_data.budget }}%"
                                              aria-valuenow="{{ client_data.aw_spend|div:client_data.budget }}"
                                              aria-valuemin="0" aria-valuemax="100">
-                                            A: {{ client_data.aw_spend|floatformat:2 }}
+                                            A: {{ client_data.aw_spend|round_to_two }}
                                         </div>
                                     {% endif %}
                                     {% if client_data.bing_spend %}
@@ -81,7 +81,7 @@
                                              style="width: {{ client_data.bing_spend|div:client_data.budget }}%"
                                              aria-valuenow="{{ client_data.bing_spend|div:client_data.budget }}"
                                              aria-valuemin="0" aria-valuemax="100">
-                                            B: {{ client_data.bing_spend|floatformat:2 }}
+                                            B: {{ client_data.bing_spend|round_to_two }}
                                         </div>
                                     {% endif %}
                                     {% if client_data.fb_spend %}

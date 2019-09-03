@@ -1,0 +1,1078 @@
+{% extends 'user_management/profile/layout.html' %}
+
+{% block extraCss %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <style>
+        .table-wrapper {
+            max-height: 400px;
+            overflow: auto;
+        }
+
+        .collapse-trigger {
+            cursor: pointer;
+        }
+
+        .collapse-trigger:hover {
+            background-color: #F8F6F6;
+        }
+    </style>
+{% endblock %}
+
+{% load notification_tags %}
+
+
+{% block content %}
+    <div class="m-content">
+        {# Notification stuff #}
+
+        {% if backups.count > 0 %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Reminder!</strong> You currently are backing up {{ backups.count }} accounts. Don't forget to
+                check on them!
+            </div>
+        {% endif %}
+        {% if star_accounts.count > 0 %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                </button>
+                <strong>Flagged account alert!</strong> You are assigned to {{ star_accounts.count }} flagged accounts.
+                You can find them in the <strong>Flagged Accounts</strong> section below.
+            </div>
+        {% endif %}
+        {#  Main content #}
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--responsive-mobile">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Filter
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <form class="m-form" method="GET" action="/user_management/members/{{ member.id }}/dashboard">
+                            <div class="row">
+                                <div class="col-4">
+                                    <label for="filter-role">Roles:</label>
+                                    <select class="form-control" name="filter-role" multiple id="filter-role">
+                                        {% for role in roles %}
+                                            <option value="{{ role.id }}"
+                                                    {% if role in filtered_roles %} selected {% endif %}>
+                                                {{ role }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <label for="filter-team">Teams:</label>
+                                    <select class="form-control" name="filter-team" multiple id="filter-team">
+                                        {% for team in teams %}
+                                            <option value="{{ team.id }}"
+                                                    {% if team in filtered_teams %} selected {% endif %}>
+                                                {{ team }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="month">Month:</label>
+                                    <select class="form-control m-input"
+                                            name="month"
+                                            style="width: 100%;">
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label for="year">Year:</label>
+                                    <select class="form-control m-input"
+                                            name="year"
+                                            style="width: 100%;">
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                        <!-- should add to this -->
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <input type="submit" class="btn btn-info m-btn"
+                                           style="bottom: 0; position: absolute;" value="Filter">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="m-portlet m-portlet--responsive-mobile-">
+                    <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#hours-body">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Hours Report
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse show" id="hours-body">
+                        <div class="m-portlet__body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="bbox shadow p-4 bg-white rounded"
+                                         data-toggle="m-tooltip"
+                                         data-original-title="The hours assigned compared to total number of hours available for the month">
+                                        <h3 class="text-center text-info p-2">
+                                            Team Capacity
+                                        </h3>
+                                        <h1 class="text-center text-info" id="capacity-display">
+                                            {{ capacity_rate|floatformat:2 }}%
+                                        </h1>
+                                        <canvas id="capacity-chart" height="50px"></canvas>
+                                        <div class="row mt-4">
+                                            <h5 class="col-md-6 text-center text-info">
+                                                {{ allocated_aggregate|floatformat:2 }}
+                                            </h5>
+                                            <h5 class="col-md-6 text-center text-muted">
+                                                {{ allocated_aggregate|add:available_aggregate|floatformat:2 }}
+                                            </h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5 class="col-md-6 text-center text-info">
+                                                Allocated Hours
+                                            </h5>
+                                            <h5 class="col-md-6 text-center text-muted">
+                                                Total Hours Available
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bbox shadow p-4 bg-white rounded"
+                                         data-toggle="m-tooltip"
+                                         data-original-title="How many hours the team has invested into the time they were assigned">
+                                        <h3 class="text-center text-danger p-2">
+                                            Team Utilization
+                                        </h3>
+                                        <h1 class="text-center text-danger" id="utilization-display">
+                                            {{ utilization_rate|floatformat:2 }}%
+                                        </h1>
+                                        <canvas id="utilization-chart" height="50px"></canvas>
+                                        <div class="row mt-4">
+                                            <h5 class="col-md-6 text-center text-danger">
+                                                {{ actual_aggregate|floatformat:2 }}
+                                            </h5>
+                                            <h5 class="col-md-6 text-center text-muted">
+                                                {{ allocated_aggregate|floatformat:2 }}
+                                            </h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5 class="col-md-6 text-center text-danger">
+                                                Actual Hours
+                                            </h5>
+                                            <h5 class="col-md-6 text-center text-muted">
+                                                Allocated Hours
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-5">
+                                <div class="col-md-12 table-wrapper">
+                                    <table class="table order-column table-hover dataTable my_clients_datatable"
+                                           style="table-layout: fixed;">
+                                        <thead class="thead-light">
+                                        <tr class="main-table-header">
+                                            <th>Member</th>
+                                            <th>Role</th>
+                                            <th>
+                                                Actual Hours
+                                            </th>
+                                            <th>
+                                                Allocated Hours
+                                            </th>
+                                            {# TODO: Eventually uncomment this once we have some data #}
+                                            {% if load_everything %}
+                                                <th>
+                                                    Available Hours
+                                                </th>
+                                            {% endif %}
+                                            {% if load_everything %}
+                                                <th>
+                                                    Utilization Rate
+                                                </th>
+                                                <th>
+                                                    Capacity Rate
+                                                </th>
+                                                <th>
+                                                    Training Hours
+                                                </th>
+                                                <th>
+                                                    Value Added
+                                                </th>
+                                                <th>
+                                                    Date of Last Log
+                                                </th>
+                                            {% endif %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for member in members %}
+                                            <tr>
+                                                <td>
+                                                    <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                                </td>
+                                                <td>
+                                                    {{ member.role.name }}
+                                                </td>
+                                                <td>
+                                                    {{ member.actual_hours_tmp|floatformat:2 }}
+                                                </td>
+                                                <td>
+                                                    {{ member.allocated_hours_tmp|floatformat:2 }}
+                                                </td>
+                                                {% if load_everything %}
+                                                    <td>
+                                                        {{ member.available_hours_tmp|floatformat:2 }}
+                                                    </td>
+                                                {% endif %}
+                                                {% if load_everything %}
+                                                    <td>
+                                                        {{ member.utilization_rate|floatformat:2 }}%
+                                                    </td>
+                                                    <td>
+                                                        {{ member.capacity_rate|floatformat:2 }}%
+                                                    </td>
+                                                    <td>
+                                                        {{ member.training_hours_month|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        {{ member.value_added_hours_this_month|floatformat:2 }}
+                                                    </td>
+                                                    <td>
+                                                        {{ member.most_recent_hour_log }}
+                                                    </td>
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% if load_everything %}
+                <div class="col-xl-6">
+                    <div class="m-portlet m-portlet--responsive-mobile-">
+                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse"
+                             data-target="#onboarding-body">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text">
+                                        Onboarding Reports
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="onboarding-body">
+                            <div class="m-portlet__body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-info p-2">
+                                                Onboarding Accounts
+                                            </h3>
+                                            <h1 class="text-center text-info">
+                                                {{ num_onboarding }}
+                                            </h1>
+                                        </div>
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-info p-2">
+                                                Average Onboarding Days
+                                            </h3>
+                                            <h1 class="text-center text-info">
+                                                {{ average_onboarding_days|floatformat:2 }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="bbox shadow p-4 bg-white rounded"
+                                             data-toggle="m-tooltip"
+                                             data-original-title="Percentage of onboarding accounts that have passed 12 business days">
+                                            <h3 class="text-center text-danger p-2">
+                                                Late Percentage
+                                            </h3>
+                                            <h1 class="text-center text-danger" id="onboarding-late-display">
+                                                {{ onboarding_late_percentage|floatformat:2 }}%
+                                            </h1>
+                                            <canvas id="onboarding-late-chart" height="200px"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pt-5">
+                                    <div class="col-md-12 table-wrapper">
+                                        <h3 class="text-center">
+                                            Onboarding Accounts
+                                        </h3>
+                                        <table class="table order-column table-hover dataTable my_clients_datatable"
+                                               style="table-layout: fixed;">
+                                            <thead class="thead-light">
+                                            <tr class="main-table-header">
+                                                <th>Account</th>
+                                                <th>
+                                                    Onboarding Since
+                                                </th>
+                                                <th>
+                                                    Days of Onboarding
+                                                </th>
+                                                <th>
+                                                    Late
+                                                </th>
+                                                <th>
+                                                    Reason for lateness
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for account in onboarding_accounts %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="/clients/accounts/{{ account.id }}">{{ account }}</a>
+                                                    </td>
+                                                    <td>
+                                                        {{ account.created_at }}
+                                                    </td>
+                                                    <td>
+                                                        {{ account.onboarding_duration_elapsed }}
+                                                    </td>
+                                                    <td>
+                                                        {{ account.is_late_to_onboard }}
+                                                    </td>
+                                                    <td>
+                                                        {{ account.late_onboard_reason }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% if load_everything %}
+                <div class="col-xl-6">
+                    <div class="m-portlet m-portlet--responsive-mobile-">
+                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#promos-body">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text">
+                                        Promos
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="promos-body">
+                            <div class="m-portlet__body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="bbox shadow p-4 bg-white rounded">
+                                            <h3 class="text-info p-2">
+                                                Promos Launching Today
+                                            </h3>
+                                            {% if promos_start_today.count > 0 %}
+                                                <div class="table-wrapper">
+                                                    <table class="table table-hover order-column dataTable my_clients_datatable">
+                                                        <thead class="thead-light">
+                                                        <tr class="main-table-header">
+                                                            <th>Account</th>
+                                                            <th>
+                                                                Promo
+                                                            </th>
+                                                            <th>
+                                                                Launch Date
+                                                            </th>
+                                                            <th>
+                                                                Status
+                                                            </th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for promo in promos_start_today %}
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
+                                                                </td>
+                                                                <td>
+                                                                    {{ promo.name }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ promo.start_date }}
+                                                                </td>
+                                                                <td>
+                                                                    {% if promo.confirmed_started %}
+                                                                        Launched
+                                                                    {% else %}
+                                                                        Pending
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% else %}
+                                                <h4 class="p-2">No promos starting today</h4>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="bbox shadow p-4 bg-white rounded">
+                                            <h3 class="text-danger p-2">
+                                                Promos Ending Today
+                                            </h3>
+                                            {% if promos_end_today.count > 0 %}
+                                                <div class="table-wrapper">
+                                                    <table class="table order-column table-hover dataTable my_clients_datatable">
+                                                        <thead class="thead-light">
+                                                        <tr class="main-table-header">
+                                                            <th>Account</th>
+                                                            <th>
+                                                                Promo
+                                                            </th>
+                                                            <th>
+                                                                End Date
+                                                            </th>
+                                                            <th>
+                                                                Status
+                                                            </th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for promo in promos_end_today %}
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account.client_name }}</a>
+                                                                </td>
+                                                                <td>
+                                                                    {{ promo.name }}
+                                                                </td>
+                                                                <td>
+                                                                    {{ promo.end_date }}
+                                                                </td>
+                                                                <td>
+                                                                    {% if promo.confirmed_ended %}
+                                                                        Ended
+                                                                    {% else %}
+                                                                        Pending
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% else %}
+                                                <h4 class="p-2">No promos ending today</h4>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            {% endif %}
+        {% if load_everything %}
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="m-portlet m-portlet--responsive-mobile-">
+                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#budget-body">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text">
+                                        Budget Reports
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="budget-body">
+                            <div class="m-portlet__body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100"
+                                             data-toggle="m-tooltip"
+                                             data-original-title="Percentage of budgets that have been updated for all active accounts">
+                                            <h3 class="text-center text-info p-2">
+                                                Updated Budgets Percentage
+                                            </h3>
+                                            <h1 class="text-center text-info" id="budget-updated-display">
+                                                {{ budget_updated_percentage|floatformat:2 }}%
+                                            </h1>
+                                            <canvas id="budget-updated-chart" height="200px"></canvas>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="bbox shadow p-4 bg-white rounded table-wrapper">
+                                            <h3 class="text-center text-info">
+                                                Budgets Not Renewed
+                                            </h3>
+                                            <table class="table order-column table-hover dataTable my_clients_datatable"
+                                                   style="table-layout: fixed;">
+                                                <thead class="thead-light">
+                                                <tr class="main-table-header">
+                                                    <th>Account</th>
+                                                    <th>AM(s)</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for account in budget_not_updated_accounts %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {% if account.am1 is not None %}
+                                                                <a href="/user_management/members/{{ account.am1.id }}">
+                                                                    {{ account.am1.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if account.am2 is not None %}
+                                                                ,<a href="/user_management/members/{{ account.am2.id }}">
+                                                                    {{ account.am2.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if account.am3 is not None %}
+                                                                ,<a href="/user_management/members/{{ account.am3.id }}">
+                                                                    {{ account.am3.user.get_full_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-danger p-2">
+                                                Number of Overspend Accounts
+                                            </h3>
+                                            <h1 class="text-center text-danger">
+                                                {{ num_overspend }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-danger p-2">
+                                                Total Refund Amount
+                                            </h3>
+                                            <h1 class="text-center text-danger">
+                                                ${{ total_overspend_risk|floatformat:2 }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-warning p-2">
+                                                Number of Underspend Accounts
+                                            </h3>
+                                            <h1 class="text-center text-warning">
+                                                {{ num_underspend }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-warning p-2">
+                                                Total Projected Opportunity Lost
+                                            </h3>
+                                            <h1 class="text-center text-warning">
+                                                ${{ total_projected_loss|floatformat:2 }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="bbox shadow p-4 bg-white rounded table-wrapper">
+                                            <h3 class="text-center text-danger">
+                                                Top 5 Projected Overspend Accounts
+                                            </h3>
+                                            <table class="table order-column table-hover dataTable my_clients_datatable"
+                                                   style="table-layout: fixed;">
+                                                <thead class="thead-light">
+                                                <tr class="main-table-header">
+                                                    <th>Account</th>
+                                                    <th>Budget</th>
+                                                    <th>Spend</th>
+                                                    <th>Projected Spend</th>
+                                                    <th>Overspend</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for account in top_five_overspend %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            ${{ account.current_budget|floatformat:2 }}
+                                                        </td>
+                                                        <td>
+                                                            ${{ account.current_spend|floatformat:2 }}
+                                                        </td>
+                                                        <td>
+                                                            ${{ account.project_yesterday|floatformat:2 }}
+                                                        </td>
+                                                        <td style="color: #f4516c;">
+                                                            ${{ account.projected_refund|floatformat:2 }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="bbox shadow p-4 bg-white rounded table-wrapper">
+                                            <h3 class="text-center text-warning">
+                                                Top 5 Projected Underspend Accounts
+                                            </h3>
+                                            <table class="table order-column table-hover dataTable my_clients_datatable"
+                                                   style="table-layout: fixed;">
+                                                <thead class="thead-light">
+                                                <tr class="main-table-header">
+                                                    <th>Account</th>
+                                                    <th>Budget</th>
+                                                    <th>Spend</th>
+                                                    <th>Projected Spend</th>
+                                                    <th>Projected Loss</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for account in top_five_underspend %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            ${{ account.current_budget|floatformat:2 }}
+                                                        </td>
+                                                        <td>
+                                                            ${{ account.current_spend|floatformat:2 }}
+                                                        </td>
+                                                        <td>
+                                                            ${{ account.project_yesterday|floatformat:2 }}
+                                                        </td>
+                                                        <td style="color: #ffb822;">
+                                                            ${{ account.projected_loss|floatformat:2 }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="m-portlet m-portlet--responsive-mobile-">
+                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse" data-target="#notifs-body">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text">
+                                        Outstanding 90 Days Notifications
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="notifs-body">
+                            <div class="m-portlet__body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-danger p-2">
+                                                Outstanding 90 Days
+                                            </h3>
+                                            <h1 class="text-center text-danger">
+                                                {{ num_outstanding_90_days }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 table-wrapper">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <table class="table order-column table-hover dataTable my_clients_datatable"
+                                                   style="table-layout: fixed;">
+                                                <thead class="thead-light">
+                                                <tr class="main-table-header">
+                                                    <th>Member</th>
+                                                    <th>Outstanding 90 Days</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for member in members %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {{ member.phase_tasks|length }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="m-portlet m-portlet--responsive-mobile-">
+                        <div class="m-portlet__head collapse-trigger" data-toggle="collapse"
+                             data-target="#flagged-body">
+                            <div class="m-portlet__head-caption">
+                                <div class="m-portlet__head-title">
+                                    <h3 class="m-portlet__head-text">
+                                        Flags
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse show" id="flagged-body">
+                            <div class="m-portlet__body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <h3 class="text-center text-info p-2">
+                                                Flagged Accounts
+                                            </h3>
+                                            <h1 class="text-center text-info">
+                                                {{ flagged_accounts|length }}
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 table-wrapper">
+                                        <div class="bbox shadow p-4 bg-white rounded w-100">
+                                            <table class="table order-column table-hover dataTable my_clients_datatable"
+                                                   style="table-layout: fixed;">
+                                                <thead class="thead-light">
+                                                <tr class="main-table-header">
+                                                    <th>
+                                                        Client
+                                                    </th>
+                                                    <th>
+                                                        Account
+                                                    </th>
+                                                    <th>
+                                                        Assigned Member
+                                                    </th>
+                                                    <th>
+                                                        Basecamp link
+                                                    </th>
+                                                    <th>
+                                                        Date Flagged
+                                                    </th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for account in flagged_accounts %}
+                                                    <tr>
+                                                        <td>
+                                                            {{ account.parentClient.name }}
+                                                        </td>
+                                                        <td>
+                                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                                        </td>
+                                                        <td>
+                                                            {# not necessary to check if assigned exists #}
+                                                            {{ account.flagged_assigned_member.user.get_full_name }}
+                                                        </td>
+                                                        <td>
+                                                            {% if account.flagged_bc_link != None %}
+                                                                <a href="{{ account.flagged_bc_link }}">Basecamp</a>
+                                                            {% else %}
+                                                                None
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {{ account.flagged_datetime }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#filter-team').select2({
+            closeOnSelect: false,
+            placeholder: "Filter Teams"
+        });
+
+        $('#filter-role').select2({
+            closeOnSelect: false,
+            placeholder: "Filter Roles"
+        });
+
+        // capacity percentage bar chart
+        let capacityPercentage = parseInt($('#capacity-display').text());
+        // display 100 if greater than
+        capacityPercentage = capacityPercentage > 100 ? 100 : capacityPercentage;
+        let ctx1 = $('#capacity-chart')[0].getContext('2d');
+
+        function buildChartCapacity() {
+            new Chart(ctx1, {
+                type: 'horizontalBar',
+                data: {
+                    datasets: [{
+                        data: [capacityPercentage],
+                        backgroundColor: [
+                            'rgb(54, 163, 247, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(54, 163, 247, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.5
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 100
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
+                }
+            });
+        }
+
+        // utilization percentage bar chart
+        let utilizationPercentage = parseInt($('#utilization-display').text());
+        // display 100 if greater than
+        utilizationPercentage = utilizationPercentage > 100 ? 100 : utilizationPercentage;
+        let ctx2 = $('#utilization-chart')[0].getContext('2d');
+
+        function buildChartUtilization() {
+            new Chart(ctx2, {
+                type: 'horizontalBar',
+                data: {
+                    datasets: [{
+                        data: [utilizationPercentage],
+                        backgroundColor: [
+                            'rgb(244, 81, 108, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(244, 81, 108, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            barPercentage: 0.5
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                min: 0,
+                                max: 100
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
+                }
+            });
+        }
+
+        {% if load_everything %}
+            // onboarding percentage bar chart
+            let onboardingLatePercentage = parseInt($('#onboarding-late-display').text());
+            // display 100 if greater than
+            onboardingLatePercentage = onboardingLatePercentage > 100 ? 100 : onboardingLatePercentage;
+            let ctx5 = $('#onboarding-late-chart')[0].getContext('2d');
+
+            function buildChartOnboarding() {
+                new Chart(ctx5, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [onboardingLatePercentage, 1, 100 - onboardingLatePercentage],
+                            backgroundColor: [
+                                'rgba(220, 41, 41, 0.5)',
+                                'rgba(0, 0, 0, 0.5)',
+                                'rgba(241, 233, 231, 0.5)'
+                            ],
+                            borderColor: [
+                                'rgba(220, 41, 41, 0.5)',
+                                'rgba(0, 0, 0, 0)',
+                                'rgba(241, 233, 231, 0.5)'
+                            ],
+                            borderWidth: 1
+                        },
+                            {
+                                data: [onboardingLatePercentage, 1, 100 - onboardingLatePercentage],
+                                backgroundColor: [
+                                    'rgba(0, 0, 0, 0)',
+                                    'rgba(0, 0, 0, 0.5)',
+                                    'rgba(0, 0, 0, 0)'
+                                ],
+                                borderWidth: 0,
+                            }]
+                    },
+                    options: {
+                        cutoutPercentage: 0,
+                        tooltips: {
+                            enabled: false
+                        },
+                        rotation: -1 * Math.PI,
+                        circumference: Math.PI
+                    }
+                });
+            }
+
+            // ontime percentage bar chart
+            let budgetUpdatedPercentage = parseInt($('#budget-updated-display').text());
+            // display 100 if greater than
+            budgetUpdatedPercentage = budgetUpdatedPercentage > 100 ? 100 : budgetUpdatedPercentage;
+            let ctx6 = $('#budget-updated-chart')[0].getContext('2d');
+
+            function buildChartBudget() {
+                new Chart(ctx6, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [budgetUpdatedPercentage, 1, 100 - budgetUpdatedPercentage],
+                            backgroundColor: [
+                                'rgb(54, 163, 247, 0.7)',
+                                'rgba(0, 0, 0, 0.5)',
+                                'rgba(241, 233, 231, 0.5)'
+                            ],
+                            borderColor: [
+                                'rgb(54, 163, 247, 0.7)',
+                                'rgba(0, 0, 0, 0)',
+                                'rgba(241, 233, 231, 0.5)'
+                            ],
+                            borderWidth: 1
+                        },
+                            {
+                                data: [budgetUpdatedPercentage, 1, 100 - budgetUpdatedPercentage],
+                                backgroundColor: [
+                                    'rgba(0, 0, 0, 0)',
+                                    'rgba(0, 0, 0, 0.5)',
+                                    'rgba(0, 0, 0, 0)'
+                                ],
+                                borderWidth: 0,
+                            }]
+                    },
+                    options: {
+                        cutoutPercentage: 0,
+                        tooltips: {
+                            enabled: false
+                        },
+                        rotation: -1 * Math.PI,
+                        circumference: Math.PI
+                    }
+                });
+            }
+        {% endif %}
+        // HANDLE DYNAMIC CHART LOADING
+
+        // list of charts that aren't immediately visible upon loading
+        // ORDER of chart ids and functionNames must match
+        let charts = [
+            {id: '#capacity-chart', viewed: false},
+            {id: '#utilization-chart', viewed: false},
+            {id: '#onboarding-late-chart', viewed: false},
+            {id: '#budget-updated-chart', viewed: false}];
+        let functionNames = ['Capacity', 'Utilization', 'Onboarding', 'Budget'];
+
+        function dynamicLoadChart() {
+            for (let i = 0; i < charts.length; i++) {
+                let chart = charts[i];
+                if (isScrolledIntoView(chart.id)) {
+                    if (chart.viewed) {
+                        return;
+                    }
+                    // call this chart's build function
+                    window['buildChart' + functionNames[i]]();
+                    chart.viewed = true;
+                }
+            }
+        }
+
+        function isScrolledIntoView(elem) {
+            let leeway = 200; // amount in pixels to 'extend' the viewport for dynamic loading
+
+            let docViewTop = $(window).scrollTop();
+            let docViewBottom = docViewTop + $(window).height();
+            let $elem = $(elem);
+            if (!$elem.length) return false;
+            let elemTop = $elem.offset().top;
+
+            let elemBottom = elemTop + $(elem).height();
+
+            return ((elemTop <= docViewBottom + leeway) && (elemBottom >= docViewTop + leeway));
+        }
+
+        // attach listeners for changes in content displayed
+        $(window).scroll(dynamicLoadChart);
+        $(document).ready(dynamicLoadChart);
+        $('.collapse').on('hidden.bs.collapse', dynamicLoadChart);
+    </script>
+{% endblock %}

@@ -8,14 +8,14 @@ import json
 
 def index(request):
     if request.user.is_authenticated:
-        return redirect('/user_management/profile')
+        return redirect('/dashboard')
 
     return render(request, 'login/login.html')
 
 
 def bloom_login(request):
     if not request.user.is_authenticated:
-        if request.method == "POST":
+        if request.method == 'POST':
             response = {}
             request_body = request.body
             if isinstance(request_body, bytes):
@@ -33,10 +33,10 @@ def bloom_login(request):
                 response['error'] = 'Invalid username or password.'
                 return JsonResponse(response)
 
-    return redirect("/")
+    return redirect('/')
 
 
 @login_required
 def bloom_logout(request):
     logout(request)
-    return redirect("/")
+    return redirect('/')

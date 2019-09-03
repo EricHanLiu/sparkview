@@ -7,45 +7,51 @@
             <aside class="menu">
                 <ul class="menu-list">
                     <li>
-                        <a href="/user_management/members/{{ member.id }}" style="padding: 1.5em 0;"
-                           class="has-text-centered" id="accounts_tab">
-                            <div class="icon"><i class="fas fa-poll-h" style="font-size: 1.5em;"></i></div>
+                        <a href="/dashboard" style="padding: 2em 0.5em 2em 1.5em;" id="accounts_tab">
+                            <div class="icon"><i class="fas fa-poll-h"></i></div>
+                            <strong>Dashboard</strong>
                         </a>
                     </li>
                     <li>
-                        <a href="/user_management/members/{{ member.id }}/input_hours" style="padding: 1.5em 0;"
-                           class="has-text-centered" id="input_hours_tab">
-                            <div class="icon"><i class="fas fa-clock" style="font-size: 1.5em;"></i></div>
+                        <a href="/user_management/members/{{ member.id }}/input_hours" style="padding: 2em 0.5em 2em 1.5em;"
+                           id="input_hours_tab">
+                            <div class="icon"><i class="fas fa-clock"></i></div>
+                            <strong>Input Hours</strong>
                         </a>
                     </li>
                     <li>
-                        <a href="/user_management/members/{{ member.id }}/timesheet" style="padding: 1.5em 0;"
-                           class="has-text-centered" id="timesheet_tab">
-                            <div class="icon"><i class="fas fa-file-alt" style="font-size: 1.5em;"></i></div>
+                        <a href="/user_management/members/{{ member.id }}/timesheet" style="padding: 2em 0.5em 2em 1.5em;"
+                           id="timesheet_tab">
+                            <div class="icon"><i class="fas fa-file-alt"></i></div>
+                            <strong>Timesheet</strong>
                         </a>
                     </li>
                     <li>
-                        <a href="/user_management/members/{{ member.id }}/reports" style="padding: 1.5em 0;"
-                           class="has-text-centered" id="reports_tab">
-                            <div class="icon"><i class="fas fa-flag" style="font-size: 1.5em;"></i></div>
+                        <a href="/user_management/members/{{ member.id }}/reports" style="padding: 2em 0.5em 2em 1.5em;"
+                           id="reports_tab">
+                            <div class="icon"><i class="fas fa-flag"></i></div>
+                            <strong>Reports</strong>
                         </a>
                     </li>
                     <li>
-                        <a href="/user_management/members/{{ member.id }}/promos" style="padding: 1.5em 0;"
-                           class="has-text-centered" id="promos_tab">
-                            <div class="icon"><i class="fas fa-calendar-alt" style="font-size: 1.5em;"></i></div>
+                        <a href="/user_management/members/{{ member.id }}/promos" style="padding: 2em 0.5em 2em 1.5em;"
+                           id="promos_tab">
+                            <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                            <strong>Promos</strong>
                         </a>
                     </li>
                     <li>
-                        <a href="/user_management/members/{{ member.id }}/performance" style="padding: 1.5em 0;"
-                           class="has-text-centered" id="performance_tab">
-                            <div class="icon"><i class="fas fa-star-half-alt" style="font-size: 1.5em;"></i></div>
+                        <a href="/user_management/members/{{ member.id }}/performance" style="padding: 2em 0.5em 2em 1.5em;"
+                           id="performance_tab">
+                            <div class="icon"><i class="fas fa-star-half-alt"></i></div>
+                            <strong>Performance</strong>
                         </a>
                     </li>
                 </ul>
             </aside>
         </div>
-        <div class="column is-11 has-background-light" style="padding: 3em 2.5em 3em 2em; {% if request.user.id == 56 %}background:#fbbcf3 !important;{% endif %}">
+        <div class="column is-11 has-background-light"
+             style="padding: 3em 2.5em 3em 2em; {% if request.user.id == 56 %}background:#fbbcf3 !important;{% endif %}">
             {% block main_content %}
             {% endblock %}
         </div>

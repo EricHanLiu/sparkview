@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+{% load member_tags %}
+
+{% block extraCss %}
+    <style>
+        th, td {
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h5 class="title is-5">
+                                    Member Training
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button type="button" class="button is-info" id="add_skill_button">
+                                    Add A New Skill
+                                </button>
+                            </div>
+                            <div class="level-item">
+                                <a class="button is-info"
+                                   href="https://docs.google.com/spreadsheets/d/1VfolHkDGy4ESOFuPpTQWvUGhU_j9EFQ2AzmL7Z5LzLE/edit#gid=793214929"
+                                   target="_blank">
+                                    Legend
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- ACTUAL TRAINING DATA START -->
+                    {% for group in training_groups %}
+                        <div class="box">
+                            <h6 class="title is-6">
+                                {{ group.name }}
+                            </h6>
+                            <hr>
+                            <table class="table training-datatable is-hoverable is-striped is-bordered"
+                                   style="width: 100%;">
+                                <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Team</th>
+                                    <th>
+                                        Role
+                                    </th>
+                                    {% for skill in group.skills.all %}
+                                        <th class="has-text-centered">{{ skill.name }}</th>
+                                    {% endfor %}
+                                    <th>
+                                        Last Update
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for member in group.all_members %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</a>
+                                        </td>
+                                        <td>
+                                            {% for team in member.team.all %}
+                                                {{ team.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {{ member.role }}
+                                        </td>
+                                        {% for skill in group.skills.all %}
+                                            {% with member|get_skill_entry_for_member:skill as skill_entry %}
+                                                <td class="has-text-centered">
+                                                    <button class="update-skill-button is-small button is-rounded {{ score_badges|get_item_from_list:skill_entry.score }}"
+                                                            data-member="{{ member }}"
+                                                            data-member-id="{{ member.id }}"
+                                                            data-score="{{ skill_entry.get_score_display }}"
+                                                            id="{{ skill_entry.id }}"
+                                                            data-skill-name="{{ skill_entry.skill.name }}">
+                                                        {{ skill_entry.score }}
+                                                    </button>
+                                                </td>
+                                            {% endwith %}
+                                        {% endfor %}
+                                        <td>
+                                            {% with member|get_latest_skill_entry_for_member:group as last_entry %}
+                                                {{ last_entry.updated_at }}
+                                            {% endwith %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::Main Portlet-->
+    </div>
+
+    <!-- Add skill modal -->
+    <div class="modal modal-fx-fadeInScale" id="add_skill_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h5 class="title is-5">Add New Skill</h5>
+                <form method="POST" action="/user_management/skills/new">{% csrf_token %}
+                    <div class="field">
+                        <label class="label">Skill name:</label>
+                        <input type="text" name="skillname" class="input">
+                    </div>
+                    <div class="field">
+                        <button type="submit" class="button is-info">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update skill rating modal -->
+    <div class="modal modal-fx-fadeInScale" id="update_skill_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h5 class="title is-5">
+                    Update Skill Rating - <span id="skill_name"></span>
+                </h5>
+                <form id="update_skill_form" method="POST">{% csrf_token %}
+                    <div class="field">
+                        <div class="columns">
+                            <div class="column is-4">
+                                <label class="label">Member:</label>
+                                <input id="current_member" class="input" readonly/>
+                                <input id="member_id" name="member-id" class="input" type="hidden"/>
+                                <input id="skill_id" name="skill-id" class="input" type="hidden"/>
+                            </div>
+                            <div class="column is-4">
+                                <label class="label">Current Rating</label>
+                                <input id="current_rating" class="input" readonly/>
+                            </div>
+                            <div class="column is-4">
+                                <label class="label">New Rating</label>
+                                <div class="select is-fullwidth">
+                                    <select name="new-score" required>
+                                        {% for score_int, score_str in scores %}
+                                            <option value="{{ forloop.counter0 }}">
+                                                {{ score_int }} - {{ score_str }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <button type="submit" class="button is-info">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+    <script>
+        $('.update-skill-button').click(function () {
+            let member = $(this).data('member');
+            let memberID = $(this).data('member-id');
+            let score = parseInt($(this).text()) + ' - ' + $(this).data('score');
+            let skillID = this.id;
+            let skillName = $(this).data('skill-name');
+
+            $('#current_member').val(member);
+            $('#member_id').val(memberID);
+            $('#current_rating').val(score);
+            $('#skill_id').val(skillID);
+            $('#skill_name').text(skillName);
+
+            $('#update_skill_modal').addClass('is-active');
+        });
+
+        let $updateSkillForm = $('#update_skill_form');
+        let scoreBadges = ['', 'iron-tag', 'bronze-tag', 'silver-tag', 'gold-tag'];
+        $updateSkillForm.submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                data: $updateSkillForm.serialize(),
+                success: () => {
+                    toastr.success('Skill updated successfully!');
+                    $('#update_skill_modal').removeClass('is-active');
+                    let $skillBadge = $('#' + $('#skill_id').val()); // get skillbadge object
+                    let oldBadge = $skillBadge[0].classList[4]; // old badge name
+                    let newScore = $('[name=new-score]').val();
+                    let newBadge = scoreBadges[parseInt(newScore)];
+                    // update skillbadge with new skill values
+                    $skillBadge.text(newScore);
+                    $skillBadge.removeClass(oldBadge);
+                    $skillBadge.addClass(newBadge);
+                }
+            })
+        });
+
+        $('#add_skill_button').click(() => {
+            $('#add_skill_modal').addClass('is-active');
+        });
+
+        $('.training-datatable').DataTable({
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            info: false,
+            fixedColumns: {
+                leftColumns: 1,
+            },
+            scrollY: '50vh',
+            language: {
+                search: '<i class="fa fa-search" style="margin-bottom: 1em;"></i>',
+            },
+        });
+    </script>
+{% endblock %}

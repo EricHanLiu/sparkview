@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load notification_tags %}
 {% load member_tags %}
+{% load template_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <!-- begin::Head -->
@@ -95,10 +96,10 @@
                     <h5 class="text-info"> Hey {{ request.user.get_short_name }}! </h5>
                     You have worked
                     <span style="font-size: 1.3em;"
-                          class="text-info mt-2"> {{ member.actual_hours_today|floatformat:2 }} </span>
+                          class="text-info mt-2"> {{ member.actual_hours_today|round_to_two }} </span>
                     hours on billable work and
                     <span style="font-size: 1.3em;"
-                          class="text-info mt-2"> {{ member.value_added_hours_today|floatformat:2 }} </span>
+                          class="text-info mt-2"> {{ member.value_added_hours_today|round_to_two }} </span>
                     hours on non-billable work today. </p>
                     <p>
                         If these hours seem inaccurate, then don't forget to <a

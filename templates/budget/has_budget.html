@@ -106,7 +106,7 @@
                             Avg. Daily Spend
                         </h5>
                         <h1 class="text-center inner-text">
-                            {{ client_data.currency }}{{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|floatformat:2|intcomma }}
+                            {{ client_data.currency }}{{ client_data.aw_current_ds|addf:client_data.bing_current_ds|addf:client_data.fb_current_ds|round_to_two|intcomma }}
                         </h1>
                     </div>
                     <div class="col-md-4">
@@ -114,7 +114,7 @@
                             Recommended Daily Spend
                         </h5>
                         <h1 class="text-center inner-text">
-                            {{ client_data.currency }}{{ client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds|floatformat:2|intcomma }}
+                            {{ client_data.currency }}{{ client_data.aw_rec_ds|addf:client_data.bing_rec_ds|addf:client_data.fb_rec_ds|round_to_two|intcomma }}
                         </h1>
                     </div>
                     <div class="col-md-4">
@@ -371,7 +371,7 @@
                                     <div class="row text-center">
                                         <div class="col-md-2">
                                             <b>Budget</b>:
-                                            <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend|floatformat:2|intcomma }}</span>
+                                            <span id="budget-{{ a.dependent_account_id }}">{{ a.desired_spend|round_to_two|intcomma }}</span>
                                             <span class="fa fa-pencil-square fa-4x"
                                                   data-toggle="modal"
                                                   data-target="#m_edit_budget"
@@ -381,23 +381,23 @@
                                         </div>
                                         <div class="col-md-2">
                                             <b>Current Total Spend</b>:
-                                            {{ a.current_spend|floatformat:2|intcomma }}
+                                            {{ a.current_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Target Daily Spend
-                                            </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|floatformat:2|intcomma }}
+                                            </b>: {{ a.current_spend | ideal_day_spend:a.desired_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Yesterday's
-                                                Spend</b>: {{ a.yesterday_spend|floatformat:2|intcomma }}
+                                                Spend</b>: {{ a.yesterday_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Current Daily Spend</b>:
-                                            {{ a.current_spend|daily_spend|floatformat:2|intcomma }}
+                                            {{ a.current_spend|daily_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Projected Spend EOM</b>:
-                                            {{ a.current_spend|projected:a.yesterday_spend|floatformat:2|intcomma }}
+                                            {{ a.current_spend|projected:a.yesterday_spend|round_to_two|intcomma }}
                                         </div>
                                     </div>
                                     </p>
@@ -490,7 +490,7 @@
                                             <p>
                                             <div class="row">
                                                 <div class="col-md-3">
-                                                    <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
+                                                    <b>Spend</b>: {{ fbudget.current_spend|round_to_two|intcomma }}
                                                     <i class="fa fa-minus-circle" data-toggle="modal"
                                                        data-target="#m_delete_flight_date"
                                                        data-fbudgetid="{{ fbudget.id }}"></i>
@@ -587,24 +587,24 @@
                                         </div>
                                         <div class="col-md-2">
                                             <b>Current Total
-                                                Spend</b>: {{ b.current_spend|floatformat:2|intcomma }}
+                                                Spend</b>: {{ b.current_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Target Daily
-                                                Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|floatformat:2|intcomma }}
+                                                Spend</b>: {{ b.current_spend | ideal_day_spend:b.desired_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
 
                                             <b>Yesterday's
-                                                spend</b>: {{ b.yesterday_spend|floatformat:2|intcomma }}
+                                                spend</b>: {{ b.yesterday_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Current Daily Spend</b>:
-                                            {{ b.current_spend|daily_spend|floatformat:2|intcomma }}
+                                            {{ b.current_spend|daily_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Projected Spend EOM</b>:
-                                            {{ b.current_spend|projected:b.yesterday_spend|floatformat:2|intcomma }}
+                                            {{ b.current_spend|projected:b.yesterday_spend|round_to_two|intcomma }}
                                         </div>
                                     </div>
                                     </p>
@@ -641,7 +641,7 @@
                                             <p>
                                             <div class="row">
                                                 <div class="col-md-3">
-                                                    <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
+                                                    <b>Spend</b>: {{ fbudget.current_spend|round_to_two|intcomma }}
                                                     <i class="fa fa-minus-circle" data-toggle="modal"
                                                        data-target="#m_delete_flight_date"
                                                        data-fbudgetid="{{ fbudget.id }}"></i>
@@ -724,7 +724,7 @@
                                                 Budget
                                             </b>:
                                             <span id="budget-{{ f.account_id }}">
-                                        {{ f.desired_spend|floatformat:2|intcomma }}
+                                        {{ f.desired_spend|round_to_two|intcomma }}
                                     </span>
                                             <span class="fa fa-pencil-square fa-4x"
                                                   data-toggle="modal"
@@ -735,24 +735,24 @@
                                         </div>
                                         <div class="col-md-2">
                                             <b>Current Total
-                                                Spend</b>: {{ f.current_spend|floatformat:2|intcomma }}
+                                                Spend</b>: {{ f.current_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Target Daily
-                                                Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|floatformat:2|intcomma }}
+                                                Spend</b>: {{ f.current_spend | ideal_day_spend:f.desired_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
 
                                             <b>Yesterday's
-                                                spend</b>: {{ f.yesterday_spend|floatformat:2|intcomma }}
+                                                spend</b>: {{ f.yesterday_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Current Daily Spend</b>:
-                                            {{ f.current_spend|daily_spend|floatformat:2|intcomma }}
+                                            {{ f.current_spend|daily_spend|round_to_two|intcomma }}
                                         </div>
                                         <div class="col-md-2">
                                             <b>Projected Spend EOM</b>:
-                                            {{ f.current_spend|projected:f.yesterday_spend|floatformat:2|intcomma }}
+                                            {{ f.current_spend|projected:f.yesterday_spend|round_to_two|intcomma }}
                                         </div>
                                     </div>
                                     </p>
@@ -789,7 +789,7 @@
                                             <p>
                                             <div class="row">
                                                 <div class="col-md-3">
-                                                    <b>Spend</b>: {{ fbudget.current_spend|floatformat:2|intcomma }}
+                                                    <b>Spend</b>: {{ fbudget.current_spend|round_to_two|intcomma }}
                                                     <i class="fa fa-minus-circle" data-toggle="modal"
                                                        data-target="#m_delete_flight_date"
                                                        data-fbudgetid="{{ fbudget.id }}"></i>
@@ -803,7 +803,7 @@
                                                        data-budgetid="{{ fbudget.id }}"></i>
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <b>Budget</b>: {{ fbudget.budget|floatformat:2|intcomma }}
+                                                    <b>Budget</b>: {{ fbudget.budget|round_to_two|intcomma }}
                                                 </div>
                                                 <div class="col-md-3"><b>Start
                                                     date</b>: {{ fbudget.start_date }}</div>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h4 class="title is-4">
+                                    Teams
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <button type="button" class="button is-info" id="add_team_button">
+                                    Add A New Team
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <table class="table is-hoverable is-fullwidth is-striped">
+                        <thead>
+                        <tr>
+                            <th>Team Name</th>
+                            <th>Members</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in teams %}
+                            <tr>
+                                <td>
+                                    {{ team.name }}
+                                </td>
+                                <td>
+                                    {% for member in team.members %}
+                                        {{ member.user.first_name }}{% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End::Main Portlet-->
+
+    <!-- Begin add team modal -->
+    <div class="modal modal-fx-fadeInScale" id="add_team_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h5 class="title is-5">Create New Team</h5>
+                <form action="/user_management/teams/new" method="POST">{% csrf_token %}
+                    <div class="field">
+                        <label for="input_teamname" class="label">Team Name:</label>
+                        <input type="text" name="teamname" class="input"
+                               placeholder="Please enter a team name" required>
+                    </div>
+                    <div class="field">
+                        <label class="label">Members:</label>
+                        <div class="select is-fullwidth is-multiple">
+                            <select name="members" multiple>
+                                {% for member in members %}
+                                <option value="{{ member.id }}">{{ member }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <button type="submit" class="button is-info">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End add team modal -->
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#add_team_button').click(() => {
+            $('#add_team_modal').addClass('is-active');
+        });
+    </script>
+{% endblock %}

@@ -94,3 +94,20 @@ class Todo(models.Model):
 
     def __str__(self):
         return str(self.date_created) + ': ' + str(self.member) + ': ' + self.description
+
+
+class SentEmailRecord(models.Model):
+    """
+    Records for keeping track of emails that were sent
+    There may be some cases where we do not want to send a reminder email again, so we can check if it was already done
+    """
+    EMAIL_TYPES = [(0, '95% Spend Warning')]
+
+    account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, default=None, blank=True)
+    email_type = models.IntegerField(default=0, choices=EMAIL_TYPES)
+    month = models.IntegerField(default=0)
+    year = models.IntegerField(default=0)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.account) + ' ' + self.email_type
