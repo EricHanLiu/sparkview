@@ -240,6 +240,10 @@
         $('.modal').removeClass('is-active');
     });
 
+    $('.modal-close, .modal-background').click(() => {
+        $('.modal').removeClass('is-active');
+    });
+
     const DEBOUNCETIME = 100;  // debounce timing
     let $searchResults = $('#search_results');
     let $searchBar = $('#search_bar');

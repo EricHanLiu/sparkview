@@ -1217,7 +1217,7 @@ def training_members(request):
     if request.method == 'GET':
         training_groups = TrainingGroup.objects.all()
 
-        score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
+        score_badges = SkillEntry.TAG_COLORS
         scores = SkillEntry.SCORE_OPTIONS
 
         context = {
@@ -1226,7 +1226,7 @@ def training_members(request):
             'scores': scores
         }
 
-        return render(request, 'user_management/training.html', context)
+        return render(request, 'user_management/training_refactor.html', context)
     elif request.method == 'POST':
         member_id = request.POST.get('member-id')
         skill_id = request.POST.get('skill-id')
@@ -1439,7 +1439,6 @@ def backups(request):
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
     members = Member.objects.filter(deactivated=False).order_by('user__first_name')
-    accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now).order_by('-end_date')
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
@@ -1447,7 +1446,6 @@ def backups(request):
 
     context = {
         'members': members,
-        'accounts': accounts,
         'active_backups': active_backups,
         'non_active_backup_periods': non_active_backup_periods
     }
