@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h4 class="title is-4">
+                                    {{ page_type }} Accounts
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <table class="dataTable table is-hoverable" style="table-layout: fixed;">
+                        <thead>
+                        <tr>
+                            <th>
+                                Client
+                            </th>
+                            <th>Account</th>
+                            <th>
+                                Industry
+                            </th>
+                            <th>
+                                Platforms
+                            </th>
+                            <th>
+                                Services
+                            </th>
+                            <th>
+                                Tier
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Management Fees
+                            </th>
+                            <th>
+                                Worked Hours
+                            </th>
+                            <th>
+                                Allocated Hours
+                            </th>
+                            <th>
+                                Current Budget
+                            </th>
+                            <th>
+                                Language
+                            </th>
+                            {% ifequal page_type 'Inactive' %}
+                                <th>
+                                    Reason For Inactivity
+                                </th>
+                            {% endifequal %}
+                            {% ifequal page_type 'Lost' %}
+                                <th>
+                                    Reason For Loss
+                                </th>
+                            {% endifequal %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in accounts %}
+                            <tr class="table-row">
+                                <td>
+                                    {{ account.parentClient.name }}
+                                </td>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ account.industry.name }}
+                                </td>
+                                <td>
+                                    {{ account.service_str }}
+                                </td>
+                                <td>
+                                    {{ account.services_str }}
+                                </td>
+                                <td>
+                                    {{ account.tier }}
+                                </td>
+                                <td>
+                                    <div class="tag is-rounded is-{{ status_badges|get_item_from_list:account.status }}">
+                                        &nbsp&nbsp
+                                        <div class="is-hidden">{{ account.status }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {{ account.total_fee }}
+                                </td>
+                                <td>
+                                    <!-- Actual hours -->
+                                    {{ account.hoursWorkedThisMonth }}
+                                </td>
+                                <td>
+                                    {{ account.all_hours }}
+                                </td>
+                                <td>
+                                    {{ account.current_budget }}
+                                </td>
+                                <td>
+                                    {% for lang in account.language.all %}
+                                        {{ lang }}{% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                {% ifequal page_type 'Inactive' %}
+                                    <td>
+                                        {{ account.get_inactive_reason_display }}
+                                    </td>
+                                {% endifequal %}
+                                {% ifequal page_type 'Lost' %}
+                                    <td>
+                                        {{ account.get_lost_reason_display }}
+                                    </td>
+                                {% endifequal %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
+    </script>
+{% endblock %}

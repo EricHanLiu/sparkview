@@ -133,10 +133,6 @@
             $('#no_report_acc_id').val($(this).data('account-id'));
         });
 
-        $('.modal-close, .modal-background').click(() => {
-            $('.modal').removeClass('is-active');
-        });
-
         $('#no_report_confirm_button').click(() => {
             $.ajax({
                 url: '',

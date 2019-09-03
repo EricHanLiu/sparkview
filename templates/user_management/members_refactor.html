@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block main_body %}
+    <!-- I know the has-text-centered is excessive, but my extraCss block wasn't working lol -->
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        Members
+                    </h4>
+                    <hr>
+                    <table class="dataTable table is-hoverable">
+                        <thead>
+                        <tr>
+                            <th class="has-text-centered">Member</th>
+                            <th class="has-text-centered">Team</th>
+                            <th class="has-text-centered">
+                                Role
+                            </th>
+                            <th class="has-text-centered">
+                                Hours Available
+                            </th>
+                            <th class="has-text-centered">
+                                Actual Hours
+                            </th>
+                            <th class="has-text-centered">
+                                Value Added Hours
+                            </th>
+                            <th class="has-text-centered">
+                                Active Accounts
+                            </th>
+                            <th class="has-text-centered">
+                                Onboarding Accounts
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in members %}
+                            <tr class="table-row">
+                                <td class="has-text-centered">
+                                    <a href="members/{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</a>
+                                </td>
+                                <td class="has-text-centered">
+                                    {% if member.on_all_teams %}
+                                        All
+                                    {% else %}
+                                        {% for team in member.team.all %}
+                                            {{ team.name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td class="has-text-centered">
+                                    {{ member.role }}
+                                </td>
+                                <td class="has-text-centered">
+                                    {{ member.hours_available }}
+                                </td>
+                                <td class="has-text-centered">
+                                    {{ member.actual_hours_month }}
+                                </td>
+                                <td class="has-text-centered">
+                                    {{ member.value_added_hours_this_month }}
+                                </td>
+                                <td class="has-text-centered">
+                                    {{ member.active_accounts_count }}
+                                </td>
+                                <td class="has-text-centered">
+                                    {{ member.onboarding_accounts_count }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tfoot>
+                        <tr>
+                            <th class="has-text-centered">Summary</th>
+                            <th class="has-text-centered"></th>
+                            <th class="has-text-centered"></th>
+                            <th class="has-text-centered">{{ total_hours_available }}</th>
+                            <th class="has-text-centered">{{ total_actual_hours }}</th>
+                            <th class="has-text-centered">{{ total_value_added_hours }}</th>
+                            <th class="has-text-centered">{{ total_active_accounts }}</th>
+                            <th class="has-text-centered">{{ total_onboarding_accounts }}</th>
+                        </tr>
+                        </tfoot>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
+    </script>
+{% endblock %}
