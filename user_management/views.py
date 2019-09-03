@@ -325,7 +325,7 @@ def new_member(request):
         roles = Role.objects.all()
         skills = Skill.objects.all()
         existing_users = User.objects.filter(member__isnull=True)
-        skill_options = [0, 1, 2, 3]
+        skill_options = [score_name for score, score_name in SkillEntry.SCORE_OPTIONS]
 
         context = {
             'teams': teams,
@@ -335,7 +335,7 @@ def new_member(request):
             'skillOptions': skill_options
         }
 
-        return render(request, 'user_management/new_member.html', context)
+        return render(request, 'user_management/new_member_refactor.html', context)
     elif request.method == 'POST':
 
         # Check if we are creating a new user or using an existing one
