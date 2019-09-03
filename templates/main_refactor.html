@@ -224,7 +224,7 @@
             </div>
         </div>
         <div class="navbar-end">
-            {% if member != request.user.member %}
+            {% if member != request.user.member and member is not None %}
                 <div class="navbar-item">
                     <p>Viewing: {{ member.user.get_full_name }} ({{ member.role }})</p>
                 </div>

@@ -367,8 +367,8 @@
                                           max="{{ account.allocated_hours_including_mandate }}"
                                           style="height: 4em;"></progress>
                                 <div class="progress-value" style="color: white;">
-                                    {{ account.hoursWorkedThisMonth|floatformat:1 }}
-                                    / {{ account.allocated_hours_including_mandate|floatformat:1 }}
+                                    {{ account.hoursWorkedThisMonth|round_to_two }}
+                                    / {{ account.allocated_hours_including_mandate|round_to_two }}
                                 </div>
                             </div>
                             <div class="columns" style="margin-top: 1em;">
@@ -377,25 +377,25 @@
                                         <p class="heading">Allocated Hours</p>
                                         <p class="title is-2 {% if account.is_onboarding %}has-text-info{% endif %}">
                                             {% if account.is_onboarding %}
-                                                {{ account|get_onboarding_hours_allocated|floatformat }}
+                                                {{ account|get_onboarding_hours_allocated|round_to_two }}
                                             {% else %}
-                                                {{ account.allocated_hours_including_mandate|floatformat }}
+                                                {{ account.allocated_hours_including_mandate|round_to_two }}
                                             {% endif %}
                                         </p>
                                     </div>
                                     <div style="margin-top: 1em;">
                                         <p class="heading">Actual Hours</p>
-                                        <p class="title is-2">{{ account.hoursWorkedThisMonth|floatformat:1 }}</p>
+                                        <p class="title is-2">{{ account.hoursWorkedThisMonth|round_to_two }}</p>
                                     </div>
                                 </div>
                                 <div class="column is-6 has-text-centered">
                                     <div style="margin-top: 0.5em;">
                                         <p class="heading">Fallback Hours</p>
-                                        <p class="title is-2">{{ account.fallback_hours|floatformat:1 }}</p>
+                                        <p class="title is-2">{{ account.fallback_hours|round_to_two }}</p>
                                     </div>
                                     <div style="margin-top: 1em;">
                                         <p class="heading">Remaining Hours</p>
-                                        <p class="title is-2">{{ account.hoursRemainingMonth|floatformat:1 }}</p>
+                                        <p class="title is-2">{{ account.hoursRemainingMonth|round_to_two }}</p>
                                     </div>
                                 </div>
                             </div>
