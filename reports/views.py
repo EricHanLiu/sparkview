@@ -767,7 +767,7 @@ def account_history(request):
         'accounts_array': accounts_array
     }
 
-    return render(request, 'reports/account_history.html', context)
+    return render(request, 'reports/account_history_refactor.html', context)
 
 
 @login_required
