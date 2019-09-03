@@ -53,10 +53,10 @@
                   <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                 </td>
                 <td>
-                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
+                  {{ account.hoursWorkedThisMonth|round_to_two }}
                 </td>
                 <td>
-                  {{ account.all_hours|floatformat:2 }}
+                  {{ account.all_hours|round_to_two }}
                 </td>
                 <td>
                   {% if account.flagged_assigned_member != None %}

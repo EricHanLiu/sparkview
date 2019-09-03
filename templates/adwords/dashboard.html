@@ -71,7 +71,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ sis.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ sis.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -92,7 +92,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ impr.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ impr.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -113,7 +113,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ clicks.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ clicks.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -134,7 +134,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ ctr.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ ctr.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -142,10 +142,10 @@
                                     <td>
                                         {% with ccpc=item.metadata.vals.avg_cpc account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ ccpc.1|mcv|floatformat:2|intcomma }}</b></p>
+                                                {{ account.currency }}{{ ccpc.1|mcv|round_to_two|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <small>
-                                                    {{ account.currency }}{{ ccpc.2|mcv|floatformat:2|intcomma }}</small>
+                                                    {{ account.currency }}{{ ccpc.2|mcv|round_to_two|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -156,7 +156,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ ccpc.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ ccpc.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -164,10 +164,10 @@
                                     <td>
                                         {% with ccost=item.metadata.vals|get_dict_value:"cost" account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ ccost.1|mcv|floatformat:2|intcomma }}</b></p>
+                                                {{ account.currency }}{{ ccost.1|mcv|round_to_two|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <small>
-                                                    {{ account.currency }}{{ ccost.2|mcv|floatformat:2|intcomma }}</small>
+                                                    {{ account.currency }}{{ ccost.2|mcv|round_to_two|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -178,7 +178,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ ccost.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ ccost.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -199,7 +199,7 @@
                                                     {% else %}
                                                         m-badge--success
                                                     {% endif %} m-badge--wide">
-                                                {{ convs.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ convs.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -207,10 +207,10 @@
                                     <td>
                                         {% with cpconv=item.metadata.vals.cost__conv account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ cpconv.1|mcv|floatformat:2|intcomma }}</b></p>
+                                                {{ account.currency }}{{ cpconv.1|mcv|round_to_two|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <small>
-                                                    {{ account.currency }}{{ cpconv.2|mcv|floatformat:2|intcomma }}</small>
+                                                    {{ account.currency }}{{ cpconv.2|mcv|round_to_two|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -221,7 +221,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ cpconv.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ cpconv.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}
@@ -229,10 +229,10 @@
                                     <td>
                                         {% with tcval=item.metadata.vals.all_conv_value account=item.account %}
                                             <p style="margin-bottom: 0!important;" class="text-center"><b>
-                                                {{ account.currency }}{{ tcval.1|floatformat:2|intcomma }}</b></p>
+                                                {{ account.currency }}{{ tcval.1|round_to_two|intcomma }}</b></p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <small>
-                                                    {{ account.currency }}{{ tcval.2|floatformat:2|intcomma }}</small>
+                                                    {{ account.currency }}{{ tcval.2|round_to_two|intcomma }}</small>
                                             </p>
                                             <p style="margin-bottom: 0!important;" class="text-center">
                                                 <span class="m-badge
@@ -243,7 +243,7 @@
                                                     {% else %}
                                                         m-badge--danger
                                                     {% endif %} m-badge--wide">
-                                                {{ tcval.0|floatformat:2|cut:"-"|intcomma }}%
+                                                {{ tcval.0|round_to_two|cut:"-"|intcomma }}%
                                                 </span>
                                             </p>
                                         {% endwith %}

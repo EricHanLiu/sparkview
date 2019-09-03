@@ -2240,3 +2240,27 @@ def set_tags(request):
     account.tags.set(new_tag_list)
 
     return HttpResponse('Successfully set tags')
+
+
+@login_required
+def ten_insights_report(request, account_id):
+    """
+    Gets account ten insights report
+    :param request:
+    :param account_id:
+    :return:
+    """
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('That client does not exist')
+
+    if 'month' in request.GET and 'year' in request.GET:
+        month = request.GET.get('month')
+        year = request.GET.get('year')
+
+    context = {
+        'account': account
+    }
+
+    return render(request, 'client_area/refactor/ten_insights_tmp.html', context)

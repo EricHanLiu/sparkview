@@ -199,9 +199,32 @@
                         <a class="navbar-item" href="/reports/over_under">
                             Overspend/Underspend Report
                         </a>
+                        <a class="navbar-item" href="/reports/tags">
+                            Tags
+                        </a>
                     </div>
                 </div>
             {% endif %}
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">
+                    <i class="fas fa-wrench" style="margin-right: 0.5em;"></i>
+                    Tools
+                </a>
+                <div class="navbar-dropdown">
+                    <a class="navbar-item" href="https://mibhub.com">
+                        The Hub
+                    </a>
+                    <a class="navbar-item" href="https://health.mibhub.com">
+                        Ad Health Checker
+                    </a>
+                    <a class="navbar-item" href="https://builder.mibhub.com">
+                        Campaign Builder
+                    </a>
+                    <a class="navbar-item" href="https://basecamp.com">
+                        Basecamp
+                    </a>
+                </div>
+            </div>
         </div>
         <div class="navbar-end">
             {% if member != request.user.member and member is not None %}

@@ -18,3 +18,4 @@ celerybeat-schedule
 *.pid
 .coverage
 insights/*.dat
+media/

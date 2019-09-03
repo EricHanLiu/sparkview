@@ -33,7 +33,7 @@
                                 Total Actual Hours
                             </h5>
                             <h1 class="text-center inner-text text-info">
-                                {{ actual_aggregate|floatformat:2 }}
+                                {{ actual_aggregate|round_to_two }}
                             </h1>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                                 Total Allocated Hours
                             </h5>
                             <h1 class="text-center inner-text">
-                                {{ allocated_aggregate|floatformat:2 }}
+                                {{ allocated_aggregate|round_to_two }}
                             </h1>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                                 Total Available Hours
                             </h5>
                             <h1 class="text-center inner-text">
-                                {{ available_aggregate|floatformat:2 }}
+                                {{ available_aggregate|round_to_two }}
                             </h1>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
                                 Total Utilization Rate
                             </h5>
                             <h1 class="text-center inner-text">
-                                {{ utilization_rate|floatformat:2 }}%
+                                {{ utilization_rate|round_to_two }}%
                             </h1>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                                 Total Capacity Rate
                             </h5>
                             <h1 class="text-center inner-text">
-                                {{ capacity_rate|floatformat:2 }}%
+                                {{ capacity_rate|round_to_two }}%
                             </h1>
                         </div>
                     </div>
@@ -128,22 +128,22 @@
                                         <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
                                     </td>
                                     <td>
-                                        {{ member.actual_hours_this_month|floatformat:2 }}
+                                        {{ member.actual_hours_this_month|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ member.allocated_hours_month|floatformat:2 }}
+                                        {{ member.allocated_hours_month|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ member.hours_available|floatformat:2 }}
+                                        {{ member.hours_available|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ member.utilization_rate|floatformat:2 }}%
+                                        {{ member.utilization_rate|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ member.capacity_rate|floatformat:2 }}%
+                                        {{ member.capacity_rate|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ member.value_added_hours_this_month|floatformat:2 }}
+                                        {{ member.value_added_hours_this_month|round_to_two }}
                                     </td>
                                     <td class="{% if member.backup_hours_plus_minus > 0 %}text-success{% elif member.backup_hours_plus_minus < 0 %}text-danger{% endif %}">
                                         {{ member.backup_hours_plus_minus }}

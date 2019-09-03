@@ -267,7 +267,7 @@
                                     {% if oops.budget_error_amount == 0 %}
                                         None
                                     {% else %}
-                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                        {{ oops.budget_error_amount|round_to_two }}
                                     {% endif %}
                                 </td>
                                 <td>
@@ -364,7 +364,7 @@
                                     {% if oops.budget_error_amount == 0 %}
                                         None
                                     {% else %}
-                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                        {{ oops.budget_error_amount|round_to_two }}
                                     {% endif %}
                                 </td>
                                 <td>

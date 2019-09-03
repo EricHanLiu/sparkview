@@ -33,7 +33,7 @@
                       Total Actual Hours
                   </h5>
                   <h1 class="text-center inner-text text-info">
-                      {{ actual_aggregate|floatformat:2 }}
+                      {{ actual_aggregate|round_to_two }}
                   </h1>
               </div>
           </div>
@@ -43,7 +43,7 @@
                       Total Allocated Hours
                   </h5>
                   <h1 class="text-center inner-text">
-                      {{ allocated_aggregate|floatformat:2 }}
+                      {{ allocated_aggregate|round_to_two }}
                   </h1>
               </div>
           </div>
@@ -53,7 +53,7 @@
                       Total Utilization Rate
                   </h5>
                   <h1 class="text-center inner-text">
-                      {{ utilization_rate|floatformat:2 }}%
+                      {{ utilization_rate|round_to_two }}%
                   </h1>
               </div>
           </div>
@@ -85,16 +85,16 @@
                   {{ account.client_name }}
                 </td>
                 <td>
-                  {{ account.hoursWorkedThisMonth|floatformat:2 }}
+                  {{ account.hoursWorkedThisMonth|round_to_two }}
                 </td>
                 <td>
-                  {{ account.all_hours|floatformat:2 }}
+                  {{ account.all_hours|round_to_two }}
                 </td>
                 <td>
-                  {{ account.utilization_rate_this_month|floatformat:2 }}%
+                  {{ account.utilization_rate_this_month|round_to_two }}%
                 </td>
                 <td>
-                  {{ account.value_added_hours_this_month|floatformat:2 }}
+                  {{ account.value_added_hours_this_month|round_to_two }}
                 </td>
               </tr>
               {% endfor %}

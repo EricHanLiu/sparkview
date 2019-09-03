@@ -78,7 +78,7 @@ def members(request):
                                   'buffer_learning_percentage',
                                   'buffer_trainers_percentage',
                                   'buffer_sales_percentage',
-                                  'buffer_planning_percentage',
+                                  'buffer_other_percentage',
                                   'buffer_internal_percentage',
                                   'buffer_seniority_percentage'
                                   ).filter(deactivated=False).order_by('user__first_name')
@@ -395,7 +395,7 @@ def new_member(request):
         buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
-        buffer_planning_percentage = request.POST.get('buffer_planning_percentage')
+        buffer_other_percentage = request.POST.get('buffer_other_percentage')
         buffer_internal_percentage = request.POST.get('buffer_internal_percentage')
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
 
@@ -407,7 +407,7 @@ def new_member(request):
             buffer_learning_percentage=buffer_learning_percentage,
             buffer_trainers_percentage=buffer_trainers_percentage,
             buffer_sales_percentage=buffer_sales_percentage,
-            buffer_planning_percentage=buffer_planning_percentage,
+            buffer_other_percentage=buffer_other_percentage,
             buffer_internal_percentage=buffer_internal_percentage,
             buffer_seniority_percentage=buffer_seniority_percentage
         )
@@ -466,7 +466,7 @@ def edit_member(request, id):
         buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
-        buffer_planning_percentage = request.POST.get('buffer_planning_percentage')
+        buffer_other_percentage = request.POST.get('buffer_other_percentage')
         buffer_internal_percentage = request.POST.get('buffer_internal_percentage')
         buffer_seniority_percentage = request.POST.get('buffer_seniority_percentage')
 
@@ -498,7 +498,7 @@ def edit_member(request, id):
         member.buffer_learning_percentage = buffer_learning_percentage
         member.buffer_trainers_percentage = buffer_trainers_percentage
         member.buffer_sales_percentage = buffer_sales_percentage
-        member.buffer_planning_percentage = buffer_planning_percentage
+        member.buffer_other_percentage = buffer_other_percentage
         member.buffer_internal_percentage = buffer_internal_percentage
         member.buffer_seniority_percentage = buffer_seniority_percentage
 

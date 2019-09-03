@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='member',
             name='image',
-            field=models.ImageField(null=True, upload_to=user_management.models.member_image_path),
+            field=models.ImageField(null=True, upload_to='bloomers/'),
         ),
     ]

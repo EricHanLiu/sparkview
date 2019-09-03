@@ -339,8 +339,8 @@
                                                 {% endfor %}
                                             </td>
                                             <td style="white-space: nowrap;">
-                                                {{ mandate.hours_worked_this_month|floatformat:2 }}
-                                                / {{ mandate.allocated_hours_this_month|floatformat:2 }}
+                                                {{ mandate.hours_worked_this_month|round_to_two }}
+                                                / {{ mandate.allocated_hours_this_month|round_to_two }}
                                             </td>
                                             <td>
                                                 <button class="button is-small is-rounded delete-mandate-btn"
@@ -367,8 +367,8 @@
                                           max="{{ account.allocated_hours_including_mandate }}"
                                           style="height: 4em;"></progress>
                                 <div class="progress-value" style="color: white;">
-                                    {{ account.hoursWorkedThisMonth|floatformat:1 }}
-                                    / {{ account.allocated_hours_including_mandate|floatformat:1 }}
+                                    {{ account.hoursWorkedThisMonth|round_to_two }}
+                                    / {{ account.allocated_hours_including_mandate|round_to_two }}
                                 </div>
                             </div>
                             <div class="columns" style="margin-top: 1em;">
@@ -377,25 +377,25 @@
                                         <p class="heading">Allocated Hours</p>
                                         <p class="title is-2 {% if account.is_onboarding %}has-text-info{% endif %}">
                                             {% if account.is_onboarding %}
-                                                {{ account|get_onboarding_hours_allocated|floatformat }}
+                                                {{ account|get_onboarding_hours_allocated|round_to_two }}
                                             {% else %}
-                                                {{ account.allocated_hours_including_mandate|floatformat }}
+                                                {{ account.allocated_hours_including_mandate|round_to_two }}
                                             {% endif %}
                                         </p>
                                     </div>
                                     <div style="margin-top: 1em;">
                                         <p class="heading">Actual Hours</p>
-                                        <p class="title is-2">{{ account.hoursWorkedThisMonth|floatformat:1 }}</p>
+                                        <p class="title is-2">{{ account.hoursWorkedThisMonth|round_to_two }}</p>
                                     </div>
                                 </div>
                                 <div class="column is-6 has-text-centered">
                                     <div style="margin-top: 0.5em;">
                                         <p class="heading">Fallback Hours</p>
-                                        <p class="title is-2">{{ account.fallback_hours|floatformat:1 }}</p>
+                                        <p class="title is-2">{{ account.fallback_hours|round_to_two }}</p>
                                     </div>
                                     <div style="margin-top: 1em;">
                                         <p class="heading">Remaining Hours</p>
-                                        <p class="title is-2">{{ account.hoursRemainingMonth|floatformat:1 }}</p>
+                                        <p class="title is-2">{{ account.hoursRemainingMonth|round_to_two }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -603,7 +603,7 @@
                                                             value="{{ account.default_budget.spend_percentage }}">
                                                     </progress>
                                                     <div class="progress-value">
-                                                        {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                        {{ account.default_budget.spend_percentage|round_to_two }}%
                                                     </div>
                                                     <div class="budget-pacer"
                                                          style="left: {{ account.default_budget.pacer_offset }}%"></div>
@@ -706,7 +706,7 @@
                                                             value="{{ budget.spend_percentage }}">
                                                     </progress>
                                                     <div class="progress-value">
-                                                        {{ budget.spend_percentage|floatformat:2 }}%
+                                                        {{ budget.spend_percentage|round_to_two }}%
                                                     </div>
                                                     <div class="budget-pacer"
                                                          style="left: {{ budget.pacer_offset }}%"></div>
@@ -1556,7 +1556,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="am1_percent" class="input percentage-assignment"
-                                                   value="{{ account.am1percent|floatformat:2 }}"/>
+                                                   value="{{ account.am1percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1577,7 +1577,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="am2_percent" class="input percentage-assignment"
-                                                   value="{{ account.am2percent|floatformat:2 }}"/>
+                                                   value="{{ account.am2percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1598,7 +1598,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="am3_percent" class="input percentage-assignment"
-                                                   value="{{ account.am3percent|floatformat:2 }}"/>
+                                                   value="{{ account.am3percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1621,7 +1621,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="cm1_percent" class="input percentage-assignment"
-                                                   value="{{ account.cm1percent|floatformat:2 }}"/>
+                                                   value="{{ account.cm1percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1642,7 +1642,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="cm2_percent" class="input percentage-assignment"
-                                                   value="{{ account.cm2percent|floatformat:2 }}"/>
+                                                   value="{{ account.cm2percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1663,7 +1663,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="cm3_percent" class="input percentage-assignment"
-                                                   value="{{ account.cm3percent|floatformat:2 }}"/>
+                                                   value="{{ account.cm3percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1687,7 +1687,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="strat1_percent" class="input percentage-assignment"
-                                                   value="{{ account.strat1percent|floatformat:2 }}"/>
+                                                   value="{{ account.strat1percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1709,7 +1709,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="strat2_percent" class="input percentage-assignment"
-                                                   value="{{ account.strat2percent|floatformat:2 }}"/>
+                                                   value="{{ account.strat2percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1731,7 +1731,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="strat3_percent" class="input percentage-assignment"
-                                                   value="{{ account.strat3percent|floatformat:2 }}"/>
+                                                   value="{{ account.strat3percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1755,7 +1755,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="seo1_percent" class="input percentage-assignment"
-                                                   value="{{ account.seo1percent|floatformat:2 }}"/>
+                                                   value="{{ account.seo1percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1777,7 +1777,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="seo2_percent" class="input percentage-assignment"
-                                                   value="{{ account.seo2percent|floatformat:2 }}"/>
+                                                   value="{{ account.seo2percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>
@@ -1799,7 +1799,7 @@
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input type="text" name="seo3_percent" class="input percentage-assignment"
-                                                   value="{{ account.seo3percent|floatformat:2 }}"/>
+                                                   value="{{ account.seo3percent|round_to_two }}"/>
                                         </div>
                                         <button class="button is-static" type="button">%</button>
                                     </div>

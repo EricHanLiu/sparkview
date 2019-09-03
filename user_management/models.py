@@ -272,10 +272,6 @@ class SkillHistory(models.Model):
         return str(self.date) + ': ' + str(self.skill_entry)
 
 
-def member_image_path(instance, filename):
-    return 'bloomers/{0}'.format(filename)
-
-
 class Member(models.Model):
     """
     Extension of user class via OneToOneField
@@ -284,7 +280,7 @@ class Member(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
-    image = models.ImageField(upload_to=member_image_path, null=True)
+    image = models.ImageField(upload_to='bloomers/', null=True)
     last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
@@ -292,7 +288,7 @@ class Member(models.Model):
     buffer_learning_percentage = models.FloatField(default=0)
     buffer_trainers_percentage = models.FloatField(default=0)
     buffer_sales_percentage = models.FloatField(default=0)
-    buffer_planning_percentage = models.FloatField(default=0)
+    buffer_other_percentage = models.FloatField(default=0)
     buffer_internal_percentage = models.FloatField(default=0)
     buffer_seniority_percentage = models.FloatField(default=0)
 
@@ -324,7 +320,7 @@ class Member(models.Model):
 
     @property
     def planning_hours(self):
-        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_planning_percentage / 100.0), 2)
+        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_other_percentage / 100.0), 2)
 
     @property
     def internal_hours(self):
@@ -345,8 +341,8 @@ class Member(models.Model):
     @property
     def last_updated_hours(self):
         if not hasattr(self, '_last_updated_hours'):
-            AccountHourRecord = apps.get_model('client_area', 'AccountHourRecord')
-            entries = AccountHourRecord.objects.filter(member=self)
+            account_hour_record_model = apps.get_model('client_area', 'AccountHourRecord')
+            entries = account_hour_record_model.objects.filter(member=self)
             if entries.count() == 0:
                 return None
             last_entry = entries.latest('created_at')
@@ -501,13 +497,13 @@ class Member(models.Model):
         if self.deactivated:
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
-               self.buffer_planning_percentage + self.buffer_internal_percentage
+               self.buffer_other_percentage + self.buffer_internal_percentage
 
     def buffer_percentage_old(self):
         if self.deactivated:
             return 100.0
         return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
-               self.buffer_planning_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
+               self.buffer_other_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
 
     @property
     def hours_available(self):

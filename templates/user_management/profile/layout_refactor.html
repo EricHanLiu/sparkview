@@ -9,43 +9,50 @@
                     <li>
                         <a href="/dashboard" style="padding: 1.5em 0;"
                            class="has-text-centered" id="accounts_tab">
-                            <div class="icon"><i class="fas fa-poll-h" style="font-size: 1.5em;"></i></div>
+                            <div class="icon"><i class="fas fa-poll-h" style="font-size: 1em;"></i></div>
+                            <span>Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <a href="/user_management/members/{{ member.id }}/input_hours" style="padding: 1.5em 0;"
                            class="has-text-centered" id="input_hours_tab">
                             <div class="icon"><i class="fas fa-clock" style="font-size: 1.5em;"></i></div>
+                            <span>Input Hours</span>
                         </a>
                     </li>
                     <li>
                         <a href="/user_management/members/{{ member.id }}/timesheet" style="padding: 1.5em 0;"
                            class="has-text-centered" id="timesheet_tab">
                             <div class="icon"><i class="fas fa-file-alt" style="font-size: 1.5em;"></i></div>
+                            <span>Timesheet</span>
                         </a>
                     </li>
                     <li>
                         <a href="/user_management/members/{{ member.id }}/reports" style="padding: 1.5em 0;"
                            class="has-text-centered" id="reports_tab">
                             <div class="icon"><i class="fas fa-flag" style="font-size: 1.5em;"></i></div>
+                            <span>Reports</span>
                         </a>
                     </li>
                     <li>
                         <a href="/user_management/members/{{ member.id }}/promos" style="padding: 1.5em 0;"
                            class="has-text-centered" id="promos_tab">
                             <div class="icon"><i class="fas fa-calendar-alt" style="font-size: 1.5em;"></i></div>
+                            <span>Promos</span>
                         </a>
                     </li>
                     <li>
                         <a href="/user_management/members/{{ member.id }}/performance" style="padding: 1.5em 0;"
                            class="has-text-centered" id="performance_tab">
                             <div class="icon"><i class="fas fa-star-half-alt" style="font-size: 1.5em;"></i></div>
+                            <span>Performance</span>
                         </a>
                     </li>
                 </ul>
             </aside>
         </div>
-        <div class="column is-11 has-background-light" style="padding: 3em 2.5em 3em 2em; {% if request.user.id == 56 %}background:#fbbcf3 !important;{% endif %}">
+        <div class="column is-11 has-background-light"
+             style="padding: 3em 2.5em 3em 2em; {% if request.user.id == 56 %}background:#fbbcf3 !important;{% endif %}">
             {% block main_content %}
             {% endblock %}
         </div>

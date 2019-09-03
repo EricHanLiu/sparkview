@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load staticfiles %}
+
+{% load humanize %}
+{% load template_filters %}
+
+{% block content %}
+    <div class="m-content">
+        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
+            <div class="m-portlet__head">
+                <div class="m-portlet__head-caption">
+                    <div class="m-portlet__head-title">
+                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
+                            Accounts with Tags
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="m-portlet__body">
+                <form class="m-form" method="get">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for="year">Tag:</label>
+                            <select class="form-control m-input"
+                                    name="tag"
+                                    style="width: 100%;">
+                                {% for tag in tags %}
+                                    <option value="{{ tag.id }}"}>{{ tag }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <br/>
+                            <input type="submit" value="Submit">
+                        </div>
+                    </div>
+                </form>
+                <hr/>
+                <div class="row m-row--no-padding m-row--col-separator-xl">
+                    <div class="col-12">
+                        <h5>Accounts Tagged</h5>
+                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline'>
+                            <thead class="thead-inverse">
+                            <tr class="main-table-header">
+                                <th>Account</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for account in accounts %}
+                                <tr>
+                                    <td>
+                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

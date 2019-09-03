@@ -100,6 +100,14 @@ def format_money(num):
 
 
 @register.filter
+def round_to_two(num):
+    try:
+        return round(num, 2)
+    except TypeError:
+        return None
+
+
+@register.filter
 def get_month_name(month_num):
     """
     Gives month name from num. input 1, output January
