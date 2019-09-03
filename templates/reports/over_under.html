@@ -64,6 +64,9 @@
                                 <th>
                                     Ratio
                                 </th>
+                                <th>
+                                    Tier
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -73,13 +76,16 @@
                                         <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
                                     </td>
                                     <td>
-                                        {{ account.2|floatformat:2 }}
+                                        {{ account.2|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ account.1|floatformat:2 }}
+                                        {{ account.1|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ account.3|floatformat:2 }}
+                                        {{ account.3|round_to_two }}
+                                    </td>
+                                    <td>
+                                        {{ account.tier }}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -87,7 +93,7 @@
                         </table>
                     </div>
                 </div>
-                <hr />
+                <hr/>
                 <div class="row m-row--no-padding m-row--col-separator-xl">
                     <div class="col-12">
                         <h5>Underspenders</h5>
@@ -102,6 +108,9 @@
                                 <th>
                                     Ratio
                                 </th>
+                                <th>
+                                    Tier
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -111,13 +120,16 @@
                                         <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
                                     </td>
                                     <td>
-                                        {{ account.2|floatformat:2 }}
+                                        {{ account.2|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ account.1|floatformat:2 }}
+                                        {{ account.1|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ account.3|floatformat:2 }}
+                                        {{ account.3|round_to_two }}
+                                    </td>
+                                    <td>
+                                        {{ account.tier }}
                                     </td>
                                 </tr>
                             {% endfor %}

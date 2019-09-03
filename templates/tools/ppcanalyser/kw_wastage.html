@@ -33,9 +33,9 @@
 
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                <div id="orangecircle" data-percent="{{ account.kw_score|floatformat:2 }}"
+                                <div id="orangecircle" data-percent="{{ account.kw_score|round_to_two }}"
                                      class="orange center percircle animate">
-                                    <span>{{ account.kw_score|floatformat:2 }}</span>
+                                    <span>{{ account.kw_score|round_to_two }}</span>
                                     <div class="slice">
                                         <div class="bar"></div>
                                         <div class="fill"></div>
@@ -51,11 +51,11 @@
                                     <div class="alert m-alert m-alert--default" role="alert">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                Avg. spend: {{ account.kw_data.0.average_cost|floatformat:2 }}
+                                                Avg. spend: {{ account.kw_data.0.average_cost|round_to_two }}
                                             </div>
                                             <div class="col-md-6">
                                                 Avg.
-                                                conversions: {{ account.kw_data.0.average_conversions|floatformat:2 }}
+                                                conversions: {{ account.kw_data.0.average_conversions|round_to_two }}
                                             </div>
                                         </div>
                                     </div>
@@ -72,7 +72,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Trends report - {{ account.trends_score|floatformat:2 }}/100
+                                            Trends report - {{ account.trends_score|round_to_two }}/100
                                         </option>
                                         <option value="qscore"
                                                 {% if account.channel == 'adwords' %}
@@ -81,7 +81,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            QS Report - {{ account.qs_score|floatformat:2 }}/100
+                                            QS Report - {{ account.qs_score|round_to_two }}/100
                                         </option>
                                         <option value="wspend"
                                                 {% if account.channel == 'adwords' %}
@@ -90,7 +90,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Wasted spend - {{ account.wspend_score|floatformat:2 }}/100
+                                            Wasted spend - {{ account.wspend_score|round_to_two }}/100
                                         </option>
                                         <option>Account Activity</option>
                                         <option value="changehistory"
@@ -100,7 +100,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Change History Report - {{ account.changed_score.0|floatformat:2 }}/100
+                                            Change History Report - {{ account.changed_score.0|round_to_two }}/100
                                         </option>
                                         <option value="disapprovedads"
                                                 {% if account.channel == 'adwords' %}
@@ -109,7 +109,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Disapproved ads report - {{ account.dads_score|floatformat:2 }}/100
+                                            Disapproved ads report - {{ account.dads_score|round_to_two }}/100
                                         </option>
                                         <option value="notrunning"
                                                 {% if account.channel == 'adwords' %}
@@ -118,7 +118,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Account Errors - {{ account.nr_score|floatformat:2 }}/100
+                                            Account Errors - {{ account.nr_score|round_to_two }}/100
                                         </option>
                                         <option>Tags Report</option>
                                         <option value="extensions"
@@ -128,7 +128,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Extension Report - {{ account.ext_score|floatformat:2 }}/100
+                                            Extension Report - {{ account.ext_score|round_to_two }}/100
                                         </option>
                                         <option>Conversion Tracking</option>
                                         <option value="nlc"
@@ -138,7 +138,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            NLC Attribution - {{ account.nlc_score|floatformat:2 }}/100
+                                            NLC Attribution - {{ account.nlc_score|round_to_two }}/100
                                         </option>
                                         <option value="keywordwastage"
                                                 {% if account.channel == 'adwords' %}
@@ -147,7 +147,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Keyword wastage - {{ account.kw_score|floatformat:2 }}/100
+                                            Keyword wastage - {{ account.kw_score|round_to_two }}/100
                                         </option>
                                         <option value="searchqueries"
                                                 {% if account.channel == 'adwords' %}
@@ -156,7 +156,7 @@
                                                 data-account_id="{{ account.account_id }}"
                                                 {% endif %}
                                                 data-channel="{{ account.channel }}">
-                                            Search Queries - {{ account.sq_score|floatformat:2 }}/100
+                                            Search Queries - {{ account.sq_score|round_to_two }}/100
                                         </option>
                                     </select>
                                 </div>

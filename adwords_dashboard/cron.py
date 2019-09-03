@@ -143,10 +143,11 @@ def get_all_spend_by_campaign_custom(self):
     """
     budgets = Budget.objects.filter(has_adwords=True, is_monthly=False)
     for budget in budgets:
-        if settings.DEBUG:
-            get_spend_by_campaign_custom(budget.id)
-        else:
-            get_spend_by_campaign_custom.delay(budget.id)
+        for aw_account in budget.account.adwords.all():
+            if settings.DEBUG:
+                get_spend_by_campaign_custom(budget.id, aw_account.id)
+            else:
+                get_spend_by_campaign_custom.delay(budget.id, aw_account.id)
 
     return 'get_all_spend_by_campaign_custom'
 

@@ -1,5 +1,6 @@
 from bloom import celery_app, settings
 from django.db.models import Q
+from django.core.mail import send_mail
 from adwords_dashboard.models import Campaign, CampaignSpendDateRange
 from facebook_dashboard.models import FacebookCampaign, FacebookCampaignSpendDateRange
 from bing_dashboard.models import BingCampaign, BingCampaignSpendDateRange
@@ -11,7 +12,7 @@ from adwords_dashboard.cron import get_spend_by_account_custom_daterange
 from facebook_dashboard.cron import get_spend_by_facebook_account_custom_dates
 from bing_dashboard.cron import get_spend_by_bing_account_custom_daterange
 from client_area.models import PhaseTask, PhaseTaskAssignment
-from notifications.models import Notification
+from notifications.models import Notification, SentEmailRecord
 from client_area.models import AccountAllocatedHoursHistory
 from user_management.models import Member, MemberHourHistory
 import datetime
@@ -724,3 +725,48 @@ def update_budget_spend_history():
         spend_history.bing_spend = get_spend_by_bing_account_custom_daterange(account.id, last_month.replace(day=1),
                                                                               last_month)
         spend_history.save()
+
+
+@celery_app.task(bind=True)
+def set_onboarding_allocated_hours_this_month(self):
+    """
+    Run on the first of the month - sets the onboarding hours field to the proper amount based on the remaining bank
+    """
+    accounts = Client.objects.filter(status=0)
+    for account in accounts:
+        now = datetime.datetime.now()
+        account.onboarding_hours_allocated_this_month_field = account.onboarding_hours_remaining_total()
+        account.onboarding_hours_allocated_updated_timestamp = now
+        account.save()
+
+    return 'set_onboarding_allocated_hours_this_month'
+
+
+@celery_app.task(bind=True)
+def ninety_five_percent_spend_email(self):
+    """
+    Should send emails to team leads when an account reaches 95% of spend
+    :param self:
+    :return:
+    """
+    accounts = Client.objects.filter(salesprofile__ppc_status=1)
+
+    now = datetime.datetime.now()
+    email_records_this_month = SentEmailRecord.objects.filter(month=now.month, year=now.year)
+    already_sent_email_accounts = [record.account for record in email_records_this_month]
+
+    accounts_at_issue = [account for account in accounts if
+                         account.default_budget is not None and account.default_budget.calculated_spend > (
+                                 0.95 * account.default_budget.calculated_budget)]
+
+    for account in accounts_at_issue:
+        if account in already_sent_email_accounts:
+            continue
+
+        team_lead_emails = [team_lead.user.email for team_lead in account.team_leads]
+        msg_body = str(account) + ' has reached 95% of its montly spend.'
+        send_mail(msg_body, msg_body, settings.EMAIL_HOST_USER, team_lead_emails, fail_silently=False,
+                  html_message=msg_body)
+        SentEmailRecord.objects.create(account=account, email_type=0, month=now.month, year=now.year)
+
+    return 'ninety_five_percent_spend_email'

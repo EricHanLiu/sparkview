@@ -1,6 +1,6 @@
 import unicodedata
 from calendar import monthrange
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 
@@ -24,3 +24,14 @@ def projected(spend, yspend):
     rval = spend + (yspend * remaining)
 
     return round(rval, 2)
+
+
+def get_last_month(datetime_obj):
+    """
+    Takes a datetime object and returns the month and year of the month prior to the datetime
+    :param datetime_obj:
+    :return:
+    """
+    first_day_of_this_month = datetime_obj.replace(day=1)
+    last_day_of_last_month = first_day_of_this_month - timedelta(1)
+    return last_day_of_last_month.month, last_day_of_last_month.year

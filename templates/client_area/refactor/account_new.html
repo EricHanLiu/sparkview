@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block extraCss %}
+    <link href="/static/bulma-checkradio.min.css" type="text/css" rel="stylesheet">
+{% endblock %}
+
+{% block main_body %}
+    <div class="section has-background-light">
+        <div class="container is-fluid">
+            <form method="post">{% csrf_token %}
+                <div class="card">
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <h4 class="title is-4">
+                                        Add New Account
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="existing_client_form">
+                            <div class="field">
+                                <button type="button" name="button" class="button is-small is-info is-outlined"
+                                        id="create_new_btn">Create New Client
+                                </button>
+                            </div>
+                            <div class="field">
+                                <label class="label" for="existing_user">Client:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="existing_client" required>
+                                        <option value="0">
+                                            None
+                                        </option>
+                                        {% for client in clients %}
+                                            <option value="{{ client.id }}">{{ client.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="new_client_form" style="display:none;">
+                            <div class="field">
+                                <button type="button" name="button" class="button is-small is-info is-outlined"
+                                        id="use_existing_btn">Use Existing Client
+                                </button>
+                            </div>
+                            <div class="field">
+                                <label for="client_name" class="label">Client Name:</label>
+                                <input type="text" name="client_name" class="input is-fullwidth"
+                                       placeholder="Please enter the client name">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="client_name" class="label">Account Name:</label>
+                            <input type="text" name="account_name" class="input"
+                                   placeholder="Please enter the client name" required>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <label for="industry" class="label">Industry:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="industry" required>
+                                            {% for industry in industries %}
+                                                <option value="{{ industry.id }}">{{ industry.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-6">
+                                    <label for="client_type" class="label">Client Type:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="client_type" required>
+                                            {% for client_type in client_types %}
+                                                <option value="{{ client_type.id }}">{{ client_type.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <label for="sold_budget" class="label">Sold Budget:</label>
+                                    <input type="text" name="sold_budget"
+                                           class="input" required>
+                                </div>
+                                <div class="column is-6">
+                                    <label for="contact_email" class="label">Account URL:</label>
+                                    <input type="text" name="account_url"
+                                           class="input" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-4">
+                                    <label for="soldby" class="label">Sold by:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="sold_by" required>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-4">
+                                    <label for="language" class="label">Language:</label>
+                                    <div class="select is-multiple is-fullwidth">
+                                        <select name="language" multiple required>
+                                            {% for language in languages %}
+                                                <option value="{{ language.id }}">{{ language.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-4">
+                                    <label for="objective" class="label">Objective:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="objective" required>
+                                            <option value="0">Leads</option>
+                                            <option value="1">Sales</option>
+                                            <option value="2">Awareness</option>
+                                            <option value="3">Store Visits</option>
+                                            <option value="4">Multiple</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1em;">
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <h5 class="title is-5">
+                                        Contact Info
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field" id="contact_form">
+                            <input style="display:none;" value="1" id="contact_num_input"
+                                   name="contact_num_input"/>
+                            <div class="columns">
+                                <div class="column is-4">
+                                    <label class="label" for="contact_name1">Contact Name:</label>
+                                    <input type="text" name="contact_name1"
+                                           class="input">
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label" for="contact_email1">Contact Email:</label>
+                                    <input type="text" name="contact_email1"
+                                           class="input">
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label" for="contact_name1">Contact Phone Number:</label>
+                                    <input type="text" name="contact_phone_number1"
+                                           class="input">
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">More Contacts</label>
+                                    <button type="button" name="button"
+                                            class="button is-small is-info is-outlined add-contact-level">+
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1em;">
+                    <!-- End contact info portlet -->
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <h5 class="title is-5">
+                                        Service Agreement
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" value="1" id="fee_structure_type" name="fee_structure_type"
+                               style="display:none;"/>
+                        <div id="create_new_structure">
+                            <div class="field">
+                                <button type="button" name="button" class="button is-small is-info is-outlined"
+                                        id="use_existing_structure_btn">Use existing fee structure
+                                </button>
+                            </div>
+                            <div class="field" id="management_fee_form">
+                                <input style="display:none;" value="1" id="rowNumInput" name="rowNumInput"/>
+                                <div class="columns">
+                                    <div class="column is-6">
+                                        <label class="label">Name:</label>
+                                        <input class="input" name="fee_structure_name"/>
+                                    </div>
+                                    <div class="column is-6">
+                                        <label class="label">Setup Fee:</label>
+                                        <input class="input" name="setup_fee"/>
+                                    </div>
+                                </div>
+                                <hr/>
+                                <div class="columns">
+                                    <div class="column is-3">
+                                        <label class="label">Low Budget Bound ($):</label>
+                                        <input class="input" name="low-bound1"/>
+                                    </div>
+                                    <div class="column is-3">
+                                        <label class="label">High Budget Bound ($):</label>
+                                        <input class="input" name="high-bound1"/>
+                                    </div>
+                                    <div class="column is-2">
+                                        <label class="label">Fee type:</label>
+                                        <div class="select is-fullwidth">
+                                            <select name="fee-type1" required>
+                                                <option value="0">%</option>
+                                                <option value="1">$</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column is-2">
+                                        <label class="label">Fee:</label>
+                                        <input class="input" name="fee1"/>
+                                    </div>
+                                    <div class="column is-2">
+                                        <label class="label">Add Level</label>
+                                        <button type="button" name="button"
+                                                class="button is-small is-info is-outlined add-fee-level-btn">
+                                            Add Level
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="use_existing_structure" style="display:none;">
+                            <div class="field">
+                                <button type="button" name="button" class="button is-small is-info is-outlined"
+                                        id="create_new_structure_btn">Create new fee structure
+                                </button>
+                            </div>
+                            <div class="field" id="management_fee_select">
+                                <label for="existing_structure" class="label">Management Fee Structure:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="existing_structure">
+                                        <option value="0">
+                                            None
+                                        </option>
+                                        {% for fee_structure in fee_structures %}
+                                            <option value="{{ fee_structure.id }}">{{ fee_structure.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 1em;">
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <h5 class="title is-5">
+                                        SEO and CRO Services
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-2">
+                                    <label class="label">SEO</label>
+                                    <input type="checkbox" class="is-checkradio" name="seo_check" id="seo_check">
+                                    <label for="seo_check"></label>
+                                </div>
+                                <div class="column is-4">
+                                    <label class="label">SEO Hours</label>
+                                    <input type="text" name="seo_hours" id="seo_hours"
+                                           class="input" disabled>
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label">PPC</label>
+                                    <input type="checkbox" class="is-checkradio" name="ppc_check" id="ppc_check">
+                                    <label for="ppc_check"></label>
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label">Strat</label>
+                                    <input type="checkbox" class="is-checkradio" name="strat_check" id="strat_check">
+                                    <label for="strat_check"></label>
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-2">
+                                    <label class="label">CRO</label>
+                                    <input type="checkbox" class="is-checkradio" name="cro_check" id="cro_check">
+                                    <label for="cro_check"></label>
+                                </div>
+                                <div class="column is-4">
+                                    <label class="label">CRO Hours</label>
+                                    <input type="text" name="cro_hours" id="cro_hours"
+                                           class="input" disabled>
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label">Feed Management</label>
+                                    <input type="checkbox" class="is-checkradio" name="feed_check" id="feed_check">
+                                    <label for="feed_check"></label>
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label">Email Marketing</label>
+                                    <input type="checkbox" class="is-checkradio" name="email_check" id="email_check">
+                                    <label for="email_check"></label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <button type="submit" class="button is-info is-outlined">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!--End::Main Portlet-->
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(function () {
+            const $createNewBtn = $('#create_new_btn');
+            const $useExistingBtn = $('#use_existing_btn');
+            const $existingForm = $('#existing_client_form');
+            const $newForm = $('#new_client_form');
+
+            $createNewBtn.click(function () {
+                $existingForm.hide();
+                $newForm.show();
+            });
+
+            $useExistingBtn.click(function () {
+                $newForm.hide();
+                $existingForm.show();
+            });
+
+            /**
+             * Management fees
+             */
+            const $createNewFeeBtn = $('#create_new_structure_btn');
+            const $useExistingFeeBtn = $('#use_existing_structure_btn');
+            const $createNewFeeDiv = $('#create_new_structure');
+            const $useExistingFeeDiv = $('#use_existing_structure');
+            const $feeStructureType = $('#fee_structure_type');
+
+            $createNewFeeBtn.click(function () {
+                $feeStructureType.val('1');
+                $useExistingFeeDiv.hide();
+                $createNewFeeDiv.show();
+            });
+
+            $useExistingFeeBtn.click(function () {
+                $feeStructureType.val('2');
+                $createNewFeeDiv.hide();
+                $useExistingFeeDiv.show();
+            });
+
+            const $addFeeBtn = $('.add-fee-level-btn');
+            const $feeForm = $('#management_fee_form');
+            const $rowNum = $('#rowNumInput');
+
+            let feeRows = 1;
+            let feeRowHtml = `
+                  <div class="columns">
+                                    <div class="column is-3">
+                                        <label class="label">Low Budget Bound ($):</label>
+                                        <input class="input" name="low-bound1"/>
+                                    </div>
+                                    <div class="column is-3">
+                                        <label class="label">High Budget Bound ($):</label>
+                                        <input class="input" name="high-bound1"/>
+                                    </div>
+                                    <div class="column is-2">
+                                        <label class="label">Fee type:</label>
+                                        <div class="select is-fullwidth">
+                                            <select name="fee-type1" required>
+                                                <option value="0">%</option>
+                                                <option value="1">$</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column is-2">
+                                        <label class="label">Fee:</label>
+                                        <input class="input" name="fee1"/>
+                                    </div>
+                                </div>
+                  `;
+
+            $addFeeBtn.click(function () {
+                feeRows++;
+                $rowNum.val(feeRows);
+                let feeRowHtmlTmp = feeRowHtml.replace('low-bound1', 'low-bound' + feeRows)
+                    .replace('high-bound1', 'high-bound' + feeRows)
+                    .replace('fee-type1', 'fee-type' + feeRows)
+                    .replace('fee1', 'fee' + feeRows);
+                $feeForm.append(feeRowHtmlTmp);
+            });
+
+            const $addContactBtn = $('.add-contact-level');
+            const $contactForm = $('#contact_form');
+            const $contactNumberInput = $('#contact_num_input');
+
+            let contactRows = 1;
+            let contactRowHtml = `<div class="columns">
+                                <div class="column is-4">
+                                    <label class="label" for="contact_name1">Contact Name:</label>
+                                    <input type="text" name="contact_name1"
+                                           class="input">
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label" for="contact_email1">Contact Email:</label>
+                                    <input type="text" name="contact_email1"
+                                           class="input">
+                                </div>
+                                <div class="column is-3">
+                                    <label class="label" for="contact_name1">Contact Phone Number:</label>
+                                    <input type="text" name="contact_phone_number1"
+                                           class="input">
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">More Contacts</label>
+                                    <button type="button" name="button"
+                                            class="button is-small is-info is-outlined add-contact-level">+
+                                    </button>
+                                </div>
+                            </div>`;
+
+            $addContactBtn.click(function () {
+                contactRows++;
+                $contactNumberInput.val(contactRows);
+                let contactRowHtmlTmp = contactRowHtml.replace('contact_name1', 'contact_name' + contactRows)
+                    .replace('contact_email1', 'contact_email' + contactRows)
+                    .replace('contact_phone_number1', 'contact_phone_number' + contactRows);
+                $contactForm.append(contactRowHtmlTmp);
+            });
+
+            // SEO and CRO toggles
+            const $seoCheck = $('#seo_check');
+            const $croCheck = $('#cro_check');
+            const $seoHours = $('#seo_hours');
+            const $croHours = $('#cro_hours');
+
+            $seoCheck.change(function () {
+                if ($(this).is(':checked')) {
+                    $seoHours.prop('disabled', false);
+                } else {
+                    $seoHours.val('');
+                    $seoHours.prop('disabled', true);
+                }
+            });
+
+            $croCheck.change(function () {
+                if ($(this).is(':checked')) {
+                    $croHours.prop('disabled', false);
+                } else {
+                    $croHours.val('');
+                    $croHours.prop('disabled', true);
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

@@ -1,4 +1,4 @@
-<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load custom_filters %}
+<!DOCTYPE html> {% extends 'main.html' %} {% load staticfiles %} {% load template_filters %} {% load custom_filters %}
 
 {% block content %}
     <div class="m-content">
@@ -96,7 +96,7 @@
                             {% for acc in accounts %}
                                 <tr>
                                     <td width="50%">{{ acc.dependent_account_name }}</td>
-                                    <td width="30%">{{ acc.current_spend|floatformat:2 }}</td>
+                                    <td width="30%">{{ acc.current_spend|round_to_two }}</td>
                                     <td>
                                     <span class="m-switch m-switch--outline m-switch--icon m-switch--success">
                                         <label>

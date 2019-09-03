@@ -1,6 +1,7 @@
 {% extends 'user_management/profile/layout_refactor.html' %}
 
 {% load template_filters %}
+{% load staticfiles %}
 
 {% block extraCss %}
     <style>
@@ -110,7 +111,7 @@
                                         <div class="column is-6">
                                             <div class="has-text-centered">
                                                 <p class="heading">
-                                                    <img src="/static/img/badge.svg" style="height: 6em;">
+                                                    <img src="{% static 'img/'|add:'badge.svg' %}" style="height: 6em;">
                                                 </p>
                                                 <p style="margin-top: 0.5em;">
                                                     {{ badge.skill_category.name }}
@@ -266,7 +267,7 @@
                                     {% if oops.budget_error_amount == 0 %}
                                         None
                                     {% else %}
-                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                        {{ oops.budget_error_amount|round_to_two }}
                                     {% endif %}
                                 </td>
                                 <td>
@@ -363,7 +364,7 @@
                                     {% if oops.budget_error_amount == 0 %}
                                         None
                                     {% else %}
-                                        {{ oops.budget_error_amount|floatformat:2 }}
+                                        {{ oops.budget_error_amount|round_to_two }}
                                     {% endif %}
                                 </td>
                                 <td>

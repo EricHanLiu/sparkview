@@ -24,7 +24,7 @@
                       On Time Percentage
                   </h5>
                   <h1 class="text-center inner-text text-info">
-                      {{ ontime_pct|floatformat:2 }}%
+                      {{ ontime_pct|round_to_two }}%
                   </h1>
               </div>
           </div>
@@ -34,7 +34,7 @@
                       Completion Percentage
                   </h5>
                   <h1 class="text-center inner-text text-info">
-                      {{ completion_pct|floatformat:2 }}%
+                      {{ completion_pct|round_to_two }}%
                   </h1>
               </div>
           </div>

@@ -63,7 +63,7 @@
                                         {% elif account.account_score > 90 %}
                                             m--font-success
                                         {% endif %}">
-                                            {{ account.account_score|floatformat:2 }}%
+                                            {{ account.account_score|round_to_two }}%
 				                        </span>
                                         <div class="m--space-10"></div>
                                     </div>
@@ -122,7 +122,7 @@
                                             {% endif %}
                                                 ">
                                                     <button type="button" class="btn m-btn--pill btn-outline-info btn-sm">
-                                                        {{ rec.2 }} - {{ rec.1|floatformat:2 }}%
+                                                        {{ rec.2 }} - {{ rec.1|round_to_two }}%
                                                     </button>
                                                 </a>
                                             {% endfor %}

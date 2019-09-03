@@ -104,3 +104,22 @@
  
   - We use a library called suds-jurko
   - Sometimes, this causes massive files to be created in `/tmp/suds`. If this happens, see https://bitbucket.org/jurko/suds/issues/126/millions-of-temp-files-eating-my-hard
+  - Here is the fix, in case it ever gets deleted:
+  
+    For reference I am using python 3.4 and suds-jurko (0.6) installed using pip3.
+
+    Had the same issue and the most expedient fix for me was to manually patch the file: site-packages/suds/reader.py
+    
+    add to imports:
+    
+    `import hashlib`
+    
+    change this line:
+    
+    `h = abs(hash(name))`
+    
+    to:
+    
+    `h = hashlib.md5(name.encode()).hexdigest()`
+    
+    For me, this fixed the issue. Now there are only 6 cache files and they haven't grown or added in months.
