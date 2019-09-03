@@ -106,7 +106,7 @@ def members(request):
         'total_onboarding_accounts': round(total_onboarding_accounts, 2)
     }
 
-    return render(request, 'user_management/members.html', context)
+    return render(request, 'user_management/members_refactor.html', context)
 
 
 @login_required
@@ -325,7 +325,7 @@ def new_member(request):
         roles = Role.objects.all()
         skills = Skill.objects.all()
         existing_users = User.objects.filter(member__isnull=True)
-        skill_options = [0, 1, 2, 3]
+        skill_options = [score_name for score, score_name in SkillEntry.SCORE_OPTIONS]
 
         context = {
             'teams': teams,
@@ -335,7 +335,7 @@ def new_member(request):
             'skillOptions': skill_options
         }
 
-        return render(request, 'user_management/new_member.html', context)
+        return render(request, 'user_management/new_member_refactor.html', context)
     elif request.method == 'POST':
 
         # Check if we are creating a new user or using an existing one
@@ -527,12 +527,14 @@ def edit_member(request, id):
 @login_required
 def teams(request):
     teams = Team.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'teams': teams,
+        'members': members,
     }
 
-    return render(request, 'user_management/teams.html', context)
+    return render(request, 'user_management/teams_refactor.html', context)
 
 
 @login_required
@@ -540,10 +542,12 @@ def new_team(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'POST':
-        context = {}
-        return JsonResponse(context)
+        team_name = request.POST.get('teamname')
+        if team_name is not None and team_name != '':
+            Team.objects.get_or_create(name=team_name)
+        return redirect('/user_management/teams')
     else:
-        return HttpResponse('You are at the wrong place')
+        return HttpResponse('Invalid request type')
 
 
 @login_required
@@ -1217,7 +1221,7 @@ def training_members(request):
     if request.method == 'GET':
         training_groups = TrainingGroup.objects.all()
 
-        score_badges = ['secondary', 'dark', 'danger', 'warning', 'success']
+        score_badges = SkillEntry.TAG_COLORS
         scores = SkillEntry.SCORE_OPTIONS
 
         context = {
@@ -1226,7 +1230,7 @@ def training_members(request):
             'scores': scores
         }
 
-        return render(request, 'user_management/training.html', context)
+        return render(request, 'user_management/training_refactor.html', context)
     elif request.method == 'POST':
         member_id = request.POST.get('member-id')
         skill_id = request.POST.get('skill-id')
@@ -1287,7 +1291,7 @@ def skills(request):
         'skills': all_skills
     }
 
-    return render(request, 'user_management/skills.html', context)
+    return render(request, 'user_management/skills_refactor.html', context)
 
 
 @login_required
@@ -1338,6 +1342,7 @@ def backups(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    # TODO: I'm quite sure most of this is no longer used, can look into removing it
     if request.method == 'POST':
         # Creates a backup period
         form_type = request.POST.get('type')
@@ -1348,8 +1353,8 @@ def backups(request):
             except Member.DoesNotExist:
                 return HttpResponse('Member does not exist')
 
-            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%Y-%m-%d')
-            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%Y-%m-%d')
+            start_date = datetime.datetime.strptime(request.POST.get('start_date'), '%m/%d/%Y')
+            end_date = datetime.datetime.strptime(request.POST.get('end_date'), '%m/%d/%Y')
 
             bp = BackupPeriod()
             bp.member = member
@@ -1438,7 +1443,6 @@ def backups(request):
     now = datetime.datetime.now()
     seven_days_ago = now - datetime.timedelta(7)
     members = Member.objects.filter(deactivated=False).order_by('user__first_name')
-    accounts = Client.objects.filter(Q(status=0) | Q(status=1)).order_by('client_name')
 
     active_backups = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now).order_by('-end_date')
     non_active_backup_periods = BackupPeriod.objects.exclude(end_date__lte=seven_days_ago).exclude(start_date__lte=now,
@@ -1446,12 +1450,11 @@ def backups(request):
 
     context = {
         'members': members,
-        'accounts': accounts,
         'active_backups': active_backups,
         'non_active_backup_periods': non_active_backup_periods
     }
 
-    return render(request, 'user_management/backup.html', context)
+    return render(request, 'user_management/backup_refactor.html', context)
 
 
 @login_required
@@ -1515,7 +1518,7 @@ def backup_event(request, backup_period_id):
         'members': members
     }
 
-    return render(request, 'user_management/backup_event.html', context)
+    return render(request, 'user_management/backup_event_refactor.html', context)
 
 
 @login_required

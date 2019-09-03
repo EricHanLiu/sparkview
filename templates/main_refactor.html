@@ -31,6 +31,9 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/air-datepicker/2.2.3/js/i18n/datepicker.en.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <!-- datatables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <script src="https:////cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
     {% if request.META.HTTP_HOST != '127.0.0.1:8000' and request.META.HTTP_HOST != 'localhost:8000' %}
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -102,8 +105,8 @@
                         Members
                     </a>
                     <div class="navbar-dropdown">
-                        <a class="navbar-item" href="/user_management/profile">
-                            Profile
+                        <a class="navbar-item" href="/dashboard">
+                            Dashboard
                         </a>
                         {% if request.user.is_staff %}
                             <a class="navbar-item" href="/user_management/backups">
@@ -260,6 +263,10 @@
         $('.modal').removeClass('is-active');
     });
 
+    $('.modal-close, .modal-background').click(() => {
+        $('.modal').removeClass('is-active');
+    });
+
     const DEBOUNCETIME = 100;  // debounce timing
     let $searchResults = $('#search_results');
     let $searchBar = $('#search_bar');
@@ -357,6 +364,15 @@
     $searchBar.focus(() => {
         if ($searchResults.children().length > 0) {
             $searchDropdown.addClass('is-active');
+        }
+    });
+
+    $('.dataTable').DataTable({
+        paginate: false,
+        filter: true,
+        info: false,
+        language: {
+            search: '<i class="fas fa-search"></i>',
         }
     });
 </script>

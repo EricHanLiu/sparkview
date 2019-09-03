@@ -78,9 +78,6 @@
 
 {% block extraJs %}
     <script>
-        $('.modal-close, .modal-background').click(() => {
-            $('.modal').removeClass('is-active');
-        });
 
         let csrftoken = '{{ csrf_token }}';
         let $promoCheck = $('.j-confirm-promo');

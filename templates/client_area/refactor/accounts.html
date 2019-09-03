@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            {% if accounts.count > 0 %}
+                <div class="card">
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <h4 class="title is-4">
+                                    My Accounts
+                                </h4>
+                            </div>
+                        </div>
+                        <hr>
+                        <table class="dataTable table is-hoverable">
+                            <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Budget</th>
+                                <th>Spend</th>
+                                <th>Yesterday Spend</th>
+                                <th>Projected Spend</th>
+                                <th>
+                                    Status
+                                </th>
+                                <th>
+                                    Management Fees
+                                </th>
+                                <th>
+                                    Total Actual Hours
+                                </th>
+                                <th>
+                                    Total Allocated Hours
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for account in accounts %}
+                                <tr class="table-row">
+                                    <td>
+                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                    </td>
+                                    <td>${{ account.current_budget|format_money }}</td>
+                                    <td>${{ account.current_spend|format_money }}</td>
+                                    <td>${{ account.yesterday_spend|format_money }}</td>
+                                    <td style="{% if account.project_average > account.current_budget %}color:#f00;{% elif account.underpacing_average %}{% endif %}">
+                                        ${{ account.project_average|format_money }}</td>
+                                    <td>
+                                        <div class="tag is-rounded is-{{ status_badges|get_item_from_list:account.status }}">
+                                            &nbsp&nbsp
+                                        </div>
+                                    </td>
+                                    <td>
+                                        ${{ account.total_fee|format_money }}
+                                    </td>
+                                    <td>
+                                        <!-- Actual hours -->
+                                        {{ account.hoursWorkedThisMonth }}
+                                    </td>
+                                    <td>
+                                        {{ account.all_hours }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            {% if backup_accounts.count > 0 %}
+                <div class="card" style="margin-top: 2em;">
+                    <div class="card-content">
+                        <div class="level">
+                            <div class="level-left">
+                                <h4 class="title is-4">
+                                    My Backup Accounts
+                                </h4>
+                            </div>
+                        </div>
+                        <hr>
+                        <table class="dataTable table is-hoverable">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Client
+                                </th>
+                                <th>Account</th>
+                                <th>
+                                    Team
+                                </th>
+                                <th>
+                                    Industry
+                                </th>
+                                <th>
+                                    Language
+                                </th>
+                                <th>
+                                    Client Type
+                                </th>
+                                <th>
+                                    Tier
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th>
+                                    Management Fees
+                                </th>
+                                <th>
+                                    Total Actual Hours
+                                </th>
+                                <th>
+                                    Total Allocated Hours
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for backup in backup_accounts %}
+                                <tr class="table-row">
+                                    <td>
+                                        {{ backup.account.parentClient.name }}
+                                    </td>
+                                    <td>
+                                        <a href="/clients/accounts/{{ backup.account.id }}">{{ backup.account.client_name }}</a>
+                                    </td>
+                                    <td>
+                                        {% for team in backup.account.team.all %}{{ team.name }}
+                                            {% if not forloop.last %},{% endif %}{% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ backup.account.industry.name }}
+                                    </td>
+                                    <td>
+                                        {% for language in backup.account.language.all %}{{ language.name }}
+                                            {% if not forloop.last %},{% endif %}{% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ backup.account.clientType.name }}
+                                    </td>
+                                    <td>
+                                        {{ backup.account.tier }}
+                                    </td>
+                                    <td>
+                                        <div class="tag is-rounded is-{{ status_badges|get_item_from_list:backup.account.status }}">
+                                            &nbsp&nbsp
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ backup.account.total_fee }}
+                                    </td>
+                                    <td>
+                                        <!-- Actual hours -->
+                                        {{ backup.account.hoursWorkedThisMonth }}
+                                    </td>
+                                    <td>
+                                        {{ backup.account.all_hours }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.table-row').click(function () {
+            $('.table-row.is-selected').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
+    </script>
+{% endblock %}

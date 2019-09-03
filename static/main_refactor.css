@@ -59,22 +59,22 @@ html, body {
     color: white;
 }
 
-.tag.iron-tag {
+.tag.iron-tag, .button.iron-tag {
     background-color: #686969;
     color: white;
 }
 
-.tag.bronze-tag {
+.tag.bronze-tag, .button.bronze-tag {
     background-color: #cd7f32;
     color: white;
 }
 
-.tag.silver-tag {
+.tag.silver-tag, .button.silver-tag {
     background-color: #C0C0C0;
     color: white;
 }
 
-.tag.gold-tag {
+.tag.gold-tag, .button.gold-tag {
     background-color: #D4AF37;
     color: white;
 }

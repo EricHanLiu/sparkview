@@ -31,7 +31,7 @@ def accounts(request):
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
 
     context = {
         'member': member,
@@ -40,7 +40,7 @@ def accounts(request):
         'accounts': accounts
     }
 
-    return render(request, 'client_area/accounts.html', context)
+    return render(request, 'client_area/refactor/accounts.html', context)
 
 
 @login_required
@@ -71,7 +71,7 @@ def accounts_all(request):
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
 
     context = {
         'page_type': 'Active',
@@ -79,7 +79,7 @@ def accounts_all(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -97,7 +97,7 @@ def accounts_inactive(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -115,7 +115,7 @@ def accounts_lost(request):
         'accounts': accounts,
     }
 
-    return render(request, 'client_area/accounts_all.html', context)
+    return render(request, 'client_area/refactor/accounts_all.html', context)
 
 
 @login_required
@@ -146,7 +146,7 @@ def account_new(request):
             'fee_structures': fee_structures
         }
 
-        return render(request, 'client_area/account_new.html', context)
+        return render(request, 'client_area/refactor/account_new.html', context)
     elif request.method == 'POST':
         form_data = {
             'account_name': request.POST.get('account_name'),
