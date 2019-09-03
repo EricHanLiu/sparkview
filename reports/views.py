@@ -636,7 +636,7 @@ def flagged_accounts(request):
         'members': members
     }
 
-    return render(request, 'reports/flagged_accounts.html', context)
+    return render(request, 'reports/flagged_accounts_refactor.html', context)
 
 
 @login_required
