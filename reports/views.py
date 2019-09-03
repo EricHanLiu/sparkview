@@ -478,7 +478,7 @@ def actual_hours(request):
         'hour_total': hour_total
     }
 
-    return render(request, 'reports/actual_hours.html', context)
+    return render(request, 'reports/actual_hours_refactor.html', context)
 
 
 @login_required
