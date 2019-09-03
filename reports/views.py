@@ -173,7 +173,7 @@ def cm_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -220,7 +220,7 @@ def am_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -242,7 +242,7 @@ def seo_capacity(request):
     total_seo_hours = 0.0
     total_cro_hours = 0.0
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
         Q(status=0) | Q(status=1)).order_by('client_name')
 
@@ -283,7 +283,7 @@ def seo_capacity(request):
         'total_cro_hours': total_cro_hours
     }
 
-    return render(request, 'reports/seo_member_capacity_report.html', context)
+    return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -329,7 +329,7 @@ def strat_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report_refactor.html', context)
 
 
 @login_required
