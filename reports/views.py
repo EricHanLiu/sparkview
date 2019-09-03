@@ -604,7 +604,7 @@ def account_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/account_capacity_report.html', context)
+    return render(request, 'reports/account_capacity_report_refactor.html', context)
 
 
 @login_required
