@@ -227,11 +227,6 @@
             </div>
         </div>
         <div class="navbar-end">
-            {% if member != request.user.member and member is not None %}
-                <div class="navbar-item">
-                    <p>Viewing: {{ member.user.get_full_name }} ({{ member.role }})</p>
-                </div>
-            {% endif %}
             <div class="navbar-item">
                 <div class="dropdown" id="search_dropdown">
                     <input class="input is-rounded" type="search" placeholder="Search.." id="search_bar"
