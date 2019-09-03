@@ -1287,7 +1287,7 @@ def skills(request):
         'skills': all_skills
     }
 
-    return render(request, 'user_management/skills.html', context)
+    return render(request, 'user_management/skills_refactor.html', context)
 
 
 @login_required
