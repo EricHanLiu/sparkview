@@ -527,12 +527,14 @@ def edit_member(request, id):
 @login_required
 def teams(request):
     teams = Team.objects.all()
+    members = Member.objects.all().order_by('user__first_name')
 
     context = {
         'teams': teams,
+        'members': members,
     }
 
-    return render(request, 'user_management/teams.html', context)
+    return render(request, 'user_management/teams_refactor.html', context)
 
 
 @login_required
@@ -540,10 +542,12 @@ def new_team(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'POST':
-        context = {}
-        return JsonResponse(context)
+        team_name = request.POST.get('teamname')
+        if team_name is not None and team_name != '':
+            Team.objects.get_or_create(name=team_name)
+        return redirect('/user_management/teams')
     else:
-        return HttpResponse('You are at the wrong place')
+        return HttpResponse('Invalid request type')
 
 
 @login_required
