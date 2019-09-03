@@ -123,7 +123,7 @@ def account_spend_progression(request):
         'total_projected_overspend': total_projected_overspend
     }
 
-    return render(request, 'reports/account_spend_progression.html', context)
+    return render(request, 'reports/account_spend_progression_refactor.html', context)
 
 
 @login_required
