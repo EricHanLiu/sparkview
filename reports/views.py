@@ -350,7 +350,7 @@ def hour_log(request):
         'members': members
     }
 
-    return render(request, 'reports/hour_log.html', context)
+    return render(request, 'reports/hour_log_refactor.html', context)
 
 
 @login_required
