@@ -10,7 +10,7 @@
                     <div class="level">
                         <img src="{{ member.image_url }}" id="member_image">
                     </div>
-                    <form id="update_image_form" method="POST" action="/user_management/profile/upload_image"
+                    <form id="update_image_form" method="POST" action="/profile/upload_image"
                           enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="file">

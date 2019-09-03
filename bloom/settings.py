@@ -410,5 +410,5 @@ REST_FRAMEWORK = {
 CORS_ORIGIN_ALLOW_ALL = True
 
 # might need to be changed in staging/prod
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/img/')
-MEDIA_URL = '/static/img/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/img/')
+MEDIA_URL = '/media/img/'
