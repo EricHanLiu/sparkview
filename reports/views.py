@@ -97,7 +97,7 @@ def agency_overview(request):
         'members': members
     }
 
-    return render(request, 'reports/agency_overview.html', context)
+    return render(request, 'reports/agency_overview_refactor.html', context)
 
 
 @login_required

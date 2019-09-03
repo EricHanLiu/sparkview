@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        Agency Overview
+                    </h4>
+                    <hr>
+                    <div class="columns is-multiline">
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Active Accounts</p>
+                                        <p class="heading">Total number of active accounts</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_active_accounts }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Active SEO Accounts</p>
+                                        <p class="heading">Total number of active SEO accounts</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_active_seo }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Active CRO Accounts</p>
+                                        <p class="heading">Total number of active CRO accounts</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_active_cro }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Onboarding Accounts</p>
+                                        <p class="heading">Total number of onboarding accounts</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_onboarding }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Inactive Accounts</p>
+                                        <p class="heading">Total number of inactive accounts</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_onboarding }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Total Lost</p>
+                                        <p class="heading">Total number of lost accounts</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_lost }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Total Allocated Hours</p>
+                                        <p class="heading">Sum of all agency hours</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_allocated_hours|floatformat }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Total Hours Worked</p>
+                                        <p class="heading">Sum of hours this month</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ total_hours_worked|floatformat }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Allocation Ratio</p>
+                                        <p class="heading">Hours worked / allocated hours</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ allocation_ratio|floatformat }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3">
+                            <div class="box">
+                                <div class="columns is-vcentered">
+                                    <div class="column is-9">
+                                        <p class="title is-5">Total Incidents</p>
+                                        <p class="heading">All incidents</p>
+                                    </div>
+                                    <div class="column is-3">
+                                        <p class="title is-4">{{ incident_count }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 2em;">
+                <div class="card-content">
+                    <h4 class="title is-4">Agency Capacity</h4>
+                    <hr>
+                    <div class="columns">
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Actual Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ actual_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Allocated Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ allocated_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Available Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ available_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Utilization Rate
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ utilization_rate|round_to_two }}%
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Capacity Rate
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ capacity_rate|round_to_two }}%
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <table class="dataTable table is-hoverable is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Role</th>
+                            <th>
+                                Actual Hours
+                            </th>
+                            <th>
+                                Allocated Hours
+                            </th>
+                            <th>
+                                Available Hours
+                            </th>
+                            <th>
+                                Utilization Rate
+                            </th>
+                            <th>
+                                Capacity Rate
+                            </th>
+                            <th>
+                                Value Added Hours
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td>
+                                    <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                </td>
+                                <td>
+                                    {{ member.role.name }}
+                                </td>
+                                <td>
+                                    {{ member.actual_hours_this_month|round_to_two }}
+                                </td>
+                                <td>
+                                    {{ member.allocated_hours_month|round_to_two }}
+                                </td>
+                                <td>
+                                    {{ member.hours_available|round_to_two }}
+                                </td>
+                                <td>
+                                    {{ member.utilization_rate|round_to_two }}%
+                                </td>
+                                <td>
+                                    {{ member.capacity_rate|round_to_two }}%
+                                </td>
+                                <td>
+                                    {{ member.value_added_hours_this_month|round_to_two }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
