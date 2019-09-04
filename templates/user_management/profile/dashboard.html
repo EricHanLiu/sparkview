@@ -142,10 +142,7 @@
                                         <div class="columns">
                                             <div class="column">
                                                 <div class="progress-wrapper">
-                                                    <progress
-                                                            class="progress is-large {% if account.underpacing_average %}is-warning
-                                                      {% elif account.project_average > account.current_budget %}is-danger
-                                                      {% else %}is-success{% endif %}"
+                                                    <progress class="progress is-large {% if account.default_budget.underpacing_average %}is-warning{% elif account.default_budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
                                                             value="{{ account.default_budget.spend_percentage }}"
                                                             max="100"></progress>
                                                     <div class="progress-value">
