@@ -859,7 +859,8 @@ class Backup(models.Model):
         now = datetime.datetime.now()
         days_in_period = days_in_month_in_daterange(self.period.start_date, self.period.end_date, now.month, now.year)
         last_day = calendar.monthrange(now.year, now.month)[1]
-        days_left_in_month = last_day - self.period.start_date.day + 1  # include current day
+        # TODO: Eric please rename or write some comments/docs about these variables and how this method works
+        days_left_in_month = last_day - self.period.start_date.day + 1 if now.month == self.period.start_date.month else last_day
         hours = round(
             self.account.get_hours_remaining_this_month_member(
                 self.period.member) * days_in_period / days_left_in_month,
