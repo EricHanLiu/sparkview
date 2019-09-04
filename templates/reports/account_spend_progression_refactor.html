@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">PPC Account Spend Progression Report</h4>
+                    <hr>
+                    <div class="columns">
+                        <div class="column is-6 has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Projected Opportunity Loss
+                                </p>
+                                <h5 class="title is-4">
+                                    ${{ total_projected_loss|format_money }}
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="column is-6 has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Overspend Risk
+                                </p>
+                                <h5 class="title is-4">
+                                    ${{ total_projected_overspend|format_money }}
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <table class="dataTable table is-fullwidth is-hoverable">
+                        <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>
+                                Budget
+                            </th>
+                            <th>
+                                Spend This Month
+                            </th>
+                            <th>
+                                Projection
+                            </th>
+                            <th>
+                                PPC Management Fee If Budget Spent
+                            </th>
+                            <th>
+                                PPC Management Fee If Projected Spent
+                            </th>
+                            <th>
+                                Projected Opportunity Loss
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                                <td>
+                                    ${{ account.current_budget|format_money }}
+                                </td>
+                                <td>
+                                    ${{ account.current_spend|format_money }}
+                                </td>
+                                <td>
+                                    ${{ account.project_yesterday|format_money }}
+                                </td>
+                                <td>
+                                    ${{ account.ppc_fee|format_money }}
+                                </td>
+                                <td>
+                                    ${{ account|get_fee_by_spend:account.project_yesterday|format_money }}
+                                </td>
+                                <td>
+                                    {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
+                                        ${{ account.ppc_fee|subtract:projected_fee|format_money }}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
