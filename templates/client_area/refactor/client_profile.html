@@ -79,6 +79,9 @@
                                 </div>
                             </div>
                             <div class="level-item">
+                                <div class="tag is-rounded {{ account_status_class }} is-small">{{ account.get_status_display }}</div>
+                            </div>
+                            <div class="level-item">
                                 <a class="button is-rounded is-small button-color"
                                    href="/clients/accounts/{{ account.id }}/old">Old View</a>
                             </div>
@@ -509,12 +512,6 @@
                                     <div class="columns">
                                         <div class="column is-7">
                                             <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
-                                                <div class="control">
-                                                    <div class="tags has-addons">
-                                                        <span class="tag is-small">Status</span>
-                                                        <p class="tag {{ account_status_class }} is-small">{{ account.get_status_display }}</p>
-                                                    </div>
-                                                </div>
                                                 <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
                                                 <span class="tag is-rounded {% if account.facebook.all %}tag-color-4{% endif %}">F</span>
                                                 <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>

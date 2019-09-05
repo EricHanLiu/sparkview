@@ -725,7 +725,8 @@ def account_single(request, account_id):
 
         inactive_reasons = Client.INACTIVE_CHOICES
         lost_reasons = Client.LOST_CHOICES
-        tags = Tag.objects.all()
+        account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
+        account_status_class = account_status_classes[account.status]
 
         context = {
             'account': account,
@@ -753,7 +754,7 @@ def account_single(request, account_id):
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView',
-            'tags': tags
+            'account_status_class': account_status_class
         }
 
         return render(request, 'client_area/refactor/client_profile.html', context)
