@@ -829,7 +829,7 @@ def outstanding_notifications(request):
         'rnotifications': outstanding
     }
 
-    return render(request, 'reports/outstanding_notifications.html', context)
+    return render(request, 'reports/outstanding_notifications_refactor.html', context)
 
 
 @login_required
@@ -912,7 +912,7 @@ def incidents(request):
         'incidents': incidents
     }
 
-    return render(request, 'reports/oops.html', context)
+    return render(request, 'reports/oops_refactor.html', context)
 
 
 @login_required
@@ -938,7 +938,7 @@ def new_incident(request):
             'issue_types': issue_types
         }
 
-        return render(request, 'reports/new_oops.html', context)
+        return render(request, 'reports/new_oops_refactor.html', context)
     elif request.method == 'POST':
         r = request.POST
         # get form data
@@ -981,7 +981,7 @@ def new_incident(request):
         incident.service = service
         incident.account = Client.objects.get(id=account)
         try:
-            incident.date = datetime.datetime.strptime(date, '%Y-%m-%d')
+            incident.date = datetime.datetime.strptime(date, '%m/%d/%Y')
         except ValueError:  # if invalid date format given, get current date
             incident.date = datetime.datetime.today().strftime('%Y-%m-%d')
         incident.save()
