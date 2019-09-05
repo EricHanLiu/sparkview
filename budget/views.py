@@ -965,8 +965,8 @@ def get_campaigns_in_budget(request):
                     corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
                     corresponding_updated[campaign.campaign_id] = csdr.updated
                 except CampaignSpendDateRange.DoesNotExist:
-                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
-                    corresponding_updated[campaign.campaign_id] = 'N/A'
+                    campaigns.remove(campaign)
+                    continue
             if isinstance(campaign, FacebookCampaign):
                 try:
                     csdr = FacebookCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
@@ -974,8 +974,8 @@ def get_campaigns_in_budget(request):
                     corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
                     corresponding_updated[campaign.campaign_id] = csdr.updated
                 except FacebookCampaignSpendDateRange.DoesNotExist:
-                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
-                    corresponding_updated[campaign.campaign_id] = 'N/A'
+                    campaigns.remove(campaign)
+                    continue
             if isinstance(campaign, BingCampaign):
                 try:
                     csdr = BingCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
@@ -983,8 +983,9 @@ def get_campaigns_in_budget(request):
                     corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
                     corresponding_updated[campaign.campaign_id] = csdr.updated
                 except BingCampaignSpendDateRange.DoesNotExist:
-                    corresponding_daterange_spends[campaign.campaign_id] = 0.0
-                    corresponding_updated[campaign.campaign_id] = 'N/A'
+                    campaigns.remove(campaign)
+                    continue
+
     response = {
         'is_monthly': budget.is_monthly,
         'campaigns': json.loads(serializers.serialize('json', campaigns)),
