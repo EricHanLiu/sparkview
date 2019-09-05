@@ -113,48 +113,61 @@
                                 <hr>
                                 {% if account_dict.is_active or account_dict.is_backup %}
                                     {% if account.default_budget is not None %}
-                                        <div class="columns" style="margin-bottom: 0;">
-                                            <div class="column has-text-centered">
-                                                <div class="heading">Spend</div>
-                                                {{ account.default_budget.calculated_spend|currency }}
-                                            </div>
-                                            <div class="column has-text-centered">
-                                                <div class="heading">Budget</div>
-                                                {{ account.default_budget.calculated_budget|currency }}
-                                            </div>
-                                            <div class="column has-text-centered">
-                                                <div class="heading">Average</div>
-                                                {{ account.default_budget.average_spend_yest|currency }}
-                                            </div>
-                                            <div class="column has-text-centered">
-                                                <div class="heading">Rec Daily Spend</div>
-                                                {{ account.default_budget.rec_spend_yest|currency }}
-                                            </div>
-                                            <div class="column has-text-centered">
-                                                <div class="heading">Yesterday Spend</div>
-                                                {{ account.default_budget.yesterday_spend|currency }}
-                                            </div>
-                                            <div class="column has-text-centered">
-                                                <div class="heading">Projected Spend</div>
-                                                {{ account.default_budget.projected_spend_avg|currency }}
-                                            </div>
-                                        </div>
-                                        <div class="columns">
-                                            <div class="column">
-                                                <div class="progress-wrapper">
-                                                    <progress
-                                                            class="progress is-large {% if account.underpacing_average %}is-warning
-                                                      {% elif account.project_average > account.current_budget %}is-danger
-                                                      {% else %}is-success{% endif %}"
-                                                            value="{{ account.default_budget.spend_percentage }}"
-                                                            max="100"></progress>
-                                                    <div class="progress-value">
-                                                        {{ account.default_budget.spend_percentage|floatformat:2 }}%
-                                                    </div>
-                                                    <div class="budget-pacer"
-                                                         style="left: {{ account.default_budget.pacer_offset }}%"></div>
+                                        <div style="position: relative;">
+                                            <div class="columns" style="margin-bottom: 0;">
+                                                <div class="column has-text-centered">
+                                                    <div class="heading">Spend</div>
+                                                    {{ account.default_budget.calculated_spend|currency }}
+                                                </div>
+                                                <div class="column has-text-centered">
+                                                    <div class="heading">Budget</div>
+                                                    {{ account.default_budget.calculated_budget|currency }}
+                                                </div>
+                                                <div class="column has-text-centered">
+                                                    <div class="heading">Average</div>
+                                                    {{ account.default_budget.average_spend_yest|currency }}
+                                                </div>
+                                                <div class="column has-text-centered">
+                                                    <div class="heading">Rec Daily Spend</div>
+                                                    {{ account.default_budget.rec_spend_yest|currency }}
+                                                </div>
+                                                <div class="column has-text-centered">
+                                                    <div class="heading">Yesterday Spend</div>
+                                                    {{ account.default_budget.yesterday_spend|currency }}
+                                                </div>
+                                                <div class="column has-text-centered">
+                                                    <div class="heading">Projected Spend</div>
+                                                    {{ account.default_budget.projected_spend_avg|currency }}
                                                 </div>
                                             </div>
+                                            <div class="columns">
+                                                <div class="column">
+                                                    <div class="progress-wrapper">
+                                                        <progress class="progress is-large {% if account.underpacing_average %}is-warning{% elif account.project_average > account.current_budget %}is-danger{% else %}is-success{% endif %}"
+                                                                value="{{ account.default_budget.spend_percentage }}"
+                                                                max="100"></progress>
+                                                        <div class="progress-value">
+                                                            {{ account.default_budget.spend_percentage|floatformat:2 }}%
+                                                        </div>
+                                                        <div class="budget-pacer"
+                                                             style="left: {{ account.default_budget.pacer_offset }}%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% if not account.budget_updated_this_month %}
+                                                <div class="budget-renewal-overlay" id="overlay_{{ account.id }}">
+                                                    <div class="has-text-centered" style="margin-top: 2em;">
+                                                        <p>A new month has started, and this budget is
+                                                            {{ account.default_budget.calculated_budget|currency }}.
+                                                            Would you like to renew it?
+                                                        </p>
+                                                        <button class="button is-rounded is-small renew-overall-budget-button"
+                                                                style="margin-top: 1em;" data-id="{{ account.id }}">
+                                                            Renew
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </div>
                                     {% endif %}
                                 {% endif %}
@@ -577,24 +590,6 @@
             $bcLink.attr('placeholder', '');
         });
 
-        // account budget update checking
-        $('.budget-updated').change(function () {
-            let accountID = $(this).data('account-id');
-
-            $.ajax({
-                url: '/budget/confirm_budget',
-                data: {
-                    'account_id': accountID
-                },
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                type: 'POST',
-                success: () => {
-                    toastr.success('Confirmed Budget Updated!');
-                    $(this).attr('disabled', '');
-                }
-            });
-        });
-
         $body.on('change', '.complete-todo', function () {
             let todoID = $(this).data('todo-id');
 
@@ -617,5 +612,24 @@
         });
 
         $('#accounts_tab').addClass('is-active');
+
+        $('.renew-overall-budget-button').click(function () {
+            let accountID = $(this).data('id');
+
+            $.ajax({
+                url: '/budget/quick_renew_overall_budget',
+                data: {
+                    'account_id': accountID
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Overall budget renewed successfully!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            })
+        });
     </script>
 {% endblock %}

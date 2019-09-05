@@ -617,15 +617,14 @@
                                         </div>
                                     </div>
                                     {% if account.default_budget.is_monthly and account.default_budget.needs_renewing %}
-                                        <div class="budget-renewal-overlay"
-                                             style="background-color: lightgrey; opacity: 0.95;">
+                                        <div class="budget-renewal-overlay">
                                             <div class="has-text-centered" style="margin-top: 7em;">
                                                 <p>A new month has started, and this budget is
                                                     <strong>{{ account.default_budget.calculated_budget|currency }}</strong>.
                                                     Would you like to renew it?
                                                 </p>
-                                                <button class="button is-rounded is-small" style="margin-top: 1em;"
-                                                        id="renew_monthly_budget_button"
+                                                <button class="button is-rounded is-small renew-monthly-budget-button"
+                                                        style="margin-top: 1em;"
                                                         data-budget-id="{{ account.default_budget.id }}">
                                                     Renew
                                                 </button>
@@ -732,8 +731,8 @@
                                                 <p>A new month has started, and this budget is
                                                     {{ budget.calculated_budget|currency }}. Would you like to renew it?
                                                 </p>
-                                                <button class="button is-rounded is-small" style="margin-top: 1em;"
-                                                        id="renew_monthly_budget_button"
+                                                <button class="button is-rounded is-small renew-monthly-budget-button"
+                                                        style="margin-top: 1em;"
                                                         data-budget-id="{{ budget.id }}">
                                                     Renew
                                                 </button>
@@ -3011,7 +3010,7 @@
             });
         });
 
-        $('#renew_monthly_budget_button').click(function () {
+        $('.renew-monthly-budget-button').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/budget/renew_monthly_budget',

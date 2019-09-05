@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^fbudget/read/$', views.detailed_flight_dates, name='flight_budget_read'),
     url(r'^gtsorbudget/$', views.gts_or_budget, name='gts_or_budget'),
     url(r'^renew_overall_budget$', views.renew_overall_budget, name='renew_overall_budget'),
+    url(r'^quick_renew_overall_budget$', views.quick_renew_overall_budget, name='quick_renew_overall_budget'),
     url(r'^renew_monthly_budget', views.renew_monthly_budget, name='renew_monthly_budget'),
     url(r'^new_budget$', views.new_budget, name='new_budget'),
     url(r'^edit_budget$', views.edit_budget, name='edit_budget'),
