@@ -684,7 +684,7 @@ def performance_anomalies(request):
         'bad_accounts': bad_accounts
     }
 
-    return render(request, 'reports/performance_anomalies.html', context)
+    return render(request, 'reports/performance_anomalies_refactor.html', context)
 
 
 @login_required
