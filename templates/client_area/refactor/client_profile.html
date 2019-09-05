@@ -1278,6 +1278,15 @@
                                 </div>
                             </div>
                             <div class="field has-addons">
+                                <button class="button is-static" type="button">Tags</button>
+                                <div class="control is-expanded">
+                                    <div class="select is-multiple is-fullwidth">
+                                        <select multiple class="selectable-details" id="select_tags" name="tags">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field has-addons">
                                 <button class="button is-static" type="button">Platforms</button>
                                 <div class="control is-expanded">
                                     <div class="select is-multiple is-fullwidth">
@@ -3227,8 +3236,12 @@
 
         function getClientDetailsObjects() {
             let clientTeams = [];
+            let clientTags = [];
             {% for team in account.team.all %}
                 clientTeams.push('{{ team.pk }}');
+            {% endfor %}
+            {% for tag in account.tags.all %}
+                clientTags.push('{{ tag.pk }}');
             {% endfor %}
 
             $.ajax({
@@ -3237,9 +3250,11 @@
                 success: function (data) {
                     let teams = data['teams'];
                     let industries = data['industries'];
+                    let tags = data['tags'];
 
                     let selectIndustries = $('#select_industries');
                     let selectTeams = $('#select_teams');
+                    let selectTags = $('#select_tags');
 
                     teams.forEach((team) => {
                         let selected = clientTeams.includes(team['pk'].toString());
@@ -3250,6 +3265,11 @@
                         let selected = '{{ account.industry.pk }}' === industry['pk'].toString();
                         let opt = new Option(industry['fields']['name'], industry['pk'], false, selected);
                         selectIndustries.append(opt);
+                    });
+                    tags.forEach((tag) => {
+                        let selected = clientTags.includes(tag['pk'].toString());
+                        let opt = new Option(tag['fields']['name'], tag['pk'], false, selected);
+                        selectTags.append(opt);
                     });
 
                     $('.selectable-details').selectize({
