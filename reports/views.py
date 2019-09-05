@@ -846,7 +846,7 @@ def high_fives(request):
         'high_fives': high_fives
     }
 
-    return render(request, 'reports/high_fives.html', context)
+    return render(request, 'reports/high_fives_refactor.html', context)
 
 
 @login_required
@@ -864,14 +864,14 @@ def new_high_five(request):
             'members': members
         }
 
-        return render(request, 'reports/new_high_five.html', context)
+        return render(request, 'reports/new_high_five_refactor.html', context)
     elif request.method == 'POST':
         r = request.POST
         high_five = HighFive()
 
         date_text = r.get('hf-date')
         try:
-            high_five.date = datetime.datetime.strptime(date_text, '%Y-%m-%d')
+            high_five.date = datetime.datetime.strptime(date_text, '%m/%d/%Y')
         except ValueError:  # if invalid date format given, get current date
             high_five.date = datetime.datetime.today().strftime('%Y-%m-%d')
 

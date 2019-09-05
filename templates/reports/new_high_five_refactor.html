@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        New High Five
+                    </h4>
+                    <hr>
+                    <form method="POST">{% csrf_token %}
+                        <div class="columns">
+                            <div class="column is-3">
+                                <label class="label">Nominator:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="nominator" id="nominator_hf" required>
+                                        {% for member in members %}
+                                            <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label">Member:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="member" id="member-hf" required>
+                                        {% for member in members %}
+                                            <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <label class="label" for="hf-date">Date:</label>
+                                <input type="text" name="hf-date" class="input datepicker-here" data-language="en"
+                                       autocomplete="off" placeholder="Enter Date..." required>
+                            </div>
+                            <div class="column is-4">
+                                <label class="label" for="description">Description:</label>
+                                <input type="text" name="description"
+                                       class="input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <button type="submit" class="button is-info">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
