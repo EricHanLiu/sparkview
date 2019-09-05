@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Accounts With Tags</h4>
+                    <hr>
+                    <form method="get">
+                        <div class="columns">
+                            <div class="column is-2">
+                                <label class="label" for="year">Tag:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="tag">
+                                        {% for tag in tags %}
+                                            <option value="{{ tag.id }}" }>{{ tag }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <label class="label">&nbsp;</label>
+                                <button class="button">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr/>
+                    <h5 class="title is-5">Accounts Tagged</h5>
+                    <table class="table is-hoverable is-striped is-fullwidth dataTable">
+                        <thead>
+                        <tr>
+                            <th>Account</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

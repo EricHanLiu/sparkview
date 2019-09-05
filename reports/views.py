@@ -1105,7 +1105,7 @@ def promo_ads(request):
         'bad_ad_alerts': bad_ad_alerts
     }
 
-    return render(request, 'reports/promo_ads.html', context)
+    return render(request, 'reports/promo_ads_refactor.html', context)
 
 
 @login_required
@@ -1191,7 +1191,7 @@ def over_under(request):
         'underspenders': underspenders
     }
 
-    return render(request, 'reports/over_under.html', context)
+    return render(request, 'reports/over_under_refactor.html', context)
 
 
 @login_required
@@ -1304,4 +1304,4 @@ def tag_report(request):
         'accounts': accounts
     }
 
-    return render(request, 'reports/tags.html', context)
+    return render(request, 'reports/tags_refactor.html', context)
