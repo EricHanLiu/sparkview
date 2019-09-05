@@ -697,7 +697,7 @@ def members_single(request, member_id=0):
             account_hours[account_id] += hours
             account_allocation[account_id] += allocation
 
-    # TODOS, handle possible get by date
+    # TODOs, handle possible get by date
     today = datetime.datetime.today().date()
     todos = Todo.objects.filter(member=member, completed=False, date_created=today)
 
