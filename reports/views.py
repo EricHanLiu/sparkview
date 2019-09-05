@@ -161,7 +161,7 @@ def cm_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'Paid Media Member Capacity Report'
+    report_type = 'CM Member Dashboard'
 
     context = {
         'members': members,
@@ -208,7 +208,7 @@ def am_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'AM Member Capacity Report'
+    report_type = 'AM Member Dashboard'
 
     context = {
         'members': members,
@@ -267,7 +267,7 @@ def seo_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'SEO Member Capacity Report'
+    report_type = 'SEO Member Dashboard'
 
     context = {
         'members': members,
@@ -317,7 +317,7 @@ def strat_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'Strategy Capacity Report'
+    report_type = 'Strat Member Dashboard'
 
     context = {
         'members': members,
