@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Sales Report</h4>
+                    <hr>
+                    <table class="table is-hoverable is-striped is-fullwidth dataTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Lost Reason
+                            </th>
+                            <th>
+                                Service
+                            </th>
+                            <th>
+                                Opportunity Description
+                            </th>
+                            <th>
+                                Flagged By
+                            </th>
+                            <th>
+                                Date Created
+                            </th>
+                            <th>
+                                Actions
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for opp in opportunities %}
+                            <tr>
+                                <td><a href="/clients/accounts/{{ opp.account.id }}">{{ opp.account }}</a></td>
+                                <td>
+                                    {{ opp.get_status_display }}
+                                </td>
+                                <td>
+                                    {% if opp.status == 2 %}
+                                        {{ opp.lost_reason }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ opp.service_string }}</td>
+                                <td>{{ opp.reason }}</td>
+                                <td>{{ opp.flagged_by }}</td>
+                                <td>{{ opp.created }}</td>
+                                <td>
+                                    <button class="button is-small is-info update-opp-button"
+                                            data-opp-id="{{ opp.id }}" data-opp-status="{{ opp.get_status_display }}">
+                                        Update
+                                    </button>
+                                    <button class="button is-small is-primary resolve-opp-button"
+                                            data-opp-id="{{ opp.id }}">
+                                        Resolve
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-fx-fadeInScale" id="update_opp_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h5 class="title is-5">Update Opportunity Status</h5>
+                <div class="field">
+                    <strong>Current status:</strong><span id="current_opp_status" style="margin-left: 0.5em;"></span>
+                </div>
+                <div class="field">
+                    <label class="label">New status:</label>
+                    <input id="current_opp_id" type="hidden">
+                    <div class="select is-fullwidth">
+                        <select id="status_select">
+                            {% for int, str in opportunities.0.STATUS_CHOICES %}
+                                <option value="{{ int }}">{{ str }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="is-hidden" id="lost_reason_row">
+                        <label class="label">Lost Reason</label>
+                        <input class="input" id="lost_reason_input">
+                    </div>
+                </div>
+                <div class="field">
+                    <button type="button" class="button is-info" id="update_opp_confirm_button">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.update-opp-button').click(function () {
+            let id = $(this).data('opp-id');
+            let status = $(this).data('opp-status');
+            $('#current_opp_id').val(id);
+            $('#current_opp_status').text(status);
+            $('#update_opp_modal').addClass('is-active');
+        });
+
+        $('#update_opp_confirm_button').click(() => {
+            let statusSelect = $('#status_select').val();
+            let lostReason = $('#lost_reason_input').val();
+            if (lostReason === '' && statusSelect === '2') {
+                toastr.error('Please input a lost reason!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/accounts/update_opportunity',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'opp_id': $('#current_opp_id').val(),
+                    'status': statusSelect,
+                    'lost_reason': lostReason
+                },
+                success: function () {
+                    toastr.success('Successfully updated this opportunity!');
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500);
+                }
+            });
+        });
+
+        $('.resolve-opp-button').click(function () {
+            $.ajax({
+                url: '/clients/accounts/resolve_opportunity',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                data: {
+                    'opp_id': $(this).data('opp-id')
+                },
+                success: function () {
+                    toastr.success('Successfully resolved this opportunity!');
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500);
+                }
+            });
+        });
+
+        $('#status_select').change(function () {
+            if (this.value === '2') {  // lost
+                $('#lost_reason_row').removeClass('is-hidden');
+            } else {
+                $('#lost_reason_row').addClass('is-hidden');
+            }
+        });
+    </script>
+{% endblock %}

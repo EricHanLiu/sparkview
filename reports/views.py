@@ -1044,7 +1044,7 @@ def onboarding(request):
         'onboarding_accounts': onboarding_accounts
     }
 
-    return render(request, 'reports/onboarding.html', context)
+    return render(request, 'reports/onboarding_refactor.html', context)
 
 
 @login_required
@@ -1063,7 +1063,7 @@ def sales(request):
         'opportunities': opportunities
     }
 
-    return render(request, 'reports/sales.html', context)
+    return render(request, 'reports/sales_refactor.html', context)
 
 
 @login_required

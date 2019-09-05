@@ -1855,10 +1855,11 @@ def set_opportunity(request):
 
     if is_primary:
         # primary_service / additional_service will be defined, ignore warning
-        opp = Opportunity.objects.get_or_create(account=account, service=primary_service, is_primary=True)
+        opp, created = Opportunity.objects.get_or_create(account=account, primary_service=primary_service,
+                                                         is_primary=True, addressed=False)
     else:
-        opp = Opportunity.objects.get_or_create(account=account, additional_service=additional_service,
-                                                is_primary=False)
+        opp, created = Opportunity.objects.get_or_create(account=account, additional_service=additional_service,
+                                                         is_primary=False)
 
     opp.reason = opp_desc
     opp.flagged_by = request.user.member
