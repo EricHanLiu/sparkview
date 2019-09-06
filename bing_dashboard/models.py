@@ -175,3 +175,6 @@ class BingCampaignSpendDateRange(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.campaign) if self.campaign is not None else 'No campaign'
