@@ -2059,6 +2059,26 @@ class Budget(models.Model):
             return False
         return self.projected_spend_avg / self.calculated_budget > 1.00
 
+    def reset_spends_of_campaigns(self):
+        """
+        Resets the spend of the budget
+        This should only be used if you know what you're doing with it
+        It can and probably will affect other budgets too
+        :return:
+        """
+        if self.is_monthly:
+            if budget.has_adwords:
+                for a in self.aw_campaigns.all():
+                    pass
+            if budget.has_facebook:
+                for f in self.fb_campaigns.all():
+                    pass
+            if budget.has_bing:
+                for b in self.bing_campaigns.all():
+                    pass
+        else:
+            pass
+
 
 class CampaignExclusions(models.Model):
     """

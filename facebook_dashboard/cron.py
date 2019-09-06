@@ -166,6 +166,8 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
         tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
                                                                   account=fb_account,
                                                                   campaign_name=campaign_row['campaign_name'])
+        print(campaign_row)
+        print(tmp_cmp)
         tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
@@ -193,8 +195,6 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
         tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
                                                                   account=fb_account,
                                                                   campaign_name=campaign_row['campaign_name'])
-        print(campaign_row)
-        print(tmp_cmp)
         tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
