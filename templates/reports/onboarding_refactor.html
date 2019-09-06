@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Onboarding Report</h4>
+                    <hr>
+                    <table class="table is-hoverable is-fullwidth is-striped dataTable">
+                        <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>
+                                Onboarding Since
+                            </th>
+                            <th>
+                                Days of Onboarding
+                            </th>
+                            <th>
+                                Late
+                            </th>
+                            <th>
+                                Reason for lateness
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in onboarding_accounts %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account }}</a>
+                                </td>
+                                <td>
+                                    {{ account.created_at }}
+                                </td>
+                                <td>
+                                    {{ account.onboarding_duration_elapsed }}
+                                </td>
+                                <td>
+                                    {{ account.is_late_to_onboard }}
+                                </td>
+                                <td>
+                                    {{ account.late_onboard_reason }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

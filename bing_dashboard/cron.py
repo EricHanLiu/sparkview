@@ -140,7 +140,7 @@ def get_spend_by_bing_campaign_custom(self, budget_id, bing_account_id):
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
         campaign_name = campaign_row['campaignname']
-        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id, campaign_name=campaign_name)
+        campaign, created = BingCampaign.objects.get_or_create(account=bing_account, campaign_id=campaign_id, campaign_name=campaign_name)
         csdr, created = BingCampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                          start_date=budget.start_date,
                                                                          end_date=budget.end_date)
@@ -163,7 +163,7 @@ def get_spend_by_bing_campaign_custom(self, budget_id, bing_account_id):
     for campaign_row in report:
         campaign_id = campaign_row['campaignid']
         campaign_name = campaign_row['campaignname']
-        campaign, created = BingCampaign.objects.get_or_create(campaign_id=campaign_id, campaign_name=campaign_name)
+        campaign, created = BingCampaign.objects.get_or_create(account=bing_account, campaign_id=campaign_id, campaign_name=campaign_name)
         csdr, created = BingCampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                          start_date=budget.start_date,
                                                                          end_date=budget.end_date)

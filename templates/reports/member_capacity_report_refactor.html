@@ -1,90 +1,74 @@
 <!DOCTYPE html>
-{% extends 'main.html' %}
+{% extends 'main_refactor.html' %}
 {% load staticfiles %}
-
-{% load humanize %}
 {% load template_filters %}
 
-{% block extraCss %}
-    <style>
-        .proj-avg {
-            display: none;
-        }
-    </style>
-{% endblock %}
-
-{% block content %}
-    <div class="m-content">
-        <div class="m-portlet m-portlet--mobile m-portlet--body-progress-">
-            <div class="m-portlet__head">
-                <div class="m-portlet__head-caption">
-                    <div class="m-portlet__head-title">
-                        <h3 class="m-portlet__head-text" style="font-size: 1.3rem;">
-                            {{ report_type }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-            <div class="m-portlet__body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded">
-                            <h5 class="m--padding-10">
-                                Total Actual Hours
-                            </h5>
-                            <h1 class="text-center inner-text text-info">
-                                {{ actual_aggregate|round_to_two }}
-                            </h1>
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        {{ report_type }}
+                    </h4>
+                    <hr>
+                    <div class="columns">
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Actual Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ actual_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Allocated Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ allocated_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Available Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ available_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Utilization Rate
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ utilization_rate|round_to_two }}%
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Capacity Rate
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ capacity_rate|round_to_two }}%
+                                </h4>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded">
-                            <h5 class="m--padding-10">
-                                Total Allocated Hours
-                            </h5>
-                            <h1 class="text-center inner-text">
-                                {{ allocated_aggregate|round_to_two }}
-                            </h1>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded">
-                            <h5 class="m--padding-10">
-                                Total Available Hours
-                            </h5>
-                            <h1 class="text-center inner-text">
-                                {{ available_aggregate|round_to_two }}
-                            </h1>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded" data-toggle="m-tooltip" data-placement="top"
-                             data-original-title="100 * Actual Hours / Allocated Hours">
-                            <h5 class="m--padding-10">
-                                Total Utilization Rate
-                            </h5>
-                            <h1 class="text-center inner-text">
-                                {{ utilization_rate|round_to_two }}%
-                            </h1>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="bbox shadow p-3 mb-5 bg-white rounded" data-toggle="m-tooltip" data-placement="top"
-                             data-original-title="100 * Allocated Hours / Total Available Hours">
-                            <h5 class="m--padding-10">
-                                Total Capacity Rate
-                            </h5>
-                            <h1 class="text-center inner-text">
-                                {{ capacity_rate|round_to_two }}%
-                            </h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="row m-row--no-padding m-row--col-separator-xl">
-                    <div class="col-12">
-                        <table class='table table-striped table-bordered table-hover table-checkable dataTable no-footer dtr-inline my_clients_datatable'>
-                            <thead class="thead-inverse">
-                            <tr class="main-table-header">
+                    <hr>
+                    <div style="width: 100%; overflow: auto;">
+                        <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                            <thead>
+                            <tr>
                                 <th>Member</th>
                                 <th>
                                     Actual Hours
@@ -167,10 +151,10 @@
                                         {{ member.phase_tasks.count }}
                                     </td>
                                     <td>
-                                        {{ member.training_hours_month }}
+                                        {{ member.training_hours_month }}%
                                     </td>
                                     <td>
-                                        {{ member.learning_hours }}
+                                        {{ member.training_hours }}
                                     </td>
                                 </tr>
                             {% endfor %}

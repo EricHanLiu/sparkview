@@ -116,6 +116,8 @@ def reset_all_flight_date_spend_objects(self):
         else:
             reset_bing_campaign_spend_date_range.delay(bing_csdr.id)
 
+    return 'reset_all_flight_date_spend_objects'
+
 
 @celery_app.task(bind=True)
 def reset_google_ads_campaign_spend_date_range(self, csdr_id):
@@ -134,6 +136,8 @@ def reset_google_ads_campaign_spend_date_range(self, csdr_id):
     csdr.spend = 0
     csdr.spend_until_yesterday = 0
     csdr.save()
+
+    return 'reset_google_ads_campaign_spend_date_range ' + str(csdr)
 
 
 @celery_app.task(bind=True)
@@ -154,6 +158,8 @@ def reset_facebook_campaign_spend_date_range(self, csdr_id):
     csdr.spend_until_yesterday = 0
     csdr.save()
 
+    return 'reset_facebook_campaign_spend_date_range ' + str(csdr)
+
 
 @celery_app.task(bind=True)
 def reset_bing_campaign_spend_date_range(self, csdr_id):
@@ -173,6 +179,8 @@ def reset_bing_campaign_spend_date_range(self, csdr_id):
     csdr.spend_until_yesterday = 0
     csdr.save()
 
+    return 'reset_bing_campaign_spend_date_range ' + str(csdr)
+
 
 @celery_app.task(bind=True)
 def reset_all_budget_renewal_needs():
@@ -187,6 +195,8 @@ def reset_all_budget_renewal_needs():
         else:
             reset_google_ads_campaign.delay(budget.id)
 
+    return 'reset_all_budget_renewal_needs'
+
 
 @celery_app.task(bind=True)
 def reset_budget_renewal_needs(self, budget_id):
@@ -197,6 +207,10 @@ def reset_budget_renewal_needs(self, budget_id):
 
     budget.needs_renewing = True
     budget.save()
+    budget.account.budget_updated = False
+    budget.account.save()
+
+    return 'reset_budget_renewal_needs'
 
 
 @celery_app.task(bind=True)

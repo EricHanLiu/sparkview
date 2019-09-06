@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Outstanding Notifications</h4>
+                    <table class="table is-hoverable is-fullwidth is-striped dataTable">
+                        <thead>
+                        <tr>
+                            <th>Notification Message</th>
+                            <th>
+                                Member
+                            </th>
+                            <th>
+                                Team
+                            </th>
+                            <th>
+                                Sent At
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for notif in rnotifications %}
+                            <tr>
+                                <td>
+                                    {{ notif.message }}
+                                </td>
+                                <td>
+                                    {{ notif.member.user.get_full_name }}
+                                </td>
+                                <td>
+                                    {{ notif.member.team_string }}
+                                </td>
+                                <td>
+                                    {{ notif.created }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

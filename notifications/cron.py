@@ -30,8 +30,8 @@ def prepare_todos(self):
         # PROMOS
         today = datetime.datetime.now().date()
         tomorrow = today + datetime.timedelta(1)
-        today_start = datetime.datetime.combine(today, datetime.time())
-        today_end = datetime.datetime.combine(tomorrow, datetime.time())
+        today_start = make_aware(datetime.datetime.combine(today, datetime.time()))
+        today_end = make_aware(datetime.datetime.combine(tomorrow, datetime.time()))
 
         promos_start_today = Promo.objects.filter(start_date__gte=today_start, start_date__lt=today_end,
                                                   account__in=member_accounts)

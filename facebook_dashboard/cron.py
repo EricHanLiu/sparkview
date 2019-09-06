@@ -114,21 +114,24 @@ def get_all_spend_by_facebook_campaign_custom(self):
 
 
 @celery_app.task(bind=True)
-def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
+def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
     """
-    Gets campaign spend by custom date range
+    Gets fb campaign spend by custom date range
     :param self:
-    :param campaign_id:
     :param budget_id:
+    :param fb_account_id:
     :return:
     """
     try:
         budget = Budget.objects.get(id=budget_id)
-        campaign = FacebookCampaign.objects.get(id=campaign_id)
-    except (Budget.DoesNotExist, FacebookCampaign.DoesNotExist):
+        fb_account = FacebookAccount.objects.get(id=fb_account_id)
+    except (Budget.DoesNotExist, FacebookAccount.DoesNotExist):
         return
 
     helper = FacebookReportingService(facebook_init())
+
+    fb_campaigns = budget.fb_campaigns.filter(account=fb_account)
+    fb_campaign_ids = list(set([fb_campaign.campaign_id for fb_campaign in fb_campaigns]))
 
     fields = [
         'campaign_id',
@@ -142,8 +145,8 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         'value': 0,
     }, {
         'field': 'campaign.id',
-        'operator': 'EQUAL',
-        'value': campaign.campaign_id
+        'operator': 'IN',
+        'value': fb_campaign_ids
     }]
 
     custom_params = helper.set_params(
@@ -152,10 +155,8 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         filtering=filtering
     )
 
-    # was getting an 'Object with ID xxx does not exist, cannot be loaded due to missing permissions, or does not
-    # support this operation
     try:
-        report = helper.get_account_insights(campaign.account.account_id, params=custom_params, extra_fields=fields)
+        report = helper.get_account_insights(fb_account.account_id, params=custom_params, extra_fields=fields)
     except FacebookRequestError as e:
         print(e)
         return
@@ -163,7 +164,7 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
     for campaign_row in report:
         campaign_id_report = campaign_row['campaign_id']
         tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
-                                                                  account=campaign.account,
+                                                                  account=fb_account,
                                                                   campaign_name=campaign_row['campaign_name'])
         tmp_cmp.campaign_name = campaign_row['campaign_name']
         tmp_cmp.save()
@@ -183,7 +184,7 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
     )
 
     try:
-        report = helper.get_account_insights(campaign.account.account_id, params=custom_params_yest,
+        report = helper.get_account_insights(fb_account.account_id, params=custom_params_yest,
                                              extra_fields=fields)
     except FacebookRequestError:
         return
@@ -191,7 +192,7 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
     for campaign_row in report:
         campaign_id_report = campaign_row['campaign_id']
         tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
-                                                                  account=campaign.account,
+                                                                  account=fb_account,
                                                                   campaign_name=campaign_row['campaign_name'])
         tmp_cmp.campaign_name = campaign_row['campaign_name']
         tmp_cmp.save()
@@ -203,6 +204,8 @@ def get_spend_by_facebook_campaign_custom(self, campaign_id, budget_id):
         print('Facebook Campaign: ' + str(tmp_cmp) + ' now has a spend until yesterday of $' + str(
             fcsdr.spend) + ' for dates ' + str(
             fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
+
+    return 'get_spend_by_facebook_campaign_custom'
 
 
 @celery_app.task(bind=True)

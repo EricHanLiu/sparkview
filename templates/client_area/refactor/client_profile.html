@@ -79,6 +79,9 @@
                                 </div>
                             </div>
                             <div class="level-item">
+                                <div class="tag is-rounded {{ account_status_class }} is-small">{{ account.get_status_display }}</div>
+                            </div>
+                            <div class="level-item">
                                 <a class="button is-rounded is-small button-color"
                                    href="/clients/accounts/{{ account.id }}/old">Old View</a>
                             </div>
@@ -509,12 +512,6 @@
                                     <div class="columns">
                                         <div class="column is-7">
                                             <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
-                                                <div class="control">
-                                                    <div class="tags has-addons">
-                                                        <span class="tag is-small">Status</span>
-                                                        <p class="tag {{ account_status_class }} is-small">{{ account.get_status_display }}</p>
-                                                    </div>
-                                                </div>
                                                 <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
                                                 <span class="tag is-rounded {% if account.facebook.all %}tag-color-4{% endif %}">F</span>
                                                 <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
@@ -570,28 +567,30 @@
                                         </div>
                                     </header>
                                     <div class="card-content">
-                                        <div class="level" style="margin-bottom: 0.1rem;">
-                                            <div class="level-item">
-                                                Spend:
+                                        <div class="columns" style="margin-bottom: 0;">
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Spend</div>
                                                 {{ account.default_budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Budget: {{ account.default_budget.calculated_budget|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Budget</div>
+                                                {{ account.default_budget.calculated_budget|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Average:
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Average</div>
                                                 {{ account.default_budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Rec Daily Spend:
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Rec Daily Spend</div>
                                                 {{ account.default_budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Yesterday Spend:{{ account.default_budget.yesterday_spend|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Yesterday Spend</div>
+                                                {{ account.default_budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Projected
-                                                Spend:{{ account.default_budget.projected_spend_avg|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Projected Spend</div>
+                                                {{ account.default_budget.projected_spend_avg|currency }}
                                             </div>
                                         </div>
                                         <div class="columns">
@@ -618,15 +617,14 @@
                                         </div>
                                     </div>
                                     {% if account.default_budget.is_monthly and account.default_budget.needs_renewing %}
-                                        <div class="budget-renewal-overlay"
-                                             style="background-color: lightgrey; opacity: 0.95;">
+                                        <div class="budget-renewal-overlay">
                                             <div class="has-text-centered" style="margin-top: 7em;">
                                                 <p>A new month has started, and this budget is
                                                     <strong>{{ account.default_budget.calculated_budget|currency }}</strong>.
                                                     Would you like to renew it?
                                                 </p>
-                                                <button class="button is-rounded is-small" style="margin-top: 1em;"
-                                                        id="renew_monthly_budget_button"
+                                                <button class="button is-rounded is-small renew-monthly-budget-button"
+                                                        style="margin-top: 1em;"
                                                         data-budget-id="{{ account.default_budget.id }}">
                                                     Renew
                                                 </button>
@@ -677,24 +675,30 @@
                                         </div>
                                     </header>
                                     <div class="card-content">
-                                        <div class="level" style="margin-bottom: 0.1rem;">
-                                            <div class="level-item">
-                                                Spend: {{ budget.calculated_spend|currency }}
+                                        <div class="columns" style="margin-bottom: 0;">
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Spend</div>
+                                                {{ budget.calculated_spend|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Budget: {{ budget.calculated_budget|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Budget</div>
+                                                {{ budget.calculated_budget|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Average: {{ budget.average_spend_yest|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Average</div>
+                                                {{ budget.average_spend_yest|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Rec Daily Spend: {{ budget.rec_spend_yest|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Rec Daily Spend</div>
+                                                {{ budget.rec_spend_yest|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Yesterday Spend: {{ budget.yesterday_spend|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Yesterday Spend</div>
+                                                {{ budget.yesterday_spend|currency }}
                                             </div>
-                                            <div class="level-item">
-                                                Projected Spend: {{ budget.projected_spend_avg|currency }}
+                                            <div class="column has-text-centered">
+                                                <div class="heading">Projected Spend</div>
+                                                {{ budget.projected_spend_avg|currency }}
                                             </div>
                                         </div>
                                         <div class="columns">
@@ -727,8 +731,8 @@
                                                 <p>A new month has started, and this budget is
                                                     {{ budget.calculated_budget|currency }}. Would you like to renew it?
                                                 </p>
-                                                <button class="button is-rounded is-small" style="margin-top: 1em;"
-                                                        id="renew_monthly_budget_button"
+                                                <button class="button is-rounded is-small renew-monthly-budget-button"
+                                                        style="margin-top: 1em;"
                                                         data-budget-id="{{ budget.id }}">
                                                     Renew
                                                 </button>
@@ -1265,6 +1269,15 @@
                                 <div class="control is-expanded">
                                     <div class="select is-multiple is-fullwidth">
                                         <select multiple class="selectable-details" id="select_teams" name="teams">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field has-addons">
+                                <button class="button is-static" type="button">Tags</button>
+                                <div class="control is-expanded">
+                                    <div class="select is-multiple is-fullwidth">
+                                        <select multiple class="selectable-details" id="select_tags" name="tags">
                                         </select>
                                     </div>
                                 </div>
@@ -2997,7 +3010,7 @@
             });
         });
 
-        $('#renew_monthly_budget_button').click(function () {
+        $('.renew-monthly-budget-button').click(function () {
             $.ajax({
                 type: 'POST',
                 url: '/budget/renew_monthly_budget',
@@ -3219,8 +3232,12 @@
 
         function getClientDetailsObjects() {
             let clientTeams = [];
+            let clientTags = [];
             {% for team in account.team.all %}
                 clientTeams.push('{{ team.pk }}');
+            {% endfor %}
+            {% for tag in account.tags.all %}
+                clientTags.push('{{ tag.pk }}');
             {% endfor %}
 
             $.ajax({
@@ -3229,9 +3246,11 @@
                 success: function (data) {
                     let teams = data['teams'];
                     let industries = data['industries'];
+                    let tags = data['tags'];
 
                     let selectIndustries = $('#select_industries');
                     let selectTeams = $('#select_teams');
+                    let selectTags = $('#select_tags');
 
                     teams.forEach((team) => {
                         let selected = clientTeams.includes(team['pk'].toString());
@@ -3242,6 +3261,11 @@
                         let selected = '{{ account.industry.pk }}' === industry['pk'].toString();
                         let opt = new Option(industry['fields']['name'], industry['pk'], false, selected);
                         selectIndustries.append(opt);
+                    });
+                    tags.forEach((tag) => {
+                        let selected = clientTags.includes(tag['pk'].toString());
+                        let opt = new Option(tag['fields']['name'], tag['pk'], false, selected);
+                        selectTags.append(opt);
                     });
 
                     $('.selectable-details').selectize({
