@@ -2051,7 +2051,7 @@ class Budget(models.Model):
     def underpacing_average(self):
         if self.calculated_budget == 0.0:
             return False
-        return self.projected_spend_avg / self.calculated_budget < 0.95
+        return self.projected_spend_avg / self.calculated_budget < 0.85
 
     @property
     def overpacing_average(self):

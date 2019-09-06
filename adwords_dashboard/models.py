@@ -330,6 +330,9 @@ class Campaign(models.Model):
     campaign_serving_status = models.CharField(max_length=255, default='None')
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('campaign_id', 'campaign_name')
+
     @property
     def json(self):
         return dict(

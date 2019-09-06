@@ -158,6 +158,9 @@ class BingCampaign(models.Model):
     groupped = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('campaign_id', 'campaign_name')
+
     def __str__(self):
         return self.campaign_name
 

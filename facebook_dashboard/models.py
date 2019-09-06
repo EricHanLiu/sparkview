@@ -148,6 +148,9 @@ class FacebookCampaign(models.Model):
     groupped = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('campaign_id', 'campaign_name')
+
     @property
     def json(self):
         return dict(
