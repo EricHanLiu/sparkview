@@ -2067,13 +2067,13 @@ class Budget(models.Model):
         :return:
         """
         if self.is_monthly:
-            if budget.has_adwords:
+            if self.has_adwords:
                 for a in self.aw_campaigns.all():
                     pass
-            if budget.has_facebook:
+            if self.has_facebook:
                 for f in self.fb_campaigns.all():
                     pass
-            if budget.has_bing:
+            if self.has_bing:
                 for b in self.bing_campaigns.all():
                     pass
         else:
