@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Actual Hours Report</h4>
+                    <hr>
+                    <form method="POST">{% csrf_token %}
+                        <div class="columns">
+                            <div class="column is-one-fifth">
+                                <label class="label" for="member">Member:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="member">
+                                        <option value="all" {% if selected.member == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for member in members %}
+                                            <option value="{{ member.id }}"
+                                                    {% if selected.member == member.id %}selected{% endif %}>{{ member.user.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-one-fifth">
+                                <label class="label" for="account">Account:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="account">
+                                        <option value="all" {% if selected.account == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for account in accounts %}
+                                            <option value="{{ account.id }}"
+                                                    {% if selected.account == account.id %}selected{% endif %}>{{ account.client_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-one-fifth">
+                                <label class="label" for="month">Month:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="month">
+                                        <option value="all" {% if selected.month == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-one-fifth">
+                                <label class="label" for="year">Year:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="year">
+                                        <option value="all" {% if selected.year == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-one-fifth">
+                                <label class="label">&nbsp;</label>
+                                <button class="button is-fullwidth" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr/>
+                    <table class="table dataTable is-fullwidth is-hoverable is-striped">
+                        <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Hours
+                            </th>
+                            <th>
+                                Month
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hour in hours %}
+                            <tr>
+                                <td>
+                                    {{ hour.member.user.get_full_name }}
+                                </td>
+                                <td>
+                                    {{ hour.account.client_name }}
+                                </td>
+                                <td>
+                                    {{ hour.sum_hours }}
+                                </td>
+                                <td>
+                                    {{ hour.month|get_month_name }}, {{ hour.year }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td><strong>Summary</strong></td>
+                            <td>
+                            </td>
+                            <td>
+                                <strong>{{ hour_total }}</strong>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

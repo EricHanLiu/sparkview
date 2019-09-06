@@ -207,6 +207,8 @@ def reset_budget_renewal_needs(self, budget_id):
 
     budget.needs_renewing = True
     budget.save()
+    budget.account.budget_updated = False
+    budget.account.save()
 
     return 'reset_budget_renewal_needs'
 

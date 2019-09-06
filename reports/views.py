@@ -161,7 +161,7 @@ def cm_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'Paid Media Member Capacity Report'
+    report_type = 'CM Member Dashboard'
 
     context = {
         'members': members,
@@ -173,7 +173,7 @@ def cm_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -208,7 +208,7 @@ def am_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'AM Member Capacity Report'
+    report_type = 'AM Member Dashboard'
 
     context = {
         'members': members,
@@ -220,7 +220,7 @@ def am_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -242,7 +242,7 @@ def seo_capacity(request):
     total_seo_hours = 0.0
     total_cro_hours = 0.0
 
-    status_badges = ['info', 'success', 'warning', 'danger']
+    status_badges = ['info', 'primary', 'warning', 'danger']
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
         Q(status=0) | Q(status=1)).order_by('client_name')
 
@@ -267,7 +267,7 @@ def seo_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'SEO Member Capacity Report'
+    report_type = 'SEO Member Dashboard'
 
     context = {
         'members': members,
@@ -283,7 +283,7 @@ def seo_capacity(request):
         'total_cro_hours': total_cro_hours
     }
 
-    return render(request, 'reports/seo_member_capacity_report.html', context)
+    return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -317,7 +317,7 @@ def strat_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
-    report_type = 'Strategy Capacity Report'
+    report_type = 'Strat Member Dashboard'
 
     context = {
         'members': members,
@@ -329,7 +329,7 @@ def strat_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/member_capacity_report.html', context)
+    return render(request, 'reports/member_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -350,7 +350,7 @@ def hour_log(request):
         'members': members
     }
 
-    return render(request, 'reports/hour_log.html', context)
+    return render(request, 'reports/hour_log_refactor.html', context)
 
 
 @login_required
@@ -399,7 +399,7 @@ def promos(request):
         'promos_end_today': promos_end_today
     }
 
-    return render(request, 'reports/promos.html', context)
+    return render(request, 'reports/promos_refactor.html', context)
 
 
 @login_required
@@ -478,7 +478,7 @@ def actual_hours(request):
         'hour_total': hour_total
     }
 
-    return render(request, 'reports/actual_hours.html', context)
+    return render(request, 'reports/actual_hours_refactor.html', context)
 
 
 @login_required
@@ -560,7 +560,7 @@ def monthly_reporting(request):
         'selected': selected
     }
 
-    return render(request, 'reports/monthly_reports.html', context)
+    return render(request, 'reports/monthly_reports_refactor.html', context)
 
 
 @login_required
@@ -604,7 +604,7 @@ def account_capacity(request):
         'report_type': report_type
     }
 
-    return render(request, 'reports/account_capacity_report.html', context)
+    return render(request, 'reports/account_capacity_report_refactor.html', context)
 
 
 @login_required
@@ -636,7 +636,7 @@ def flagged_accounts(request):
         'members': members
     }
 
-    return render(request, 'reports/flagged_accounts.html', context)
+    return render(request, 'reports/flagged_accounts_refactor.html', context)
 
 
 @login_required
@@ -684,7 +684,7 @@ def performance_anomalies(request):
         'bad_accounts': bad_accounts
     }
 
-    return render(request, 'reports/performance_anomalies.html', context)
+    return render(request, 'reports/performance_anomalies_refactor.html', context)
 
 
 @login_required
@@ -767,7 +767,7 @@ def account_history(request):
         'accounts_array': accounts_array
     }
 
-    return render(request, 'reports/account_history.html', context)
+    return render(request, 'reports/account_history_refactor.html', context)
 
 
 @login_required
@@ -829,7 +829,7 @@ def outstanding_notifications(request):
         'rnotifications': outstanding
     }
 
-    return render(request, 'reports/outstanding_notifications.html', context)
+    return render(request, 'reports/outstanding_notifications_refactor.html', context)
 
 
 @login_required
@@ -846,7 +846,7 @@ def high_fives(request):
         'high_fives': high_fives
     }
 
-    return render(request, 'reports/high_fives.html', context)
+    return render(request, 'reports/high_fives_refactor.html', context)
 
 
 @login_required
@@ -864,14 +864,14 @@ def new_high_five(request):
             'members': members
         }
 
-        return render(request, 'reports/new_high_five.html', context)
+        return render(request, 'reports/new_high_five_refactor.html', context)
     elif request.method == 'POST':
         r = request.POST
         high_five = HighFive()
 
         date_text = r.get('hf-date')
         try:
-            high_five.date = datetime.datetime.strptime(date_text, '%Y-%m-%d')
+            high_five.date = datetime.datetime.strptime(date_text, '%m/%d/%Y')
         except ValueError:  # if invalid date format given, get current date
             high_five.date = datetime.datetime.today().strftime('%Y-%m-%d')
 
@@ -912,7 +912,7 @@ def incidents(request):
         'incidents': incidents
     }
 
-    return render(request, 'reports/oops.html', context)
+    return render(request, 'reports/oops_refactor.html', context)
 
 
 @login_required
@@ -938,7 +938,7 @@ def new_incident(request):
             'issue_types': issue_types
         }
 
-        return render(request, 'reports/new_oops.html', context)
+        return render(request, 'reports/new_oops_refactor.html', context)
     elif request.method == 'POST':
         r = request.POST
         # get form data
@@ -981,7 +981,7 @@ def new_incident(request):
         incident.service = service
         incident.account = Client.objects.get(id=account)
         try:
-            incident.date = datetime.datetime.strptime(date, '%Y-%m-%d')
+            incident.date = datetime.datetime.strptime(date, '%m/%d/%Y')
         except ValueError:  # if invalid date format given, get current date
             incident.date = datetime.datetime.today().strftime('%Y-%m-%d')
         incident.save()
@@ -1044,7 +1044,7 @@ def onboarding(request):
         'onboarding_accounts': onboarding_accounts
     }
 
-    return render(request, 'reports/onboarding.html', context)
+    return render(request, 'reports/onboarding_refactor.html', context)
 
 
 @login_required
@@ -1063,7 +1063,7 @@ def sales(request):
         'opportunities': opportunities
     }
 
-    return render(request, 'reports/sales.html', context)
+    return render(request, 'reports/sales_refactor.html', context)
 
 
 @login_required
@@ -1105,7 +1105,7 @@ def promo_ads(request):
         'bad_ad_alerts': bad_ad_alerts
     }
 
-    return render(request, 'reports/promo_ads.html', context)
+    return render(request, 'reports/promo_ads_refactor.html', context)
 
 
 @login_required
@@ -1191,7 +1191,7 @@ def over_under(request):
         'underspenders': underspenders
     }
 
-    return render(request, 'reports/over_under.html', context)
+    return render(request, 'reports/over_under_refactor.html', context)
 
 
 @login_required
@@ -1304,4 +1304,4 @@ def tag_report(request):
         'accounts': accounts
     }
 
-    return render(request, 'reports/tags.html', context)
+    return render(request, 'reports/tags_refactor.html', context)

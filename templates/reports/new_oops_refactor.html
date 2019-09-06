@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        New Oops
+                    </h4>
+                    <hr>
+                    <form method="POST">{% csrf_token %}
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <label class="label" for="reporting-member">Who is reporting?</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="reporting-member" id="reporting-member-incident" required>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if request.user.member == member %}selected{% endif %}>
+                                                    {{ member.user.get_full_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label" for="services">Service:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="services">
+                                            {% for service_id, service in services %}
+                                                <option value="{{ service_id }}">{{ service }}</option>
+                                            {% endfor %}
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-4">
+                                    <label class="label">Account:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="account">
+                                            {% for account in accounts %}
+                                                <option value="{{ account.id }}">{{ account.client_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label" for="incident-date">Date of Incident:</label>
+                                    <input type="text" name="incident-date" class="input datepicker-here"
+                                           data-language="en" placeholder="Enter Date..." required autocomplete="off">
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Member(s) Responsible:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="member" multiple id="member-incident" required>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <label class="label" for="issue-description">Issue Description:</label>
+                                    <input type="text" name="issue-description"
+                                           class="input" required>
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Type of Issue:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="issue-type" id="issue-selector">
+                                            {% for issue_type in issue_types %}
+                                                <option value="{{ issue_type.id }}">{{ issue_type }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <label class="label" for="budget-error">Budget Error Amount:</label>
+                                    <input type="text" name="budget-error" class="input">
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Platform:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="platform">
+                                            {% for platform_id, platform in platforms %}
+                                                <option value="{{ platform_id }}">{{ platform }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-2">
+                                    <label class="label">Client Aware:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="client-aware">
+                                            <option value="0">No</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">Client At Risk:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="client-at-risk">
+                                            <option value="0">No</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">Addressed With Member(s):</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="members-addressed">
+                                            <option value="0">No</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label" for="justification">Justification:</label>
+                                    <input type="text" name="justification" class="input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-2">
+                                    <label class="label">Refund Amount:</label>
+                                    <input type="text" name="refund-amount" class="input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
+                                    <button type="submit" class="button is-info">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(() => {
+            $('#member-incident').selectize();
+        });
+    </script>
+{% endblock %}

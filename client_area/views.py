@@ -725,6 +725,8 @@ def account_single(request, account_id):
 
         inactive_reasons = Client.INACTIVE_CHOICES
         lost_reasons = Client.LOST_CHOICES
+        account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
+        account_status_class = account_status_classes[account.status]
 
         context = {
             'account': account,
@@ -751,7 +753,8 @@ def account_single(request, account_id):
             'current_year': now.year,
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
-            'title': str(account) + ' - SparkView'
+            'title': str(account) + ' - SparkView',
+            'account_status_class': account_status_class
         }
 
         return render(request, 'client_area/refactor/client_profile.html', context)
@@ -1855,10 +1858,11 @@ def set_opportunity(request):
 
     if is_primary:
         # primary_service / additional_service will be defined, ignore warning
-        opp = Opportunity.objects.get_or_create(account=account, service=primary_service, is_primary=True)
+        opp, created = Opportunity.objects.get_or_create(account=account, primary_service=primary_service,
+                                                         is_primary=True, addressed=False)
     else:
-        opp = Opportunity.objects.get_or_create(account=account, additional_service=additional_service,
-                                                is_primary=False)
+        opp, created = Opportunity.objects.get_or_create(account=account, additional_service=additional_service,
+                                                         is_primary=False)
 
     opp.reason = opp_desc
     opp.flagged_by = request.user.member
@@ -2160,10 +2164,12 @@ def edit_management_details(request):
 def get_client_details_objects(request):
     teams = Team.objects.all()
     industries = Industry.objects.all()
+    tags = Tag.objects.all()
 
     data = {
         'teams': json.loads(serialize('json', teams)),
         'industries': json.loads(serialize('json', industries)),
+        'tags': json.loads(serialize('json', tags))
     }
     return JsonResponse(data)
 
@@ -2185,6 +2191,7 @@ def set_client_details(request):
     contact_phones = request.POST.getlist('contact_phones')
     industry_id = request.POST.get('industry')
     team_ids = request.POST.getlist('teams')
+    tags = request.POST.getlist('tags')
 
     account = Client.objects.get(id=account_id)
     account.client_name = account_name
@@ -2195,6 +2202,7 @@ def set_client_details(request):
     account.industry = Industry.objects.get(pk=industry_id)
     teams = Team.objects.filter(pk__in=team_ids)
     account.team.set(teams)
+    account.tags.set(tags)
 
     for i, contact in enumerate(account.contactInfo.all()):
         contact.name = contact_names[i]

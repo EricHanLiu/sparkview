@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Hour Log Report</h4>
+                    <hr>
+                    <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>
+                                Role
+                            </th>
+                            <th>
+                                Hours Logged This Month
+                            </th>
+                            <th>
+                                Most Recent Log
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td>
+                                    <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                </td>
+                                <td>
+                                    {{ member.role.name }}
+                                </td>
+                                <td>
+                                    {{ member.all_hours_month }}
+                                </td>
+                                <td>
+                                    {{ member.most_recent_hour_log }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

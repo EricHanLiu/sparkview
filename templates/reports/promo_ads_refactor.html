@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Bad Promo Ads</h4>
+                    <hr>
+                    <table class="table is-hoverable is-striped is-fullwidth dataTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Google Ads Account
+                            </th>
+                            <th>
+                                Label
+                            </th>
+                            <th>
+                                Number of bad ads
+                            </th>
+                            <th>
+                                Date found
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for bad_ad_alert in bad_ad_alerts %}
+                            <tr>
+                                <td>
+                                    {{ bad_ad_alert.parent_account }}
+                                </td>
+                                <td>
+                                    {{ bad_ad_alert.account }}
+                                </td>
+                                <td>
+                                    {{ bad_ad_alert.label }}
+                                </td>
+                                <td>
+                                    {{ bad_ad_alert.count }}
+                                </td>
+                                <td>
+                                    {{ bad_ad_alert.created }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
